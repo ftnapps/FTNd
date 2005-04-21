@@ -51,7 +51,6 @@ struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
 int		    changed = FALSE;	    /* Databases changed	*/
 char		    crbuf[512];		    /* Chat receive buffer	*/
-char		    csbuf[512];		    /* Chat send buffer		*/
 int		    srvchg = FALSE;	    /* Is serverlist changed	*/
 int		    usrchg = FALSE;	    /* Is userlist changed	*/
 
@@ -80,13 +79,13 @@ void del_userbyserver(usr_list **, char *);
 void add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 void del_router(srv_list **, char *);
-int  send_msg(int, struct sockaddr_in, char *, char *);
-void broadcast(char *, char *);
+int  send_msg(ncs_list *, const char *, ...);
+void broadcast(char *, const char *, ...);
 void check_servers(void);
 void command_pass(char *, char *);
 void command_server(char *, char *);
 void command_squit(char *, char *);
-void command_user(char *, char *);
+int  command_user(char *, char *);
 void command_quit(char *, char *);
 void receiver(struct servent *);
 
@@ -191,9 +190,11 @@ void tidy_servers(srv_list ** fdp)
 
 
 /*
- * Add one user to the userlist
+ * Add one user to the userlist. Returns:
+ *  0 = Ok
+ *  1 = User already registered.
  */
-void add_user(usr_list **fap, char *server, char *nick, char *realname)
+int add_user(usr_list **fap, char *server, char *nick, char *realname)
 {
     usr_list    *tmp, *ta;
     srv_list	*sl;
@@ -203,8 +204,8 @@ void add_user(usr_list **fap, char *server, char *nick, char *realname)
 
     for (ta = *fap; ta; ta = ta->next) {
 	if ((strcmp(ta->server, server) == 0) && (strcmp(ta->realname, realname) == 0)) {
-	    Syslog('r', "duplicate, ignore");
-	    return;
+	    Syslog('-', "IBC: add_user(%s %s %s), already registered", server, nick, realname);
+	    return 1;
 	}
     }
 
@@ -240,6 +241,7 @@ void add_user(usr_list **fap, char *server, char *nick, char *realname)
 	Syslog('!', "add_user() mutex_unlock failed rc=%d", rc);
 
     usrchg = TRUE;
+    return 0;
 }
 
 
@@ -403,15 +405,19 @@ void del_router(srv_list **fap, char *name)
 /*
  * Send a message to all servers
  */
-void send_all(char *msg)
+void send_all(const char *format, ...)
 {
     ncs_list	*tnsl;
+    char	buf[512];
+    va_list	va_ptr;
 
-    sprintf(csbuf, "%s\r\n", msg);
+    va_start(va_ptr, format);
+    vsprintf(buf, format, va_ptr);
+    va_end(va_ptr);
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	    send_msg(tnsl, buf);
 	}
     }
 }
@@ -421,14 +427,19 @@ void send_all(char *msg)
 /*
  * Broadcast a message to all servers except the originating server
  */
-void broadcast(char *msg, char *origin)
+void broadcast(char *origin, const char *format, ...)
 {
     ncs_list    *tnsl;
+    va_list     va_ptr;
+    char	buf[512];
 
-    sprintf(csbuf, "%s\r\n", msg);
+    va_start(va_ptr, format);
+    vsprintf(buf, format, va_ptr);
+    va_end(va_ptr);
+    
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if ((tnsl->state == NCS_CONNECT) && (strcmp(origin, tnsl->server))) {
-	    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	    send_msg(tnsl, buf);
 	}
     }
 }
@@ -438,11 +449,18 @@ void broadcast(char *msg, char *origin)
 /*
  * Send message to a server
  */
-int send_msg(int s, struct sockaddr_in servaddr, char *host, char *msg)
+int send_msg(ncs_list *tnsl, const char *format, ...)
 {
-    Syslog('r', "> %s: %s", host, printable(msg, 0));
+    char	buf[512];
+    va_list     va_ptr;
+	
+    va_start(va_ptr, format);
+    vsprintf(buf, format, va_ptr);
+    va_end(va_ptr);
 
-    if (sendto(s, msg, strlen(msg), 0, (struct sockaddr *)&servaddr, sizeof(struct sockaddr_in)) == -1) {
+    Syslog('r', "> %s: %s", tnsl->server, printable(buf, 0));
+
+    if (sendto(tnsl->socket, buf, strlen(buf), 0, (struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
 	Syslog('r', "$IBC: can't send message");
 	return -1;
     }
@@ -589,11 +607,9 @@ void check_servers(void)
 				     */
 				    Syslog('r', "%s call", tnsl->server);
 				    tnsl->token = gettoken();
-				    sprintf(csbuf, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
-				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
-				    sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
+				    send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+				    send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
 					    VERSION, CFG.bbs_name);
-				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 				    tnsl->action = now + (time_t)10;
 				    tnsl->state = NCS_WAITPWD;
 				    changed = TRUE;
@@ -627,14 +643,12 @@ void check_servers(void)
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					del_router(&servers, tnsl->server);
-					sprintf(csbuf, "SQUIT %s Connection died", tnsl->server);
-					broadcast(csbuf, tnsl->server);
+					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					changed = TRUE;
 					break;
 				    }
 				    if (((int)now - (int)tnsl->last) > 60) {
-					sprintf(csbuf, "PING\r\n");
-					send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+					send_msg(tnsl, "PING\r\n");
 				    }
 				    tnsl->action = now + (time_t)10;
 				    break;
@@ -685,8 +699,7 @@ void command_pass(char *hostname, char *parameters)
 //    Syslog('r', "link \"%s\"", printable(lnk, 0));
 
     if (version == NULL) {
-	sprintf(csbuf, "461 PASS: Not enough parameters\r\n");
-	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	send_msg(tnsl, "461 PASS: Not enough parameters\r\n");
 	return;
     }
 
@@ -708,7 +721,7 @@ void command_server(char *hostname, char *parameters)
 {
     ncs_list	    *tnsl;
     srv_list	    *ta;
-    char	    temp[512], *name, *hops, *id, *prod, *vers, *fullname;
+    char	    *name, *hops, *id, *prod, *vers, *fullname;
     unsigned long   token;
     int		    ihops, found = FALSE;
 
@@ -735,13 +748,11 @@ void command_server(char *hostname, char *parameters)
 //    Syslog('r', "full \"%s\"", printable(fullname, 0));
 
     if (fullname == NULL) {
-	sprintf(csbuf, "461 SERVER: Not enough parameters\r\n");
-	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	send_msg(tnsl, "461 SERVER: Not enough parameters\r\n");
 	return;
     }
 
     token = atoi(id);
-    sprintf(temp, "SERVER %s %d %s %s %s %s", name, ihops, id, prod, vers, fullname);
 
     if (found && tnsl->token) {
 	/*
@@ -750,7 +761,7 @@ void command_server(char *hostname, char *parameters)
 	 * In that case, the session is authorized.
 	 */
 	if (tnsl->token == token) {
-	    broadcast(temp, tnsl->server);
+	    broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	    tnsl->gotserver = TRUE;
 	    changed = TRUE;
 	    tnsl->state = NCS_CONNECT;
@@ -761,8 +772,7 @@ void command_server(char *hostname, char *parameters)
 	     */
 	    for (ta = servers; ta; ta = ta->next) {
 		if (ta->hops) {
-		    sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
-		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		    send_msg(tnsl, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
 		}
 	    }
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
@@ -778,11 +788,9 @@ void command_server(char *hostname, char *parameters)
      * valid PASS command.
      */
     if (found && tnsl->gotpass) {
-	sprintf(csbuf, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
-	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
-	sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
-	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
-	broadcast(temp, tnsl->server);
+	send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+	send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
+	broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
@@ -792,8 +800,7 @@ void command_server(char *hostname, char *parameters)
 	 */
 	for (ta = servers; ta; ta = ta->next) {
 	    if (ta->hops) {
-		sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
-		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		send_msg(tnsl, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
 	    }
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
@@ -806,7 +813,7 @@ void command_server(char *hostname, char *parameters)
 	* Got a message about a server that is not our neighbour.
 	*/
 	add_server(&servers, name, ihops, prod, vers, fullname, hostname);
-	broadcast(temp, hostname);
+	broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	changed = TRUE;
 	return;
     }
@@ -820,7 +827,7 @@ void command_server(char *hostname, char *parameters)
 void command_squit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char        temp[512], *name, *message;
+    char        *name, *message;
     
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -844,14 +851,13 @@ void command_squit(char *hostname, char *parameters)
 	del_server(&servers, name);
     }
 
-    sprintf(temp, "SQUIT %s %s", name, message);
-    broadcast(temp, hostname);
+    broadcast(hostname, "SQUIT %s %s\r\n", name, message);
     changed = TRUE;
 }
 
 
 
-void command_user(char *hostname, char *parameters)
+int command_user(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     char	*nick, *server, *realname;
@@ -867,12 +873,11 @@ void command_user(char *hostname, char *parameters)
     realname = strtok(NULL, "\0");
 
     if (realname == NULL) {
-	sprintf(csbuf, "461 USER: Not enough parameters\r\n");
-	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
-	return;
+	send_msg(tnsl, "461 USER: Not enough parameters\r\n");
+	return 0;
     }
     
-    add_user(&users, server, nick, realname);
+    return add_user(&users, server, nick, realname);
 }
 
 
@@ -880,7 +885,7 @@ void command_user(char *hostname, char *parameters)
 void command_quit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char	temp[512], *nick, *server, *message;
+    char	*nick, *server, *message;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -893,16 +898,14 @@ void command_quit(char *hostname, char *parameters)
     message = strtok(NULL, "\0");
 
     if (server == NULL) {
-	sprintf(csbuf, "461 QUIT: Not enough parameters\r\n");
-	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	send_msg(tnsl, "461 QUIT: Not enough parameters\r\n");
 	return;
     }
 
     if (message)
-	sprintf(temp, "MSG ** %s is leaving: %s", nick, message);
+	send_all("MSG ** %s is leaving: %s\r\n", nick, message);
     else
-	sprintf(temp, "MSG ** %s is leaving: Quit", nick);
-    send_all(temp);
+	send_all("MSG ** %s is leaving: Quit\r\n", nick);
     del_user(&users, server, nick);
 }
 
@@ -981,45 +984,42 @@ void receiver(struct servent  *se)
 
 	    if (! strcmp(command, (char *)"PASS")) {
 		if (parameters == NULL) {
-		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
-		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
 		    command_pass(hostname, parameters);
 		}
 	    } else if (! strcmp(command, (char *)"SERVER")) {
 		if (parameters == NULL) {
-		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
-		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
 		    command_server(hostname, parameters);
 		}
 	    } else if (! strcmp(command, (char *)"PING")) {
-		sprintf(csbuf, "PONG\r\n");
-		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		send_msg(tnsl, "PONG\r\n");
 	    } else if (! strcmp(command, (char *)"PONG")) {
 		/*
 		 * Just accept
 		 */
 	    } else if (! strcmp(command, (char *)"SQUIT")) {
 		if (parameters == NULL) {
-		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
-		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
 		    command_squit(hostname, parameters);
 		}
 	    } else if (! strcmp(command, (char *)"USER")) {
 		if (parameters == NULL) {
-		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
-		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
-		    command_user(hostname, parameters);
+		    if (command_user(hostname, parameters) == 0) {
+			broadcast(hostname, parameters);
+		    }
 		}
 	    } else if (! strcmp(command, (char *)"QUIT")) {
 		if (parameters == NULL) {
-		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
-		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
 		    command_quit(hostname, parameters);
+		    broadcast(hostname, parameters);
 		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
@@ -1027,8 +1027,7 @@ void receiver(struct servent  *se)
 		/*
 		 * Only if connected we send a error response
 		 */
-		sprintf(csbuf, "421 %s: Unknown command\r\n", command);
-		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		send_msg(tnsl, "421 %s: Unknown command\r\n", command);
 	    }
 	} else {
 	    Syslog('r', "recvfrom returned len=%d", len);
@@ -1089,8 +1088,7 @@ void *ibc_thread(void *dummy)
     Syslog('r', "IBC: start shutdown connections");
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    sprintf(csbuf, "SQUIT %s System shutdown\r\n", tnsl->myname);
-	    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	    send_msg(tnsl, "SQUIT %s System shutdown\r\n", tnsl->myname);
 	}
     }
 

@@ -378,7 +378,7 @@ void chat_msg(int channel, char *nick, char *msg)
     }
 
 #ifdef	USE_EXPERIMENT
-    send_all(buf);
+    send_all("%s\r\n", buf);
 #endif
 }
 
@@ -437,8 +437,7 @@ char *chat_connect(char *data)
 	     * Register with IBC
 	     */
 	    add_user(&users, CFG.myfqdn, nick, realname);
-	    sprintf(buf, "USER %s@%s %s", nick, CFG.myfqdn, realname);
-	    send_all(buf);
+	    send_all("USER %s@%s %s\r\n", nick, CFG.myfqdn, realname);
 #endif
 
 	    /*
@@ -488,8 +487,7 @@ char *chat_close(char *data)
 	     */
 #ifdef	USE_EXPERIMENT
 	    del_user(&users, CFG.myfqdn, chat_users[i].nick);
-	    sprintf(buf, "QUIT %s@%s Leaving chat", chat_users[i].nick, CFG.myfqdn);
-	    send_all(buf);
+	    send_all("QUIT %s@%s Leaving chat\r\n", chat_users[i].nick, CFG.myfqdn);
 #endif
 	    Syslog('-', "Closing chat for pid %s, slot %d", pid, i);
 	    memset(&chat_users[i], 0, sizeof(_chat_users));
