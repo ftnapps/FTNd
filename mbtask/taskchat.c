@@ -115,6 +115,7 @@ extern int		s_bbsopen;	    /* The BBS open status	*/
 #ifdef	USE_EXPERIMENT
 extern srv_list		*servers;	    /* Connected servers	*/
 extern usr_list		*users;		    /* Connected users		*/
+extern int		usrchg;
 #endif
 
 
@@ -635,14 +636,13 @@ char *chat_put(char *data)
 				    system_msg(chat_users[i].pid, buf);
 				    send_all("NICK %s %s %s %s\r\n", chat_users[i].nick, chat_users[i].name, 
 					    CFG.myfqdn, chat_users[i].realname);
+				    usrchg = TRUE;
 				    chat_dump();
 				    goto ack;
 				}
 			    }
 			}
-			if (!found) {
-			    sprintf(buf, "Can't set nick");
-			}
+			sprintf(buf, "Can't set nick");
 		    }
 #else
 			strncpy(chat_users[i].nick, cmd, 9);
