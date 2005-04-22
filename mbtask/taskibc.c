@@ -87,6 +87,7 @@ void command_server(char *, char *);
 void command_squit(char *, char *);
 void command_user(char *, char *);
 void command_quit(char *, char *);
+int  command_nick(char *, char *);
 void receiver(struct servent *);
 
 
@@ -917,6 +918,69 @@ void command_quit(char *hostname, char *parameters)
 
 
 
+int command_nick(char *hostname, char *parameters)
+{
+    ncs_list    *tnsl;
+    usr_list	*tmp;
+    char        *nick, *name, *server, *realname;
+    int		found;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    nick = strtok(parameters, " \0");
+    name = strtok(NULL, " \0");
+    server = strtok(NULL, " \0");
+    realname = strtok(NULL, "\0");
+
+    if (realname == NULL) {
+	send_msg(tnsl, "461 NICK: Not enough parameters\r\n");
+	return 1;
+    }
+
+    if (strlen(nick) > 9) {
+	send_msg(tnsl, "432 %s: Erroneous nickname\r\n", nick);
+	return 2;
+    }
+    
+    // FIXME: check 1st char is alpha, rest alpha/digit
+
+    found = FALSE;
+    for (tmp = users; tmp; tmp = tmp->next) {
+	if (strcmp(tmp->nick, nick) == 0) {
+	    found = TRUE;
+	    break;
+	}
+    }
+    if (found) {
+	send_msg(tnsl, "433 %s: Nickname is already in use\r\n", nick);
+	return 2;
+    }
+
+    for (tmp = users; tmp; tmp = tmp->next) {
+	if ((strcmp(tmp->server, server) == 0) && (strcmp(tmp->realname, realname) == 0) && (strcmp(tmp->name, name) == 0)) {
+	    pthread_mutex_lock(&b_mutex);
+	    sprintf(tmp->nick, "%s", nick);
+	    pthread_mutex_unlock(&b_mutex);
+	    found = TRUE;
+	    Syslog('+', "IBC: user %s set nick to %s", name, nick);
+	    usrchg = TRUE;
+	}
+    }
+    if (!found) {
+	send_msg(tnsl, "437 %s@%s: Can't change nick\r\n", name, server);
+	return 2;
+    }
+
+    broadcast(hostname, "NICK %s %s %s %s\r\n", nick, name, server, realname);
+    return 0;
+}
+
+
+
 void receiver(struct servent  *se)
 {
     struct pollfd   pfd;
@@ -1023,6 +1087,12 @@ void receiver(struct servent  *se)
 		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
 		    command_quit(hostname, parameters);
+		}
+	    } else if (! strcmp(command, (char *)"NICK")) {
+		if (parameters == NULL) {
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
+		} else {
+		    command_nick(hostname, parameters);
 		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));

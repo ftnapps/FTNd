@@ -508,6 +508,10 @@ char *chat_put(char *data)
     static char buf[200];
     char	*pid, *msg, *cmd;
     int		i, j, first, count;
+#ifdef	USE_EXPERIMENT
+    int		found;
+    usr_list	*tmp;
+#endif
 
     Syslog('-', "CPUT:%s", data);
     memset(&buf, 0, sizeof(buf));
@@ -611,9 +615,36 @@ char *chat_put(char *data)
 		    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 9)) {
 			sprintf(buf, "** Nickname must be between 1 and 9 characters");
 		    } else {
+#ifdef	USE_EXPERIMENT
+			found = FALSE;
+			for (tmp = users; tmp; tmp = tmp->next) {
+			    if ((strcmp(tmp->name, cmd) == 0) || (strcmp(tmp->nick, cmd) == 0)) {
+				found = TRUE;
+			    }
+			}
+
+			if (!found ) {
+			    for (tmp = users; tmp; tmp = tmp->next) {
+				if ((strcmp(tmp->server, CFG.myfqdn) == 0) && (strcmp(tmp->realname, chat_users[i].realname) == 0)) {
+				    found = TRUE;
+				    strncpy(tmp->nick, cmd, 9);
+				    strncpy(chat_users[i].nick, cmd, 9);
+				    sprintf(buf, "Nick set to \"%s\"", cmd);
+				    system_msg(chat_users[i].pid, buf);
+				    chat_dump();
+				    goto ack;
+				}
+			    }
+			}
+			if (!found) {
+			    sprintf(buf, "Can't set nick");
+			}
+		    }
+#else
 			strncpy(chat_users[i].nick, cmd, 9);
 			sprintf(buf, "Nick set to \"%s\"", cmd);
 		    }
+#endif
 		    system_msg(chat_users[i].pid, buf);
 		    chat_dump();
 		    goto ack;
