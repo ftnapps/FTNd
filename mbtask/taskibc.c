@@ -165,12 +165,8 @@ void dump_ncslist(void)
 	Syslog('+', "IBC: Server               User                 Name/Nick Channel       Cop Connect time");
 	Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
 	for (usrp = users; usrp; usrp = usrp->next) {
-	    if (strlen(usrp->nick))
-		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel,
-			usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
-	    else
-		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->name, usrp->channel, 
-			usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
+	    Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel,
+		usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
 	}
     }
 
@@ -222,6 +218,7 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
     tmp->next = NULL;
     strncpy(tmp->server, server, 63);
     strncpy(tmp->name, name, 9);
+    strncpy(tmp->nick, name, 9);
     strncpy(tmp->realname, realname, 36);
     tmp->connected = now;
 
@@ -950,7 +947,7 @@ int command_nick(char *hostname, char *parameters)
 
     found = FALSE;
     for (tmp = users; tmp; tmp = tmp->next) {
-	if (strcmp(tmp->nick, nick) == 0) {
+	if ((strcmp(tmp->name, nick) == 0) || (strcmp(tmp->nick, nick) == 0)) {
 	    found = TRUE;
 	    break;
 	}
@@ -963,7 +960,7 @@ int command_nick(char *hostname, char *parameters)
     for (tmp = users; tmp; tmp = tmp->next) {
 	if ((strcmp(tmp->server, server) == 0) && (strcmp(tmp->realname, realname) == 0) && (strcmp(tmp->name, name) == 0)) {
 	    pthread_mutex_lock(&b_mutex);
-	    sprintf(tmp->nick, "%s", nick);
+	    strncpy(tmp->nick, nick, 9);
 	    pthread_mutex_unlock(&b_mutex);
 	    found = TRUE;
 	    Syslog('+', "IBC: user %s set nick to %s", name, nick);

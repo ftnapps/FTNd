@@ -49,6 +49,7 @@ typedef enum {CH_FREE, CH_PRIVATE, CH_PUBLIC} CHANNELTYPE;
 typedef struct _ch_user_rec {
     pid_t	pid;		    /* User's pid			*/
     char	realname[36];	    /* Real name                      	*/
+    char	name[10];	    /* Unix name			*/
     char	nick[10];	    /* Nickname				*/
     time_t	connected;	    /* Time connected			*/
     int		channel;	    /* Connected channel or -1		*/
@@ -425,6 +426,7 @@ char *chat_connect(char *data)
 	    chat_users[i].pid = atoi(pid);
 	    strncpy(chat_users[i].realname, realname, 36);
 	    strncpy(chat_users[i].nick, nick, 9);
+	    strncpy(chat_users[i].name, nick, 9);
 	    chat_users[i].connected = time(NULL);
 	    chat_users[i].pointer = buffer_head;
 	    chat_users[i].channel = -1;
@@ -486,8 +488,8 @@ char *chat_close(char *data)
 	     * Remove from IBC network
 	     */
 #ifdef	USE_EXPERIMENT
-	    del_user(&users, CFG.myfqdn, chat_users[i].nick);
-	    send_all("QUIT %s@%s Leaving chat\r\n", chat_users[i].nick, CFG.myfqdn);
+	    del_user(&users, CFG.myfqdn, chat_users[i].name);
+	    send_all("QUIT %s@%s Leaving chat\r\n", chat_users[i].name, CFG.myfqdn);
 #endif
 	    Syslog('-', "Closing chat for pid %s, slot %d", pid, i);
 	    memset(&chat_users[i], 0, sizeof(_chat_users));
@@ -631,6 +633,8 @@ char *chat_put(char *data)
 				    strncpy(chat_users[i].nick, cmd, 9);
 				    sprintf(buf, "Nick set to \"%s\"", cmd);
 				    system_msg(chat_users[i].pid, buf);
+				    send_all("NICK %s %s %s %s\r\n", chat_users[i].nick, chat_users[i].name, 
+					    CFG.myfqdn, chat_users[i].realname);
 				    chat_dump();
 				    goto ack;
 				}
