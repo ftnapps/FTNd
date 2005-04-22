@@ -723,6 +723,7 @@ void command_server(char *hostname, char *parameters)
 {
     ncs_list	    *tnsl;
     srv_list	    *ta;
+    usr_list	    *tmp;
     char	    *name, *hops, *id, *prod, *vers, *fullname;
     unsigned long   token;
     int		    ihops, found = FALSE;
@@ -777,6 +778,14 @@ void command_server(char *hostname, char *parameters)
 		    send_msg(tnsl, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
 		}
 	    }
+	    /*
+	     * Send all known users
+	     */
+	    for (tmp = users; tmp; tmp = tmp->next) {
+		send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
+		if (strcmp(tmp->name, tmp->nick))
+		    send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
+	    }
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	    return;
 	}
@@ -804,6 +813,14 @@ void command_server(char *hostname, char *parameters)
 	    if (ta->hops) {
 		send_msg(tnsl, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
 	    }
+	}
+	/*
+	 * Send all known users
+	 */
+	for (tmp = users; tmp; tmp = tmp->next) {
+	    send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
+	    if (strcmp(tmp->name, tmp->nick))
+		send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	changed = TRUE;
