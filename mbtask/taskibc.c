@@ -141,7 +141,7 @@ void dump_ncslist(void)
     srv_list	*srv;
     usr_list	*usrp;
 
-    if (!changed && !srvchg)
+    if (!changed && !srvchg && !usrchg)
 	return;
 
     Syslog('r', "Server                         State   Del Pwd Srv Next action");
