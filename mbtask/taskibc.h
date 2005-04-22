@@ -52,7 +52,8 @@ typedef struct _srv_list {
 typedef struct _usr_list {
     struct _usr_list	*next;
     char		server[64];	    /* FQDN of users server	*/
-    char		nick[10];	    /* Users nick		*/
+    char		name[10];	    /* Users unix name		*/
+    char		nick[10];	    /* Users nick name		*/
     char		realname[37];	    /* Users real name		*/
     char		channel[21];	    /* Users channel		*/
     time_t		connected;	    /* Users connect time	*/

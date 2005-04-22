@@ -161,11 +161,15 @@ void dump_ncslist(void)
     }
     
     if (usrchg) {
-	Syslog('+', "IBC: Server               User                 Nick      Channel       Cop Connect time");
+	Syslog('+', "IBC: Server               User                 Name/Nick Channel       Cop Connect time");
 	Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
 	for (usrp = users; usrp; usrp = usrp->next) {
-	    Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel, 
-		    usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
+	    if (strlen(usrp->nick))
+		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel,
+			usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
+	    else
+		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->name, usrp->channel, 
+			usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
 	}
     }
 
@@ -194,17 +198,17 @@ void tidy_servers(srv_list ** fdp)
  *  0 = Ok
  *  1 = User already registered.
  */
-int add_user(usr_list **fap, char *server, char *nick, char *realname)
+int add_user(usr_list **fap, char *server, char *name, char *realname)
 {
     usr_list    *tmp, *ta;
     srv_list	*sl;
     int         rc;
 
-    Syslog('r', "add_user %s %s %s", server, nick, realname);
+    Syslog('r', "add_user %s %s %s", server, name, realname);
 
     for (ta = *fap; ta; ta = ta->next) {
 	if ((strcmp(ta->server, server) == 0) && (strcmp(ta->realname, realname) == 0)) {
-	    Syslog('-', "IBC: add_user(%s %s %s), already registered", server, nick, realname);
+	    Syslog('-', "IBC: add_user(%s %s %s), already registered", server, name, realname);
 	    return 1;
 	}
     }
@@ -216,7 +220,7 @@ int add_user(usr_list **fap, char *server, char *nick, char *realname)
     memset(tmp, 0, sizeof(usr_list));
     tmp->next = NULL;
     strncpy(tmp->server, server, 63);
-    strncpy(tmp->nick, nick, 9);
+    strncpy(tmp->name, name, 9);
     strncpy(tmp->realname, realname, 36);
     tmp->connected = now;
 
@@ -249,13 +253,13 @@ int add_user(usr_list **fap, char *server, char *nick, char *realname)
 /*
  * Delete one user.
  */
-void del_user(usr_list **fap, char *server, char *nick)
+void del_user(usr_list **fap, char *server, char *name)
 {
     usr_list    **tmp, *tmpa;
     srv_list	*sl;
     int         rc;
 
-    Syslog('r', "deluser %s %s", server, nick);
+    Syslog('r', "deluser %s %s", server, name);
 
     if (*fap == NULL)
 	return;
@@ -266,7 +270,7 @@ void del_user(usr_list **fap, char *server, char *nick)
     tmp = fap;
     while (*tmp) {
 //	Syslog('r', "%s %s", (*tmp)->server, (*tmp)->realname);
-	if ((strcmp((*tmp)->server, server) == 0) && (strcmp((*tmp)->nick, nick) == 0)) {
+	if ((strcmp((*tmp)->server, server) == 0) && (strcmp((*tmp)->name, name) == 0)) {
 //	    Syslog('r', "remove");
 	    tmpa = *tmp;
 	    *tmp=(*tmp)->next;
@@ -860,7 +864,7 @@ void command_squit(char *hostname, char *parameters)
 void command_user(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char	*nick, *server, *realname;
+    char	*name, *server, *realname;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -868,7 +872,7 @@ void command_user(char *hostname, char *parameters)
 	}
     }
 	
-    nick = strtok(parameters, "@\0");
+    name = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
     realname = strtok(NULL, "\0");
 
@@ -877,8 +881,8 @@ void command_user(char *hostname, char *parameters)
 	return;
     }
     
-    if (add_user(&users, server, nick, realname) == 0)
-	broadcast(hostname, "USER %s@%s %s\r\n", nick, server, realname);
+    if (add_user(&users, server, name, realname) == 0)
+	broadcast(hostname, "USER %s@%s %s\r\n", name, server, realname);
 }
 
 
@@ -886,7 +890,7 @@ void command_user(char *hostname, char *parameters)
 void command_quit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char	*nick, *server, *message;
+    char	*name, *server, *message;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -894,7 +898,7 @@ void command_quit(char *hostname, char *parameters)
 	}
     }
 
-    nick = strtok(parameters, "@\0");
+    name = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
     message = strtok(NULL, "\0");
 
@@ -904,11 +908,11 @@ void command_quit(char *hostname, char *parameters)
     }
 
     if (message)
-	send_all("MSG ** %s is leaving: %s\r\n", nick, message);
+	send_all("MSG ** %s is leaving: %s\r\n", name, message);
     else
-	send_all("MSG ** %s is leaving: Quit\r\n", nick);
-    del_user(&users, server, nick);
-    broadcast(hostname, "QUIT %s@%s %s\r\n", nick, server, parameters);
+	send_all("MSG ** %s is leaving: Quit\r\n", name);
+    del_user(&users, server, name);
+    broadcast(hostname, "QUIT %s@%s %s\r\n", name, server, parameters);
 }
 
 
