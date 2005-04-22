@@ -3,6 +3,7 @@
 
 /* $Id$ */
 
+void system_shout(const char *, ...);
 void chat_init(void);
 void chat_cleanuser(pid_t);
 char *chat_connect(char *);

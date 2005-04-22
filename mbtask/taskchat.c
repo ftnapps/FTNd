@@ -182,6 +182,27 @@ void system_msg(pid_t pid, char *msg)
 
 
 /*
+ * Shout a message to all users
+ */
+void system_shout(const char *format, ...)
+{
+    int		i;
+    char        buf[512];
+    va_list     va_ptr;
+
+    va_start(va_ptr, format);
+    vsprintf(buf, format, va_ptr);
+    va_end(va_ptr);
+
+    for (i = 0; i < MAXCLIENT; i++)
+	if (chat_users[i].pid) {
+	    system_msg(chat_users[i].pid, buf);
+	}
+}
+
+
+
+/*
  * Show help
  */
 void chat_help(pid_t pid)

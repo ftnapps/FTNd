@@ -32,6 +32,7 @@
 #include "../lib/mbselib.h"
 #include "taskstat.h"
 #include "taskutil.h"
+#include "taskchat.h"
 #include "taskibc.h"
 
 
@@ -647,6 +648,7 @@ void check_servers(void)
 					del_router(&servers, tnsl->server);
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					changed = TRUE;
+					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
 					break;
 				    }
 				    if (((int)now - (int)tnsl->last) > 60) {
@@ -765,6 +767,7 @@ void command_server(char *hostname, char *parameters)
 	 */
 	if (tnsl->token == token) {
 	    broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    system_shout("*** New server: %s, %s", name, fullname);
 	    tnsl->gotserver = TRUE;
 	    changed = TRUE;
 	    tnsl->state = NCS_CONNECT;
@@ -790,6 +793,7 @@ void command_server(char *hostname, char *parameters)
 	    return;
 	}
 	Syslog('r', "IBC: collision with %s", tnsl->server);
+	tnsl->state = NCS_WAITPWD; /* Experimental, should fix state when state was connect while it wasn't. */
 	return;
     }
 
@@ -802,6 +806,7 @@ void command_server(char *hostname, char *parameters)
 	send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 	send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
 	broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	system_shout("*** New server: %s, %s", name, fullname);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
@@ -834,6 +839,7 @@ void command_server(char *hostname, char *parameters)
 	add_server(&servers, name, ihops, prod, vers, fullname, hostname);
 	broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	changed = TRUE;
+	system_shout("*** New server: %s, %s", name, fullname);
 	return;
     }
 
@@ -870,6 +876,7 @@ void command_squit(char *hostname, char *parameters)
 	del_server(&servers, name);
     }
 
+    system_shout("*** Server %s disconnected: %s", name, message);
     broadcast(hostname, "SQUIT %s %s\r\n", name, message);
     changed = TRUE;
 }
@@ -896,8 +903,10 @@ void command_user(char *hostname, char *parameters)
 	return;
     }
     
-    if (add_user(&users, server, name, realname) == 0)
+    if (add_user(&users, server, name, realname) == 0) {
 	broadcast(hostname, "USER %s@%s %s\r\n", name, server, realname);
+	system_shout("*** New user %s@%s (%s)", name, server, realname);
+    }
 }
 
 
@@ -922,10 +931,13 @@ void command_quit(char *hostname, char *parameters)
 	return;
     }
 
-    if (message)
+    if (message) {
 	send_all("MSG ** %s is leaving: %s\r\n", name, message);
-    else
+	system_shout("*** User %s is leaving: %s", name, message);
+    } else {
 	send_all("MSG ** %s is leaving: Quit\r\n", name);
+	system_shout("*** User %s is leaving", name);
+    }
     del_user(&users, server, name);
     broadcast(hostname, "QUIT %s@%s %s\r\n", name, server, parameters);
 }
