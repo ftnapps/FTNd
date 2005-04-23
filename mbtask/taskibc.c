@@ -250,7 +250,7 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 
 
 /*
- * Delete one user.
+ * Delete one user. If name == NULL then delete all users of a server.
  */
 void del_user(usr_list **fap, char *server, char *name)
 {
@@ -258,19 +258,23 @@ void del_user(usr_list **fap, char *server, char *name)
     srv_list	*sl;
     int         rc;
 
-    Syslog('r', "deluser %s %s", server, name);
+    Syslog('r', "deluser %s %s", server, printable(name, 0));
 
     if (*fap == NULL)
 	return;
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "del_user() mutex_lock failed rc=%d", rc);
+    if (name)
+	if ((rc = pthread_mutex_lock(&b_mutex)))
+	    Syslog('!', "del_user() mutex_lock failed rc=%d", rc);
 
     tmp = fap;
     while (*tmp) {
-//	Syslog('r', "%s %s", (*tmp)->server, (*tmp)->realname);
-	if ((strcmp((*tmp)->server, server) == 0) && (strcmp((*tmp)->name, name) == 0)) {
-//	    Syslog('r', "remove");
+	if (name && (strcmp((*tmp)->server, server) == 0) && (strcmp((*tmp)->name, name) == 0)) {
+	    tmpa = *tmp;
+	    *tmp=(*tmp)->next;
+	    free(tmpa);
+	    usrchg = TRUE;
+	} else if ((name == NULL) && (strcmp((*tmp)->server, server) == 0)) {
 	    tmpa = *tmp;
 	    *tmp=(*tmp)->next;
 	    free(tmpa);
@@ -280,9 +284,6 @@ void del_user(usr_list **fap, char *server, char *name)
 	}
     }
 
-//    if (!usrchg)
-//	Syslog('r', "Could not delete user");
-
     for (sl = servers; sl; sl = sl->next) {
 	if ((strcmp(sl->server, server) == 0) && sl->users) {
 	    sl->users--;
@@ -290,8 +291,9 @@ void del_user(usr_list **fap, char *server, char *name)
 	}
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "del_user() mutex_unlock failed rc=%d", rc);
+    if (name)
+	if ((rc = pthread_mutex_unlock(&b_mutex)))
+	    Syslog('!', "del_user() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -392,6 +394,7 @@ void del_router(srv_list **fap, char *name)
 
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->router, name) == 0)) {
+	    del_user(&users, tan->server, NULL);
 	    ta->next = tan->next;
 	    free(tan);
 	    srvchg = TRUE;
@@ -638,7 +641,10 @@ void check_servers(void)
 		case NCS_CONNECT:   /*
 				     * In this state we check if the connection is still alive
 				     */
-				    if (((int)now - (int)tnsl->last) > 70) {
+				    if (((int)now - (int)tnsl->last) > 130) {
+					/*
+					 * Missed 3 PING replies
+					 */
 					Syslog('+', "IBC: server %s connection is dead", tnsl->server);
 					tnsl->state = NCS_DEAD;
 					tnsl->action = now + (time_t)120;    // 2 minutes delay before calling again.
@@ -651,7 +657,16 @@ void check_servers(void)
 					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
 					break;
 				    }
-				    if (((int)now - (int)tnsl->last) > 60) {
+				    /*
+				     * Ping at 60, 90 and 120 seconds
+				     */
+				    if (((int)now - (int)tnsl->last) > 120) {
+					Syslog('r', "sending 3rd PING at 120 seconds");
+					send_msg(tnsl, "PING\r\n");
+				    } else if (((int)now - (int)tnsl->last) > 90) {
+					Syslog('r', "sending 2nd PING at 90 seconds");
+					send_msg(tnsl, "PING\r\n");
+				    } else if (((int)now - (int)tnsl->last) > 60) {
 					send_msg(tnsl, "PING\r\n");
 				    }
 				    tnsl->action = now + (time_t)10;
