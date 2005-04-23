@@ -47,6 +47,7 @@ time_t		    now;		    /* Current time		*/
 ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
 srv_list	    *servers = NULL;	    /* Active servers		*/
 usr_list	    *users = NULL;	    /* Active users		*/
+chn_list	    *channels = NULL;	    /* Active channels		*/
 int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
@@ -54,7 +55,7 @@ int		    changed = FALSE;	    /* Databases changed	*/
 char		    crbuf[512];		    /* Chat receive buffer	*/
 int		    srvchg = FALSE;	    /* Is serverlist changed	*/
 int		    usrchg = FALSE;	    /* Is userlist changed	*/
-
+int		    chnchg = FALSE;	    /* Is channellist changed	*/
 
 
 pthread_mutex_t b_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -76,7 +77,6 @@ static char *ncsstate[] = {
 void fill_ncslist(ncs_list **, char *, char *, char *);
 void dump_ncslist(void);
 void tidy_servers(srv_list **);
-void del_userbyserver(usr_list **, char *);
 void add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 void del_router(srv_list **, char *);
@@ -141,8 +141,9 @@ void dump_ncslist(void)
     ncs_list	*tmp;
     srv_list	*srv;
     usr_list	*usrp;
+    chn_list	*chnp;
 
-    if (!changed && !srvchg && !usrchg)
+    if (!changed && !srvchg && !usrchg && !chnchg)
 	return;
 
     Syslog('r', "Server                         State   Del Pwd Srv Next action");
@@ -175,8 +176,22 @@ void dump_ncslist(void)
 	}
     }
 
+    if (chnchg) {
+	if (channels) {
+	    Syslog('+', "IBC: Channel              Owner     Topic                               Usr Created");
+	    Syslog('+', "IBC: -------------------- --------- ----------------------------------- --- --------------------");
+	    for (chnp = channels; chnp; chnp = chnp->next) {
+		Syslog('+', "IBC: %-20s %-9s %-35s %3d %s", chnp->name, chnp->owner, chnp->topic, 
+			chnp->users, rfcdate(chnp->created));
+	    }
+	} else {
+	    Syslog('+', "IBC: Channels list is empty");
+	}
+    }
+
     srvchg = FALSE;
     usrchg = FALSE;
+    chnchg = FALSE;
     changed = FALSE;
 }
 
@@ -299,6 +314,85 @@ void del_user(usr_list **fap, char *server, char *name)
     if (name)
 	if ((rc = pthread_mutex_unlock(&b_mutex)))
 	    Syslog('!', "del_user() mutex_unlock failed rc=%d", rc);
+}
+
+
+
+/*
+ * Add channel with owner.
+ */
+int add_channel(chn_list **fap, char *name, char *owner, char *server)
+{
+    chn_list    *tmp, *ta;
+    int         rc;
+
+    Syslog('r', "add_channel %s %s %s", name, owner, server);
+
+    for (ta = *fap; ta; ta = ta->next) {
+	if ((strcmp(ta->name, name) == 0) && (strcmp(ta->owner, owner) == 0) && (strcmp(ta->server, server) == 0)) {
+	    Syslog('-', "IBC: add_channel(%s %s %s), already registered", name, owner, server);
+	    return 1;
+	}
+    }
+
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "add_channel() mutex_lock failed rc=%d", rc);
+
+    tmp = (chn_list *)malloc(sizeof(chn_list));
+    memset(tmp, 0, sizeof(chn_list));
+    tmp->next = NULL;
+    strncpy(tmp->name, name, 20);
+    strncpy(tmp->owner, owner, 9);
+    strncpy(tmp->server, server, 63);
+    tmp->users = 1;
+    tmp->created = now;
+
+    if (*fap == NULL) {
+	*fap = tmp;
+    } else {
+	for (ta = *fap; ta; ta = ta->next)
+	    if (ta->next == NULL) {
+		ta->next = (chn_list *)tmp;
+		break;
+	    }
+    }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "add_channel() mutex_unlock failed rc=%d", rc);
+
+    chnchg = TRUE;
+    return 0;
+}
+
+
+
+void del_channel(chn_list **fap, char *name)
+{
+    chn_list    **tmp, *tmpa;
+    int         rc;
+	        
+    Syslog('r', "del_channel %s", name);
+
+    if (*fap == NULL)
+	return;
+
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "del_channel() mutex_lock failed rc=%d", rc);
+
+    tmp = fap;
+    while (*tmp) {
+	if (strcmp((*tmp)->name, name) == 0) {
+	    tmpa = *tmp;
+	    *tmp=(*tmp)->next;
+	    free(tmpa);
+	    chnchg = TRUE;
+	} else {
+	    tmp = &((*tmp)->next);
+	}
+    }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "del_channel() mutex_unlock failed rc=%d", rc);
 }
 
 

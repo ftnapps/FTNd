@@ -36,7 +36,9 @@
 #include "taskibc.h"
 
 
+#ifndef	USE_EXPERIMENT
 #define	MAXCHANNELS 10		    /* Maximum chat channels		*/
+#endif
 #define	MAXMESSAGES 100		    /* Maximum ringbuffer for messages	*/
 
 
@@ -52,7 +54,11 @@ typedef struct _ch_user_rec {
     char	name[10];	    /* Unix name			*/
     char	nick[10];	    /* Nickname				*/
     time_t	connected;	    /* Time connected			*/
+#ifdef	USE_EXPERIMENT
+    char	channel[21];	    /* Connected channel		*/
+#else
     int		channel;	    /* Connected channel or -1		*/
+#endif
     int		pointer;	    /* Message pointer			*/
     unsigned	chatting    : 1;    /* Is chatting in a channel		*/
     unsigned	chanop	    : 1;    /* Is a chanop			*/
@@ -80,6 +86,7 @@ typedef struct	_chatmsg {
 /*
  * List of channels
  */
+#ifndef	USE_EXPERIMENT
 typedef struct _channel_rec {
     char	name[21];	    /* Channel name			*/
     char	topic[55];	    /* Channel topic			*/
@@ -88,6 +95,7 @@ typedef struct _channel_rec {
     time_t	created;	    /* Creation time			*/
     unsigned	active	    : 1;    /* Channel active			*/
 } _channel;
+#endif
 
 
 
@@ -106,7 +114,9 @@ typedef struct	_banned {
  */
 _chat_messages		chat_messages[MAXMESSAGES];
 _chat_users		chat_users[MAXCLIENT];
+#ifndef	USE_EXPERIMENT
 _channel		chat_channels[MAXCHANNELS];
+#endif
 
 
 int			buffer_head = 0;    /* Messages buffer head	*/
@@ -115,14 +125,20 @@ extern int		s_bbsopen;	    /* The BBS open status	*/
 #ifdef	USE_EXPERIMENT
 extern srv_list		*servers;	    /* Connected servers	*/
 extern usr_list		*users;		    /* Connected users		*/
+extern chn_list		*channels;	    /* Connected channels	*/
 extern int		usrchg;
+extern int		chnchg;
 #endif
 
 
 /*
  * Prototypes
  */
+#ifdef	USE_EXPERIMENT
+void chat_msg(char *, char *, char *);
+#else
 void chat_msg(int, char *, char *);
+#endif
 void chat_dump(void);
 void system_msg(pid_t, char *);
 void chat_help(pid_t);
@@ -147,6 +163,7 @@ void chat_dump(void)
 		chat_users[i].chatting?"True ":"False", chat_users[i].sysop?"True ":"False");
 	}
     first = TRUE;
+#ifndef	USE_EXPERIMENT
     for (i = 0; i < MAXCHANNELS; i++)
 	if (chat_channels[i].owner) {
 	    if (first) {
@@ -157,6 +174,7 @@ void chat_dump(void)
 	    Syslog('c', "%-20s %5d %3d %s", chat_channels[i].name, chat_channels[i].owner, chat_channels[i].users,
 		    chat_channels[i].active?"True":"False");
 	}
+#endif
 }
 
 
@@ -232,10 +250,42 @@ void chat_help(pid_t pid)
  */
 int join(pid_t pid, char *channel, int sysop)
 {
-    int	    i, j;
-    char    buf[81];
+    int		j;
+    char	buf[81];
+#ifdef	USE_EXPERIMENT
+    chn_list	*tmp;
+#else
+    int		i;
+#endif
 
     Syslog('-', "Join pid %d to channel %s", pid, channel);
+
+#ifdef USE_EXPERIMENT
+    if (channels) {
+	for (tmp = channels; tmp; tmp = tmp->next) {
+	    if (strcmp(tmp->name, channel) == 0) {
+		tmp->users++;
+		for (j = 0; j < MAXCLIENT; j++) {
+		    if (chat_users[j].pid == pid) {
+			strncpy(chat_users[j].channel, channel, 20);
+			chat_users[j].chatting = TRUE;
+			Syslog('-', "Added user %d to channel %s", j, channel);
+			chat_dump();
+			sprintf(buf, "%s has joined channel #%s, now %d users", chat_users[j].nick, channel, tmp->users);
+			chat_msg(channel, NULL, buf);
+
+			/*
+			 * The sysop channel is private to the system, no broadcast
+			 */
+			if (strcasecmp(channel, "sysop"))
+			    send_all("JOIN %s@%s %s\r\n", chat_users[j].nick, CFG.myfqdn, channel);
+			return TRUE;
+		    }
+		}
+	    }
+	}
+    }
+#else
     for (i = 0; i < MAXCHANNELS; i++) {
 	if (strcasecmp(chat_channels[i].name, channel) == 0) {
 	    /*
@@ -255,6 +305,7 @@ int join(pid_t pid, char *channel, int sysop)
 	    }
 	}
     }
+#endif
 
     /*
      * A new channel must be created, but only the sysop may create the "sysop" channel
@@ -268,6 +319,22 @@ int join(pid_t pid, char *channel, int sysop)
     /*
      * No matching channel found, add a new channel.
      */
+#ifdef	USE_EXPERIMENT
+    for (j = 0; j < MAXCLIENT; j++) {
+	if (chat_users[j].pid == pid) {
+	    if (add_channel(&channels, channel, chat_users[j].nick, CFG.myfqdn) == 0) {
+		strncpy(chat_users[j].channel, channel, 20);
+		chat_users[j].chatting = TRUE;
+		Syslog('-', "Added user %d to channel %s", j, channel);
+		sprintf(buf, "Created channel #%s", channel);
+		chat_msg(channel, NULL, buf);
+		chat_dump();
+		send_all("JOIN %s@%s %s\r\n", chat_users[j].nick, CFG.myfqdn, channel);
+		return TRUE;
+	    }
+	}
+    }
+#else
     for (i = 0; i < MAXCHANNELS; i++) {
 	if (chat_channels[i].active == FALSE) {
 	    /*
@@ -295,6 +362,7 @@ int join(pid_t pid, char *channel, int sysop)
 	    return TRUE;
 	}
     }
+#endif
 
     /*
      * No matching or free channels
@@ -312,11 +380,52 @@ int join(pid_t pid, char *channel, int sysop)
  */
 int part(pid_t pid, char *reason)
 {
-    int	    i;
-    char    buf[81];
+    int		i;
+    char	buf[81];
+#ifdef	USE_EXPERIMENT
+    chn_list	*tmp;
+#endif
 
     Syslog('-', "Part pid %d from channel, reason %s", pid, reason);
 
+#ifdef	USE_EXPERIMENT
+    for (i = 0; i < MAXCLIENT; i++) {
+	if ((chat_users[i].pid == pid) && chat_users[i].chatting) {
+	    for (tmp = channels; tmp; tmp = tmp->next) {
+		if (strcmp(tmp->name, chat_users[i].channel) == 0) {
+		    tmp->users--;
+		    chnchg = TRUE;
+
+		    /*
+		     * Inform other users
+		     */
+		    if (reason != NULL)
+			chat_msg(chat_users[i].channel, chat_users[i].nick, reason);
+		    sprintf(buf, "%s has left channel #%s, %d users left", chat_users[i].nick, tmp->name, tmp->users);
+		    chat_msg(chat_users[i].channel, NULL, buf);
+		    if (strcmp(tmp->name, (char *)"sysop"))
+			send_all("PART %s@%s %s\r\n", chat_users[i].nick, CFG.myfqdn, tmp->name);
+
+		    /*
+		     * Clean channel
+		     */
+		    Syslog('-', "Nick %s leaves channel %s", chat_users[i].nick, tmp->name);
+		    if (tmp->users == 0) {
+			/*
+			 * Last user in channel, remove channel
+			 */
+			Syslog('-', "Remove channel %s, no more users left", tmp->name);
+			del_channel(&channels, tmp->name);
+		    }
+		    chat_users[i].channel[0] = '\0';
+		    chat_users[i].chatting = FALSE;
+		    chat_dump();
+		    return TRUE;
+		}
+	    }
+	}
+    }
+#else
     for (i = 0; i < MAXCLIENT; i++) {
 	if ((chat_users[i].pid == pid) && chat_users[i].chatting) {
 	    chat_channels[chat_users[i].channel].users--;
@@ -347,6 +456,8 @@ int part(pid_t pid, char *reason)
 	    return TRUE;
 	}
     }
+#endif
+
     Syslog('-', "No channel found");
     return FALSE;
 }
@@ -355,13 +466,15 @@ int part(pid_t pid, char *reason)
 
 void chat_init(void)
 {
+#ifndef	USE_EXPERIMENT
     int	    i;
-    
-    memset(&chat_users, 0, sizeof(chat_users));
+
     for (i = 0; i < MAXCLIENT; i++)
 	chat_users[i].channel = -1;
-    memset(&chat_messages, 0, sizeof(chat_messages));
     memset(&chat_channels, 0, sizeof(chat_channels));
+#endif
+    memset(&chat_users, 0, sizeof(chat_users));
+    memset(&chat_messages, 0, sizeof(chat_messages));
 }
 
 
@@ -376,7 +489,11 @@ void chat_cleanuser(pid_t pid)
 /*
  * Send message into channel
  */
+#ifdef	USE_EXPERIMENT
+void chat_msg(char *channel, char *nick, char *msg)
+#else
 void chat_msg(int channel, char *nick, char *msg)
+#endif
 {
     int	    i;
     char    buf[128], *logm;
@@ -389,19 +506,27 @@ void chat_msg(int channel, char *nick, char *msg)
     if (CFG.iAutoLog && strlen(CFG.chat_log)) {
 	logm = calloc(PATH_MAX, sizeof(char));
 	sprintf(logm, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+#ifdef	USE_EXPERIMENT
+	ulog(logm, (char *)"+", channel, (char *)"-1", buf);
+#else
 	ulog(logm, (char *)"+", chat_channels[channel].name, (char *)"-1", buf);
+#endif
 	free(logm);
     }
     buf[79] = '\0';
 
     for (i = 0; i < MAXCLIENT; i++) {
+#ifdef	USE_EXPERIMENT
+	if ((strcmp(chat_users[i].channel, channel) == 0) && chat_users[i].chatting) {
+#else
 	if ((chat_users[i].channel == channel) && chat_users[i].chatting) {
+#endif
 	    system_msg(chat_users[i].pid, buf);
 	}
     }
 
 #ifdef	USE_EXPERIMENT
-    send_all("%s\r\n", buf);
+    send_all("MSG %s\r\n", buf);
 #endif
 }
 
@@ -451,7 +576,11 @@ char *chat_connect(char *data)
 	    strncpy(chat_users[i].name, nick, 9);
 	    chat_users[i].connected = time(NULL);
 	    chat_users[i].pointer = buffer_head;
+#ifdef	USE_EXPERIMENT
+	    chat_users[i].channel[0] = '\0';
+#else
 	    chat_users[i].channel = -1;
+#endif
 	    chat_users[i].sysop = sys;
 
 	    Syslog('-', "Connected user %s (%s) with chatserver, slot %d, sysop %s", realname, pid, i, sys ? "True":"False");
@@ -515,7 +644,11 @@ char *chat_close(char *data)
 #endif
 	    Syslog('-', "Closing chat for pid %s, slot %d", pid, i);
 	    memset(&chat_users[i], 0, sizeof(_chat_users));
+#ifdef	USE_EXPERIMENT
+	    chat_users[i].channel[0] = '\0';
+#else
 	    chat_users[i].channel = -1;
+#endif
 	    sprintf(buf, "100:0;");
 	    return buf;
 	}
@@ -535,6 +668,7 @@ char *chat_put(char *data)
 #ifdef	USE_EXPERIMENT
     int		found;
     usr_list	*tmp;
+    chn_list	*tmpc;
 #endif
 
     Syslog('-', "CPUT:%s", data);
@@ -584,7 +718,11 @@ char *chat_put(char *data)
 		    if ((cmd == NULL) || (cmd[0] != '#') || (strcmp(cmd, "#") == 0)) {
 			sprintf(buf, "** Try /join #channel");
 			system_msg(chat_users[i].pid, buf);
+#ifdef	USE_EXPERIMENT
+		    } else if (strlen(chat_users[i].channel)) {
+#else
 		    } else if (chat_users[i].channel != -1) {
+#endif
 			sprintf(buf, "** Cannot join while in a channel");
 			system_msg(chat_users[i].pid, buf);
 		    } else {
@@ -595,6 +733,18 @@ char *chat_put(char *data)
 		    goto ack;
 		} else if (strncasecmp(msg, "/list", 5) == 0) {
 		    first = TRUE;
+#ifdef USE_EXPERIMENT
+		    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+			if (first) {
+			    sprintf(buf, "Cnt Channel name         Channel topic");
+			    system_msg(chat_users[i].pid, buf);
+			    sprintf(buf, "--- -------------------- ------------------------------------------------------");
+			    system_msg(chat_users[i].pid, buf);
+			}
+			first = FALSE;
+			sprintf(buf, "%3d %-20s %-54s", tmpc->users, tmpc->name, tmpc->topic);
+			system_msg(chat_users[i].pid, buf);
+#else
 		    for (j = 0; j < MAXCHANNELS; j++) {
 			if (chat_channels[j].owner && chat_channels[j].active) {
 			    if (first) {
@@ -607,6 +757,7 @@ char *chat_put(char *data)
 			    sprintf(buf, "%3d %-20s %-54s", chat_channels[j].users, chat_channels[j].name, chat_channels[j].topic);
 			    system_msg(chat_users[i].pid, buf);
 			}
+#endif
 		    }
 		    if (first) {
 			sprintf(buf, "No active channels to list");
@@ -614,12 +765,20 @@ char *chat_put(char *data)
 		    }
 		    goto ack;
 		} else if (strncasecmp(msg, "/names", 6) == 0) {
+#ifdef USE_EXPERIMENT
+		    if (strlen(chat_users[i].channel)) {
+#else
 		    if (chat_users[i].channel != -1) {
+#endif
 			sprintf(buf, "Present in this channel:");
 			system_msg(chat_users[i].pid, buf);
 			count = 0;
 			for (j = 0; j < MAXCLIENT; j++) {
+#ifdef	USE_EXPERIMENT
+			    if ((strcmp(chat_users[j].channel, chat_users[i].channel) == 0) && chat_users[j].pid) {
+#else
 			    if ((chat_users[j].channel == chat_users[i].channel) && chat_users[j].pid) {
+#endif
 				sprintf(buf, "%s %s", chat_users[j].nick, 
 					chat_users[j].chanop ?"(chanop)": chat_users[j].sysop ?"(sysop)":"");
 				system_msg(chat_users[i].pid, buf);
@@ -685,11 +844,32 @@ char *chat_put(char *data)
 		    chat_dump();
 		    goto ack;
 		} else if (strncasecmp(msg, "/topic", 6) == 0) {
+#ifdef	USE_EXPERIMENT
+		    if (strlen(chat_users[i].channel)) {
+			for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+			    if (strcmp(chat_users[i].channel, tmpc->name)) {
+				if ((strcmp(chat_users[i].name, tmpc->owner) == 0) || (strcmp(chat_users[i].nick, tmpc->owner) == 0)) {
+				    cmd = strtok(msg, " \0");
+				    cmd = strtok(NULL, "\0");
+				    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 54)) {
+					sprintf(buf, "** Topic must be between 1 and 54 characters");
+				    } else {
+					strncpy(tmpc->topic, cmd, 54);
+					sprintf(buf, "Topic set to \"%s\"", cmd);
+					send_all("TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
+				    }
+				} else {
+				    sprintf(buf, "** You are not the channel owner");
+				}
+				break;
+			    }
+			}
+#else
 		    if (chat_users[i].channel != -1) {
 			if (chat_channels[chat_users[i].channel].owner == chat_users[i].pid) {
 			    cmd = strtok(msg, " \0");
 			    cmd = strtok(NULL, "\0");
-			    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 36)) {
+			    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 54)) {
 				sprintf(buf, "** Topic must be between 1 and 54 characters");
 			    } else {
 				strncpy(chat_channels[chat_users[i].channel].topic, cmd, 54);
@@ -698,6 +878,7 @@ char *chat_put(char *data)
 			} else {
 			    sprintf(buf, "** You are not the channel owner");
 			}
+#endif
 		    } else {
 			sprintf(buf, "** Not in a channel");
 		    }
@@ -714,7 +895,11 @@ char *chat_put(char *data)
 		    goto ack;
 		}
 	    }
+#ifdef	USE_EXPERIMENT
+	    if (strlen(chat_users[i].channel) == 0) {
+#else
 	    if (chat_users[i].channel == -1) {
+#endif
 		/*
 		 * Trying messages while not in a channel
 		 */

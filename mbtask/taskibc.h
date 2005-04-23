@@ -79,6 +79,8 @@ typedef struct _chn_list {
 
 int  add_user(usr_list **, char *, char *, char *);
 void del_user(usr_list **, char *, char *);
+int  add_channel(chn_list **, char *, char *, char *);
+void del_channel(chn_list **, char *);
 
 void send_all(const char *, ...);
 void *ibc_thread(void *);
