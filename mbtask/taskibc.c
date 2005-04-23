@@ -1175,6 +1175,7 @@ void command_join(char *hostname, char *parameters)
 	}
     }
 
+    broadcast(hostname, "JOIN %s@%s %s\r\n", nick, server, channel);
     chnchg = TRUE;
 }
 
@@ -1223,6 +1224,8 @@ void command_part(char *hostname, char *parameters)
 	    usrchg = TRUE;
 	}
     }
+
+    broadcast(hostname, "PART %s@%s %s\r\n", nick, server, channel);
 }
 
 
@@ -1255,6 +1258,8 @@ void command_topic(char *hostname, char *parameters)
 	}
 	break;
     }
+
+    broadcast(hostname, "TOPIC %s %s\r\n", channel, topic);
 }
 
 

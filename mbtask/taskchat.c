@@ -858,7 +858,7 @@ char *chat_put(char *data)
 		    if (strlen(chat_users[i].channel)) {
 			sprintf(buf, "** Internal system error");
 			for (tmpc = channels; tmpc; tmpc = tmpc->next) {
-			    if (strcmp(chat_users[i].channel, tmpc->name)) {
+			    if (strcmp(chat_users[i].channel, tmpc->name) == 0) {
 				if ((strcmp(chat_users[i].name, tmpc->owner) == 0) || (strcmp(chat_users[i].nick, tmpc->owner) == 0)) {
 				    cmd = strtok(msg, " \0");
 				    cmd = strtok(NULL, "\0");
