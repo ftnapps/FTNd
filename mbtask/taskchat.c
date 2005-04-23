@@ -155,12 +155,22 @@ void chat_dump(void)
     for (i = 0; i < MAXCLIENT; i++)
 	if (chat_users[i].pid) {
 	    if (first) {
+#ifdef	USE_EXPERIMENT
+		Syslog('u', "  pid username                             nick      channel              chats sysop");
+		Syslog('u', "----- ------------------------------------ --------- -------------------- ----- -----");
+#else
 		Syslog('u', "  pid username                             nick      ch chats sysop");
 		Syslog('u', "----- ------------------------------------ --------- -- ----- -----");
+#endif
 		first = FALSE;
 	    }
-	    Syslog('u', "%5d %-36s %-9s %2d %s %s", chat_users[i].pid, chat_users[i].realname, chat_users[i].nick, chat_users[i].channel,
-		chat_users[i].chatting?"True ":"False", chat_users[i].sysop?"True ":"False");
+#ifdef USE_EXPERIMENT
+	    Syslog('u', "%5d %-36s %-9s %-20s %s %s", chat_users[i].pid, chat_users[i].realname, chat_users[i].nick, 
+		    chat_users[i].channel, chat_users[i].chatting?"True ":"False", chat_users[i].sysop?"True ":"False");
+#else
+	    Syslog('u', "%5d %-36s %-9s %2d %s %s", chat_users[i].pid, chat_users[i].realname, chat_users[i].nick, 
+		chat_users[i].channel, chat_users[i].chatting?"True ":"False", chat_users[i].sysop?"True ":"False");
+#endif
 	}
     first = TRUE;
 #ifndef	USE_EXPERIMENT
@@ -846,6 +856,7 @@ char *chat_put(char *data)
 		} else if (strncasecmp(msg, "/topic", 6) == 0) {
 #ifdef	USE_EXPERIMENT
 		    if (strlen(chat_users[i].channel)) {
+			sprintf(buf, "** Internal system error");
 			for (tmpc = channels; tmpc; tmpc = tmpc->next) {
 			    if (strcmp(chat_users[i].channel, tmpc->name)) {
 				if ((strcmp(chat_users[i].name, tmpc->owner) == 0) || (strcmp(chat_users[i].nick, tmpc->owner) == 0)) {
@@ -862,6 +873,8 @@ char *chat_put(char *data)
 				    sprintf(buf, "** You are not the channel owner");
 				}
 				break;
+			    } else {
+				Syslog('r', "channel %s is not what we want", tmpc->name);
 			    }
 			}
 #else

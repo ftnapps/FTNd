@@ -89,6 +89,9 @@ void command_squit(char *, char *);
 void command_user(char *, char *);
 void command_quit(char *, char *);
 int  command_nick(char *, char *);
+void command_join(char *, char *);
+void command_part(char *, char *);
+void command_topic(char *, char *);
 void receiver(struct servent *);
 
 
@@ -1121,6 +1124,141 @@ int command_nick(char *hostname, char *parameters)
 
 
 
+void command_join(char *hostname, char *parameters)
+{
+    ncs_list    *tnsl;
+    chn_list    *tmp;
+    usr_list	*tmpu;
+    char        *nick, *server, *channel;
+    int         found;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+        }
+    }
+
+    nick = strtok(parameters, " \0");
+    server = strtok(NULL, " \0");
+    channel = strtok(NULL, "\0");
+
+    if (channel == NULL) {
+	send_msg(tnsl, "461 JOIN: Not enough parameters\r\n");
+	return;
+    }
+
+    if (strlen(channel) > 20) {
+	send_msg(tnsl, "432 %s: Erroneous channelname\r\n", nick);
+	return;
+    }
+
+    found = FALSE;
+    for (tmp = channels; tmp; tmp = tmp->next) {
+	if (strcmp(tmp->name, channel) == 0) {
+	    found = TRUE;
+	    tmp->users++;
+	    break;
+	}
+    }
+    if (!found) {
+	Syslog('+', "IBC: create channel %s owned by %s@%s", channel, nick, server);
+	add_channel(&channels, channel, nick, server);
+    }
+
+    for (tmpu = users; tmpu; tmpu = tmpu->next) {
+	if ((strcmp(tmpu->server, server) == 0) && (strcmp(tmpu->nick, nick) == 0) && (strcmp(tmpu->name, nick) == 0)) {
+	    pthread_mutex_lock(&b_mutex);
+	    strncpy(tmpu->channel, channel, 20);
+	    pthread_mutex_unlock(&b_mutex);
+	    Syslog('+', "IBC: user %s joined channel %s", nick, channel);
+	    usrchg = TRUE;
+	}
+    }
+
+    chnchg = TRUE;
+}
+
+
+
+void command_part(char *hostname, char *parameters)
+{
+    ncs_list    *tnsl;
+    chn_list    *tmp;
+    usr_list    *tmpu;
+    char        *nick, *server, *channel;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    nick = strtok(parameters, " \0");
+    server = strtok(NULL, " \0");
+    channel = strtok(NULL, "\0");
+
+    if (channel == NULL) {
+	send_msg(tnsl, "461 PART: Not enough parameters\r\n");
+	return;
+    }
+
+    for (tmp = channels; tmp; tmp = tmp->next) {
+	if (strcmp(tmp->name, channel) == 0) {
+	    chnchg = TRUE;
+	    tmp->users--;
+	    if (tmp->users == 0) {
+		Syslog('+', "IBC: deleted empty channel %s", channel);
+		del_channel(&channels, channel);
+	    }
+	    break;
+	}
+    }
+
+    for (tmpu = users; tmpu; tmpu = tmpu->next) {
+	if ((strcmp(tmpu->server, server) == 0) && (strcmp(tmpu->nick, nick) == 0) && (strcmp(tmpu->name, nick) == 0)) {
+	    pthread_mutex_lock(&b_mutex);
+	    tmpu->channel[0] = '\0';
+	    pthread_mutex_unlock(&b_mutex);
+	    Syslog('+', "IBC: user %s left channel %s", nick, channel);
+	    usrchg = TRUE;
+	}
+    }
+}
+
+
+
+void command_topic(char *hostname, char *parameters)
+{
+    ncs_list    *tnsl;
+    chn_list    *tmp;
+    char        *channel, *topic;
+		        
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    channel = strtok(parameters, " \0");
+    topic = strtok(NULL, "\0");
+
+    if (topic == NULL) {
+	send_msg(tnsl, "461 TOPIC: Not enough parameters\r\n");
+	return;
+    }
+
+    for (tmp = channels; tmp; tmp = tmp->next) {
+	if (strcmp(tmp->name, channel) == 0) {
+	    chnchg = TRUE;
+	    strncpy(tmp->topic, topic, 54);
+	    Syslog('+', "IBC: channel %s topic: %s", channel, topic);
+	}
+	break;
+    }
+}
+
+
+
 void receiver(struct servent  *se)
 {
     struct pollfd   pfd;
@@ -1233,6 +1371,24 @@ void receiver(struct servent  *se)
 		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
 		    command_nick(hostname, parameters);
+		}
+	    } else if (! strcmp(command, (char *)"JOIN")) {
+		if (parameters == NULL) {
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
+		} else {
+		    command_join(hostname, parameters);
+		}
+	    } else if (! strcmp(command, (char *)"PART")) {
+		if (parameters == NULL) {
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
+		} else {
+		    command_part(hostname, parameters);
+		}
+	    } else if (! strcmp(command, (char *)"TOPIC")) {
+		if (parameters == NULL) {
+		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
+		} else {
+		    command_topic(hostname, parameters);
 		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
