@@ -279,6 +279,7 @@ void del_user(usr_list **fap, char *server, char *name)
 	    free(tmpa);
 	    usrchg = TRUE;
 	} else if ((name == NULL) && (strcmp((*tmp)->server, server) == 0)) {
+	    Syslog('r', "removed user %s from %s", (*tmp)->name, (*tmp)->server);
 	    tmpa = *tmp;
 	    *tmp=(*tmp)->next;
 	    free(tmpa);
@@ -786,7 +787,7 @@ void command_server(char *hostname, char *parameters)
 	 */
 	if (tnsl->token == token) {
 	    broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
-	    system_shout("*** New server: %s, %s", name, fullname);
+	    system_shout("* New server: %s, %s", name, fullname);
 	    tnsl->gotserver = TRUE;
 	    changed = TRUE;
 	    tnsl->state = NCS_CONNECT;
@@ -825,7 +826,7 @@ void command_server(char *hostname, char *parameters)
 	send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 	send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
 	broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
-	system_shout("*** New server: %s, %s", name, fullname);
+	system_shout("* New server: %s, %s", name, fullname);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
@@ -858,7 +859,7 @@ void command_server(char *hostname, char *parameters)
 	add_server(&servers, name, ihops, prod, vers, fullname, hostname);
 	broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	changed = TRUE;
-	system_shout("*** New server: %s, %s", name, fullname);
+	system_shout("* New server: %s, %s", name, fullname);
 	return;
     }
 
@@ -895,7 +896,7 @@ void command_squit(char *hostname, char *parameters)
 	del_server(&servers, name);
     }
 
-    system_shout("*** Server %s disconnected: %s", name, message);
+    system_shout("* Server %s disconnected: %s", name, message);
     broadcast(hostname, "SQUIT %s %s\r\n", name, message);
     changed = TRUE;
 }
@@ -924,7 +925,7 @@ void command_user(char *hostname, char *parameters)
     
     if (add_user(&users, server, name, realname) == 0) {
 	broadcast(hostname, "USER %s@%s %s\r\n", name, server, realname);
-	system_shout("*** New user %s@%s (%s)", name, server, realname);
+	system_shout("* New user %s@%s (%s)", name, server, realname);
     }
 }
 
@@ -952,10 +953,10 @@ void command_quit(char *hostname, char *parameters)
 
     if (message) {
 	send_all("MSG ** %s is leaving: %s\r\n", name, message);
-	system_shout("*** User %s is leaving: %s", name, message);
+	system_shout("* User %s is leaving: %s", name, message);
     } else {
 	send_all("MSG ** %s is leaving: Quit\r\n", name);
-	system_shout("*** User %s is leaving", name);
+	system_shout("* User %s is leaving", name);
     }
     del_user(&users, server, name);
     broadcast(hostname, "QUIT %s@%s %s\r\n", name, server, parameters);
