@@ -41,6 +41,7 @@ v0.71.2		16-Jan-2005
 		the chat input and one general input function. This may have
 		effects for all users not using us-ascii keyboards.
 		Added more support for Chinese using the traduce function.
+		Changed color for chat lines with one * at the begin.
 
 	mbfido:
 		Empty *.msg netmails for our own system are dropped with and
@@ -65,6 +66,9 @@ v0.71.2		16-Jan-2005
 		Added experimental code to build Internet BBS Chat. With this
 		code we will build inter-bbs chat. Currently this only works
 		to connect/disconnect servers to build the network.
+
+	mbmon:
+		Changed color for chat lines with one * at the begin.
 
 	mbsetup:
 		Added language defaults for Chinese.

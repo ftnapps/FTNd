@@ -163,11 +163,15 @@ void dump_ncslist(void)
     }
     
     if (usrchg) {
-	Syslog('+', "IBC: Server               User                 Name/Nick Channel       Cop Connect time");
-	Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
-	for (usrp = users; usrp; usrp = usrp->next) {
-	    Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel,
-		usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
+	if (users) {
+	    Syslog('+', "IBC: Server               User                 Name/Nick Channel       Cop Connect time");
+	    Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
+	    for (usrp = users; usrp; usrp = usrp->next) {
+		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel,
+		    usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
+	    }
+	} else {
+	    Syslog('+', "IBC: Users list is empty");
 	}
     }
 

@@ -486,8 +486,11 @@ void Showline(int y, int x, char *msg)
 		    putchar(msg[i]);
 		}
 	    }
-	} else if (msg[0] == '*') {
+	} else if ((msg[0] == '*') && (msg[1] == '*')) {
 	    mbse_colour(LIGHTRED, BLACK);
+	    mbse_mvprintw(y, x, msg);
+	} else if (msg[0] == '*') {
+	    mbse_colour(LIGHTMAGENTA, BLACK);
 	    mbse_mvprintw(y, x, msg);
 	} else {
 	    mbse_colour(GREEN, BLACK);

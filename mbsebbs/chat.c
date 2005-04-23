@@ -101,8 +101,11 @@ void Showline(int y, int x, char *msg)
 		    PUTCHAR(msg[i]);
 		}
 	    }
-	} else if (msg[0] == '*') {
+	} else if ((msg[0] == '*') && (msg[0] == '*')) {
 	    colour(LIGHTRED, BLACK);
+	    mvprintw(y, x, msg);
+	} else if (msg[0] == '*') {
+	    colour(LIGHTMAGENTA, BLACK);
 	    mvprintw(y, x, msg);
 	} else {
 	    colour(GREEN, BLACK);
