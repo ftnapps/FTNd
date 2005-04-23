@@ -1138,7 +1138,7 @@ void command_join(char *hostname, char *parameters)
         }
     }
 
-    nick = strtok(parameters, " \0");
+    nick = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
     channel = strtok(NULL, "\0");
 
@@ -1193,7 +1193,7 @@ void command_part(char *hostname, char *parameters)
 	}
     }
 
-    nick = strtok(parameters, " \0");
+    nick = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
     channel = strtok(NULL, "\0");
 
