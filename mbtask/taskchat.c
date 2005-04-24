@@ -396,6 +396,9 @@ int part(pid_t pid, char *reason)
     chn_list	*tmp;
 #endif
 
+    if (strlen(reason) > 54)
+	reason[54] = '\0';
+
     Syslog('-', "Part pid %d from channel, reason %s", pid, reason);
 
 #ifdef	USE_EXPERIMENT
@@ -413,8 +416,12 @@ int part(pid_t pid, char *reason)
 			chat_msg(chat_users[i].channel, chat_users[i].nick, reason);
 		    sprintf(buf, "%s has left channel #%s, %d users left", chat_users[i].nick, tmp->name, tmp->users);
 		    chat_msg(chat_users[i].channel, NULL, buf);
-		    if (strcmp(tmp->name, (char *)"sysop"))
-			send_all("PART %s@%s %s\r\n", chat_users[i].nick, CFG.myfqdn, tmp->name);
+		    if (strcmp(tmp->name, (char *)"sysop")) {
+			if (reason && strlen(reason))
+			    send_all("PART %s@%s %s %s\r\n", chat_users[i].nick, CFG.myfqdn, tmp->name, reason);
+			else
+			    send_all("PART %s@%s %s\r\n", chat_users[i].nick, CFG.myfqdn, tmp->name);
+		    }
 
 		    /*
 		     * Clean channel

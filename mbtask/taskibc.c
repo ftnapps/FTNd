@@ -1186,7 +1186,7 @@ void command_part(char *hostname, char *parameters)
     ncs_list    *tnsl;
     chn_list    *tmp;
     usr_list    *tmpu;
-    char        *nick, *server, *channel;
+    char        *nick, *server, *channel, *message;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1196,7 +1196,8 @@ void command_part(char *hostname, char *parameters)
 
     nick = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
-    channel = strtok(NULL, "\0");
+    channel = strtok(NULL, " \0");
+    message = strtok(NULL, "\0");
 
     if (channel == NULL) {
 	send_msg(tnsl, "461 PART: Not enough parameters\r\n");
@@ -1220,12 +1221,18 @@ void command_part(char *hostname, char *parameters)
 	    pthread_mutex_lock(&b_mutex);
 	    tmpu->channel[0] = '\0';
 	    pthread_mutex_unlock(&b_mutex);
-	    Syslog('+', "IBC: user %s left channel %s", nick, channel);
+	    if (message)
+		Syslog('+', "IBC: user %s left channel %s: %s", nick, channel, message);
+	    else
+		Syslog('+', "IBC: user %s left channel %s", nick, channel);
 	    usrchg = TRUE;
 	}
     }
 
-    broadcast(hostname, "PART %s@%s %s\r\n", nick, server, channel);
+    if (message)
+	broadcast(hostname, "PART %s@%s %s %s\r\n", nick, server, channel, message);
+    else
+	broadcast(hostname, "PART %s@%s %s\r\n", nick, server, channel);
 }
 
 
@@ -1271,7 +1278,7 @@ void receiver(struct servent  *se)
     int             rc, len, inlist;
     socklen_t       sl;
     ncs_list	    *tnsl;
-    char            *hostname, *prefix, *command, *parameters;
+    char            *hostname, *command, *parameters;
 
     pfd.fd = ls;
     pfd.events = POLLIN;
@@ -1322,18 +1329,8 @@ void receiver(struct servent  *se)
 	    /*
 	     * Parse message
 	     */
-	    if (crbuf[0] == ':') {
-		prefix = strtok(crbuf, " ");
-		command = strtok(NULL, " \0");
-		parameters = strtok(NULL, "\0");
-	    } else {
-		prefix = NULL;
-		command = strtok(crbuf, " \0");
-		parameters = strtok(NULL, "\0");
-	    }
-//	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
-//	    Syslog('r', "command    \"%s\"", printable(command, 0));
-//	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
+	    command = strtok(crbuf, " \0");
+	    parameters = strtok(NULL, "\0");
 
 	    if (! strcmp(command, (char *)"PASS")) {
 		if (parameters == NULL) {
