@@ -83,15 +83,15 @@ void del_router(srv_list **, char *);
 int  send_msg(ncs_list *, const char *, ...);
 void broadcast(char *, const char *, ...);
 void check_servers(void);
-void command_pass(char *, char *);
-void command_server(char *, char *);
-void command_squit(char *, char *);
-void command_user(char *, char *);
-void command_quit(char *, char *);
+int  command_pass(char *, char *);
+int  command_server(char *, char *);
+int  command_squit(char *, char *);
+int  command_user(char *, char *);
+int  command_quit(char *, char *);
 int  command_nick(char *, char *);
-void command_join(char *, char *);
-void command_part(char *, char *);
-void command_topic(char *, char *);
+int  command_join(char *, char *);
+int  command_part(char *, char *);
+int  command_topic(char *, char *);
 void receiver(struct servent *);
 
 
@@ -800,7 +800,7 @@ void check_servers(void)
 
 
 
-void command_pass(char *hostname, char *parameters)
+int command_pass(char *hostname, char *parameters)
 {
     ncs_list	*tnsl;
     char	*passwd, *version, *lnk;
@@ -821,12 +821,12 @@ void command_pass(char *hostname, char *parameters)
 
     if (version == NULL) {
 	send_msg(tnsl, "461 PASS: Not enough parameters\r\n");
-	return;
+	return 461;
     }
 
     if (strcmp(passwd, tnsl->passwd)) {
 	Syslog('!', "IBC: got bad password %s from %s", passwd, hostname);
-	return;
+	return 0;
     }
 
     tnsl->gotpass = TRUE;
@@ -834,11 +834,12 @@ void command_pass(char *hostname, char *parameters)
     if (lnk && strchr(lnk, 'Z'))
 	tnsl->compress = TRUE;
     changed = TRUE;
+    return 0;
 }
 
 
 
-void command_server(char *hostname, char *parameters)
+int command_server(char *hostname, char *parameters)
 {
     ncs_list	    *tnsl;
     srv_list	    *ta;
@@ -871,7 +872,7 @@ void command_server(char *hostname, char *parameters)
 
     if (fullname == NULL) {
 	send_msg(tnsl, "461 SERVER: Not enough parameters\r\n");
-	return;
+	return 461;
     }
 
     token = atoi(id);
@@ -907,11 +908,11 @@ void command_server(char *hostname, char *parameters)
 		    send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
 	    }
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
-	    return;
+	    return 0;
 	}
 	Syslog('r', "IBC: collision with %s", tnsl->server);
 	tnsl->state = NCS_WAITPWD; /* Experimental, should fix state when state was connect while it wasn't. */
-	return;
+	return 0;
     }
 
     /*
@@ -946,7 +947,7 @@ void command_server(char *hostname, char *parameters)
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	changed = TRUE;
-	return;
+	return 0;
     }
 
     if (! found) {
@@ -957,16 +958,16 @@ void command_server(char *hostname, char *parameters)
 	broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	changed = TRUE;
 	system_shout("* New server: %s, %s", name, fullname);
-	return;
+	return 0;
     }
 
     Syslog('r', "IBC: got SERVER command without PASS command from %s", hostname);
-    return;
+    return 0;
 }
 
 
 
-void command_squit(char *hostname, char *parameters)
+int command_squit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     char        *name, *message;
@@ -996,11 +997,12 @@ void command_squit(char *hostname, char *parameters)
     system_shout("* Server %s disconnected: %s", name, message);
     broadcast(hostname, "SQUIT %s %s\r\n", name, message);
     changed = TRUE;
+    return 0;
 }
 
 
 
-void command_user(char *hostname, char *parameters)
+int command_user(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     char	*name, *server, *realname;
@@ -1017,18 +1019,19 @@ void command_user(char *hostname, char *parameters)
 
     if (realname == NULL) {
 	send_msg(tnsl, "461 USER: Not enough parameters\r\n");
-	return;
+	return 461;
     }
     
     if (add_user(&users, server, name, realname) == 0) {
 	broadcast(hostname, "USER %s@%s %s\r\n", name, server, realname);
 	system_shout("* New user %s@%s (%s)", name, server, realname);
     }
+    return 0;
 }
 
 
 
-void command_quit(char *hostname, char *parameters)
+int command_quit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     char	*name, *server, *message;
@@ -1045,7 +1048,7 @@ void command_quit(char *hostname, char *parameters)
 
     if (server == NULL) {
 	send_msg(tnsl, "461 QUIT: Not enough parameters\r\n");
-	return;
+	return 461;
     }
 
     if (message) {
@@ -1057,6 +1060,7 @@ void command_quit(char *hostname, char *parameters)
     }
     del_user(&users, server, name);
     broadcast(hostname, "QUIT %s@%s %s\r\n", name, server, parameters);
+    return 0;
 }
 
 
@@ -1086,7 +1090,7 @@ int command_nick(char *hostname, char *parameters)
 
     if (strlen(nick) > 9) {
 	send_msg(tnsl, "432 %s: Erroneous nickname\r\n", nick);
-	return 2;
+	return 432;
     }
     
     // FIXME: check 1st char is alpha, rest alpha/digit
@@ -1100,7 +1104,7 @@ int command_nick(char *hostname, char *parameters)
     }
     if (found) {
 	send_msg(tnsl, "433 %s: Nickname is already in use\r\n", nick);
-	return 2;
+	return 433;
     }
 
     for (tmp = users; tmp; tmp = tmp->next) {
@@ -1115,7 +1119,7 @@ int command_nick(char *hostname, char *parameters)
     }
     if (!found) {
 	send_msg(tnsl, "437 %s@%s: Can't change nick\r\n", name, server);
-	return 2;
+	return 437;
     }
 
     broadcast(hostname, "NICK %s %s %s %s\r\n", nick, name, server, realname);
@@ -1124,7 +1128,7 @@ int command_nick(char *hostname, char *parameters)
 
 
 
-void command_join(char *hostname, char *parameters)
+int command_join(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     chn_list    *tmp;
@@ -1144,12 +1148,12 @@ void command_join(char *hostname, char *parameters)
 
     if (channel == NULL) {
 	send_msg(tnsl, "461 JOIN: Not enough parameters\r\n");
-	return;
+	return 461;
     }
 
     if (strlen(channel) > 20) {
 	send_msg(tnsl, "432 %s: Erroneous channelname\r\n", nick);
-	return;
+	return 432;
     }
 
     found = FALSE;
@@ -1177,11 +1181,12 @@ void command_join(char *hostname, char *parameters)
 
     broadcast(hostname, "JOIN %s@%s %s\r\n", nick, server, channel);
     chnchg = TRUE;
+    return 0;
 }
 
 
 
-void command_part(char *hostname, char *parameters)
+int command_part(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     chn_list    *tmp;
@@ -1201,7 +1206,7 @@ void command_part(char *hostname, char *parameters)
 
     if (channel == NULL) {
 	send_msg(tnsl, "461 PART: Not enough parameters\r\n");
-	return;
+	return 461;
     }
 
     for (tmp = channels; tmp; tmp = tmp->next) {
@@ -1233,11 +1238,12 @@ void command_part(char *hostname, char *parameters)
 	broadcast(hostname, "PART %s@%s %s %s\r\n", nick, server, channel, message);
     else
 	broadcast(hostname, "PART %s@%s %s\r\n", nick, server, channel);
+    return 0;
 }
 
 
 
-void command_topic(char *hostname, char *parameters)
+int command_topic(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     chn_list    *tmp;
@@ -1254,7 +1260,7 @@ void command_topic(char *hostname, char *parameters)
 
     if (topic == NULL) {
 	send_msg(tnsl, "461 TOPIC: Not enough parameters\r\n");
-	return;
+	return 461;
     }
 
     for (tmp = channels; tmp; tmp = tmp->next) {
@@ -1267,6 +1273,69 @@ void command_topic(char *hostname, char *parameters)
     }
 
     broadcast(hostname, "TOPIC %s %s\r\n", channel, topic);
+    return 0;
+}
+
+
+int do_command(char *hostname, char *command, char *parameters)
+{
+    ncs_list    *tnsl;
+    
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    /*
+     * First the commands that don't have parameters
+     */
+    if (! strcmp(command, (char *)"PING")) {
+	send_msg(tnsl, "PONG\r\n");
+	return 0;
+    }
+    if (! strcmp(command, (char *)"PONG")) {
+	/*
+	 * Just accept
+	 */
+	return 0;
+    }
+
+    /*
+     * Commands with parameters
+     */
+    if (parameters == NULL) {
+	send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
+	return 461;
+    }
+
+    if (! strcmp(command, (char *)"PASS")) {
+	return command_pass(hostname, parameters);
+    } 
+    if (! strcmp(command, (char *)"SERVER")) {
+	return command_server(hostname, parameters);
+    } 
+    if (! strcmp(command, (char *)"SQUIT")) {
+	return command_squit(hostname, parameters);
+    } 
+    if (! strcmp(command, (char *)"USER")) {
+	return command_user(hostname, parameters);
+    } 
+    if (! strcmp(command, (char *)"QUIT")) {
+	return command_quit(hostname, parameters);
+    } 
+    if (! strcmp(command, (char *)"NICK")) {
+	return command_nick(hostname, parameters);
+    } 
+    if (! strcmp(command, (char *)"PART")) {
+	return command_part(hostname, parameters);
+    } 
+    if (! strcmp(command, (char *)"TOPIC")) {
+	return command_topic(hostname, parameters);
+    }
+
+    send_msg(tnsl, "421 %s: Unknown command\r\n", command);
+    return 421;
 }
 
 
@@ -1332,73 +1401,10 @@ void receiver(struct servent  *se)
 	    command = strtok(crbuf, " \0");
 	    parameters = strtok(NULL, "\0");
 
-	    if (! strcmp(command, (char *)"PASS")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_pass(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"SERVER")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_server(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"PING")) {
-		send_msg(tnsl, "PONG\r\n");
-	    } else if (! strcmp(command, (char *)"PONG")) {
-		/*
-		 * Just accept
-		 */
-	    } else if (! strcmp(command, (char *)"SQUIT")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_squit(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"USER")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_user(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"QUIT")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_quit(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"NICK")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_nick(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"JOIN")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_join(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"PART")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_part(hostname, parameters);
-		}
-	    } else if (! strcmp(command, (char *)"TOPIC")) {
-		if (parameters == NULL) {
-		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-		} else {
-		    command_topic(hostname, parameters);
-		}
-	    } else if (atoi(command)) {
+	    if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
-	    } else if (tnsl->state == NCS_CONNECT) {
-		/*
-		 * Only if connected we send a error response
-		 */
-		send_msg(tnsl, "421 %s: Unknown command\r\n", command);
+	    } else {
+		do_command(hostname, command, parameters);
 	    }
 	} else {
 	    Syslog('r', "recvfrom returned len=%d", len);
