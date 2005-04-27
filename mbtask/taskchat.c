@@ -134,11 +134,6 @@ extern int		chnchg;
 /*
  * Prototypes
  */
-#ifdef	USE_EXPERIMENT
-void chat_msg(char *, char *, char *);
-#else
-void chat_msg(int, char *, char *);
-#endif
 void chat_dump(void);
 void system_msg(pid_t, char *);
 void chat_help(pid_t);
@@ -541,10 +536,6 @@ void chat_msg(int channel, char *nick, char *msg)
 	    system_msg(chat_users[i].pid, buf);
 	}
     }
-
-#ifdef	USE_EXPERIMENT
-    send_all("MSG %s\r\n", buf);
-#endif
 }
 
 
@@ -934,6 +925,9 @@ char *chat_put(char *data)
 	    } else {
 		chat_msg(chat_users[i].channel, chat_users[i].nick, msg);
 		chat_dump();
+#ifdef	USE_EXPERIMENT
+		send_all("PRIVMSG %s <%s> %s\r\n", chat_users[i].channel, chat_users[i].nick, msg);
+#endif
 	    }
 	    goto ack;
 	}

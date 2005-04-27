@@ -92,6 +92,7 @@ int  command_nick(char *, char *);
 int  command_join(char *, char *);
 int  command_part(char *, char *);
 int  command_topic(char *, char *);
+int  command_privmsg(char *, char *);
 void receiver(struct servent *);
 
 
@@ -1063,10 +1064,10 @@ int command_quit(char *hostname, char *parameters)
     }
 
     if (message) {
-	send_all("MSG ** %s is leaving: %s\r\n", name, message);
+	send_all("NOTICE * ** %s is leaving: %s\r\n", name, message);
 	system_shout("* User %s is leaving: %s", name, message);
     } else {
-	send_all("MSG ** %s is leaving: Quit\r\n", name);
+	send_all("NOTICE * ** %s is leaving: Quit\r\n", name);
 	system_shout("* User %s is leaving", name);
     }
     del_user(&users, server, name);
@@ -1279,13 +1280,54 @@ int command_topic(char *hostname, char *parameters)
 	    chnchg = TRUE;
 	    strncpy(tmp->topic, topic, 54);
 	    Syslog('+', "IBC: channel %s topic: %s", channel, topic);
+	    break;
 	}
-	break;
     }
 
     broadcast(hostname, "TOPIC %s %s\r\n", channel, topic);
     return 0;
 }
+
+
+
+int command_privmsg(char *hostname, char *parameters)
+{
+    ncs_list    *tnsl;
+    chn_list    *tmp;
+    char	*channel, *msg;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    channel = strtok(parameters, " \0");
+    msg = strtok(NULL, "\0");
+
+    if (msg == NULL) {
+	send_msg(tnsl, "412 PRIVMSG: No text to send\r\n");
+	return 412;
+    }
+
+    if (channel[0] != '#') {
+	send_msg(tnsl, "401 PRIVMSG: Not for a channel\r\n"); // FIXME: also check users
+	return 401;
+    }
+
+    for (tmp = channels; tmp; tmp = tmp->next) {
+	if (strcmp(tmp->name, channel) == 0) {
+	    tmp->lastmsg = now;
+	    chat_msg(channel, NULL, msg);
+	    broadcast(hostname, "PRIVMSG %s %s\r\n", channel, msg);
+	    return 0;
+	}
+    }
+
+    send_msg(tnsl, "403 %s: no such channel\r\n", channel);
+    return 403;
+}
+
 
 
 int do_command(char *hostname, char *command, char *parameters)
@@ -1343,6 +1385,9 @@ int do_command(char *hostname, char *command, char *parameters)
     } 
     if (! strcmp(command, (char *)"TOPIC")) {
 	return command_topic(hostname, parameters);
+    }
+    if (! strcmp(command, (char *)"PRIVMSG")) {
+	return command_privmsg(hostname, parameters);
     }
 
     send_msg(tnsl, "421 %s: Unknown command\r\n", command);

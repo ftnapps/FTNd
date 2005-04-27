@@ -72,6 +72,7 @@ typedef struct _chn_list {
     char		topic[55];	    /* Channel topic		*/
     char		owner[10];	    /* Channel owner		*/
     time_t		created;	    /* Channel created		*/
+    time_t		lastmsg;	    /* Last message in channel	*/
     int			users;		    /* Users in channel		*/
 } chn_list;
 
