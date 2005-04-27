@@ -1183,7 +1183,7 @@ int command_join(char *hostname, char *parameters)
     }
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if ((strcmp(tmpu->server, server) == 0) && (strcmp(tmpu->nick, nick) == 0) && (strcmp(tmpu->name, nick) == 0)) {
+	if ((strcmp(tmpu->server, server) == 0) && ((strcmp(tmpu->nick, nick) == 0) || (strcmp(tmpu->name, nick) == 0))) {
 	    pthread_mutex_lock(&b_mutex);
 	    strncpy(tmpu->channel, channel, 20);
 	    pthread_mutex_unlock(&b_mutex);
@@ -1237,7 +1237,7 @@ int command_part(char *hostname, char *parameters)
     }
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if ((strcmp(tmpu->server, server) == 0) && (strcmp(tmpu->nick, nick) == 0) && (strcmp(tmpu->name, nick) == 0)) {
+	if ((strcmp(tmpu->server, server) == 0) && ((strcmp(tmpu->nick, nick) == 0) || (strcmp(tmpu->name, nick) == 0))) {
 	    pthread_mutex_lock(&b_mutex);
 	    tmpu->channel[0] = '\0';
 	    pthread_mutex_unlock(&b_mutex);
