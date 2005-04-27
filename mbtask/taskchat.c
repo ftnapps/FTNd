@@ -676,11 +676,13 @@ char *chat_put(char *data)
 {
     static char buf[200];
     char	*pid, *msg, *cmd;
-    int		i, j, first, count;
+    int		i, first, count;
 #ifdef	USE_EXPERIMENT
     int		found;
     usr_list	*tmp;
     chn_list	*tmpc;
+#else
+    int		j;
 #endif
 
     Syslog('-', "CPUT:%s", data);
@@ -789,18 +791,25 @@ char *chat_put(char *data)
 			sprintf(buf, "Present in this channel:");
 			system_msg(chat_users[i].pid, buf);
 			count = 0;
-			for (j = 0; j < MAXCLIENT; j++) {
 #ifdef	USE_EXPERIMENT
-			    if ((strcmp(chat_users[j].channel, chat_users[i].channel) == 0) && chat_users[j].pid) {
+			for (tmp = users; tmp; tmp = tmp->next) {
+			    if (strcmp(tmp->channel, chat_users[i].channel) == 0) {
+				sprintf(buf, "%s@%s (%s)%s", tmp->nick, tmp->server, tmp->realname,
+				    tmp->chanop ? (char *)" (chanop)" : (char *)"");
+				system_msg(chat_users[i].pid, buf);
+				count++;
+			    }
+			}
 #else
+			for (j = 0; j < MAXCLIENT; j++) {
 			    if ((chat_users[j].channel == chat_users[i].channel) && chat_users[j].pid) {
-#endif
 				sprintf(buf, "%s %s", chat_users[j].nick, 
 					chat_users[j].chanop ?"(chanop)": chat_users[j].sysop ?"(sysop)":"");
 				system_msg(chat_users[i].pid, buf);
 				count++;
 			    }
 			}
+#endif
 			sprintf(buf, "%d user%s in this channel", count, (count == 1) ?"":"s");
 			system_msg(chat_users[i].pid, buf);
 		    } else {
