@@ -281,13 +281,13 @@ int join(pid_t pid, char *channel, int sysop)
 			chat_users[j].chatting = TRUE;
 			Syslog('-', "Added user %d to channel %s", j, channel);
 			chat_dump();
-			sprintf(buf, "%s has joined channel #%s, now %d users", chat_users[j].nick, channel, tmp->users);
+			sprintf(buf, "%s has joined channel %s, now %d users", chat_users[j].nick, channel, tmp->users);
 			chat_msg(channel, NULL, buf);
 
 			/*
 			 * The sysop channel is private to the system, no broadcast
 			 */
-			if (strcasecmp(channel, "sysop"))
+			if (strcasecmp(channel, "#sysop"))
 			    send_all("JOIN %s@%s %s\r\n", chat_users[j].nick, CFG.myfqdn, channel);
 			return TRUE;
 		    }
@@ -414,7 +414,7 @@ int part(pid_t pid, char *reason)
 		     */
 		    if (reason != NULL)
 			chat_msg(chat_users[i].channel, chat_users[i].nick, reason);
-		    sprintf(buf, "%s has left channel #%s, %d users left", chat_users[i].nick, tmp->name, tmp->users);
+		    sprintf(buf, "%s has left channel %s, %d users left", chat_users[i].nick, tmp->name, tmp->users);
 		    chat_msg(chat_users[i].channel, NULL, buf);
 		    if (strcmp(tmp->name, (char *)"sysop")) {
 			if (reason && strlen(reason))
@@ -744,7 +744,11 @@ char *chat_put(char *data)
 			system_msg(chat_users[i].pid, buf);
 		    } else {
 			Syslog('-', "Trying to join channel %s", cmd);
+#ifdef	USE_EXPERIMENT
+			join(chat_users[i].pid, cmd, chat_users[i].sysop);
+#else
 			join(chat_users[i].pid, cmd+1, chat_users[i].sysop);
+#endif
 		    }
 		    chat_dump();
 		    goto ack;

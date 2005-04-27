@@ -815,10 +815,6 @@ int command_pass(char *hostname, char *parameters)
     version = strtok(NULL, " \0");
     lnk = strtok(NULL, " \0");
 
-//    Syslog('r', "passwd \"%s\"", printable(passwd, 0));
-//    Syslog('r', "version \"%s\"", printable(version, 0));
-//    Syslog('r', "link \"%s\"", printable(lnk, 0));
-
     if (version == NULL) {
 	send_msg(tnsl, "461 PASS: Not enough parameters\r\n");
 	return 461;
@@ -844,6 +840,7 @@ int command_server(char *hostname, char *parameters)
     ncs_list	    *tnsl;
     srv_list	    *ta;
     usr_list	    *tmp;
+    chn_list	    *tmpc;
     char	    *name, *hops, *id, *prod, *vers, *fullname;
     unsigned long   token;
     int		    ihops, found = FALSE;
@@ -862,13 +859,6 @@ int command_server(char *hostname, char *parameters)
 	    break;
 	}
     }
-
-//    Syslog('r', "name \"%s\"", printable(name, 0));
-//    Syslog('r', "hops \"%s\"", printable(hops, 0));
-//    Syslog('r', "id   \"%s\"", printable(id, 0));
-//    Syslog('r', "prod \"%s\"", printable(prod, 0));
-//    Syslog('r', "vers \"%s\"", printable(vers, 0));
-//    Syslog('r', "full \"%s\"", printable(fullname, 0));
 
     if (fullname == NULL) {
 	send_msg(tnsl, "461 SERVER: Not enough parameters\r\n");
@@ -906,6 +896,16 @@ int command_server(char *hostname, char *parameters)
 		send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
 		if (strcmp(tmp->name, tmp->nick))
 		    send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
+		if (strlen(tmp->channel)) {
+		    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+			if (strcasecmp(tmpc->name, tmp->channel) == 0) {
+			    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmpc->owner, tmpc->server, tmpc->name);
+			    if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
+				send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
+			    }
+			}
+		    }
+		}
 	    }
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	    return 0;
@@ -938,12 +938,23 @@ int command_server(char *hostname, char *parameters)
 	    }
 	}
 	/*
-	 * Send all known users
+	 * Send all known users. If a user is in a channel, send a JOIN.
+	 * If the user is one of our own and has set a channel topic, send it.
 	 */
 	for (tmp = users; tmp; tmp = tmp->next) {
 	    send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
 	    if (strcmp(tmp->name, tmp->nick))
 		send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
+	    if (strlen(tmp->channel)) {
+		for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+		    if (strcasecmp(tmpc->name, tmp->channel) == 0) {
+			send_msg(tnsl, "JOIN %s@%s %s\r\n", tmpc->owner, tmpc->server, tmpc->name);
+			if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
+			    send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
+			}
+		    }
+		}
+	    }
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	changed = TRUE;
