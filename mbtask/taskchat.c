@@ -315,7 +315,11 @@ int join(pid_t pid, char *channel, int sysop)
     /*
      * A new channel must be created, but only the sysop may create the "sysop" channel
      */
+#ifdef	USE_EXPERIMENT
+    if (!sysop && (strcasecmp(channel, "#sysop") == 0)) {
+#else
     if (!sysop && (strcasecmp(channel, "sysop") == 0)) {
+#endif
 	sprintf(buf, "*** Only the sysop may create channel \"%s\"", channel);
 	system_msg(pid, buf);
 	return FALSE;
@@ -331,7 +335,7 @@ int join(pid_t pid, char *channel, int sysop)
 		strncpy(chat_users[j].channel, channel, 20);
 		chat_users[j].chatting = TRUE;
 		Syslog('-', "Added user %d to channel %s", j, channel);
-		sprintf(buf, "Created channel #%s", channel);
+		sprintf(buf, "Created channel %s", channel);
 		chat_msg(channel, NULL, buf);
 		chat_dump();
 		send_all("JOIN %s@%s %s\r\n", chat_users[j].nick, CFG.myfqdn, channel);
@@ -411,7 +415,7 @@ int part(pid_t pid, char *reason)
 			chat_msg(chat_users[i].channel, chat_users[i].nick, reason);
 		    sprintf(buf, "%s has left channel %s, %d users left", chat_users[i].nick, tmp->name, tmp->users);
 		    chat_msg(chat_users[i].channel, NULL, buf);
-		    if (strcmp(tmp->name, (char *)"sysop")) {
+		    if (strcmp(tmp->name, (char *)"#sysop")) {
 			if (reason && strlen(reason))
 			    send_all("PART %s@%s %s %s\r\n", chat_users[i].nick, CFG.myfqdn, tmp->name, reason);
 			else
@@ -848,8 +852,8 @@ char *chat_put(char *data)
 		    cmd = strtok(msg, " \0");
 		    Syslog('-', "\"%s\"", cmd);
 		    cmd = strtok(NULL, "\0");
-		    Syslog('-', "\"%s\"", cmd);
-		    if (part(chat_users[i].pid, cmd) == FALSE) {
+		    Syslog('-', "\"%s\"", printable(cmd, 0));
+		    if (part(chat_users[i].pid, cmd ? cmd : (char *)"Quitting") == FALSE) {
 			sprintf(buf, "** Not in a channel");
 			system_msg(chat_users[i].pid, buf);
 		    }

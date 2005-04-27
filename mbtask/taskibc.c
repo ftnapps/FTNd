@@ -1379,7 +1379,10 @@ int do_command(char *hostname, char *command, char *parameters)
     } 
     if (! strcmp(command, (char *)"NICK")) {
 	return command_nick(hostname, parameters);
-    } 
+    }
+    if (! strcmp(command, (char *)"PART")) {
+	return command_join(hostname, parameters);
+    }
     if (! strcmp(command, (char *)"PART")) {
 	return command_part(hostname, parameters);
     } 
