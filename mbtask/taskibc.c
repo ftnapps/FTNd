@@ -1145,7 +1145,7 @@ int command_join(char *hostname, char *parameters)
     ncs_list    *tnsl;
     chn_list    *tmp;
     usr_list	*tmpu;
-    char        *nick, *server, *channel;
+    char        *nick, *server, *channel, msg[81];
     int         found;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
@@ -1179,6 +1179,7 @@ int command_join(char *hostname, char *parameters)
     if (!found) {
 	Syslog('+', "IBC: create channel %s owned by %s@%s", channel, nick, server);
 	add_channel(&channels, channel, nick, server);
+	system_shout("* New channel %s created by %s@%s", channel, nick, server);
     }
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
@@ -1188,6 +1189,8 @@ int command_join(char *hostname, char *parameters)
 	    pthread_mutex_unlock(&b_mutex);
 	    Syslog('+', "IBC: user %s joined channel %s", nick, channel);
 	    usrchg = TRUE;
+	    sprintf(msg, "* %s@%s has joined %s", nick, server, channel);
+	    chat_msg(channel, NULL, msg);
 	}
     }
 
@@ -1203,7 +1206,7 @@ int command_part(char *hostname, char *parameters)
     ncs_list    *tnsl;
     chn_list    *tmp;
     usr_list    *tmpu;
-    char        *nick, *server, *channel, *message;
+    char        *nick, *server, *channel, *message, msg[81];
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1238,10 +1241,14 @@ int command_part(char *hostname, char *parameters)
 	    pthread_mutex_lock(&b_mutex);
 	    tmpu->channel[0] = '\0';
 	    pthread_mutex_unlock(&b_mutex);
-	    if (message)
+	    if (message) {
 		Syslog('+', "IBC: user %s left channel %s: %s", nick, channel, message);
-	    else
+		sprintf(msg, "* %s@%s has left: %s", nick, server, message);
+	    } else {
 		Syslog('+', "IBC: user %s left channel %s", nick, channel);
+		sprintf(msg, "* %s@%s has silently left this channel", nick, server);
+	    }
+	    chat_msg(channel, NULL, msg);
 	    usrchg = TRUE;
 	}
     }
@@ -1259,7 +1266,7 @@ int command_topic(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     chn_list    *tmp;
-    char        *channel, *topic;
+    char        *channel, *topic, msg[81];
 		        
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1280,6 +1287,8 @@ int command_topic(char *hostname, char *parameters)
 	    chnchg = TRUE;
 	    strncpy(tmp->topic, topic, 54);
 	    Syslog('+', "IBC: channel %s topic: %s", channel, topic);
+	    sprintf(msg, "* Channel topic is now: %s", tmp->topic);
+	    chat_msg(channel, NULL, msg);
 	    break;
 	}
     }
