@@ -63,9 +63,9 @@ v0.71.2		16-Jan-2005
 	mbtask:
 		The created semafore files are now world readable so that low
 		privileged users like nobody can check the semafore's.
-		Added experimental code to build Internet BBS Chat. With this
-		code we will build inter-bbs chat. Currently this only works
-		to connect/disconnect servers to build the network.
+		Added experimental Internet BBS Chat. This is only available
+		when you build with --enable-experiment because there are still
+		many bugs.
 
 	mbmon:
 		Changed color for chat lines with one * at the begin.
@@ -74,7 +74,7 @@ v0.71.2		16-Jan-2005
 		Added language defaults for Chinese.
 		Removed obsolete bbslist editor.
 		Added chatserver setup, only visible when compiled with the
-		dangerous --enable-experint configuration.
+		--enable-experint configuration.
 
 	html:
 		Added batch file upload written by Russell Tiedt to the faq.
