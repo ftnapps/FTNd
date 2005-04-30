@@ -857,7 +857,7 @@ int command_server(char *hostname, char *parameters)
 	    changed = TRUE;
 	    tnsl->state = NCS_CONNECT;
 	    tnsl->action = now + (time_t)10;
-	    Syslog('+', "IBC: connected with %s", tnsl->server);
+	    Syslog('+', "IBC: connected with neighbour server: %s", tnsl->server);
 	    /*
 	     * Send all already known servers
 	     */
@@ -887,7 +887,7 @@ int command_server(char *hostname, char *parameters)
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	    return 0;
 	}
-	Syslog('r', "IBC: collision with %s", tnsl->server);
+	Syslog('r', "IBC: call collision with %s", tnsl->server);
 	tnsl->state = NCS_WAITPWD; /* Experimental, should fix state when state was connect while it wasn't. */
 	return 0;
     }
@@ -905,7 +905,7 @@ int command_server(char *hostname, char *parameters)
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
-	Syslog('+', "IBC: connected with %s", tnsl->server);
+	Syslog('+', "IBC: connected with neighbour server: %s", tnsl->server);
 	/*
 	 * Send all already known servers
 	 */
@@ -945,6 +945,7 @@ int command_server(char *hostname, char *parameters)
 	add_server(&servers, name, ihops, prod, vers, fullname, hostname);
 	broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	changed = TRUE;
+	Syslog('+', "IBC: new relay server %s: %s", name, fullname);
 	system_shout("* New server: %s, %s", name, fullname);
 	return 0;
     }
