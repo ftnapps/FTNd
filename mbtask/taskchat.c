@@ -128,6 +128,7 @@ extern usr_list		*users;		    /* Connected users		*/
 extern chn_list		*channels;	    /* Connected channels	*/
 extern int		usrchg;
 extern int		chnchg;
+extern pthread_mutex_t	b_mutex;
 #endif
 
 
@@ -259,6 +260,7 @@ int join(pid_t pid, char *channel, int sysop)
     char	buf[81];
 #ifdef	USE_EXPERIMENT
     chn_list	*tmp;
+    usr_list	*tmpu;
 #else
     int		i;
 #endif
@@ -274,10 +276,21 @@ int join(pid_t pid, char *channel, int sysop)
 		    if (chat_users[j].pid == pid) {
 			strncpy(chat_users[j].channel, channel, 20);
 			chat_users[j].chatting = TRUE;
-			Syslog('-', "Added user %d to channel %s", j, channel);
+			Syslog('r', "Added user %d to channel %s", j, channel);
 			chat_dump();
 			sprintf(buf, "%s has joined channel %s, now %d users", chat_users[j].nick, channel, tmp->users);
 			chat_msg(channel, NULL, buf);
+
+		    	for (tmpu = users; tmpu; tmpu = tmpu->next) {
+			    if ((strcmp(tmpu->server, CFG.myfqdn) == 0) && 
+				((strcmp(tmpu->nick, chat_users[j].nick) == 0) || (strcmp(tmpu->name, chat_users[j].nick) == 0))) {
+				pthread_mutex_lock(&b_mutex);
+				strncpy(tmpu->channel, channel, 20);
+				pthread_mutex_unlock(&b_mutex);
+				Syslog('+', "IBC: user %s has joined channel %s", chat_users[j].nick, channel);
+				usrchg = TRUE;
+			    }
+			}
 
 			/*
 			 * The sysop channel is private to the system, no broadcast
@@ -334,11 +347,23 @@ int join(pid_t pid, char *channel, int sysop)
 	    if (add_channel(&channels, channel, chat_users[j].nick, CFG.myfqdn) == 0) {
 		strncpy(chat_users[j].channel, channel, 20);
 		chat_users[j].chatting = TRUE;
-		Syslog('-', "Added user %d to channel %s", j, channel);
-		sprintf(buf, "Created channel %s", channel);
+		Syslog('r', "Added user %d to channel %s", j, channel);
+		sprintf(buf, "* Created channel %s", channel);
 		chat_msg(channel, NULL, buf);
 		chat_dump();
 		send_all("JOIN %s@%s %s\r\n", chat_users[j].nick, CFG.myfqdn, channel);
+
+		for (tmpu = users; tmpu; tmpu = tmpu->next) {
+		    if ((strcmp(tmpu->server, CFG.myfqdn) == 0) &&
+			((strcmp(tmpu->nick, chat_users[j].nick) == 0) || (strcmp(tmpu->name, chat_users[j].nick) == 0))) {
+			pthread_mutex_lock(&b_mutex);
+			strncpy(tmpu->channel, channel, 20);
+			pthread_mutex_unlock(&b_mutex);
+			Syslog('+', "IBC: user %s created and joined channel %s", chat_users[j].nick, channel);
+			usrchg = TRUE;
+		    }
+		}
+
 		return TRUE;
 	    }
 	}
@@ -393,6 +418,7 @@ int part(pid_t pid, char *reason)
     char	buf[81];
 #ifdef	USE_EXPERIMENT
     chn_list	*tmp;
+    usr_list	*tmpu;
 #endif
 
     if (strlen(reason) > 54)
@@ -433,6 +459,18 @@ int part(pid_t pid, char *reason)
 			Syslog('-', "Remove channel %s, no more users left", tmp->name);
 			del_channel(&channels, tmp->name);
 		    }
+
+		    for (tmpu = users; tmpu; tmpu = tmpu->next) {
+			if ((strcmp(tmpu->server, CFG.myfqdn) == 0) &&
+			    ((strcmp(tmpu->nick, chat_users[i].nick) == 0) || (strcmp(tmpu->name, chat_users[i].nick) == 0))) {
+			    pthread_mutex_lock(&b_mutex);
+			    tmpu->channel[0] = '\0';
+			    pthread_mutex_unlock(&b_mutex);
+			    Syslog('+', "IBC: user %s created and joined channel %s", chat_users[i].nick,  chat_users[i].channel);
+			    usrchg = TRUE;
+			}
+		    }
+
 		    chat_users[i].channel[0] = '\0';
 		    chat_users[i].chatting = FALSE;
 		    chat_dump();
@@ -793,6 +831,7 @@ char *chat_put(char *data)
 			count = 0;
 #ifdef	USE_EXPERIMENT
 			for (tmp = users; tmp; tmp = tmp->next) {
+			    Syslog('r', "/names list %s %s", tmp->name, tmp->channel);
 			    if (strcmp(tmp->channel, chat_users[i].channel) == 0) {
 				sprintf(buf, "%s@%s (%s)%s", tmp->nick, tmp->server, tmp->realname,
 				    tmp->chanop ? (char *)" (chanop)" : (char *)"");
