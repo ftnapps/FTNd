@@ -103,10 +103,8 @@ void receiver(struct servent *);
 void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
 {
     ncs_list	*tmp, *ta;
-    int		rc;
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "fill_ncslist() mutex_lock failed rc=%d", rc);
+    pthread_mutex_lock(&b_mutex);
 
     tmp = (ncs_list *)malloc(sizeof(ncs_list));
     memset(tmp, 0, sizeof(tmp));
@@ -127,15 +125,15 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
     if (*fdp == NULL) {
 	*fdp = tmp;
     } else {
-	for (ta = *fdp; ta; ta = ta->next)
-	if (ta->next == NULL) {
-	    ta->next = (ncs_list *)tmp;
-	    break;
+	for (ta = *fdp; ta; ta = ta->next) {
+	    if (ta->next == NULL) {
+		ta->next = (ncs_list *)tmp;
+		break;
+	    }
 	}
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "fill_ncslist() mutex_unlock failed rc=%d", rc);
+    pthread_mutex_unlock(&b_mutex);
 }
 
 
@@ -223,7 +221,6 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 {
     usr_list    *tmp, *ta;
     srv_list	*sl;
-    int         rc;
 
     Syslog('r', "add_user %s %s %s", server, name, realname);
 
@@ -234,8 +231,7 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 	}
     }
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "add_user() mutex_lock failed rc=%d", rc);
+    pthread_mutex_lock(&b_mutex);
 
     tmp = (usr_list *)malloc(sizeof(usr_list));
     memset(tmp, 0, sizeof(usr_list));
@@ -249,22 +245,22 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
     if (*fap == NULL) {
 	*fap = tmp;
     } else {
-	for (ta = *fap; ta; ta = ta->next)
+	for (ta = *fap; ta; ta = ta->next) {
 	    if (ta->next == NULL) {
 		ta->next = (usr_list *)tmp;
 		break;
 	    }
+	}
     }
 
     for (sl = servers; sl; sl = sl->next) {
 	if (strcmp(sl->server, server) == 0) {
-		sl->users++;
-		srvchg = TRUE;
+	    sl->users++;
+	    srvchg = TRUE;
 	}
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "add_user() mutex_unlock failed rc=%d", rc);
+    pthread_mutex_unlock(&b_mutex);
 
     usrchg = TRUE;
     return 0;
@@ -279,7 +275,6 @@ void del_user(usr_list **fap, char *server, char *name)
 {
     usr_list    **tmp, *tmpa;
     srv_list	*sl;
-    int         rc;
 
     Syslog('r', "deluser %s %s", server, printable(name, 0));
 
@@ -287,8 +282,7 @@ void del_user(usr_list **fap, char *server, char *name)
 	return;
 
     if (name)
-	if ((rc = pthread_mutex_lock(&b_mutex)))
-	    Syslog('!', "del_user() mutex_lock failed rc=%d", rc);
+	pthread_mutex_lock(&b_mutex);
 
     tmp = fap;
     while (*tmp) {
@@ -316,8 +310,7 @@ void del_user(usr_list **fap, char *server, char *name)
     }
 
     if (name)
-	if ((rc = pthread_mutex_unlock(&b_mutex)))
-	    Syslog('!', "del_user() mutex_unlock failed rc=%d", rc);
+	pthread_mutex_unlock(&b_mutex);
 }
 
 
@@ -328,7 +321,6 @@ void del_user(usr_list **fap, char *server, char *name)
 int add_channel(chn_list **fap, char *name, char *owner, char *server)
 {
     chn_list    *tmp, *ta;
-    int         rc;
 
     Syslog('r', "add_channel %s %s %s", name, owner, server);
 
@@ -339,8 +331,7 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
 	}
     }
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "add_channel() mutex_lock failed rc=%d", rc);
+    pthread_mutex_lock(&b_mutex);
 
     tmp = (chn_list *)malloc(sizeof(chn_list));
     memset(tmp, 0, sizeof(chn_list));
@@ -354,15 +345,15 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
     if (*fap == NULL) {
 	*fap = tmp;
     } else {
-	for (ta = *fap; ta; ta = ta->next)
+	for (ta = *fap; ta; ta = ta->next) {
 	    if (ta->next == NULL) {
 		ta->next = (chn_list *)tmp;
 		break;
 	    }
+	}
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "add_channel() mutex_unlock failed rc=%d", rc);
+    pthread_mutex_unlock(&b_mutex);
 
     chnchg = TRUE;
     return 0;
@@ -373,15 +364,13 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
 void del_channel(chn_list **fap, char *name)
 {
     chn_list    **tmp, *tmpa;
-    int         rc;
 	        
     Syslog('r', "del_channel %s", name);
 
     if (*fap == NULL)
 	return;
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "del_channel() mutex_lock failed rc=%d", rc);
+    pthread_mutex_lock(&b_mutex);
 
     tmp = fap;
     while (*tmp) {
@@ -395,8 +384,7 @@ void del_channel(chn_list **fap, char *name)
 	}
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "del_channel() mutex_unlock failed rc=%d", rc);
+    pthread_mutex_unlock(&b_mutex);
 }
 
 
@@ -404,7 +392,6 @@ void del_channel(chn_list **fap, char *name)
 void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname, char *router)
 {
     srv_list	*tmp, *ta;
-    int		rc;
     
     Syslog('r', "add_server %s %d %s %s %s", name, hops, prod, vers, fullname);
  
@@ -415,8 +402,7 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 	}
     }
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "add_server() mutex_lock failed rc=%d", rc);
+    pthread_mutex_lock(&b_mutex);
     
     tmp = (srv_list *)malloc(sizeof(srv_list));
     memset(tmp, 0, sizeof(tmp));
@@ -433,16 +419,15 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
     if (*fdp == NULL) {
 	*fdp = tmp;
     } else {
-	for (ta = *fdp; ta; ta = ta->next)
+	for (ta = *fdp; ta; ta = ta->next) {
 	    if (ta->next == NULL) {
 		ta->next = (srv_list *)tmp;
 		break;
 	    }
+	}
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "add_server() mutex_unlock failed rc=%d", rc);
-
+    pthread_mutex_unlock(&b_mutex);
     srvchg = TRUE;
 }
 
@@ -454,15 +439,13 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 void del_server(srv_list **fap, char *name)
 {
     srv_list	*ta, *tan;
-    int		rc;
     
     Syslog('r', "delserver %s", name);
 
     if (*fap == NULL)
 	return;
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "del_server() mutex_lock failed rc=%d", rc);
+    pthread_mutex_lock(&b_mutex);
 
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->server, name) == 0)) {
@@ -473,8 +456,7 @@ void del_server(srv_list **fap, char *name)
 	ta->next = tan;
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "del_server() mutex_unlock failed rc=%d", rc);
+    pthread_mutex_unlock(&b_mutex);
 }
 
 
@@ -485,15 +467,13 @@ void del_server(srv_list **fap, char *name)
 void del_router(srv_list **fap, char *name)
 {   
     srv_list	*ta, *tan;
-    int		rc;
     
     Syslog('r', "delrouter %s", name);
 
     if (*fap == NULL)
 	return;
 
-    if ((rc = pthread_mutex_lock(&b_mutex)))
-	Syslog('!', "del_router() mutex_lock failed rc=%d", rc);
+    pthread_mutex_lock(&b_mutex);
 
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->router, name) == 0)) {
@@ -505,8 +485,7 @@ void del_router(srv_list **fap, char *name)
 	ta->next = tan;
     }
 
-    if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "del_router() mutex_unlock failed rc=%d", rc);
+    pthread_mutex_unlock(&b_mutex);
 }
 
 
@@ -570,7 +549,7 @@ int send_msg(ncs_list *tnsl, const char *format, ...)
     Syslog('r', "> %s: %s", tnsl->server, printable(buf, 0));
 
     if (sendto(tnsl->socket, buf, strlen(buf), 0, (struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
-	Syslog('r', "$IBC: can't send message");
+	Syslog('!', "$IBC: can't send message");
 	return -1;
     }
     return 0;
@@ -607,7 +586,6 @@ void check_servers(void)
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fp);
 
 	    while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
-		Syslog('r', "IBC server \"%s\", Active %s", ibcsrv.server, ibcsrv.Active ?"Yes":"No");
 		if (ibcsrv.Active) {
 		    inlist = FALSE;
 		    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
@@ -616,10 +594,9 @@ void check_servers(void)
 			}
 		    }
 		    if (!inlist ) {
-			Syslog('r', "  not in neighbour list, add");
 			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
 			changed = TRUE;
-			Syslog('+', "IBC: added Internet BBS Chatserver %s", ibcsrv.server);
+			Syslog('+', "IBC: new configured Internet BBS Chatserver: %s", ibcsrv.server);
 		    }
 		}
 	    }
@@ -630,7 +607,6 @@ void check_servers(void)
 	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 		fseek(fp, ibcsrvhdr.hdrsize, SEEK_SET);
 		inlist = FALSE;
-		Syslog('r', "IBC server \"%s\"", ibcsrv.server);
 
 		while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
 		    if ((strcmp(tnsl->server, ibcsrv.server) == 0) && ibcsrv.Active) {
@@ -638,7 +614,7 @@ void check_servers(void)
 		    }
 		}
 		if (!inlist) {
-		    Syslog('r', "  not in configuration, remove");
+		    Syslog('+', "IBC: server %s removed from configuration", tnsl->server);
 		    tnsl->remove = TRUE;
 		    tnsl->action = now;
 		    changed = TRUE;
@@ -994,7 +970,7 @@ int command_squit(char *hostname, char *parameters)
     message = strtok(NULL, "\0");
 
     if (strcmp(name, tnsl->server) == 0) {
-	Syslog('+', "IBC: disconnect server %s: %s", name, message);
+	Syslog('+', "IBC: disconnect neighbour server %s: %s", name, message);
 	tnsl->state = NCS_HANGUP;
 	tnsl->action = now + (time_t)120;	// 2 minutes delay before calling again.
 	tnsl->gotpass = FALSE;
@@ -1002,7 +978,7 @@ int command_squit(char *hostname, char *parameters)
 	tnsl->token = 0;
 	del_router(&servers, name);
     } else {
-	Syslog('r', "IBC: disconnect server %s: message is not for us, but update database", name);
+	Syslog('+', "IBC: disconnect relay server %s: %s", name, message);
 	del_server(&servers, name);
     }
 
@@ -1064,10 +1040,8 @@ int command_quit(char *hostname, char *parameters)
     }
 
     if (message) {
-	send_all("NOTICE * ** %s is leaving: %s\r\n", name, message);
 	system_shout("* User %s is leaving: %s", name, message);
     } else {
-	send_all("NOTICE * ** %s is leaving: Quit\r\n", name);
 	system_shout("* User %s is leaving", name);
     }
     del_user(&users, server, name);
@@ -1438,7 +1412,7 @@ void receiver(struct servent  *se)
 	        hostname = hp->h_name;
 
 	    if ((crbuf[strlen(crbuf) -2] != '\r') && (crbuf[strlen(crbuf) -1] != '\n')) {
-	        Syslog('r', "Message not terminated with CR-LF, dropped");
+	        Syslog('!', "IBC: got message not terminated with CR-LF, dropped");
 	        return;
 	    }
 
