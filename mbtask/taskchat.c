@@ -351,7 +351,8 @@ int join(pid_t pid, char *channel, int sysop)
 		sprintf(buf, "* Created channel %s", channel);
 		chat_msg(channel, NULL, buf);
 		chat_dump();
-		send_all("JOIN %s@%s %s\r\n", chat_users[j].nick, CFG.myfqdn, channel);
+		if (strcasecmp(channel, "#sysop"))
+		    send_all("JOIN %s@%s %s\r\n", chat_users[j].nick, CFG.myfqdn, channel);
 
 		for (tmpu = users; tmpu; tmpu = tmpu->next) {
 		    if ((strcmp(tmpu->server, CFG.myfqdn) == 0) &&
@@ -441,7 +442,7 @@ int part(pid_t pid, char *reason)
 			chat_msg(chat_users[i].channel, chat_users[i].nick, reason);
 		    sprintf(buf, "%s has left channel %s, %d users left", chat_users[i].nick, tmp->name, tmp->users);
 		    chat_msg(chat_users[i].channel, NULL, buf);
-		    if (strcmp(tmp->name, (char *)"#sysop")) {
+		    if (strcasecmp(tmp->name, (char *)"#sysop")) {
 			if (reason && strlen(reason))
 			    send_all("PART %s@%s %s %s\r\n", chat_users[i].nick, CFG.myfqdn, tmp->name, reason);
 			else

@@ -1143,6 +1143,11 @@ int command_join(char *hostname, char *parameters)
 	return 432;
     }
 
+    if (strcasecmp(channel, "#sysop") == 0) {
+	Syslog('+', "IBC: ignored JOIN for #sysop channel");
+	return 0;
+    }
+
     found = FALSE;
     for (tmp = channels; tmp; tmp = tmp->next) {
 	if (strcmp(tmp->name, channel) == 0) {
@@ -1197,6 +1202,11 @@ int command_part(char *hostname, char *parameters)
     if (channel == NULL) {
 	send_msg(tnsl, "461 PART: Not enough parameters\r\n");
 	return 461;
+    }
+
+    if (strcasecmp(channel, "#sysop") == 0) {
+	Syslog('+', "IBC: ignored PART from #sysop channel");
+	return 0;
     }
 
     for (tmp = channels; tmp; tmp = tmp->next) {
