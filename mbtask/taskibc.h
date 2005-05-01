@@ -58,6 +58,10 @@ typedef struct _usr_list {
     char		channel[21];	    /* Users channel		*/
     time_t		connected;	    /* Users connect time	*/
     unsigned		chanop	    : 1;    /* User is a chanop		*/
+    unsigned		sysop	    : 1;    /* User is a sysop		*/
+    unsigned		chatting    : 1;    /* User is chating		*/
+    pid_t		pid;		    /* Users pid if local	*/
+    int			pointer;	    /* Users message pointer	*/
 } usr_list;
 
 
