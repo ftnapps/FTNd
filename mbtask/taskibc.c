@@ -806,13 +806,18 @@ int command_pass(char *hostname, char *parameters)
     lnk = strtok(NULL, " \0");
 
     if (version == NULL) {
-	send_msg(tnsl, "461 PASS: Not enough parameters\r\n");
-	return 461;
+	send_msg(tnsl, "400 PASS: Not enough parameters\r\n");
+	return 400;
     }
 
     if (strcmp(passwd, tnsl->passwd)) {
 	Syslog('!', "IBC: got bad password %s from %s", passwd, hostname);
 	return 0;
+    }
+
+    if (tnsl->state == NCS_CONNECT) {
+	send_msg(tnsl, "401: PASS: Already registered\r\n");
+	return 401;
     }
 
     tnsl->gotpass = TRUE;
@@ -851,8 +856,8 @@ int command_server(char *hostname, char *parameters)
     }
 
     if (fullname == NULL) {
-	send_msg(tnsl, "461 SERVER: Not enough parameters\r\n");
-	return 461;
+	send_msg(tnsl, "400 SERVER: Not enough parameters\r\n");
+	return 400;
     }
 
     token = atoi(id);
@@ -1020,8 +1025,8 @@ int command_user(char *hostname, char *parameters)
     realname = strtok(NULL, "\0");
 
     if (realname == NULL) {
-	send_msg(tnsl, "461 USER: Not enough parameters\r\n");
-	return 461;
+	send_msg(tnsl, "400 USER: Not enough parameters\r\n");
+	return 400;
     }
     
     if (add_user(&users, server, name, realname) == 0) {
@@ -1049,8 +1054,8 @@ int command_quit(char *hostname, char *parameters)
     message = strtok(NULL, "\0");
 
     if (server == NULL) {
-	send_msg(tnsl, "461 QUIT: Not enough parameters\r\n");
-	return 461;
+	send_msg(tnsl, "400 QUIT: Not enough parameters\r\n");
+	return 400;
     }
 
     if (message) {
@@ -1084,13 +1089,13 @@ int command_nick(char *hostname, char *parameters)
     realname = strtok(NULL, "\0");
 
     if (realname == NULL) {
-	send_msg(tnsl, "461 NICK: Not enough parameters\r\n");
+	send_msg(tnsl, "400 NICK: Not enough parameters\r\n");
 	return 1;
     }
 
     if (strlen(nick) > 9) {
-	send_msg(tnsl, "432 %s: Erroneous nickname\r\n", nick);
-	return 432;
+	send_msg(tnsl, "402 %s: Erroneous nickname\r\n", nick);
+	return 402;
     }
     
     // FIXME: check 1st char is alpha, rest alpha/digit
@@ -1103,8 +1108,8 @@ int command_nick(char *hostname, char *parameters)
 	}
     }
     if (found) {
-	send_msg(tnsl, "433 %s: Nickname is already in use\r\n", nick);
-	return 433;
+	send_msg(tnsl, "403 %s: Nickname is already in use\r\n", nick);
+	return 403;
     }
 
     for (tmp = users; tmp; tmp = tmp->next) {
@@ -1118,8 +1123,8 @@ int command_nick(char *hostname, char *parameters)
 	}
     }
     if (!found) {
-	send_msg(tnsl, "437 %s@%s: Can't change nick\r\n", name, server);
-	return 437;
+	send_msg(tnsl, "404 %s@%s: Can't change nick\r\n", name, server);
+	return 404;
     }
 
     broadcast(hostname, "NICK %s %s %s %s\r\n", nick, name, server, realname);
@@ -1147,13 +1152,13 @@ int command_join(char *hostname, char *parameters)
     channel = strtok(NULL, "\0");
 
     if (channel == NULL) {
-	send_msg(tnsl, "461 JOIN: Not enough parameters\r\n");
-	return 461;
+	send_msg(tnsl, "400 JOIN: Not enough parameters\r\n");
+	return 400;
     }
 
     if (strlen(channel) > 20) {
-	send_msg(tnsl, "432 %s: Erroneous channelname\r\n", nick);
-	return 432;
+	send_msg(tnsl, "402 %s: Erroneous channelname\r\n", nick);
+	return 402;
     }
 
     if (strcasecmp(channel, "#sysop") == 0) {
@@ -1213,8 +1218,8 @@ int command_part(char *hostname, char *parameters)
     message = strtok(NULL, "\0");
 
     if (channel == NULL) {
-	send_msg(tnsl, "461 PART: Not enough parameters\r\n");
-	return 461;
+	send_msg(tnsl, "400 PART: Not enough parameters\r\n");
+	return 400;
     }
 
     if (strcasecmp(channel, "#sysop") == 0) {
@@ -1276,8 +1281,8 @@ int command_topic(char *hostname, char *parameters)
     topic = strtok(NULL, "\0");
 
     if (topic == NULL) {
-	send_msg(tnsl, "461 TOPIC: Not enough parameters\r\n");
-	return 461;
+	send_msg(tnsl, "400 TOPIC: Not enough parameters\r\n");
+	return 400;
     }
 
     for (tmp = channels; tmp; tmp = tmp->next) {
@@ -1318,8 +1323,8 @@ int command_privmsg(char *hostname, char *parameters)
     }
 
     if (channel[0] != '#') {
-	send_msg(tnsl, "401 PRIVMSG: Not for a channel\r\n"); // FIXME: also check users
-	return 401;
+	send_msg(tnsl, "499 PRIVMSG: Not for a channel\r\n"); // FIXME: also check users
+	return 499;
     }
 
     for (tmp = channels; tmp; tmp = tmp->next) {
@@ -1331,8 +1336,8 @@ int command_privmsg(char *hostname, char *parameters)
 	}
     }
 
-    send_msg(tnsl, "403 %s: no such channel\r\n", channel);
-    return 403;
+    send_msg(tnsl, "409 %s: Cannot sent to channel\r\n", channel);
+    return 409;
 }
 
 
@@ -1365,8 +1370,8 @@ int do_command(char *hostname, char *command, char *parameters)
      * Commands with parameters
      */
     if (parameters == NULL) {
-	send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
-	return 461;
+	send_msg(tnsl, "400 %s: Not enough parameters\r\n", command);
+	return 400;
     }
 
     if (! strcmp(command, (char *)"PASS")) {
@@ -1400,8 +1405,8 @@ int do_command(char *hostname, char *command, char *parameters)
 	return command_privmsg(hostname, parameters);
     }
 
-    send_msg(tnsl, "421 %s: Unknown command\r\n", command);
-    return 421;
+    send_msg(tnsl, "413 %s: Unknown command\r\n", command);
+    return 413;
 }
 
 
