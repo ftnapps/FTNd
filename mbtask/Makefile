@@ -72,7 +72,7 @@ callstat.o: ../config.h ../lib/mbselib.h taskutil.h callstat.h
 scanout.o: ../config.h ../lib/mbselib.h taskutil.h scanout.h
 taskcomm.o: ../config.h ../lib/mbselib.h taskstat.h taskregs.h taskdisk.h taskinfo.h taskutil.h taskchat.h taskcomm.h
 taskinfo.o: ../config.h ../lib/mbselib.h taskinfo.h
-taskstat.o: ../config.h ../lib/mbselib.h taskstat.h callstat.h outstat.h taskutil.h
+taskstat.o: ../config.h ../lib/mbselib.h taskstat.h callstat.h outstat.h taskibc.h taskutil.h
 taskibc.o: ../config.h ../lib/mbselib.h taskstat.h taskutil.h taskchat.h taskibc.h
 mbtask.o: ../config.h ../lib/mbselib.h ../paths.h signame.h taskstat.h taskutil.h taskregs.h taskcomm.h taskdisk.h taskibc.h callstat.h outstat.h ../lib/nodelist.h ports.h calllist.h ping.h taskchat.h mbtask.h
 outstat.o: ../config.h ../lib/mbselib.h taskutil.h taskstat.h scanout.h ../lib/nodelist.h callstat.h ports.h outstat.h

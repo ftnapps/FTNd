@@ -256,25 +256,34 @@ void system_stat(void)
     mbse_mvprintw( 5, 6, "2.    SERVER STATISTICS");
     set_color(CYAN, BLACK);
     mbse_mvprintw( 7, 6, "First date started");
-    mbse_mvprintw( 7,62, "BBS Open");
+    mbse_mvprintw( 7,59, "BBS Open");
     mbse_mvprintw( 8, 6, "Last date started");
-    mbse_mvprintw( 8,62, "ZMH");
+    mbse_mvprintw( 8,59, "ZMH");
     mbse_mvprintw( 9, 6, "Total server starts");
-    mbse_mvprintw( 9,62, "Internet");
+    mbse_mvprintw( 9,59, "Internet up");
     mbse_mvprintw(10, 6, "Connected clients");
-    mbse_mvprintw(10,62, "Need inet");
-    mbse_mvprintw(11,62, "Running");
+    mbse_mvprintw(10,59, "Need inet");
+    mbse_mvprintw(11,59, "Running");
     mbse_mvprintw(12,30, "Total          Today");
-    mbse_mvprintw(12,62, "Load avg");
+    mbse_mvprintw(12,59, "Load average");
     hor_lin(13,30,8);
     hor_lin(13,45,8);
-    mbse_mvprintw(13,62, "Diskspace");
+    mbse_mvprintw(13,59, "Diskspace");
     mbse_mvprintw(14, 6, "Client connects");
+#ifdef	USE_EXPERIMENT
+    mbse_mvprintw(14,59, "IBC servers");
+#endif
     mbse_mvprintw(15, 6, "Peak connections");
+#ifdef	USE_EXPERIMENT
+    mbse_mvprintw(15,59, "IBC channels");
+#endif
     mbse_mvprintw(16, 6, "Protocol syntax errors");
+#ifdef	USE_EXPERIMENT
+    mbse_mvprintw(16,59, "IBC users");
+#endif
     mbse_mvprintw(17, 6, "Communication errors");
     mbse_mvprintw(19, 6, "Next sequence number");
-    mbse_mvprintw(19,62, "Press any key");
+    mbse_mvprintw(lines -3,59, "Press any key");
     IsDoing("System Statistics");
 
     do {
@@ -306,7 +315,14 @@ void system_stat(void)
 	    mbse_mvprintw(10,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
 	    mbse_mvprintw(11,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
 	    mbse_mvprintw(12,72, "%s ", strtok(NULL, ","));
+#ifdef	USE_EXPERIMENT
+	    mbse_mvprintw(19,30, (char *)"%s", strtok(NULL, ","));
+	    mbse_mvprintw(14,72, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(15,72, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(16,72, (char *)"%s ", strtok(NULL, ";"));
+#else
 	    mbse_mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
+#endif
 	}
 
 	switch (enoughspace(CFG.freespace)) {
@@ -320,7 +336,7 @@ void system_stat(void)
 		    break;
 	}
 
-	ch = testkey(19,76);
+	ch = testkey(lines -3,73);
     } while (ch == '\0');
 }
 
