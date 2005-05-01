@@ -114,6 +114,7 @@ extern usr_list		*users;		    /* Connected users		*/
 extern chn_list		*channels;	    /* Connected channels	*/
 extern int		usrchg;
 extern int		chnchg;
+extern int		srvchg;
 extern pthread_mutex_t	b_mutex;
 #endif
 
@@ -277,15 +278,17 @@ int join(pid_t pid, char *channel, int sysop)
     if (channels) {
 	for (tmp = channels; tmp; tmp = tmp->next) {
 	    if (strcmp(tmp->name, channel) == 0) {
-		tmp->users++;
 		for (tmpu = users; tmpu; tmpu = tmpu->next) {
 		    if (tmpu->pid == pid) {
 
 			pthread_mutex_lock(&b_mutex);
 			strncpy(tmpu->channel, channel, 20);
+			tmp->users++;
 			pthread_mutex_unlock(&b_mutex);
 			Syslog('+', "IBC: user %s has joined channel %s", tmpu->nick, channel);
 			usrchg = TRUE;
+			srvchg = TRUE;
+			chnchg = TRUE;
 
 			chat_dump();
 			sprintf(buf, "%s has joined channel %s, now %d users", tmpu->nick, channel, tmp->users);
@@ -350,6 +353,8 @@ int join(pid_t pid, char *channel, int sysop)
 		pthread_mutex_unlock(&b_mutex);
 		Syslog('+', "IBC: user %s created and joined channel %s", tmpu->nick, channel);
 		usrchg = TRUE;
+		chnchg = TRUE;
+		srvchg = TRUE;
 
 		sprintf(buf, "* Created channel %s", channel);
 		chat_msg(channel, NULL, buf);
@@ -425,9 +430,6 @@ int part(pid_t pid, char *reason)
 	if ((tmpu->pid == pid) && strlen(tmpu->channel)) {
 	    for (tmp = channels; tmp; tmp = tmp->next) {
 		if (strcmp(tmp->name, tmpu->channel) == 0) {
-		    tmp->users--;
-		    chnchg = TRUE;
-
 		    /*
 		     * Inform other users
 		     */
@@ -446,6 +448,9 @@ int part(pid_t pid, char *reason)
 		    /*
 		     * Clean channel
 		     */
+		    pthread_mutex_lock(&b_mutex);
+		    tmp->users--;
+		    pthread_mutex_unlock(&b_mutex);
 		    Syslog('+', "IBC: nick %s leaves channel %s", tmpu->nick, tmp->name);
 		    if (tmp->users == 0) {
 			/*
@@ -463,6 +468,8 @@ int part(pid_t pid, char *reason)
 		    tmpu->channel[0] = '\0';
 		    pthread_mutex_unlock(&b_mutex);
 		    usrchg = TRUE;
+		    chnchg = TRUE;
+		    srvchg = TRUE;
 
 		    chat_dump();
 		    return TRUE;
@@ -636,9 +643,13 @@ char *chat_connect(char *data)
 	    /*
 	     * Oke, found
 	     */
+	    pthread_mutex_lock(&b_mutex);
 	    tmpu->pid = atoi(pid);
 	    tmpu->pointer = buffer_head;
 	    tmpu->sysop = sys;
+	    pthread_mutex_unlock(&b_mutex);
+	    usrchg = TRUE;
+	    srvchg = TRUE;
 	    Syslog('-', "Connected user %s (%s) with chatserver, sysop %s", realname, pid, sys ? "True":"False");
 
             /*
