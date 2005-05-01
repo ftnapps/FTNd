@@ -96,16 +96,6 @@ typedef struct _channel_rec {
 
 
 /*
- *  List of banned users from a channel. This is a dynamic list.
- */
-typedef struct	_banned {
-    int		channel;	    /* Channel the user is banned from	*/
-    char	user[36];	    /* The user who is banned		*/
-} banned_users;
-
-
-
-/*
  *  The buffers
  */
 _chat_messages		chat_messages[MAXMESSAGES];
@@ -154,12 +144,12 @@ void chat_dump(void)
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	if (tmpu->pid) {
 	    if (first) {
-		Syslog('u', "  pid username                             nick      channel              chats sysop");
-		Syslog('u', "----- ------------------------------------ --------- -------------------- ----- -----");
+		Syslog('u', "  pid username                             nick      channel              sysop");
+		Syslog('u', "----- ------------------------------------ --------- -------------------- -----");
 		first = FALSE;
 	    }
-	    Syslog('u', "%5d %-36s %-9s %-20s %s %s", tmpu->pid, tmpu->realname, tmpu->nick,
-		tmpu->channel, tmpu->chatting?"True ":"False", tmpu->sysop?"True ":"False");
+	    Syslog('u', "%5d %-36s %-9s %-20s %s", tmpu->pid, tmpu->realname, tmpu->nick,
+		tmpu->channel, tmpu->sysop?"True ":"False");
 	}
     }
 #else
@@ -293,7 +283,6 @@ int join(pid_t pid, char *channel, int sysop)
 
 			pthread_mutex_lock(&b_mutex);
 			strncpy(tmpu->channel, channel, 20);
-			tmpu->chatting = TRUE;
 			pthread_mutex_unlock(&b_mutex);
 			Syslog('+', "IBC: user %s has joined channel %s", tmpu->nick, channel);
 			usrchg = TRUE;
@@ -358,8 +347,6 @@ int join(pid_t pid, char *channel, int sysop)
 
 		pthread_mutex_lock(&b_mutex);
 		strncpy(tmpu->channel, channel, 20);
-		tmpu->chatting = TRUE;
-		tmpu->chanop = TRUE;
 		pthread_mutex_unlock(&b_mutex);
 		Syslog('+', "IBC: user %s created and joined channel %s", tmpu->nick, channel);
 		usrchg = TRUE;
@@ -435,7 +422,7 @@ int part(pid_t pid, char *reason)
 
 #ifdef	USE_EXPERIMENT
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if ((tmpu->pid == pid) && tmpu->chatting) {
+	if ((tmpu->pid == pid) && strlen(tmpu->channel)) {
 	    for (tmp = channels; tmp; tmp = tmp->next) {
 		if (strcmp(tmp->name, tmpu->channel) == 0) {
 		    tmp->users--;
@@ -466,6 +453,7 @@ int part(pid_t pid, char *reason)
 			 */
 			Syslog('+', "IBC: removed channel %s, no more users left", tmp->name);
 			del_channel(&channels, tmp->name);
+			chnchg = TRUE;
 		    }
 
 		    /*
@@ -473,7 +461,6 @@ int part(pid_t pid, char *reason)
 		     */
 		    pthread_mutex_lock(&b_mutex);
 		    tmpu->channel[0] = '\0';
-		    tmpu->chatting = FALSE;
 		    pthread_mutex_unlock(&b_mutex);
 		    usrchg = TRUE;
 
@@ -516,7 +503,6 @@ int part(pid_t pid, char *reason)
     }
 #endif
 
-    Syslog('-', "No channel found");
     return FALSE;
 }
 
@@ -567,7 +553,7 @@ void chat_msg(char *channel, char *nick, char *msg)
     buf[79] = '\0';
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if ((strcmp(tmpu->channel, channel) == 0) && tmpu->chatting) {
+	if (strlen(tmpu->channel) && (strcmp(tmpu->channel, channel) == 0)) {
 	    system_msg(tmpu->pid, buf);
 	}
     }
@@ -911,16 +897,16 @@ char *chat_put(char *data)
 		    if (strlen(tmpu->channel)) {
 			sprintf(buf, "Present in channel %s:", tmpu->channel);
 			system_msg(tmpu->pid, buf);
-			sprintf(buf, "Nick                                     Real name                     Flags");
+			sprintf(buf, "Nick                                     Real name                      Flags");
 			system_msg(tmpu->pid, buf);
-			sprintf(buf, "---------------------------------------- ----------------------------- -------");
+			sprintf(buf, "---------------------------------------- ------------------------------ -------");
 			system_msg(tmpu->pid, buf);
 			count = 0;
 			for (tmp = users; tmp; tmp = tmp->next) {
 			    if (strcmp(tmp->channel, tmpu->channel) == 0) {
 				sprintf(temp, "%s@%s", tmp->nick, tmp->server);
 				sprintf(buf, "%-40s %-30s %s", temp, tmp->realname,
-				    tmp->chanop ? (char *)"chanop" : (char *)"");
+				    tmp->sysop ? (char *)"sysop" : (char *)"");
 				system_msg(tmpu->pid, buf);
 				count++;
 			    }
@@ -1211,7 +1197,7 @@ char *chat_checksysop(char *data)
 #ifdef	USE_EXPERIMENT
 	for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	    if (atoi(pid) != tmpu->pid) {
-		if (tmpu->chatting && tmpu->sysop) {
+		if (strlen(tmpu->channel) && (strcasecmp(tmpu->channel, "#sysop") == 0) && tmpu->sysop) {
 		    Syslog('-', "Sending ACK on check");
 		    sprintf(buf, "100:1,1;");
 		    reg_sysoptalk(pid);

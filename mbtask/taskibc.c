@@ -48,14 +48,18 @@ ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
 srv_list	    *servers = NULL;	    /* Active servers		*/
 usr_list	    *users = NULL;	    /* Active users		*/
 chn_list	    *channels = NULL;	    /* Active channels		*/
+ban_list	    *banned = NULL;	    /* Banned users		*/
+nick_list	    *nicknames = NULL;	    /* Known nicknames		*/
 int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
-int		    changed = FALSE;	    /* Databases changed	*/
 char		    crbuf[512];		    /* Chat receive buffer	*/
 int		    srvchg = FALSE;	    /* Is serverlist changed	*/
 int		    usrchg = FALSE;	    /* Is userlist changed	*/
 int		    chnchg = FALSE;	    /* Is channellist changed	*/
+int		    banchg = FALSE;	    /* Is banned users changed	*/
+int		    nickchg = FALSE;	    /* Is nicknames changed	*/
+
 
 
 pthread_mutex_t b_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -145,33 +149,41 @@ void dump_ncslist(void)
     usr_list	*usrp;
     chn_list	*chnp;
 
-    if (!changed && !srvchg && !usrchg && !chnchg)
+    if (!srvchg && !usrchg && !chnchg && !banchg && !nickchg)
 	return;
 
-    Syslog('r', "Server                         State   Del Pwd Srv Next action");
-    Syslog('r', "------------------------------ ------- --- --- --- -----------");
-    
-    for (tmp = ncsl; tmp; tmp = tmp->next) {
-	Syslog('r', "%-30s %-7s %s %s %s %d", tmp->server, ncsstate[tmp->state], 
-		tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
-		tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
-    }
-
     if (srvchg) {
-	Syslog('+', "IBC: Server                    Router                     Hops Users Connect time");
-	Syslog('+', "IBC: ------------------------- ------------------------- ----- ----- --------------------");
-	for (srv = servers; srv; srv = srv->next) {
-	    Syslog('+', "IBC: %-25s %-25s %5d %5d %s", srv->server, srv->router, srv->hops, srv->users, rfcdate(srv->connected));
+	if (ncsl) {
+	    Syslog('r', "Server                         State   Del Pwd Srv Next action");
+	    Syslog('r', "------------------------------ ------- --- --- --- -----------");
+	    for (tmp = ncsl; tmp; tmp = tmp->next) {
+		Syslog('r', "%-30s %-7s %s %s %s %d", tmp->server, ncsstate[tmp->state], 
+		    tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
+		    tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
+	    }
+	} else {
+	    Syslog('r', "No servers configured");
+	}
+
+	if (servers) {
+	    Syslog('+', "IBC: Server                    Router                     Hops Users Connect time");
+	    Syslog('+', "IBC: ------------------------- ------------------------- ----- ----- --------------------");
+	    for (srv = servers; srv; srv = srv->next) {
+		Syslog('+', "IBC: %-25s %-25s %5d %5d %s", srv->server, srv->router, srv->hops, 
+			srv->users, rfcdate(srv->connected));
+	    }
+	} else {
+	    Syslog('+', "IBC: Servers list is empty");
 	}
     }
     
     if (usrchg) {
 	if (users) {
-	    Syslog('+', "IBC: Server               User                 Name/Nick Channel       Cop Connect time");
+	    Syslog('+', "IBC: Server               User                 Name/Nick Channel       Sys Connect time");
 	    Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
 	    for (usrp = users; usrp; usrp = usrp->next) {
 		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel,
-		    usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
+		    usrp->sysop ? "yes":"no ", rfcdate(usrp->connected));
 	    }
 	} else {
 	    Syslog('+', "IBC: Users list is empty");
@@ -194,7 +206,8 @@ void dump_ncslist(void)
     srvchg = FALSE;
     usrchg = FALSE;
     chnchg = FALSE;
-    changed = FALSE;
+    banchg = FALSE;
+    nickchg = FALSE;
 }
 
 
@@ -595,7 +608,7 @@ void check_servers(void)
 		    }
 		    if (!inlist ) {
 			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
-			changed = TRUE;
+			srvchg = TRUE;
 			Syslog('+', "IBC: new configured Internet BBS Chatserver: %s", ibcsrv.server);
 		    }
 		}
@@ -617,7 +630,7 @@ void check_servers(void)
 		    Syslog('+', "IBC: server %s removed from configuration", tnsl->server);
 		    tnsl->remove = TRUE;
 		    tnsl->action = now;
-		    changed = TRUE;
+		    srvchg = TRUE;
 		}
 	    }
 	    fclose(fp);
@@ -635,7 +648,7 @@ void check_servers(void)
 	if (((int)tnsl->action - (int)now) <= 0) {
 	    switch (tnsl->state) {
 		case NCS_INIT:	    Syslog('r', "%s init", tnsl->server);
-				    changed = TRUE;
+				    srvchg = TRUE;
 
 				    /*
 				     * If Internet is available, setup the connection.
@@ -665,7 +678,7 @@ void check_servers(void)
 					    Syslog('!', "IBC: no IP address for %s: %s", tnsl->server, errmsg);
 					    tnsl->action = now + (time_t)120;
 					    tnsl->state = NCS_FAIL;
-					    changed = TRUE;
+					    srvchg = TRUE;
 					    break;
 					}
 					
@@ -674,7 +687,7 @@ void check_servers(void)
 					    Syslog('!', "$IBC: can't create socket for %s", tnsl->server);
 					    tnsl->state = NCS_FAIL;
 					    tnsl->action = now + (time_t)120;
-					    changed = TRUE;
+					    srvchg = TRUE;
 					    break;
 					}
 
@@ -697,7 +710,7 @@ void check_servers(void)
 					    VERSION, CFG.bbs_name);
 				    tnsl->action = now + (time_t)10;
 				    tnsl->state = NCS_WAITPWD;
-				    changed = TRUE;
+				    srvchg = TRUE;
 				    break;
 				    
 		case NCS_WAITPWD:   /*
@@ -714,7 +727,7 @@ void check_servers(void)
 				    }
 				    Syslog('r', "next call in %d %d seconds", CFG.dialdelay, j);
 				    tnsl->action = now + (time_t)j;
-				    changed = TRUE;
+				    srvchg = TRUE;
 				    break;
 
 		case NCS_CONNECT:   /*
@@ -732,7 +745,7 @@ void check_servers(void)
 					tnsl->token = 0;
 					del_router(&servers, tnsl->server);
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
-					changed = TRUE;
+					srvchg = TRUE;
 					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
 					break;
 				    }
@@ -754,19 +767,19 @@ void check_servers(void)
 		case NCS_HANGUP:    Syslog('r', "%s hangup => call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
-				    changed = TRUE;
+				    srvchg = TRUE;
 				    break;
 
 		case NCS_DEAD:	    Syslog('r', "%s dead -> call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
-				    changed = TRUE;
+				    srvchg = TRUE;
 				    break;
 
 		case NCS_FAIL:	    Syslog('r', "%s fail => init", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_INIT;
-				    changed = TRUE;
+				    srvchg = TRUE;
 				    break;
 	    }
 	}
@@ -806,7 +819,7 @@ int command_pass(char *hostname, char *parameters)
     tnsl->version = atoi(version);
     if (lnk && strchr(lnk, 'Z'))
 	tnsl->compress = TRUE;
-    changed = TRUE;
+    srvchg = TRUE;
     return 0;
 }
 
@@ -854,7 +867,7 @@ int command_server(char *hostname, char *parameters)
 	    broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	    system_shout("* New server: %s, %s", name, fullname);
 	    tnsl->gotserver = TRUE;
-	    changed = TRUE;
+	    srvchg = TRUE;
 	    tnsl->state = NCS_CONNECT;
 	    tnsl->action = now + (time_t)10;
 	    Syslog('+', "IBC: connected with neighbour server: %s", tnsl->server);
@@ -934,7 +947,7 @@ int command_server(char *hostname, char *parameters)
 	    }
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
-	changed = TRUE;
+	srvchg = TRUE;
 	return 0;
     }
 
@@ -944,7 +957,7 @@ int command_server(char *hostname, char *parameters)
 	*/
 	add_server(&servers, name, ihops, prod, vers, fullname, hostname);
 	broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
-	changed = TRUE;
+	srvchg = TRUE;
 	Syslog('+', "IBC: new relay server %s: %s", name, fullname);
 	system_shout("* New server: %s, %s", name, fullname);
 	return 0;
@@ -985,7 +998,7 @@ int command_squit(char *hostname, char *parameters)
 
     system_shout("* Server %s disconnected: %s", name, message);
     broadcast(hostname, "SQUIT %s %s\r\n", name, message);
-    changed = TRUE;
+    srvchg = TRUE;
     return 0;
 }
 

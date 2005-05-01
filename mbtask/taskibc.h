@@ -57,9 +57,7 @@ typedef struct _usr_list {
     char		realname[37];	    /* Users real name		*/
     char		channel[21];	    /* Users channel		*/
     time_t		connected;	    /* Users connect time	*/
-    unsigned		chanop	    : 1;    /* User is a chanop		*/
     unsigned		sysop	    : 1;    /* User is a sysop		*/
-    unsigned		chatting    : 1;    /* User is chating		*/
     pid_t		pid;		    /* Users pid if local	*/
     int			pointer;	    /* Users message pointer	*/
 } usr_list;
@@ -79,6 +77,31 @@ typedef struct _chn_list {
     time_t		lastmsg;	    /* Last message in channel	*/
     int			users;		    /* Users in channel		*/
 } chn_list;
+
+
+
+/*
+ * Database with banned users
+ */
+typedef struct _ban_list {
+    struct _ban_list	*next;
+    char		name[10];	    /* Users name		*/
+    char		server[64];	    /* Users server		*/
+    char		channel[21];	    /* Users banned channel	*/
+    time_t		kicked;		    /* Users banned time	*/
+} ban_list;
+
+
+
+/*
+ * Database with nicknames
+ */
+typedef struct _nick_list {
+    struct _nick_list	*next;
+    char		nick[10];	    /* Nickname			*/
+    char		server[64];	    /* Originating server	*/
+    time_t		lastused;   	    /* Last used time		*/
+} nick_list;
 
 
 
