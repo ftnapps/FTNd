@@ -720,6 +720,7 @@ char *chat_put(char *data)
     int		found;
     usr_list	*tmp;
     chn_list	*tmpc;
+    char	temp[81];
 #else
     int		j;
 #endif
@@ -824,23 +825,27 @@ char *chat_put(char *data)
 		} else if (strncasecmp(msg, "/names", 6) == 0) {
 #ifdef USE_EXPERIMENT
 		    if (strlen(chat_users[i].channel)) {
-#else
-		    if (chat_users[i].channel != -1) {
-#endif
-			sprintf(buf, "Present in this channel:");
+			sprintf(buf, "Present in channel %s:", chat_users[i].channel);
+			system_msg(chat_users[i].pid, buf);
+			sprintf(buf, "Nick                                     Real name                     Flags");
+			system_msg(chat_users[i].pid, buf);
+			sprintf(buf, "---------------------------------------- ----------------------------- -------");
 			system_msg(chat_users[i].pid, buf);
 			count = 0;
-#ifdef	USE_EXPERIMENT
 			for (tmp = users; tmp; tmp = tmp->next) {
-			    Syslog('r', "/names list %s %s", tmp->name, tmp->channel);
 			    if (strcmp(tmp->channel, chat_users[i].channel) == 0) {
-				sprintf(buf, "%s@%s (%s)%s", tmp->nick, tmp->server, tmp->realname,
-				    tmp->chanop ? (char *)" (chanop)" : (char *)"");
+				sprintf(temp, "%s@%s", tmp->nick, tmp->server);
+				sprintf(buf, "%-40s %-30s %s", temp, tmp->realname,
+				    tmp->chanop ? (char *)"chanop" : (char *)"");
 				system_msg(chat_users[i].pid, buf);
 				count++;
 			    }
 			}
 #else
+		    if (chat_users[i].channel != -1) {
+			sprintf(buf, "Present in this channel:");
+			system_msg(chat_users[i].pid, buf);
+			count = 0;
 			for (j = 0; j < MAXCLIENT; j++) {
 			    if ((chat_users[j].channel == chat_users[i].channel) && chat_users[j].pid) {
 				sprintf(buf, "%s %s", chat_users[j].nick, 
