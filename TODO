@@ -134,6 +134,9 @@ mbfile:
 
 	L: Possibility to skip file areas from checking and reindexing.
 
+	U: mbfile import refuses to import (overwrite) a file that is already
+           in the file area. See also adopt.
+
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
