@@ -50,6 +50,10 @@ v0.71.2		16-Jan-2005
 		Added debug logging for exporting netmails from the messagebase
 		so that we later can decide to mark these messages auto deleted.
 
+	mbfile:
+		With adopt, import and move allow to overwrite a file with the
+		same name if the -f option is used on the commandline.
+
 	mbnntp:
 		Does now send the right mime headers recognised by news clients.
 		Fixed compile problem with some compilers.

@@ -38,6 +38,7 @@
 
 
 extern int	do_quiet;		/* Suppress screen output	    */
+extern int	do_force;		/* Force file overwrite		    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern time_t	t_start;		/* Start time			    */
 extern time_t	t_end;			/* End time			    */
@@ -129,6 +130,7 @@ void Help(void)
     printf("\n	Options are:\n\n");
     mbse_colour(CYAN, BLACK);
     printf("	-a -announce			Suppress announce added files\n");
+    printf("	-f -force			Force file overwrite\n");
     printf("	-q -quiet			Quiet mode\n");
     printf("	-v -virus			Suppress virus scanning, use with care\n");
     die(MBERR_COMMANDLINE);
@@ -319,14 +321,18 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
     mkdirs(DestPath, 0775);
 
     if ((file_exist(DestPath, F_OK) == 0) || (file_exist(LinkPath, F_OK) == 0)) {
-	WriteError("File %s (%s) already exists in area %d", f_db.Name, f_db.LName, Area);
-	if (!do_quiet)
-	    printf("\nFile %s (%s) already exists in area %d\n", f_db.Name, f_db.LName, Area);
-	return FALSE;
+	if (do_force) {
+	    Syslog('+', "File %s (%s) already exists in area %d, forced overwrite", f_db.Name, f_db.LName, Area);
+	} else {
+	    WriteError("File %s (%s) already exists in area %d", f_db.Name, f_db.LName, Area);
+	    if (!do_quiet)
+		printf("\nFile %s (%s) already exists in area %d\n", f_db.Name, f_db.LName, Area);
+	    return FALSE;
+	}
     }
 
     if ((rc = file_cp(FromPath, DestPath))) {
-	WriteError("Can't copy file in place");
+	WriteError("Can't copy file to %s, %s", DestPath, strerror(rc));
 	if (!do_quiet)
 	    printf("\nCan't copy file to %s, %s\n", DestPath, strerror(rc));
 	return FALSE;

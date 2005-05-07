@@ -63,6 +63,7 @@ int		do_move  = FALSE;	/* Move a file			    */
 int		do_del   = FALSE;	/* Delete/undelete a file	    */
 int		do_sort  = FALSE;	/* Sort a filebase		    */
 int		do_rearc = FALSE;	/* ReArc a file			    */
+int		do_force = FALSE;	/* Force file overwrite		    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
@@ -224,6 +225,8 @@ int main(int argc, char **argv)
 	    do_annon = TRUE;
 	} else if (!strncasecmp(argv[i], "-v", 2)) {
 	    do_novir = TRUE;
+	} else if (!strncasecmp(argv[i], "-f", 2)) {
+	    do_force = TRUE;
 	}
     }
 
