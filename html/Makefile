@@ -64,7 +64,7 @@ H_PROGS		= programs/mbfido.html     programs/mbmon.html \
 H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
 		  setup/bbslist.html   setup/language.html setup/oneliner.html \
 		  setup/emareas.html   setup/magic.html    setup/mail.html \
-		  setup/protocol.html  setup/emgroup.html  \
+		  setup/protocol.html  setup/emgroup.html  setup/chat.html \
 		  setup/fdb.html       setup/security.html setup/sitedoc.html \
 		  setup/fegroup.html   setup/modems.html   setup/softinfo.html \
 		  setup/fidonet.html   setup/tic.html      \
