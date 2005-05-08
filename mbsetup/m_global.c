@@ -1746,7 +1746,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
     fprintf(wp, "<TBODY>\n");
     add_webtable(wp, (char *)"System name", CFG.bbs_name);
-    add_webtable(wp, (char *)"Domain name", CFG.sysdomain);
+    add_webtable(wp, (char *)"Mail domain", CFG.sysdomain);
+    add_webtable(wp, (char *)"My FQDN", CFG.myfqdn);
     add_webtable(wp, (char *)"Sysop unix name", CFG.sysop);
     add_webtable(wp, (char *)"Sysop fido name", CFG.sysop_name);
     add_webtable(wp, (char *)"System location", CFG.location);
@@ -1760,7 +1761,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<HR>\n");
     addtoc(fp, toc, 1, 3, page, (char *)"Registration information");
     fprintf(fp, "      System name      %s\n", CFG.bbs_name);
-    fprintf(fp, "      Domain name      %s\n", CFG.sysdomain);
+    fprintf(fp, "      Mail domain      %s\n", CFG.sysdomain);
+    fprintf(fp, "      My FQDN          %s\n", CFG.myfqdn);
     fprintf(fp, "      Sysop unix name  %s\n", CFG.sysop);
     fprintf(fp, "      Sysop fido name  %s\n", CFG.sysop_name);
     fprintf(fp, "      System location  %s\n", CFG.location);
