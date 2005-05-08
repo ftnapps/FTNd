@@ -54,6 +54,7 @@ int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
 char		    crbuf[512];		    /* Chat receive buffer	*/
+int		    callchg = FALSE;	    /* Is call state changed	*/
 int		    srvchg = FALSE;	    /* Is serverlist changed	*/
 int		    usrchg = FALSE;	    /* Is userlist changed	*/
 int		    chnchg = FALSE;	    /* Is channellist changed	*/
@@ -149,10 +150,10 @@ void dump_ncslist(void)
     usr_list	*usrp;
     chn_list	*chnp;
 
-    if (!srvchg && !usrchg && !chnchg && !banchg && !nickchg)
+    if (!callchg && !srvchg && !usrchg && !chnchg && !banchg && !nickchg)
 	return;
 
-    if (srvchg) {
+    if (callchg) {
 	if (ncsl) {
 	    Syslog('r', "Server                         State   Del Pwd Srv Next action");
 	    Syslog('r', "------------------------------ ------- --- --- --- -----------");
@@ -164,7 +165,9 @@ void dump_ncslist(void)
 	} else {
 	    Syslog('r', "No servers configured");
 	}
+    }
 
+    if (srvchg) {
 	if (servers) {
 	    Syslog('+', "IBC: Server                    Router                     Hops Users Connect time");
 	    Syslog('+', "IBC: ------------------------- ------------------------- ----- ----- --------------------");
@@ -203,6 +206,7 @@ void dump_ncslist(void)
 	}
     }
 
+    callchg = FALSE;
     srvchg = FALSE;
     usrchg = FALSE;
     chnchg = FALSE;
@@ -586,7 +590,7 @@ void check_servers(void)
      * Check if configuration is changed, if so then apply the changes.
      */
     if (file_time(scfgfn) != scfg_time) {
-	Syslog('r', "%s filetime changed, rereading");
+	Syslog('r', "%s filetime changed, rereading", scfgfn);
 
 	if (servers == NULL) {
 	    /*
@@ -648,7 +652,6 @@ void check_servers(void)
 	if (((int)tnsl->action - (int)now) <= 0) {
 	    switch (tnsl->state) {
 		case NCS_INIT:	    Syslog('r', "%s init", tnsl->server);
-				    srvchg = TRUE;
 
 				    /*
 				     * If Internet is available, setup the connection.
@@ -678,7 +681,7 @@ void check_servers(void)
 					    Syslog('!', "IBC: no IP address for %s: %s", tnsl->server, errmsg);
 					    tnsl->action = now + (time_t)120;
 					    tnsl->state = NCS_FAIL;
-					    srvchg = TRUE;
+					    callchg = TRUE;
 					    break;
 					}
 					
@@ -687,13 +690,14 @@ void check_servers(void)
 					    Syslog('!', "$IBC: can't create socket for %s", tnsl->server);
 					    tnsl->state = NCS_FAIL;
 					    tnsl->action = now + (time_t)120;
-					    srvchg = TRUE;
+					    callchg = TRUE;
 					    break;
 					}
 
 					Syslog('r', "socket %d", tnsl->socket);
 					tnsl->state = NCS_CALL;
 					tnsl->action = now + (time_t)1;
+					callchg = TRUE;
 				    } else {
 					tnsl->action = now + (time_t)10;
 				    }
@@ -710,7 +714,7 @@ void check_servers(void)
 					    VERSION, CFG.bbs_name);
 				    tnsl->action = now + (time_t)10;
 				    tnsl->state = NCS_WAITPWD;
-				    srvchg = TRUE;
+				    callchg = TRUE;
 				    break;
 				    
 		case NCS_WAITPWD:   /*
@@ -727,7 +731,7 @@ void check_servers(void)
 				    }
 				    Syslog('r', "next call in %d %d seconds", CFG.dialdelay, j);
 				    tnsl->action = now + (time_t)j;
-				    srvchg = TRUE;
+				    callchg = TRUE;
 				    break;
 
 		case NCS_CONNECT:   /*
@@ -745,6 +749,7 @@ void check_servers(void)
 					tnsl->token = 0;
 					del_router(&servers, tnsl->server);
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
+					callchg = TRUE;
 					srvchg = TRUE;
 					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
 					break;
@@ -767,18 +772,21 @@ void check_servers(void)
 		case NCS_HANGUP:    Syslog('r', "%s hangup => call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
+				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
 
 		case NCS_DEAD:	    Syslog('r', "%s dead -> call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
+				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
 
 		case NCS_FAIL:	    Syslog('r', "%s fail => init", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_INIT;
+				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
 	    }
@@ -824,7 +832,6 @@ int command_pass(char *hostname, char *parameters)
     tnsl->version = atoi(version);
     if (lnk && strchr(lnk, 'Z'))
 	tnsl->compress = TRUE;
-    srvchg = TRUE;
     return 0;
 }
 
@@ -872,6 +879,7 @@ int command_server(char *hostname, char *parameters)
 	    broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	    system_shout("* New server: %s, %s", name, fullname);
 	    tnsl->gotserver = TRUE;
+	    callchg = TRUE;
 	    srvchg = TRUE;
 	    tnsl->state = NCS_CONNECT;
 	    tnsl->action = now + (time_t)10;
@@ -953,6 +961,7 @@ int command_server(char *hostname, char *parameters)
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	srvchg = TRUE;
+	callchg = TRUE;
 	return 0;
     }
 
