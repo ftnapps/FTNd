@@ -578,8 +578,8 @@ void check_servers(void)
 {
     char	    *errmsg, scfgfn[PATH_MAX];
     FILE	    *fp;
-    ncs_list	    *tnsl;
-    int		    j, inlist;
+    ncs_list	    *tnsl, **tmp;
+    int		    j, inlist, Remove;
     int		    a1, a2, a3, a4;
     struct servent  *se;
     struct hostent  *he;
@@ -613,6 +613,7 @@ void check_servers(void)
 		    if (!inlist ) {
 			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
 			srvchg = TRUE;
+			callchg = TRUE;
 			Syslog('+', "IBC: new configured Internet BBS Chatserver: %s", ibcsrv.server);
 		    }
 		}
@@ -635,12 +636,56 @@ void check_servers(void)
 		    tnsl->remove = TRUE;
 		    tnsl->action = now;
 		    srvchg = TRUE;
+		    callchg = TRUE;
 		}
 	    }
 	    fclose(fp);
 	}
 
 	scfg_time = file_time(scfgfn);
+    }
+
+    dump_ncslist();
+
+    Remove = FALSE;
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (tnsl->remove) {
+	    Remove = TRUE;
+	    Syslog('r', "Remove server %s", tnsl->server);
+	    if (tnsl->state == NCS_CONNECT) {
+		broadcast(tnsl->server, "SQUIT %s Removed from configuration\r\n", tnsl->server);
+		send_msg(tnsl, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
+		del_router(&servers, tnsl->server);
+	    }
+	    if (tnsl->socket != -1) {
+		Syslog('r', "Closing socket %d", tnsl->socket);
+		shutdown(tnsl->socket, SHUT_WR);
+		tnsl->socket = -1;
+	    }
+	    callchg = TRUE;
+	    srvchg = TRUE;
+	}
+    }
+
+    dump_ncslist();
+
+    /*
+     * If a neighbour is removed by configuration, remove it from the list.
+     */
+    if (Remove) {
+	Syslog('r', "Starting remove list");
+	tmp = &ncsl;
+	while (*tmp) {
+	    if ((*tmp)->remove) {
+		Syslog('r', "do %s", (*tmp)->server);
+		tnsl = *tmp;
+		*tmp = (*tmp)->next;
+		free(tnsl);
+		callchg = TRUE;
+	    } else {
+		tmp = &((*tmp)->next);
+	    }
+	}
     }
 
     dump_ncslist();
