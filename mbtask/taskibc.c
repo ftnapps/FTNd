@@ -633,8 +633,10 @@ void check_servers(void)
 		}
 		if (!inlist) {
 		    Syslog('+', "IBC: server %s removed from configuration", tnsl->server);
+		    pthread_mutex_lock(&b_mutex);
 		    tnsl->remove = TRUE;
 		    tnsl->action = now;
+		    pthread_mutex_unlock(&b_mutex);
 		    srvchg = TRUE;
 		    callchg = TRUE;
 		}
@@ -661,6 +663,7 @@ void check_servers(void)
 		Syslog('r', "Closing socket %d", tnsl->socket);
 		shutdown(tnsl->socket, SHUT_WR);
 		tnsl->socket = -1;
+		tnsl->state = NCS_HANGUP;
 	    }
 	    callchg = TRUE;
 	    srvchg = TRUE;
@@ -674,6 +677,7 @@ void check_servers(void)
      */
     if (Remove) {
 	Syslog('r', "Starting remove list");
+	pthread_mutex_lock(&b_mutex);
 	tmp = &ncsl;
 	while (*tmp) {
 	    if ((*tmp)->remove) {
@@ -686,6 +690,7 @@ void check_servers(void)
 		tmp = &((*tmp)->next);
 	    }
 	}
+	pthread_mutex_unlock(&b_mutex);
     }
 
     dump_ncslist();
@@ -782,6 +787,8 @@ void check_servers(void)
 		case NCS_CONNECT:   /*
 				     * In this state we check if the connection is still alive
 				     */
+				    j = (int)now - (int)tnsl->last;
+
 				    if (((int)now - (int)tnsl->last) > 130) {
 					/*
 					 * Missed 3 PING replies
@@ -1481,8 +1488,9 @@ void receiver(struct servent  *se)
     if ((rc = poll(&pfd, 1, 1000) < 0)) {
 	Syslog('r', "$poll/select failed");
 	return;
-    } 
-	
+    }
+
+    now = time(NULL); 
     if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
 	sl = sizeof(myaddr_in);
 	memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
@@ -1575,10 +1583,10 @@ void *ibc_thread(void *dummy)
 
     while (! T_Shutdown) {
 
-	now = time(NULL);
 	/*
 	 * Check neighbour servers state
 	 */
+	now = time(NULL);
 	check_servers();
 
 	/*
