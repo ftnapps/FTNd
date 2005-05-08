@@ -792,11 +792,11 @@ void check_servers(void)
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
-					del_router(&servers, tnsl->server);
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					callchg = TRUE;
 					srvchg = TRUE;
 					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
+					del_router(&servers, tnsl->server);
 					break;
 				    }
 				    /*
