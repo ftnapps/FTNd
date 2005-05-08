@@ -445,6 +445,7 @@ if [ "$FIDO" = "TRUE" ] || [ "$BINKD" = "TRUE" ]; then
 		echo -n ", fido at ports 60177, 60179"
 		echo "tfido		60177/tcp		# mbcico ITN mode (alternate port)">>/etc/services
 		echo "fido		60179/tcp		# mbcico IFC mode">>/etc/services
+		echo "fido		60179/udp		# Chatserver">>/etc/services
 	fi
 	chmod 644 /etc/services
 	echo ", done."
