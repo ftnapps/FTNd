@@ -780,76 +780,82 @@ char *PickArchive(char *shdr)
 
 int archive_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*arch, *wp, *ip;
-	int	i, j;
+    char    temp[PATH_MAX];
+    FILE    *arch, *wp, *ip;
+    int	    i, j;
 
-	sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-	if ((arch = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    if ((arch = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 3, 0, page, (char *)"Archiver programs");
-	i = j = 0;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 3, 0, page, (char *)"Archiver programs");
+    i = j = 0;
 
-	ip = open_webdoc((char *)"archivers.html", (char *)"Archivers", NULL);
-	fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-	fprintf(ip, "<UL>\n");
+    ip = open_webdoc((char *)"archivers.html", (char *)"Archivers", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n<P>\n");
+    fprintf(ip, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<COL width='10%%'><COL width='70%%'><COL width='20%%'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Name</TH><TH align='left'>Comment</TH><TH align='left'>Available</TH></TR>\n");
 
-	fprintf(fp, "\n\n");
-	fread(&archiverhdr, sizeof(archiverhdr), 1, arch);
-	while ((fread(&archiver, archiverhdr.recsize, 1, arch)) == 1) {
+    fprintf(fp, "\n\n");
+    fread(&archiverhdr, sizeof(archiverhdr), 1, arch);
+    while ((fread(&archiver, archiverhdr.recsize, 1, arch)) == 1) {
 
-		if (j == 4) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		i++;
-		
-		sprintf(temp, "archiver_%d.html", i);
-		if ((wp = open_webdoc(temp, (char *)"Archiver", archiver.comment))) {
-		    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"archivers.html\">Back</A>\n");
-		    fprintf(wp, "<P>\n");
-		    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
-		    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
-		    fprintf(wp, "<TBODY>\n");
-		    add_webtable(wp, (char *)"Short name", archiver.name);
-		    add_webtable(wp, (char *)"Available", getboolean(archiver.available));
-		    add_webtable(wp, (char *)"Pack files", archiver.farc);
-		    add_webtable(wp, (char *)"Pack mail", archiver.marc);
-		    add_webtable(wp, (char *)"Pack banners", archiver.barc);
-		    add_webtable(wp, (char *)"Test archive", archiver.tarc);
-		    add_webtable(wp, (char *)"Unpack files", archiver.funarc);
-		    add_webtable(wp, (char *)"Unpack mail", archiver.munarc);
-		    add_webtable(wp, (char *)"Get FILE_ID.DIZ", archiver.iunarc);
-		    add_webtable(wp, (char *)"List archive", archiver.varc);
-		    fprintf(wp, "</TBODY>\n");
-		    fprintf(wp, "</TABLE>\n");
-		    close_webdoc(wp);
-		}
-		fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, archiver.comment);
-
-		fprintf(fp, "     Comment         %s\n", archiver.comment);
-		fprintf(fp, "     Short name      %s\n", archiver.name);
-		fprintf(fp, "     Available       %s\n", getboolean(archiver.available));
-		fprintf(fp, "     Pack files      %s\n", archiver.farc);
-		fprintf(fp, "     Pack mail       %s\n", archiver.marc);
-		fprintf(fp, "     Pack banners    %s\n", archiver.barc);
-		fprintf(fp, "     Test archive    %s\n", archiver.tarc);
-		fprintf(fp, "     Unpack files    %s\n", archiver.funarc);
-		fprintf(fp, "     Unpack mail     %s\n", archiver.munarc);
-		fprintf(fp, "     Get FILE_ID.DIZ %s\n", archiver.iunarc);
-		fprintf(fp, "     List archive    %s\n", archiver.varc);
-		fprintf(fp, "\n\n");
-		j++;
+	if (j == 4) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(arch);
-	fprintf(ip, "</UL>\n");
-	close_webdoc(ip);
-	return page;
+	i++;
+		
+	sprintf(temp, "archiver_%d.html", i);
+
+	if ((wp = open_webdoc(temp, (char *)"Archiver", archiver.comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"archivers.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Short name", archiver.name);
+	    add_webtable(wp, (char *)"Available", getboolean(archiver.available));
+	    add_webtable(wp, (char *)"Pack files", archiver.farc);
+	    add_webtable(wp, (char *)"Pack mail", archiver.marc);
+	    add_webtable(wp, (char *)"Pack banners", archiver.barc);
+	    add_webtable(wp, (char *)"Test archive", archiver.tarc);
+	    add_webtable(wp, (char *)"Unpack files", archiver.funarc);
+	    add_webtable(wp, (char *)"Unpack mail", archiver.munarc);
+	    add_webtable(wp, (char *)"Get FILE_ID.DIZ", archiver.iunarc);
+	    add_webtable(wp, (char *)"List archive", archiver.varc);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+	fprintf(ip, "<TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, archiver.name, archiver.comment, getboolean(archiver.available));
+
+	fprintf(fp, "     Comment         %s\n", archiver.comment);
+	fprintf(fp, "     Short name      %s\n", archiver.name);
+	fprintf(fp, "     Available       %s\n", getboolean(archiver.available));
+	fprintf(fp, "     Pack files      %s\n", archiver.farc);
+	fprintf(fp, "     Pack mail       %s\n", archiver.marc);
+	fprintf(fp, "     Pack banners    %s\n", archiver.barc);
+	fprintf(fp, "     Test archive    %s\n", archiver.tarc);
+	fprintf(fp, "     Unpack files    %s\n", archiver.funarc);
+	fprintf(fp, "     Unpack mail     %s\n", archiver.munarc);
+	fprintf(fp, "     Get FILE_ID.DIZ %s\n", archiver.iunarc);
+	fprintf(fp, "     List archive    %s\n", archiver.varc);
+	fprintf(fp, "\n\n");
+	j++;
+    }
+
+    fclose(arch);
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
+    close_webdoc(ip);
+    return page;
 }
 
 

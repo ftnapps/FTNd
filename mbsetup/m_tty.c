@@ -590,8 +590,12 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"ttyinfo.html", (char *)"TTY Lines", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
-		    
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<COL width='10%%'><COL width='70%%'><COL width='20%%'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>TTY</TH><TH align='left'>Comment</TH><TH align='left'>Available</TH></TR>\n");
+
     while ((fread(&ttyinfo, ttyinfohdr.recsize, 1, tty)) == 1) {
 	if (j == 3) {
 	    page = newpage(fp, page);
@@ -600,7 +604,8 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	sprintf(temp, "ttyinfo_%s.html", ttyinfo.tty);
-	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, ttyinfo.comment);
+	fprintf(ip, "<TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, ttyinfo.tty, ttyinfo.comment, getboolean(ttyinfo.available));
 	if ((wp = open_webdoc(temp, (char *)"TTY Line", ttyinfo.comment))) {
 	    /*
 	     * There are devices like pts/1, this will create a subdir for the
@@ -649,7 +654,8 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 	j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	    
     fclose(tty);

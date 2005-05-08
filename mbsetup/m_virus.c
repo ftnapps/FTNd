@@ -441,7 +441,11 @@ int virus_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"virscan.html", (char *)"Virus Scanners", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<COL width='10%%'><COL width='70%%'><COL width='20%%'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Nr</TH><TH align='left'>Comment</TH><TH align='left'>Available</TH></TR>\n");
 		    
     while ((fread(&virscan, virscanhdr.recsize, 1, vir)) == 1) {
 
@@ -453,7 +457,8 @@ int virus_doc(FILE *fp, FILE *toc, int page)
 
 	nr++;
 	sprintf(temp, "virscan_%d.html", nr);
-	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, virscan.comment);
+	fprintf(ip, "<TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, nr, virscan.comment, getboolean(virscan.available));
 	if ((wp = open_webdoc(temp, (char *)"Virus Scanner", virscan.comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"virscan.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -479,7 +484,8 @@ int virus_doc(FILE *fp, FILE *toc, int page)
 	j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	    
     fclose(vir);

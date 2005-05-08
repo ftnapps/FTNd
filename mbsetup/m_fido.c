@@ -545,9 +545,12 @@ int fido_doc(FILE *fp, FILE *toc, int page)
     fread(&fidonethdr, sizeof(fidonethdr), 1, fido);
 
     ip = open_webdoc((char *)"fidonet.html", (char *)"Fidonet networks", NULL);
-    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
-	    
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n<P>\n");
+    fprintf(ip, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<COL width='10%%'><COL width='70%%'><COL width='20%%'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Zone</TH><TH align='left'>Comment</TH><TH align='left'>Available</TH></TR>\n");
+
     while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
 
 	if (j == 6) {
@@ -557,8 +560,9 @@ int fido_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	sprintf(temp, "fidonet_%d.html", fidonet.zone[0]);
-	fprintf(ip, " <LI><A HREF=\"%s\">Zone %d</A> %s</LI>\n", temp, fidonet.zone[0], fidonet.comment);
-	
+	fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, fidonet.zone[0], fidonet.comment, getboolean(fidonet.available));
+
 	if ((wp = open_webdoc(temp, (char *)"Fidonet network", fidonet.comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"fidonet.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -603,7 +607,8 @@ int fido_doc(FILE *fp, FILE *toc, int page)
 	j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	
     fclose(fido);

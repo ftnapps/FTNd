@@ -700,8 +700,12 @@ int modem_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"modem.html", (char *)"Modems", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
-	    
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<COL width='10%%'><COL width='70%%'><COL width='20%%'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Nr</TH><TH align='left'>Comment</TH><TH align='left'>Available</TH></TR>\n");
+
     while ((fread(&modem, modemhdr.recsize, 1, mdm)) == 1) {
 	if (j == 1) {
 	    page = newpage(fp, page);
@@ -710,7 +714,8 @@ int modem_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	nr++;
-	fprintf(ip, " <LI><A HREF=\"modem_%d.html\">%s</A></LI>\n", nr, modem.modem);
+	fprintf(ip, " <TR><TD><A HREF=\"modem_%d.html\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		nr, nr, modem.modem, getboolean(modem.available));
 	sprintf(temp, "modem_%d.html", nr);
 	if ((wp = open_webdoc(temp, (char *)"Modem", modem.modem))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"modem.html\">Back</A>\n");
@@ -792,7 +797,8 @@ int modem_doc(FILE *fp, FILE *toc, int page)
 	j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	
     fclose(mdm);
