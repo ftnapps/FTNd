@@ -339,6 +339,7 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
     }
     chmod(DestPath, 0644);
     if (LinkPath) {
+	unlink(LinkPath);
 	if ((rc = symlink(DestPath, LinkPath))) {
 	    WriteError("Can't create symbolic link %s", LinkPath);
 	    if (!do_quiet)
