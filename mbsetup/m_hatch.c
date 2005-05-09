@@ -574,7 +574,10 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"hatch.html", (char *)"File Areas", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Nr</TH><TH align='left'>Pattern</TH><TH align='left'>Active</TH></TR>\n");
 	    
     while ((fread(&hatch, hatchhdr.recsize, 1, no)) == 1) {
 
@@ -586,7 +589,8 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	sprintf(temp, "hatch_%d.html", nr);
-	fprintf(ip, " <LI><A HREF=\"%s\">Hatch %3d</A> %s</LI>\n", temp, nr, hatch.Spec);
+	fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, nr, hatch.Spec, getboolean(hatch.Active));
 	if ((wp = open_webdoc(temp, (char *)"Hatch Manager", hatch.Spec))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"hatch.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -667,7 +671,8 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 	j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	    
     fclose(no);

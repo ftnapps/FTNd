@@ -657,8 +657,11 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"msggroup.html", (char *)"Message Groups", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
-	    
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Group</TH><TH align='left'>Comment</TH><TH align='left'>Active</TH></TR>\n");
+
     while ((fread(&mgroup, mgrouphdr.recsize, 1, no)) == 1) {
 	if (j == 2) {
 	    page = newpage(fp, page);
@@ -667,7 +670,8 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	sprintf(temp, "msggroup_%s.html", mgroup.Name);
-	fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, mgroup.Name, mgroup.Comment);
+	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, mgroup.Name, mgroup.Comment, getboolean(mgroup.Active));
 
 	if ((wp = open_webdoc(temp, (char *)"Message group", mgroup.Comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"msggroup.html\">Back</A>\n");
@@ -763,7 +767,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Group Statistics</H3>\n");
-	    add_statcnt(wp, (char *)"reveived messages", mgroup.MsgsRcvd);
+	    add_statcnt(wp, (char *)"received messages", mgroup.MsgsRcvd);
 	    add_statcnt(wp, (char *)"sent messages", mgroup.MsgsSent);
 	    close_webdoc(wp);
 	}
@@ -792,7 +796,8 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	
     fclose(no);

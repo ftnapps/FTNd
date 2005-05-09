@@ -699,7 +699,10 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"filegroup.html", (char *)"File Groups", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Group</TH><TH align='left'>Comment</TH><TH align='left'>Active</TH></TR>\n");
 	    
     while ((fread(&fgroup, fgrouphdr.recsize, 1, no)) == 1) {
 	if (First) {
@@ -712,7 +715,8 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	sprintf(temp, "filegroup_%s.html", fgroup.Name);
-	fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, fgroup.Name, fgroup.Comment);
+	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, fgroup.Name, fgroup.Comment, getboolean(fgroup.Active));
 
 	if ((wp = open_webdoc(temp, (char *)"File group", fgroup.Comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"filegroup.html\">Back</A>\n");
@@ -887,7 +891,8 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Last date      %s\n", ctime(&fgroup.LastDate));
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
     
     fclose(no);

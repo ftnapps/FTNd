@@ -695,8 +695,11 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"protocol.html", (char *)"BBS Transfer Protocols", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
-		    
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Zone</TH><TH align='left'>Comment</TH><TH align='left'>Available</TH><TH align='left'>Type</TH></TR>\n");
+
     while ((fread(&PROT, PROThdr.recsize, 1, no)) == 1) {
 
 	if (j == 4) {
@@ -706,7 +709,8 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	sprintf(temp, "protocol_%s.html", PROT.ProtKey);
-	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, PROT.ProtName);
+	fprintf(ip, "<TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, PROT.ProtKey, PROT.ProtName, getboolean(PROT.Available), PROT.Internal ? "Internal":"External");
 	if ((wp = open_webdoc(temp, (char *)"BBS Transfer Protocol", PROT.ProtName))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"protocol.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -746,7 +750,8 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
         j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	    
     fclose(no);

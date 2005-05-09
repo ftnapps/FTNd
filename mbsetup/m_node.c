@@ -1443,8 +1443,11 @@ int node_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"nodes.html", (char *)"Fidonet Nodes", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
-	    
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Node</TH><TH align='left'>Sysop</TH><TH align='left'>Flags</TH></TR>\n");
+
     while ((fread(&nodes, nodeshdr.recsize, 1, no)) == 1) {
 
 	page = newpage(fp, page);
@@ -1458,7 +1461,9 @@ int node_doc(FILE *fp, FILE *toc, int page)
 
 	sprintf(temp, "node_%d_%d_%d_%d_%s.html", nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node,
 		nodes.Aka[0].point, nodes.Aka[0].domain);
-	fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, aka2str(nodes.Aka[0]), nodes.Sysop);
+	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, aka2str(nodes.Aka[0]), nodes.Sysop, nodes.Crash ? "Crash": nodes.Hold ? "Hold":"Normal");
+	
 	if ((wp = open_webdoc(temp, (char *)"Fidonet node", aka2str(nodes.Aka[0])))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"nodes.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -1790,7 +1795,8 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	}
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	
     fclose(no);

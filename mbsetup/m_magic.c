@@ -503,7 +503,10 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"magic.html", (char *)"File Magic Processing", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Nr</TH><TH align='left'>Mask</TH><TH align='left'>Type</TH><TH align='left'>Active</TH></TR>\n");
 	    
     while (fread(&magic, magichdr.recsize, 1, no) == 1) {
 	if (j == 6) {
@@ -514,7 +517,8 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 
 	nr++;
 	sprintf(temp, "magic_%d.html", nr);
-	fprintf(ip, " <LI><A HREF=\"%s\">Magic %3d</A> %s</LI>\n", temp, nr, magic.Mask);
+	fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, nr, magic.Mask, getmagictype(magic.Attrib), getboolean(magic.Active));
 	if ((wp = open_webdoc(temp, (char *)"File Magic", magic.Mask))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"magic.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -561,7 +565,8 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 	j++;
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	
     fclose(no);

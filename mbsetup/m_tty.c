@@ -591,8 +591,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
     ip = open_webdoc((char *)"ttyinfo.html", (char *)"TTY Lines", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
     fprintf(ip, "<P>\n");
-    fprintf(ip, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
-    fprintf(ip, "<COL width='10%%'><COL width='70%%'><COL width='20%%'>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
     fprintf(ip, "<TBODY>\n");
     fprintf(ip, "<TR><TH align='left'>TTY</TH><TH align='left'>Comment</TH><TH align='left'>Available</TH></TR>\n");
 

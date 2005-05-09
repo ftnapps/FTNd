@@ -1273,8 +1273,11 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"ticareas.html", (char *)"TIC Areas", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
-	    
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Area</TH><TH align='left'>Comment</TH><TH align='left'>Active</TH></TR>\n");
+	
     while ((fread(&tic, tichdr.recsize, 1, no)) == 1) {
 
 	page = newpage(fp, page);
@@ -1287,7 +1290,8 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "\n\n");
 
 	sprintf(temp, "ticarea_%s.html", tic.Name);
-	fprintf(ip, " <LI><A HREF=\"%s\">Area %s</A> %s</LI>\n", temp, tic.Name, tic.Comment);
+	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		temp, tic.Name, tic.Comment, getboolean(tic.Active));
 	if ((wp = open_webdoc(temp, (char *)"TIC Area", tic.Comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"ticareas.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -1476,7 +1480,8 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	}
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	
     fclose(no);

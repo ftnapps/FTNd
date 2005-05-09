@@ -1867,7 +1867,10 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"msgareas.html", (char *)"Message Areas", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Area</TH><TH align='left'>Comment</TH><TH align='left'>Tag</TH></TR>\n");
 
     while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
 
@@ -1883,7 +1886,8 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "\n\n");
 
 	    sprintf(temp, "msgarea_%d.html", i);
-	    fprintf(ip, " <LI><A HREF=\"%s\">Area %d</A> %s</LI>\n", temp, i, msgs.Name);
+	    fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD>\n", 
+		    temp, i, msgs.Name, strlen(msgs.Tag) ? msgs.Tag : "&nbsp;");
 	    if ((wp = open_webdoc(temp, (char *)"File area", msgs.Name))) {
 		fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"msgareas.html\">Back</A>\n");
 		fprintf(wp, "<P>\n");
@@ -2033,7 +2037,8 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fseek(no, msgshdr.syssize, SEEK_CUR);
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
 	
     fclose(no);

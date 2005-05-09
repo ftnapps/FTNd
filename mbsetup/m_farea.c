@@ -767,7 +767,10 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 
     ip = open_webdoc((char *)"fileareas.html", (char *)"File Areas", NULL);
     fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
-    fprintf(ip, "<UL>\n");
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Area</TH><TH align='left'>Comment</TH></TR>\n");
 
     while ((fread(&area, areahdr.recsize, 1, no)) == 1) {
 
@@ -783,7 +786,7 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 
 	    sprintf(temp, "filearea_%d.html", i);
 
-	    fprintf(ip, " <LI><A HREF=\"%s\">%3d %s</A></LI>\n", temp, i, area.Name);
+	    fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD></TR>\n", temp, i, area.Name);
 	    if ((wp = open_webdoc(temp, (char *)"File area", area.Name))) {
 		fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"fileareas.html\">Back</A>\n");
 		fprintf(wp, "<P>\n");
@@ -880,7 +883,8 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 	}
     }
 
-    fprintf(ip, "</UL>\n");
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
     close_webdoc(ip);
     
     fclose(no);
