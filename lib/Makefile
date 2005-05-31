@@ -44,7 +44,7 @@ OBJS		= ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJS} \
 HDRS		= ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
 		  ${DIESEL_HDRS} ${NODELIST_HDRS} ${CHC_HDRS} ${OTHER_HDRS}
 MAPS		= charset.map russian.map
-OTHER		= Makefile README ftscprod.008 mkprod.awk \
+OTHER		= Makefile README ftscprod.010 mkprod.awk \
 		  README.diesel README.macro Diesel.doc nodelist.conf
 TARGET		= libmbse.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a \
 		  libnodelist.a mbcharsetc charset.bin

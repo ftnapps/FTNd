@@ -292,3 +292,5 @@
 12FF,SBBSecho,DOS/OS2/Win32/Linux/FreeBSD/OpenBSD/Solaris,Packer,Rob_Swindell,1:103/705,20030215
 13FF,binkd,DOS/OS2/Win32/Unix,Mailer,Pavel_Gulchouck,2:463/68,20030215
 14FF,Mail-ennium/32,Win32,Mailer/Packer,Chris_Cranford,1:379/1200,20031231
+15FF,Radius,Win32,Mailer,Denis_Voituk,2:5012/38,20040115
+16FF,RNtrack,Linux/BSD/AIX/Solaris/MacOSX/OS2/DOS/Win32,Packer,Alex_Soukhotine,2:5030/1157,20050115
