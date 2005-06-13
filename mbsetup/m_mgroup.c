@@ -426,7 +426,7 @@ int EditMGrpRec(int Area)
 	    case 18:mgroup.UpLink = PullUplink((char *)"9.1.18");
 		    MgScreen();
 		    break;
-	    case 19:E_STR( 19,42,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink")
+	    case 19:E_STR( 19,42,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink (case sensitive)")
 	    case 20:mgroup.Charset = edit_charset(14, 70, mgroup.Charset);
 		    break;
 	}

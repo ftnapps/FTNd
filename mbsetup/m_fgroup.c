@@ -422,7 +422,7 @@ int EditFGrpRec(int Area)
 		case 5:	fgroup.UpLink = PullUplink((char *)"10.1.5"); 
 			FgScreen();
 			break;
-		case 6: E_STR( 11,16,12,fgroup.AreaFile,   "The name of the ^Areas File^ from the uplink")
+		case 6: E_STR( 11,16,12,fgroup.AreaFile,   "The name of the ^Areas File^ from the uplink (case sensitive)")
 		case 7: E_BOOL(12,16,   fgroup.FileGate,   "Is the areas file in ^filegate.zxx^ format")
 		case 8: E_STR( 13,16,14,fgroup.Banner,     "The ^banner^ to add to the archives")
 		case 9: strcpy(fgroup.Convert, PickArchive((char *)"10.1.9"));
