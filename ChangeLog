@@ -21,6 +21,10 @@ v0.71.2		16-Jan-2005
 	libdiesel.a:
 		Changed the maximum string length from 2560 to 4096 characters.
 
+	libmbinet.a:
+		Fixed error messages when the host to connect to has a DNS
+		error.
+
 	mbcico:
 		Added protection during binkp receive for zero bytes compressed
 		data frames, this will cause uncompress error -5 because zero

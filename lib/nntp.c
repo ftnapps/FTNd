@@ -62,14 +62,14 @@ int nntp_connect(void)
 	nntp_rem.sin_family = AF_INET;
 
 	if ((nhp = gethostbyname(CFG.nntpnode)) == NULL) {
-		WriteError("$NNTP: can't find host %s", CFG.nntpnode);
+		WriteError("NNTP: can't find host %s", CFG.nntpnode);
 		return -1;
 	}
 
 	nntp_rem.sin_addr.s_addr = ((struct in_addr *)(nhp->h_addr))->s_addr;
 
 	if ((nsp = getservbyname("nntp", "tcp")) == NULL) {
-		WriteError("$NNTP: can't find service port for nntp/tcp");
+		WriteError("NNTP: can't find service port for nntp/tcp");
 		return -1;
 	}
 	nntp_rem.sin_port = nsp->s_port;

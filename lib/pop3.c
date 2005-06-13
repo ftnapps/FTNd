@@ -58,7 +58,7 @@ int pop3_connect(void)
 	pop3_rem.sin_family = AF_INET;
 
 	if ((php = gethostbyname(CFG.popnode)) == NULL) {
-		WriteError("$POP3: can't find host %s", CFG.popnode);
+		WriteError("POP3: can't find host %s", CFG.popnode);
 		return -1;
 	}
 
@@ -69,7 +69,7 @@ int pop3_connect(void)
 		 * RedHat doesn't follow IANA specs and uses pop-3 in /etc/services
 		 */
 		if ((psp = getservbyname("pop-3", "tcp")) == NULL) {
-			WriteError("$POP3: can't find service port for pop3/tcp");
+			WriteError("POP3: can't find service port for pop3/tcp");
 			return -1;
 		}
 	}

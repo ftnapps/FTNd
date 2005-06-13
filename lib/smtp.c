@@ -61,14 +61,14 @@ int smtp_connect(void)
 	smtp_rem.sin_family = AF_INET;
 
 	if ((shp = gethostbyname(CFG.smtpnode)) == NULL) {
-		WriteError("$SMTP: can't find host %s", CFG.smtpnode);
+		WriteError("SMTP: can't find host %s", CFG.smtpnode);
 		return -1;
 	}
 
 	smtp_rem.sin_addr.s_addr = ((struct in_addr *)(shp->h_addr))->s_addr;
 
 	if ((ssp = getservbyname("smtp", "tcp")) == NULL) {
-		WriteError("$SMTP: can't find service port for smtp/tcp");
+		WriteError("SMTP: can't find service port for smtp/tcp");
 		return -1;
 	}
 	smtp_rem.sin_port = ssp->s_port;
