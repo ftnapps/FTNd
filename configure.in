@@ -71,6 +71,10 @@ AC_ARG_ENABLE(experiment,  [  --enable-experiment     Compile experimental code]
 if test "$experiment" = "yes"; then
   AC_DEFINE(USE_EXPERIMENT)
 fi
+AC_ARG_ENABLE(binkdzlib,   [  --enable-binkdzlib      Compile binkd compression],     [ binkdzlib=$enableval ], [ binkdzlib=no ])
+if test "$binkdzlib" = "yes"; then
+  AC_DEFINE(USE_BINKDZLIB)
+fi
 
 AC_ARG_ENABLE(debugging,   [  --enable-debugging      Compile for debugging], [ debugging=$enableval ], [ debugging=no ])
 if test "$debugging" = "yes"; then
@@ -393,6 +397,7 @@ AC_MSG_RESULT([
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
+    Binkd style compression : ..... ${BINKDZLIB}
     Full newsgate : ............... ${NEWSGATE}
     Delete key : .................. ${DEL}
 

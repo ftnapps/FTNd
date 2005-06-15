@@ -14,8 +14,8 @@
 /* Compile experimental code (may not be present) */
 #undef USE_EXPERIMENT
 
-/* Compile new binkp driver */
-#undef USE_NEWBINKP
+/* Compile experimental binkd compression */
+#undef USE_BINKDZLIB
 
 /* Compile full newsgate */
 #undef USE_NEWSGATE

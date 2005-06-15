@@ -842,6 +842,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-experiment     Compile experimental code
+  --enable-binkdzlib      Compile binkd compression
   --enable-debugging      Compile for debugging
   --enable-optimize       Enable CPU optimize
   --enable-newsgate       Compile with newsgate
@@ -3000,6 +3001,19 @@ fi;
 if test "$experiment" = "yes"; then
   cat >>confdefs.h <<\_ACEOF
 #define USE_EXPERIMENT 1
+_ACEOF
+
+fi
+# Check whether --enable-binkdzlib or --disable-binkdzlib was given.
+if test "${enable_binkdzlib+set}" = set; then
+  enableval="$enable_binkdzlib"
+   binkdzlib=$enableval
+else
+   binkdzlib=no
+fi;
+if test "$binkdzlib" = "yes"; then
+  cat >>confdefs.h <<\_ACEOF
+#define USE_BINKDZLIB 1
 _ACEOF
 
 fi
@@ -10318,6 +10332,7 @@ echo "$as_me:$LINENO: result:
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
+    Binkd style compression : ..... ${BINKDZLIB}
     Full newsgate : ............... ${NEWSGATE}
     Delete key : .................. ${DEL}
 
@@ -10329,6 +10344,7 @@ echo "${ECHO_T}
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
+    Binkd style compression : ..... ${BINKDZLIB}
     Full newsgate : ............... ${NEWSGATE}
     Delete key : .................. ${DEL}
 
