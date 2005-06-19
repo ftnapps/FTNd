@@ -379,25 +379,6 @@ SM_STATE(WaitConn)
     Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
 
-    /*
-     * Build options we want
-     */
-    p = xstrcpy((char *)"OPT");
-
-#ifdef HAVE_ZLIB_H
-    if (bp.PLZflag == WeCan) {
-	p = xstrcat(p, (char *)" PLZ");
-	bp.PLZflag = WeWant;
-    }
-#endif
-    
-    if (strcmp(p, (char *)"OPT"))
-	rc = binkp_send_command(MM_NUL, p);
-    free(p);
-    if (rc) {
-	SM_ERROR;
-    }
-
     rc = binkp_banner();
     if (rc) {
 	SM_ERROR;
@@ -637,6 +618,12 @@ SM_STATE(Opts)
 #endif
     }
 #endif
+#ifdef	HAVE_ZLIB_H
+    if (bp.PLZflag == TheyWant) {
+        bp.PLZflag = Active;
+        Syslog('b', "Binkp: PLZ compression active");
+    }
+#endif
     SM_SUCCESS;
 
 SM_END
@@ -695,12 +682,6 @@ SM_STATE(WaitConn)
 	 */
 	char s[MD5_DIGEST_LEN*2+15]; /* max. length of opt string */
 	strcpy(s, "OPT ");
-#ifdef HAVE_ZLIB_H
-	if (bp.PLZflag == WeCan) {
-	    strcpy(s + strlen(s), "PLZ ");
-	    bp.PLZflag = WeWant;
-	}
-#endif
 	MD_toString(s + strlen(s), bp.MD_Challenge[0], bp.MD_Challenge+1);
 	bp.CRAMflag = TRUE;
 	if ((rc = binkp_send_command(MM_NUL, "%s", s))) {
@@ -939,6 +920,12 @@ SM_STATE(Opts)
 	Syslog('b', "Binkp: remote doesn't support EXTCMD, turn BZ2 off");
 	bp.BZ2flag = No;
 #endif
+    }
+#endif
+#ifdef	HAVE_ZLIB_H
+    if (bp.PLZflag == TheyWant) {
+	bp.PLZflag = Active;
+	Syslog('+', "Binkp: PLZ compression active");
     }
 #endif
     SM_SUCCESS;
@@ -1353,7 +1340,7 @@ TrType binkp_receiver(void)
 	    bp.rxpos = bp.rxpos - bp.rxbytes;
 	    gettimeofday(&rxtvend, &bp.tz);
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
-	    if (bp.rxcompressed && ((bp.PLZflag == Active) || bp.rmode))
+	    if (bp.rxcompressed)
 		Syslog('+', "Binkp: %s", compress_stat(bp.rxpos, bp.rxcompressed));
 #endif
 	    Syslog('+', "Binkp: OK %s", transfertime(rxtvstart, rxtvend, bp.rxpos, FALSE));
@@ -1987,16 +1974,25 @@ int binkp_banner(void)
 #ifdef	USE_BINKDZLIB
     if (!rc /* && bp.Role */) {
 	p = xstrcpy((char *)"OPT EXTCMD");
+#ifdef  HAVE_BZLIB_H
+	p = xstrcat(p, (char *)" BZ2");
+#endif
 #ifdef	HAVE_ZLIB_H
 	p = xstrcat(p, (char *)" GZ");
-#endif
-#ifdef	HAVE_BZLIB_H
-	p = xstrcat(p, (char *)" BZ2");
 #endif
 	rc = binkp_send_command(MM_NUL,"%s", p);
 	free(p);
     }
 #endif
+
+#ifdef	HAVE_ZLIB_H
+    if (!rc) {
+	p = xstrcpy((char *)"OPT PLZ");
+	rc = binkp_send_command(MM_NUL,"%s", p);
+	free(p);
+    }
+#endif
+
     return rc;
 }
 
@@ -2120,10 +2116,6 @@ void parse_m_nul(char *msg)
 		if (bp.BZ2flag == WeCan) {
 		    bp.BZ2flag = TheyWant;
 		    Syslog('+', "Binkp: remote supports BZ2 mode");
-#ifdef	HAVE_ZLIB_H
-		    bp.GZflag = No;	/* Don't ack GZ	*/
-		    bp.PLZflag = No;	/* Don't ack PLZ */
-#endif
 		} else {
 		    Syslog('b', "BZ2flag is %s and received BZ2 option", opstate[bp.BZ2flag]);
 		}
@@ -2134,10 +2126,6 @@ void parse_m_nul(char *msg)
 		if (bp.GZflag == WeCan) {
 		    bp.GZflag = TheyWant;
 		    Syslog('+', "Binkp: remote supports GZ mode");
-		    bp.PLZflag = No;    /* Don't ack PLZ */
-#ifdef	HAVE_BZLIB_H
-		    bp.BZ2flag = No;
-#endif
 		} else {
 		    Syslog('b', "GZflag is %s and received GZ option", opstate[bp.GZflag]);
 		}
@@ -2148,23 +2136,11 @@ void parse_m_nul(char *msg)
 	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
 		if (bp.PLZflag == WeCan) {
 		    bp.PLZflag = TheyWant;
-		    binkp_send_command(MM_NUL,"OPT PLZ");
-		    bp.PLZflag = Active;
-		    Syslog('+', "        : zlib compression active");
-#ifdef	USE_BINDZLIB
-#ifdef	HAVE_BZLIB_H
-		    bp.BZ2flag = No;
-#endif
-#endif
-		} else if (bp.PLZflag == WeWant) {
-		    bp.PLZflag = Active;
-		    Syslog('+', "        : zlib compression active");
+		    Syslog('+', "Binkp: remote supports PLZ mode");
 		} else {
 		    Syslog('b', "PLZflag is %s and received PLZ option", opstate[bp.PLZflag]);
 		}
 #endif
-//	    } else {
-//		Syslog('b', "Binkp: opt not supported");
 	    }
 	}
 
