@@ -263,8 +263,6 @@ int binkp(int role)
 #ifdef	USE_BINKDZLIB
     bp.z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     bp.GZflag = WeCan;
-#else
-    bp.GZflag = No;
 #endif
 #else
     bp.PLZflag = No;
@@ -273,8 +271,6 @@ int binkp(int role)
 #ifdef	HAVE_BZLIB_H
 #ifdef  USE_BINKDZLIB
     bp.BZ2flag = WeCan;
-#else
-    bp.BZ2flag = No;
 #endif
 #endif
     bp.buggyIrex = FALSE;
@@ -1425,7 +1421,10 @@ TrType binkp_receiver(void)
 
 TrType binkp_transmitter(void)
 {
-    int		sz, rc = 0, rc1 = 0, eof = FALSE;
+    int		rc = 0, eof = FALSE;
+#ifdef	USE_BINKDZLIB
+    int		sz, rc1 = 0;
+#endif
     char	*nonhold_mail, *extra;
     fa_list	*eff_remote;
     file_list	*tsl;
@@ -1524,7 +1523,11 @@ TrType binkp_transmitter(void)
 #endif
 
 //		extra = (char *)""; /* FIXME: remove when code complete and to activate compression */
+#ifdef	USE_BINKDZLIB
 		bp.txpos = bp.txcpos = bp.stxpos = tmp->offset;
+#else
+		bp.txpos = bp.stxpos = tmp->offset;
+#endif
 		bp.txcompressed = 0;
 		bp.tfsize = tmp->size;
 		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
@@ -1956,7 +1959,9 @@ int binkp_banner(void)
 {
     time_t  t;
     int	    rc;
+#ifdef	USE_BINKDZLIB
     char    *p;
+#endif
 
     rc = binkp_send_command(MM_NUL,"SYS %s", CFG.bbs_name);
     if (!rc)
@@ -2105,13 +2110,10 @@ void parse_m_nul(char *msg)
 			free(bp.MD_Challenge);
 		    bp.MD_Challenge = MD_getChallenge(q, NULL);
 		}
+#ifdef	USE_BINKDZLIB
 	    } else if (strncmp(q, (char *)"EXTCMD", 6) == 0) {
 		bp.extcmd = TRUE;
 		Syslog('+', "Binkp: remote supports EXTCMD mode");
-
-
-#ifdef	USE_BINKDZLIB
-	    /* FIXME: order may need to change */
 
 #ifdef	HAVE_BZLIB_H
 	    } else if (strncmp(q, (char *)"BZ2", 3) == 0) {
@@ -2149,10 +2151,11 @@ void parse_m_nul(char *msg)
 		    binkp_send_command(MM_NUL,"OPT PLZ");
 		    bp.PLZflag = Active;
 		    Syslog('+', "        : zlib compression active");
+#ifdef	USE_BINDZLIB
 #ifdef	HAVE_BZLIB_H
 		    bp.BZ2flag = No;
 #endif
-		    bp.GZflag = No;
+#endif
 		} else if (bp.PLZflag == WeWant) {
 		    bp.PLZflag = Active;
 		    Syslog('+', "        : zlib compression active");
@@ -2335,11 +2338,13 @@ int binkp_process_messages(void)
 		rmode = CompBZ2;
 	    else if (strcmp((char *)"NZ", ropts) == 0) {
 		rmode = CompNone;
+#ifdef	USE_BINKDZLIB
 #ifdef	HAVE_ZLIB_H
 		bp.GZflag = No;
 #endif
 #ifdef	HAVE_BZLIB_H
 		bp.BZ2flag = No;
+#endif
 #endif
 		Syslog('+', "Binkp: received NZ on M_GET command, compression turned off");
 	    }
@@ -2670,6 +2675,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
      * Search compression method, but only if GZ or BZ2 compression is active.
      */
     comp = FALSE;
+#ifdef	USE_BINKDZLIB
 #ifdef	HAVE_ZLIB_H
     if (bp.GZflag == Active)
 	comp = TRUE;
@@ -2677,6 +2683,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
 #ifdef	HAVE_BZLIB_H
     if (bp.BZ2flag == Active)
 	comp = TRUE;
+#endif
 #endif
     if (!comp)
 	return;
@@ -2696,6 +2703,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
 	return;
     }
 
+#ifdef	USE_BINKDZLIB
 #ifdef	HAVE_BZLIB_H
     /*
      * Use BZ2 for files > 200K
@@ -2712,6 +2720,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
 	Syslog('b', "Binkp: %s compressor GZ", fal->local);
 	return;
     }
+#endif
 #endif
     Syslog('+', "Binkp: compressor select internal error");
 }
