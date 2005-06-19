@@ -1142,7 +1142,7 @@ TrType binkp_receiver(void)
 	    else
 		return Ok;
 	}
-	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld compress", 
+	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld comp %s", 
 		bp.rname, date(bp.rtime), bp.rsize, bp.roffs, cpstate[bp.rmode]);
 	(void)binkp2unix(bp.rname);
 	rxbytes = bp.rxbytes;
@@ -1518,7 +1518,8 @@ TrType binkp_transmitter(void)
 		bp.txcompressed = 0;
 		bp.tfsize = tmp->size;
 		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
-		Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
+		Syslog('+', "Binkp: size %lu bytes, dated %s, comp %s", 
+			(unsigned long)tmp->size, date(tmp->date), cpstate[bp.tmode]);
 		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld%s", MBSE_SS(tmp->remote), 
 			(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, extra);
 		if (rc) {
