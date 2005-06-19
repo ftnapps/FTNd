@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 01-Feb-2004</h5></div>
+<div align="right"><h5>Last update 19-Jun-2005</h5></div>
 <div align="center"><H1>mbcico - The Fidonet mailer.</H1></div>
 
 This is work in progress....
@@ -64,8 +64,9 @@ bi-directional TCP/IP protocol.
 This protocol is prefferred over the IFC protocol because it is
 more efficient. Nodelist flag is IBN, the default port is 24554, and the
 nodelist request flag is XX. This binkp implementation uses zlib packet
-compression opt PLZ (FSP-xxxx) to increase the transfer speed and to lower
-the network bandwith usage.
+compression opt PLZ (FSP-1032) to increase the transfer speed and to lower
+the network bandwith usage. There is also support for the stream compression
+modes GZ and BZ2 (compatible with binkd).
 <P>
 Outbound directory structure is BinkleyTerm compatible, with domains and
 point subdirectories (full 5d). There are separate "protected" and
