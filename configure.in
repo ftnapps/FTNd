@@ -180,7 +180,7 @@ fi
 
 
 dnl
-dnl Support for zlib transfers compression
+dnl Support for zlib and bzlib transfers compression
 dnl
 ZLIBSUP=No
 AC_CHECK_LIB(z,compress2,result=yes,result=no)
@@ -188,7 +188,12 @@ if test "$result" = "yes"; then
   LIBS="$LIBS -lz"
   AC_CHECK_HEADERS(zlib.h,ZLIBSUP=Yes,ZLIBSUP=No)
 fi
-
+BZLIBSUP=No
+AC_CHECK_LIB(bz2,BZ2_bzCompressInit,result=yes,result=no)
+if test "$result" = "yes"; then
+  LIBS="$LIBS -lbz2"
+  AC_CHECK_HEADERS(bzlib.h,BZLIBSUP=Yes,BZLIBSUP=No)
+fi
 
 dnl
 dnl The last library to add, according to Sun the -lpthread must be the
@@ -305,22 +310,6 @@ else
 fi
 AC_DEFINE_UNQUOTED(GBK_DEL,$GBK_DEL)
 
-dnl
-dnl AC_ARG_WITH(log-compress,[  --with-log-compress=METHOD   Log compression method (default gzip)], LOG_COMPRESS=$with_log_compress, LOG_COMPRESS=gzip)
-dnl case "$LOG_COMPRESS" in
-dnl gzip)
-dnl         LOG_COMPRESS=$GZIP
-dnl         LOG_COMPRESSEXT=".gz" ;;
-dnl compress)
-dnl         LOG_COMPRESS=$COMPRESS
-dnl         LOG_COMPRESSEXT=".Z" ;;
-dnl *)
-dnl         LOG_COMPRESS=$LOG_COMPRESS
-dnl         LOG_COMPRESSEXT=".unknown" ;;
-dnl esac
-dnl AC_SUBST(LOG_COMPRESS)
-dnl AC_SUBST(LOG_COMPRESSEXT)
-dnl
 
 AC_MSG_CHECKING(location of joe editor)
 for joebin in /usr/bin /usr/local/bin /usr/pkg/bin NONE; do
@@ -397,6 +386,7 @@ AC_MSG_RESULT([
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
+    Binkp bzlib compression : ..... ${BZLIBSUP}
     Full newsgate : ............... ${NEWSGATE}
     Delete key : .................. ${DEL}
 

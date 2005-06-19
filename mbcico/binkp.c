@@ -1585,7 +1585,7 @@ TrType binkp_transmitter(void)
 	    sz = bp.tfsize - ftell(bp.txfp);
 	    if (bp.cmpblksize < sz)
 		sz = bp.cmpblksize;
-	    Syslog('b', "Binkp: sz=%d", sz);
+//	    Syslog('b', "Binkp: sz=%d", sz);
 	    while (TRUE) {
 		ocnt = bp.cmpblksize - nput;
 		nget = sz;
@@ -1594,7 +1594,7 @@ TrType binkp_transmitter(void)
 		fleft = bp.tfsize - ftell(bp.txfp);
 		fseek(bp.txfp, bp.txpos, SEEK_SET);
 		nget = fread(bp.z_obuf, 1, nget, bp.txfp);
-		Syslog('b', "Binkp: fread pos=%d nget=%d ocnt=%d", bp.txpos, nget, ocnt);
+//		Syslog('b', "Binkp: fread pos=%d nget=%d ocnt=%d", bp.txpos, nget, ocnt);
 		rc2 = do_compress(bp.tmode, bp.txbuf + nput, &ocnt, bp.z_obuf, &nget, fleft ? 0 : 1, bp.z_odata);
 		Syslog('b', "Binkp: do_compress ocnt=%d nget=%d fleft=%d rc=%d", ocnt, nget, fleft, rc2);
 		if (rc2 == -1) {
@@ -1604,17 +1604,25 @@ TrType binkp_transmitter(void)
 		bp.txpos += nget;
 		bp.txcpos += ocnt;
 		nput += ocnt;
-		Syslog('b', "Binkp: txpos=%d txcpos=%d nput=%d", bp.txpos, bp.txcpos, nput);
+//		Syslog('b', "Binkp: txpos=%d txcpos=%d nput=%d", bp.txpos, bp.txcpos, nput);
     
+		/*
+		 * Compressed block is filled for transmission
+		 */
 		if ((nput == bp.cmpblksize) || (fleft == 0)) {
-		    rc = binkp_send_frame(FALSE, bp.txbuf, nput);
+		    bp.txlen = nput;
+		    rc = binkp_send_frame(FALSE, bp.txbuf, bp.txlen);
 		    if (rc)
 			return Failure;
-		    nput = 0;
-		    sentbytes += nput;
-		}
-		if (rc2 == 1) {
-		    eof = TRUE;
+		    sentbytes += bp.txlen;
+		    
+		    if (rc2 == 1) {
+			/*
+			 * Last compressed block is sent, set eof.
+			 */
+			eof = TRUE;
+			bp.txcompressed = bp.tfsize - bp.txcpos;
+		    }
 		    break;
 		}
 	    }
