@@ -606,14 +606,14 @@ SM_STATE(Opts)
 
 #ifdef  HAVE_BZLIB_H
 	if (bp.BZ2flag == TheyWant) {
-	    Syslog('b', "Binkp: BZ2 compression active");
+	    Syslog('+', "Binkp: BZ2 compression active");
 	    bp.BZ2flag = Active;
 	}
 #endif
 #ifdef  HAVE_ZLIB_H
 	if (bp.GZflag == TheyWant) {
 	    bp.GZflag = Active;
-	    Syslog('b', "Binkp: GZ compression active");
+	    Syslog('+', "Binkp: GZ compression active");
 	}
 #endif
     }
@@ -621,7 +621,7 @@ SM_STATE(Opts)
 #ifdef	HAVE_ZLIB_H
     if (bp.PLZflag == TheyWant) {
         bp.PLZflag = Active;
-        Syslog('b', "Binkp: PLZ compression active");
+        Syslog('+', "Binkp: PLZ compression active");
     }
 #endif
     SM_SUCCESS;
@@ -1509,7 +1509,6 @@ TrType binkp_transmitter(void)
 		}
 #endif
 
-//		extra = (char *)""; /* FIXME: remove when code complete and to activate compression */
 #ifdef	USE_BINKDZLIB
 		bp.txpos = bp.txcpos = bp.stxpos = tmp->offset;
 #else
@@ -2114,13 +2113,13 @@ void parse_m_nul(char *msg)
 #ifdef	USE_BINKDZLIB
 	    } else if (strncmp(q, (char *)"EXTCMD", 6) == 0) {
 		bp.extcmd = TRUE;
-		Syslog('+', "Binkp: remote supports EXTCMD mode");
+		Syslog('b', "Binkp: remote supports EXTCMD mode");
 
 #ifdef	HAVE_BZLIB_H
 	    } else if (strncmp(q, (char *)"BZ2", 3) == 0) {
 		if (bp.BZ2flag == WeCan) {
 		    bp.BZ2flag = TheyWant;
-		    Syslog('+', "Binkp: remote supports BZ2 mode");
+		    Syslog('b', "Binkp: remote supports BZ2 mode");
 		} else {
 		    Syslog('b', "BZ2flag is %s and received BZ2 option", opstate[bp.BZ2flag]);
 		}
@@ -2130,7 +2129,7 @@ void parse_m_nul(char *msg)
 	    } else if (strncmp(q, (char *)"GZ", 2) == 0) {
 		if (bp.GZflag == WeCan) {
 		    bp.GZflag = TheyWant;
-		    Syslog('+', "Binkp: remote supports GZ mode");
+		    Syslog('b', "Binkp: remote supports GZ mode");
 		} else {
 		    Syslog('b', "GZflag is %s and received GZ option", opstate[bp.GZflag]);
 		}
@@ -2141,7 +2140,7 @@ void parse_m_nul(char *msg)
 	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
 		if (bp.PLZflag == WeCan) {
 		    bp.PLZflag = TheyWant;
-		    Syslog('+', "Binkp: remote supports PLZ mode");
+		    Syslog('b', "Binkp: remote supports PLZ mode");
 		} else {
 		    Syslog('b', "PLZflag is %s and received PLZ option", opstate[bp.PLZflag]);
 		}
