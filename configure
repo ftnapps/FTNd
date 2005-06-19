@@ -10332,7 +10332,6 @@ echo "$as_me:$LINENO: result:
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
-    Binkd style compression : ..... ${BINKDZLIB}
     Full newsgate : ............... ${NEWSGATE}
     Delete key : .................. ${DEL}
 
@@ -10344,7 +10343,6 @@ echo "${ECHO_T}
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
-    Binkd style compression : ..... ${BINKDZLIB}
     Full newsgate : ............... ${NEWSGATE}
     Delete key : .................. ${DEL}
 

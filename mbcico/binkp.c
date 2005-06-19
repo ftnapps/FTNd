@@ -83,11 +83,12 @@ typedef enum {Ok, Failure, Continue} TrType;
 typedef enum {No, WeCan, WeWant, TheyWant, Active} OptionState;
 typedef enum {NoState, Sending, IsSent, Got, Skipped, Get} FileState;
 typedef enum {InitTransfer, Switch, Receive, Transmit, DeinitTransfer} FtType;
-
+typedef enum {CompNone, CompGZ, CompBZ2, CompPLZ} CompType;
 
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
 static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (char *)"TheyWant", (char *)"Active" };
+static char *cpstate[] = { (char *)"No", (char *)"GZ", (char *)"BZ2", (char *)"PLZ" };
 
 
 static time_t	Timer;
@@ -103,6 +104,24 @@ struct timeval      txtvstart;			/* Transmitter start time           */
 struct timeval      txtvend;			/* Transmitter end time             */
 struct timeval      rxtvstart;			/* Receiver start time              */
 struct timeval      rxtvend;			/* Receiver end time                */
+
+
+#ifdef	USE_BINKDZLIB
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
+
+int compress_init(int type, void **data);
+int do_compress(int type, char *dst, int *dst_len, char *src, int *src_len, int finish, void *data);
+void compress_deinit(int type, void *data);
+void compress_abort(int type, void *data);
+int decompress_init(int type, void **data);
+int do_decompress(int type, char *dst, int *dst_len, char *src, int *src_len, void *data);
+int decompress_deinit(int type, void *data);
+int decompress_abort(int type, void *data);
+
+#define ZBLKSIZE        1024    /* read/write file buffer size */
+	
+#endif
+#endif
 
 
 struct binkprec {
@@ -128,7 +147,7 @@ struct binkprec {
     int			blklen;			/* Frame blocklength		    */
     unsigned short	header;			/* Frame header			    */
     int			rc;			/* General return code		    */
-
+    
     long		rsize;			/* Receiver filesize		    */
     long		roffs;			/* Receiver offset		    */
     char		*rname;			/* Receiver filename		    */
@@ -137,6 +156,9 @@ struct binkprec {
     off_t		rxbytes;		/* Receiver bytecount		    */
     int			rxpos;			/* Receiver position		    */
     int			rxcompressed;		/* Receiver compressed bytes	    */
+    char                *ropts;                 /* Receiver M_FILE optional args    */
+    int			rmode;			/* Receiver compression mode	    */
+
     struct timezone	tz;			/* Timezone			    */
     int			DidSendGET;		/* Receiver send GET status	    */
 
@@ -146,6 +168,8 @@ struct binkprec {
     int			txpos;			/* Transmitter position		    */
     int			stxpos;			/* Transmitter start position	    */
     int			txcompressed;		/* Transmitter compressed bytes	    */
+    int			tmode;			/* Transmitter compression mode	    */
+    long    		tfsize;			/* Transmitter filesize		    */
 
     int			local_EOB;		/* Local EOB sent		    */
     int			remote_EOB;		/* Got EOB from remote		    */
@@ -157,6 +181,22 @@ struct binkprec {
     int			msgs_on_queue;		/* Messages on the queue	    */
 
     int			buggyIrex;		/* Buggy Irex detected		    */
+
+#ifdef	USE_BINKDZLIB
+    void		*z_idata;		/* Data for zstream		    */
+    void		*z_odata;		/* Data for zstream		    */
+    char		*z_obuf;		/* Compression buffer		    */
+    int			txcpos;			/* Transmitter compressed position  */
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB2_H)
+    int			extcmd;			/* EXTCMD flag			    */
+#endif
+#ifdef	HAVE_ZLIB_H
+    int			GZflag;			/* GZ compression flag		    */
+#endif
+#ifdef	HAVE_BZLIB_H
+    int			BZ2flag;		/* BZ2 compression flag		    */
+#endif
+#endif
 };
 
 
@@ -211,6 +251,7 @@ int binkp(int role)
     bp.rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     bp.txbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     bp.rname = calloc(512, sizeof(char));
+    bp.ropts = calloc(512, sizeof(char));
     bp.rxfp = NULL;
     bp.DidSendGET = FALSE;
     bp.local_EOB = FALSE;
@@ -219,8 +260,22 @@ int binkp(int role)
     bp.cmpblksize = SND_BLKSIZE;
 #ifdef	HAVE_ZLIB_H
     bp.PLZflag = WeCan;
+#ifdef	USE_BINKDZLIB
+    bp.z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
+    bp.GZflag = WeCan;
+#else
+    bp.GZflag = No;
+#endif
 #else
     bp.PLZflag = No;
+#endif
+
+#ifdef	HAVE_BZLIB_H
+#ifdef  USE_BINKDZLIB
+    bp.BZ2flag = WeCan;
+#else
+    bp.BZ2flag = No;
+#endif
 #endif
     bp.buggyIrex = FALSE;
 
@@ -265,6 +320,18 @@ binkpend:
 	free(bp.rxbuf);
     if (bp.txbuf)
 	free(bp.txbuf);
+    if (bp.ropts)
+	free(bp.ropts);
+#ifdef	USE_BINKDZLIB
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
+    if ((bp.rmode != CompNone) && bp.z_idata)
+	decompress_deinit(bp.rmode, bp.z_idata);
+    if ((bp.tmode != CompNone) && bp.z_odata)
+	compress_deinit(bp.tmode, bp.z_odata);
+    if (bp.z_obuf)
+	free(bp.z_obuf);
+#endif
+#endif
     rc = abs(rc);
 
     Syslog('+', "Binkp: session finished, rc=%d", rc);
@@ -556,6 +623,24 @@ SM_STATE(WaitOk)
 SM_STATE(Opts)
 
     IsDoing("Binkp to %s", ascfnode(remote->addr, 0xf));
+#ifdef  USE_BINKDZLIB 
+    Syslog('b', "Binkp: check for extcmd, current %d", bp.extcmd);
+    if (bp.extcmd) {
+
+#ifdef  HAVE_BZLIB_H
+	if (bp.BZ2flag == TheyWant) {
+	    Syslog('b', "Binkp: BZ2 compression active");
+	    bp.BZ2flag = Active;
+	}
+#endif
+#ifdef  HAVE_ZLIB_H
+	if (bp.GZflag == TheyWant) {
+	    bp.GZflag = Active;
+	    Syslog('b', "Binkp: GZ compression active");
+	}
+#endif
+    }
+#endif
     SM_SUCCESS;
 
 SM_END
@@ -833,6 +918,33 @@ SM_STATE(PwdAck)
 SM_STATE(Opts)
 
     IsDoing("Binkp from %s", ascfnode(remote->addr, 0xf));
+#ifdef  USE_BINKDZLIB 
+    Syslog('b', "Binkp: check for extcmd, current %d", bp.extcmd);
+    if (bp.extcmd) {
+
+#ifdef  HAVE_BZLIB_H
+	if (bp.BZ2flag == TheyWant) {
+	    Syslog('+', "Binkp: BZ2 compression active");
+	    bp.BZ2flag = Active;
+	}
+#endif
+#ifdef	HAVE_ZLIB_H
+	if (bp.GZflag == TheyWant) {
+	    bp.GZflag = Active;
+	    Syslog('+', "Binkp: GZ compression active");
+	}
+#endif
+    } else {
+#ifdef	HAVE_ZLIB_H
+	Syslog('b', "Binkp: remote doesn't support EXTCMD, turn GZ off");
+	bp.GZflag = No;
+#endif
+#ifdef	HAVE_BZLIB_H
+	Syslog('b', "Binkp: remote doesn't support EXTCMD, turn BZ2 off");
+	bp.BZ2flag = No;
+#endif
+    }
+#endif
     SM_SUCCESS;
 
 SM_END
@@ -1015,11 +1127,25 @@ TrType binkp_receiver(void)
             return Ok;
         }
     } else if (bp.RxState == RxAccF) {
+#ifdef	USE_BINKDZLIB
+	if ((bp.rmode != CompNone) && bp.z_idata) {
+	    decompress_deinit(bp.rmode, bp.z_idata);
+	    bp.z_idata = NULL;
+	}
+	bp.rmode = CompNone;
+#endif
 	if (strlen(bp.rxbuf) < 512) {
 	    sprintf(bp.rname, "%s", strtok(bp.rxbuf+1, " \n\r"));
 	    bp.rsize = atoi(strtok(NULL, " \n\r"));
 	    bp.rtime = atoi(strtok(NULL, " \n\r"));
 	    bp.roffs = atoi(strtok(NULL, " \n\r"));
+	    sprintf(bp.ropts, "%s", strtok(NULL, " \n\r"));
+	    Syslog('b', "Binkp: m_file options \"%s\"", bp.ropts);
+	    if (strcmp((char *)"GZ", bp.ropts) == 0)
+		bp.rmode = CompGZ;
+	    else if (strcmp((char *)"BZ2", bp.ropts) == 0)
+		bp.rmode = CompBZ2;
+	    Syslog('b', "Binkp: m_file compression %s", cpstate[bp.rmode]);
 	} else {
 	    /*
 	     * Corrupted command, in case this was serious, send the M_GOT back so it's
@@ -1033,7 +1159,8 @@ TrType binkp_receiver(void)
 	    else
 		return Ok;
 	}
-	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", bp.rname, date(bp.rtime), bp.rsize, bp.roffs);
+	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld compress", 
+		bp.rname, date(bp.rtime), bp.rsize, bp.roffs, cpstate[bp.rmode]);
 	(void)binkp2unix(bp.rname);
 	rxbytes = bp.rxbytes;
 	bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, binkp_resync);
@@ -1157,12 +1284,64 @@ TrType binkp_receiver(void)
 	    return Ok;
 	}
 
+#ifdef	USE_BINKDZLIB
+	written = 0;
+        if (bp.rmode) {
+	    int rc1 = 0, nget = bp.blklen, zavail, nput;
+	    char zbuf[ZBLKSIZE];
+	    char *buf = bp.rxbuf;
+
+	    if (bp.z_idata == NULL) {
+		if (decompress_init(bp.rmode, &bp.z_idata)) {
+		    Syslog('+', "Binkp: can't init decompress");
+		    bp.RxState = RxDone;
+		    return Failure;
+		} else
+		    Syslog('b', "Binkp: decompress_init success");
+	    }
+	    while (nget) {
+		zavail = ZBLKSIZE;
+		nput = nget;
+		rc1 = do_decompress(bp.rmode, zbuf, &zavail, buf, &nput, bp.z_idata);
+		if (rc1 < 0) {
+		    Syslog('+', "Binkp: decompress %s error %d", bp.rname, rc1);
+		    bp.RxState = RxDone;
+		    return Failure;
+		} else {
+//		    Syslog('b', "Binkp: %d bytes of data decompressed to %d", nput, zavail);
+		}
+		if (zavail != 0 && fwrite(zbuf, zavail, 1, bp.rxfp) < 1) {
+		    Syslog('+', "$Binkp: write error");
+		    decompress_abort(bp.rmode, bp.z_idata);
+		    bp.z_idata = NULL;
+		    bp.RxState = RxDone;
+		    return Failure;
+		}
+		buf += nput;
+		nget -= nput;
+		written += zavail;
+		bp.rxcompressed += zavail - nput;
+	    }
+	    bp.blklen = written;    /* Correct physical to virtual blocklength */
+//	    Syslog('b', "Binkp: set bp.blklen %d rc=%d", written, rc1);
+	    if (rc1 == 1) {
+		if ((rc1 = decompress_deinit(bp.rmode, bp.z_idata)) < 0)
+		    Syslog('+', "Binkp: decompress_deinit retcode %d", rc1);
+		else
+		    Syslog('b', "Binkp: decompress_deinit done");
+		bp.z_idata = NULL;
+	    }
+	} else {
+	    written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
+	}
+#else
 	written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
+#endif
 
 	bp.GotFrame = FALSE;
 	bp.rxlen = 0;
 	bp.header = 0;
-
+	
 	if (bp.blklen && (bp.blklen != written)) {
 	    Syslog('+', "Binkp: ERROR file write error");
 	    bp.RxState = RxDone;
@@ -1177,8 +1356,8 @@ TrType binkp_receiver(void)
 	    closefile();
 	    bp.rxpos = bp.rxpos - bp.rxbytes;
 	    gettimeofday(&rxtvend, &bp.tz);
-#ifdef HAVE_ZLIB_H
-	    if (bp.rxcompressed && (bp.PLZflag == Active))
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
+	    if (bp.rxcompressed && ((bp.PLZflag == Active) || bp.rmode))
 		Syslog('+', "Binkp: %s", compress_stat(bp.rxpos, bp.rxcompressed));
 #endif
 	    Syslog('+', "Binkp: OK %s", transfertime(rxtvstart, rxtvend, bp.rxpos, FALSE));
@@ -1246,8 +1425,8 @@ TrType binkp_receiver(void)
 
 TrType binkp_transmitter(void)
 {
-    int		rc = 0, eof = FALSE;
-    char	*nonhold_mail;
+    int		sz, rc = 0, rc1 = 0, eof = FALSE;
+    char	*nonhold_mail, *extra;
     fa_list	*eff_remote;
     file_list	*tsl;
     static binkp_list	*tmp;
@@ -1322,15 +1501,36 @@ TrType binkp_transmitter(void)
 		    fclose(bp.txfp);
 		    bp.txfp = NULL;
 		    tmp->state = Skipped;
-		    break;
+    		    break;
 		}
 
-		bp.txpos = bp.stxpos = tmp->offset;
+		bp.tmode = CompNone;
+		extra = (char *)"";
+#ifdef	USE_BINKDZLIB
+		if ((tmp->compress == CompGZ) || (tmp->compress == CompBZ2)) {
+		    bp.tmode = tmp->compress;
+		    if ((rc1 = compress_init(bp.tmode, &bp.z_odata))) {
+			Syslog('+', "Binkp: compress_init failed (rc=%d)", rc1);
+			tmp->compress = CompNone;
+			bp.tmode = CompNone;
+		    } else {
+			if (bp.tmode == CompBZ2)
+			    extra = (char *)" BZ2";
+			else if (bp.tmode == CompGZ)
+			    extra = (char *)" GZ";
+			Syslog('b', "Binkp: compress_init ok, extra=%s", extra);
+		    }
+		}
+#endif
+
+//		extra = (char *)""; /* FIXME: remove when code complete and to activate compression */
+		bp.txpos = bp.txcpos = bp.stxpos = tmp->offset;
 		bp.txcompressed = 0;
+		bp.tfsize = tmp->size;
 		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
 		Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
-		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
-			(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset);
+		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld%s", MBSE_SS(tmp->remote), 
+			(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, extra);
 		if (rc) {
 		    bp.TxState = TxDone;
 		    return Failure;
@@ -1370,31 +1570,85 @@ TrType binkp_transmitter(void)
 	}
 
     } else if (bp.TxState == TxReadS) {
-	fseek(bp.txfp, bp.txpos, SEEK_SET);
-	bp.txlen = fread(bp.txbuf, 1, bp.cmpblksize, bp.txfp);
-	eof = feof(bp.txfp);
 
-	if ((bp.txlen == 0) || eof) {
+	bp.TxState = TxTryR;
+
+#if USE_BINKDZLIB
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
+	if ((bp.tmode == CompBZ2) || (bp.tmode == CompGZ)) {
+	    int nput = 0;  /* number of compressed bytes */
+	    int nget = 0;  /* number of read uncompressed bytes from buffer */
+	    int ocnt;      /* number of bytes compressed by one call */
+	    int rc2;
+	    off_t fleft;
+
+	    sz = bp.tfsize - ftell(bp.txfp);
+	    if (bp.cmpblksize < sz)
+		sz = bp.cmpblksize;
+	    Syslog('b', "Binkp: sz=%d", sz);
+	    while (TRUE) {
+		ocnt = bp.cmpblksize - nput;
+		nget = sz;
+		if (nget > ZBLKSIZE)
+		    nget = ZBLKSIZE;
+		fleft = bp.tfsize - ftell(bp.txfp);
+		fseek(bp.txfp, bp.txpos, SEEK_SET);
+		nget = fread(bp.z_obuf, 1, nget, bp.txfp);
+		Syslog('b', "Binkp: fread pos=%d nget=%d ocnt=%d", bp.txpos, nget, ocnt);
+		rc2 = do_compress(bp.tmode, bp.txbuf + nput, &ocnt, bp.z_obuf, &nget, fleft ? 0 : 1, bp.z_odata);
+		Syslog('b', "Binkp: do_compress ocnt=%d nget=%d fleft=%d rc=%d", ocnt, nget, fleft, rc2);
+		if (rc2 == -1) {
+		    Syslog('+', "Binkp: compression error rc=%d", rc2);
+		    return Failure;
+		}
+		bp.txpos += nget;
+		bp.txcpos += ocnt;
+		nput += ocnt;
+		Syslog('b', "Binkp: txpos=%d txcpos=%d nput=%d", bp.txpos, bp.txcpos, nput);
+    
+		if ((nput == bp.cmpblksize) || (fleft == 0)) {
+		    rc = binkp_send_frame(FALSE, bp.txbuf, nput);
+		    if (rc)
+			return Failure;
+		    nput = 0;
+		    sentbytes += nput;
+		}
+		if (rc2 == 1) {
+		    eof = TRUE;
+		    break;
+		}
+	    }
+
+	} else {
+#endif
+#endif
 	    /*
-	     * Nothing read/error or we are at eof
+	     * Send uncompressed block
 	     */
+	    fseek(bp.txfp, bp.txpos, SEEK_SET);
+	    bp.txlen = fread(bp.txbuf, 1, bp.cmpblksize, bp.txfp);
+	    eof = feof(bp.txfp);
 	    if (ferror(bp.txfp)) {
 		WriteError("$Binkp: error reading from file");
 		bp.TxState = TxDone;
 		cursend->state = Skipped;
 		return Failure;
 	    }
-
-	    /*
-	     * We are at eof, send last datablock
-	     */
-	    if (eof && bp.txlen) {
+	    if (bp.txlen) {
 		bp.txpos += bp.txlen;
 		sentbytes += bp.txlen;
 		rc = binkp_send_frame(FALSE, bp.txbuf, bp.txlen);
 		if (rc)
 		    return Failure;
 	    }
+
+#if USE_BINKDZLIB
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
+	}
+#endif
+#endif
+
+	if ((bp.txlen == 0) || eof) {
 
 	    /*
 	     * calculate time needed and bytes transferred
@@ -1410,7 +1664,7 @@ TrType binkp_transmitter(void)
 	    if (bp.txpos >= 0) {
 		bp.stxpos = bp.txpos - bp.stxpos;
 #ifdef HAVE_ZLIB_H
-		if (bp.txcompressed && (bp.PLZflag == Active))
+		if (bp.txcompressed)
 		    Syslog('+', "Binkp: %s", compress_stat(bp.stxpos, bp.txcompressed));
 #endif
 		Syslog('+', "Binkp: OK %s", transfertime(txtvstart, txtvend, bp.stxpos, TRUE));
@@ -1418,23 +1672,22 @@ TrType binkp_transmitter(void)
 		Syslog('+', "Binkp: transmitter skipped file after %ld seconds", txtvend.tv_sec - txtvstart.tv_sec);
 	    }
 
+#ifdef	USE_BINKDZLIB
+	    if ((bp.tmode == CompBZ2) || (bp.tmode == CompGZ)) {
+		compress_deinit(bp.tmode, bp.z_odata);
+		bp.z_odata = NULL;
+		bp.tmode = CompNone;
+		Syslog('b', "Binkp: compress_deinit done");
+	    }
+#endif
+	    
 	    cursend->state = IsSent;
 	    cursend = NULL;
 	    bp.TxState = TxGNF;
 	    return Ok;
-	} else {
-	    /*
-	     * regular datablock
-	     */
-	    bp.txpos += bp.txlen;
-	    sentbytes += bp.txlen;
-	    rc = binkp_send_frame(FALSE, bp.txbuf, bp.txlen);
-	    bp.TxState = TxTryR;
-	    if (rc)
-		return Failure;
-	    else
-		return Ok;
-	}
+	} 
+		
+	return Ok;
 
     } else if (bp.TxState == TxWLA) {
 
@@ -1695,6 +1948,7 @@ int binkp_banner(void)
 {
     time_t  t;
     int	    rc;
+    char    *p;
 
     rc = binkp_send_command(MM_NUL,"SYS %s", CFG.bbs_name);
     if (!rc)
@@ -1717,6 +1971,19 @@ int binkp_banner(void)
     if (strlen(CFG.comment) && !rc)
 	rc = binkp_send_command(MM_NUL,"OPM %s", CFG.comment);
 
+#ifdef	USE_BINKDZLIB
+    if (!rc /* && bp.Role */) {
+	p = xstrcpy((char *)"OPT EXTCMD");
+#ifdef	HAVE_ZLIB_H
+	p = xstrcat(p, (char *)" GZ");
+#endif
+#ifdef	HAVE_BZLIB_H
+	p = xstrcat(p, (char *)" BZ2");
+#endif
+	rc = binkp_send_command(MM_NUL,"%s", p);
+	free(p);
+    }
+#endif
     return rc;
 }
 
@@ -1830,13 +2097,54 @@ void parse_m_nul(char *msg)
 			free(bp.MD_Challenge);
 		    bp.MD_Challenge = MD_getChallenge(q, NULL);
 		}
-#ifdef HAVE_ZLIB_H
+	    } else if (strncmp(q, (char *)"EXTCMD", 6) == 0) {
+		bp.extcmd = TRUE;
+		Syslog('+', "Binkp: remote supports EXTCMD mode");
+
+
+#ifdef	USE_BINKDZLIB
+	    /* FIXME: order may need to change */
+
+#ifdef	HAVE_BZLIB_H
+	    } else if (strncmp(q, (char *)"BZ2", 3) == 0) {
+		if (bp.BZ2flag == WeCan) {
+		    bp.BZ2flag = TheyWant;
+		    Syslog('+', "Binkp: remote supports BZ2 mode");
+#ifdef	HAVE_ZLIB_H
+		    bp.GZflag = No;	/* Don't ack GZ	*/
+		    bp.PLZflag = No;	/* Don't ack PLZ */
+#endif
+		} else {
+		    Syslog('b', "BZ2flag is %s and received BZ2 option", opstate[bp.BZ2flag]);
+		}
+#endif
+
+#ifdef	HAVE_ZLIB_H
+	    } else if (strncmp(q, (char *)"GZ", 2) == 0) {
+		if (bp.GZflag == WeCan) {
+		    bp.GZflag = TheyWant;
+		    Syslog('+', "Binkp: remote supports GZ mode");
+		    bp.PLZflag = No;    /* Don't ack PLZ */
+#ifdef	HAVE_BZLIB_H
+		    bp.BZ2flag = No;
+#endif
+		} else {
+		    Syslog('b', "GZflag is %s and received GZ option", opstate[bp.GZflag]);
+		}
+#endif
+#endif /* use_binkdzlib */
+
+#ifdef	HAVE_ZLIB_H
 	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
 		if (bp.PLZflag == WeCan) {
 		    bp.PLZflag = TheyWant;
 		    binkp_send_command(MM_NUL,"OPT PLZ");
 		    bp.PLZflag = Active;
 		    Syslog('+', "        : zlib compression active");
+#ifdef	HAVE_BZLIB_H
+		    bp.BZ2flag = No;
+#endif
+		    bp.GZflag = No;
 		} else if (bp.PLZflag == WeWant) {
 		    bp.PLZflag = Active;
 		    Syslog('+', "        : zlib compression active");
@@ -1903,7 +2211,7 @@ int binkp_poll_frame(void)
 		if (bp.rxlen == 1) {
 		    bp.cmd = bp.header & BINKP_CONTROL_BLOCK;
 #ifdef HAVE_ZLIB_H
-		    if (bp.PLZflag == Active) {
+		    if ((bp.PLZflag == Active) && (bp.rmode == CompNone)) {
 			bp.blklen = bp.header & 0x3fff;
 		    } else {
 			bp.blklen = bp.header & 0x7fff;
@@ -1915,7 +2223,10 @@ int binkp_poll_frame(void)
 		if ((bp.rxlen == (bp.blklen + 1) && (bp.rxlen >= 1))) {
 		    bp.GotFrame = TRUE;
 #ifdef HAVE_ZLIB_H
-		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK) && bp.blklen) {
+		    /*
+		     * Got a PLZ compressed block
+		     */
+		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK) && (bp.rmode == CompNone) && bp.blklen) {
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 			zlen = BINKP_PLZ_BLOCK -1;
 			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
@@ -1990,22 +2301,40 @@ int binkp_process_messages(void)
     the_queue	*tmpq, *oldq;
     binkp_list	*tmp;
     file_list	*tsl;
-    int		Found;
-    char	*lname;
+    int		Found, rmode;
+    char	*lname, *ropts;
     time_t	ltime;
     long	lsize, loffs;
 
     Syslog('b', "Binkp: Process The Messages Queue Start");
 
     lname = calloc(512, sizeof(char));
+    ropts = calloc(512, sizeof(char));
 
     for (tmpq = tql; tmpq; tmpq = tmpq->next) {
 	Syslog('+', "Binkp: %s \"%s\"", bstate[tmpq->cmd], printable(tmpq->data, 0));
 	if (tmpq->cmd == MM_GET) {
+	    rmode = CompNone;
 	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
 	    lsize = atoi(strtok(NULL, " \n\r"));
 	    ltime = atoi(strtok(NULL, " \n\r"));
 	    loffs = atoi(strtok(NULL, " \n\r"));
+	    sprintf(ropts, "%s", strtok(NULL, " \n\r"));
+	    Syslog('b', "Binkp: m_file options \"%s\"", ropts);
+	    if (strcmp((char *)"GZ", ropts) == 0)
+    		rmode = CompGZ;
+	    else if (strcmp((char *)"BZ2", ropts) == 0)
+		rmode = CompBZ2;
+	    else if (strcmp((char *)"NZ", ropts) == 0) {
+		rmode = CompNone;
+#ifdef	HAVE_ZLIB_H
+		bp.GZflag = No;
+#endif
+#ifdef	HAVE_BZLIB_H
+		bp.BZ2flag = No;
+#endif
+		Syslog('+', "Binkp: received NZ on M_GET command, compression turned off");
+	    }
 	    Found = FALSE;
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
@@ -2299,6 +2628,8 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     binkp_list  **tmpl;
     FILE	*fp;
     struct stat tstat;
+    int		comp;
+    char	*unp;
 
     for (tmpl = bkll; *tmpl; tmpl = &((*tmpl)->next));
     *tmpl = (binkp_list *)malloc(sizeof(binkp_list));
@@ -2319,12 +2650,62 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
 	else
 	    bp.mailhold += tstat.st_size;
     }
-    (*tmpl)->get    = FALSE;
-    (*tmpl)->local  = xstrcpy(fal->local);
-    (*tmpl)->remote = xstrcpy(unix2binkp(fal->remote));
-    (*tmpl)->offset = offs;
-    (*tmpl)->size   = tstat.st_size;
-    (*tmpl)->date   = tstat.st_mtime;
+    (*tmpl)->get      = FALSE;
+    (*tmpl)->local    = xstrcpy(fal->local);
+    (*tmpl)->remote   = xstrcpy(unix2binkp(fal->remote));
+    (*tmpl)->offset   = offs;
+    (*tmpl)->size     = tstat.st_size;
+    (*tmpl)->date     = tstat.st_mtime;
+    (*tmpl)->compress = CompNone;
+
+    /*
+     * Search compression method, but only if GZ or BZ2 compression is active.
+     */
+    comp = FALSE;
+#ifdef	HAVE_ZLIB_H
+    if (bp.GZflag == Active)
+	comp = TRUE;
+#endif
+#ifdef	HAVE_BZLIB_H
+    if (bp.BZ2flag == Active)
+	comp = TRUE;
+#endif
+    if (!comp)
+	return;
+    
+    /*
+     * Don't compress small files
+     */
+    if (tstat.st_size <= 1024)
+	return;
+
+    /*
+     * Check file type
+     */
+    unp = unpacker(fal->local);
+    if (unp && strcmp((char *)"TAR", unp)) {
+	Syslog('b', "Binkp: %s send as-is", fal->local);
+	return;
+    }
+
+#ifdef	HAVE_BZLIB_H
+    /*
+     * Use BZ2 for files > 200K
+     */
+    if ((bp.BZ2flag == Active) && (tstat.st_size > 202400)) {
+	(*tmpl)->compress = CompBZ2;
+	Syslog('b', "Binkp: %s compressor BZ2", fal->local);
+	return;
+    }
+#endif
+#ifdef	HAVE_ZLIB_H
+    if (bp.GZflag == Active) {
+	(*tmpl)->compress = CompGZ;
+	Syslog('b', "Binkp: %s compressor GZ", fal->local);
+	return;
+    }
+#endif
+    Syslog('+', "Binkp: compressor select internal error");
 }
 
 
@@ -2363,4 +2744,264 @@ void binkp_clear_filelist(int rc)
     }
 }
 
+
+
+/*****************************************************************************
+ *
+ *  Compression support for GZ and BZ2 modes. Routines from the original
+ *  binkd package, slightly adopted for mbcico.
+ *
+ *  Original written by val khokhlov, FIDONet 2:550/180
+ *
+ */
+
+#ifdef	USE_BINKDZLIB
+
+int compress_init(int type, void **data)
+{
+    int	    lvl;
+
+    switch (type) {
+#ifdef HAVE_BZLIB_H
+	case CompBZ2: {
+	    *data = calloc(1, sizeof(bz_stream));
+	    if (*data == NULL) {
+		Syslog('+', "Binkp: compress_init: not enough memory (%lu needed)", sizeof(bz_stream));
+		return BZ_MEM_ERROR;
+	    }
+	    lvl = 1; /* default is small (100K) buffer */
+	    return BZ2_bzCompressInit((bz_stream *)*data, lvl, 0, 0);
+	}
+#endif
+#ifdef HAVE_ZLIB_H
+	case CompGZ: {
+	    *data = calloc(1, sizeof(z_stream));
+	    if (*data == NULL) {
+		Syslog('+', "Binkp: compress_init: not enough memory (%lu needed)", sizeof(z_stream));
+		return Z_MEM_ERROR;
+	    }
+	    lvl = 9; /* Maximum compression */
+	    if (lvl <= 0) lvl = Z_DEFAULT_COMPRESSION;
+		return deflateInit((z_stream *)*data, lvl);
+	}
+#endif
+	default:
+	    Syslog('+', "Binkp: unknown compression method: %d; data lost", type);
+    }
+    return -1;
+}
+
+
+
+int do_compress(int type, char *dst, int *dst_len, char *src, int *src_len, int finish, void *data)
+{
+    int rc;
+
+    switch (type) {
+#ifdef HAVE_BZLIB_H
+	case CompBZ2: {
+	    bz_stream *zstrm = (bz_stream *)data;
+	    zstrm->next_in = (char *)src;
+	    zstrm->avail_in = (unsigned int)*src_len;
+	    zstrm->next_out = (char *)dst;
+	    zstrm->avail_out = (unsigned int)*dst_len;
+	    rc = BZ2_bzCompress(zstrm, finish ? BZ_FINISH : 0);
+	    *src_len -= (int)zstrm->avail_in;
+	    *dst_len -= (int)zstrm->avail_out;
+	    if (rc == BZ_RUN_OK || rc == BZ_FLUSH_OK || rc == BZ_FINISH_OK) 
+		rc = 0;
+	    if (rc == BZ_STREAM_END) 
+		rc = 1;
+	    return rc;
+	}
+#endif
+#ifdef HAVE_ZLIB_H
+	case CompGZ: {
+	    z_stream *zstrm = (z_stream *)data;
+	    zstrm->next_in = (Bytef *)src;
+	    zstrm->avail_in = (uLong)*src_len;
+	    zstrm->next_out = (Bytef *)dst;
+	    zstrm->avail_out = (uLong)*dst_len;
+	    rc = deflate(zstrm, finish ? Z_FINISH : 0);
+	    *src_len -= (int)zstrm->avail_in;
+	    *dst_len -= (int)zstrm->avail_out;
+	    if (rc == Z_STREAM_END) 
+		rc = 1;
+	    return rc;
+	}
+#endif
+	default:
+	    Syslog('+', "Binkp: unknown compression method: %d; data lost", type);
+    }
+    return -1;
+}
+
+
+
+void compress_deinit(int type, void *data)
+{
+    switch (type) {
+#ifdef HAVE_BZLIB_H
+	case CompBZ2: {
+	    int rc = BZ2_bzCompressEnd((bz_stream *)data);
+	    if (rc < 0) 
+		Syslog('+', "Binkp: BZ2_bzCompressEnd error: %d", rc);
+	    break;
+	}
+#endif
+#ifdef HAVE_ZLIB_H
+	case CompGZ: {
+	    int rc = deflateEnd((z_stream *)data);
+	    if (rc < 0) 
+		Syslog('+', "Binkp: deflateEnd error: %d", rc);
+	    break;
+	}
+#endif
+	default:
+	    Syslog('+', "Binkp: unknown compression method: %d", type);
+    }
+    free(data);
+    return;
+}
+
+
+
+void compress_abort(int type, void *data)
+{
+    char    buf[1024];
+    int	    i, j;
+
+    if (data) {
+	Syslog('b', "Binkp: purge compress buffers");
+	do {
+	    i = sizeof(buf);
+	    j = 0;
+	} while (do_compress(type, buf, &i, NULL, &j, 1, data) == 0 && i > 0);
+	compress_deinit(type, data);
+    }
+}
+
+
+
+int decompress_init(int type, void **data)
+{
+    switch (type) {
+#ifdef HAVE_BZLIB_H
+	case CompBZ2: {
+	    *data = calloc(1, sizeof(bz_stream));
+	    if (*data == NULL) {
+		Syslog('+', "Binkp: decompress_init: not enough memory (%lu needed)", sizeof(bz_stream));
+		return BZ_MEM_ERROR;
+	    }
+	    return BZ2_bzDecompressInit((bz_stream *)*data, 0, 0);
+	}
+#endif
+#ifdef HAVE_ZLIB_H
+	case CompGZ: {
+	    *data = calloc(1, sizeof(z_stream));
+	    if (*data == NULL) {
+		Syslog('+', "Binkp: decompress_init: not enough memory (%lu needed)", sizeof(z_stream));
+		return Z_MEM_ERROR;
+	    }
+	    return inflateInit((z_stream *)*data);
+	}
+#endif
+	default:
+	    Syslog('+', "Binkp: unknown compression method: %d; data lost", type);
+    }
+    return -1;
+}
+
+
+
+int do_decompress(int type, char *dst, int *dst_len, char *src, int *src_len, void *data) 
+{
+    int	    rc;
+
+    switch (type) {
+#ifdef HAVE_BZLIB_H
+	case CompBZ2: {
+	    bz_stream *zstrm = (bz_stream *)data;
+	    zstrm->next_in = (char *)src;
+	    zstrm->avail_in = (unsigned int)*src_len;
+	    zstrm->next_out = (char *)dst;
+	    zstrm->avail_out = (unsigned int)*dst_len;
+	    rc = BZ2_bzDecompress(zstrm);
+	    *src_len -= (int)zstrm->avail_in;
+	    *dst_len -= (int)zstrm->avail_out;
+	    if (rc == BZ_RUN_OK || rc == BZ_FLUSH_OK) 
+		rc = 0;
+	    if (rc == BZ_STREAM_END) 
+		rc = 1;
+	    return rc;
+	}
+#endif
+#ifdef HAVE_ZLIB_H
+	case CompGZ: {
+	    z_stream *zstrm = (z_stream *)data;
+	    zstrm->next_in = (Bytef *)src;
+	    zstrm->avail_in = (uLong)*src_len;
+	    zstrm->next_out = (Bytef *)dst;
+	    zstrm->avail_out = (uLong)*dst_len;
+	    rc = inflate(zstrm, 0);
+	    *src_len -= (int)zstrm->avail_in;
+	    *dst_len -= (int)zstrm->avail_out;
+	    if (rc == Z_STREAM_END) 
+		rc = 1;
+	    return rc;
+	}
+#endif
+	default:
+	    Syslog('+', "Binkp: unknown compression method: %d; data lost", type);
+    }
+    return 0;
+}
+
+
+
+int decompress_deinit(int type, void *data)
+{
+    int	    rc = -1;
+
+    switch (type) {
+#ifdef HAVE_BZLIB_H
+	case CompBZ2: {
+	    rc = BZ2_bzDecompressEnd((bz_stream *)data);
+	    break;
+	}
+#endif
+#ifdef HAVE_ZLIB_H
+	case CompGZ: {
+	    rc = inflateEnd((z_stream *)data);
+	    break;
+	}
+#endif
+	default:
+	    Syslog('+', "Binkp: unknown compression method: %d", type);
+	    break;
+    }
+    free(data);
+    return rc;
+}
+
+
+
+int decompress_abort(int type, void *data) 
+{
+    char    buf[1024];
+    int	    i, j;
+
+    if (data) {
+	Syslog('b', "Binkp: purge decompress buffers");
+	do {
+	    i = sizeof(buf);
+	    j = 0;
+	} while (do_decompress(type, buf, &i, NULL, &j, data) == 0 && i > 0);
+	return decompress_deinit(type, data);
+    }
+    return 0;
+}
+
+
+#endif
 

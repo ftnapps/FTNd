@@ -397,7 +397,6 @@ AC_MSG_RESULT([
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
-    Binkd style compression : ..... ${BINKDZLIB}
     Full newsgate : ............... ${NEWSGATE}
     Delete key : .................. ${DEL}
 
