@@ -899,11 +899,9 @@ SM_STATE(Opts)
 #endif
     } else {
 #ifdef	HAVE_ZLIB_H
-	Syslog('b', "Binkp: remote doesn't support EXTCMD, turn GZ off");
 	bp.GZflag = No;
 #endif
 #ifdef	HAVE_BZLIB_H
-	Syslog('b', "Binkp: remote doesn't support EXTCMD, turn BZ2 off");
 	bp.BZ2flag = No;
 #endif
     }
