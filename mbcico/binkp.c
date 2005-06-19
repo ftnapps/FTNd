@@ -1805,8 +1805,12 @@ int binkp_send_frame(int cmd, char *buf, int len)
     last = bp.cmpblksize;
     /*
      * Only use compression for DATA blocks larger then 20 bytes.
+     * Also, don't send PLZ blocks if GZ or BZ2 mode is active.
+     * This means if the current file is send uncompressed we still
+     * might send some blocks compressed. The receiver needs to deal
+     * with this if it showed PLZ, GZ and BZ2 options.
      */
-    if ((bp.PLZflag == Active) && (len > 20) && (!cmd)) {
+    if ((bp.PLZflag == Active) && (len > 20) && (!cmd) && (bp.tmode != CompGZ) && (bp.tmode != CompBZ2)) {
 	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 	zlen = BINKP_PLZ_BLOCK -1;
 	rcz = compress2(zbuf, &zlen, buf, len, 9);
