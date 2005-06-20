@@ -1406,7 +1406,7 @@ int hydra_batch(int role, file_list *to_send)
 			long filesize;
 			char dosname[8 + 1 + 3 + 1], *Name;
 
-			sscanf(rxbuf, "%08lx%08lx%*08x%*08x%*08x", &timestamp, &filesize);
+			sscanf(rxbuf, "%08lx%08lx%*08x%*08x%*08x",  &timestamp, &filesize);
 
 			/* convert timestamp to UNIX time */
 			orgstamp = timestamp;

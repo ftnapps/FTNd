@@ -228,7 +228,7 @@ char *mkemsidat(int caller)
     p=xstrcat(p,flags?emsiencode(flags):(char *)"");
     p=xstrcat(p,(char *)"]}{TRX#}{[");
     tt = time(NULL);
-    sprintf(cbuf,"%08lX",mtime2sl(tt));
+    sprintf(cbuf,"%08lX", (unsigned long)mtime2sl(tt));
     p=xstrcat(p,cbuf);
     p=xstrcat(p,(char *)"]}{TZUTC}{[");
     p=xstrcat(p,gmtoffset(tt));
