@@ -4,7 +4,7 @@
 
 include ../Makefile.global
 
-H_BASE		= dist.html manual.css \
+H_BASE		= dist.html manual.css errcodes.html \
 		  flow.html postfix.html ups.html doors.html \
 		  intergate.html intro.html invoking.html faq.html \
 		  known_bugs.html mgetty.html routing.html nodelist.html
