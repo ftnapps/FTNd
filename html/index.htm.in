@@ -16,7 +16,7 @@
 <BLOCKQUOTE>
 <center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
 <div align=center><h1>MBSE BBS System Guide @VERSION@</h1></div>
-<div align=right><h5>Last update 08-May-2005</h5></div>
+<div align=right><h5>Last update 20-Jun-2005</h5></div>
 
 
 <h3><a NAME="top"></a>Introduction</h3>
@@ -120,6 +120,7 @@
   <li><a href="nodelist.html">Nodediff and Nodelist processing</a></li>
   <li><a href="ups.html">Using UPS semafore's</a></li>
   <li><a href="doors.html">Running DOS doors on MBSE BBS</a></li>
+  <li><a href="errcodes.html">Error return codes</a></li>
 </ol>
 <P>&nbsp;<P>
 
