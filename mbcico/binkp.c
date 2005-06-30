@@ -1105,11 +1105,13 @@ TrType binkp_receiver(void)
 	    bp.rsize = atoi(strtok(NULL, " \n\r"));
 	    bp.rtime = atoi(strtok(NULL, " \n\r"));
 	    bp.roffs = atoi(strtok(NULL, " \n\r"));
-	    sprintf(bp.ropts, "%s", strtok(NULL, " \n\r"));
+	    Syslog('b', "Binkp: b4 critical point");
+	    sprintf(bp.ropts, "%s", printable(strtok(NULL, " \n\r"), 0));
 	    if (strcmp((char *)"GZ", bp.ropts) == 0)
 		bp.rmode = CompGZ;
 	    else if (strcmp((char *)"BZ2", bp.ropts) == 0)
 		bp.rmode = CompBZ2;
+	    Syslog('b', "Binkp: compress check %s", bp.ropts);
 	} else {
 	    /*
 	     * Corrupted command, in case this was serious, send the M_GOT back so it's
