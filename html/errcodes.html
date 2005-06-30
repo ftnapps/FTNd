@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 20-Jun-2005</h5></div>
+<div align='right'><h5>Last update 30-Jun-2005</h5></div>
 <div align='center'><H1>MBSE BBS - Error return codes.</H1></div>
 
 
@@ -23,8 +23,11 @@ Following is a list of return codes from all official mbse programs and
 utilities. These codes can be used in scripts. If a program exits normally, the
 return code is 0. If a program exits by a signal, the return code is the signal
 number. This means if you kill a running program with a SIGTERM, the programs
-exits with the SIGTERM error number. On most platforms this is 15. Here is the
-list of other return codes:
+exits with the SIGTERM error number. On most platforms this is 15. These
+errorcodes are for the most part the same on all *nix platforms but because of
+some small differences I cannot list these here. Just do a <b>kill -l</b> to see
+a list of errors for your own platform.<br>
+Here is the list of other return codes:
 <OL start="100">
  <LI>Commandline error
  <LI>Configuration error
