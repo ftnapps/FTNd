@@ -1645,7 +1645,7 @@ struct	_nodes {
 	unsigned	TIC_To		: 1;	/* Add To line to ticfile   */
 	unsigned	NoZmodem	: 1;	/* Don't use Zmodem	    */
 	unsigned	NoZedzap	: 1;	/* Don't use Zedzap	    */
-	unsigned	xNoJanus	: 1;	/* Don't use Janus	    */
+	unsigned	NoPLZ		: 1;	/* Disable PLZ compress	    */
 	unsigned	NoHydra		: 1;	/* Don't use Hydra	    */
 
 	unsigned	xCRC32		: 1;
