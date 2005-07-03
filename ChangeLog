@@ -6,6 +6,16 @@ v0.71.3		13-Jun-2005
 	mbcico:
 		Added support for binkp GZ and BZ2 compression.
 
+	mbsebbs:
+		Added logging of remote host and terminal.
+
+	mbnewuser:
+		Added logging of remote host and terminal.
+
+	mbfido:
+		Fixed commandline parser for mail recipients.
+
+
 
 v0.71.2		16-Jan-2005 - 13-Jun-2005
 

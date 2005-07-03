@@ -342,9 +342,9 @@ int main(int argc, char **argv)
 	cmd = xstrcat(cmd, (char *)" ");
 	cmd = xstrcat(cmd, argv[i]);
 
-	if (strncmp(tl(argv[i]), "ne", 2) == 0)
+	if ((strncmp(tl(argv[i]), "ne", 2) == 0) && !do_mail)
 	    do_news = TRUE;
-	if (strncmp(tl(argv[i]), "no", 2) == 0) {
+	else if ((strncmp(tl(argv[i]), "no", 2) == 0) && !do_mail) {
 	    do_notify = TRUE;
 	    if (((i + 1) < argc) &&
                             ((strchr(argv[i + 1], ':') != NULL) || 
@@ -354,17 +354,17 @@ int main(int argc, char **argv)
 				i++;
 	    }
 	}
-	if (strncmp(tl(argv[i]), "r", 1) == 0)
+	else if ((strncmp(tl(argv[i]), "r", 1) == 0) && !do_mail)
 	    do_roll = TRUE;
-	else if (strncmp(tl(argv[i]), "a", 1) == 0)
+	else if ((strncmp(tl(argv[i]), "a", 1) == 0) && !do_mail)
 	    do_areas = TRUE;
-	else if (strncmp(tl(argv[i]), "s", 1) == 0)
+	else if ((strncmp(tl(argv[i]), "s", 1) == 0) && !do_mail)
 	    do_scan = TRUE;
-	else if (strncmp(tl(argv[i]), "ta", 2) == 0)
+	else if ((strncmp(tl(argv[i]), "ta", 2) == 0) && !do_mail)
 	    do_tags = TRUE;
-	else if (strncmp(tl(argv[i]), "ti", 2) == 0)
+	else if ((strncmp(tl(argv[i]), "ti", 2) == 0) && !do_mail)
 	    do_tic = TRUE;
-	else if (strncmp(tl(argv[i]), "te", 2) == 0) {
+	else if ((strncmp(tl(argv[i]), "te", 2) == 0) && !do_mail) {
 	    do_test = TRUE;
 	    if ((i + 1) < argc) {
 		if ((taddr = parsefaddr(argv[i + 1])) == NULL) {
@@ -374,13 +374,13 @@ int main(int argc, char **argv)
 		cmd = xstrcat(cmd, (char *)" ");
 		cmd = xstrcat(cmd, argv[i]);
 	    }
-	} else if (strncmp(tl(argv[i]), "to", 2) == 0) 
+	} else if ((strncmp(tl(argv[i]), "to", 2) == 0) && !do_mail)
 	    do_toss = TRUE;
-	else if (strncmp(tl(argv[i]), "u", 1) == 0)
+	else if ((strncmp(tl(argv[i]), "u", 1) == 0) && !do_mail)
 	    do_uucp = TRUE;
-	else if (strncmp(tl(argv[i]), "m", 1) == 0)
+	else if ((strncmp(tl(argv[i]), "m", 1) == 0) && !do_mail)
 	    do_mail = TRUE;
-	else if (strncmp(tl(argv[i]), "w", 1) == 0)
+	else if ((strncmp(tl(argv[i]), "w", 1) == 0) && !do_mail)
 	    do_stat = TRUE;
 	else if (strncmp(tl(argv[i]), "-f", 2) == 0)
 	    do_full = TRUE;
@@ -409,7 +409,7 @@ int main(int argc, char **argv)
 		envrecip = &((*envrecip)->next);
 		envrecip_count++;
 	    } else {
-		cmd = strcat(cmd, (char *)" <- unparsable recipient! ");
+		cmd = xstrcat(cmd, (char *)" <- unparsable recipient! ");
 	    }
 	}
     }
