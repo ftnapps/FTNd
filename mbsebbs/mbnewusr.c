@@ -119,6 +119,10 @@ int main(int argc, char **argv)
     if ((p = getenv("CALLER_ID")) != NULL)
 	if (strncmp(p, "none", 4))
 	    Syslog('+', "CALLER  %s", p);
+    if ((p = getenv("REMOTEHOST")) != NULL)
+	Syslog('+', "REMOTEHOST %s", p);
+    if ((p = getenv("TERM")) != NULL)
+	Syslog('+', "TERM=%s", p);
 
     sUnixName[0] = '\0';
 
