@@ -60,6 +60,8 @@ extern int localoptions;
 #define NOZEDZAP 0x0080
 #define	NOJANUS  0x0100
 #define NOHYDRA  0x0200
+#define	NOPLZ    0x0400
+#define	NOGZBZ2  0x0800
 
 
 struct	_history	history;	/* History record for sessions	*/

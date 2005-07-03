@@ -256,14 +256,23 @@ int binkp(int role)
     bp.msgs_on_queue = 0;
     bp.cmpblksize = SND_BLKSIZE;
 #ifdef	HAVE_ZLIB_H
-    bp.PLZflag = WeCan;
+    if (localoptions & NOPLZ)
+	bp.PLZflag = No;
+    else
+	bp.PLZflag = WeCan;
     bp.z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
-    bp.GZflag = WeCan;
+    if (localoptions & NOGZBZ2)
+	bp.GZflag = No;
+    else
+	bp.GZflag = WeCan;
 #else
     bp.PLZflag = No;
 #endif
 #ifdef	HAVE_BZLIB_H
-    bp.BZ2flag = WeCan;
+    if (localoptions & NOGZBZ2)
+	bp.BZ2flag = No;
+    else
+	bp.BZ2flag = WeCan;
 #endif
     bp.buggyIrex = FALSE;
 
@@ -1945,14 +1954,22 @@ int binkp_banner(void)
      * Send extra options
      */
     if (!rc) {
-	p = xstrcpy((char *)"OPT EXTCMD");
+	if (localoptions & NOGZBZ2)
+	    p = xstrcpy((char *)"OPT");
+	else
+	    p = xstrcpy((char *)"OPT EXTCMD");
 #ifdef  HAVE_BZLIB_H
-	p = xstrcat(p, (char *)" BZ2");
+	if (! (localoptions & NOGZBZ2))
+	    p = xstrcat(p, (char *)" BZ2");
 #endif
 #ifdef	HAVE_ZLIB_H
-	p = xstrcat(p, (char *)" GZ PLZ");
+	if (! (localoptions & NOPLZ))
+	    p = xstrcat(p, (char *)" PLZ");
+	if (! (localoptions & NOGZBZ2))
+	    p = xstrcat(p, (char *)" GZ");
 #endif
-	rc = binkp_send_command(MM_NUL,"%s", p);
+	if (strcmp(p, "OPT"))
+	    rc = binkp_send_command(MM_NUL,"%s", p);
 	free(p);
     }
 

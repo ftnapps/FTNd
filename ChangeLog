@@ -3,8 +3,13 @@ $Id$
 
 v0.71.3		13-Jun-2005
 
+	upgrade:
+		Check mbsetup 7.n.3.14 and 7.n.3.15 settings.
+
 	mbcico:
-		Added support for binkp GZ and BZ2 compression.
+		Added support for binkp GZ and BZ2 compression. Can be turned
+		off per node. Only effective with originating calls. Incoming
+		calls follow the remote.
 		Increased binkp timeout from 180 to 300 seconds.
 
 	mbsebbs:
@@ -16,6 +21,9 @@ v0.71.3		13-Jun-2005
 	mbfido:
 		Fixed commandline parser for mail recipients.
 
+	mbsetup:
+		Added setup switches per node to disable PLZ or GZ and BZ2
+		compression protocols with binkp.
 
 
 v0.71.2		16-Jan-2005 - 13-Jun-2005

@@ -803,11 +803,13 @@ void SessionScreen(void)
     mbse_mvprintw(18, 6, "12.  Don't call");
     mbse_mvprintw(19, 6, "13.  8.3 names");
 
-    mbse_mvprintw(15,41, "14.  No Zmodem");
-    mbse_mvprintw(16,41, "15.  No Zedzap");
-    mbse_mvprintw(17,41, "16.  No Hydra");
-    mbse_mvprintw(18,41, "17.  Binkp old esc");
-    mbse_mvprintw(19,41, "18.  No binkp/1.1");
+    mbse_mvprintw(13,41, "14.  No PLZ");
+    mbse_mvprintw(14,41, "15.  No GZ/BZ2");
+    mbse_mvprintw(15,41, "16.  No Zmodem");
+    mbse_mvprintw(16,41, "17.  No Zedzap");
+    mbse_mvprintw(17,41, "18.  No Hydra");
+    mbse_mvprintw(18,41, "19.  Binkp old esc");
+    mbse_mvprintw(19,41, "20.  No binkp/1.1");
 }
 
 
@@ -833,13 +835,15 @@ void SessionEdit(void)
 	show_bool(18,26,    nodes.NoCall);
 	show_bool(19,26,    nodes.FNC);
 
+	show_bool(13,61,    nodes.NoPLZ);
+	show_bool(14,61,    nodes.NoGZ);
 	show_bool(15,61,    nodes.NoZmodem);
 	show_bool(16,61,    nodes.NoZedzap);
 	show_bool(17,61,    nodes.NoHydra);
 	show_bool(18,61,    nodes.WrongEscape);
 	show_bool(19,61,    nodes.NoBinkp11);
 
-	switch(select_menu(18)) {
+	switch(select_menu(20)) {
 	case 0: return;
 	case 1: E_STR(  7,26,15, nodes.Spasswd,     "The ^Session password^ for this node")
 	case 2: E_STR(  8,26,40, nodes.dial,        "If needed, give a special modem ^dial command^ for this node")
@@ -857,11 +861,13 @@ void SessionEdit(void)
 	case 12:E_BOOL(18,26,    nodes.NoCall,      "Don't ^call^ this node")
 	case 13:E_BOOL(19,26,    nodes.FNC,         "Node needs ^DOS 8.3^ filenames")
 
-	case 14:E_BOOL(15,61,    nodes.NoZmodem,    "Disable ^Zmodem^ protocol with this node")
-	case 15:E_BOOL(16,61,    nodes.NoZedzap,    "Disable ^Zedzap^ protocol with this node")
-	case 16:E_BOOL(17,61,    nodes.NoHydra,     "Disable ^Hydra^ protocol with this node")
-	case 17:E_BOOL(18,61,    nodes.WrongEscape, "Use the ^old escape^ for long filenames (Argus, Irex)")
-	case 18:E_BOOL(19,61,    nodes.NoBinkp11,   "Disable ^binkp/1.1^ (fallback to binkp/1.0) mode for this node")
+	case 14:E_BOOL(13,61,    nodes.NoPLZ,       "Disable ^Binkp PLZ^ compression with this node")
+	case 15:E_BOOL(14,61,    nodes.NoGZ,        "Disable ^Binkp GZ and BZ2^ compression with this node")
+	case 16:E_BOOL(15,61,    nodes.NoZmodem,    "Disable ^Zmodem^ protocol with this node")
+	case 17:E_BOOL(16,61,    nodes.NoZedzap,    "Disable ^Zedzap^ protocol with this node")
+	case 18:E_BOOL(17,61,    nodes.NoHydra,     "Disable ^Hydra^ protocol with this node")
+	case 19:E_BOOL(18,61,    nodes.WrongEscape, "Use the ^old escape^ for long filenames (Argus, Irex)")
+	case 20:E_BOOL(19,61,    nodes.NoBinkp11,   "Disable ^binkp/1.1^ (fallback to binkp/1.0) mode for this node")
 	}
     }
 }
@@ -1539,7 +1545,11 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "     Don't call     %s", getboolean(nodes.NoCall));
 	    add_webtable(wp, (char *)"Don't call", getboolean(nodes.NoCall));
 	    fprintf(fp, "     8.3 filenames  %s", getboolean(nodes.FNC));
-	    add_webtable(wp, (char *)" 8.3 filenames", getboolean(nodes.FNC));
+	    add_webtable(wp, (char *)"8.3 filenames", getboolean(nodes.FNC));
+	    fprintf(fp, "     No PLZ         %s\n", getboolean(nodes.NoPLZ));
+	    add_webtable(wp, (char *)"No PLZ compression", getboolean(nodes.NoPLZ));
+	    fprintf(fp, "     No GZ/BZ2      %s\n", getboolean(nodes.NoGZ));
+	    add_webtable(wp, (char *)"No GZ/BZ2 compression", getboolean(nodes.NoGZ));
 	    fprintf(fp, "     No Zmodem      %s\n", getboolean(nodes.NoZmodem));
 	    add_webtable(wp, (char *)"No Zmodem", getboolean(nodes.NoZmodem));
 	    fprintf(fp, "     No Zedzap      %s", getboolean(nodes.NoZedzap));

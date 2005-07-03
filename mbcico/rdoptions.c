@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -40,80 +40,95 @@ int localoptions;
 
 
 static struct _ktab {
-	char *key;
-	int flag;
+    char *key;
+    int flag;
 } ktab[] = {
-	{(char *)"Call",	NOCALL},
-	{(char *)"WaZOO",	NOWAZOO},
-	{(char *)"EMSI",	NOEMSI},
-	{(char *)"Freqs",	NOFREQS},
-	{(char *)"Zmodem",	NOZMODEM},
-	{(char *)"ZedZap",	NOZEDZAP},
-	{(char *)"Hydra",	NOHYDRA},
-	{NULL,		0}
+    {(char *)"Call",	NOCALL},
+    {(char *)"WaZOO",	NOWAZOO},
+    {(char *)"EMSI",	NOEMSI},
+    {(char *)"Freqs",	NOFREQS},
+    {(char *)"Zmodem",	NOZMODEM},
+    {(char *)"ZedZap",	NOZEDZAP},
+    {(char *)"Hydra",	NOHYDRA},
+    {(char *)"PLZ",	NOPLZ},
+    {(char *)"GZ/BZ2",	NOGZBZ2},
+    {NULL,		0}
 };
 
 
 
 void logoptions(void)
 {
-	int	i;
-	char	*s = NULL;
+    int	    i;
+    char    *s = NULL;
 		
-	for (i=0;ktab[i].key;i++) {
-		s=xstrcat(s,(char *)" ");
-		if (localoptions & ktab[i].flag)
-			s=xstrcat(s,(char *)"No");
-		s=xstrcat(s,ktab[i].key);
-	}
+    for (i = 0; ktab[i].key; i++) {
+	s = xstrcat(s, (char *)" ");
+	if (localoptions & ktab[i].flag)
+	    s = xstrcat(s,(char *)"No");
+	s = xstrcat(s, ktab[i].key);
+    }
 	
-	Syslog('+', "Options:%s",s);
-	free(s);
+    Syslog('+', "Options:%s",s);
+    free(s);
 }
 
 
 
 void rdoptions(int Loaded)
 {
-	localoptions=0;
-	if (CFG.NoFreqs)
-		localoptions |= NOFREQS;
-	if (CFG.NoCall)
-		localoptions |= NOCALL;
-	if (CFG.NoEMSI)
-		localoptions |= NOEMSI;
-	if (CFG.NoWazoo)
-		localoptions |= NOWAZOO;
-	if (CFG.NoZmodem)
-		localoptions |= NOZMODEM;
-	if (CFG.NoZedzap)
-		localoptions |= NOZEDZAP;
-	if (CFG.NoHydra)
-		localoptions |= NOHYDRA;
+    localoptions = 0;
+    if (CFG.NoFreqs)
+	localoptions |= NOFREQS;
+    if (CFG.NoCall)
+	localoptions |= NOCALL;
+    if (CFG.NoEMSI)
+	localoptions |= NOEMSI;
+    if (CFG.NoWazoo)
+	localoptions |= NOWAZOO;
+    if (CFG.NoZmodem)
+	localoptions |= NOZMODEM;
+    if (CFG.NoZedzap)
+	localoptions |= NOZEDZAP;
+    if (CFG.NoHydra)
+	localoptions |= NOHYDRA;
 
-	if (nodes.Aka[0].zone == 0) {
-		if (Loaded)
-			Syslog('s', "Node not in setup, using default options");
-		logoptions();
-		return;
-	}
+#ifndef	HAVE_ZLIB_H
+    localoptions |= NOPLZ;
+    localoptions |= NOGZBZ2;
+#endif
+#ifndef	HAVE_BZLIB_H
+    localoptions |= NOGZBZ2;
+#endif
 
-	Syslog('s', "rdoptions node %s %s", nodes.Sysop, aka2str(nodes.Aka[0]));
-
-	if (nodes.NoEMSI)
-		localoptions |= NOEMSI;
-	if (nodes.NoWaZOO)
-		localoptions |= NOWAZOO;
-	if (nodes.NoFreqs)
-		localoptions |= NOFREQS;
-	if (nodes.NoCall)
-		localoptions |= NOCALL;
-	if (nodes.NoZmodem)
-		localoptions |= NOZMODEM;
-	if (nodes.NoZedzap)
-		localoptions |= NOZEDZAP;
-	if (nodes.NoHydra)
-		localoptions |= NOHYDRA;
+    if (nodes.Aka[0].zone == 0) {
+	if (Loaded)
+	    Syslog('s', "Node not in setup, using default options");
 	logoptions();
+	return;
+    }
+
+    Syslog('s', "rdoptions node %s %s", nodes.Sysop, aka2str(nodes.Aka[0]));
+
+    if (nodes.NoEMSI)
+	localoptions |= NOEMSI;
+    if (nodes.NoWaZOO)
+	localoptions |= NOWAZOO;
+    if (nodes.NoFreqs)
+	localoptions |= NOFREQS;
+    if (nodes.NoCall)
+	localoptions |= NOCALL;
+    if (nodes.NoZmodem)
+	localoptions |= NOZMODEM;
+    if (nodes.NoZedzap)
+	localoptions |= NOZEDZAP;
+    if (nodes.NoHydra)
+	localoptions |= NOHYDRA;
+    if (nodes.NoPLZ)
+	localoptions |= NOPLZ;
+    if (nodes.NoGZ)
+	localoptions |= NOGZBZ2;
+
+    logoptions();
 }
 
