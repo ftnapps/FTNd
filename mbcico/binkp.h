@@ -37,7 +37,7 @@
 
 #define MAX_BLKSIZE 0x7fff	/* Don't change!				*/
 #define	BLK_HDR_SIZE 2		/* 2 bytes header				*/
-#define	BINKP_TIMEOUT 180	/* Global timeout value				*/
+#define	BINKP_TIMEOUT 300	/* Global timeout value				*/
 #define	SND_BLKSIZE 4096	/* Blocksize transmitter			*/
 
 #define MM_NUL	0		/* Ignored by binkp (data optionally logged)	*/

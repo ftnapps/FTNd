@@ -5,6 +5,7 @@ v0.71.3		13-Jun-2005
 
 	mbcico:
 		Added support for binkp GZ and BZ2 compression.
+		Increased binkp timeout from 180 to 300 seconds.
 
 	mbsebbs:
 		Added logging of remote host and terminal.
