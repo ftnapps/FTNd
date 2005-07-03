@@ -1633,7 +1633,7 @@ struct	_nodes {
 	unsigned	UplAmgrBbbs	: 1;	/* Uplink AreaMgr BBBS	    */
 	unsigned	Crash		: 1;	/* Netmail crash	    */
 	unsigned	Hold		: 1;	/* Netmail hold		    */
-	unsigned	xAddPlus	: 1;
+	unsigned	NoGZ		: 1;	/* Disable GZ/BZ2	    */
 	unsigned	MailPwdCheck	: 1;	/* Mail password check	    */
 	unsigned	Deleted		: 1;	/* Node is deleted	    */
 	unsigned	NoEMSI		: 1;	/* No EMSI handshake	    */
