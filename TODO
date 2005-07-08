@@ -112,7 +112,7 @@ mbfido:
 
 	N: Add switch to tic areas that new links connect SR to the area.
 
-	N: When messages are deleted in the middel (not the highest message),
+	N: When messages are deleted in the middle (not the highest message),
 	   after a pack the lastread pointer is too high and users won't see
 	   any new mail until the number of messages becomes higher then the
 	   position of the lastread pointer.
@@ -121,6 +121,11 @@ mbfido:
 
 	N: When creating mailhistory.html if a bbs name contains < and > the
 	   characters are not converted to html entinities.
+
+	N: Make mailhistory.html a lot shorter, maybe day or week versions.
+
+	N: Strip trailing spaces from subject lines to make sure reply linking
+	   works.
 
 mbcico:
 	L: Implement binkp option ND.
