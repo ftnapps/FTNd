@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE Deamon Client
  *
  *****************************************************************************
- * Copyright (C) 1993-2004
+ * Copyright (C) 1993-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -102,7 +102,7 @@ int socket_connect(char *user, char *prg, char *city)
      * information to tell the server who we are.
      */
     if (isatty(1) && (ttyname(1) != NULL)) {
-	strcpy(tty, ttyname(1));
+	strncpy(tty, ttyname(1), sizeof(tty)-1);
 	if (strchr(tty, 'p'))
 	    memccpy(tty, index(tty, 'p'), '\0', strlen(tty));
 	else if (strchr(tty, 't'))
