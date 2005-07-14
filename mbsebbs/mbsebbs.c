@@ -117,6 +117,10 @@ int main(int argc, char **argv)
 	Syslog('+', "REMOTEHOST %s", p);
     if ((p = getenv("TERM")) != NULL)
 	Syslog('+', "TERM=%s", p);
+    if ((p = getnev("LANG")) != NULL)
+	Syslog('+', "LANG=%s", p);
+    if ((p = getenv("LC_ALL")) != NULL)
+	Syslog('+', "LC_ALL=%s", p);
 
     /*
      * Initialize 
