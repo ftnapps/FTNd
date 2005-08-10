@@ -5,6 +5,7 @@ v0.71.3		13-Jun-2005
 
 	upgrade:
 		Check mbsetup 7.n.3.14 and 7.n.3.15 settings.
+		You may limit the mailhistory.html by setting 1.15.8
 
 	mbselib.a:
 		Added a function to clean subject lines from garbage, trailing
@@ -28,10 +29,13 @@ v0.71.3		13-Jun-2005
 		Added subject line clean in several places.
 		When message areas are autocreated, golded.inc and msg.txt are
 		recreated for the external editors.
+		The web stats can now limit the size of mailhistory.html
 
 	mbsetup:
 		Added setup switches per node to disable PLZ or GZ and BZ2
 		compression protocols with binkp.
+		Added setup entry 1.15.8 to set a limit on the size of the
+		mailer history html page.
 
 
 v0.71.2		16-Jan-2005 - 13-Jun-2005

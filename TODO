@@ -118,11 +118,6 @@ mbfido:
 
 	N: Someday make retoss from bad possible (volonteers?).
 
-	N: When creating mailhistory.html if a bbs name contains < and > the
-	   characters are not converted to html entinities.
-
-	N: Make mailhistory.html a lot shorter, maybe day or week versions.
-
 mbcico:
 	L: Implement binkp option ND.
 

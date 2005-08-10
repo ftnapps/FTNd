@@ -198,9 +198,9 @@ void MakeStat(void)
 			MacroVars("b", "d", Area);
 			html_massage(msgs.Name, name);
 			MacroVars("c", "s", name);
-			html_massage(fgroup.Tag, name);
+			html_massage(msgs.Tag, name);
 			MacroVars("d", "s", name);
-			html_massage(fgroup.Group, name);
+			html_massage(msgs.Group, name);
 			MacroVars("e", "s", name);
 			MacroVars("f", "s", adate(msgs.LastRcvd));
 			MacroVars("g", "d", msgs.Received.lweek);
@@ -377,11 +377,11 @@ void MakeStat(void)
 			hist.aka.domain[0] = '\0';
 		    MacroVars("c", "s", hist.aka.zone ? aka2str(hist.aka):"&nbsp;");
 		    html_massage(hist.system_name, name);
-		    MacroVars("d", "s", name);
+		    MacroVars("d", "s", strlen(name) ? name:"&nbsp;");
 		    html_massage(hist.sysop, name);
-		    MacroVars("e", "s", name);
+		    MacroVars("e", "s", strlen(name) ? name:"&nbsp;");
 		    html_massage(hist.location, name);
-		    MacroVars("f", "s", name);
+		    MacroVars("f", "s", strlen(name) ? name:"&nbsp;");
 		    MacroVars("g", "s", strlen(hist.tty) ? hist.tty:"&nbsp;");
 		    MacroVars("h", "s", adate(hist.online));
 		    MacroVars("i", "s", t_elapsed(hist.online, hist.offline));
@@ -390,6 +390,8 @@ void MakeStat(void)
 		    MacroVars("l", "d", hist.cost);
 		    MacroVars("m", "s", hist.inbound ? "In":"Out");
 		    MacroRead(fi, fw);
+		    if (CFG.www_mailerlines && ((Total - i + 1) >= CFG.www_mailerlines))
+			break;
 		}
 		closepage(fw, (char *)"mailhistory", fi);
 	    } else {
