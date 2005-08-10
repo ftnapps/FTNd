@@ -1254,6 +1254,7 @@ struct	sysconfig {
 	unsigned	is_upgraded	: 1;	/* For internal upgrade use */
 
 	char		myfqdn[64];		/* My real FQDN		    */
+	int		www_mailerlines;	/* Limit mailhistory lines  */
 };
 
 

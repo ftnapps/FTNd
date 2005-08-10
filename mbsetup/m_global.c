@@ -1368,41 +1368,44 @@ void e_mailer(void)
 
 void e_html(void)
 {
-        clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    mbse_mvprintw( 5, 2, "1.15 EDIT HTML SETTINGS");
+    set_color(CYAN, BLACK);
+    mbse_mvprintw( 7, 2, "1.  Docs root");
+    mbse_mvprintw( 8, 2, "2.  Link to ftp");
+    mbse_mvprintw( 9, 2, "3.  URL name");
+    mbse_mvprintw(10, 2, "4.  Charset");
+    mbse_mvprintw(11, 2, "5.  Author name");
+    mbse_mvprintw(12, 2, "6.  Convert cmd");
+    mbse_mvprintw(13, 2, "7.  Files/page");
+    mbse_mvprintw(14, 2, "8.  Hist. limit");
+
+    set_color(WHITE, BLACK);
+    show_str( 7,18,59, CFG.www_root);
+    show_str( 8,18,20, CFG.www_link2ftp);
+    show_str( 9,18,40, CFG.www_url);
+    show_str(10,18,20, CFG.www_charset);
+    show_str(11,18,40, CFG.www_author);
+    show_str(12,18,59, CFG.www_convert);
+    show_int(13,18,    CFG.www_files_page);
+    show_int(14,18,    CFG.www_mailerlines);
+
+    for (;;) {
         set_color(WHITE, BLACK);
-        mbse_mvprintw( 5, 2, "1.15 EDIT HTML SETTINGS");
-        set_color(CYAN, BLACK);
-        mbse_mvprintw( 7, 2, "1.  Docs root");
-        mbse_mvprintw( 8, 2, "2.  Link to ftp");
-        mbse_mvprintw( 9, 2, "3.  URL name");
-        mbse_mvprintw(10, 2, "4.  Charset");
-        mbse_mvprintw(11, 2, "5.  Author name");
-        mbse_mvprintw(12, 2, "6.  Convert cmd");
-	mbse_mvprintw(13, 2, "7.  Files/page");
 
-        set_color(WHITE, BLACK);
-        show_str( 7,18,59, CFG.www_root);
-        show_str( 8,18,20, CFG.www_link2ftp);
-        show_str( 9,18,40, CFG.www_url);
-        show_str(10,18,20, CFG.www_charset);
-        show_str(11,18,40, CFG.www_author);
-        show_str(12,18,59, CFG.www_convert);
-	show_int(13,18,    CFG.www_files_page);
-
-        for (;;) {
-                set_color(WHITE, BLACK);
-
-                switch(select_menu(7)) {
-                case 0: return;
-                case 1: E_STR( 7,18,59, CFG.www_root,       "The ^Document root^ of your http server")
-                case 2: E_STR( 8,18,20, CFG.www_link2ftp,   "The ^link^ name from the Document root to the FTP base directory")
-                case 3: E_STR( 9,18,40, CFG.www_url,        "The ^URL^ name of your http server")
-                case 4: E_STR(10,18,20, CFG.www_charset,    "The ^ISO character set^ name to include in the web pages")
-                case 5: E_STR(11,18,40, CFG.www_author,     "The ^Author name^ to include in the http headers")
-                case 6: E_STR(12,18,59, CFG.www_convert,    "The ^convert^ command to create thumbnails")
-		case 7: E_INT(13,18,    CFG.www_files_page, "The number of files on each web page")
-                }
-        };
+        switch(select_menu(8)) {
+            case 0: return;
+            case 1: E_STR( 7,18,59, CFG.www_root,        "The ^Document root^ of your http server")
+            case 2: E_STR( 8,18,20, CFG.www_link2ftp,    "The ^link^ name from the Document root to the FTP base directory")
+            case 3: E_STR( 9,18,40, CFG.www_url,         "The ^URL^ name of your http server")
+            case 4: E_STR(10,18,20, CFG.www_charset,     "The ^ISO character set^ name to include in the web pages")
+            case 5: E_STR(11,18,40, CFG.www_author,      "The ^Author name^ to include in the http headers")
+            case 6: E_STR(12,18,59, CFG.www_convert,     "The ^convert^ command to create thumbnails")
+	    case 7: E_INT(13,18,    CFG.www_files_page,  "The number of files on each web page")
+	    case 8: E_INT(14,18,    CFG.www_mailerlines, "Limit the number of ^mailer history^ lines, 0 is unlimited")
+        }
+    }
 }
 
 
@@ -2269,19 +2272,21 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"Author name", CFG.www_author);
     add_webtable(wp, (char *)"Convert command", CFG.www_convert);
     add_webdigit(wp, (char *)"Files per webpage", CFG.www_files_page);
+    add_webdigit(wp, (char *)"Mailer history lines", CFG.www_mailerlines);
     fprintf(wp, "</TBODY>\n");
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
     addtoc(fp, toc, 1, 17, page, (char *)"WWW server setup");
-    fprintf(fp, "      HTML root          %s\n", CFG.www_root);
-    fprintf(fp, "      Link to FTP base   %s\n", CFG.www_link2ftp);
-    fprintf(fp, "      Webserver URL      %s\n", CFG.www_url);
-    fprintf(fp, "      Character set      %s\n", CFG.www_charset);
-    fprintf(fp, "      Author name        %s\n", CFG.www_author);
-    fprintf(fp, "      Convert command    %s\n", CFG.www_convert);
-    fprintf(fp, "      Files per webpage  %d\n", CFG.www_files_page);
+    fprintf(fp, "      HTML root            %s\n", CFG.www_root);
+    fprintf(fp, "      Link to FTP base     %s\n", CFG.www_link2ftp);
+    fprintf(fp, "      Webserver URL        %s\n", CFG.www_url);
+    fprintf(fp, "      Character set        %s\n", CFG.www_charset);
+    fprintf(fp, "      Author name          %s\n", CFG.www_author);
+    fprintf(fp, "      Convert command      %s\n", CFG.www_convert);
+    fprintf(fp, "      Files per webpage    %d\n", CFG.www_files_page);
+    fprintf(fp, "      Mailer history lines %d\n", CFG.www_mailerlines);
 
     fprintf(wp, "<A NAME=\"_manager\"></A><H3>Manager flag descriptions</H3>\n");
     fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
