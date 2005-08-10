@@ -197,11 +197,11 @@ void MakeStat(void)
 			fseek(fi, fileptr, SEEK_SET);
 			MacroVars("b", "d", Area);
 			html_massage(msgs.Name, name);
-			MacroVars("c", "s", name);
+			MacroVars("c", "s", strlen(name) ? name:"&nbsp;");
 			html_massage(msgs.Tag, name);
-			MacroVars("d", "s", name);
+			MacroVars("d", "s", strlen(name) ? name:"&nbsp;");
 			html_massage(msgs.Group, name);
-			MacroVars("e", "s", name);
+			MacroVars("e", "s", strlen(name) ? name:"&nbsp;");
 			MacroVars("f", "s", adate(msgs.LastRcvd));
 			MacroVars("g", "d", msgs.Received.lweek);
 			MacroVars("h", "d", msgs.Received.month[Lm]);
