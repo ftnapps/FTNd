@@ -4,7 +4,7 @@
  * Purpose: Process Fidonet style mail and files.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -58,6 +58,7 @@
 #include "dirlock.h"
 #include "queue.h"
 #include "msg.h"
+#include "createm.h"
 
 
 #define	UNPACK_FACTOR 300
@@ -82,6 +83,7 @@ int	check_crc  = TRUE;		/* Check .tic crc values	    */
 int	check_dupe = TRUE;		/* Check duplicates		    */
 int	do_flush   = FALSE;		/* Flush outbound queue		    */
 int	flushed    = FALSE;		/* If anything was flushed	    */
+int	areas_changed = FALSE;		/* If echoareas are changed	    */
 extern	int do_quiet;			/* Quiet flag			    */
 extern	int e_pid;			/* Pid of child process		    */
 extern	int show_log;			/* Show logging on screen	    */
@@ -100,6 +102,7 @@ extern	int tic_in, tic_imp, tic_out, tic_bad, tic_dup;
 extern	int Magics, Hatched;
 extern	int notify, filemgr, areamgr;
 
+void editor_configs(void);
 
 
 /*
@@ -159,6 +162,68 @@ void ProgName(void)
 
 
 
+/*
+ * Create ~/etc/msg.txt for MsgEd and ~/etc/golded.inc for GoldED.
+ */
+void editor_configs(void)
+{
+    char    *temp;
+    FILE    *fp;
+    int	    i;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+
+    /*
+     * Export ~/etc/msg.txt for MsgEd.
+     */
+    sprintf(temp, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "w")) != NULL) {
+	fprintf(fp, "; msg.txt -- Automatic created by mbsetup %s -- Do not edit!\n;\n", VERSION);
+	fprintf(fp, "; Mail areas for MsgEd.\n;\n");
+	msged_areas(fp);
+	fclose(fp);
+	Syslog('+', "Created new %s", temp);
+    } else {
+	WriteError("$Could not create %s", temp);
+    }
+
+    /*
+     * Export ~/etc/golded.inc for GoldED
+     */
+    sprintf(temp, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "w")) != NULL) {
+	fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
+	fprintf(fp, "; Basic information.\n;\n");
+	if (strlen(CFG.sysop_name) && CFG.akavalid[0] && CFG.aka[0].zone) {
+	    fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
+	    fprintf(fp, "ADDRESS %s\n", aka2str(CFG.aka[0]));
+	    for (i = 1; i < 40; i++)
+		if (CFG.akavalid[i])
+		    fprintf(fp, "AKA     %s\n", aka2str(CFG.aka[i]));
+		fprintf(fp, "\n");
+
+	    gold_akamatch(fp);
+	    fprintf(fp, "; JAM MessageBase Setup\n;\n");
+	    fprintf(fp, "JAMPATH %s/tmp/\n", getenv("MBSE_ROOT"));
+	    fprintf(fp, "JAMHARDDELETE NO\n\n");
+
+	    fprintf(fp, "; Semaphore files\n;\n");
+	    fprintf(fp, "SEMAPHORE NETSCAN    %s/var/sema/mailout\n", getenv("MBSE_ROOT"));
+	    fprintf(fp, "SEMAPHORE ECHOSCAN   %s/var/sema/mailout\n\n", getenv("MBSE_ROOT"));
+
+	    gold_areas(fp);
+	}
+	fclose(fp);
+	Syslog('+', "Created new %s", temp);
+    } else {
+	WriteError("$Could not create %s", temp);
+    }
+
+    free(temp);
+}
+
+
+
 void die(int onsig)
 {
     /*
@@ -204,6 +269,9 @@ void die(int onsig)
 	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
 	else
 	    WriteError("Terminated with error %d", onsig);
+    } else {
+	if (areas_changed)
+	    editor_configs();
     }
 
     if (echo_imp + net_imp + net_out + echo_out)
@@ -640,6 +708,7 @@ int TossMail(void)
     int		    files = 0, files_ok = 0, rc = 0, maxrc = 0;
     fd_list	    *fdl = NULL;
 
+    areas_changed = TRUE;
     if (do_unprot)
 	inbound = xstrcpy(CFG.inbound);
     else
