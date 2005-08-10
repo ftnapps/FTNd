@@ -50,6 +50,8 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     time_t	    tt;
     struct tm	    *t;
 
+    mbse_CleanSubject(Subj);
+
     if (!do_quiet) {
 	mbse_colour(3, 0);
 	printf("Post \"%s\" to \"%s\" in area %ld\n", File, To, Area);

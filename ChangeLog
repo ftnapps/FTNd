@@ -6,6 +6,10 @@ v0.71.3		13-Jun-2005
 	upgrade:
 		Check mbsetup 7.n.3.14 and 7.n.3.15 settings.
 
+	mbselib.a:
+		Added a function to clean subject lines from garbage, trailing
+		spaces etc. to improve message linking.
+
 	mbcico:
 		Added support for binkp GZ and BZ2 compression. Can be turned
 		off per node. Only effective with originating calls. Incoming
@@ -14,12 +18,14 @@ v0.71.3		13-Jun-2005
 
 	mbsebbs:
 		Added logging of remote host and terminal.
+		Added subject line clean in several places.
 
 	mbnewuser:
 		Added logging of remote host and terminal.
 
 	mbfido:
 		Fixed commandline parser for mail recipients.
+		Added subject line clean in several places.
 
 	mbsetup:
 		Added setup switches per node to disable PLZ or GZ and BZ2

@@ -83,6 +83,35 @@ void Striplf(char *String)
 
 
 
+void mbse_CleanSubject(char *String)
+{
+    int	    i, fixed = FALSE;
+
+    i = strlen(String) -1;
+
+    while ((isspace(String[i])) && i) {
+	String[i] = '\0';
+	i--;
+	fixed = TRUE;
+    }
+
+    if ((strncasecmp(String, "Re: ", 4) == 0) && (strncmp(String, "Re: ", 4))) {
+	/*
+	 * Fix Re:
+	 */
+	String[0] = 'R';
+	String[1] = 'e';
+	String[2] = ':';
+	String[3] = ' ';
+	fixed = TRUE;
+    }
+
+    if (fixed)
+	Syslog('m', "Fixed subj: \"%s\"", printable(String, 0));
+}
+
+
+
 /*
  * Converts first letter to UpperCase
  */

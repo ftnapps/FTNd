@@ -2345,7 +2345,8 @@ unsigned char	mbse_Readkey(void);			/* Read a translated key    */
  */
 char		*padleft(char *str, int size, char pad);
 char		*tl(char *str);
-void		Striplf(char *String);
+void		Striplf(char *);
+void		mbse_CleanSubject(char *);
 void		tlf(char *str);
 char		*tu(char *str);
 char		*tlcap(char *);

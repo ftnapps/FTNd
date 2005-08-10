@@ -126,9 +126,6 @@ mbfido:
 
 	N: Make mailhistory.html a lot shorter, maybe day or week versions.
 
-	N: Strip trailing spaces from subject lines to make sure reply linking
-	   works.
-
 mbcico:
 	L: Implement binkp option ND.
 

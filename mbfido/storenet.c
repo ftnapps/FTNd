@@ -62,6 +62,8 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
     unsigned long   crc2;
     char	    *Buf;
 
+    mbse_CleanSubject(Subj);
+
     if (! SearchNetBoard(t->zone, t->net)) {
 	bad = TRUE;
 	WriteError("Can't find netmail board for %d:%d/%d", t->zone, t->net, t->node);

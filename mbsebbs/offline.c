@@ -1588,6 +1588,7 @@ void BlueWave_Fetch()
 			    strcpy(Msg.From, Upr.from);
 			    strcpy(Msg.To, Upr.to);
 			    strcpy(Msg.Subject, Upr.subj);
+			    mbse_CleanSubject(Msg.Subject);
 			    if (Upr.msg_attr & UPL_PRIVATE)
 				Msg.Private = TRUE;
 			    if (msgs.MsgKinds == PRIVATE)

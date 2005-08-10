@@ -89,6 +89,7 @@ void retr_msg(int msgnum)
 			if (strlen(p) > 109)
 			    p[109] = '\0';
 			sprintf(Msg.Subject, "%s", p+9);
+			mbse_CleanSubject(Msg.Subject);
 		    }
 		    if (strncmp(p, "Date: ", 6) == 0)
 			Msg.Written = parsedate(p+6, NULL) - (gmt_offset((time_t)0) * 60);

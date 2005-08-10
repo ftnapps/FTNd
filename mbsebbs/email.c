@@ -676,6 +676,7 @@ void Reply_Email(int IsReply)
     } else {
 	sprintf(subj, "%s", Msg.Subject);
     }
+    mbse_CleanSubject(subj);
     Syslog('m', "Reply msg to %s, subject %s", to, subj);
     Syslog('m', "Msgid was %s", Msg.Msgid);
     sprintf(msgid, "%s", Msg.Msgid);
@@ -876,6 +877,7 @@ void Write_Email(void)
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
     alarm_on();
     GetstrP(Msg.Subject, 65, 0);
+    mbse_CleanSubject(Msg.Subject);
 
     if ((strcmp(Msg.Subject, "")) == 0) {
 	Enter(1);

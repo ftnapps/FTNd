@@ -566,6 +566,7 @@ void Post_Msg()
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
     alarm_on();
     GetstrP(Msg.Subject, 65, 0);
+    mbse_CleanSubject(Msg.Subject);
 
     if ((strcmp(Msg.Subject, "")) == 0) {
 	Enter(1);
@@ -1642,6 +1643,7 @@ void Reply_Msg(int IsReply)
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
     GetstrP(subj, 50, x);
 
+    mbse_CleanSubject(subj);
     if (strlen(subj))
 	strcpy(Msg.Subject, subj);
 
