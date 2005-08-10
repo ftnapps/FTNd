@@ -26,6 +26,8 @@ v0.71.3		13-Jun-2005
 	mbfido:
 		Fixed commandline parser for mail recipients.
 		Added subject line clean in several places.
+		When message areas are autocreated, golded.inc and msg.txt are
+		recreated for the external editors.
 
 	mbsetup:
 		Added setup switches per node to disable PLZ or GZ and BZ2

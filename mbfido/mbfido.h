@@ -1,7 +1,7 @@
-/* mbfido.h */
-
 #ifndef _MBFIDO_H
 #define _MBFIDO_H
+
+/* $Id$ */
 
 void	Help(void);
 void	ProgName(void);

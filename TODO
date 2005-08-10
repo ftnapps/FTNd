@@ -98,9 +98,6 @@ mbfido:
 
 	N: Add statistic mail messages. Via AMC??
 
-	N: With auto created areas golded.inc is not adjusted to the new
-	   setup.
-
 	N: After readalias we need to free the alias list when mbfido ends.
 
 	N: Reimplement characterset conversion again on the gateway.

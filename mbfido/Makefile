@@ -138,7 +138,7 @@ addpkt.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h addpkt.h
 bwrite.o: ../config.h ../lib/mbselib.h bwrite.h
 forward.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/diesel.h tic.h sendmail.h rollover.h mgrutil.h forward.h
 lhash.o: ../config.h ../lib/mbselib.h lhash.h
-mbfido.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h ../lib/msg.h flock.h tosspkt.h unpack.h tic.h fsort.h scan.h mbfido.h tracker.h notify.h rollover.h hatch.h scannews.h maketags.h makestat.h newspost.h rnews.h mgrutil.h backalias.h rfc2ftn.h dirsession.h dirlock.h queue.h msg.h
+mbfido.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h ../lib/msg.h flock.h tosspkt.h unpack.h tic.h fsort.h scan.h mbfido.h tracker.h notify.h rollover.h hatch.h scannews.h maketags.h makestat.h newspost.h rnews.h mgrutil.h backalias.h rfc2ftn.h dirsession.h dirlock.h queue.h msg.h createm.h
 mkftnhdr.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h atoul.h hash.h msgflags.h aliasdb.h mkftnhdr.h
 ping.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h sendmail.h postnetmail.h ping.h
 rfc2ftn.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h rollover.h postnetmail.h postecho.h msgflags.h rfc2ftn.h

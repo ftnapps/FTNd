@@ -4,7 +4,7 @@
  * Purpose ...............: Create Message Area
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -38,6 +38,8 @@
 
 
 #define MCHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+extern int	areas_changed;
 
 
 int create_msgarea(char *marea, faddr *p_from)
@@ -285,6 +287,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		else
 		    Mgrlog("Auto created echo %s, group %s, area %ld, for node %s",
 			msgs.Tag, msgs.Group, offset, ascfnode(f , 0x1f));
+		areas_changed = TRUE;
 		return 0;
 	    } /* if (strcmp(tag, Area) == 0) */
 	} /* if (strlen(buf) && isalnum(buf[0])) */
@@ -296,5 +299,177 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
     free(temp);
     return 1;
 }
+
+
+
+void msged_areas(FILE *fp)
+{
+    char    *temp, *aka;
+    FILE    *no;
+    int     i = 0;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL) {
+	free(temp);
+	return;
+    }
+
+    fread(&msgshdr, sizeof(msgshdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&msgshdr, msgshdr.hdrsize, 1, no);
+
+    while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
+
+	i++;
+	if (msgs.Active) {
+
+	    fprintf(fp, "Jam ");
+
+	    switch (msgs.Type) {
+		case LOCALMAIL: fprintf(fp, "l");   break;
+		case NETMAIL:   fprintf(fp, "mp");  break;
+		case ECHOMAIL:  fprintf(fp, "e");   break;
+		case NEWS:      fprintf(fp, "e");   break;
+	    }
+
+	    if (((msgs.Type == NEWS) || (msgs.Type == ECHOMAIL)) && strlen(msgs.Tag) && strlen(msgs.Newsgroup)) {
+		fprintf(fp, "u");
+	    }
+	    fprintf(fp, "8");
+	    fprintf(fp, " \"%s\" %s", msgs.Name, msgs.Base);
+	    if (msgs.Type == ECHOMAIL)
+		fprintf(fp, " %s", msgs.Tag);
+	    if (msgs.Type != LOCALMAIL) {
+		aka = xstrcpy(strtok(aka2str(msgs.Aka), "@"));
+		fprintf(fp, " %s", aka);
+		free(aka);
+	    }
+	    fprintf(fp, "\n");
+	}
+	fseek(no, msgshdr.syssize, SEEK_CUR);
+    }
+
+    fclose(no);
+    free(temp);
+}
+
+
+
+void gold_areas(FILE *fp)
+{
+    char    *temp, *aka;
+    FILE    *no;
+    int     i = 0;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL) {
+	free(temp);
+	return;
+    }
+
+    fread(&msgshdr, sizeof(msgshdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&msgshdr, msgshdr.hdrsize, 1, no);
+
+    fprintf(fp, "; Message Areas\n;\n");
+    fprintf(fp, "AREASCAN *\n");
+    fprintf(fp, "AREATYPEORDER Net Email Echo News Local\n");
+
+    while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
+
+	i++;
+	if (msgs.Active) {
+	    fprintf(fp, "AREADEF ");
+	    if (strlen(msgs.Tag))
+		fprintf(fp, "%s", msgs.Tag);
+	    else
+		fprintf(fp, "AREA%d", i);
+	    fprintf(fp, " \"%s\" ", msgs.Name);
+	    switch (msgs.Type) {
+		case LOCALMAIL  : fprintf(fp, "0 Local");       break;
+		case NETMAIL    : fprintf(fp, "N Net");         break;
+		case ECHOMAIL   : fprintf(fp, "C Echo");        break;
+		case NEWS       : fprintf(fp, "I News");        break;
+	    }
+	    aka = xstrcpy(strtok(aka2str(msgs.Aka), "@"));
+	    fprintf(fp, " JAM %s %s ", msgs.Base, aka);
+	    free(aka);
+	    if (msgs.Type == NETMAIL)
+		fprintf(fp, "(Loc Pvt)");
+	    else
+		fprintf(fp, "(Loc)");
+
+	    fprintf(fp, " \"%s\"\n", msgs.Origin);
+	}
+	fseek(no, msgshdr.syssize, SEEK_CUR);
+    }
+
+    fclose(no);
+    free(temp);
+    fprintf(fp, "\n");
+}
+
+
+
+void gold_akamatch(FILE *fp)
+{
+    char    temp[PATH_MAX];
+    FILE    *fido;
+    faddr   *want, *ta;
+    int     i;
+
+    sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    if ((fido = fopen(temp, "r")) == NULL)
+	return;
+
+    fprintf(fp, "; AKA Matching\n;\n");
+    want = (faddr *)malloc(sizeof(faddr));
+
+    fread(&fidonethdr, sizeof(fidonethdr), 1, fido);
+    while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
+
+	if (fidonet.available) {
+	    for (i = 0; i < 6; i++) {
+		if (fidonet.zone[i]) {
+		    want->zone   = fidonet.zone[0];
+		    want->net    = 0;
+		    want->node   = 0;
+		    want->point  = 0;
+		    want->name   = NULL;
+		    want->domain = NULL;
+		    ta = bestaka_s(want);
+		    fprintf(fp, "AKAMATCH %d:* %s\n", fidonet.zone[i], ascfnode(ta, 0xf));
+		    tidy_faddr(ta);
+		}
+	    }
+	}
+    }
+
+    free(want);
+    fprintf(fp, ";\n");
+    fprintf(fp, "AKAMATCHNET   YES\n");
+    fprintf(fp, "AKAMATCHECHO  YES\n");
+    fprintf(fp, "AKAMATCHLOCAL NO\n\n");
+
+    fprintf(fp, "; NODELISTS\n;\n");
+    fprintf(fp, "NODEPATH %s/\n", CFG.nodelists);
+    fseek(fido, fidonethdr.hdrsize, SEEK_SET);
+    while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
+	if (fidonet.available) {
+	    fprintf(fp, "NODELIST %s.*\n", fidonet.nodelist);
+	    for (i = 0; i < 6; i++)
+		if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone)
+		    fprintf(fp, "NODELIST %s.*\n", fidonet.seclist[i].nodelist);
+	}
+    }
+    //  fprintf(fp, "USERLIST golded.lst\n");
+    fprintf(fp, "LOOKUPNET   YES\n");
+    fprintf(fp, "LOOKUPECHO  NO\n");
+    fprintf(fp, "LOOKUPLOCAL NO\n\n");
+    fclose(fido);
+}
+
 
 

@@ -708,7 +708,6 @@ int TossMail(void)
     int		    files = 0, files_ok = 0, rc = 0, maxrc = 0;
     fd_list	    *fdl = NULL;
 
-    areas_changed = TRUE;
     if (do_unprot)
 	inbound = xstrcpy(CFG.inbound);
     else
