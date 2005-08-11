@@ -4,7 +4,7 @@
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -945,62 +945,6 @@ void OLR_RestrictDate()
     Enter(1);
     Pause();
 }
-
-
-/*
-VOID TOffline::RestrictDate (VOID)
-{
-   int dd, mm, yy;
-   CHAR Temp[32];
-   ULONG Restrict;
-   struct tm ltm;
-   class TMsgTag *MsgTag = User->MsgTag;
-
-   memcpy (&ltm, localtime ((time_t *)&User->LastCall), sizeof (struct tm));
-   Embedded->Printf ("\n\026\001\017Enter date of oldest message to pack, or press <enter> for %d-%02d-%d: ", ltm.tm_mday, ltm.tm_mon + 1, ltm.tm_year % 100);
-   Embedded->Input (Temp, 10);
-
-   if (Embedded->AbortSession () == FALSE) {
-      Restrict = User->LastCall;
-      if (Temp[0] != '\0') {
-         sscanf (Temp, "%d-%d-%d", &dd, &mm, &yy);
-         if (yy < 90)
-            yy += 100;
-         memset (&ltm, 0, sizeof (struct tm));
-         ltm.tm_mday = dd;
-         ltm.tm_mon = mm - 1;
-         ltm.tm_year = yy;
-         Restrict = mktime (&ltm);
-      }
-
-      if (MsgTag->First () == TRUE)
-         do {
-            if (MsgTag->Tagged == TRUE) {
-               MsgTag->LastRead = 0L;
-               MsgTag->OlderMsg = Restrict;
-               MsgTag->Update ();
-            }
-         } while (MsgTag->Next () == TRUE);
-   }
-}
-*/
-
-/*
-USHORT TOffline::TooOld (ULONG Restrict, class TMsgBase *Msg)
-{
-   USHORT RetVal = FALSE;
-   struct tm ltm;
-
-   memset (&ltm, 0, sizeof (struct tm));
-   ltm.tm_mday = Msg->Written.Day;
-   ltm.tm_mon = Msg->Written.Month - 1;
-   ltm.tm_year = Msg->Written.Year - 1900;
-   if (mktime (&ltm) < Restrict)
-      RetVal = TRUE;
-
-   return (RetVal);
-}
-*/
 
 
 
