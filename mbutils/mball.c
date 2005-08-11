@@ -33,6 +33,7 @@
 #include "../lib/mbse.h"
 #include "../lib/users.h"
 #include "../lib/mbsedb.h"
+#include "dlcount.h"
 #include "mball.h"
 
 
@@ -191,6 +192,7 @@ int main(int argc, char **argv)
     }
 
     if (do_list) {
+	dlcount();
 	Masterlist();
 	if (do_zip)
 	    MakeArc();

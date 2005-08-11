@@ -29,6 +29,12 @@ v0.71.3		13-Jun-2005
 	mbnewuser:
 		Added logging of remote host and terminal.
 
+	mball:
+		If a valid WWW logfile is specified in menu 1.13.4 then http
+		downloads are counted and the filedatabase is updated before
+		the allfiles listings are created. Note that the very first
+		time only a mark is placed in ~/var and nothing is done.
+
 	mbfido:
 		Fixed commandline parser for mail recipients.
 		Added subject line clean in several places.
