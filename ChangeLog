@@ -10,6 +10,7 @@ v0.71.3		13-Jun-2005
 		to valid and readable logfiles.
 		See also the procedure for version 0.71.2 since now the chat
 		code is made final!
+		Enter setup menu 8.4 once and leave to clear unused data.
 
 	mbselib.a:
 		Added a function to clean subject lines from garbage, trailing
