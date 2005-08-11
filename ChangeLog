@@ -6,6 +6,8 @@ v0.71.3		13-Jun-2005
 	upgrade:
 		Check mbsetup 7.n.3.14 and 7.n.3.15 settings.
 		You may limit the mailhistory.html by setting 1.15.8
+		Check mbsetup 1.13.4 and 1.13.5, they should be empty or point
+		to valid and readable logfiles.
 		See also the procedure for version 0.71.2 since now the chat
 		code is made final!
 
@@ -46,6 +48,10 @@ v0.71.3		13-Jun-2005
 		Added setup entry 1.15.8 to set a limit on the size of the
 		mailer history html page.
 		Made Internet BBS Chat final.
+		Added setup items 1.13.4 and 1.13.5. These could point to
+		a valid apache logfile in common format and ftp xferlog
+		logfile. If defined then downloads via www and or ftp can
+		be counted.
 
 
 v0.71.2		16-Jan-2005 - 13-Jun-2005

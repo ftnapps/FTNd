@@ -1045,29 +1045,34 @@ void e_intmailcfg(void)
 
 void s_newfiles(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "1.13 ALLFILES & NEWFILES LISTINGS");
-	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.   New days");
-	mbse_mvprintw( 8, 2, "2.   Security");
-	mbse_mvprintw( 9, 2, "3.   Groups");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mbse_mvprintw( 5, 2, "1.13 ALLFILES & NEWFILES LISTINGS");
+    set_color(CYAN, BLACK);
+    mbse_mvprintw( 7, 2, "1.   New days");
+    mbse_mvprintw( 8, 2, "2.   Security");
+    mbse_mvprintw( 9, 2, "3.   Groups");
+    mbse_mvprintw(10, 2, "4.   WWW log");
+    mbse_mvprintw(11, 2, "5.   FTP log");
 }
 
 
 
 void e_newfiles(void)
 {
-    int	temp;
+    int	    temp;
+    char    *logfile;
 	
     s_newfiles();
     for (;;) {
 	set_color(WHITE, BLACK);
-	show_int( 7,16, CFG.newdays);
-	show_sec( 8,16, CFG.security);
-	show_int( 9,16, CFG.new_groups);
+	show_int( 7,16,    CFG.newdays);
+	show_sec( 8,16,    CFG.security);
+	show_int( 9,16,    CFG.new_groups);
+	show_str(10,16,64, CFG.www_logfile);
+	show_str(11,16,64, CFG.ftp_logfile);
 
-	switch(select_menu(3)) {
+	switch(select_menu(5)) {
 	    case 0: return;
 	    case 1: E_INT(7,16,    CFG.newdays,    "Add files younger than this in newfiles report.")
 	    case 2: E_SEC(8,16,    CFG.security,   "1.13  NEWFILES REPORTS SECURITY", s_newfiles)
@@ -1081,6 +1086,34 @@ void e_newfiles(void)
 			if (OpenNewfiles() == 0)
 			    CloseNewfiles(TRUE);
 		    }
+		    break;
+	    case 4: logfile = calloc(81, sizeof(char));
+		    strcpy(logfile, edit_str(10,16,64, CFG.www_logfile, 
+				(char *)"The name of the ^apache logfile^ in common format"));
+		    if (strlen(logfile)) {
+			if (file_exist(logfile, R_OK)) {
+			    errmsg("Logfile \"%s\" doesn't exist", logfile);
+			} else {
+			    sprintf(CFG.www_logfile, "%s", logfile);
+			}
+		    } else {
+			CFG.www_logfile[0] = '\0';
+		    }
+		    free(logfile);
+		    break;
+	    case 5: logfile = calloc(81, sizeof(char));
+		    strcpy(logfile, edit_str(11,16,64, CFG.ftp_logfile,
+				    (char *)"The name of the ^ftp server logfile^ in xferlog format"));
+		    if (strlen(logfile)) {
+			if (file_exist(logfile, R_OK)) {
+			    errmsg("Logfile \"%s\" doesn't exist", logfile);
+			} else {
+			    sprintf(CFG.ftp_logfile, "%s", logfile);
+			}
+		    } else {
+			CFG.ftp_logfile[0] = '\0';
+		    }
+		    free(logfile);
 		    break;
 	}
     }
@@ -2190,10 +2223,14 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webdigit(wp, (char *)"New files days", CFG.newdays);
     web_secflags(wp, (char *)"Highest security level", CFG.security);
     add_webdigit(wp, (char *)"Max. newfile groups", CFG.new_groups);
+    add_webtable(wp, (char *)"WWW logfile", CFG.www_logfile);
+    add_webtable(wp, (char *)"FTP logfile", CFG.ftp_logfile);
     addtoc(fp, toc, 1, 14, page, (char *)"Newfile reports");
     fprintf(fp, "      New files days     %d\n", CFG.newdays);
     fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
     fprintf(fp, "      Max. newfile grps  %ld\n", CFG.new_groups);
+    fprintf(fp, "      WWW logfile        %s\n", CFG.www_logfile);
+    fprintf(fp, "      FTP logfile        %s\n", CFG.ftp_logfile);
     fprintf(wp, "</TBODY>\n");
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
