@@ -73,7 +73,7 @@ void ImportFiles(int Area)
     if (LoadAreaRec(Area) == FALSE)
 	die(MBERR_INIT_ERROR);
 
-    if (area.Available && !area.CDrom) {
+    if (area.Available) {
         temp   = calloc(PATH_MAX, sizeof(char));
 	temp2  = calloc(PATH_MAX, sizeof(char));
         pwd    = calloc(PATH_MAX, sizeof(char));
@@ -445,11 +445,6 @@ void ImportFiles(int Area)
 	    WriteError("Area not available");
 	    if (!do_quiet)
 		printf("Area not available\n");
-	}
-	if (area.CDrom) {
-	    WriteError("Can't import on CD-ROM");
-	    if (!do_quiet)
-		printf("Can't import on CD-ROM\n");
 	}
     }
 

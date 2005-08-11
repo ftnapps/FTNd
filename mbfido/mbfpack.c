@@ -77,7 +77,7 @@ void PackFileBase(void)
 	fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 	fread(&area, areahdr.recsize, 1, pAreas);
 
-	if (area.Available && !area.CDrom) {
+	if (area.Available) {
 
 	    if (enoughspace(CFG.freespace) == 0)
 		die(MBERR_DISK_FULL);

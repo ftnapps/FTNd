@@ -74,12 +74,6 @@ void Move(int From, int To, char *File)
 	    printf("Area %d not available\n", From);
 	die(MBERR_COMMANDLINE);
     }
-    if (area.CDrom) {
-	WriteError("Can't move from CD-ROM");
-	if (!do_quiet)
-	    printf("Can't move from CD-ROM\n");
-	die(MBERR_COMMANDLINE);
-    }
     if (CheckFDB(From, area.Path))
 	die(MBERR_GENERAL);
 
@@ -126,12 +120,6 @@ void Move(int From, int To, char *File)
 	if (!do_quiet)
 	    printf("Area %d not available\n", To);
 	die(MBERR_GENERAL);
-    }
-    if (area.CDrom) {
-	WriteError("Can't move to CD-ROM");
-	if (!do_quiet)
-	    printf("Can't move to CD-ROM\n");
-	die(MBERR_COMMANDLINE);
     }
     if (CheckFDB(To, area.Path))
 	die(MBERR_GENERAL);

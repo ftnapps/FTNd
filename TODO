@@ -114,9 +114,6 @@ mbcico:
 mbfile:
 	L: Possibility to skip file areas from checking and reindexing.
 
-	N: It is not possible to import areas that run of cd-roms. Do we still
-	   need cd-rom support with current hd prices?
-
 mbnntp:
 	U: fetched mail doesn't get the status Rcvd if it was for the user.
 
@@ -127,7 +124,6 @@ mbnntp:
 	N: Check if it's possible with followup messages to find the sender
 	   name of the original sender in case the client doesn't set the
            apperantly-to: header.
-
 
 mbaff:
 	L: Rewrite filefind search algorithm.

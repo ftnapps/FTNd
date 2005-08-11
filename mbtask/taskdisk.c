@@ -4,7 +4,7 @@
  * Purpose ...............: Give status of all filesystems
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -528,10 +528,7 @@ void *disk_thread(void)
 
 		while (fread(&area, areahdr.recsize, 1, fp)) {
 		    if (area.Available) { 
-			if (area.CDrom)
-			    add_path(area.FilesBbs);
-			else
-			    add_path(area.Path);
+			add_path(area.Path);
 		    }
 		}
 		fclose(fp);

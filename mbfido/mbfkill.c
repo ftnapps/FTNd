@@ -84,7 +84,7 @@ void Kill(void)
 	fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 	fread(&area, areahdr.recsize, 1, pAreas);
 
-	if ((area.Available) && (area.DLdays || area.FDdays) && (!area.CDrom)) {
+	if ((area.Available) && (area.DLdays || area.FDdays)) {
 
 	    if (enoughspace(CFG.freespace) == 0)
 		die(MBERR_DISK_FULL);

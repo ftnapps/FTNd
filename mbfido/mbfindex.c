@@ -408,10 +408,7 @@ void ReqIndex(void)
 	    /*
 	     * Create files.bbs
 	     */
-	    if (strlen(area.FilesBbs))
-		strcpy(temp, area.FilesBbs);
-	    else
-		sprintf(temp, "%s/files.bbs", area.Path);
+	    sprintf(temp, "%s/files.bbs", area.Path);
 	    if ((fp = fopen(temp, "w")) == NULL) {
 		WriteError("$Can't create %s", temp);
 	    } else {
@@ -433,7 +430,7 @@ void ReqIndex(void)
 	    /*
 	     * Create 00index file.
 	     */
-	    if (!area.CDrom && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
+	    if (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0) {
 
 		sprintf(temp, "%s/00index", area.Path);
 		if ((fp = fopen(temp, "w")) == NULL) {
@@ -593,7 +590,7 @@ void HtmlIndex(char *Lang)
 	    /*
 	     * Create index.html pages in each available download area.
 	     */
-	    if (!area.CDrom && fm && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
+	    if (fm && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
 
 		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		AreasHtml++;

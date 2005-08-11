@@ -68,12 +68,6 @@ void ReArc(int Area, char *File)
 	    printf("Area %d not available\n", Area);
 	die(MBERR_CONFIG_ERROR);
     }
-    if (area.CDrom) {
-	WriteError("Can't rearc on CD-ROM");
-	if (!do_quiet)
-	    printf("Can't rearc on CD-ROM\n");
-	die(MBERR_COMMANDLINE);
-    }
     if (strlen(area.Archiver) == 0) {
 	WriteError("No default archiver for area %d", Area);
 	if (!do_quiet)

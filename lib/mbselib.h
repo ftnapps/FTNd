@@ -794,15 +794,15 @@ struct	fileareas {
 	unsigned	FileFind	: 1;	/* FileFind Scan	    */
 	unsigned	AddAlpha	: 1;	/* Add New files sorted	    */
 	unsigned	Available	: 1;	/* Area is available	    */
-	unsigned	CDrom		: 1;	/* Area is on CDrom	    */
+	unsigned	xCDrom		: 1;
 	unsigned	FileReq		: 1;	/* Allow File Requests	    */
 	char		BbsGroup[13];		/* BBS Group 		    */
 	char		Password[21];		/* Area Password            */
 	unsigned	DLdays;			/* Move not DL for days     */
 	unsigned	FDdays;			/* Move if FD older than    */
 	unsigned	MoveArea;		/* Move to Area             */
-	int		xCost;			/* File Cost		    */
-	char		FilesBbs[65];		/* Path to files.bbs if CD  */
+	int		xCost;
+	char		xFilesBbs[65];
 	char		NewGroup[13];		/* Newfiles scan group	    */
 	char		Archiver[6];		/* Archiver for area	    */
 	unsigned	Upload;			/* Upload area		    */

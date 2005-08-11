@@ -69,12 +69,6 @@ void Delete(int UnDel, int Area, char *File)
 	    printf("Area %d not available\n", Area);
 	die(MBERR_CONFIG_ERROR);
     }
-    if (area.CDrom) {
-	WriteError("Can't %sdelete from CD-ROM", UnDel?"un":"");
-	if (!do_quiet)
-	    printf("Can't %sdelete from CD-ROM\n", UnDel?"un":"");
-	die(MBERR_COMMANDLINE);
-    }
 
     if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
 	die(MBERR_GENERAL);

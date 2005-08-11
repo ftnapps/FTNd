@@ -37,6 +37,9 @@ v0.71.3		13-Jun-2005
 		the allfiles listings are created. Note that the very first
 		time only a mark is placed in ~/var and nothing is done.
 
+	mbfile:
+		Dropped support for areas on CDrom.
+
 	mbfido:
 		Fixed commandline parser for mail recipients.
 		Added subject line clean in several places.
@@ -49,6 +52,7 @@ v0.71.3		13-Jun-2005
 
 	mbtask:
 		Made Internet BBS Chat final.
+		Dropped support for file areas on CDrom.
 
 	mbsetup:
 		Added setup switches per node to disable PLZ or GZ and BZ2
@@ -60,6 +64,7 @@ v0.71.3		13-Jun-2005
 		a valid apache logfile in common format and ftp xferlog
 		logfile. If defined then downloads via www and or ftp can
 		be counted.
+		Dropped support for file areas on CDrom.
 
 
 v0.71.2		16-Jan-2005 - 13-Jun-2005

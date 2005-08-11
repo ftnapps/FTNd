@@ -105,47 +105,62 @@ int CountFilearea(void)
  */
 int OpenFilearea(void)
 {
-	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+    FILE    *fin, *fout;
+    char    fnin[PATH_MAX], fnout[PATH_MAX];
+    long    oldsize;
 
-	sprintf(fnin,  "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
-	if ((fin = fopen(fnin, "r")) != NULL) {
-		if ((fout = fopen(fnout, "w")) != NULL) {
-			fread(&areahdr, sizeof(areahdr), 1, fin);
-			/*
-			 * In case we are automatic upgrading the data format
-			 * we save the old format. If it is changed, the
-			 * database must always be updated.
-			 */
-			oldsize = areahdr.recsize;
-			if (oldsize != sizeof(area)) {
-				FileUpdated = 1;
-				Syslog('+', "Updated %s to new format", fnin);
-			} else
-				FileUpdated = 0;
-			areahdr.hdrsize = sizeof(areahdr);
-			areahdr.recsize = sizeof(area);
-			fwrite(&areahdr, sizeof(areahdr), 1, fout);
+    sprintf(fnin,  "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    sprintf(fnout, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+    if ((fin = fopen(fnin, "r")) != NULL) {
+	if ((fout = fopen(fnout, "w")) != NULL) {
+	    fread(&areahdr, sizeof(areahdr), 1, fin);
+	    /*
+	     * In case we are automatic upgrading the data format
+	     * we save the old format. If it is changed, the
+	     * database must always be updated.
+	     */
+	    oldsize = areahdr.recsize;
+	    if (oldsize != sizeof(area)) {
+		FileUpdated = 1;
+		Syslog('+', "Updated %s to new format", fnin);
+	    } else
+		FileUpdated = 0;
+	    areahdr.hdrsize = sizeof(areahdr);
+	    areahdr.recsize = sizeof(area);
+	    fwrite(&areahdr, sizeof(areahdr), 1, fout);
 
-			/*
-			 * The datarecord is filled with zero's before each
-			 * read, so if the format changed, the new fields
-			 * will be empty.
-			 */
-			memset(&area, 0, sizeof(area));
-			while (fread(&area, oldsize, 1, fin) == 1) {
-				fwrite(&area, sizeof(area), 1, fout);
-				memset(&area, 0, sizeof(area));
-			}
-			fclose(fin);
-			fclose(fout);
-			return 0;
-		} else
-			return -1;
-	}
-	return -1;
+	    /*
+	     * The datarecord is filled with zero's before each
+	     * read, so if the format changed, the new fields
+	     * will be empty.
+	     */
+	    memset(&area, 0, sizeof(area));
+	    while (fread(&area, oldsize, 1, fin) == 1) {
+		/*
+		 * Clear obsolete fields
+		 */
+		if (area.xCDrom) {
+		    area.xCDrom = FALSE;
+		    FileUpdated = 1;
+		}
+		if (area.xCost) {
+		    area.xCost = 0;
+		    FileUpdated = 1;
+		}
+		if (strlen(area.xFilesBbs)) {
+		    memset(&area.xFilesBbs, 0, 65);
+		    FileUpdated = 1;
+		}
+		fwrite(&area, sizeof(area), 1, fout);
+		memset(&area, 0, sizeof(area));
+	    }
+	    fclose(fin);
+	    fclose(fout);
+	    return 0;
+	} else
+	    return -1;
+    }
+    return -1;
 }
 
 
@@ -217,28 +232,26 @@ void FileScreen(void)
 	mbse_mvprintw( 8, 2, "3.  Down Sec.");
 	mbse_mvprintw( 9, 2, "4.  Upl. Sec.");
 	mbse_mvprintw(10, 2, "5.  List Sec.");
-	mbse_mvprintw(11, 2, "6.  Files.bbs");
-	mbse_mvprintw(12, 2, "7.  Available");
-	mbse_mvprintw(13, 2, "8.  Check new");
-	mbse_mvprintw(14, 2, "9.  Dupecheck");
-	mbse_mvprintw(15, 2, "10. Free area");
-	mbse_mvprintw(16, 2, "11. Direct DL");
-	mbse_mvprintw(17, 2, "12. Pwd upl.");
-	mbse_mvprintw(18, 2, "13. Filefind");
+	mbse_mvprintw(11, 2, "6.  Available");
+	mbse_mvprintw(12, 2, "7.  Check new");
+	mbse_mvprintw(13, 2, "8.  Dupecheck");
+	mbse_mvprintw(14, 2, "9.  Free area");
+	mbse_mvprintw(15, 2, "10. Direct DL");
+	mbse_mvprintw(16, 2, "11. Pwd upl.");
+	mbse_mvprintw(17, 2, "12. Filefind");
 
-	mbse_mvprintw(12,30, "14. Add alpha");
-	mbse_mvprintw(13,30, "15. CDrom");
-	mbse_mvprintw(14,30, "16. File req.");
-	mbse_mvprintw(15,30, "17. BBS Group");
-	mbse_mvprintw(16,30, "18. New group");
-	mbse_mvprintw(17,30, "19. Min. age");
-	mbse_mvprintw(18,30, "20. Password");
+	mbse_mvprintw(12,30, "13. Add alpha");
+	mbse_mvprintw(13,30, "14. File req.");
+	mbse_mvprintw(14,30, "15. BBS Group");
+	mbse_mvprintw(15,30, "16. New group");
+	mbse_mvprintw(16,30, "17. Min. age");
+	mbse_mvprintw(17,30, "18. Password");
 
-	mbse_mvprintw(12,59, "21. DL days");
-	mbse_mvprintw(13,59, "22. FD days");
-	mbse_mvprintw(14,59, "23. Move area");
-	mbse_mvprintw(15,59, "24. Archiver");
-	mbse_mvprintw(16,59, "25. Upload");
+	mbse_mvprintw(12,59, "19. DL days");
+	mbse_mvprintw(13,59, "20. FD days");
+	mbse_mvprintw(14,59, "21. Move area");
+	mbse_mvprintw(15,59, "22. Archiver");
+	mbse_mvprintw(16,59, "23. Upload");
 }
 
 
@@ -288,22 +301,20 @@ int EditFileRec(int Area)
 		show_sec( 8,16, area.DLSec);
 		show_sec( 9,16, area.UPSec);
 		show_sec(10,16, area.LTSec);
-		show_str(11,16,64, area.FilesBbs);
-		show_bool(12,16, area.Available);
-		show_bool(13,16, area.New);
-		show_bool(14,16, area.Dupes);
-		show_bool(15,16, area.Free);
-		show_bool(16,16, area.DirectDL);
-		show_bool(17,16, area.PwdUP);
-		show_bool(18,16, area.FileFind);
+		show_bool(11,16, area.Available);
+		show_bool(12,16, area.New);
+		show_bool(13,16, area.Dupes);
+		show_bool(14,16, area.Free);
+		show_bool(15,16, area.DirectDL);
+		show_bool(16,16, area.PwdUP);
+		show_bool(17,16, area.FileFind);
 
 		show_bool(12,44, area.AddAlpha);
-		show_bool(13,44, area.CDrom);
-		show_bool(14,44, area.FileReq);
-		show_str(15,44,12, area.BbsGroup);
-		show_str(16,44,12, area.NewGroup);
-		show_int(17,44, area.Age);
-		show_str(18,44,20, (char *)"********************");
+		show_bool(13,44, area.FileReq);
+		show_str(14,44,12, area.BbsGroup);
+		show_str(15,44,12, area.NewGroup);
+		show_int(16,44, area.Age);
+		show_str(17,44,20, (char *)"********************");
 
 		show_int(12,73, area.DLdays);
 		show_int(13,73, area.FDdays);
@@ -311,7 +322,7 @@ int EditFileRec(int Area)
 		show_str(15,73, 5, area.Archiver);
 		show_int(16,73, area.Upload);
 
-		switch(select_menu(25)) {
+		switch(select_menu(23)) {
 		case 0: crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&area, crc1, areahdr.recsize);
 			if (crc != crc1) {
@@ -367,8 +378,7 @@ int EditFileRec(int Area)
 		case 3:	E_SEC(  8,16,    area.DLSec,     "8.4.3  DOWNLOAD SECURITY", FileScreen)
 		case 4:	E_SEC(  9,16,    area.UPSec,     "8.4.4  UPLOAD SECURITY", FileScreen)
 		case 5:	E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
-		case 6:	E_STR( 11,16,64, area.FilesBbs,  "The path and name of \"files.bbs\" if area is on CDROM")
-		case 7:	Available = edit_bool(12, 16, area.Available, (char *)"Is this area ^available^");
+		case 6:	Available = edit_bool(11, 16, area.Available, (char *)"Is this area ^available^");
 			temp = calloc(PATH_MAX, sizeof(char));
 			sprintf(temp, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 			if (area.Available && !Available) {
@@ -424,30 +434,29 @@ int EditFileRec(int Area)
 			}
 			free(temp);
 			break;
-		case 8:	E_BOOL(13,16,    area.New,       "Include this area in ^new files^ check")
-		case 9:	E_BOOL(14,16,    area.Dupes,     "Check this area for ^duplicates^ during upload")
-		case 10:E_BOOL(15,16,    area.Free,      "Are all files ^free^ in this area")
-		case 11:E_BOOL(16,16,    area.DirectDL,  "Allow ^direct download^ from this area")
-		case 12:E_BOOL(17,16,    area.PwdUP,     "Allow ^password^ on uploads")
-		case 13:E_BOOL(18,16,    area.FileFind,  "Search this area for ^filefind^ requests")
-		case 14:E_BOOL(12,44,    area.AddAlpha,  "Add new files ^alphabetic^ or at the end")
-		case 15:E_BOOL(13,44,    area.CDrom,     "Is this area on a ^CDROM^")
-		case 16:E_BOOL(14,44,    area.FileReq,   "Allow ^file requests^ from this area")
-		case 17:strcpy(area.BbsGroup, PickFGroup((char *)"8.4.17"));
+		case 7:	E_BOOL(12,16,    area.New,       "Include this area in ^new files^ check")
+		case 8:	E_BOOL(13,16,    area.Dupes,     "Check this area for ^duplicates^ during upload")
+		case 9: E_BOOL(14,16,    area.Free,      "Are all files ^free^ in this area")
+		case 10:E_BOOL(15,16,    area.DirectDL,  "Allow ^direct download^ from this area")
+		case 11:E_BOOL(16,16,    area.PwdUP,     "Allow ^password^ on uploads")
+		case 12:E_BOOL(17,16,    area.FileFind,  "Search this area for ^filefind^ requests")
+		case 13:E_BOOL(12,44,    area.AddAlpha,  "Add new files ^alphabetic^ or at the end")
+		case 14:E_BOOL(13,44,    area.FileReq,   "Allow ^file requests^ from this area")
+		case 15:strcpy(area.BbsGroup, PickFGroup((char *)"8.4.15"));
 			FileScreen();
 			break;
-		case 18:strcpy(area.NewGroup, PickNGroup((char *)"8.4.18"));
+		case 16:strcpy(area.NewGroup, PickNGroup((char *)"8.4.16"));
 			FileScreen();
 			break;
-		case 19:E_INT( 17,44,    area.Age,       "The ^minimum age^ to access this area")
-		case 20:E_STR( 18,44,20, area.Password,  "The ^password^ to access this area")
-		case 21:E_INT( 12,73,    area.DLdays,    "The not ^downloaded days^ to move/kill files")
-		case 22:E_INT( 13,73,    area.FDdays,    "The ^file age^ in days to move/kill files")
-		case 23:E_INT( 14,73,    area.MoveArea,  "The ^area to move^ files to, 0 is kill")
-		case 24:strcpy(area.Archiver, PickArchive((char *)"8.4"));
+		case 17:E_INT( 16,44,    area.Age,       "The ^minimum age^ to access this area")
+		case 18:E_STR( 17,44,20, area.Password,  "The ^password^ to access this area")
+		case 19:E_INT( 12,73,    area.DLdays,    "The not ^downloaded days^ to move/kill files")
+		case 20:E_INT( 13,73,    area.FDdays,    "The ^file age^ in days to move/kill files")
+		case 21:E_INT( 14,73,    area.MoveArea,  "The ^area to move^ files to, 0 is kill")
+		case 22:strcpy(area.Archiver, PickArchive((char *)"8.4"));
 			FileScreen();
 			break;
-		case 25:E_INT( 16,73,    area.Upload,    "The ^upload^ area, 0 if upload in this area")
+		case 23:E_INT( 16,73,    area.Upload,    "The ^upload^ area, 0 if upload in this area")
 		}
 	}
 }
@@ -799,7 +808,6 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 		web_secflags(wp, (char *)"Download security", area.DLSec);
 		web_secflags(wp, (char *)"Upload security", area.UPSec);
 		web_secflags(wp, (char *)"List security", area.LTSec);
-		add_webtable(wp, (char *)"Path to files.bbs", area.FilesBbs);
 		add_webtable(wp, (char *)"Newfiles scan", getboolean(area.New));
 		add_webtable(wp, (char *)"Check upload dupes", getboolean(area.Dupes));
 		add_webtable(wp, (char *)"Files are free", getboolean(area.Free));
@@ -807,7 +815,6 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 		add_webtable(wp, (char *)"Allow password uploads", getboolean(area.PwdUP));
 		add_webtable(wp, (char *)"Filefind on", getboolean(area.FileFind));
 		add_webtable(wp, (char *)"Add files sorted", getboolean(area.AddAlpha));
-		add_webtable(wp, (char *)"Files on CDrom", getboolean(area.CDrom));
 		add_webtable(wp, (char *)"Allow filerequest", getboolean(area.FileReq));
 		fprintf(wp, "<TR><TH align='left'>BBS (tic) file group</TH><TD><A HREF=\"filegroup_%s.html\">%s</A></TD></TH>\n",
 			area.BbsGroup, area.BbsGroup);
@@ -861,7 +868,6 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "    Download sec.     %s\n", get_secstr(area.DLSec));
 	    fprintf(fp, "    Upload security   %s\n", get_secstr(area.UPSec));
 	    fprintf(fp, "    List seccurity    %s\n", get_secstr(area.LTSec));
-	    fprintf(fp, "    Path to files.bbs %s\n", area.FilesBbs);
 	    fprintf(fp, "    Newfiles scan     %s\n", getboolean(area.New));
 	    fprintf(fp, "    Check upl. dupes  %s\n", getboolean(area.Dupes));
 	    fprintf(fp, "    Files are free    %s\n", getboolean(area.Free));
@@ -869,7 +875,6 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "    Allow pwd upl.    %s\n", getboolean(area.PwdUP));
 	    fprintf(fp, "    Filefind on       %s\n", getboolean(area.FileFind));
 	    fprintf(fp, "    Add files sorted  %s\n", getboolean(area.AddAlpha));
-	    fprintf(fp, "    Files in CDROM    %s\n", getboolean(area.CDrom));
 	    fprintf(fp, "    Allow filerequst  %s\n", getboolean(area.FileReq));
 	    fprintf(fp, "    BBS group         %s\n", area.BbsGroup);
 	    fprintf(fp, "    Newfiles group    %s\n", area.NewGroup);

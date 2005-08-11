@@ -498,59 +498,56 @@ void CheckArea(long Area)
 
     /*
      * Check files in the directory against the database.
-     * This test is skipped for CD-rom.
      */
-    if (!area.CDrom) {
-    	if ((dp = opendir(area.Path)) != NULL) {
-    	    while ((de = readdir(dp)) != NULL) {
-    		if (de->d_name[0] != '.') {
-    		    Marker();
-    		    Found = FALSE;
-		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
-		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-			if ((strcmp(fdb.LName, de->d_name) == 0) || (strcmp(fdb.Name, de->d_name) == 0)) {
-    			    if (!Found) {
-	    			Found = TRUE;
-    			    } else {
-    				/*
-    				 * Record has been found before, so this must be
-    				 * a double record.
-    				 */
-    				Syslog('!', "Double file record area %ld file %s", Area, fdb.LName);
-    				iErrors++;
-    				fdb.Double = TRUE;
-    				do_pack = TRUE;
-				if (mbsedb_LockFDB(fdb_area, 30)) {
-				    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
-				    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-				    mbsedb_UnlockFDB(fdb_area);
-				}
+    if ((dp = opendir(area.Path)) != NULL) {
+    	while ((de = readdir(dp)) != NULL) {
+    	    if (de->d_name[0] != '.') {
+    	        Marker();
+    	        Found = FALSE;
+	        fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+	        while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+		    if ((strcmp(fdb.LName, de->d_name) == 0) || (strcmp(fdb.Name, de->d_name) == 0)) {
+    		        if (!Found) {
+	    		    Found = TRUE;
+    			} else {
+    			    /*
+    			     * Record has been found before, so this must be
+    			     * a double record.
+    			     */
+    			    Syslog('!', "Double file record area %ld file %s", Area, fdb.LName);
+    			    iErrors++;
+    			    fdb.Double = TRUE;
+    			    do_pack = TRUE;
+			    if (mbsedb_LockFDB(fdb_area, 30)) {
+			        fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+			        fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+			        mbsedb_UnlockFDB(fdb_area);
 			    }
-    			}
+			}
     		    }
-    		    if ((!Found) && (strncmp(de->d_name, "files.bbs", 9)) &&
+    		}
+    	        if ((!Found) && (strncmp(de->d_name, "files.bbs", 9)) &&
     			(strncmp(de->d_name, "files.bak", 9)) &&
     			(strncmp(de->d_name, "00index", 7)) &&
     			(strncmp(de->d_name, "header", 6)) &&
     			(strncmp(de->d_name, "index", 5)) &&
     			(strncmp(de->d_name, "readme", 6))) {
-    			sprintf(fn, "%s/%s", area.Path, de->d_name);
-    			if (stat(fn, &stb) == 0)
-    			    if (S_ISREG(stb.st_mode)) {
-    				if (unlink(fn) == 0) {
-    				    Syslog('!', "%s not in fdb, deleted from disk", fn);
-    				    iErrors++;
-    				} else {
-    				    WriteError("$%s not in fdb, cannot delete", fn);
-    				}
+    		    sprintf(fn, "%s/%s", area.Path, de->d_name);
+    		    if (stat(fn, &stb) == 0)
+    		        if (S_ISREG(stb.st_mode)) {
+    			    if (unlink(fn) == 0) {
+    			        Syslog('!', "%s not in fdb, deleted from disk", fn);
+    			        iErrors++;
+    			    } else {
+    			        WriteError("$%s not in fdb, cannot delete", fn);
     			    }
-    		    }
+    			}
     		}
     	    }
-    	    closedir(dp);
-    	} else {
-    	    WriteError("Can't open %s", area.Path);
     	}
+        closedir(dp);
+    } else {
+        WriteError("Can't open %s", area.Path);
     }
 
     mbsedb_CloseFDB(fdb_area);
