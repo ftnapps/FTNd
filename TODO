@@ -35,24 +35,16 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	X: Better word wrapping or paragraph justification in editor.
-
 	N: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
 
 	L: ChangeHandle, allow own unix name as handle.
 
-	X: OLR: tagged areas must have 3 states, off, on or personal only.
-
-	X: OLR: implement limit date function.
-
 	X: OLR: include private email area in download packets. See also global
            wish for private mail areas.
 
 	X: OLR: implement some global settings from the offline configuration.
-
-	X: OLR: implement keywords and filters.
 
 	X: OLR: check qwke extensions.
 
@@ -60,10 +52,6 @@ mbsebbs:
 
 	N: Translate characterset of messages to the users preferred 
            characterset. This is partly done for testing.
-
-newuser:
-	L: Allow handles to be the same as the unixname. Most menus allow this,
-	   still needed?
 
 mbfido:
 	N: Check all .flo files for dead attachments.

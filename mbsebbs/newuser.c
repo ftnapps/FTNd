@@ -5,7 +5,7 @@
  *			    BBS and unix accounts.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -102,7 +102,12 @@ int newuser()
     FullName = calloc(81, sizeof(char));
 
     usrconfig.iLanguage = iLang;
-    usrconfig.MsgEditor = FSEDIT;
+
+    /* Set default editor */
+    if (strlen(CFG.externaleditor))
+	exitinfo.MsgEditor = EXTEDIT;
+    else
+	usrconfig.MsgEditor = FSEDIT;
 
     do {
 

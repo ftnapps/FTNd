@@ -28,6 +28,8 @@ v0.71.3		13-Jun-2005
 
 	mbnewuser:
 		Added logging of remote host and terminal.
+		If the external editor is configured a new user gets the
+		external editor by default instead of the internal editor.
 
 	mball:
 		If a valid WWW logfile is specified in menu 1.13.4 then http
