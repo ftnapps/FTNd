@@ -1196,8 +1196,11 @@ struct	sysconfig {
 	char		xftp_msg_login[21];
 	char		xftp_msg_cwd[21];
 	char		xftp_msg_shutmsg[41];
-	char		xftp_upl_path[81];
-	char		xftp_banner[81];
+
+						/* Download counts	    */
+	char		www_logfile[81];	/* Apache logfile	    */
+	char		ftp_logfile[81];	/* FTP server logfile	    */
+
 	char		xftp_email[41];
 	char		xftp_pth_filter[41];
 	char		xftp_pth_message[81];
