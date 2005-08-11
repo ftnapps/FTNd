@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 08-Nov-2003</h5></div>
+<div align="right"><h5>Last update 11-Aug-2005</h5></div>
 <div align="center"><H1>mball - Allfiles listing generator</H1></div>
 
 <H3>Synopsis.</H3>
@@ -32,6 +32,14 @@ resulting files are created in the current directory. After the creation of
 these files you can hatch them into your bbs with the programs <strong>
 mbfido tic</strong> when you properly setup a .tic file area for this purpose
 and create records for the hatch manager.
+<P>
+Just before the reports are created, and if you defined WWW and FTP logfiles
+with <b>mbsetup</b> in menu 1.13, the logfiles are analysed and and files
+downloaded from the bbs are counted as valid downloads. To make sure downloads
+are only counted once, a status file is created in ~/var, this marks the date
+the last time the logfiles are checked. For the best results make sure you run
+<b>mball</b> before any WWW and FTP logfiles are rotated, else you might miss
+some downloads.
 <P>&nbsp;<P>
 
 <H3>Environment.</H3>
@@ -56,6 +64,7 @@ must be present in the ~/etc directory.
 <H3>Setup.</H3>
 <P>
 In <strong>mbsetup</strong> menu 1.13 you need to set the days to include in newfiles listings and the maximum security level.
+Also define valid paths to logfiles that are created by your web and ftp server.
 <P>
 
 <A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
