@@ -39,7 +39,7 @@ static char *months[]={(char *)"Jan",(char *)"Feb",(char *)"Mar",
 		       (char *)"Jul",(char *)"Aug",(char *)"Sep",
 		       (char *)"Oct",(char *)"Nov",(char *)"Dec"};
 
-void count_download(char *, time_t, off_t);
+void count_download(char *, time_t, off_t, char *);
 
 
 
@@ -151,11 +151,64 @@ void dlcount(void)
 		     * Now search the download area and filerecord.
 		     */
 		    Syslog('f', "%s %s %d", rfcdate(filedate), base, filesize);
-		    count_download(base, filedate, filesize);
+		    count_download(base, filedate, filesize, (char *)"WWW");
 		}
 	    }
 	}
 	fclose(fp);
+    }
+
+    if (strlen(CFG.ftp_logfile) && (fp = fopen(CFG.ftp_logfile, "r"))) {
+
+	/*
+	 * Check apache logfile
+	 */
+	Syslog('+', "Checking FTP downloads");
+
+	while (fgets(temp, PATH_MAX-1, fp)) {
+	    date_ok = file_ok = FALSE;
+	    memset(date, 0, 80);
+	    memset(file, 0, PATH_MAX);
+	    memset(base, 0, PATH_MAX);
+	    Striplf(temp);
+
+	    /*
+	     * Parse logline.
+	     */
+	    Syslog('f', "%s", printable(temp, 100));
+	    p = strtok(temp, " \0");	    /* Day of week	*/
+	    p = strtok(NULL, " \0");	    /* Month		*/
+	    for (i = 0; i < 12; i++)
+		if (strncasecmp(months[i], p, 3) == 0)
+		    break;
+	    tm.tm_mon = i;
+	    tm.tm_mday = atoi(strtok(NULL, " \0"));	    /* Day in month	*/
+	    tm.tm_hour = atoi(strtok(NULL, ":\0"));	    /* Hour		*/
+	    tm.tm_min  = atoi(strtok(NULL, ":\0"));	    /* Minute		*/
+	    tm.tm_sec  = atoi(strtok(NULL, " \0"));	    /* Seconds		*/
+	    tm.tm_year = atoi(strtok(NULL, " \0")) - 1900;  /* Year		*/
+//	    Syslog('f', "%d %d %d  %d %d %d", tm.tm_mday, tm.tm_mon, tm.tm_year, tm.tm_hour, tm.tm_min, tm.tm_sec);
+	    filedate = mktime(&tm);
+//	    Syslog('f', "%s", rfcdate(filedate));
+	    if (filedate > lastcheck)
+		date_ok = TRUE;
+	    p = strtok(NULL, " \0");			    /* 0		*/
+	    p = strtok(NULL, " \0");			    /* Remote host	*/
+	    filesize = atoi(strtok(NULL, " \0"));	    /* Filesize		*/
+	    p = strtok(NULL, " \0");			    /* Filename		*/
+	    if (p == NULL)
+		break;
+
+	    sprintf(base, "%s", p);
+	    if (date_ok) {
+                /*
+		 * So far it seems that the file is possible downloaded from the bbs.
+		 * Now search the download area and filerecord.
+		 */
+		Syslog('f', "%s %s %d", rfcdate(filedate), base, filesize);
+		count_download(base, filedate, filesize, (char *)"FTP");
+	    }
+	}
     }
 
     free(base);
@@ -169,7 +222,7 @@ void dlcount(void)
 /*
  * Count download if file is present in the FDB.
  */
-void count_download(char *filename, time_t filedate, off_t filesize)
+void count_download(char *filename, time_t filedate, off_t filesize, char *dltype)
 {
     char		*temp;
     FILE		*dfp;
@@ -201,7 +254,7 @@ void count_download(char *filename, time_t filedate, off_t filesize)
 		if ((fdb_area = mbsedb_OpenFDB(i, 30))) {
 		    while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (((strcmp(frec.Name, temp) == 0) || (strcmp(frec.LName, temp) == 0)) && (frec.Size == filesize)) {
-			    Syslog('+', "WWW download %s from area %d", temp, i);
+			    Syslog('+', "%s download %s from area %d", dltype, temp, i);
 			    frec.LastDL = filedate;
 			    frec.TimesDL++;
 			    if (mbsedb_LockFDB(fdb_area, 30)) {
