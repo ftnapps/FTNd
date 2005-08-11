@@ -37,7 +37,6 @@
 
 
 
-#ifdef  USE_EXPERIMENT
 
 int		    ibc_run = FALSE;	    /* Thread running		*/
 extern int	    T_Shutdown;		    /* Program shutdown		*/
@@ -1611,4 +1610,3 @@ exit:
 }
 
 
-#endif

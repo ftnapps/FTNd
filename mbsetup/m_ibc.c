@@ -38,7 +38,6 @@
 #include "m_global.h"
 #include "m_ibc.h"
 
-#ifdef	USE_EXPERIMENT
 
 
 int	IBCUpdated = 0;
@@ -440,5 +439,4 @@ int ibc_doc(FILE *fp, FILE *toc, int page)
     return page;
 }
 
-#endif
 

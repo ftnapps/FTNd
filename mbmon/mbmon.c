@@ -270,17 +270,11 @@ void system_stat(void)
     hor_lin(13,45,8);
     mbse_mvprintw(13,59, "Diskspace");
     mbse_mvprintw(14, 6, "Client connects");
-#ifdef	USE_EXPERIMENT
     mbse_mvprintw(14,59, "IBC servers");
-#endif
     mbse_mvprintw(15, 6, "Peak connections");
-#ifdef	USE_EXPERIMENT
     mbse_mvprintw(15,59, "IBC channels");
-#endif
     mbse_mvprintw(16, 6, "Protocol syntax errors");
-#ifdef	USE_EXPERIMENT
     mbse_mvprintw(16,59, "IBC users");
-#endif
     mbse_mvprintw(17, 6, "Communication errors");
     mbse_mvprintw(19, 6, "Next sequence number");
     mbse_mvprintw(lines -3,59, "Press any key");
@@ -315,14 +309,10 @@ void system_stat(void)
 	    mbse_mvprintw(10,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
 	    mbse_mvprintw(11,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
 	    mbse_mvprintw(12,72, "%s ", strtok(NULL, ","));
-#ifdef	USE_EXPERIMENT
 	    mbse_mvprintw(19,30, (char *)"%s", strtok(NULL, ","));
 	    mbse_mvprintw(14,72, (char *)"%s ", strtok(NULL, ","));
 	    mbse_mvprintw(15,72, (char *)"%s ", strtok(NULL, ","));
 	    mbse_mvprintw(16,72, (char *)"%s ", strtok(NULL, ";"));
-#else
-	    mbse_mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
-#endif
 	}
 
 	switch (enoughspace(CFG.freespace)) {

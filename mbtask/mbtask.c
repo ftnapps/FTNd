@@ -115,9 +115,7 @@ extern int		cmd_run;		/* Cmd running		*/
 extern int		ping_run;		/* Ping running		*/
 int			sched_run = FALSE;	/* Scheduler running	*/
 extern int		disk_run;		/* Disk watch running	*/
-#ifdef	USE_EXPERIMENT
 extern int		ibc_run;		/* IBC thread running	*/
-#endif
 
 
 /*
@@ -127,9 +125,7 @@ pthread_t	pt_ping;
 pthread_t	pt_command;
 pthread_t	pt_disk;
 pthread_t	pt_scheduler;
-#ifdef	USE_EXPERIMENT
 pthread_t	pt_ibc;
-#endif
 
 
 
@@ -745,18 +741,10 @@ void die(int onsig)
      * build to stop within a second.
      */
     now = time(NULL) + 2;
-#ifdef	USE_EXPERIMENT
     while ((cmd_run || ping_run || sched_run || disk_run || ibc_run) && (time(NULL) < now)) {
-#else
-    while ((cmd_run || ping_run || sched_run || disk_run) && (time(NULL) < now)) {
-#endif
 	sleep(1);
     }
-#ifdef	USE_EXPERIMENT
     if (cmd_run || ping_run || sched_run || disk_run || ibc_run)
-#else
-    if (cmd_run || ping_run || sched_run || disk_run)
-#endif
 	Syslog('+', "Not all threads stopped! Forced shutdown");
     else
 	Syslog('+', "All threads stopped");
@@ -1047,11 +1035,9 @@ void start_scheduler(void)
     } else if ((rc = pthread_create(&pt_scheduler, NULL, (void (*))scheduler, NULL))) {
 	WriteError("$pthread_create scheduler rc=%d", rc);
 	die(SIGTERM);
-#ifdef	USE_EXPERIMENT
     } else if ((rc = pthread_create(&pt_ibc, NULL, (void (*))ibc_thread, NULL))) {
 	WriteError("$pthread_create ibc rc=%d", rc);
 	die(SIGTERM);
-#endif
     } else {
 	Syslog('+', "All threads installed");
     }

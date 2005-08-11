@@ -3,8 +3,6 @@
 
 /* $Id$ */
 
-#ifdef	USE_EXPERIMENT
-
 
 /*
  * Linked list of neighbour chatservers
@@ -114,6 +112,5 @@ int  do_command(char *, char *, char *);
 void send_all(const char *, ...);
 void *ibc_thread(void *);
 
-#endif
 
 #endif

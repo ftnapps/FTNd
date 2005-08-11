@@ -252,9 +252,7 @@ void site_docs(void)
 	fprintf(hp, " <LI><A HREF=\"domain.html\">Domain translation</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"task.html\">Task Manager</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"route.html\">Network Routing</A></LI>\n");
-#ifdef	USE_EXPERIMENT
 	fprintf(hp, " <LI><A HREF=\"ibcsrv.html\">Internet BBS Chat</A></LI>\n");
-#endif
         fprintf(hp, "</UL>\n");
         close_webdoc(hp);
     } else {
@@ -298,10 +296,8 @@ void site_docs(void)
     dotter();
     page = route_doc(fp, toc, page);
     dotter();
-#ifdef	USE_EXPERIMENT
     page = ibc_doc(fp, toc, page);
     dotter();
-#endif
     users_doc();
     dotter();
     ol_doc();
@@ -387,9 +383,7 @@ void initdatabases(void)
     InitVirus();
     InitRoute();
     InitFDB();
-#ifdef	USE_EXPERIMENT
     InitIBC();
-#endif
 
     if (!init) {
 	clr_index();
@@ -478,9 +472,7 @@ int main(int argc, char *argv[])
 	    mbse_mvprintw(12,46, "17.   Edit Domains");
 	    mbse_mvprintw(13,46, "18.   Edit Task Manager");
 	    mbse_mvprintw(14,46, "19.   Edit Routing Table");
-#ifdef	USE_EXPERIMENT
 	    mbse_mvprintw(15,46, "20.   Edit Internet BBS Chat");
-#endif
 	    mbse_mvprintw(16,46, "21.   Show software information");
 	    mbse_mvprintw(17,46, "22.   Create site documents");
  
@@ -545,11 +537,9 @@ int main(int argc, char *argv[])
 		case 19:
 			EditRoute();
 			break;
-#ifdef	USE_EXPERIMENT
 		case 20:
 			EditIBC();
 			break;
-#endif
 		case 21:
 			soft_info();
 			break;

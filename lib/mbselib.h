@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS main library header
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -2038,7 +2038,6 @@ struct _route {
 /*
  * IBC servers to connect to.
  */
-#ifdef	USE_EXPERIMENT
 struct _ibcsrvhdr {
 	long		hdrsize;		/* Size of header	    */
 	long		recsize;		/* Size of record	    */
@@ -2054,7 +2053,6 @@ struct _ibcsrv {
 	unsigned	Deleted	    : 1;	/* Must server be deleted   */
 	unsigned	Compress    : 1;	/* Use compresssion	    */
 };
-#endif
 
 
 
@@ -2672,10 +2670,8 @@ struct	_scanmgr	scanmgr;
 struct	_routehdr	routehdr;		/* Routing file		    */
 struct	_route		route;
 
-#ifdef	USE_EXPERIMENT
 struct	_ibcsrvhdr	ibcsrvhdr;		/* IBC servers		    */
 struct	_ibcsrv		ibcsrv;
-#endif
 
 
 #endif

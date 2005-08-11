@@ -4,7 +4,7 @@
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -88,11 +88,9 @@ static status_r	status;			/* Status data			*/
 extern double	Load;			/* System Load			*/
 extern int	Processing;		/* Is system running		*/
 
-#ifdef	USE_EXPERIMENT
 extern srv_list         *servers;           /* Connected servers        */
 extern usr_list         *users;             /* Connected users          */
 extern chn_list         *channels;          /* Connected channels       */
-#endif
 
 
 /************************************************************************
@@ -308,16 +306,13 @@ void stat_inc_cerr()
 char *stat_status()
 {
     static char buf[160];
-#ifdef	USE_EXPERIMENT
     int		srvcnt = 0, chncnt = 0, usrcnt = 0;
     srv_list	*tmps;
     chn_list	*tmpc;
     usr_list	*tmpu;
-#endif
 
     buf[0] = '\0';
 
-#ifdef	USE_EXPERIMENT
     for (tmps = servers; tmps; tmps = tmps->next)
 	srvcnt++;
     for (tmpc = channels; tmpc; tmpc = tmpc->next)
@@ -333,16 +328,6 @@ char *stat_status()
 	status.today.s_error, status.today.c_error,
 	status.open, get_zmh(), internet, s_do_inet, Processing, Load, status.sequence,
 	srvcnt, chncnt, usrcnt);
-#else
-    sprintf(buf, "100:20,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu;",
-	(long)status.start, (long)status.laststart, (long)status.daily,
-	status.startups, status.clients,
-	status.total.tot_clt, status.total.peak_clt,
-	status.total.s_error, status.total.c_error,
-	status.today.tot_clt, status.today.peak_clt,
-	status.today.s_error, status.today.c_error,
-	status.open, get_zmh(), internet, s_do_inet, Processing, Load, status.sequence);
-#endif
     return buf;
 }
 
