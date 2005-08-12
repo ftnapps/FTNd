@@ -94,9 +94,6 @@ mbfido:
 
 	N: Copy personal mail to a personal message area.
 
-	N: Implement areamgr/filemgr %avail command to list available areas
-	   from areas files.
-
 	N: Someday make retoss from bad possible (volonteers?).
 
 mbcico:

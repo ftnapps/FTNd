@@ -4,7 +4,7 @@
  * Purpose ...............: AreaMgr and FileMgr utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -865,14 +865,6 @@ int Areas(void)
 			fflush(stdout);
 		    }
 
-		    /*
-		     * Now we have a list of actions to perform
-		     */
-		    Syslog('F', "Area tag             Oke Del");
-		    for (tmp = alist; tmp; tmp = tmp->next) {
-			Syslog('F', "%-20s %s %s", tmp->Name, tmp->IsPresent?"Yes":"No ", tmp->DoDelete?"Yes":"No ");
-		    }
-		    
 		    /*
 		     * Make modification, first add missing areas
 		     */

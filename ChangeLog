@@ -1,7 +1,9 @@
 $Id$
 
+v0.71.4		12-Aug-2005
 
-v0.71.3		13-Jun-2005
+
+v0.71.3		13-Jun-2005 - 12-Aug-2005
 
 	upgrade:
 		Check mbsetup 7.n.3.14 and 7.n.3.15 settings.
@@ -49,6 +51,7 @@ v0.71.3		13-Jun-2005
 		The web stats can now limit the size of mailhistory.html
 		The FileMgr command connects news nodes SR if set for the tic
 		area.
+		Removed some extra debug logging.
 
 	mbmon:
 		Made Internet BBS Chat final.
