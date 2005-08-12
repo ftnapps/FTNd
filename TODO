@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.71.3 TODO list.
+			MBSE BBS V0.71.4 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -98,11 +98,6 @@ mbfido:
 	   from areas files.
 
 	N: Add switch to tic areas that new links connect SR to the area.
-
-	N: When messages are deleted in the middle (not the highest message),
-	   after a pack the lastread pointer is too high and users won't see
-	   any new mail until the number of messages becomes higher then the
-	   position of the lastread pointer.
 
 	N: Someday make retoss from bad possible (volonteers?).
 
