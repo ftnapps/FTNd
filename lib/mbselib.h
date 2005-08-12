@@ -1596,6 +1596,7 @@ struct	_tic {
 	unsigned	UplDiscon	: 1;	/* Uplink disconnected	   */
 	unsigned	Active		: 1;	/* If this area is active  */
 	unsigned	Deleted		: 1;	/* If this area is deleted */
+	unsigned	NewSR		: 1;	/* Connect new links SR	   */
 	statcnt		Files;			/* Total processed files   */
 	statcnt		KBytes;			/* Total processed KBytes  */
 	securityrec	LinkSec;		/* Link security flags	   */
