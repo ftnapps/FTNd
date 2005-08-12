@@ -77,7 +77,7 @@ void ScanMail(int DoAll)
 {
     int		    DoFull = FALSE, i = 0;
     unsigned long   msg;
-    char	    *Fname = NULL, *temp, *path;
+    char	    *Fname = NULL, *temp, *msgstr, *path;
     FILE	    *fp;
 
     if (DoAll) {
@@ -90,11 +90,16 @@ void ScanMail(int DoAll)
 	sprintf(Fname, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
 	if ((fp = fopen(Fname, "r")) != NULL) {
 	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
-		path = strtok(temp, " ");
-		msg = atol(strtok(NULL, "\n"));
-		Syslog('+', "Export message %lu from %s", msg, path);
-		ScanOne(path, msg);
-		i++;
+		path = strtok(temp, " \n\0");
+		msgstr = strtok(NULL, "\n\0");
+		if (path && msgstr) {
+		    msg = atol(msgstr);
+		    Syslog('+', "Export message %lu from %s", msg, path);
+		    ScanOne(path, msg);
+		    i++;
+		} else {
+		    Syslog('!', "Ignored garbage line in %s", Fname);
+		}
 		Nopper();
 	    }
 	    fclose(fp);
@@ -104,11 +109,16 @@ void ScanMail(int DoAll)
 	sprintf(Fname, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
 	if ((fp = fopen(Fname, "r")) != NULL) {
 	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
-		path = strtok(temp, " ");
-		msg = atol(strtok(NULL, "\n"));
-		Syslog('+', "Export message %lu from %s", msg, path);
-		ScanOne(path, msg);
-		i++;
+		path = strtok(temp, " \n\0");
+		msgstr = strtok(NULL, "\n\0");
+		if (path && msgstr) {
+		    msg = atol(msgstr);
+		    Syslog('+', "Export message %lu from %s", msg, path);
+		    ScanOne(path, msg);
+		    i++;
+		} else {
+		    Syslog('!', "Ignored garbage line in %s", Fname);
+		}
 		Nopper();
 	    }
 	    fclose(fp);
