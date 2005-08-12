@@ -2,6 +2,10 @@ $Id$
 
 v0.71.4		12-Aug-2005
 
+	mbfido:
+		Added extra debug logging to trace an SIGSEG when forwarding
+		files.
+
 
 v0.71.3		13-Jun-2005 - 12-Aug-2005
 

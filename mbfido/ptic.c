@@ -735,16 +735,20 @@ int ProcessTic(fa_list *sbl)
 	}
     }
 
+    Syslog('f', "ProcessTic: post processing start");
+
     Magic_ExecCommand();
     Magic_CopyFile();
     Magic_UnpackFile();
     Magic_AdoptFile();
 
+    
     sprintf(Temp, "%s/%s", TIC.Inbound, TIC.TicName);
     unlink(Temp);
 
     free(Temp);
     tidy_qualify(&qal);
+    Syslog('f', "ProcessTic: post processing end");
     return 0;
 }
 
