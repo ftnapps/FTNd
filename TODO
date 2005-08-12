@@ -97,8 +97,6 @@ mbfido:
 	N: Implement areamgr/filemgr %avail command to list available areas
 	   from areas files.
 
-	N: Add switch to tic areas that new links connect SR to the area.
-
 	N: Someday make retoss from bad possible (volonteers?).
 
 mbcico:

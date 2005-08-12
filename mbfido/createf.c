@@ -4,7 +4,7 @@
  * Purpose ...............: Create TIC Area and BBS file area.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -179,7 +179,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     }
 
     /*
-     * Some peaple write taglists with lowercase tagnames...
+     * Some people write taglists with lowercase tagnames...
      */
     for (i = 0; i < strlen(tag); i++)
 	tag[i] = toupper(tag[i]);

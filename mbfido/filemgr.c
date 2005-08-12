@@ -547,6 +547,8 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
     memset(&Sys, 0, sizeof(Sys));
     memcpy(&Sys.aka, faddr2fido(t), sizeof(fidoaddr));
     Sys.sendto      = TRUE;
+    if (tic.NewSR)
+	Sys.receivefrom = TRUE;
 
     if (TicSystemConnected(Sys)) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
@@ -657,6 +659,8 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 					memset(&Sys, 0, sizeof(Sys));
 					memcpy(&Sys.aka, faddr2fido(t), sizeof(fidoaddr));
 					Sys.sendto = TRUE;
+					if (tic.NewSR)
+					    Sys.receivefrom = TRUE;
 					fseek(fp, - sizeof(Sys), SEEK_CUR);
 					fwrite(&Sys, sizeof(Sys), 1, fp);
 					Mgrlog("FileMgr: Connected %s", tic.Name);

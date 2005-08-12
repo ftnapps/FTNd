@@ -272,57 +272,59 @@ int AppendTicarea(void)
 void EditTicSystem(sysconnect *);
 void EditTicSystem(sysconnect *Sys)
 {
-	sysconnect	S;
-	unsigned short	zone = 0;
-	int		refresh = TRUE;
+    sysconnect	    S;
+    unsigned short  zone = 0;
+    int		    refresh = TRUE;
 
-	S = (* Sys);
-	for (;;) {
-		if (refresh) {
-			clr_index();
-			set_color(WHITE, BLACK);
-			mbse_mvprintw( 5,6, "10.2.26 EDIT CONNECTION");
-			set_color(CYAN, BLACK);
-			mbse_mvprintw( 7,6, "1.      Aka");
-			mbse_mvprintw( 8,6, "2.      Send to");
-			mbse_mvprintw( 9,6, "3.      Recv from");
-			mbse_mvprintw(10,6, "4.      Pause");
-			mbse_mvprintw(11,6, "5.      Delete");
-			refresh = FALSE;
-		}
-
-		set_color(WHITE, BLACK);
-		show_str(  7,24,23, aka2str(S.aka));
-		show_bool( 8,24, S.sendto);
-		show_bool( 9,24, S.receivefrom);
-		show_bool(10,24, S.pause);
-		zone = S.aka.zone;
-
-		switch(select_menu(5)) {
-			case 0:	(* Sys) = S;
-				return;
-			case 1:	S.aka = PullUplink((char *)"10.2.26");
-				refresh = TRUE;
-				break;
-			case 2: E_BOOL( 8,24, S.sendto,      "^Send^ files ^to^ this node")
-			case 3: E_BOOL( 9,24, S.receivefrom, "^Receive^ files ^from^ this node")
-			case 4: E_BOOL(10,24, S.pause,       "Is this node ^paused^")
-			case 5: if (yes_no((char *)"Delete this entry")) {
-					memset(&S, 0, sizeof(sysconnect));
-					(* Sys) = S;
-					return;
-				}
-				break;
-		}
-
-		/*
-		 * Set sendto to on when a new
-		 * zone is entered.
-		 */
-		if ((S.aka.zone) && (!zone)) {
-			S.sendto = 1;
-		}
+    S = (* Sys);
+    for (;;) {
+	if (refresh) {
+	    clr_index();
+	    set_color(WHITE, BLACK);
+	    mbse_mvprintw( 5,6, "10.2.27 EDIT CONNECTION");
+	    set_color(CYAN, BLACK);
+	    mbse_mvprintw( 7,6, "1.      Aka");
+	    mbse_mvprintw( 8,6, "2.      Send to");
+	    mbse_mvprintw( 9,6, "3.      Recv from");
+	    mbse_mvprintw(10,6, "4.      Pause");
+	    mbse_mvprintw(11,6, "5.      Delete");
+	    refresh = FALSE;
 	}
+
+	set_color(WHITE, BLACK);
+	show_str(  7,24,23, aka2str(S.aka));
+	show_bool( 8,24, S.sendto);
+	show_bool( 9,24, S.receivefrom);
+	show_bool(10,24, S.pause);
+	zone = S.aka.zone;
+
+	switch(select_menu(5)) {
+	    case 0: (* Sys) = S;
+		    return;
+	    case 1: S.aka = PullUplink((char *)"10.2.27");
+		    refresh = TRUE;
+		    break;
+	    case 2: E_BOOL( 8,24, S.sendto,      "^Send^ files ^to^ this node")
+	    case 3: E_BOOL( 9,24, S.receivefrom, "^Receive^ files ^from^ this node")
+	    case 4: E_BOOL(10,24, S.pause,       "Is this node ^paused^")
+	    case 5: if (yes_no((char *)"Delete this entry")) {
+			memset(&S, 0, sizeof(sysconnect));
+			(* Sys) = S;
+			return;
+		    }
+		    break;
+	}
+
+	/*
+	 * Set sendto to on when a new
+	 * zone is entered.
+	 */
+	if ((S.aka.zone) && (!zone)) {
+	    S.sendto = 1;
+	    if (tic.NewSR)
+		S.receivefrom = 1;
+	}
+    }
 }
 
 
@@ -341,7 +343,7 @@ int EditTicConnections(FILE *fil)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 5, "10.2.26 TIC AREA CONNECTIONS");
+		mbse_mvprintw( 5, 5, "10.2.27 TIC AREA CONNECTIONS");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 2;
@@ -435,10 +437,11 @@ void SetTicScreen(void)
     mbse_mvprintw( 9,60, "20. Send org.");
     mbse_mvprintw(10,60, "21. Mandatory");
     mbse_mvprintw(11,60, "22. Notified");
-    mbse_mvprintw(12,60, "23. Upl discon");
+    mbse_mvprintw(12,60, "23. Upl disc.");
     mbse_mvprintw(13,60, "24. Deleted");
     mbse_mvprintw(14,60, "25. Active");
-    mbse_mvprintw(15,60, "26. Systems");
+    mbse_mvprintw(15,60, "26. New SR");
+    mbse_mvprintw(16,60, "27. Systems");
 } 
 
 
@@ -865,15 +868,17 @@ int EditTicRec(int Area)
 	show_bool(12,74,   tic.UplDiscon);
 	show_bool(13,74,   tic.Deleted);
 	show_bool(14,74,   tic.Active);
+	show_bool(15,74,   tic.NewSR);
+
 	fseek(ttfil, 0, SEEK_SET);
 	connections = 0;
 	while (fread(&System, sizeof(System), 1, ttfil) == 1) {
 	    if (System.aka.zone)
 		connections++;
 	}
-	show_int( 15,74,   connections);
+	show_int( 16,74,   connections);
 		
-	switch(select_menu(26)) {
+	switch(select_menu(27)) {
 	    case 0:
 		    crc1 = 0xffffffff;
 		    crc1 = upd_crc32((char *)&tic, crc1, tichdr.recsize);
@@ -978,7 +983,8 @@ int EditTicRec(int Area)
 	    case 23:E_BOOL(12,74, tic.UplDiscon,  "Is the uplink ^disconnected^ from this area");
 	    case 24:E_BOOL(13,74, tic.Deleted,    "Is this area ^deleted^");
 	    case 25:E_BOOL(14,74, tic.Active,     "Is this area ^active^");
-	    case 26:if (EditTicConnections(ttfil))
+	    case 26:E_BOOL(15,74, tic.NewSR,      "Give new connected nodes the status ^SR^ instead of ^R^");
+	    case 27:if (EditTicConnections(ttfil))
 			changed = TRUE;
 		    SetTicScreen();
 		    break;
@@ -1328,6 +1334,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Announce files", getboolean(tic.Announce));
 	    add_webtable(wp, (char *)"Update magic name", getboolean(tic.UpdMagic));
 	    add_webtable(wp, (char *)"Get FILE_ID.DIZ", getboolean(tic.FileId));
+	    add_webtable(wp, (char *)"New link SR status", getboolean(tic.NewSR));
 	    add_webtable(wp, (char *)"Mandatory area", getboolean(tic.Mandat));
 	    add_webtable(wp, (char *)"Uplink disconnect", getboolean(tic.UplDiscon));
 	    add_webtable(wp, (char *)"Notified uplink", getboolean(tic.Notified));
@@ -1361,6 +1368,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Announce    %s\n", getboolean(tic.Announce));
 	fprintf(fp, "    Upd. magic  %s\n", getboolean(tic.UpdMagic));
 	fprintf(fp, "    FILE_ID.DIZ %s\n", getboolean(tic.FileId));
+	fprintf(fp, "    New link SR %s\n", getboolean(tic.NewSR));
 	fprintf(fp, "    Mandatory   %s\n", getboolean(tic.Mandat));
 	fprintf(fp, "    Upl. discon %s\n", getboolean(tic.UplDiscon));
 	fprintf(fp, "    Notified    %s\n\n", getboolean(tic.Notified));

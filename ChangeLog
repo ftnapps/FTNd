@@ -47,6 +47,8 @@ v0.71.3		13-Jun-2005
 		When message areas are autocreated, golded.inc and msg.txt are
 		recreated for the external editors.
 		The web stats can now limit the size of mailhistory.html
+		The FileMgr command connects news nodes SR if set for the tic
+		area.
 
 	mbmon:
 		Made Internet BBS Chat final.
@@ -66,6 +68,8 @@ v0.71.3		13-Jun-2005
 		logfile. If defined then downloads via www and or ftp can
 		be counted.
 		Dropped support for file areas on CDrom.
+		In menu 10 added a switch to default connect downlinks SR
+		instead if S.
 
 
 v0.71.2		16-Jan-2005 - 13-Jun-2005
