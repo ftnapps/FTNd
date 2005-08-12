@@ -53,6 +53,11 @@ int toss_msgs(void)
     struct dirent	*de;
     int			files = 0;
 
+    if (strlen(CFG.msgs_path) == 0) {
+	WriteError("No path defined for *.msg mail, check setup 1.4 screen 2, item 10");
+	return -1;
+    }
+
     if ((dp = opendir(CFG.msgs_path)) == NULL) {
 	WriteError("$Can't opendir %s", CFG.msgs_path);
 	return -1;

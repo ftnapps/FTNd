@@ -5,6 +5,7 @@ v0.71.4		12-Aug-2005
 	mbfido:
 		Added extra debug logging to trace an SIGSEG when forwarding
 		files.
+		Added error logmessage in case *.msg path isn't defined.
 
 
 v0.71.3		13-Jun-2005 - 12-Aug-2005
