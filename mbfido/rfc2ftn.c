@@ -79,19 +79,47 @@ extern	int	most_debug;
 int	needputrfc(rfcmsg *, int);
 
 
+char *getrfcchrs(int);
+char *getrfcchrs(int val)
+{
+    switch (val) {
+	case FTNC_NONE:     return (char *)"iso-8859-1";
+	case FTNC_CP437:    return (char *)"cp437";
+	case FTNC_CP850:    return (char *)"cp850";
+	case FTNC_CP865:    return (char *)"cp865";
+	case FTNC_CP866:    return (char *)"cp866";
+	case FTNC_CP852:    return (char *)"cp852";
+	case FTNC_CP895:    return (char *)"cp895";
+	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
+	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
+	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
+	case FTNC_MAC:      return (char *)"MAC 2";
+	case FTNC_KOI8_R:   return (char *)"koi8-r";
+	case FTNC_CP936:    return (char *)"hz-gb-2312";
+	default:            return (char *)"iso-8859-1";
+    }
+}
+
 
 int charwrite(char *, FILE *);
 int charwrite(char *s, FILE *fp)
 {
-	if ((strlen(s) >= 3) && (strncmp(s,"---",3) == 0) && (s[3] != '-')) {
-		putc('-',fp);
-		putc(' ',fp);
+    char    *o;
+    
+    if ((strlen(s) >= 3) && (strncmp(s,"---",3) == 0) && (s[3] != '-')) {
+	putc('-',fp);
+	putc(' ',fp);
+    }
+    
+    while (*s) {
+	o = s;
+	if (s[0] &0x080) {
+	    o = charset_map_c(s[0], 0);
 	}
-	while (*s) {
-		putc(*s, fp);
-		s++;
-	}
-	return 0;
+	putc(*o, fp);
+	s++;
+    }
+    return 0;
 }
 
 
@@ -321,6 +349,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	hdrsize += (fmsg->from->name)?strlen(fmsg->from->name):0;
     if (fmsg->to)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
+
+    /*
+     * Setup charset conversion
+     */
+    charset_set_in_out(charset,getrfcchrs(msgs.Charset));
+
     do {
 	Syslog('m', "split loop, splitpart = %d", splitpart);
 	datasize = 0;
