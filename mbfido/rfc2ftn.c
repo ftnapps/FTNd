@@ -202,6 +202,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     removereturnto   = TRUE;
     ftnorigin = fmsg->ftnorigin;
 
+    Syslog('m', "removemime=%s removemsgid=%s removeref=%s removeinreply=%s removereplyto=%s removereturnto=%s",
+	    removemime ?"TRUE ":"FALSE", removemsgid ?"TRUE ":"FALSE", removeref ?"TRUE ":"FALSE",
+	    removeinreply ?"TRUE ":"FALSE", removereplyto ?"TRUE ":"FALSE", removereturnto ?"TRUE ":"FALSE");
+
     q = hdr((char *)"Content-Transfer-Encoding",msg);
     if (q) 
 	while (*q && isspace(*q)) 
@@ -220,20 +224,17 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	if ((strncasecmp(p, "text/plain", 10) == 0) && ((q == NULL) || 
 		    (strncasecmp(q,"7bit",4) == 0) || (strncasecmp(q,"8bit",4) == 0))) {
 	    removemime = TRUE; /* no need in MIME headers */
-	    Syslog('m', "removemime=%s", removemime ? "True":"False");
 	}
 
-	p++;
-	while (*p && isspace(*p))
-	    p++;
-	Syslog('m', "charset part: %s", printable(p, 0));
+	q = strtok(p, " \n\0");
+	q = strtok(NULL, " \n\0");
+	Syslog('m', "charset part: %s", printable(q, 0));
     }
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
 	    removemsgid = chkftnmsgid(p);
     }
-    Syslog('m', "removemsgid = %s", removemsgid ? "True":"False");
 
     if ((!removeref) && (p = hdr((char *)"References",msg))) {
 	p = xstrcpy(p);
@@ -242,8 +243,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    removeref = chkftnmsgid(q);       
 	free(p);
     }
-    if (removeref)
-	Syslog('m', "removeref = %s", removeref ? "True":"False");
 
     if ((p = hdr((char *)"Reply-To",msg))) {
 	removereplyto = FALSE;
@@ -259,7 +258,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		removereplyto = TRUE;
 	}
     }
-    Syslog('m', "removereplyto = %s", removereplyto ? "True":"False");
 
     if ((p = hdr((char *)"Return-Receipt-To",msg))) {
 	removereturnto = FALSE;
@@ -276,8 +274,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		removereturnto = TRUE;
 	}
     }
-    if (!removereturnto)
-	Syslog('m', "removereturnto = %s", removereturnto ? "True":"False");
+
+    Syslog('m', "removemime=%s removemsgid=%s removeref=%s removeinreply=%s removereplyto=%s removereturnto=%s",
+	    removemime ?"TRUE ":"FALSE", removemsgid ?"TRUE ":"FALSE", removeref ?"TRUE ":"FALSE",
+	    removeinreply ?"TRUE ":"FALSE", removereplyto ?"TRUE ":"FALSE", removereturnto ?"TRUE ":"FALSE");
 
     p = ascfnode(fmsg->from,0x1f);
     i = 79-11-3-strlen(p);
