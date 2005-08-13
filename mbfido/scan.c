@@ -683,7 +683,7 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
 void ExportNews(unsigned long MsgNum, fa_list **sbl)
 {
     char    *p;
-    int     seenlen, oldnet, flags = 0;
+    int     i, seenlen, oldnet, flags = 0;
     char    sbe[16];
     fa_list *tmpl;
     FILE    *qp;
@@ -695,7 +695,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
     Syslog('m', "Msg.From %s", Msg.From);
     Syslog('m', "Msg.FromAddress %s", Msg.FromAddress);
     Syslog('m', "Msg.To %s", Msg.To);
-    Syslog('m', "Msg.ToAdrress", Msg.ToAddress);
+    Syslog('m', "Msg.ToAddress", Msg.ToAddress);
 
     flags |= (Msg.Private)          ? M_PVT : 0;
     from = fido2faddr(msgs.Aka);
@@ -703,7 +703,16 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
     /*
      * Add name with echo to news gate.
      */
-    from->name = xstrcpy(Msg.From);
+    p = calloc(256, sizeof(char));
+    strcpy(p, Msg.From);
+    for (i = 0; i < strlen(p); i++) {
+	if (p[i] == '@') {
+	    p[i] = '\0';
+	    break;
+	}
+    }
+    from->name = xstrcpy(p);
+    free(p);
     Syslog('m', "from %s", ascinode(from, 0xff));
     dest = NULL;
 

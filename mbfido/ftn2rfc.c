@@ -1006,11 +1006,11 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	free(p);
     }
 
-    if (p) 
-	sprintf(temp,"X-FTN-Sender: %s\n", ascinode(f,0xff));
-    else 
-	sprintf(temp,"From: %s\n", ascinode(f,0xff));
-    Send(newsmode, temp);
+//    if (p) 
+//	sprintf(temp,"X-FTN-Sender: %s\n", ascinode(f,0xff));
+//    else 
+//	sprintf(temp,"From: %s\n", ascinode(f,0xff));
+//    Send(newsmode, temp);
 
     if ((p=hdr((char *)"Reply-To",msg))) {
 	sprintf(temp,"Reply-To:%s",p);
@@ -1214,14 +1214,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	}
     }
 
-//	sprintf(temp, "X-FTN-CHRS: %s\n", getchrs(incode));
-//	Send(newsmode, temp);
-//	if (incode != outcode) {
-//		sprintf(temp, "X-FTN-ORIGCHRS: %s\n", getchrs(outcode));
-//		Send(newsmode, temp);
-//	}
-//	charset = getcharset(incode);
-
     if ((p=hdr((char *)"Mime-Version",msg))) {
 	sprintf(temp,(char *)"Mime-Version:%s",p);
 	Send(newsmode, temp);
@@ -1231,9 +1223,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
     } else if ((p=hdr((char *)"Mime-Version",kmsg))) {
 	sprintf(temp,(char *)"Mime-Version: %s",p);
 	Send(newsmode, temp);
-//  } else if ((charset) && (incode != CHRS_NOTSET)) {
-//		sprintf(temp,"Mime-Version: 1.0\n");
-//		Send(newsmode, temp);
     }
 
     if ((p=hdr((char *)"Content-Type",msg))) {
@@ -1245,12 +1234,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
     } else if ((p=hdr((char *)"Content-Type",kmsg))) {
 	sprintf(temp,"Content-Type: %s",p);
 	Send(newsmode, temp);
-//  } else if ((charset) && (incode != CHRS_NOTSET)) {
-//	if ((p=hdr((char *)"FSCHTML",kmsg)) || (p=hdr((char *)"HTML",kmsg)))
-//	    sprintf(temp,"Content-Type: text/html; charset=%s\n",charset);
-//	else
-//	    sprintf(temp,"Content-Type: text/plain; charset=%s\n",charset);
-//	Send(newsmode, temp);
     }
 
     if ((p=hdr((char *)"Content-Length",msg))) {
@@ -1271,16 +1254,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	sprintf(temp,"Content-Transfer-Encoding: %s",p);
     else if ((p=hdr((char *)"Content-Transfer-Encoding",kmsg))) 
 	sprintf(temp,"Content-Transfer-Encoding: %s",p);
-//  else if ((charset) && (incode == CHRS_ISO_8859_1_QP)) 
-//	sprintf(temp,"Content-Transfer-Encoding: quoted-printable\n");
-//  else if ((charset) && (incode != CHRS_NOTSET)) { 
-//	if ((incode == CHRS_ASCII || incode == CHRS_UTF_7)) 
-//	    sprintf(temp,"Content-Transfer-Encoding: 7bit\n");
-//	else if (strncasecmp(charset,"iso-2022-",9) == 0) 
-//	    sprintf(temp,"Content-Transfer-Encoding: 7bit\n");
-//	else 
-//	    sprintf(temp,"Content-Transfer-Encoding: 8bit\n"); /* all others are 8 bit */
-//  }
     if (temp[0])
 	Send(newsmode, temp);
 
@@ -1314,9 +1287,34 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	}
     }
 
+    /*
+     * Convert some ftn kludges to rfc. We should not have these but
+     * GoldED posts news with plain ftn kludges as rfc headers.
+     */
+    if ((p = hdr((char *)"CHRS", msg))) {
+	sprintf(temp, "X-FTN-CHARS:%s", p);
+	Send(newsmode, temp);
+    }
+    if ((p = hdr((char *)"MSGID", msg))) {
+	sprintf(temp, "X-FTN-MSGID:%s", p);
+	Send(newsmode, temp);
+    }
+    if ((p = hdr((char *)"PID", msg))) {
+	sprintf(temp, "X-FTN-PID:%s", p);
+	Send(newsmode, temp);
+    }
+    if ((p = hdr((char *)"TZUTC", msg))) {
+	sprintf(temp, "X-FTN-TZUTC:%s", p);
+	Send(newsmode, temp);
+    }
+
     Syslog('m', "=== starting qmsg loop");
     for (qmsg = msg; qmsg; qmsg = qmsg->next) {
-	if (strcasecmp(qmsg->key,"X-Body-Start") &&
+	if (strcasecmp(qmsg->key,"CHRS") &&
+	    strcasecmp(qmsg->key,"MSGID") &&
+	    strcasecmp(qmsg->key,"PID") &&
+	    strcasecmp(qmsg->key,"TZUTC") &&
+	    strcasecmp(qmsg->key,"X-Body-Start") &&
 	    strcasecmp(qmsg->key,"X-PcBoard-FROM") &&
 	    strcasecmp(qmsg->key,"X-PcBoard-SUBJECT") &&
 	    strcasecmp(qmsg->key,"X-PcBoard-PACKOUT") &&
