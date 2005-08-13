@@ -223,6 +223,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    Syslog('m', "removemime=%s", removemime ? "True":"False");
 	}
 
+	p++;
 	while (*p && isspace(*p))
 	    p++;
 	Syslog('m', "charset part: %s", printable(p, 0));
