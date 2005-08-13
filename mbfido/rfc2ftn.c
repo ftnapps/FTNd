@@ -226,8 +226,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 
 	q = strtok(p, " \n\0");
 	q = strtok(NULL, " \n\0");
+	while (*q && isspace(*q))
+	    q++;
 	Syslog('m', "charset part: %s", printable(q, 0));
-	if (q && (strcasecmp(q, "charset=") == 0)) {
+	if (q && (strncasecmp(q, "charset=", 8) == 0)) {
 	    charset = xstrcpy(q + 8);
 	    Syslog('m', "Charset \"%s\"", printable(charset, 0));
 	}
