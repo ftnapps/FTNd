@@ -4,7 +4,7 @@
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -212,6 +212,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	while (*p && isspace(*p)) 
 	    p++;
 
+	Syslog('m', "Content-Type: %s", printable(p, 0));
+
 	/*
 	 * Check for mime to remove.
 	 */
@@ -220,6 +222,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    removemime = TRUE; /* no need in MIME headers */
 	    Syslog('m', "removemime=%s", removemime ? "True":"False");
 	}
+
+	while (*p && isspace(*p))
+	    p++;
+	Syslog('m', "charset part: %s", printable(p, 0));
     }
 
     if ((p = hdr((char *)"Message-ID",msg))) {
@@ -723,10 +729,6 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"X-UUCP-From")) return -1;
 	if (!strcasecmp(msg->key,"X-Body-Start")) return -1;
 	if (!strncasecmp(msg->key,".",1)) return 0;
-	if (!strncasecmp(msg->key,"X-FTN-",6)) return 0;
-	if (!strncasecmp(msg->key,"X-Fsc-",6)) return 0;
-	if (!strncasecmp(msg->key,"X-ZC-",5)) return 0;
-	if (!strcasecmp(msg->key,"X-Gateway")) return 0;
 	if (!strcasecmp(msg->key,"Path")) return 0;
 	if (!strcasecmp(msg->key,"Newsgroups")) {
  		if ((hdr((char *)"X-Origin-Newsgroups",msg)))
@@ -756,7 +758,6 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"Return-Path")) return 1;
 	if (!strcasecmp(msg->key,"Xref")) return 0;
 	if (!strcasecmp(msg->key,"Approved")) return 1;
-	if (!strcasecmp(msg->key,"X-URL")) return 0;
 	if (!strcasecmp(msg->key,"Return-Receipt-To")) return removereturnto? 0:1;
 	if (!strcasecmp(msg->key,"Notice-Requested-Upon-Delivery-To")) return 0;
 	if (!strcasecmp(msg->key,"Received")) return newsmode?0:2;
@@ -795,15 +796,7 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"Organization")) return 1;
 	if (!strcasecmp(msg->key,"Organisation")) return 1;
 	if (!strcasecmp(msg->key,"Comment-To")) return 0;
-	if (!strcasecmp(msg->key,"X-Comment-To")) return 0;
-	if (!strcasecmp(msg->key,"X-Apparently-To")) return 0;
-	if (!strcasecmp(msg->key,"X-Originating-IP")) return 0;
-	if (!strcasecmp(msg->key,"X-Virus-Scanned")) return 0;
-	if (!strcasecmp(msg->key,"X-AntiVirus")) return 0;
-	if (!strcasecmp(msg->key,"X-Delivery-Agent")) return 0;
-	if (!strcasecmp(msg->key,"X-Virtual-Domain")) return 0;
 	if (!strcasecmp(msg->key,"Apparently-To")) return 0;
-	if (!strcasecmp(msg->key,"X-Fidonet-Comment-To")) return 0;
 	if (!strcasecmp(msg->key,"Keywords")) return 2;
 	if (!strcasecmp(msg->key,"Summary")) return 2;
 	if (!strcasecmp(msg->key,"MIME-Version")) return removemime ?0:1;
@@ -816,25 +809,16 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"References")) return removeref ?0:1;
 	if (!strcasecmp(msg->key,"Supersedes")) return 1;
 	if (!strcasecmp(msg->key,"Distribution")) return ftnorigin ?0:0;
-	if (!strcasecmp(msg->key,"X-Newsreader")) return 0;
-	if (!strcasecmp(msg->key,"X-Mailer")) return 0;
 	if (!strcasecmp(msg->key,"User-Agent")) return 0;
 	if (!strncasecmp(msg->key,"NNTP-",5)) return 0;
-	if (!strncasecmp(msg->key,"X-Trace",7)) return 0;
-	if (!strncasecmp(msg->key,"X-Complaints",12)) return 0;
-	if (!strncasecmp(msg->key,"X-MSMail",9)) return 0;
-	if (!strncasecmp(msg->key,"X-MimeOLE",9)) return 0;
-	if (!strncasecmp(msg->key,"X-MIME-Autoconverted",20)) return 0;
-	if (!strcasecmp(msg->key,"X-Origin-Date")) return 0;
-	if (!strncasecmp(msg->key,"X-PGP-",6)) return 0;
 	if (!strncasecmp(msg->key,"Resent-",7)) return 0;
 	if (!strncasecmp(msg->key,"X-MS-",5)) return -1;
-	if (!strcasecmp(msg->key,"X-Mailing-List")) return 0;
-	if (!strcasecmp(msg->key,"X-Loop")) return 0;
 	if (!strcasecmp(msg->key,"Precedence")) return 0;
-	if (!strcasecmp(msg->key,"X-Face")) return 0;
-	if (!strcasecmp(msg->key,"X-Accept-Language")) return 0;
-	if (!strncasecmp(msg->key,"X-Spam-", 7)) return 0;
+	if (!strcasecmp(msg->key,"Cache-Post-Path")) return 0;
+	if (!strcasecmp(msg->key,"Injection-Info")) return 0;
+	if (!strcasecmp(msg->key,"Complaints-To")) return 0;
+	/* Default X- headers */
+	if (!strncasecmp(msg->key,"X-",2)) return 0;
 	/*if (!strcasecmp(msg->key,"")) return ;*/
 	return 1;
 }
