@@ -113,7 +113,7 @@ int newspost(void)
      *  Create newsbatch file.
      */
     if ((CFG.newsfeed == FEEDUUCP) || (CFG.newsfeed == FEEDRNEWS)) {
-	Syslog('m', "Building uncompressed batchfile");
+	Syslog('+', "Posting news articles to the news batchfile");
 	sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
 	if ((ofp = fopen(buf, "w+")) == NULL) {
 	    WriteError("$Can't create %s", buf);
@@ -158,73 +158,73 @@ int newspost(void)
     fclose(nfp);
     newsopen = FALSE;
 
-	/*
-	 *  Mode rnews, pipe just created newsbatch to rnews.
-	 */
-	if (CFG.newsfeed == FEEDRNEWS) {
-		if ((nb = (expipe(CFG.rnewspath, NULL, NULL))) == NULL) {
-			WriteError("Could not open (pip) output for %s", CFG.rnewspath);
-			newsopen = FALSE;
-			return TRUE;
-		}
-		while (fgets(buf, 10240, ofp)) {
-			fputs(buf, nb);
-		}
-		if (exclose(nb)) {
-			WriteError("Error closing pipe");
-			newsopen = FALSE;
-			return TRUE;
-		} else
-			Syslog('+', "Articles send through %s", CFG.rnewspath);
-		fclose(ofp);
-		sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
-		unlink(buf);
+    /*
+     *  Mode rnews, pipe just created newsbatch to rnews.
+     */
+    if (CFG.newsfeed == FEEDRNEWS) {
+	if ((nb = (expipe(CFG.rnewspath, NULL, NULL))) == NULL) {
+	    WriteError("Could not open (pipe) output for %s", CFG.rnewspath);
+	    newsopen = FALSE;
+	    return TRUE;
+	}
+	while (fgets(buf, 10240, ofp)) {
+	    fputs(buf, nb);
+	}
+	if (exclose(nb)) {
+	    WriteError("Error closing pipe");
+	    newsopen = FALSE;
+	    return TRUE;
+	} else
+	    Syslog('+', "Articles send through %s", CFG.rnewspath);
+	fclose(ofp);
+	sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+	unlink(buf);
+    }
+
+    /*
+     *  Mode UUCP, create UUCP files.
+     */
+    if (CFG.newsfeed == FEEDUUCP) {
+	seqnr = sequencer();
+	memset(&utsbuf, 0, sizeof(utsbuf));
+	if (uname(&utsbuf)) {
+	    WriteError("Can't get system nodename");
+	    newsopen = FALSE;
+	    return TRUE;
 	}
 
-	/*
-	 *  Mode UUCP, create UUCP files.
-	 */
-	if (CFG.newsfeed == FEEDUUCP) {
-		seqnr = sequencer();
-		memset(&utsbuf, 0, sizeof(utsbuf));
-		if (uname(&utsbuf)) {
-			WriteError("Can't get system nodename");
-			newsopen = FALSE;
-			return TRUE;
-		}
-
-		sprintf(buf, "%s/C.%s%lx", CFG.rnewspath, CFG.nntpnode, seqnr);
-		if ((nb = fopen(buf, "a")) == NULL) {
-			WriteError("Can't create %s", buf);
-			newsopen = FALSE;
-			return TRUE;
-		}
-		seqnr = sequencer();
-		fprintf(nb, "E D.%s%lx D.%s%lx news -C D.%s%lx 0666 \"\" 0 rnews\n", 
+	sprintf(buf, "%s/C.%s%lx", CFG.rnewspath, CFG.nntpnode, seqnr);
+	if ((nb = fopen(buf, "a")) == NULL) {
+	    WriteError("Can't create %s", buf);
+	    newsopen = FALSE;
+	    return TRUE;
+	}
+	seqnr = sequencer();
+	fprintf(nb, "E D.%s%lx D.%s%lx news -C D.%s%lx 0666 \"\" 0 rnews\n", 
 			utsbuf.nodename, seqnr, utsbuf.nodename, seqnr, utsbuf.nodename, seqnr);
-		fclose(nb);
-		sprintf(buf, "%s/D.%s%lx", CFG.rnewspath, utsbuf.nodename, seqnr);
-		if ((nb = fopen(buf, "a")) == NULL) {
-			WriteError("Can't create %s", buf);
-			newsopen = FALSE;
-			return TRUE;
-		}
-                while (fgets(buf, 10240, ofp)) {
-                        fputs(buf, nb);
-                }
-                Syslog('+', "Articles placed in %s", CFG.rnewspath);
-                fclose(ofp);
-                sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
-                unlink(buf);
+	fclose(nb);
+	sprintf(buf, "%s/D.%s%lx", CFG.rnewspath, utsbuf.nodename, seqnr);
+	if ((nb = fopen(buf, "a")) == NULL) {
+	    WriteError("Can't create %s", buf);
+	    newsopen = FALSE;
+	    return TRUE;
 	}
+        while (fgets(buf, 10240, ofp)) {
+            fputs(buf, nb);
+        }
+        Syslog('+', "Articles placed in %s", CFG.rnewspath);
+        fclose(ofp);
+        sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+        unlink(buf);
+    }
 
-	if (! news_bad) {
-	    sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
-	    unlink(buf);
-	}
+    if (! news_bad) {
+	sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+	unlink(buf);
+    }
 
-	free(buf);
-	return FALSE;
+    free(buf);
+    return FALSE;
 }
 
 
