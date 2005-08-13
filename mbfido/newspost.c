@@ -4,7 +4,7 @@
  * Purpose ...............: Post newsarticles in temp newsfile.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10		Internet:	mbroek@users.sourceforge.net
@@ -43,121 +43,120 @@ extern	int	news_bad;
 
 int newspost(void)
 {
-	int	start = TRUE;
-	char	*buf, *p;
-	long	curpos, count, seqnr;
-	FILE	*ofp = NULL, *nb;
-	struct  utsname utsbuf;
+    int		    start = TRUE;
+    char	    *buf, *p;
+    long	    curpos, count, seqnr;
+    FILE	    *ofp = NULL, *nb;
+    struct utsname  utsbuf;
 
-	if (newsopen)
-		fclose(nfp);
-	buf = calloc(10240, sizeof(char));
-
-	/*
-	 *  Now reopen the file for reading. If it fails and
-	 *  the file was original closed we leave quiet.
-	 *  If the file wasn't open previously but there is
-	 *  a file, try to post the articles. They may be
-	 *  still here if the newsserver wasn't available.
-	 */
-	sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
-	if ((nfp = fopen(buf, "r")) == NULL) {
-		if (newsopen)
-			WriteError("$Can't reopen %s", buf);
-		free(buf);
-		return newsopen;
-	}
-	IsDoing("Post news");
-
-	if (CFG.newsfeed == FEEDINN) {
-		Syslog('+', "Posting news articles to the NNTP server");
-		if (nntp_connect() == -1) {
-			free(buf);
-			return TRUE;
-		}
-
-		while (fgets(buf, 10240, nfp)) {
-			if (start) {
-				if (nntp_cmd((char *)"POST\r\n", 340) != 0) {
-					WriteError("NNTP POST refused");
-					free(buf);
-					return TRUE;
-				}
-			}
-			start = FALSE;
-			if (!strcmp(buf, ".\n")) {
-				if (nntp_cmd((char *)".\r\n", 240) == 0) {
-					news_out++;
-				} else {
-					WriteError("NNTP: refused article %d", news_out+1);
-					news_bad++;
-				}
-				start = TRUE;
-			} else {
-				/*
-				 *  Most NNTP servers like cr/lf after each line.
-				 */
-				Striplf(buf);
-				p = buf+strlen(buf);
-				*p++ = '\r';
-				*p++ = '\n';
-				*p = '\0';
-				nntp_send(buf);
-			}
-			Nopper();
-		}
-		nntp_close();
-	}
-
-	/*
-	 *  Create newsbatch file.
-	 */
-	if ((CFG.newsfeed == FEEDUUCP) || (CFG.newsfeed == FEEDRNEWS)) {
-		Syslog('m', "Building uncompressed batchfile");
-		sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
-		if ((ofp = fopen(buf, "w+")) == NULL) {
-			WriteError("$Can't create %s", buf);
-			free(buf);
-			fclose(nfp);
-			return TRUE;
-		}
-		buf = calloc(10240, sizeof(char));
-
-		count = curpos = 0;
-		while (feof(ofp) == 0) {
-			/*
-			 *  Count the total length of the message
-			 */
-			while (fgets(buf, 10240, nfp)) {
-				if (strcmp(buf, ".\n")) {
-					count += strlen(buf);
-				} else {
-					break;
-				}
-			}
-			if (!count)
-				break;
-			fseek(nfp, curpos, SEEK_SET);
-			fprintf(ofp, "#! rnews %ld\n", count);
-			while (fgets(buf, 10240, nfp)) {
-				if (strcmp(buf, ".\n")) {
-					fprintf(ofp, buf);
-				} else {
-					break;
-				}
-			}
-			news_out++;
-			curpos = ftell(nfp);
-			count = 0;
-		}
-		/*
-		 *  Rewind the newsbatch and leave it open.
-		 */
-		rewind(ofp);
-	}
-
+    if (newsopen)
 	fclose(nfp);
-	newsopen = FALSE;
+    buf = calloc(10240, sizeof(char));
+
+    /*
+     *  Now reopen the file for reading. If it fails and
+     *  the file was original closed we leave quiet.
+     *  If the file wasn't open previously but there is
+     *  a file, try to post the articles. They may be
+     *  still here if the newsserver wasn't available.
+     */
+    sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+    if ((nfp = fopen(buf, "r")) == NULL) {
+	if (newsopen)
+	    WriteError("$Can't reopen %s", buf);
+	free(buf);
+	return newsopen;
+    }
+    IsDoing("Post news");
+
+    if (CFG.newsfeed == FEEDINN) {
+	Syslog('+', "Posting news articles to the NNTP server");
+	if (nntp_connect() == -1) {
+	    free(buf);
+	    return TRUE;
+	}
+
+	while (fgets(buf, 10240, nfp)) {
+	    if (start) {
+		if (nntp_cmd((char *)"POST\r\n", 340) != 0) {
+		    WriteError("NNTP POST refused");
+		    free(buf);
+		    return TRUE;
+		}
+	    }
+	    start = FALSE;
+	    if (!strcmp(buf, ".\n")) {
+		if (nntp_cmd((char *)".\r\n", 240) == 0) {
+		    news_out++;
+		} else {
+		    WriteError("NNTP: refused article %d", news_out+1);
+		    news_bad++;
+		}
+		start = TRUE;
+	    } else {
+		/*
+		 *  Most NNTP servers like cr/lf after each line.
+		 */
+		Striplf(buf);
+		p = buf+strlen(buf);
+		*p++ = '\r';
+		*p++ = '\n';
+		*p = '\0';
+		nntp_send(buf);
+	    }
+	    Nopper();
+	}
+	nntp_close();
+    }
+
+    /*
+     *  Create newsbatch file.
+     */
+    if ((CFG.newsfeed == FEEDUUCP) || (CFG.newsfeed == FEEDRNEWS)) {
+	Syslog('m', "Building uncompressed batchfile");
+	sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+	if ((ofp = fopen(buf, "w+")) == NULL) {
+	    WriteError("$Can't create %s", buf);
+	    free(buf);
+	    fclose(nfp);
+	    return TRUE;
+	}
+
+	count = curpos = 0;
+	while (feof(ofp) == 0) {
+	    /*
+	     *  Count the total length of the message
+	     */
+	    while (fgets(buf, 10240, nfp)) {
+		if (strcmp(buf, ".\n")) {
+		    count += strlen(buf);
+		} else {
+		    break;
+		}
+	    }
+	    if (!count)
+		break;
+	    fseek(nfp, curpos, SEEK_SET);
+	    fprintf(ofp, "#! rnews %ld\n", count);
+	    while (fgets(buf, 10240, nfp)) {
+		if (strcmp(buf, ".\n")) {
+		    fprintf(ofp, buf);
+		} else {
+		    break;
+		}
+	    }
+	    news_out++;
+	    curpos = ftell(nfp);
+	    count = 0;
+	}
+	/*
+	 *  Rewind the newsbatch and leave it open.
+	 */
+	rewind(ofp);
+    }
+
+    fclose(nfp);
+    newsopen = FALSE;
 
 	/*
 	 *  Mode rnews, pipe just created newsbatch to rnews.
@@ -219,8 +218,11 @@ int newspost(void)
                 unlink(buf);
 	}
 
-	sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
-	unlink(buf);
+	if (! news_bad) {
+	    sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+	    unlink(buf);
+	}
+
 	free(buf);
 	return FALSE;
 }

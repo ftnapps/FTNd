@@ -176,7 +176,7 @@ char *getrfcchrs(int val)
 
 void Add_Headkludges(faddr *dest, int IsReply)
 {
-    char	    *temp, *temp2;
+    char	    *temp;
     unsigned long   crc = -1;
     time_t	    tt;
     int		    i;
@@ -219,19 +219,12 @@ void Add_Headkludges(faddr *dest, int IsReply)
 			sprintf(temp, "\001Date: %s", rfcdate(Msg.Written));
 			MsgText_Add2(temp);
 			Node = fido2faddr(msgs.Aka);
-			temp2 = xstrcpy(Msg.From);
-			for (i = 0; i < strlen(temp2); i++)
-			    if (temp2[i] == ' ')
-				temp2[i] = '_';
-//			sprintf(temp, "\001From: %s@%s (%s)", temp2, ascinode(Node, 0x2f), Msg.From);
 			sprintf(temp, "\001From: %s", Msg.From);
 			MsgText_Add2(temp);
 			sprintf(temp, "\001Subject: %s", Msg.Subject);
 			MsgText_Add2(temp);
-//			sprintf(temp, "\001Sender: %s@%s (%s)", temp2, ascinode(Node, 0x2f), Msg.From);
 			sprintf(temp, "\001Sender: %s", Msg.From);
 			MsgText_Add2(temp);
-			free(temp2);
 			tidy_faddr(Node);
 			MsgText_Add2((char *)"\001To: All");
 			MsgText_Add2((char *)"\001MIME-Version: 1.0");

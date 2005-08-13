@@ -269,7 +269,7 @@ void Send(int newsmode, char *outstr)
     unsigned long   crc;
 
     fwrite(outstr, 1, strlen(outstr), nfp);
-    Syslog('m', "+ %s\n", printable(outstr, 0));
+//    Syslog('m', "+ %s\n", printable(outstr, 0));
 
     if (newsmode) {
 	Striplf(outstr);
@@ -1292,7 +1292,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
      * GoldED posts news with plain ftn kludges as rfc headers.
      */
     if ((p = hdr((char *)"CHRS", msg))) {
-	sprintf(temp, "X-FTN-CHARS:%s", p);
+	sprintf(temp, "X-FTN-CHRS:%s", p);
 	Send(newsmode, temp);
     }
     if ((p = hdr((char *)"MSGID", msg))) {
@@ -1446,152 +1446,147 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
     }
     Syslog('m', "=== ending qmsg loop 2");
 
-        if (newsmode) {
-		fa_list	*tmpl,*ptl=NULL;
-		char	sbe[16];
-		int	seenlen=0,oldnet;
+    if (newsmode) {
+	fa_list	*tmpl,*ptl=NULL;
+	char	sbe[16];
+	int	seenlen=0,oldnet;
 
-		for (qmsg = kmsg; qmsg; qmsg = qmsg->next)
-			if (!strcmp(qmsg->key, "PATH")) {
-				fill_path(&ptl, qmsg->val);
-			}
+	for (qmsg = kmsg; qmsg; qmsg = qmsg->next)
+	    if (!strcmp(qmsg->key, "PATH")) {
+		fill_path(&ptl, qmsg->val);
+	    }
 
-		uniq_list(&ptl);
+	uniq_list(&ptl);
 
-                /*
-		 * ensure it will not match for the first entry
-		 */
-		oldnet = ptl->addr->net-1;
-		q = xstrcpy((char*)"X-FTN-PATH:");
-		for (tmpl = ptl; tmpl; tmpl = tmpl->next) {
-			if (tmpl->addr->net == oldnet)
-				sprintf(sbe," %u",tmpl->addr->node);
-			else
-				sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
-			oldnet=tmpl->addr->net;
-			seenlen+=strlen(sbe);
-			if (seenlen > MAXPATH) {
-				seenlen=0;
-				sprintf(temp, "%s\n", q);
-				Send(newsmode, temp);
-				free(q);
-				q = xstrcpy((char *)"X-FTN-PATH:");
-				sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
-				seenlen=strlen(sbe);
-			}
-			q = xstrcat(q, sbe);
-		}
-		sprintf(temp,"%s\n", q);
+        /*
+	 * ensure it will not match for the first entry
+	 */
+	oldnet = ptl->addr->net-1;
+	q = xstrcpy((char*)"X-FTN-PATH:");
+	for (tmpl = ptl; tmpl; tmpl = tmpl->next) {
+	    if (tmpl->addr->net == oldnet)
+		sprintf(sbe," %u",tmpl->addr->node);
+	    else
+		sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
+	    oldnet=tmpl->addr->net;
+	    seenlen+=strlen(sbe);
+	    if (seenlen > MAXPATH) {
+		seenlen=0;
+		sprintf(temp, "%s\n", q);
 		Send(newsmode, temp);
 		free(q);
-		tidy_falist(&ptl);
-
-		if ((hdr((char *)"X-FTN-SPTH", msg))) {
-			sprintf(temp,"X-FTN-SPTH: %s\n", ascfnode(bestaka,0x1f));
-			Send(newsmode, temp);
-		}
+		q = xstrcpy((char *)"X-FTN-PATH:");
+		sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
+		seenlen=strlen(sbe);
+	    }
+	    q = xstrcat(q, sbe);
 	}
+	sprintf(temp,"%s\n", q);
+	Send(newsmode, temp);
+	free(q);
+	tidy_falist(&ptl);
 
-	/*
-	 * Search past RFC headers.
-	 */
-	while (fgets(buf,sizeof(buf)-1,fp)) {
-		if ((strlen(buf) == 1) && (buf[0] == '\n')) {
-			break;
-		}
+	if ((hdr((char *)"X-FTN-SPTH", msg))) {
+	    sprintf(temp,"X-FTN-SPTH: %s\n", ascfnode(bestaka,0x1f));
+	    Send(newsmode, temp);
 	}
+    }
 
-	/*
-	 * Send the message body
-	 */
-        pass=1;
-        count = lines = 0;
-	first = TRUE;
+    /*
+     * Search past RFC headers.
+     */
+    while (fgets(buf,sizeof(buf)-1,fp)) {
+	if ((strlen(buf) == 1) && (buf[0] == '\n')) {
+	    break;
+	}
+    }
 
-	Syslog('m', "Start sending message body");
-	while (fgets(buf,sizeof(buf)-1,fp) && pass) {
-		if (first) {
-			p = xstrcpy((char *)"\n");
-			Send(newsmode, p);
-			free(p);
-			first = FALSE;
+    /*
+     * Send the message body
+     */
+    pass=1;
+    count = lines = 0;
+    first = TRUE;
+
+    Syslog('m', "Start sending message body");
+    while (fgets(buf,sizeof(buf)-1,fp) && pass) {
+	if (first) {
+	    p = xstrcpy((char *)"\n");
+	    Send(newsmode, p);
+	    free(p);
+	    first = FALSE;
 
 /* FIXME: Maybe scan now for repeating headers and drop them as they will appear in the message text */
 
-			if ((p=hdr((char *)"X-Body-Start",msg))) {
-				lines++;
-				q = xstrcpy(p);
-				Send(newsmode, q);
-				free(q);
-			}
-		}
+	    if ((p=hdr((char *)"X-Body-Start",msg))) {
+		lines++;
+		q = xstrcpy(p);
+		Send(newsmode, q);
+		free(q);
+	    }
+	}
 
-		if (ftell(fp) > endmsg_off) {
-			Syslog('m', "line \"%s\" past message end %ld %ld", buf,(long)endmsg_off, ftell(fp));
-			pass=0;
+	if (ftell(fp) > endmsg_off) {
+	    Syslog('m', "line \"%s\" past message end %ld %ld", buf,(long)endmsg_off, ftell(fp));
+	    pass=0;
+	}
+	if (pass) {
+	    p=buf;
+	    b=NULL;
+	    while ((c=*p++)) {
+		switch (c) {
+		    case ' ':       b=p-1; break;
+		    case '\n':      b=NULL; count=0; lines++; break;
 		}
-		if (pass) {
-			p=buf;
+		if ((count++ > BOUNDARY) /* && (!pgpsigned) */ ) {
+		    if (b) {
+			*b++='\n';  // Replace space.
+			p = b + 1;
 			b=NULL;
-			while ((c=*p++)) {
-				switch (c) {
-					case ' ':       b=p-1; break;
-					case '\n':      b=NULL; count=0; lines++; break;
-				}
-				if ((count++ > BOUNDARY) /* && (!pgpsigned) */ ) {
-					if (b) {
-//						*b++='\r';
-//						*b = '\n';
-						*b++='\n';  // Replace space.
-						p = b + 1;
-//						p=b+2;
-						b=NULL;
-						lines++;
-						count=0;
-					}
-				}
-			}
-			if ((strncmp(buf, ".\r\n", 3)) && (strncmp(buf, ".\n", 2)))
-				q = xstrcpy(buf);
-			else
-				q = xstrcpy((char *)" .\n");
-			Send(newsmode, q);
-			free(q);
+			lines++;
+			count=0;
+		    }
 		}
+	    }
+	    if ((strncmp(buf, ".\r\n", 3)) && (strncmp(buf, ".\n", 2)))
+		q = xstrcpy(buf);
+	    else
+		q = xstrcpy((char *)" .\n");
+	    Send(newsmode, q);
+	    free(q);
 	}
-	Syslog('m', "End sending message body");
+    }
+    Syslog('m', "End sending message body");
 
-	if ((modtype==1) && (!hdr((char *)"Approved",msg)) &&
+    if ((modtype==1) && (!hdr((char *)"Approved",msg)) &&
 	    (!hdr((char *)"RFC-Approved",kmsg)) && (!hdr((char *)"Approved",kmsg)))
-		newsmode = FALSE;
+	newsmode = FALSE;
 
-	tidyrfc(msg);
-	fclose(fp);
-	tidyrfc(kmsg);
+    tidyrfc(msg);
+    fclose(fp);
+    tidyrfc(kmsg);
 
-	if (!newsmode) {
-		result = postemail(nfp, MailFrom, MailTo);
-		fclose(nfp);
-	} else {
-		news_in++;
-		/*
-		 * The newsfile stays open and will be closed later after processing
-		 * all echomail.
-		 */
-		fprintf(nfp, ".\n");
-	}
+    if (!newsmode) {
+	result = postemail(nfp, MailFrom, MailTo);
+	fclose(nfp);
+    } else {
+	news_in++;
+	/*
+	 * The newsfile stays open and will be closed later after processing
+	 * all echomail.
+	 */
+	fprintf(nfp, ".\n");
+    }
 
-//	if (p)		Geeft segfault
-//		free(p);
-	if (newsgroup)
-		free(newsgroup);
-	if (distribution)
-		free(distribution);
-	if (moderator)
-		free(moderator);
-	rbuf = NULL;
-	free(temp);
-	return result;
+    if (newsgroup)
+	free(newsgroup);
+    if (distribution)
+	free(distribution);
+    if (moderator)
+	free(moderator);
+    rbuf = NULL;
+    free(temp);
+    return result;
 }
 
 
