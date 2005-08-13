@@ -284,7 +284,6 @@ int charset_read_bin(void)
     
     name = calloc(PATH_MAX, sizeof(char));
     sprintf(name, "%s/etc/charset.bin", getenv("MBSE_ROOT"));
-    Syslog('s', "Reading %s", name);
     if ((fp = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
 	free(name);
@@ -299,7 +298,7 @@ int charset_read_bin(void)
 					pa->next = NULL;                    /* overwritten by fread() */
 					if (n != 1) 
 					    return FALSE;
-					Syslog('s', "read charset alias: %s -> %s", pa->alias, pa->name);
+//					Syslog('s', "read charset alias: %s -> %s", pa->alias, pa->name);
 					break;
 	    case CHARSET_FILE_TABLE:	pt = charset_table_new();
 					n = fread((void *)pt, sizeof(CharsetTable), 1, fp);
@@ -420,7 +419,6 @@ int charset_set_in_out(char *in, char *out)
      */
     if ((charset_alias_list == NULL) || (charset_table_list == NULL))
 	charset_read_bin();
-    Syslog('s', "charset1: in=%s out=%s", in, out);
 
 
     /*
@@ -437,7 +435,6 @@ int charset_set_in_out(char *in, char *out)
 	    out[i] = '\0';
 	    break;
 	}
-    Syslog('s', "charset2: in=%s out=%s", in, out);
 
     /* Search for aliases */
     for (pa = charset_alias_list; pa; pa=pa->next) {
@@ -446,7 +443,6 @@ int charset_set_in_out(char *in, char *out)
         if (strcasecmp(pa->alias, out) == 0)
             out = pa->name;
     }
-    Syslog('s', "charset3: in=%s out=%s", in, out);
 
     /* Search for matching table */
     for (pt = charset_table_list; pt; pt=pt->next) {
@@ -457,7 +453,7 @@ int charset_set_in_out(char *in, char *out)
         }
     }
 
-    Syslog('b', "charset: no table found in=%s out=%s", in, out);
+    Syslog('s', "charset: no table found in=%s out=%s", in, out);
     charset_table_used = NULL;
     return FALSE;
 }
