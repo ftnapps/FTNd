@@ -124,7 +124,7 @@ int kludgewrite(char *s, FILE *fp)
  */
 int rfc2ftn(FILE *fp, faddr *recipient)
 {
-    char            sbe[16], *p, *q, *temp, *origin, newsubj[4 * (MAXSUBJ+1)], *oldsubj, *acup_a = NULL;
+    char            sbe[16], *p, *q, *temp, *origin, newsubj[4 * (MAXSUBJ+1)], *oldsubj, *acup_a = NULL, *charset = NULL;
     int             i, rc, newsmode, seenlen, oldnet;
     rfcmsg          *msg = NULL, *tmsg, *tmp;
     ftnmsg          *fmsg = NULL;
@@ -216,8 +216,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	while (*p && isspace(*p)) 
 	    p++;
 
-	Syslog('m', "Content-Type: %s", printable(p, 0));
-
 	/*
 	 * Check for mime to remove.
 	 */
@@ -229,6 +227,15 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	q = strtok(p, " \n\0");
 	q = strtok(NULL, " \n\0");
 	Syslog('m', "charset part: %s", printable(q, 0));
+	if (q && (strcasecmp(q, "charset=") == 0)) {
+	    charset = xstrcpy(q + 8);
+	    Syslog('m', "Charset \"%s\"", printable(charset, 0));
+	}
+    }
+
+    if (charset == NULL) {
+	charset = xstrcpy((char *)"iso-8859-1");
+	Syslog('m', "No charset, setting default to iso-8859-1");
     }
 
     if ((p = hdr((char *)"Message-ID",msg))) {
@@ -704,7 +711,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	free(origin);
         fclose(ofp);
     } while (needsplit);
+
     free(temp);
+    if (charset)
+	free(charset);
     tidyrfc(msg);
     tidy_ftnmsg(fmsg);
     UpdateMsgs();
