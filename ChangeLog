@@ -2,6 +2,9 @@ $Id$
 
 v0.71.4		12-Aug-2005
 
+	mbselib.a:
+		Removed some debug logging.
+
 	mbfido:
 		Added extra debug logging to trace an SIGSEG when forwarding
 		files.
