@@ -141,12 +141,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (recipient)
 	Syslog('m', "Recipient: %s", ascfnode(recipient, 0xff));
     rewind(fp);
-//  Syslog('m', "========== RFC Start");
-//  while ((fgets(temp, 4095, fp)) != NULL) {
-//	Syslogp('m', printable(temp, 0));
-//  }
-//  Syslog('m', "========== RFC end");
-//  rewind(fp);
+  Syslog('m', "========== RFC Start");
+  while ((fgets(temp, 4095, fp)) != NULL) {
+	Syslogp('m', printable(temp, 0));
+  }
+  Syslog('m', "========== RFC end");
+  rewind(fp);
     msg = parsrfc(fp);
 
     newsmode = hdr((char *)"Newsgroups", msg) ?TRUE:FALSE;
