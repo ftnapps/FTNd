@@ -146,6 +146,7 @@ int nntp_send(char *buf)
 	if (nntpsock == -1)
 		return -1;
 
+	Syslog('m', "> %s", printable(buf, 0));
 	if (send(nntpsock, buf, strlen(buf), 0) != strlen(buf)) {
 		WriteError("$NNTP: socket send failed");
 		if (errno == ENOTCONN || errno == EPIPE) {
@@ -195,6 +196,7 @@ char *nntp_receive(void)
 			buf[i] = '\0';
 	}
 
+	Syslog('m', "< %s", printable(buf, 0));
 	return buf;
 }
 

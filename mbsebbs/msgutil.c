@@ -4,7 +4,7 @@
  * Purpose ...............: Utilities for message handling.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -152,6 +152,27 @@ void Close_Msgbase(char *Base)
 }
 
 
+char *getrfcchrs(int val)
+{
+    switch (val) {
+	case FTNC_NONE:     return (char *)"iso-8859-1";
+	case FTNC_CP437:    return (char *)"cp437";
+	case FTNC_CP850:    return (char *)"cp850";
+	case FTNC_CP865:    return (char *)"cp865";
+	case FTNC_CP866:    return (char *)"cp866";
+	case FTNC_CP852:    return (char *)"cp852";
+	case FTNC_CP895:    return (char *)"cp895";
+	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
+	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
+	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
+	case FTNC_MAC:      return (char *)"MAC 2";
+	case FTNC_KOI8_R:   return (char *)"koi8-r";
+	case FTNC_CP936:    return (char *)"hz-gb-2312";
+	default:            return (char *)"iso-8859-1";
+    }
+}
+
+
 
 void Add_Headkludges(faddr *dest, int IsReply)
 {
@@ -202,17 +223,26 @@ void Add_Headkludges(faddr *dest, int IsReply)
 			for (i = 0; i < strlen(temp2); i++)
 			    if (temp2[i] == ' ')
 				temp2[i] = '_';
-			sprintf(temp, "\001From: %s@%s (%s)", temp2, ascinode(Node, 0x2f), Msg.From);
+//			sprintf(temp, "\001From: %s@%s (%s)", temp2, ascinode(Node, 0x2f), Msg.From);
+			sprintf(temp, "\001From: %s", Msg.From);
 			MsgText_Add2(temp);
 			sprintf(temp, "\001Subject: %s", Msg.Subject);
 			MsgText_Add2(temp);
-			sprintf(temp, "\001Sender: %s@%s (%s)", temp2, ascinode(Node, 0x2f), Msg.From);
+//			sprintf(temp, "\001Sender: %s@%s (%s)", temp2, ascinode(Node, 0x2f), Msg.From);
+			sprintf(temp, "\001Sender: %s", Msg.From);
 			MsgText_Add2(temp);
 			free(temp2);
 			tidy_faddr(Node);
 			MsgText_Add2((char *)"\001To: All");
 			MsgText_Add2((char *)"\001MIME-Version: 1.0");
-			MsgText_Add2((char *)"\001Content-Type: text/plain");
+			if (exitinfo.Charset != FTNC_NONE) {
+			    sprintf(temp, "\001Content-Type: text/plain; charset=%s", getrfcchrs(exitinfo.Charset));
+			} else if (msgs.Charset != FTNC_NONE) {
+			    sprintf(temp, "\001Content-Type: text/plain; charset=%s", getrfcchrs(msgs.Charset));
+			} else {
+			    sprintf(temp, "\001Content-Type: text/plain; charset=iso8859-1");
+			}
+			MsgText_Add2(temp);
 			MsgText_Add2((char *)"\001Content-Transfer-Encoding: 8bit");
 			sprintf(temp, "\001X-Mailreader: MBSE BBS %s", VERSION);
 			MsgText_Add2(temp);
