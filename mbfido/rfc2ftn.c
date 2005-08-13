@@ -169,12 +169,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (recipient)
 	Syslog('m', "Recipient: %s", ascfnode(recipient, 0xff));
     rewind(fp);
-  Syslog('m', "========== RFC Start");
-  while ((fgets(temp, 4095, fp)) != NULL) {
-	Syslogp('m', printable(temp, 0));
-  }
-  Syslog('m', "========== RFC end");
-  rewind(fp);
+//  Syslog('m', "========== RFC Start");
+//  while ((fgets(temp, 4095, fp)) != NULL) {
+//	Syslogp('m', printable(temp, 0));
+//  }
+//  Syslog('m', "========== RFC end");
+//  rewind(fp);
     msg = parsrfc(fp);
 
     newsmode = hdr((char *)"Newsgroups", msg) ?TRUE:FALSE;
@@ -243,6 +243,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if ((p = hdr((char *)"Content-Type",msg))) {
 	while (*p && isspace(*p)) 
 	    p++;
+	Syslog('m', "Content-Type: %s", printable(p, 0));
 
 	/*
 	 * Check for mime to remove.
@@ -404,6 +405,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    fprintf(ofp, "\1REPLY: %s %08lx\n", fmsg->reply_a, fmsg->reply_n);
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	fprintf(ofp, "\001TZUTC: %s\n", gmtoffset(Now));
+	fprintf(ofp, "\001CHRS: %s\n", getchrs(msgs.Charset));
+
 	fmsg->subj = oldsubj;
 	if ((p = hdr((char *)"X-FTN-REPLYADDR",msg))) {
 	    hdrsize += 10+strlen(p);
