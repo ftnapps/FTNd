@@ -44,7 +44,7 @@
 #include "rfc2ftn.h"
 
 
-#define MAXHDRSIZE 2048
+#define MAXHDRSIZE 4096
 #define	MAXSEEN 70
 #define	MAXPATH 73
 
@@ -164,7 +164,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
 
-    temp = calloc(4097, sizeof(char));
+    temp = calloc(MAXHDRSIZE +1, sizeof(char));
     Syslog('m', "Entering rfc2ftn");
     if (recipient)
 	Syslog('m', "Recipient: %s", ascfnode(recipient, 0xff));
@@ -773,7 +773,6 @@ int needputrfc(rfcmsg *msg, int newsmode)
 {
 	faddr	*ta;
 
-//	Syslog('M', "needputrfc(%s)", printable(msg->key,0));
 	if ((msg->key == NULL) || (strlen(msg->key) == 0)) return 0;
 
 	if (!strcasecmp(msg->key,"X-UUCP-From")) return -1;
@@ -869,7 +868,6 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"Complaints-To")) return 0;
 	/* Default X- headers */
 	if (!strncasecmp(msg->key,"X-",2)) return 0;
-	/*if (!strcasecmp(msg->key,"")) return ;*/
 	return 1;
 }
 
