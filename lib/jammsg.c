@@ -718,6 +718,10 @@ void JAM_Pack(void)
 		    LR.LastReadMsg = 0;
 		    LR.HighReadMsg = 0;
 		}
+		if (jamHdrInfo.ActiveMsgs && (LR.LastReadMsg > jamHdrInfo.ActiveMsgs))
+		    LR.LastReadMsg = jamHdrInfo.ActiveMsgs;
+		if (jamHdrInfo.ActiveMsgs && (LR.HighReadMsg > jamHdrInfo.ActiveMsgs))
+		    LR.HighReadMsg = jamHdrInfo.ActiveMsgs;
 		write(fdnJlr, &LR, sizeof(lastread));
 	    }
 	}
