@@ -1190,15 +1190,12 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
      */
     if ((p=hdr((char *)"Content-Type",msg))) {
 	sprintf(temp, "Content-Type: text/plain; charset=%s\n", getrfcchrs(msgs.Charset));
-//	sprintf(temp,"Content-Type:%s",p);
 	Send(newsmode, temp);
     } else if ((p=hdr((char *)"RFC-Content-Type",kmsg))) {
 	sprintf(temp, "Content-Type: text/plain; charset=%s\n", getrfcchrs(msgs.Charset));
-//	sprintf(temp,"Content-Type: %s",p);
 	Send(newsmode, temp);
     } else if ((p=hdr((char *)"Content-Type",kmsg))) {
 	sprintf(temp, "Content-Type: text/plain; charset=%s\n", getrfcchrs(msgs.Charset));
-//	sprintf(temp,"Content-Type: %s",p);
 	Send(newsmode, temp);
     }
 
@@ -1275,7 +1272,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	Send(newsmode, temp);
     }
 
-    Syslog('m', "=== starting qmsg loop");
     for (qmsg = msg; qmsg; qmsg = qmsg->next) {
 	if (strcasecmp(qmsg->key,"CHRS") &&
 	    strcasecmp(qmsg->key,"MSGID") &&
@@ -1316,7 +1312,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	    Send(newsmode, temp);
 	}
     }
-    Syslog('m', "=== ending qmsg loop");
 
     if ((p=compose_flags(flags,hdr((char *)"FLAGS",kmsg)))) {
 	sprintf(temp,"X-FTN-FLAGS:%s\n",p);
@@ -1324,7 +1319,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	free(p);
     }
 
-    Syslog('m', "=== starting qmsg loop 2");
     for (qmsg = kmsg; qmsg; qmsg = qmsg->next) {
 	if (strcasecmp(qmsg->key,"INTL") &&
 	    strcasecmp(qmsg->key,"FMPT") &&
@@ -1411,7 +1405,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	    }
 	}
     }
-    Syslog('m', "=== ending qmsg loop 2");
 
     if (newsmode) {
 	fa_list	*tmpl,*ptl=NULL;
@@ -1482,8 +1475,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	    Send(newsmode, p);
 	    free(p);
 	    first = FALSE;
-
-/* FIXME: Maybe scan now for repeating headers and drop them as they will appear in the message text */
 
 	    if ((p=hdr((char *)"X-Body-Start",msg))) {
 		lines++;

@@ -127,68 +127,6 @@ int kludgewrite(char *s, FILE *fp)
 
 
 /*
- * Build a faked RFC msgid, use the CRC32 of the FTN msgid, 
- * the current group and the configured system's fqdn. This
- * gives a unique string specific for the message.
- */
-char *make_msgid(char *msgid)
-{
-    static char buf[100];
-
-    sprintf(buf, "<%8lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
-    return buf;
-}
-
-
-
-int findorigmsg(char *msgid, char *o)
-{
-    unsigned long   i, start, end;
-    char            *gen2;
-
-    if (msgid == NULL) {
-	return 0;
-    }
-
-    if (!Msg_Open(msgs.Base)) {
-	return 0;
-    }
-    Msg_Number();
-    Msg_Highest();
-    Msg_Lowest();
-
-    if (MsgBase.Open == FALSE) {
-	Syslog('-', "Base closed");
-	return 0;
-    }
-
-    strcpy(currentgroup, msgs.Newsgroup);
-    start = MsgBase.Lowest;
-    end   = MsgBase.Highest;
-
-    gen2 = calloc(strlen(msgid)+1,sizeof(char));
-    strcpy(gen2, strchr(msgid,'<'));
-    Syslog('m', "findorigmsg(%s): gen2=%s", msgid, gen2);
-
-    for (i = start; i <= end; i++) {
-	if (Msg_ReadHeader(i)) {
-//	    Syslog('m', "findorigmsg() %d, %s / %s (%s)", i, gen2, make_msgid(Msg.Msgid), Msg.Msgid);
-	    if (strncmp(gen2, make_msgid(Msg.Msgid),strlen(gen2)-1) == 0) {
-		Syslog('m',"Found msgid: %s",make_msgid(Msg.Msgid));
-//              realloc(o,(strlen(Msg.Msgid)+1)* sizeof(char));
-		strcpy(o,Msg.Msgid);
-		free(gen2);
-		return 1;
-	    }
-	}
-    }
-    free(gen2);
-    return 0;
-}
-
-
-
-/*
  *  Input a RFC message.
  */
 int rfc2ftn(FILE *fp, faddr *recipient)
@@ -229,14 +167,14 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 
     if (!CFG.allowcontrol) {
 	if (hdr((char *)"Control",msg)) {
-	    Syslog('+', "Control message skipped");
+	    Syslog('+', "Rfc2ftn: Control message skipped");
 	    tidyrfc(msg);
 	    return 1;
 	}
     }
 
     if ((fmsg = mkftnhdr(msg, newsmode, recipient)) == NULL) {
-	WriteError("Unable to create FTN headers from RFC ones, aborting");
+	WriteError("Rfc2ftn: unable to create FTN headers from RFC ones, aborting");
 	tidyrfc(msg);
 	return 1;
     }
@@ -253,19 +191,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if ((p = hdr((char *)"References",msg))) {
 	p = strrchr(p,' ');
 	ftnmsgid(p,&fmsg->reply_a, &fmsg->reply_n,fmsg->area);
-
-//Griffin
-//	fmsg->reply_s = calloc(256,sizeof(char));
-
-//	if (findorigmsg(p, fmsg->reply_s)) {
-//	    fmsg->to->name = calloc(strlen(Msg.From)+1, sizeof(char));
-//	    strcpy(fmsg->to->name, Msg.From);
-//	    Syslog('m', "fmsg to-name %s", fmsg->to->name);
-//	    Syslog('m', "reply_s %s", fmsg->reply_s);
-//	} else {
-//	    Syslog('m', "findorigmsg nothing found");
-//	}
-
 	if (!chkftnmsgid(p)) {
 	    hash_update_s(&fmsg->reply_n, fmsg->area);
 	}
@@ -285,10 +210,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     removereturnto   = TRUE;
     ftnorigin = fmsg->ftnorigin;
 
-    Syslog('m', "removemime=%s removemsgid=%s removeref=%s removeinreply=%s removereplyto=%s removereturnto=%s",
-	    removemime ?"TRUE ":"FALSE", removemsgid ?"TRUE ":"FALSE", removeref ?"TRUE ":"FALSE",
-	    removeinreply ?"TRUE ":"FALSE", removereplyto ?"TRUE ":"FALSE", removereturnto ?"TRUE ":"FALSE");
-
     q = hdr((char *)"Content-Transfer-Encoding",msg);
     if (q) 
 	while (*q && isspace(*q)) 
@@ -298,7 +219,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if ((p = hdr((char *)"Content-Type",msg))) {
 	while (*p && isspace(*p)) 
 	    p++;
-	Syslog('m', "Content-Type: %s", printable(p, 0));
 
 	/*
 	 * Check for mime to remove.
@@ -320,7 +240,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    if (strchr(q, '"')) {
 		charset = xstrcpy(q + 9);
 		charset[strlen(charset)-1] = '\0';
-		Syslog('m', "Unquoted charset name");
 	    } else {
 		charset = xstrcpy(q + 8);
 	    }
@@ -427,6 +346,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	if (splitpart) {
 	    sprintf(newsubj,"[part %d] ",splitpart+1);
 	    strncat(newsubj,fmsg->subj,MAXSUBJ-strlen(newsubj));
+	    Syslog('+', "Rfc2ftn: split message part %d", splitpart);
 	} else {
 	    strncpy(newsubj,fmsg->subj,MAXSUBJ);
 	}
@@ -442,7 +362,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	 * Create a new temp message in FTN style format
 	 */
 	if ((ofp = tmpfile()) == NULL) {
-	    WriteError("$Can't open second tmpfile");
+	    WriteError("$Rfc2ftn: Can't open second tmpfile");
 	    tidyrfc(msg);
 	    return 1;
 	}
@@ -459,7 +379,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	}
 
 	if ((fmsg->msgid_a == NULL) || (fmsg->msgid_n == 0)) {
-	    Syslog('!', "Warning, no MSGID %s %08lx", MBSE_SS(fmsg->msgid_a), fmsg->msgid_n);
+	    Syslog('!', "Rfc2ftn: warning, no MSGID %s %08lx", MBSE_SS(fmsg->msgid_a), fmsg->msgid_n);
 	}
 
 	fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
