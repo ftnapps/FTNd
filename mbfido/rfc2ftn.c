@@ -162,15 +162,18 @@ int findorigmsg(char *msgid, char *o)
 	return 0;
     }
 
-    strcpy(currentgroup,msgs.Newsgroup);
+    strcpy(currentgroup, msgs.Newsgroup);
     start = MsgBase.Lowest;
     end   = MsgBase.Highest;
 
     gen2 = calloc(strlen(msgid)+1,sizeof(char));
     strcpy(gen2, strchr(msgid,'<'));
+    Syslog('m', "findorigmsg(%s): gen2=%s", msgid, gen2);
+
     for (i = start; i <= end; i++) {
 	if (Msg_ReadHeader(i)) {
-	    if (strncmp(gen2,make_msgid(Msg.Msgid),strlen(gen2)-1) == 0) {
+//	    Syslog('m', "findorigmsg() %d, %s / %s (%s)", i, gen2, make_msgid(Msg.Msgid), Msg.Msgid);
+	    if (strncmp(gen2, make_msgid(Msg.Msgid),strlen(gen2)-1) == 0) {
 		Syslog('m',"Found msgid: %s",make_msgid(Msg.Msgid));
 //              realloc(o,(strlen(Msg.Msgid)+1)* sizeof(char));
 		strcpy(o,Msg.Msgid);
@@ -252,16 +255,16 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	ftnmsgid(p,&fmsg->reply_a, &fmsg->reply_n,fmsg->area);
 
 //Griffin
-	fmsg->reply_s = calloc(256,sizeof(char));
+//	fmsg->reply_s = calloc(256,sizeof(char));
 
-	if (findorigmsg(p, fmsg->reply_s)) {
-	    fmsg->to->name = calloc(strlen(Msg.From)+1, sizeof(char));
-	    strcpy(fmsg->to->name, Msg.From);
-	    Syslog('m', "fmsg to-name %s", fmsg->to->name);
-	    Syslog('m', "reply_s %s", fmsg->reply_s);
-	} else {
-	    Syslog('m', "findorigmsg nothing found");
-	}
+//	if (findorigmsg(p, fmsg->reply_s)) {
+//	    fmsg->to->name = calloc(strlen(Msg.From)+1, sizeof(char));
+//	    strcpy(fmsg->to->name, Msg.From);
+//	    Syslog('m', "fmsg to-name %s", fmsg->to->name);
+//	    Syslog('m', "reply_s %s", fmsg->reply_s);
+//	} else {
+//	    Syslog('m', "findorigmsg nothing found");
+//	}
 
 	if (!chkftnmsgid(p)) {
 	    hash_update_s(&fmsg->reply_n, fmsg->area);

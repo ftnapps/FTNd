@@ -726,41 +726,43 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	/*
 	 *  Build Path: headerline
 	 */
-	q = xstrcpy((char *)"Path: ");
-	if (CFG.newsfeed == FEEDUUCP) {
-	    /*
-	     *  If we don't run our own newsserver we have to simulate and
-	     *  add the UUCP nodename here.
-	     */
-	    memset(&utsbuf, 0, sizeof(utsbuf));
-	    if (uname(&utsbuf)) {
-		WriteError("Can't get system nodename");
-	    } else {
-		q = xstrcat(q, utsbuf.nodename);
-		q = xstrcat(q, (char *)"!");
+	if (CFG.newsfeed != FEEDINN) {
+	    q = xstrcpy((char *)"Path: ");
+	    if (CFG.newsfeed == FEEDUUCP) {
+		/*
+		 *  If we don't run our own newsserver we have to simulate and
+		 *  add the UUCP nodename here.
+		 */
+		memset(&utsbuf, 0, sizeof(utsbuf));
+		if (uname(&utsbuf)) {
+		    WriteError("Can't get system nodename");
+		} else {
+		    q = xstrcat(q, utsbuf.nodename);
+		    q = xstrcat(q, (char *)"!");
+		}
 	    }
-	}
-	tfaddr = fido2faddr(msgs.Aka);
-	q = xstrcat(q, ascinode(tfaddr, 0x07));
-	tidy_faddr(tfaddr);
-	q = xstrcat(q, (char *)"!");
-	if (ftnpath)
-	    for (tfa=ftnpath->next;tfa;tfa=tfa->next) {
-		/* FIXME: possible memory leak */
-		q = xstrcat(q, ascinode(tfa->addr,0x1f));
-		q = xstrcat(q, (char *)"!");
-	    }
-	tidy_falist(&ftnpath);
+	    tfaddr = fido2faddr(msgs.Aka);
+	    q = xstrcat(q, ascinode(tfaddr, 0x07));
+	    tidy_faddr(tfaddr);
+	    q = xstrcat(q, (char *)"!");
+	    if (ftnpath)
+		for (tfa=ftnpath->next;tfa;tfa=tfa->next) {
+		    /* FIXME: possible memory leak */
+		    q = xstrcat(q, ascinode(tfa->addr,0x1f));
+		    q = xstrcat(q, (char *)"!");
+		}
+	    tidy_falist(&ftnpath);
 
-	if (p) {
-	    while (isspace(*p)) 
-		p++;
-	    q = xstrcat(q, p);
-	} else 
-	    q = xstrcat(q, (char *)"not-for-mail");
-	sprintf(temp, "%s\n", q);
-	Send(newsmode, temp);
-	free(q);
+	    if (p) {
+		while (isspace(*p)) 
+		    p++;
+		q = xstrcat(q, p);
+	    } else 
+		q = xstrcat(q, (char *)"not-for-mail");
+	    sprintf(temp, "%s\n", q);
+	    Send(newsmode, temp);
+	    free(q);
+	}
 
 	if ((p = hdr((char *)"Newsgroups",msg))) {
 	    /*
