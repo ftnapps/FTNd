@@ -4,7 +4,7 @@
  * Purpose ...............: Line Editor
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -2230,7 +2230,7 @@ char *getmenutype(int val)
 
 void show_charset(int y, int x, int val)
 {
-    show_str(y, x, 9, getchrs(val));
+    show_str(y, x, 9, getftnchrs(val));
 }
 
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Edit Users
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -747,7 +747,7 @@ void users_doc(void)
 	    add_webtable(wp, (char *)"Sex", usrconfig.sSex);
 	    add_webtable(wp, (char *)"Protocol", usrconfig.sProtocol);
 	    add_webtable(wp, (char *)"Archiver", usrconfig.Archiver);
-	    add_webtable(wp, (char *)"Character set", getchrs(usrconfig.Charset));
+	    add_webtable(wp, (char *)"Character set", getftnchrs(usrconfig.Charset));
 	    add_webdigit(wp, (char *)"Screen length", usrconfig.iScreenLen);
 	    sprintf(temp, "%c", usrconfig.iLanguage);
 	    add_webtable(wp, (char *)"Language", temp);

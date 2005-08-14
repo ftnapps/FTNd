@@ -4,7 +4,7 @@
  * Purpose ...............: Setup MGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004 
+ * Copyright (C) 1997-2005 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -696,7 +696,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Add quotes", getboolean(mgroup.Quotes));
 	    add_webtable(wp, (char *)"Auto add/del areas", getboolean(mgroup.AutoChange));
 	    add_webtable(wp, (char *)"User add/del areas", getboolean(mgroup.UserChange));
-	    add_webtable(wp, (char *)"Default charset", getchrs(mgroup.Charset));
+	    add_webtable(wp, (char *)"Default charset", getftnchrs(mgroup.Charset));
 	    add_webtable(wp, (char *)"Start area date", ctime(&mgroup.StartDate));
 	    add_webtable(wp, (char *)"Last active date", ctime(&mgroup.LastDate));
 	    fprintf(wp, "</TBODY>\n");
@@ -789,7 +789,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Add quotes         %s\n", getboolean(mgroup.Quotes));
 	fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
 	fprintf(fp, "    User add/del areas %s\n", getboolean(mgroup.UserChange));
-	fprintf(fp, "    Default charset    %s\n", getchrs(mgroup.Charset));
+	fprintf(fp, "    Default charset    %s\n", getftnchrs(mgroup.Charset));
 	fprintf(fp, "    Start area date    %s",   ctime(&mgroup.StartDate));
 	fprintf(fp, "    Last active date   %s\n", ctime(&mgroup.LastDate));
 	fprintf(fp, "\n\n");

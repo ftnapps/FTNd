@@ -4,7 +4,7 @@
  * Purpose ...............: Message Areas Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -854,7 +854,7 @@ void MsgGlobal(void)
 		    break;
 	    case 12:mbse_mvprintw(7, 6, "New netmail reply board %d", netbrd);
 		    break;
-	    case 13:mbse_mvprintw(7, 6, "New character set %s", getchrs(charset));
+	    case 13:mbse_mvprintw(7, 6, "New character set %s", getftnchrs(charset));
 		    break;
 	    case 14:mbse_mvprintw(7, 6, "Delete message areas");
 		    break;
@@ -1043,7 +1043,8 @@ void MsgGlobal(void)
 					    msgs.Charset = charset;
 					    if (SaveMsgRec(marea, FALSE) == 0) {
 						Done++;
-						Syslog('+', "Changed character set to %s in area %s", getchrs(charset), msgs.Tag);
+						Syslog('+', "Changed character set to %s in area %s", 
+							getftnchrs(charset), msgs.Tag);
 					    }
 					}
 					break;
@@ -1903,7 +1904,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 		add_webtable(wp, (char *)"Offline name", msgs.QWKname);
 		add_webtable(wp, (char *)"Area type", getmsgtype(msgs.Type));
 		add_webtable(wp, (char *)"Messages type", getmsgkinds(msgs.MsgKinds));
-		add_webtable(wp, (char *)"Character set", getchrs(msgs.Charset));
+		add_webtable(wp, (char *)"Character set", getftnchrs(msgs.Charset));
 		add_webdigit(wp, (char *)"Days old msgs", msgs.DaysOld);
 		add_webdigit(wp, (char *)"Maximum msgs", msgs.MaxMsgs);
 		add_webdigit(wp, (char *)"Max articles", msgs.MaxArticles);
@@ -1942,7 +1943,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "    Offline name     %s\n", msgs.QWKname);
 	    fprintf(fp, "    Area type        %s\n", getmsgtype(msgs.Type));
 	    fprintf(fp, "    Messages type    %s\n", getmsgkinds(msgs.MsgKinds));
-	    fprintf(fp, "    Character set    %s\n", getchrs(msgs.Charset));
+	    fprintf(fp, "    Character set    %s\n", getftnchrs(msgs.Charset));
 	    fprintf(fp, "    Days old msgs.   %d\n", msgs.DaysOld);
 	    fprintf(fp, "    Maximum msgs.    %d\n", msgs.MaxMsgs);
 	    fprintf(fp, "    Max articles     %d\n", msgs.MaxArticles);
