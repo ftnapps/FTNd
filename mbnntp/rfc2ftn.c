@@ -262,7 +262,7 @@ int rfc2ftn(FILE *fp)
 	}
 
 	q = strtok(p, " \n\0");
-	q = strtok(NULL, " \n\0");
+	q = strtok(NULL, "; \n\0");
 	while (*q && isspace(*q))
 	    q++;
 	Syslog('m', "charset part: %s", printable(q, 0));
@@ -277,11 +277,6 @@ int rfc2ftn(FILE *fp)
 	    } else {
 		charset = xstrcpy(q + 8);
 	    }
-	    /* 
-	     * Sometimes more information follows so there the charset looks like iso-8859-1;
-	     */
-	    if (charset[strlen(charset)-1] == ';')
-		charset[strlen(charset)-1] = '\0';
 	    Syslog('m', "Charset \"%s\"", printable(charset, 0));
 	}
     }
