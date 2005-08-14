@@ -79,7 +79,7 @@ int newspost(void)
 	while (fgets(buf, 10240, nfp)) {
 	    if (start) {
 		if (nntp_cmd((char *)"POST\r\n", 340) != 0) {
-		    WriteError("NNTP POST refused");
+		    WriteError("NNTP: POST refused");
 		    free(buf);
 		    return TRUE;
 		}
@@ -88,6 +88,7 @@ int newspost(void)
 	    if (!strcmp(buf, ".\n")) {
 		if (nntp_cmd((char *)".\r\n", 240) == 0) {
 		    news_out++;
+		    Syslog('+', "NTTP: article %d accepted", news_out);
 		} else {
 		    WriteError("NNTP: refused article %d", news_out+1);
 		    news_bad++;

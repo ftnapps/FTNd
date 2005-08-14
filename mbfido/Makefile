@@ -156,7 +156,7 @@ mbfrearc.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.
 utic.o: ../config.h ../lib/mbselib.h tic.h mover.h tic.h utic.h
 announce.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h toberep.h announce.h
 fflist.o: ../config.h ../lib/mbselib.h ../lib/msg.h fflist.h
-ftn2rfc.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h rollover.h aliasdb.h postemail.h backalias.h msgflags.h ftn2rfc.h
+ftn2rfc.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h rollover.h aliasdb.h postemail.h backalias.h msgflags.h rfc2ftn.h ftn2rfc.h
 makestat.o: ../config.h ../lib/mbselib.h ../lib/diesel.h ../lib/msg.h mgrutil.h makestat.h
 mbindex.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbindex.h
 msgutil.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h msgutil.h

@@ -88,8 +88,6 @@ mbfido:
 
 	N: After readalias we need to free the alias list when mbfido ends.
 
-	N: Reimplement characterset conversion again on the gateway.
-
 	N: Hatch statistics are not updated.
 
 	N: Copy personal mail to a personal message area.

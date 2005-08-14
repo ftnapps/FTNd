@@ -695,7 +695,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
     Syslog('m', "Msg.From %s", Msg.From);
     Syslog('m', "Msg.FromAddress %s", Msg.FromAddress);
     Syslog('m', "Msg.To %s", Msg.To);
-    Syslog('m', "Msg.ToAddress", Msg.ToAddress);
+    Syslog('m', "Msg.ToAddress %s", Msg.ToAddress);
 
     flags |= (Msg.Private)          ? M_PVT : 0;
     from = fido2faddr(msgs.Aka);
@@ -717,7 +717,6 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
     dest = NULL;
 
     fprintf(qp, "AREA:%s\n", msgs.Tag);
-    Syslog('m', "AREA:%s", msgs.Tag);
 
     if (Msg_Read(MsgNum, 79)) {
 	if ((p = (char *)MsgText_First()) != NULL) {
@@ -730,18 +729,13 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 			kludges = FALSE;
 			fprintf(qp, "\001TID: MBSE-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
 			fprintf(qp, "Subject: %s\n", Msg.Subject);
-			Syslog('m', "Subject: %s", Msg.Subject);
 			fprintf(qp, "\n");
-			Syslog('m', "\n");
 			fprintf(qp, "%s\n", p);
-			Syslog('m', "%s", p);
 		    } else {
 			fprintf(qp, "%s\n", p+1);
-			Syslog('m', "%s", p+1);
 		    }
 		} else {
 		    fprintf(qp, "%s", p);
-		    Syslog('m', "%s", printable(p, 0));
 		    if (strncmp(p, " * Origin:", 10) == 0)
 			break;
 
@@ -775,7 +769,6 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 	fprintf(qp, "%s", sbe);
     }
     fprintf(qp, "\n\001PATH: %u/%u\n", msgs.Aka.net, msgs.Aka.node);
-    Syslog('m', "\\001PATH: %u/%u", msgs.Aka.net, msgs.Aka.node);
 
     rewind(qp);
     most_debug = TRUE;

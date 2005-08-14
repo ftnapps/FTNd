@@ -59,6 +59,7 @@ static int	removeref;
 static int	removeinreply;
 static int	removereplyto;
 static int	removereturnto;
+char		currentgroup[81];
 
 
 
@@ -80,7 +81,6 @@ int	needputrfc(rfcmsg *, int);
 
 
 
-int charwrite(char *, FILE *);
 int charwrite(char *s, FILE *fp)
 {
     char    *o;
@@ -127,6 +127,65 @@ int kludgewrite(char *s, FILE *fp)
 
 
 /*
+ * Build a faked RFC msgid, use the CRC32 of the FTN msgid, 
+ * the current group and the configured system's fqdn. This
+ * gives a unique string specific for the message.
+ */
+char *make_msgid(char *msgid)
+{
+    static char buf[100];
+
+    sprintf(buf, "<%8lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
+    return buf;
+}
+
+
+
+int findorigmsg(char *msgid, char *o)
+{
+    unsigned long   i, start, end;
+    char            *gen2;
+
+    if (msgid == NULL) {
+	return 0;
+    }
+
+    if (!Msg_Open(msgs.Base)) {
+	return 0;
+    }
+    Msg_Number();
+    Msg_Highest();
+    Msg_Lowest();
+
+    if (MsgBase.Open == FALSE) {
+	Syslog('-', "Base closed");
+	return 0;
+    }
+
+    strcpy(currentgroup,msgs.Newsgroup);
+    start = MsgBase.Lowest;
+    end   = MsgBase.Highest;
+
+    gen2 = calloc(strlen(msgid)+1,sizeof(char));
+    strcpy(gen2, strchr(msgid,'<'));
+    for (i = start; i <= end; i++) {
+	if (Msg_ReadHeader(i)) {
+	    if (strncmp(gen2,make_msgid(Msg.Msgid),strlen(gen2)-1) == 0) {
+		Syslog('m',"Found msgid: %s",make_msgid(Msg.Msgid));
+//              realloc(o,(strlen(Msg.Msgid)+1)* sizeof(char));
+		strcpy(o,Msg.Msgid);
+		free(gen2);
+		return 1;
+	    }
+	}
+    }
+    free(gen2);
+    return 0;
+}
+
+
+
+/*
  *  Input a RFC message.
  */
 int rfc2ftn(FILE *fp, faddr *recipient)
@@ -159,9 +218,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     newsmode = hdr((char *)"Newsgroups", msg) ?TRUE:FALSE;
     Syslog('m', "RFC message is %s", newsmode ? "news article":"e-mail message");
 
-    if (newsmode)
+    if (newsmode) {
 	news_in++;
-    else
+	sprintf(currentgroup, "%s", msgs.Newsgroup);
+    } else
 	email_in++;
 
     if (!CFG.allowcontrol) {
@@ -190,6 +250,16 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if ((p = hdr((char *)"References",msg))) {
 	p = strrchr(p,' ');
 	ftnmsgid(p,&fmsg->reply_a, &fmsg->reply_n,fmsg->area);
+
+//Griffin
+	fmsg->reply_s=calloc(256,sizeof(char));
+	findorigmsg(p,fmsg->reply_s);
+
+	fmsg->to->name=calloc(strlen(Msg.From)+1,sizeof(char));
+	strcpy(fmsg->to->name,Msg.From);
+	Syslog('m', "fmsg to-name %s",fmsg->to->name);
+	Syslog('m', "reply_s %s",fmsg->reply_s);
+
 	if (!chkftnmsgid(p)) {
 	    hash_update_s(&fmsg->reply_n, fmsg->area);
 	}
@@ -238,7 +308,16 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    q++;
 	Syslog('m', "charset part: %s", printable(q, 0));
 	if (q && (strncasecmp(q, "charset=", 8) == 0)) {
-	    charset = xstrcpy(q + 8);
+	    /*
+	     * google.com quotes the charset name
+	     */
+	    if (strchr(q, '"')) {
+		charset = xstrcpy(q + 9);
+		charset[strlen(charset)-1] = '\0';
+		Syslog('m', "Unquoted charset name");
+	    } else {
+		charset = xstrcpy(q + 8);
+	    }
 	    Syslog('m', "Charset \"%s\"", printable(charset, 0));
 	}
     }

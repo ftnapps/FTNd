@@ -12,9 +12,15 @@ v0.71.4		12-Aug-2005
 		Fixed a segfault when echomail.jam or netmail.jam is corrupted
 		when scanning for outgoing mail.
 		Fixed fido style from address for posting news.
+		Reinstalled charset translation on the gateway. Changed the
+		way how FTN kludges are translated to RFC headers.
 
 	mbsebbs:
 		Fixed headerlines for posting news.
+		Fixed headerlines for posting email.
+
+	mbnntp:
+		Improved charset detection.
 
 
 v0.71.3		13-Jun-2005 - 12-Aug-2005
