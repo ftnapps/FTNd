@@ -2575,7 +2575,8 @@ typedef struct st_charset_table {
 } CharsetTable;
 
 
-char    *getchrs(int);                  /* Return characterset name         */
+char    *getftnchrs(int);               /* Return FTN characterset name     */
+char	*getrfcchrs(int);		/* Return RFC characterset name	    */
 char	*getlocale(int);		/* Return locale name		    */
 char    *getchrsdesc(int);              /* Return characterset description  */
 CharsetTable *charset_table_new(void);	/* Add table to linked list	    */

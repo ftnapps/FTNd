@@ -4,7 +4,7 @@
  * Purpose ...............: Characterset functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -106,7 +106,7 @@ char *str_copy(char *d, size_t n, char *s)
 #define BUF_COPY(d,s)   str_copy  (d,sizeof(d),s)
 
 
-char *getchrs(int val)
+char *getftnchrs(int val)
 {
     switch (val) {
         case FTNC_NONE:     return (char *)"Undefined";
@@ -123,6 +123,28 @@ char *getchrs(int val)
 	case FTNC_KOI8_R:   return (char *)"KOI8-R 2";
 	case FTNC_CP936:    return (char *)"CP936 2";
         default:            return (char *)"LATIN-1 2";
+    }
+}
+
+
+
+char *getrfcchrs(int val)
+{
+    switch (val) {
+	case FTNC_NONE:     return (char *)"iso-8859-1";
+	case FTNC_CP437:    return (char *)"cp437";
+	case FTNC_CP850:    return (char *)"cp850";
+	case FTNC_CP865:    return (char *)"cp865";
+	case FTNC_CP866:    return (char *)"cp866";
+	case FTNC_CP852:    return (char *)"cp852";
+	case FTNC_CP895:    return (char *)"cp895";
+	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
+	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
+	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
+	case FTNC_MAC:      return (char *)"MAC 2";
+	case FTNC_KOI8_R:   return (char *)"koi8-r";
+	case FTNC_CP936:    return (char *)"hz-gb-2312";
+	default:            return (char *)"iso-8859-1";
     }
 }
 
