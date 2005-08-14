@@ -4,7 +4,7 @@
  * Purpose ...............: Post a message from a file.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -220,9 +220,9 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     sprintf(temp, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
     MsgText_Add2(temp);
     if (msgs.Charset != FTNC_NONE) {
-	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));
+	sprintf(temp, "\001CHRS: %s", getftnchrs(msgs.Charset));
     } else {
-	sprintf(temp, "\001CHRS: %s", getchrs(FTNC_LATIN_1));
+	sprintf(temp, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
     }
     MsgText_Add2(temp);
     sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));

@@ -79,27 +79,6 @@ extern	int	most_debug;
 int	needputrfc(rfcmsg *, int);
 
 
-char *getrfcchrs(int);
-char *getrfcchrs(int val)
-{
-    switch (val) {
-	case FTNC_NONE:     return (char *)"iso-8859-1";
-	case FTNC_CP437:    return (char *)"cp437";
-	case FTNC_CP850:    return (char *)"cp850";
-	case FTNC_CP865:    return (char *)"cp865";
-	case FTNC_CP866:    return (char *)"cp866";
-	case FTNC_CP852:    return (char *)"cp852";
-	case FTNC_CP895:    return (char *)"cp895";
-	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
-	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
-	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
-	case FTNC_MAC:      return (char *)"MAC 2";
-	case FTNC_KOI8_R:   return (char *)"koi8-r";
-	case FTNC_CP936:    return (char *)"hz-gb-2312";
-	default:            return (char *)"iso-8859-1";
-    }
-}
-
 
 int charwrite(char *, FILE *);
 int charwrite(char *s, FILE *fp)
@@ -405,7 +384,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    fprintf(ofp, "\1REPLY: %s %08lx\n", fmsg->reply_a, fmsg->reply_n);
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	fprintf(ofp, "\001TZUTC: %s\n", gmtoffset(Now));
-	fprintf(ofp, "\001CHRS: %s\n", getchrs(msgs.Charset));
+	fprintf(ofp, "\001CHRS: %s\n", getftnchrs(msgs.Charset));
 
 	fmsg->subj = oldsubj;
 	if ((p = hdr((char *)"X-FTN-REPLYADDR",msg))) {

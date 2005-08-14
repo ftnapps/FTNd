@@ -90,9 +90,9 @@ void Msg_Pid(void)
 	sprintf(temp, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
 	MsgText_Add2(temp);
 	if (msgs.Charset != FTNC_NONE) {
-	    sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));
+	    sprintf(temp, "\001CHRS: %s", getftnchrs(msgs.Charset));
 	} else {
-	    sprintf(temp, "\001CHRS: %s", getchrs(FTNC_LATIN_1));
+	    sprintf(temp, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
 	}
 	MsgText_Add2(temp);
 	tt = time(NULL);
