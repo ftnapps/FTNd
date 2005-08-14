@@ -4,7 +4,7 @@
  * Purpose ...............: Internet email
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -287,7 +287,12 @@ int Save_Email(int IsReply)
     sprintf(temp, "\001To: %s", Msg.To);
     MsgText_Add2(temp);
     MsgText_Add2((char *)"\001MIME-Version: 1.0");
-    MsgText_Add2((char *)"\001Content-Type: text/plain");
+    if (exitinfo.Charset != FTNC_NONE) {
+	sprintf(temp, "\001Content-Type: text/plain; charset=%s", getrfcchrs(exitinfo.Charset));
+    } else {
+	sprintf(temp, "\001Content-Type: text/plain; charset=iso8859-1");
+    }
+    MsgText_Add2(temp);
     MsgText_Add2((char *)"\001Content-Transfer-Encoding: 8bit");
     sprintf(temp, "\001X-Mailreader: MBSE BBS %s", VERSION);
     MsgText_Add2(temp);
