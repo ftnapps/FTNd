@@ -4,7 +4,7 @@
  * Purpose ...............: Change user settings
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1014,7 +1014,7 @@ void Chg_Charset()
 
     temp = calloc(81, sizeof(char));
     ReadExitinfo();
-    Syslog('+', "Old character set %s", getchrs(exitinfo.Charset));
+    Syslog('+', "Old character set %s", getftnchrs(exitinfo.Charset));
 
     while(TRUE) {
 	Enter(1);
@@ -1028,7 +1028,7 @@ void Chg_Charset()
 	    sprintf(temp, "%2d ", i);
 	    PUTSTR(temp);
 	    colour(LIGHTCYAN, BLACK);
-	    sprintf(temp, "%-9s ", getchrs(i));
+	    sprintf(temp, "%-9s ", getftnchrs(i));
 	    PUTSTR(temp);
 	    colour(LIGHTMAGENTA, BLACK);
 	    sprintf(temp, "%s\r\n", getchrsdesc(i));
@@ -1050,14 +1050,14 @@ void Chg_Charset()
 
 	if ((i > FTNC_NONE) && (i <= FTNC_MAXCHARS)) {
 	    exitinfo.Charset = i;
-	    Syslog('+', "New character set %s", getchrs(exitinfo.Charset));
+	    Syslog('+', "New character set %s", getftnchrs(exitinfo.Charset));
 	    WriteExitinfo();
 	    setlocale(LC_CTYPE, getlocale(exitinfo.Charset));
 	    Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
 	    Enter(2);
 	    colour(LIGHTGREEN, BLACK);
 	    /* Character set now set to: */
-	    sprintf(temp, "%s%s", (char *) Language(25), getchrs(i));
+	    sprintf(temp, "%s%s", (char *) Language(25), getftnchrs(i));
 	    PUTSTR(temp);
 	    free(temp);
 	    Enter(2);

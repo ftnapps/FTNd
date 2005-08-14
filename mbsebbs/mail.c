@@ -5,7 +5,7 @@
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1261,11 +1261,10 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 	/*
 	 * No charset marked in the message, use the area charset
 	 */
-	charset = xstrcpy(getchrs(msgs.Charset));
+	charset = xstrcpy(getftnchrs(msgs.Charset));
     }
     charsin = xstrcpy(charset);
-    charsout = xstrcpy(getchrs(exitinfo.Charset));
-    Syslog('b', "Stage 3: charset %s, translate %s to %s", MBSE_SS(charset), MBSE_SS(charsin), MBSE_SS(charsout));
+    charsout = xstrcpy(getftnchrs(exitinfo.Charset));
 
     /*
      * Try to setup charset mapping if the charactersets are different.

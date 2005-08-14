@@ -4,7 +4,7 @@
  * Purpose ...............: Display ANSI/ASCII textfiles
  *
  *****************************************************************************
- * Copyright (C) 1997-2004 
+ * Copyright (C) 1997-2005 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -555,7 +555,7 @@ void ControlCodeU(int ch)
 		break;
 
 	case '9':
-		sprintf(temp, "%s", getchrs(exitinfo.Charset));
+		sprintf(temp, "%s", getftnchrs(exitinfo.Charset));
 		break;
 
 	default:

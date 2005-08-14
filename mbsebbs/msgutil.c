@@ -152,34 +152,12 @@ void Close_Msgbase(char *Base)
 }
 
 
-char *getrfcchrs(int val)
-{
-    switch (val) {
-	case FTNC_NONE:     return (char *)"iso-8859-1";
-	case FTNC_CP437:    return (char *)"cp437";
-	case FTNC_CP850:    return (char *)"cp850";
-	case FTNC_CP865:    return (char *)"cp865";
-	case FTNC_CP866:    return (char *)"cp866";
-	case FTNC_CP852:    return (char *)"cp852";
-	case FTNC_CP895:    return (char *)"cp895";
-	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
-	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
-	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
-	case FTNC_MAC:      return (char *)"MAC 2";
-	case FTNC_KOI8_R:   return (char *)"koi8-r";
-	case FTNC_CP936:    return (char *)"hz-gb-2312";
-	default:            return (char *)"iso-8859-1";
-    }
-}
-
-
 
 void Add_Headkludges(faddr *dest, int IsReply)
 {
     char	    *temp;
     unsigned long   crc = -1;
     time_t	    tt;
-    int		    i;
     faddr	    *Node;
 
     temp = calloc(128, sizeof(char));
@@ -246,11 +224,11 @@ void Add_Headkludges(faddr *dest, int IsReply)
      * Set the right charset kludge
      */
     if (exitinfo.Charset != FTNC_NONE) {
-	sprintf(temp, "\001CHRS: %s", getchrs(exitinfo.Charset));
+	sprintf(temp, "\001CHRS: %s", getftnchrs(exitinfo.Charset));
     } else if (msgs.Charset != FTNC_NONE) {
-	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));
+	sprintf(temp, "\001CHRS: %s", getftnchrs(msgs.Charset));
     } else {
-	sprintf(temp, "\001CHRS: %s", getchrs(FTNC_LATIN_1));
+	sprintf(temp, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
     }
     MsgText_Add2(temp);
     sprintf(temp, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
