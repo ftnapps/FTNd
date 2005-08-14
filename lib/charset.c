@@ -327,7 +327,7 @@ int charset_read_bin(void)
 					pt->next = NULL;                    /* overwritten by fread() */
 					if (n != 1) 
 					    return FALSE;
-					Syslog('s', "read charset table: %s -> %s", pt->in, pt->out);
+//					Syslog('s', "read charset table: %s -> %s", pt->in, pt->out);
 					break;
 	    default:			return FALSE;
 					break; 

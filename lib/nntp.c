@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Internet Library
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -143,19 +143,18 @@ int nntp_connect(void)
 
 int nntp_send(char *buf)
 {
-	if (nntpsock == -1)
-		return -1;
+    if (nntpsock == -1)
+	return -1;
 
-	Syslog('m', "> %s", printable(buf, 0));
-	if (send(nntpsock, buf, strlen(buf), 0) != strlen(buf)) {
-		WriteError("$NNTP: socket send failed");
-		if (errno == ENOTCONN || errno == EPIPE) {
-			WriteError("NNTP: closing local side");
-			nntpsock = -1;
-		}
-		return -1;
+    if (send(nntpsock, buf, strlen(buf), 0) != strlen(buf)) {
+	WriteError("$NNTP: socket send failed");
+	if (errno == ENOTCONN || errno == EPIPE) {
+	    WriteError("NNTP: closing local side");
+	    nntpsock = -1;
 	}
-	return 0;
+	return -1;
+    }
+    return 0;
 }
 
 
@@ -166,38 +165,37 @@ int nntp_send(char *buf)
  */
 char *nntp_receive(void)
 {
-	static char	buf[SS_BUFSIZE];
-	int		i = 0, j;
+    static char	buf[SS_BUFSIZE];
+    int		i = 0, j;
 
-	if (nntpsock == -1)
-		return NULL;
+    if (nntpsock == -1)
+	return NULL;
 
-	memset((char *)&buf, 0, SS_BUFSIZE);
-	while (TRUE) {
-		j = recv(nntpsock, &buf[i], 1, 0);
-		if (j == -1) {
-			WriteError("$NNTP: error reading socket");
-			memset((char *)&buf, 0, SS_BUFSIZE);
-			if (errno == ENOTCONN || errno == EPIPE) {
-				WriteError("NNTP: closing local side");
-				nntpsock = -1;
-			}
-			return buf;
-		}
-		if (buf[i] == '\n')
-			break;
-		i += j;
+    memset((char *)&buf, 0, SS_BUFSIZE);
+    while (TRUE) {
+	j = recv(nntpsock, &buf[i], 1, 0);
+	if (j == -1) {
+	    WriteError("$NNTP: error reading socket");
+	    memset((char *)&buf, 0, SS_BUFSIZE);
+	    if (errno == ENOTCONN || errno == EPIPE) {
+		WriteError("NNTP: closing local side");
+		nntpsock = -1;
+	    }
+	    return buf;
 	}
+	if (buf[i] == '\n')
+	    break;
+	i += j;
+    }
 
-	for (i = 0; i < strlen(buf); i++) {
-		if (buf[i] == '\n')
-			buf[i] = '\0';
-		if (buf[i] == '\r')
-			buf[i] = '\0';
-	}
+    for (i = 0; i < strlen(buf); i++) {
+	if (buf[i] == '\n')
+	    buf[i] = '\0';
+	if (buf[i] == '\r')
+	    buf[i] = '\0';
+    }
 
-	Syslog('m', "< %s", printable(buf, 0));
-	return buf;
+    return buf;
 }
 
 
