@@ -4,7 +4,7 @@
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -182,10 +182,9 @@ int rfc2ftn(FILE *fp)
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
     struct tm	    *l_date;
-    char	    *charset = NULL, *tq;
+    char	    *charset = NULL;
 
     temp = calloc(4097, sizeof(char));
-    charset = calloc(50,sizeof(char));
     Syslog('m', "Entering rfc2ftn");
     rewind(fp);
     msg = parsrfc(fp);
@@ -260,19 +259,31 @@ int rfc2ftn(FILE *fp)
 	if ((strncasecmp(p, "text/plain", 10) == 0) && ((q == NULL) || 
 		    (strncasecmp(q,"7bit",4) == 0) || (strncasecmp(q,"8bit",4) == 0))) {
 	    removemime = TRUE; /* no need in MIME headers */
-	    Syslog('m', "removemime=%s", removemime ? "True":"False");
 	}
-	tq=calloc(100,sizeof(char));
-	memset(tq,0,100*sizeof(char));
-	strcpy(charset,"iso-8859-1");	
-	strcpy(tq,strstr(p,"charset=")+8);
-	Syslog('m', "tq: %s|", tq);
-	if (tq!=NULL) {
-	    strcpy(charset,tq);
-	    charset[strlen(charset)-1]='\0';
+
+	q = strtok(p, " \n\0");
+	q = strtok(NULL, " \n\0");
+	while (*q && isspace(*q))
+	    q++;
+	Syslog('m', "charset part: %s", printable(q, 0));
+	if (q && (strncasecmp(q, "charset=", 8) == 0)) {
+	    /*
+	     * google.com quotes the charset name
+	     */
+	    if (strchr(q, '"')) {
+		charset = xstrcpy(q + 9);
+		charset[strlen(charset)-1] = '\0';
+		Syslog('m', "Unquoted charset name");
+	    } else {
+		charset = xstrcpy(q + 8);
+	    }
+	    Syslog('m', "Charset \"%s\"", printable(charset, 0));
 	}
-	Syslog('m', "charset: %s|", charset);
-	free(tq);
+    }
+
+    if (charset == NULL) {
+	charset = xstrcpy((char *)"iso-8859-1");
+	Syslog('m', "No charset, setting default to iso-8859-1");
     }
 
     charset_set_in_out(charset,getrfcchrs(msgs.Charset));
@@ -281,7 +292,6 @@ int rfc2ftn(FILE *fp)
 	if (!removemsgid)
 	    removemsgid = chkftnmsgid(p);
     }
-    Syslog('m', "removemsgid = %s", removemsgid ? "True":"False");
 
     if ((!removeref) && (p = hdr((char *)"References",msg))) {
 	p = xstrcpy(p);
@@ -290,8 +300,6 @@ int rfc2ftn(FILE *fp)
 	    removeref = chkftnmsgid(q);       
 	free(p);
     }
-    if (removeref)
-	Syslog('m', "removeref = %s", removeref ? "True":"False");
 
     if ((p = hdr((char *)"Reply-To",msg))) {
 	removereplyto = FALSE;
@@ -307,7 +315,6 @@ int rfc2ftn(FILE *fp)
 		removereplyto = TRUE;
 	}
     }
-    Syslog('m', "removereplyto = %s", removereplyto ? "True":"False");
 
     if ((p = hdr((char *)"Return-Receipt-To",msg))) {
 	removereturnto = FALSE;
@@ -324,8 +331,10 @@ int rfc2ftn(FILE *fp)
 		removereturnto = TRUE;
 	}
     }
-    if (!removereturnto)
-	Syslog('m', "removereturnto = %s", removereturnto ? "True":"False");
+
+    Syslog('m', "removemime=%s removemsgid=%s removeref=%s removeinreply=%s removereplyto=%s removereturnto=%s",
+		removemime ?"TRUE ":"FALSE", removemsgid ?"TRUE ":"FALSE", removeref ?"TRUE ":"FALSE",
+		removeinreply ?"TRUE ":"FALSE", removereplyto ?"TRUE ":"FALSE", removereturnto ?"TRUE ":"FALSE");
 
     p = ascfnode(fmsg->from,0x1f);
     i = 79-11-3-strlen(p);
@@ -400,6 +409,8 @@ int rfc2ftn(FILE *fp)
 	    fprintf(ofp, "\1REPLY: %s %08lx\n", fmsg->reply_a, fmsg->reply_n);
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	fprintf(ofp, "\001TZUTC: %s\n", gmtoffset(Now));
+	fprintf(ofp, "\001CHRS: %s\n", getftnchrs(msgs.Charset));
+	
 	fmsg->subj = oldsubj;
 	if ((p = hdr((char *)"X-FTN-REPLYADDR",msg))) {
 	    hdrsize += 10+strlen(p);
@@ -784,7 +795,8 @@ int rfc2ftn(FILE *fp)
         fclose(ofp);
     } while (needsplit);
     free(temp);
-    free(charset);
+    if (charset)
+	free(charset);
     tidyrfc(msg);
     tidy_ftnmsg(fmsg);
     UpdateMsgs();
