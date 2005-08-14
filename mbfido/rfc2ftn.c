@@ -252,13 +252,16 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	ftnmsgid(p,&fmsg->reply_a, &fmsg->reply_n,fmsg->area);
 
 //Griffin
-	fmsg->reply_s=calloc(256,sizeof(char));
-	findorigmsg(p,fmsg->reply_s);
+	fmsg->reply_s = calloc(256,sizeof(char));
 
-	fmsg->to->name=calloc(strlen(Msg.From)+1,sizeof(char));
-	strcpy(fmsg->to->name,Msg.From);
-	Syslog('m', "fmsg to-name %s",fmsg->to->name);
-	Syslog('m', "reply_s %s",fmsg->reply_s);
+	if (findorigmsg(p, fmsg->reply_s)) {
+	    fmsg->to->name = calloc(strlen(Msg.From)+1, sizeof(char));
+	    strcpy(fmsg->to->name, Msg.From);
+	    Syslog('m', "fmsg to-name %s", fmsg->to->name);
+	    Syslog('m', "reply_s %s", fmsg->reply_s);
+	} else {
+	    Syslog('m', "findorigmsg nothing found");
+	}
 
 	if (!chkftnmsgid(p)) {
 	    hash_update_s(&fmsg->reply_n, fmsg->area);
@@ -318,6 +321,11 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    } else {
 		charset = xstrcpy(q + 8);
 	    }
+	    /* 
+	     * Sometimes more information follows so there the charset looks like iso-8859-1;
+	     */
+	    if (charset[strlen(charset)-1] == ';')
+		charset[strlen(charset)-1] = '\0';
 	    Syslog('m', "Charset \"%s\"", printable(charset, 0));
 	}
     }

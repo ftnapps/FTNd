@@ -59,6 +59,7 @@ alias	amiga		iso-8859-1
 alias	ibmpc		cp437
 alias	pc-8		cp437
 alias	mac		mac
+alias	macinstosh	mac
 
 
 # ----------------------------------------------------------------------------

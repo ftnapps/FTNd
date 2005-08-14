@@ -141,7 +141,7 @@ char *getrfcchrs(int val)
 	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
 	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
 	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
-	case FTNC_MAC:      return (char *)"MAC 2";
+	case FTNC_MAC:      return (char *)"Macintosh";
 	case FTNC_KOI8_R:   return (char *)"koi8-r";
 	case FTNC_CP936:    return (char *)"hz-gb-2312";
 	default:            return (char *)"iso-8859-1";
@@ -465,6 +465,7 @@ int charset_set_in_out(char *in, char *out)
         if (strcasecmp(pa->alias, out) == 0)
             out = pa->name;
     }
+    Syslog('m', "charset: aliases in=%s out=%s", in, out);
 
     /* Search for matching table */
     for (pt = charset_table_list; pt; pt=pt->next) {
