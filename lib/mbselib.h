@@ -1387,7 +1387,7 @@ struct msgareas {
 	time_t		LastRcvd;		/* Last time msg received   */
 	time_t		LastPosted;		/* Last time msg posted	    */
 	char		Newsgroup[81];		/* Newsgroup/Mailinglist    */
-	char		Distribution[17];	/* Ng distribution	    */
+	char		xDistribution[17];	/* Ng distribution	    */
 	char		xModerator[65];
 	int		xRfccode;
 	int		Charset;		/* FTN characterset	    */
