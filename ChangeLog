@@ -5,6 +5,10 @@ v0.71.4		12-Aug-2005
 	mbselib.a:
 		Removed some debug logging.
 
+	msgbase.a:
+		Fixed JAM pack function, the lastread pointers could be wrong
+		if the last messages of an area were deleted.
+
 	mbfido:
 		Added extra debug logging to trace an SIGSEG when forwarding
 		files.
