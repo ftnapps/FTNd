@@ -1285,7 +1285,7 @@ TrType binkp_receiver(void)
 		    bp.RxState = RxDone;
 		    return Failure;
 		} else {
-//		    Syslog('b', "Binkp: %d bytes of data decompressed to %d", nput, zavail);
+		    Syslog('b', "Binkp: %d bytes of data decompressed to %d", nput, zavail);
 		}
 		if (zavail != 0 && fwrite(zbuf, zavail, 1, bp.rxfp) < 1) {
 		    Syslog('+', "$Binkp: write error");
@@ -1300,7 +1300,7 @@ TrType binkp_receiver(void)
 		bp.rxcompressed += zavail - nput;
 	    }
 	    bp.blklen = written;    /* Correct physical to virtual blocklength */
-//	    Syslog('b', "Binkp: set bp.blklen %d rc=%d", written, rc1);
+	    Syslog('b', "Binkp: set bp.blklen %d rc=%d", written, rc1);
 	    if (rc1 == 1) {
 		if ((rc1 = decompress_deinit(bp.rmode, bp.z_idata)) < 0)
 		    Syslog('+', "Binkp: decompress_deinit retcode %d", rc1);
