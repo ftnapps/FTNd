@@ -164,7 +164,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	sprintf(currentgroup, "%s", msgs.Newsgroup);
     } else
 	email_in++;
-
+    
     if (!CFG.allowcontrol) {
 	if (hdr((char *)"Control",msg)) {
 	    Syslog('+', "Rfc2ftn: Control message skipped");
@@ -172,13 +172,13 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    return 1;
 	}
     }
-
+    
     if ((fmsg = mkftnhdr(msg, newsmode, recipient)) == NULL) {
 	WriteError("Rfc2ftn: unable to create FTN headers from RFC ones, aborting");
 	tidyrfc(msg);
 	return 1;
     }
-
+    
     if (newsmode)
 	fmsg->area = xstrcpy(msgs.Tag);
     svmsgid = fmsg->msgid_n;
@@ -200,7 +200,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    hash_update_s(&fmsg->reply_n, fmsg->area);
 	}
     }
-
+    
     chkftnmsgid(hdr((char *)"Message-ID",msg)); // ??
     removemime       = FALSE;
     removemsgid      = FALSE;
@@ -209,11 +209,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     removereplyto    = TRUE;
     removereturnto   = TRUE;
     ftnorigin = fmsg->ftnorigin;
-
+    
     q = hdr((char *)"Content-Transfer-Encoding",msg);
     if (q) 
 	while (*q && isspace(*q)) 
 	    q++;
+
     if (!(q)) 
 	q = (char *)"8bit"; 
     if ((p = hdr((char *)"Content-Type",msg))) {
@@ -230,20 +231,22 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 
 	q = strtok(p, " \n\0");
 	q = strtok(NULL, "; \n\0");
-	while (*q && isspace(*q))
-	    q++;
-	Syslog('m', "charset part: %s", printable(q, 0));
-	if (q && (strncasecmp(q, "charset=", 8) == 0)) {
-	    /*
-	     * google.com quotes the charset name
-	     */
-	    if (strchr(q, '"')) {
-		charset = xstrcpy(q + 9);
-		charset[strlen(charset)-1] = '\0';
-	    } else {
-		charset = xstrcpy(q + 8);
+	if (q) {
+	    while (*q && isspace(*q))
+		q++;
+	    Syslog('m', "charset part: %s", printable(q, 0));
+	    if (q && (strncasecmp(q, "charset=", 8) == 0)) {
+		/*
+		 * google.com quotes the charset name
+		 */
+		if (strchr(q, '"')) {
+		    charset = xstrcpy(q + 9);
+		    charset[strlen(charset)-1] = '\0';
+		} else {
+		    charset = xstrcpy(q + 8);
+		}
+		Syslog('m', "Charset \"%s\"", printable(charset, 0));
 	    }
-	    Syslog('m', "Charset \"%s\"", printable(charset, 0));
 	}
     }
 
