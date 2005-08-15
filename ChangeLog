@@ -19,6 +19,7 @@ v0.71.4		12-Aug-2005
 		Reinstalled charset translation on the gateway. Changed the
 		way how FTN kludges are translated to RFC headers.
 		Dropped support for newsgroup distribution.
+		In tic processing changed pointer type for seenby lists.
 
 	mbsebbs:
 		Fixed headerlines for posting news.

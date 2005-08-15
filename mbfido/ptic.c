@@ -4,7 +4,7 @@
  * Purpose ...............: Process 1 .tic file
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -65,7 +65,7 @@ extern	int	check_dupe;
  * 1 - Some error
  * 2 - Orphaned tic
  */
-int ProcessTic(fa_list *sbl)
+int ProcessTic(fa_list **sbl)
 {
     time_t	    Now, Fdate;
     int		    Age, First, Listed = FALSE, DownLinks = 0, MustRearc = FALSE;
@@ -304,11 +304,11 @@ int ProcessTic(fa_list *sbl)
 	    DownLinks++;
 	    p_from = fido2faddr(Link.aka);
 	    if (TIC.TicIn.Hatch) {
-		fill_qualify(&qal, Link.aka, FALSE, in_list(p_from, &sbl, TRUE));
+		fill_qualify(&qal, Link.aka, FALSE, in_list(p_from, sbl, TRUE));
 	    } else {
 		fill_qualify(&qal, Link.aka, ((TIC.Aka.zone == Link.aka.zone) &&
 			(TIC.Aka.net == Link.aka.net) && (TIC.Aka.node == Link.aka.node) &&
-			(TIC.Aka.point == Link.aka.point)), in_list(p_from, &sbl, TRUE));
+			(TIC.Aka.point == Link.aka.point)), in_list(p_from, sbl, TRUE));
 	    }
 	    tidy_faddr(p_from);
 	}
@@ -702,9 +702,9 @@ int ProcessTic(fa_list *sbl)
 	for (i = 0; i < 40; i++) {
 	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
 		p_from = fido2faddr(CFG.aka[i]);
-		if (! in_list(p_from, &sbl, TRUE)) {
+		if (! in_list(p_from, sbl, TRUE)) {
 		    sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
-		    fill_list(&sbl, sbe, NULL);
+		    fill_list(sbl, sbe, NULL);
 		}
 		tidy_faddr(p_from);
 	    }
@@ -716,26 +716,24 @@ int ProcessTic(fa_list *sbl)
 	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
 	    if (tmpq->send) {
 		sprintf(sbe, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
-		fill_list(&sbl, sbe, NULL);
+		fill_list(sbl, sbe, NULL);
 	    } else {
 		Syslog('f', "Skip SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
 	    }
 	}
-	uniq_list(&sbl);
-	sort_list(&sbl);
+	uniq_list(sbl);
+	sort_list(sbl);
 	
 	/*
 	 * Now forward this file to the qualified downlinks.
 	 */
 	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
 	    if (tmpq->send) {
-		ForwardFile(tmpq->aka, sbl);
+		ForwardFile(tmpq->aka, *sbl);
 		tic_out++;
 	    }
 	}
     }
-
-    Syslog('f', "ProcessTic: post processing start");
 
     Magic_ExecCommand();
     Magic_CopyFile();

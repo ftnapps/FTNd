@@ -4,7 +4,7 @@
  * Purpose ...............: Process .tic files
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -483,8 +483,10 @@ int LoadTic(char *inb, char *tfn)
     free(Buf);
 
     tic_in++;
-    rc = ProcessTic(sbl);
+    rc = ProcessTic(&sbl);
+    Syslog('f', "back from ProcessTic");
     tidy_falist(&sbl);
+    Syslog('f', "tidy_falist(&sbl) done");
 
     return rc;
 }
