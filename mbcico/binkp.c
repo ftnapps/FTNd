@@ -180,9 +180,6 @@ struct binkprec {
 
     int			buggyIrex;		/* Buggy Irex detected		    */
 
-    void		*z_idata;		/* Data for zstream		    */
-    void		*z_odata;		/* Data for zstream		    */
-    char		*z_obuf;		/* Compression buffer		    */
     int			txcpos;			/* Transmitter compressed position  */
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB2_H)
     int			extcmd;			/* EXTCMD flag			    */
@@ -196,6 +193,9 @@ struct binkprec {
 };
 
 
+void	*z_idata = NULL;			/* Data for zstream                 */
+void	*z_odata = NULL;			/* Data for zstream                 */
+char	*z_obuf;				/* Compression buffer               */
 
 struct binkprec	bp;				/* Global structure		    */
 
@@ -260,7 +260,7 @@ int binkp(int role)
 	bp.PLZflag = No;
     else
 	bp.PLZflag = WeCan;
-    bp.z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
+    z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     if (localoptions & NOGZBZ2)
 	bp.GZflag = No;
     else
@@ -320,12 +320,12 @@ binkpend:
     if (bp.ropts)
 	free(bp.ropts);
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
-    if ((bp.rmode != CompNone) && bp.z_idata)
-	decompress_deinit(bp.rmode, bp.z_idata);
-    if ((bp.tmode != CompNone) && bp.z_odata)
-	compress_deinit(bp.tmode, bp.z_odata);
-    if (bp.z_obuf)
-	free(bp.z_obuf);
+    if ((bp.rmode != CompNone) && z_idata)
+	decompress_deinit(bp.rmode, z_idata);
+    if ((bp.tmode != CompNone) && z_odata)
+	compress_deinit(bp.tmode, z_odata);
+    if (z_obuf)
+	free(z_obuf);
 #endif
     rc = abs(rc);
 
@@ -1106,9 +1106,9 @@ TrType binkp_receiver(void)
         }
     } else if (bp.RxState == RxAccF) {
 	
-	if (((bp.rmode == CompGZ) || (bp.rmode == CompBZ2)) && bp.z_idata) {
-	    decompress_deinit(bp.rmode, bp.z_idata);
-	    bp.z_idata = NULL;
+	if (((bp.rmode == CompGZ) || (bp.rmode == CompBZ2)) && z_idata) {
+	    decompress_deinit(bp.rmode, z_idata);
+	    z_idata = NULL;
 	}
 
 	bp.rmode = CompNone;
@@ -1269,9 +1269,9 @@ TrType binkp_receiver(void)
 	     */
 Syslog('b', "enter receive stream");
 	    
-	    if (bp.z_idata == NULL) {
+	    if (z_idata == NULL) {
 Syslog('b', "decompress_init begins");
-		if (decompress_init(bp.rmode, &bp.z_idata)) {
+		if (decompress_init(bp.rmode, z_idata)) {
 		    Syslog('+', "Binkp: can't init decompress");
 		    bp.RxState = RxDone;
 		    return Failure;
@@ -1281,7 +1281,7 @@ Syslog('b', "decompress_init begins");
 	    while (nget) {
 		zavail = ZBLKSIZE;
 		nput = nget;
-		rc1 = do_decompress(bp.rmode, zbuf, &zavail, buf, &nput, bp.z_idata);
+		rc1 = do_decompress(bp.rmode, zbuf, &zavail, buf, &nput, z_idata);
 		if (rc1 < 0) {
 		    Syslog('+', "Binkp: decompress %s error %d", bp.rname, rc1);
 		    bp.RxState = RxDone;
@@ -1291,8 +1291,8 @@ Syslog('b', "decompress_init begins");
 		}
 		if (zavail != 0 && fwrite(zbuf, zavail, 1, bp.rxfp) < 1) {
 		    Syslog('+', "$Binkp: write error");
-		    decompress_abort(bp.rmode, bp.z_idata);
-		    bp.z_idata = NULL;
+		    decompress_abort(bp.rmode, z_idata);
+		    z_idata = NULL;
 		    bp.RxState = RxDone;
 		    return Failure;
 		}
@@ -1304,11 +1304,11 @@ Syslog('b', "decompress_init begins");
 	    bp.blklen = written;    /* Correct physical to virtual blocklength */
 //	    Syslog('b', "Binkp: set bp.blklen %d rc=%d", written, rc1);
 	    if (rc1 == 1) {
-		if ((rc1 = decompress_deinit(bp.rmode, bp.z_idata)) < 0)
+		if ((rc1 = decompress_deinit(bp.rmode, z_idata)) < 0)
 		    Syslog('+', "Binkp: decompress_deinit retcode %d", rc1);
 		else
 		    Syslog('b', "Binkp: decompress_deinit done");
-		bp.z_idata = NULL;
+		z_idata = NULL;
 	    }
 	} else {
 	    written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
@@ -1485,7 +1485,7 @@ TrType binkp_transmitter(void)
 		
 		if ((tmp->compress == CompGZ) || (tmp->compress == CompBZ2)) {
 		    bp.tmode = tmp->compress;
-		    if ((rc1 = compress_init(bp.tmode, &bp.z_odata))) {
+		    if ((rc1 = compress_init(bp.tmode, z_odata))) {
 			Syslog('+', "Binkp: compress_init failed (rc=%d)", rc1);
 			tmp->compress = CompNone;
 			bp.tmode = CompNone;
@@ -1567,9 +1567,9 @@ TrType binkp_transmitter(void)
 		    nget = ZBLKSIZE;
 		fleft = bp.tfsize - ftell(bp.txfp);
 		fseek(bp.txfp, bp.txpos, SEEK_SET);
-		nget = fread(bp.z_obuf, 1, nget, bp.txfp);
+		nget = fread(z_obuf, 1, nget, bp.txfp);
 //		Syslog('b', "Binkp: fread pos=%d nget=%d ocnt=%d", bp.txpos, nget, ocnt);
-		rc2 = do_compress(bp.tmode, bp.txbuf + nput, &ocnt, bp.z_obuf, &nget, fleft ? 0 : 1, bp.z_odata);
+		rc2 = do_compress(bp.tmode, bp.txbuf + nput, &ocnt, z_obuf, &nget, fleft ? 0 : 1, z_odata);
 		Syslog('b', "Binkp: do_compress ocnt=%d nget=%d fleft=%d rc=%d", ocnt, nget, fleft, rc2);
 		if (rc2 == -1) {
 		    Syslog('+', "Binkp: compression error rc=%d", rc2);
@@ -1652,8 +1652,8 @@ TrType binkp_transmitter(void)
 	    }
 
 	    if ((bp.tmode == CompBZ2) || (bp.tmode == CompGZ)) {
-		compress_deinit(bp.tmode, bp.z_odata);
-		bp.z_odata = NULL;
+		compress_deinit(bp.tmode, z_odata);
+		z_odata = NULL;
 		bp.tmode = CompNone;
 		Syslog('b', "Binkp: compress_deinit done");
 	    }
