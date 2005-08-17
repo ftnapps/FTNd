@@ -4,7 +4,7 @@
  * Purpose ...............: Read fidonet .pkt header
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -65,7 +65,7 @@ int getheader(faddr *f, faddr *t, FILE *pkt, char *pname, int session)
      * Read type 2+ packet header, see FSC-0039 version 4 and FTS-0001
      */
     if (fread(buffer, 1, 0x3a, pkt) != 0x3a) {
-	WriteError("$Could not read header (%s)", pname);
+	WriteError("Could not read header (%s)", pname);
 	return 2;
     }
     if ((buffer[0x12] + (buffer[0x13] << 8)) != 2) {
