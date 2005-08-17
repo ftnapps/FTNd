@@ -287,6 +287,7 @@ int TossPkt(char *fn)
 				(rc == 3)?"packet is not for us":
 				(rc == 4)?"bad password":
 				"bad packet");
+		fclose(pkt);
 		return(rc);
 	}
 
