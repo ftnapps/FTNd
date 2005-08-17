@@ -108,11 +108,11 @@ struct timeval      rxtvend;			/* Receiver end time                */
 
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
 
-int compress_init(int type, void **data);
+int compress_init(int type);
 int do_compress(int type, char *dst, int *dst_len, char *src, int *src_len, int finish, void *data);
 void compress_deinit(int type, void *data);
 void compress_abort(int type, void *data);
-int decompress_init(int type, void **data);
+int decompress_init(int type);
 int do_decompress(int type, char *dst, int *dst_len, char *src, int *src_len, void *data);
 int decompress_deinit(int type, void *data);
 int decompress_abort(int type, void *data);
@@ -1271,7 +1271,7 @@ Syslog('b', "enter receive stream");
 	    
 	    if (z_idata == NULL) {
 Syslog('b', "decompress_init begins");
-		if (decompress_init(bp.rmode, z_idata)) {
+		if (decompress_init(bp.rmode)) {
 		    Syslog('+', "Binkp: can't init decompress");
 		    bp.RxState = RxDone;
 		    return Failure;
@@ -1485,7 +1485,7 @@ TrType binkp_transmitter(void)
 		
 		if ((tmp->compress == CompGZ) || (tmp->compress == CompBZ2)) {
 		    bp.tmode = tmp->compress;
-		    if ((rc1 = compress_init(bp.tmode, z_odata))) {
+		    if ((rc1 = compress_init(bp.tmode))) {
 			Syslog('+', "Binkp: compress_init failed (rc=%d)", rc1);
 			tmp->compress = CompNone;
 			bp.tmode = CompNone;
@@ -2721,32 +2721,32 @@ void binkp_clear_filelist(int rc)
  */
 
 
-int compress_init(int type, void **data)
+int compress_init(int type)
 {
     int	    lvl;
 
     switch (type) {
 #ifdef HAVE_BZLIB_H
 	case CompBZ2: {
-	    *data = calloc(1, sizeof(bz_stream));
-	    if (*data == NULL) {
+	    z_odata = calloc(1, sizeof(bz_stream));
+	    if (z_odata == NULL) {
 		Syslog('+', "Binkp: compress_init: not enough memory (%lu needed)", sizeof(bz_stream));
 		return BZ_MEM_ERROR;
 	    }
 	    lvl = 1; /* default is small (100K) buffer */
-	    return BZ2_bzCompressInit((bz_stream *)*data, lvl, 0, 0);
+	    return BZ2_bzCompressInit((bz_stream *)z_odata, lvl, 0, 0);
 	}
 #endif
 #ifdef HAVE_ZLIB_H
 	case CompGZ: {
-	    *data = calloc(1, sizeof(z_stream));
-	    if (*data == NULL) {
+	    z_odata = calloc(1, sizeof(z_stream));
+	    if (z_odata == NULL) {
 		Syslog('+', "Binkp: compress_init: not enough memory (%lu needed)", sizeof(z_stream));
 		return Z_MEM_ERROR;
 	    }
 	    lvl = 9; /* Maximum compression */
 	    if (lvl <= 0) lvl = Z_DEFAULT_COMPRESSION;
-		return deflateInit((z_stream *)*data, lvl);
+		return deflateInit((z_stream *)z_odata, lvl);
 	}
 #endif
 	default:
@@ -2847,30 +2847,30 @@ void compress_abort(int type, void *data)
 
 
 
-int decompress_init(int type, void **data)
+int decompress_init(int type)
 {
     switch (type) {
 #ifdef HAVE_BZLIB_H
 	case CompBZ2: {
-	    *data = calloc(1, sizeof(bz_stream));
-	    if (*data == NULL) {
+	    z_idata = calloc(1, sizeof(bz_stream));
+	    if (z_idata == NULL) {
 		Syslog('+', "Binkp: decompress_init: not enough memory (%lu needed)", sizeof(bz_stream));
 		return BZ_MEM_ERROR;
 	    }
-	    return BZ2_bzDecompressInit((bz_stream *)*data, 0, 0);
+	    return BZ2_bzDecompressInit((bz_stream *)z_idata, 0, 0);
 	}
 #endif
 #ifdef HAVE_ZLIB_H
 	case CompGZ: {
 Syslog('b', "init start %d", sizeof(z_stream));
-	    *data = calloc(1, sizeof(z_stream));
+	    z_idata = calloc(1, sizeof(z_stream));
 Syslog('b', "data calloc done");
-	    if (*data == NULL) {
+	    if (z_idata == NULL) {
 		Syslog('+', "Binkp: decompress_init: not enough memory (%lu needed)", sizeof(z_stream));
 		return Z_MEM_ERROR;
 	    }
 Syslog('b', "begin inflateInit");
-	    return inflateInit((z_stream *)*data);
+	    return inflateInit((z_stream *)z_idata);
 	}
 #endif
 	default:
