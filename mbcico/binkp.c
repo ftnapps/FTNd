@@ -1036,6 +1036,9 @@ TrType binkp_receiver(void)
     struct statfs   sfs;
     long	    written;
     off_t	    rxbytes;
+            int rc1 = 0, nget = bp.blklen, zavail, nput;
+            char zbuf[ZBLKSIZE];
+            char *buf = bp.rxbuf;
 
     if (bp.RxState == RxWaitF) {
 
@@ -1264,11 +1267,10 @@ TrType binkp_receiver(void)
 	    /*
 	     * Receive stream compressed data
 	     */
-	    int rc1 = 0, nget = bp.blklen, zavail, nput;
-	    char zbuf[ZBLKSIZE];
-	    char *buf = bp.rxbuf;
-
+Syslog('b', "enter receive stream");
+	    
 	    if (bp.z_idata == NULL) {
+Syslog('b', "decompress_init begins");
 		if (decompress_init(bp.rmode, &bp.z_idata)) {
 		    Syslog('+', "Binkp: can't init decompress");
 		    bp.RxState = RxDone;
@@ -2860,11 +2862,14 @@ int decompress_init(int type, void **data)
 #endif
 #ifdef HAVE_ZLIB_H
 	case CompGZ: {
+Syslog('b', "init start %d", sizeof(z_stream));
 	    *data = calloc(1, sizeof(z_stream));
+Syslog('b', "data calloc done");
 	    if (*data == NULL) {
 		Syslog('+', "Binkp: decompress_init: not enough memory (%lu needed)", sizeof(z_stream));
 		return Z_MEM_ERROR;
 	    }
+Syslog('b', "begin inflateInit");
 	    return inflateInit((z_stream *)*data);
 	}
 #endif
