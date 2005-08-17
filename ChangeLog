@@ -20,6 +20,8 @@ v0.71.4		12-Aug-2005
 		way how FTN kludges are translated to RFC headers.
 		Dropped support for newsgroup distribution.
 		In tic processing changed pointer type for seenby lists.
+		Fixed running out of file descriptors when there are lots of
+		bad mailpackets.
 
 	mbsebbs:
 		Fixed headerlines for posting news.
@@ -27,6 +29,10 @@ v0.71.4		12-Aug-2005
 
 	mbnntp:
 		Improved charset detection.
+
+	mbcico:
+		Changed compression init functions to fix mysterious crashes
+		on some systems.
 
 	mbsetup:
 		Dropped support for newsgroup distribution.
