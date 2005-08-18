@@ -966,11 +966,15 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	free(p);
     }
 
-//    if (p) 
-//	sprintf(temp,"X-FTN-Sender: %s\n", ascinode(f,0xff));
-//    else 
-//	sprintf(temp,"From: %s\n", ascinode(f,0xff));
-//    Send(newsmode, temp);
+    /*
+     * If post was done with an external editor that doesn't supply
+     * From: (some GoldED versions, not all) then add one here.
+     */
+    if (p) 
+	sprintf(temp,"X-FTN-Sender: %s\n", ascinode(f,0xff));
+    else 
+	sprintf(temp,"From: %s\n", ascinode(f,0xff));
+    Send(newsmode, temp);
 
     if ((p=hdr((char *)"Reply-To",msg))) {
 	sprintf(temp,"Reply-To:%s",p);
