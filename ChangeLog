@@ -1,6 +1,9 @@
 $Id$
 
-v0.71.4		12-Aug-2005
+v0.71.5		18-Aug-2005
+
+
+v0.71.4		12-Aug-2005 - 18-Aug-2005
 
 	mbselib.a:
 		Removed some debug logging.
