@@ -2,6 +2,12 @@ $Id$
 
 v0.71.5		18-Aug-2005
 
+	mbfido:
+		Removed debug logging for solved crash.
+
+	mbdiff:
+		Code cleanup.
+
 
 v0.71.4		12-Aug-2005 - 18-Aug-2005
 

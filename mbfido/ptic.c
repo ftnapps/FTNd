@@ -610,7 +610,7 @@ int ProcessTic(fa_list **sbl)
 	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
 	    sprintf(Temp, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);
 	    if (execute_str(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
-		WriteError("$Changing the banner failed");
+		WriteError("Changing the banner failed");
 	    } else {
 		Syslog('+', "New banner %s", tic.Banner);
 		TIC.FileSize = file_size(temp1);
@@ -717,8 +717,6 @@ int ProcessTic(fa_list **sbl)
 	    if (tmpq->send) {
 		sprintf(sbe, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
 		fill_list(sbl, sbe, NULL);
-	    } else {
-		Syslog('f', "Skip SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
 	    }
 	}
 	uniq_list(sbl);
@@ -746,7 +744,6 @@ int ProcessTic(fa_list **sbl)
 
     free(Temp);
     tidy_qualify(&qal);
-    Syslog('f', "ProcessTic: post processing end");
     return 0;
 }
 

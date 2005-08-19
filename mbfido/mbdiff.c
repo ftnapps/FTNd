@@ -5,7 +5,7 @@
  * Original ideas ........: Eugene G. Crosser.
  * 
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -55,55 +55,55 @@ time_t		t_end;			/* End time			    */
 
 void ProgName(void)
 {
-	if (do_quiet)
-		return;
+    if (do_quiet)
+	return;
 
-	mbse_colour(15, 0);
-	printf("\nMBDIFF: MBSE BBS %s Nodelist diff processor\n", VERSION);
-	mbse_colour(14, 0);
-	printf("        %s\n", COPYRIGHT);
+    mbse_colour(15, 0);
+    printf("\nMBDIFF: MBSE BBS %s Nodelist diff processor\n", VERSION);
+    mbse_colour(14, 0);
+    printf("        %s\n", COPYRIGHT);
 }
 
 
 
 void die(int onsig)
 {
+    /*
+     * First check if a child is running, if so, kill it.
+     */
+    if (e_pid) {
+	if ((kill(e_pid, SIGTERM)) == 0)
+	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
+	else {
+	    if ((kill(e_pid, SIGKILL)) == 0)
+		Syslog('+', "SIGKILL to pid %d succeded", e_pid);
+	    else
+		WriteError("$Failed to kill pid %d", e_pid);
+	}
+
 	/*
-	 * First check if a child is running, if so, kill it.
+	 * In case the child had the tty in raw mode...
 	 */
-	if (e_pid) {
-		if ((kill(e_pid, SIGTERM)) == 0)
-			Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
-		else {
-			if ((kill(e_pid, SIGKILL)) == 0)
-				Syslog('+', "SIGKILL to pid %d succeded", e_pid);
-			else
-				WriteError("$Failed to kill pid %d", e_pid);
-		}
+	execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    }
 
-		/*
-		 * In case the child had the tty in raw mode...
-		 */
-		execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-	}
+    signal(onsig, SIG_IGN);
 
-	signal(onsig, SIG_IGN);
+    if (onsig) {
+	if (onsig <= NSIG)
+	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
+	else
+	    WriteError("Terminated with error %d", onsig);
+    }
 
-	if (onsig) {
-		if (onsig <= NSIG)
-			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-		else
-			WriteError("Terminated with error %d", onsig);
-	}
+    t_end = time(NULL);
+    Syslog(' ', "MBDIFF finished in %s", t_elapsed(t_start, t_end));
 
-	t_end = time(NULL);
-	Syslog(' ', "MBDIFF finished in %s", t_elapsed(t_start, t_end));
-
-	if (!do_quiet) {
-		mbse_colour(7, 0);
-		printf("\n");
-	}
-	ExitClient(onsig);
+    if (!do_quiet) {
+	mbse_colour(7, 0);
+	printf("\n");
+    }
+    ExitClient(onsig);
 }
 
 
@@ -252,9 +252,9 @@ int main(int argc, char **argv)
      */
     if ((arc = unpacker(nd)) == NULL) {
 	show_log = TRUE;
+	WriteError("Can't get filetype for %s", nd);
 	free(onl);
 	free(wrk);
-	WriteError("Can't get filetype for %s", nd);
 	die(MBERR_CONFIG_ERROR);
     }
 
@@ -290,18 +290,13 @@ int main(int argc, char **argv)
 	}
 
 	if (execute_str(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
-	    WriteError("Warning: unpack error, trying again after a sync");
-	    sync();
-	    sleep(1);
-	    if (execute_str(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
-		show_log = TRUE;
-		free(cmd);
-		free(onl);
-		free(wrk);
-		free(ond);
-		WriteError("Fatal: unpack error");
-		die(MBERR_EXEC_FAILED);
-	    }
+	    show_log = TRUE;
+	    free(cmd);
+	    free(onl);
+	    free(wrk);
+	    free(ond);
+	    WriteError("Fatal: unpack error");
+	    die(MBERR_EXEC_FAILED);
 	}
 	free(cmd);
 
@@ -339,7 +334,6 @@ int main(int argc, char **argv)
 	    WriteError("Copy %s failed, %s", nd, strerror(rc));
 	    die(MBERR_DIFF_ERROR);
 	}
-	Syslog('s', "Copied %s", nd);
     }
 
     if (((p = strrchr(onl, '.'))) && ((q = strrchr(ond, '.'))) && (strlen(p) == strlen(q))) {

@@ -484,9 +484,7 @@ int LoadTic(char *inb, char *tfn)
 
     tic_in++;
     rc = ProcessTic(&sbl);
-    Syslog('f', "back from ProcessTic");
     tidy_falist(&sbl);
-    Syslog('f', "tidy_falist(&sbl) done");
 
     return rc;
 }
