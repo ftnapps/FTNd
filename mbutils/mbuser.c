@@ -4,7 +4,7 @@
  * Purpose ...............: User Pack Util
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
     oldmask = umask(027);
     if (!do_quiet)
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
     UserPack(Days, Level, pack);
     umask(oldmask);
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     Syslog(' ', "MBUSER finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet)
-	mbse_colour(7, 0);
+	mbse_colour(LIGHTGRAY, BLACK);
     ExitClient(MBERR_OK);
     return 0;
 }
@@ -132,38 +132,38 @@ int main(int argc, char **argv)
  */
 void ProgName(void)
 {
-	if (do_quiet)
-		return;
+    if (do_quiet)
+	return;
 
-	mbse_colour(15, 0);
-	printf("\nMBUSER: MBSE BBS %s - User maintenance utility\n", VERSION);
-	mbse_colour(14, 0);
-	printf("        %s\n\n", COPYRIGHT);
-	mbse_colour(7, 0);
+    mbse_colour(WHITE, BLACK);
+    printf("\nMBUSER: MBSE BBS %s - User maintenance utility\n", VERSION);
+    mbse_colour(YELLOW, BLACK);
+    printf("        %s\n\n", COPYRIGHT);
+    mbse_colour(LIGHTGRAY, BLACK);
 }
 
 
 
 void Help(void)
 {
-	do_quiet = FALSE;
-	ProgName();
+    do_quiet = FALSE;
+    ProgName();
 
-	mbse_colour(11, 0);
-	printf("\nUsage:	mbuser [commands] <options>\n\n");
-	mbse_colour(9, 0);
-	printf("	Commands are:\n\n");
-	mbse_colour(3, 0);
-	printf("	kill [n] [l]	Kill users not called in \"n\" days below level \"l\"\n");
-	printf("	pack		Pack the userbase\n");
-	mbse_colour(9, 0);
-	printf("\n	Options are:\n\n");
-	mbse_colour(3, 0);
-	printf("	-quiet		Quiet mode, (no screen output)\n\n");
+    mbse_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	mbuser [commands] <options>\n\n");
+    mbse_colour(LIGHTBLUE, BLACK);
+    printf("	Commands are:\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("	kill [n] [l]	Kill users not called in \"n\" days below level \"l\"\n");
+    printf("	pack		Pack the userbase\n");
+    mbse_colour(LIGHTBLUE, BLACK);
+    printf("\n	Options are:\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("	-quiet		Quiet mode, (no screen output)\n\n");
 
-	mbse_colour(7, 0);
-	printf("\n");
-	ExitClient(MBERR_COMMANDLINE);
+    mbse_colour(LIGHTGRAY, BLACK);
+    printf("\n");
+    ExitClient(MBERR_COMMANDLINE);
 }
 
 
@@ -173,224 +173,219 @@ void Help(void)
  */
 void UserPack(int days, int level, int pack)
 {
-	FILE	*fin, *fout;
-	char	*fnin, *fnout;
-	long	oldsize, curpos;
-	int	updated, delete = 0, rc, highest = 0, record = 0, sysop = FALSE;
-	time_t	Last;
-	char	*cmd;
+    FILE    *fin, *fout;
+    char    *fnin, *fnout, *cmd;
+    long    oldsize, curpos;
+    int	    updated, delete = 0, rc, highest = 0, record = 0, sysop = FALSE;
+    time_t  Last;
 
-	fnin  = calloc(PATH_MAX, sizeof(char));
-	fnout = calloc(PATH_MAX, sizeof(char));
-	sprintf(fnin,  "%s/etc/users.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    fnin  = calloc(PATH_MAX, sizeof(char));
+    fnout = calloc(PATH_MAX, sizeof(char));
+    sprintf(fnin,  "%s/etc/users.data", getenv("MBSE_ROOT"));
+    sprintf(fnout, "%s/etc/users.temp", getenv("MBSE_ROOT"));
 
-	/*
-	 * First copy the users database, all packing will be done
-	 * on a the copy.
-	 */
-	if ((fin = fopen(fnin, "r")) == NULL) {
-		WriteError("Can't open %s", fnin);
-		free(fnin);
-		free(fnout);
-		return;
-	}
-	if ((fout = fopen(fnout, "w+")) == NULL) {
-		WriteError("Can't create %s", fnout);
-		fclose(fin);
-                free(fnin);
-                free(fnout);
-		return;
-	}
-	fread(&usrhdr, sizeof(usrhdr), 1, fin);
-	oldsize = usrhdr.recsize;
-	updated = FALSE;
-
-	/*
-	 * First count records and blanks at the end. Check if the sysop name
-	 * in the main configuration exists in the userdatabase.
-	 */
-	while (fread(&usr, oldsize, 1,fin) == 1) {
-		delete++;
-		if (!usr.Deleted && strlen(usr.sUserName)) {
-			highest = (ftell(fin) / oldsize);
-			if (!strcmp(usr.sUserName, CFG.sysop_name) && !strcmp(usr.Name, CFG.sysop))
-				sysop = TRUE;
-		}
-	}
-	if (highest != delete) {
-		Syslog('+', "Blank records at the end, truncating userbase");
-		updated = TRUE;
-	}
-	if (!sysop)
-		WriteError("No valid Sysop Fidoname and/or Unixname found in userbase, check setup!");
-
-	fseek(fin, usrhdr.hdrsize, SEEK_SET);
-
-	if (oldsize != sizeof(usr)) {
-		updated = TRUE;
-		Syslog('+', "Userbase recordsize is changed, making update");
-	}
-
-	usrhdr.hdrsize = sizeof(usrhdr);
-	usrhdr.recsize = sizeof(usr);
-	fwrite(&usrhdr, sizeof(usrhdr), 1, fout);
-
-	/*
-	 * The datarecord is filled with zero's before each read
-	 * so that if the record format changed, the new fields will
-	 * be empty by default. The blank records at the end of the
-	 * database are dropped.
-	 */
-	memset(&usr, 0, sizeof(usr));
-	while (fread(&usr, oldsize, 1,fin) == 1) {
-		record++;
-		fwrite(&usr, sizeof(usr), 1, fout);
-		memset(&usr, 0, sizeof(usr));
-		if (CFG.slow_util && do_quiet)
-			msleep(1);
-		Nopper();
-	}
+    /*
+     * First copy the users database, all packing will be done
+     * on a the copy.
+     */
+    if ((fin = fopen(fnin, "r")) == NULL) {
+	WriteError("$Can't open %s", fnin);
+	free(fnin);
+	free(fnout);
+	return;
+    }
+    if ((fout = fopen(fnout, "w+")) == NULL) {
+	WriteError("$Can't create %s", fnout);
 	fclose(fin);
-	delete = 0;
+        free(fnin);
+        free(fnout);
+	return;
+    }
+    fread(&usrhdr, sizeof(usrhdr), 1, fin);
+    oldsize = usrhdr.recsize;
+    updated = FALSE;
 
-	/*
-	 * Handle packing for days below level
-	 */
-	if ((days) && (level)) {
-		fseek(fout, sizeof(usrhdr), SEEK_SET);
-		curpos = sizeof(usrhdr);
+    /*
+     * First count records and blanks at the end. Check if the sysop name
+     * in the main configuration exists in the userdatabase.
+     */
+    while (fread(&usr, oldsize, 1,fin) == 1) {
+	delete++;
+	if (!usr.Deleted && strlen(usr.sUserName)) {
+	    highest = (ftell(fin) / oldsize);
+	    if (!strcmp(usr.sUserName, CFG.sysop_name) && !strcmp(usr.Name, CFG.sysop))
+		sysop = TRUE;
+	}
+    }
+    if (highest != delete) {
+	Syslog('+', "Blank records at the end, truncating userbase");
+	updated = TRUE;
+    }
+    if (!sysop)
+	WriteError("No valid Sysop Fidoname and/or Unixname found in userbase, check setup!");
 
-		while (fread(&usr, sizeof(usr), 1, fout)  == 1) {
-			/*
-			 * New users don't have the last login date set yet,
-			 * use the registration date instead.
-			 */
-			if (usr.iTotalCalls == 0)
-			    Last = usr.tFirstLoginDate;
-			else
-			    Last = usr.tLastLoginDate;
+    fseek(fin, usrhdr.hdrsize, SEEK_SET);
 
-			/*
-			 * Wow, killing on the second exact!. Don't kill
-			 * the guest accounts.
-			 */
-			if ((((t_start - Last) / 86400) > days) &&
-			    (usr.Security.level < level) && (!usr.Guest) &&
+    if (oldsize != sizeof(usr)) {
+	updated = TRUE;
+	Syslog('+', "Userbase recordsize is changed, making update");
+    }
+
+    usrhdr.hdrsize = sizeof(usrhdr);
+    usrhdr.recsize = sizeof(usr);
+    fwrite(&usrhdr, sizeof(usrhdr), 1, fout);
+
+    /*
+     * The datarecord is filled with zero's before each read
+     * so that if the record format changed, the new fields will
+     * be empty by default. The blank records at the end of the
+     * database are dropped.
+     */
+    memset(&usr, 0, sizeof(usr));
+    while (fread(&usr, oldsize, 1,fin) == 1) {
+	record++;
+	fwrite(&usr, sizeof(usr), 1, fout);
+	memset(&usr, 0, sizeof(usr));
+	if (CFG.slow_util && do_quiet)
+	    msleep(1);
+	Nopper();
+    }
+    fclose(fin);
+    delete = 0;
+
+    /*
+     * Handle packing for days below level
+     */
+    if (days && level) {
+	fseek(fout, sizeof(usrhdr), SEEK_SET);
+	curpos = sizeof(usrhdr);
+
+	while (fread(&usr, sizeof(usr), 1, fout)  == 1) {
+	    /*
+	     * New users don't have the last login date set yet,
+	     * use the registration date instead.
+	     */
+	    if (usr.iTotalCalls == 0)
+		Last = usr.tFirstLoginDate;
+	    else
+		Last = usr.tLastLoginDate;
+
+	    /*
+	     * Wow, killing on the second exact!. Don't kill the guest accounts.
+	     */
+	    if ((((t_start - Last) / 86400) > days) && (usr.Security.level < level) && (!usr.Guest) &&
 			    (usr.sUserName[0] != '\0') && (!usr.NeverDelete)) {
-				Syslog('+', "Mark user %s", usr.sUserName);
-				if (!do_quiet) {
-					printf("Mark user %s\n", usr.sUserName);
-					fflush(stdout);
-				}
-				delete++;
-				updated = TRUE;
-				fseek(fout, - sizeof(usr), SEEK_CUR);
-				/*
-				 * Just mark for deletion
-				 */
-				usr.Deleted = TRUE;
-				fwrite(&usr, sizeof(usr), 1, fout);
-			}
-			if (CFG.slow_util && do_quiet)
-				msleep(1);
+		Syslog('+', "Mark user %s", usr.sUserName);
+		if (!do_quiet) {
+		    printf("Mark user %s\n", usr.sUserName);
+		    fflush(stdout);
 		}
-		Syslog('+', "Marked %d users to delete", delete);
- 	}
+		delete++;
+		updated = TRUE;
+		fseek(fout, - sizeof(usr), SEEK_CUR);
+		/*
+		 * Just mark for deletion
+		 */
+		usr.Deleted = TRUE;
+		fwrite(&usr, sizeof(usr), 1, fout);
+	    }
+	    if (CFG.slow_util && do_quiet)
+		msleep(1);
+	}
+	Syslog('+', "Marked %d users to delete", delete);
+    }
 
-	/*
-	 * Pack the userbase if told so
-	 */
-	if (pack) {
-		Syslog('+', "Packing userbase");
-		delete = 0;
-		fseek(fout, sizeof(usrhdr), SEEK_SET);
-		while (fread(&usr, sizeof(usr), 1, fout) == 1) {
-			if (CFG.slow_util && do_quiet)
-				msleep(1);
+    /*
+     * Pack the userbase if told so
+     */
+    if (pack) {
+	Syslog('+', "Packing userbase");
+	delete = 0;
+	fseek(fout, sizeof(usrhdr), SEEK_SET);
+	while (fread(&usr, sizeof(usr), 1, fout) == 1) {
+	    if (CFG.slow_util && do_quiet)
+		msleep(1);
 
-			Nopper();
-			if (usr.Deleted) {
-				if (!do_quiet) {
-					printf("Delete user %s\n", usr.Name);
-					fflush(stdout);
-				}
-				if (usr.Name[0] != '\0') {
-					if ((setuid(0) == -1) || (setgid(0) == -1)) {
-						WriteError("Cannot setuid(root) or setgid(root)");
-						WriteError("Cannot delete unix account %s", usr.Name);
-					} else {
+	    Nopper();
+	    if (usr.Deleted) {
+		if (!do_quiet) {
+		    printf("Delete user %s\n", usr.Name);
+		    fflush(stdout);
+		}
+		if (usr.Name[0] != '\0') {
+		    if ((setuid(0) == -1) || (setgid(0) == -1)) {
+			WriteError("Cannot setuid(root) or setgid(root)");
+			WriteError("Cannot delete unix account %s", usr.Name);
+		    } else {
 #ifndef __FreeBSD__
-						rc = execute_str((char *)"/usr/sbin/userdel ", usr.Name, NULL,
+			rc = execute_str((char *)"/usr/sbin/userdel ", usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 #else
-						rc = execute_str((char *)"/usr/sbin/pw userdel ", usr.Name, NULL,
+			rc = execute_str((char *)"/usr/sbin/pw userdel ", usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 #endif
 #ifdef _VPOPMAIL_PATH
-						cmd = xstrcpy((char *)_VPOPMAIL_PATH);
-						cmd = xstrcat(cmd, (char *)"/vdeluser ");
-						rc = execute_str(cmd, usr.Name, NULL,
-							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
-						free(cmd);
+			cmd = xstrcpy((char *)_VPOPMAIL_PATH);
+			cmd = xstrcat(cmd, (char *)"/vdeluser ");
+			rc = execute_str(cmd, usr.Name, NULL, (char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
+			free(cmd);
 #endif
-						if (chdir(CFG.bbs_usersdir) == 0) {
-						    cmd = xstrcpy((char *)"-Rf ");
-						    cmd = xstrcat(cmd, usr.Name);
-							rc = execute_pth((char *)"rm", cmd,
-								(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
-						    free(cmd);
-						}
-					}
-				}
-
-				fseek(fout, - sizeof(usr), SEEK_CUR);
-				/*
-				 * Blank the deleted records for reuse.
-				 */
-				memset(&usr, 0, sizeof(usr));
-				fwrite(&usr, sizeof(usr), 1, fout);
-				delete++;
-				updated = TRUE;
+			if (chdir(CFG.bbs_usersdir) == 0) {
+			    cmd = xstrcpy((char *)"-Rf ");
+			    cmd = xstrcat(cmd, usr.Name);
+			    rc = execute_pth((char *)"rm", cmd, (char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
+			    free(cmd);
 			}
+		    }
 		}
-		Syslog('+', "Deleted %d records", delete);
-	}
 
-	if (updated) {
+		fseek(fout, - sizeof(usr), SEEK_CUR);
 		/*
-		 *  Copy file back to the original file, truncate any
-		 *  deleted records at the end.
+		 * Blank the deleted records for reuse.
 		 */
-		fseek(fout, 0, SEEK_SET);
-		if ((fin = fopen(fnin, "w")) == NULL) {
-			WriteError("Can't open %s", fnin);
-			free(fnin);
-			free(fnout);
-			return;
-		}
-		fread(&usrhdr, sizeof(usrhdr), 1, fout);
-		fwrite(&usrhdr, sizeof(usrhdr), 1, fin);
-		record = 0;
-
-		while (fread(&usr, sizeof(usr), 1,fout) == 1) {
-			Nopper();
-			record++;
-			fwrite(&usr, sizeof(usr), 1, fin);
-			if (record >= highest)
-				break;
-		}
-		fclose(fin);
-		fclose(fout);
-		chmod(fnin, 0660);
-		Syslog('+', "Userbase is updated, written %d records", record);
-	} else {
-	    fclose(fout);
+		memset(&usr, 0, sizeof(usr));
+		fwrite(&usr, sizeof(usr), 1, fout);
+		delete++;
+		updated = TRUE;
+	    }
 	}
+	Syslog('+', "Deleted %d records", delete);
+    }
 
-	unlink(fnout);
-	free(fnin);
-	free(fnout);
+    if (updated) {
+	/*
+	 *  Copy file back to the original file, truncate any
+	 *  deleted records at the end.
+	 */
+	fseek(fout, 0, SEEK_SET);
+	if ((fin = fopen(fnin, "w")) == NULL) {
+	    WriteError("$Can't open %s", fnin);
+	    free(fnin);
+	    free(fnout);
+	    return;
+	}
+	fread(&usrhdr, sizeof(usrhdr), 1, fout);
+	fwrite(&usrhdr, sizeof(usrhdr), 1, fin);
+	record = 0;
+
+	while (fread(&usr, sizeof(usr), 1,fout) == 1) {
+	    Nopper();
+	    record++;
+	    fwrite(&usr, sizeof(usr), 1, fin);
+	    if (record >= highest)
+		break;
+	}
+	fclose(fin);
+	fclose(fout);
+	chmod(fnin, 0660);
+	Syslog('+', "Userbase is updated, written %d records", record);
+    } else {
+	fclose(fout);
+    }
+
+    unlink(fnout);
+    free(fnin);
+    free(fnout);
 }
 
 

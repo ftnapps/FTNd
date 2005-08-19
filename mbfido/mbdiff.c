@@ -438,7 +438,7 @@ void Help(void)
     printf("	directory.\n");
     mbse_colour(LIGHTBLUE, BLACK);
     printf("\n	Options are:\n\n");
-    mbse_colour(CYAN, BLAKC);
+    mbse_colour(CYAN, BLACK);
     printf("	-quiet		Quiet mode\n");
     mbse_colour(LIGHTGRAY, BLACK);
     printf("\n");

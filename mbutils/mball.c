@@ -4,7 +4,7 @@
  * Purpose ...............: Creates allfiles listings
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -49,13 +49,13 @@ struct		tm *l_date;		/* Structure for Date		*/
 
 void ProgName()
 {
-	if (do_quiet)
-		return;
+    if (do_quiet)
+	return;
 
-	mbse_colour(15, 0);
-	printf("\nMBALL: MBSE BBS %s Allfiles Listing Creator\n", VERSION);
-	mbse_colour(14, 0);
-	printf("       %s\n", COPYRIGHT);
+    mbse_colour(WHITE, BLACK);
+    printf("\nMBALL: MBSE BBS %s Allfiles Listing Creator\n", VERSION);
+    mbse_colour(YELLOW, BLACK);
+    printf("       %s\n", COPYRIGHT);
 }
 
 
@@ -95,7 +95,7 @@ void die(int onsig)
     Syslog(' ', "MBALL finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(7, 0);
+	mbse_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -105,23 +105,23 @@ void die(int onsig)
 
 void Help()
 {
-	do_quiet = FALSE;
-	ProgName();
+    do_quiet = FALSE;
+    ProgName();
 
-	mbse_colour(11, 0);
-	printf("\nUsage:	mball [command] <options>\n\n");
-	mbse_colour(9, 0);
-	printf("	Commands are:\n\n");
-	mbse_colour(3, 0);
-	printf("	l  list		Create allfiles and newfiles lists\n");
-	mbse_colour(9, 0);
-	printf("\n	Options are:\n\n");
-	mbse_colour(3, 0);
-	printf("	-q -quiet	Quiet mode\n");
-	printf("	-z -zip		Create .zip archives\n");
-	mbse_colour(7, 0);
-	printf("\n");
-	die(MBERR_COMMANDLINE);
+    mbse_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	mball [command] <options>\n\n");
+    mbse_colour(LIGHTBLUE, BLACK);
+    printf("	Commands are:\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("	l  list		Create allfiles and newfiles lists\n");
+    mbse_colour(LIGHTBLUE, BLACK);
+    printf("\n	Options are:\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("	-q -quiet	Quiet mode\n");
+    printf("	-z -zip		Create .zip archives\n");
+    mbse_colour(LIGHTGRAY, BLACK);
+    printf("\n");
+    die(MBERR_COMMANDLINE);
 }
 
 
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
     free(cmd);
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("\n");
     }
 
@@ -210,60 +210,60 @@ int main(int argc, char **argv)
 
 void MidLine(char *txt, FILE *fp, int doit)
 {
-	char	temp[81];
-	int	x, y, z;
+    char    temp[81];
+    int	    x, y, z;
 
-	if (!doit)
-		return;
+    if (!doit)
+	return;
 
-	z = strlen(txt);
-	x = 77 - z;
-	x /= 2;
-	strcpy(temp, "");
+    z = strlen(txt);
+    x = 77 - z;
+    x /= 2;
+    strcpy(temp, "");
 
-	for (y = 0; y < x; y++)
-		strcat(temp, " ");
+    for (y = 0; y < x; y++)
+	strcat(temp, " ");
 
-	strcat(temp, txt);
-	z = strlen(temp);
-	x = 77 - z;
+    strcat(temp, txt);
+    z = strlen(temp);
+    x = 77 - z;
 
-	for (y = 0; y < x; y++)
-		strcat(temp, " ");
+    for (y = 0; y < x; y++)
+	strcat(temp, " ");
 
-	fprintf(fp, "%c", 179);
-	fprintf(fp, "%s", temp);
-	fprintf(fp, "%c\r\n", 179);
+    fprintf(fp, "%c", 179);
+    fprintf(fp, "%s", temp);
+    fprintf(fp, "%c\r\n", 179);
 }
 
 
 
 void TopBox(FILE *fp, int doit)
 {
-	int	y;
+    int	y;
 	
-	if (!doit)
-		return;
+    if (!doit)
+	return;
 
-	fprintf(fp, "\r\n%c", 213);
-	for(y = 0; y < 77; y++)
-		fprintf(fp, "%c", 205);
-	fprintf(fp, "%c\r\n", 184);
+    fprintf(fp, "\r\n%c", 213);
+    for(y = 0; y < 77; y++)
+	fprintf(fp, "%c", 205);
+    fprintf(fp, "%c\r\n", 184);
 }
 
 
 
 void BotBox(FILE *fp, int doit)
 {
-	int	y;
+    int	y;
 
-	if (!doit)
-		return;
+    if (!doit)
+	return;
 
-	fprintf(fp, "%c", 212);
-	for (y = 0; y < 77; y++)
-		fprintf(fp, "%c", 205);
-	fprintf(fp, "%c\r\n\r\n", 190);
+    fprintf(fp, "%c", 212);
+    for (y = 0; y < 77; y++)
+	fprintf(fp, "%c", 205);
+    fprintf(fp, "%c\r\n\r\n", 190);
 }
 
 
@@ -273,10 +273,8 @@ void Masterlist()
     FILE	    *fp, *np, *pAreas, *pHeader;
     int		    AreaNr = 0, z, x = 0, New;
     unsigned long   AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
-    unsigned long   AllAreaFiles, AllAreaBytes, popdown, down;
-    unsigned long   NewAreaFiles, NewAreaBytes;
-    char	    *sAreas;
-    char	    temp[81], pop[81];
+    unsigned long   AllAreaFiles, AllAreaBytes, popdown, down, NewAreaFiles, NewAreaBytes;
+    char	    *sAreas, temp[81], pop[81];
     struct _fdbarea *fdb_area = NULL;
 
     sAreas	= calloc(PATH_MAX, sizeof(char));
@@ -287,7 +285,7 @@ void Masterlist()
 
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open File Areas File: %s", sAreas);
-	mbse_colour(7,0);
+	mbse_colour(LIGHTGRAY, BLACK);
 	die(MBERR_GENERAL);
     }
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -338,7 +336,7 @@ void Masterlist()
 	    Nopper();
 
 	    if ((fdb_area = mbsedb_OpenFDB(AreaNr, 30)) == 0) {
-		WriteError("$Can't open Area %d (%s)! Skipping ...", AreaNr, area.Name);
+		WriteError("Can't open Area %d (%s)! Skipping ...", AreaNr, area.Name);
 	    } else {
 		popdown = 0;
 		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
@@ -480,35 +478,36 @@ void Masterlist()
 
 void MakeArc()
 {
-	char	*cmd;
+    char    *cmd;
 
-	if (!getarchiver((char *)"ZIP")) {
-		WriteError("ZIP Archiver not available");
-		return;
-	}
+    if (!getarchiver((char *)"ZIP")) {
+	WriteError("ZIP Archiver not available");
+	return;
+    }
 
-	cmd = xstrcpy(archiver.farc);
+    cmd = xstrcpy(archiver.farc);
 
-	if (cmd == NULL) {
-		WriteError("ZIP archive command not available");
-		return;
-	}
+    if (cmd == NULL) {
+	WriteError("ZIP archive command not available");
+	return;
+    }
 
-	Nopper();
-	if (!do_quiet)
-		printf("Creating allfiles.zip\n");
-	if (!execute_str(cmd, (char *)"allfiles.zip allfiles.txt", (char *)NULL, (char *)"/dev/null", 
+    Nopper();
+    if (!do_quiet)
+	printf("Creating allfiles.zip\n");
+    if (!execute_str(cmd, (char *)"allfiles.zip allfiles.txt", (char *)NULL, (char *)"/dev/null", 
 			(char *)"/dev/null", (char *)"/dev/null") == 0)
-		WriteError("Create allfiles.zip failed");
+	WriteError("Create allfiles.zip failed");
 
-	Nopper();
-	if (!do_quiet)
-		printf("Creating newfiles.zip\n");
-	if (!execute_str(cmd, (char *)"newfiles.zip newfiles.txt", (char *)NULL, (char *)"/dev/null", 
+    Nopper();
+    if (!do_quiet)
+	printf("Creating newfiles.zip\n");
+    if (!execute_str(cmd, (char *)"newfiles.zip newfiles.txt", (char *)NULL, (char *)"/dev/null", 
 			(char *)"/dev/null", (char  *)"/dev/null") == 0)
-		WriteError("Create newfiles.zip failed");
-	free(cmd);
-	cmd = NULL;
+	WriteError("Create newfiles.zip failed");
+
+    free(cmd);
+    cmd = NULL;
 }
 
 

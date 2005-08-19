@@ -41,6 +41,7 @@ static char *months[]={(char *)"Jan",(char *)"Feb",(char *)"Mar",
 
 void count_download(char *, time_t, off_t, char *);
 
+extern int  do_quiet;
 
 
 void dlcount(void)
@@ -84,6 +85,8 @@ void dlcount(void)
 	/*
 	 * Check apache logfile
 	 */
+	if (!do_quiet)
+	    printf("Checking WWW downloads\n");
 	Syslog('+', "Checking WWW downloads");
 
 	while (fgets(temp, PATH_MAX-1, fp)) {
@@ -163,6 +166,8 @@ void dlcount(void)
 	/*
 	 * Check apache logfile
 	 */
+	if (!do_quiet)
+	    printf("Checking FTP downloads\n");
 	Syslog('+', "Checking FTP downloads");
 
 	while (fgets(temp, PATH_MAX-1, fp)) {
