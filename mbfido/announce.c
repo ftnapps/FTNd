@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -67,7 +67,7 @@ void Uploads()
     IsDoing("Check uploads");
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("  Checking uploads...\n");
     }
 
@@ -373,7 +373,7 @@ int Announce()
     int		i, groups, any;
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Announce new files\n");
     }
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Netmail tracker / router
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -712,7 +712,7 @@ void TestTracker(faddr *dest)
     addr.node  = dest->node;
     addr.point = dest->point;
 
-    mbse_colour(7, 0);
+    mbse_colour(LIGHTGRAY, BLACK);
     Syslog('+', "Test route to %s", aka2str(addr));
 
     rc = TrackMail(addr, &result);

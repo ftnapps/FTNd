@@ -106,7 +106,7 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
             echo_imp++;
 
         if (!do_quiet) {
-            mbse_colour(3, 0);
+            mbse_colour(CYAN, BLACK);
             printf("\r%6u => %-40s\r", echo_in, msgs.Name);
             fflush(stdout);
         }

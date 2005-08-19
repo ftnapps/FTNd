@@ -4,7 +4,7 @@
  * Purpose ...............: Show mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -151,7 +151,7 @@ int outstat()
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
-	WriteError("Error open %s, aborting", temp);
+	WriteError("$Error open %s, aborting", temp);
 	free(temp);
 	return MBERR_OUTBOUND_SCAN;
     }
@@ -282,9 +282,9 @@ int outstat()
     }
 
     if (!do_quiet) {
-	mbse_colour(10, 0);
+	mbse_colour(LIGHTGREEN, BLACK);
 	printf("flavor try      size age    address\n");
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
     }
 
     Syslog('+', "Flavor Try      Size Age    Address");
@@ -422,7 +422,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	    }
 	    fclose(fp);
 	} else 
-	    WriteError("Can't open %s", fname);
+	    WriteError("$Can't open %s", fname);
 
     } else if (isflo == OUT_PKT) {
 	(*tmp)->size += st.st_size;
@@ -561,8 +561,6 @@ int freq(faddr *addr, char *fname)
 {
     char    *req;
     FILE    *fp;
-
-    Syslog('o', "Freq %s %s", ascfnode(addr, 0x1f), fname);
 
     /*
      * Append filename to .req file

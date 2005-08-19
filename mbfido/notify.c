@@ -4,7 +4,7 @@
  * Purpose ...............: Write notify messages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -62,9 +62,9 @@ int Notify(char *Options)
 	Syslog('+', "Notify \"%s\"", Options);
 
 	if (!do_quiet) {
-		mbse_colour(9, 0);
+		mbse_colour(LIGHTBLUE, BLACK);
 		printf("Writing notify messages\n");
-		mbse_colour(3, 0);
+		mbse_colour(CYAN, BLACK);
 	}
 
 	if (strlen(Options)) {

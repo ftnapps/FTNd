@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Check filebase
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -80,7 +80,7 @@ void Check(long AreaNr)
     newdir = calloc(PATH_MAX, sizeof(char));
     
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Checking file database...\n");
     }
 

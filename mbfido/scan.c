@@ -157,9 +157,9 @@ void ScanFull()
     IsDoing("Scanning mail");
 
     if (!do_quiet) {
-	mbse_colour(9, 0);
+	mbse_colour(LIGHTBLUE, BLACK);
 	printf("Scanning mail\n");
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	fflush(stdout);
     }
 
@@ -173,9 +173,9 @@ void ScanFull()
 
 		Nopper();
 		if (!do_quiet) {
-		    mbse_colour(3, 0);
+		    mbse_colour(CYAN, BLACK);
 		    printf("\r%8s %-40s", usrconfig.Name, usrconfig.sUserName);
-		    mbse_colour(13, 0);
+		    mbse_colour(LIGHTMAGENTA, BLACK);
 		    fflush(stdout);
 		}
 
@@ -237,9 +237,9 @@ void ScanFull()
 
 	    Nopper();
 	    if (!do_quiet) {
-		mbse_colour(3, 0);
+		mbse_colour(CYAN, BLACK);
 		printf("\r%5ld .. %-40s", arearec, msgs.Name);
-		mbse_colour(13, 0);
+		mbse_colour(LIGHTMAGENTA, BLACK);
 		fflush(stdout);
 	    }
 
@@ -352,9 +352,9 @@ void ScanOne(char *path, unsigned long MsgNum)
     IsDoing("Scanning mail");
 
     if (!do_quiet) {
-	mbse_colour(9, 0);
+	mbse_colour(LIGHTBLUE, BLACK);
 	printf("Scanning mail\n");
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	fflush(stdout);
     }
 
@@ -405,9 +405,9 @@ void ScanOne(char *path, unsigned long MsgNum)
 
     if ((msgs.Active) && (msgs.Type == ECHOMAIL || msgs.Type == NETMAIL || msgs.Type == NEWS)) {
 	if (!do_quiet) {
-	    mbse_colour(3, 0);
+	    mbse_colour(CYAN, BLACK);
 	    printf("\r%5ld .. %-40s", Area, msgs.Name);
-	    mbse_colour(13, 0);
+	    mbse_colour(LIGHTMAGENTA, BLACK);
 	    fflush(stdout);
 	}
 
@@ -500,9 +500,9 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
     IsDoing("ReScan mail");
 
     if (!do_quiet) {
-        mbse_colour(9, 0);
+        mbse_colour(LIGHTBLUE, BLACK);
         printf("ReScan mail\n");
-        mbse_colour(3, 0);
+        mbse_colour(CYAN, BLACK);
         fflush(stdout);
     }
 
@@ -529,9 +529,9 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
 
     if ((msgs.Active) && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST))) {
         if (!do_quiet) {
-            mbse_colour(3, 0);
+            mbse_colour(CYAN, BLACK);
             printf("\r%5ld .. %-40s", Area, msgs.Name);
-            mbse_colour(13, 0);
+            mbse_colour(LIGHTMAGENTA, BLACK);
 	    fflush(stdout);
 	}
 

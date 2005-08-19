@@ -4,7 +4,7 @@
  * Purpose: MBSE BBS Outbound Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -56,13 +56,13 @@ time_t		t_end;			/* End time			    */
 void ProgName(void);
 void ProgName()
 {
-	if (do_quiet)
-		return;
+    if (do_quiet)
+	return;
 
-	mbse_colour(15, 0);
-	printf("\nMBOUT: MBSE BBS %s Outbound Manager\n", VERSION);
-	mbse_colour(14, 0);
-	printf("       %s\n", COPYRIGHT);
+    mbse_colour(WHITE, BLACK);
+    printf("\nMBOUT: MBSE BBS %s Outbound Manager\n", VERSION);
+    mbse_colour(YELLOW, BLACK);
+    printf("       %s\n", COPYRIGHT);
 }
 
 
@@ -97,7 +97,7 @@ void die(int onsig)
 	do_quiet = FALSE;
 
     if (!do_quiet)
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 
     if (onsig) {
 	if (onsig <= NSIG)
@@ -110,7 +110,7 @@ void die(int onsig)
     Syslog(' ', "MBOUT finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(7, 0);
+	mbse_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -121,30 +121,30 @@ void die(int onsig)
 void Help(void);
 void Help()
 {
-	do_quiet = FALSE;
-	ProgName();
+    do_quiet = FALSE;
+    ProgName();
 
-	mbse_colour(11, 0);
-	printf("\nUsage:	mbout [command] <params> <options>\n\n");
-	mbse_colour(9, 0);
-	printf("	Commands are:\n\n");
-	mbse_colour(3, 0);
-	printf("	a   att   <node> <flavor> <file>	Attach a file to a node\n");
-	printf("	n   node  <node>			Show nodelist information\n");
-	printf("	p   poll  <node> [node..node]		Poll node(s) (always crash)\n");
-	printf("	req req   <node> <file> [file..file]	Request file(s) from node\n");
-	printf("	res reset <node> [node..node]		Reset node(s) \"try\" counter\n");
-	printf("	sta stat				Show outbound status\n");
-	printf("	sto stop  <node> [node..node]		Stop polling node(s)\n");
-	printf("\n");
-	printf("	<node>	  Should be in domain form, e.g. f16.n2801.z2.domain\n");
-	printf("	<flavor>  Flavor's are: crash | immediate | normal | hold\n");
-	mbse_colour(9, 0);
-	printf("\n	Options are:\n\n");
-	mbse_colour(3, 0);
-	printf("	-quiet					Quiet mode\n");
-	mbse_colour(7, 0);
-	die(MBERR_OK);
+    mbse_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	mbout [command] <params> <options>\n\n");
+    mbse_colour(LIGHTBLUE, BLACK);
+    printf("	Commands are:\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("	a   att   <node> <flavor> <file>	Attach a file to a node\n");
+    printf("	n   node  <node>			Show nodelist information\n");
+    printf("	p   poll  <node> [node..node]		Poll node(s) (always crash)\n");
+    printf("	req req   <node> <file> [file..file]	Request file(s) from node\n");
+    printf("	res reset <node> [node..node]		Reset node(s) \"try\" counter\n");
+    printf("	sta stat				Show outbound status\n");
+    printf("	sto stop  <node> [node..node]		Stop polling node(s)\n");
+    printf("\n");
+    printf("	<node>	  Should be in domain form, e.g. f16.n2801.z2.domain\n");
+    printf("	<flavor>  Flavor's are: crash | immediate | normal | hold\n");
+    mbse_colour(LIGHTBLUE, BLACK);
+    printf("\n	Options are:\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("	-quiet					Quiet mode\n");
+    mbse_colour(LIGHTGRAY, BLACK);
+    die(MBERR_OK);
 }
 
 
@@ -154,7 +154,7 @@ void Fatal(char *msg, int error)
 {
     show_log = TRUE;
     if (!do_quiet) {
-	mbse_colour(12, 0);
+	mbse_colour(LIGHTRED, BLACK);
 	printf("%s\n", msg);
     }
     WriteError(msg);
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     free(cmd);
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("\n");
     }
 

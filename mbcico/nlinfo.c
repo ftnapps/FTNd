@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Outbound Manager - show node info
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -50,7 +50,7 @@ int nlinfo(faddr *addr)
     nlent = getnlent(addr);
 
     if (nlent->pflag != NL_DUMMY) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("System      : %s\n", nlent->name);
 	printf("Sysop       : %s@%s\n", nlent->sysop, ascinode(addr, 0x3f));
 	printf("Location    : %s\n", nlent->location);

@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -94,11 +94,11 @@ void ScanArea(ff_list **ffl)
     unsigned long	Number, Highest;
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("\r  %-40s", scanmgr.Comment);
-	mbse_colour(12, 0);
+	mbse_colour(LIGHTRED, BLACK);
 	printf(" (Scanning) ");
-	mbse_colour(13, 0);
+	mbse_colour(LIGHTMAGENTA, BLACK);
 	fflush(stdout);
     }
     Syslog('+', "Scanning %s", scanmgr.Comment);
@@ -267,12 +267,12 @@ void ScanFiles(ff_list *tmp)
     Syslog('+', "ff: %s [%s]", temp, tmp->subject);
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	temp[40] = '\0';
 	printf("\r  %-40s", temp);
-	mbse_colour(12, 0);
+	mbse_colour(LIGHTRED, BLACK);
 	printf(" (Searching)");
-	mbse_colour(13, 0);
+	mbse_colour(LIGHTMAGENTA, BLACK);
 	fflush(stdout);
     }
 
@@ -363,7 +363,7 @@ void ScanFiles(ff_list *tmp)
 
     if (found) {
 	if (!do_quiet) {
-	    mbse_colour(14, 0);
+	    mbse_colour(YELLOW, BLACK);
 	    printf(" (Replying)");
 	    fflush(stdout);
 	}
@@ -488,7 +488,7 @@ int Filefind()
     IsDoing("FileFind");
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Processing FileFind requests\n");
     }
     Syslog('+', "Processing FileFind requests");
@@ -520,7 +520,7 @@ int Filefind()
 	if (Replies)
 	    rc = TRUE;
 	if (!do_quiet) {
-	    mbse_colour(3, 0);
+	    mbse_colour(CYAN, BLACK);
 	    printf("Processed %d requests, created %d replies\n", Requests, Replies);
 	}
     }

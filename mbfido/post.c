@@ -53,7 +53,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     mbse_CleanSubject(Subj);
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Post \"%s\" to \"%s\" in area %ld\n", File, To, Area);
     }
 

@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - ReArc file(s)
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -99,7 +99,7 @@ void ReArc(int Area, char *File)
 		 * Success, update the file entry
 		 */
     		if (!do_quiet) {
-		    mbse_colour(9, 0);
+		    mbse_colour(LIGHTBLUE, BLACK);
 		    printf("\r   Update file %s   ", temp);
 		    fflush(stdout);
 		}
@@ -197,7 +197,7 @@ void ReArc(int Area, char *File)
 		break; // stop when something goes wrong
 	    }
 	    if (!do_quiet) {
-		mbse_colour(7, 0);
+		mbse_colour(LIGHTGRAY, BLACK);
 		printf("\r");
 		for (i = 0; i < (strlen(temp) + 20); i++)
 		    printf(" ");

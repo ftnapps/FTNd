@@ -535,7 +535,7 @@ int Areas(void)
     Mgrlog("Process areas taglists");
 
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Processing areas taglists...\n");
     }
 

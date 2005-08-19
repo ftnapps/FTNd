@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Sort filebase
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -56,7 +56,7 @@ void SortFileBase(int Area)
 
     IsDoing("Sort filebase");
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
     }
 
     sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));

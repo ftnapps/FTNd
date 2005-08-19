@@ -4,7 +4,7 @@
  * Purpose ...............: Unpacker
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -70,7 +70,7 @@ int unpack(char *fn)
     int		rc = 0, ld;
 
     if (!do_quiet) {
-	mbse_colour(11, 0);
+	mbse_colour(LIGHTCYAN, BLACK);
 	printf("Unpacking file %s\n", fn);
     }
 

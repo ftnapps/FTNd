@@ -5,7 +5,7 @@
  * Remarks ...............: Most of these functions are borrowed from inn.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -543,7 +543,7 @@ void NewsUUCP(void)
 	IsDoing((char *)"UUCP Batch");
 
 	if (!do_quiet) {
-		mbse_colour(10, 0);
+		mbse_colour(LIGHTGREEN, BLACK);
 		printf("Process UUCP Newsbatch\n");
 	}
 

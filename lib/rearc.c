@@ -4,7 +4,7 @@
  * Purpose ...............: ReArc an archive.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -44,7 +44,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     Syslog('f', "rearc(%s, %s)", filename, arctype);
 
     if (!do_quiet) {
-        mbse_colour(12, 0);
+        mbse_colour(LIGHTRED, BLACK);
         printf("    ReArc file %s   ", filename);
 	fflush(stdout);
     }
@@ -145,7 +145,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     }
 
     if (!do_quiet) {
-	mbse_colour(11, 0);
+	mbse_colour(LIGHTCYAN, BLACK);
 	printf("\rUnpacking file %s   ", filename);
 	fflush(stdout);
     }
@@ -165,7 +165,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     }
 
     if (!do_quiet) {
-	mbse_colour(10, 0);
+	mbse_colour(LIGHTGREEN, BLACK);
 	printf("\r  Packing file %s   ", newname);
     }
 

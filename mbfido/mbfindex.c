@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Build index for request processor
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -328,7 +328,7 @@ void ReqIndex(void)
 
     IsDoing("Index files");
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Create index files...\n");
     }
 
@@ -513,7 +513,7 @@ void HtmlIndex(char *Lang)
 
     IsDoing("Create html");
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("\rCreate html pages...                                      \n");
     }
 

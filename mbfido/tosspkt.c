@@ -4,7 +4,7 @@
  * Purpose ...............: Toss a single *.pkt file
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -268,7 +268,7 @@ int TossPkt(char *fn)
 	FILE		*pkt;
 
 	if (!do_quiet) {
-		mbse_colour(10, 0);
+		mbse_colour(LIGHTGREEN, BLACK);
 		printf("Tossing packet %s\n", fn);
 	}
 

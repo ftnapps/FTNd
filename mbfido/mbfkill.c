@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance, kill or move old files
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -63,7 +63,7 @@ void Kill(void)
 
     IsDoing("Kill files");
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Kill/move files...\n");
     }
 

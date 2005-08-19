@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,9 +53,9 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    mbse_colour(15, 0);
+    mbse_colour(WHITE, BLACK);
     printf("\nMBAFF: MBSE BBS %s Announce new files and FileFind\n", VERSION);
-    mbse_colour(14, 0);
+    mbse_colour(YELLOW, BLACK);
     printf("       %s\n", COPYRIGHT);
 }
 
@@ -77,7 +77,7 @@ void die(int onsig)
     Syslog(' ', "MBAFF finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(7, 0);
+	mbse_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -178,18 +178,18 @@ void Help(void)
 	do_quiet = FALSE;
 	ProgName();
 
-	mbse_colour(11, 0);
+	mbse_colour(LIGHTMAGENTA, BLACK);
 	printf("\nUsage:	mbaff [command] <options>\n\n");
-	mbse_colour(9, 0);
+	mbse_colour(LIGHTBLUE, BLACK);
 	printf("	Commands are:\n\n");
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("	a  announce	Announce new files\n");
 	printf("	f  filefind	FileFind service\n");
-	mbse_colour(9, 0);
+	mbse_colour(LIGHTBLUE, BLACK);
 	printf("\n	Options are:\n\n");
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("	-q -quiet	Quiet mode\n");
-	mbse_colour(7, 0);
+	mbse_colour(LIGHTGRAY, BLACK);
 	printf("\n");
 	die(MBERR_COMMANDLINE);
 }

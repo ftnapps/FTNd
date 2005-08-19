@@ -4,6 +4,7 @@ v0.71.5		18-Aug-2005
 
 	mbfido:
 		Removed debug logging for solved crash.
+		Code cleanup.
 
 	mbdiff:
 		Code cleanup.
@@ -15,6 +16,15 @@ v0.71.5		18-Aug-2005
 		Code cleanup.
 
 	mbuser:
+		Code cleanup.
+
+	mbfile:
+		Code cleanup.
+
+	mbmsg:
+		Code cleanup and removed dead code.
+
+	mbout:
 		Code cleanup.
 
 

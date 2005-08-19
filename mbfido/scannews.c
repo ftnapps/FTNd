@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for new News
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -191,7 +191,7 @@ void ScanNews(void)
     }
 
     if (!do_quiet) {
-	mbse_colour(10, 0);
+	mbse_colour(LIGHTGREEN, BLACK);
 	printf("Scan for new news articles\n");
     }
 
@@ -216,7 +216,7 @@ void ScanNews(void)
 	    }
 	    Syslog('m', "Scan newsgroup: %s", Msgs.Newsgroup);
 	    if (!do_quiet) {
-		mbse_colour(3, 0);
+		mbse_colour(CYAN, BLACK);
 		printf("\r%-40s", Msgs.Newsgroup);
 		fflush(stdout);
 	    }

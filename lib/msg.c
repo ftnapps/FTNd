@@ -4,7 +4,7 @@
  * Purpose ...............: Global message base functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -389,9 +389,9 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
     }
 
     if (!do_quiet) {
-	msg_colour(12, 0);
+	msg_colour(LIGHTRED, BLACK);
 	printf(" (linking)");
-	msg_colour(13, 0);
+	msg_colour(LIGHTMAGENTA, BLACK);
 	fflush(stdout);
     }
 
