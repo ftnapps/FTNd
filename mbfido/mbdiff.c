@@ -58,9 +58,9 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    mbse_colour(15, 0);
+    mbse_colour(WHITE, BLACK);
     printf("\nMBDIFF: MBSE BBS %s Nodelist diff processor\n", VERSION);
-    mbse_colour(14, 0);
+    mbse_colour(YELLOW, BLACK);
     printf("        %s\n", COPYRIGHT);
 }
 
@@ -100,7 +100,7 @@ void die(int onsig)
     Syslog(' ', "MBDIFF finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(7, 0);
+	mbse_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     free(cmd);
 
     if (!do_quiet) {
-	mbse_colour(12, 0);
+	mbse_colour(LIGHTRED, BLACK);
 	printf("\n");
     }
 
@@ -357,7 +357,7 @@ int main(int argc, char **argv)
 
     Syslog('+', "Apply %s with %s to %s", onl, ond, nn);
     if (!do_quiet) {
-	mbse_colour(3, 0);
+	mbse_colour(CYAN, BLACK);
 	printf("Apply %s with %s to %s\n", onl, ond, nn);
     }
     rc = apply(onl, ond, nn);
@@ -424,25 +424,25 @@ int main(int argc, char **argv)
 
 void Help(void)
 {
-	do_quiet = FALSE;
-	ProgName();
+    do_quiet = FALSE;
+    ProgName();
 
-	mbse_colour(11, 0);
-	printf("\nUsage:	mbdiff [nodelist] [nodediff] <options>\n\n");
-	mbse_colour(3, 0);
-	printf("	The nodelist must be the full path and filename\n");
-	printf("	without the dot and daynumber digits to the working\n");
-	printf("	directory of that nodelist.\n");
-	printf("	The nodediff must be the full path and filename\n");
-	printf("	to the (compressed) nodediff file in the download\n");
-	printf("	directory.\n");
-	mbse_colour(9, 0);
-	printf("\n	Options are:\n\n");
-	mbse_colour(3, 0);
-	printf("	-quiet		Quiet mode\n");
-	mbse_colour(7, 0);
-	printf("\n");
-	die(MBERR_COMMANDLINE);
+    mbse_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	mbdiff [nodelist] [nodediff] <options>\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("	The nodelist must be the full path and filename\n");
+    printf("	without the dot and daynumber digits to the working\n");
+    printf("	directory of that nodelist.\n");
+    printf("	The nodediff must be the full path and filename\n");
+    printf("	to the (compressed) nodediff file in the download\n");
+    printf("	directory.\n");
+    mbse_colour(LIGHTBLUE, BLACK);
+    printf("\n	Options are:\n\n");
+    mbse_colour(CYAN, BLAKC);
+    printf("	-quiet		Quiet mode\n");
+    mbse_colour(LIGHTGRAY, BLACK);
+    printf("\n");
+    die(MBERR_COMMANDLINE);
 }
 
 
@@ -533,7 +533,7 @@ int apply(char *nl, char *nd, char *nn)
 
     if ((rc != 0) && !do_quiet) {
 	show_log = TRUE;
-	mbse_colour(12, 0);
+	mbse_colour(LIGHTRED, BLACK);
     }
 
     if ((rc == 0) && (mycrc != theircrc)) 
