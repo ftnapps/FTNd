@@ -71,6 +71,8 @@ int ftnmsgid(char *msgid, char **s, unsigned long *n, char *areaname)
     faddr	    *tmp;
     static int	    ftnorigin = 0;
 
+    Syslog('m', "Make ftn msgid from \"%s\"", MBSE_SS(msgid));
+
     if (msgid == NULL) {
 	*s = NULL;
 	*n = 0L;
@@ -228,6 +230,8 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
 	if (p == NULL)
 	    p = xstrcpy(hdr((char *)"To", msg));  /* 14-Aug-2001 MB */
 	if (p) {
+	    Syslog('m', "Getting `to' address from \"%s\"", MBSE_SS(p));
+
 	    if ((tmsg->to = parsefaddr(p)) == NULL)
 		tmsg->to = parsefaddr((char *)"All@p0.f0.n0.z0");
 	    if ((l = strrchr(p,'<')) && (r = strchr(p,'>')) && (l < r)) {
