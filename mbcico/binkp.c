@@ -1117,13 +1117,13 @@ TrType binkp_receiver(void)
 	    bp.rsize = atoi(strtok(NULL, " \n\r"));
 	    bp.rtime = atoi(strtok(NULL, " \n\r"));
 	    bp.roffs = atoi(strtok(NULL, " \n\r"));
-	    Syslog('b', "Binkp: b4 critical point");
-	    sprintf(bp.ropts, "%s", printable(strtok(NULL, " \n\r"), 0));
+	    sprintf(bp.ropts, "%s", printable(strtok(NULL, " \n\r\0"), 0));
 	    if (strcmp((char *)"GZ", bp.ropts) == 0)
 		bp.rmode = CompGZ;
 	    else if (strcmp((char *)"BZ2", bp.ropts) == 0)
 		bp.rmode = CompBZ2;
-	    Syslog('b', "Binkp: compress check %s", bp.ropts);
+	    else
+		Syslog('!', "Binkp: unknown EXTCMD received \"%s\"", printable(bp.ropts, 0));
 	} else {
 	    /*
 	     * Corrupted command, in case this was serious, send the M_GOT back so it's
@@ -1283,8 +1283,6 @@ TrType binkp_receiver(void)
 		    Syslog('+', "Binkp: decompress %s error %d", bp.rname, rc1);
 		    bp.RxState = RxDone;
 		    return Failure;
-//		} else {
-//		    Syslog('b', "Binkp: %d bytes of data decompressed to %d", nput, zavail);
 		}
 		if (zavail != 0 && fwrite(zbuf, zavail, 1, bp.rxfp) < 1) {
 		    Syslog('+', "$Binkp: write error");
@@ -1299,7 +1297,6 @@ TrType binkp_receiver(void)
 		bp.rxcompressed += zavail - nput;
 	    }
 	    bp.blklen = written;    /* Correct physical to virtual blocklength */
-//	    Syslog('b', "Binkp: set bp.blklen %d rc=%d", written, rc1);
 	    if (rc1 == 1) {
 		if ((rc1 = decompress_deinit(bp.rmode, z_idata)) < 0)
 		    Syslog('+', "Binkp: decompress_deinit retcode %d", rc1);
@@ -1556,7 +1553,7 @@ TrType binkp_transmitter(void)
 	    sz = bp.tfsize - ftell(bp.txfp);
 	    if (bp.cmpblksize < sz)
 		sz = bp.cmpblksize;
-//	    Syslog('b', "Binkp: sz=%d", sz);
+
 	    while (TRUE) {
 		ocnt = bp.cmpblksize - nput;
 		nget = sz;
@@ -1565,9 +1562,8 @@ TrType binkp_transmitter(void)
 		fleft = bp.tfsize - ftell(bp.txfp);
 		fseek(bp.txfp, bp.txpos, SEEK_SET);
 		nget = fread(z_obuf, 1, nget, bp.txfp);
-//		Syslog('b', "Binkp: fread pos=%d nget=%d ocnt=%d", bp.txpos, nget, ocnt);
 		rc2 = do_compress(bp.tmode, bp.txbuf + nput, &ocnt, z_obuf, &nget, fleft ? 0 : 1, z_odata);
-		Syslog('b', "Binkp: do_compress ocnt=%d nget=%d fleft=%d rc=%d", ocnt, nget, fleft, rc2);
+//		Syslog('b', "Binkp: do_compress ocnt=%d nget=%d fleft=%d rc=%d", ocnt, nget, fleft, rc2);
 		if (rc2 == -1) {
 		    Syslog('+', "Binkp: compression error rc=%d", rc2);
 		    return Failure;
@@ -1575,7 +1571,6 @@ TrType binkp_transmitter(void)
 		bp.txpos += nget;
 		bp.txcpos += ocnt;
 		nput += ocnt;
-//		Syslog('b', "Binkp: txpos=%d txcpos=%d nput=%d", bp.txpos, bp.txcpos, nput);
     
 		/*
 		 * Compressed block is filled for transmission
@@ -2450,7 +2445,6 @@ int binkp_process_messages(void)
     free(lname);
     bp.msgs_on_queue = 0;
 
-    Syslog('b', "Binkp: Process The Messages Queue End");
     return 0;
 }
 

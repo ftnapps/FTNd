@@ -4,7 +4,7 @@
  * Purpose ...............: Archive unpacker
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -78,7 +78,6 @@ char *unpacker(char *fn)
 	}
 	if (memcmp(buf,"ustar",5) == 0)	    return (char *)"TAR";   /* GNU/Posix tar	    */
 
-	Syslog('p', "Unknown compress scheme in file %s", fn);
 	return NULL;
 }
 
