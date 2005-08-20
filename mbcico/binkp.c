@@ -1268,6 +1268,7 @@ TrType binkp_receiver(void)
 	     * Receive stream compressed data
 	     */
 	    if (z_idata == NULL) {
+		Syslog('b', "Binkp: decompress_init start");
 		if (decompress_init(bp.rmode)) {
 		    Syslog('+', "Binkp: can't init decompress");
 		    bp.RxState = RxDone;
@@ -1479,6 +1480,7 @@ TrType binkp_transmitter(void)
 		
 		if ((tmp->compress == CompGZ) || (tmp->compress == CompBZ2)) {
 		    bp.tmode = tmp->compress;
+		    Syslog('b', "Binkp: compress_init start");
 		    if ((rc1 = compress_init(bp.tmode))) {
 			Syslog('+', "Binkp: compress_init failed (rc=%d)", rc1);
 			tmp->compress = CompNone;
