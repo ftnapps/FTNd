@@ -337,7 +337,7 @@ void msg_colour(int fg, int bg)
 	fflush(stdout);
 	return; 
     }
-    fprintf(stdout, "ESC[");
+    fprintf(stdout, "[");
 
     if ( fg > WHITE) {
 	fprintf(stdout, "5;");
