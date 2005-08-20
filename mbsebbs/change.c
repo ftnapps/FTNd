@@ -73,16 +73,16 @@ int Chg_Language(int NewMode)
 	PUTSTR(temp);
 
 	iLang = 6;
-	colour(9,0);
+	colour(LIGHTBLUE, BLACK);
 	while (fread(&lang, langhdr.recsize, 1, pLang) == 1)
 	    if (lang.Available) {
-		colour(13, 0);
+		colour(LIGHTMAGENTA, BLACK);
 		sprintf(temp, "(%s)", lang.LangKey);
 		PUTSTR(temp);
-   		colour(8,0);
+   		colour(DARKGRAY, BLACK);
    		sprintf(temp, " %c ", 46);
 		PUTSTR(temp);
-   		colour(3,0);
+   		colour(CYAN, BLACK);
 		sprintf(temp, "%-29s    ", lang.Name);
 		PUTSTR(temp);
 
@@ -120,7 +120,7 @@ int Chg_Language(int NewMode)
 	if(!iFoundLang) {
 	    Enter(2);
 	    /* Invalid selection, please try again! */
-	    pout(10, 0, (char *) Language(265));
+	    pout(LIGHTGREEN, BLACK, (char *) Language(265));
 	    Enter(2);
 	} else {
 	    exitinfo.iLanguage = iLang;
@@ -128,7 +128,7 @@ int Chg_Language(int NewMode)
 	    Free_Language();
 	    InitLanguage();
 
-	    colour(10, 0);
+	    colour(LIGHTGREEN, BLACK);
 	    /* Language now set to" */
 	    sprintf(temp, "\r\n\r\n%s%s\r\n\r\n", (char *) Language(380), lang.Name);
 	    PUTSTR(temp);
@@ -161,7 +161,7 @@ void Chg_Password()
 
     Enter(1);
     /* Old password: */
-    language(15, 0, 120);
+    language(WHITE, BLACK, 120);
     colour(CFG.InputColourF, CFG.InputColourB);
     Getpass(temp1);
 
@@ -169,25 +169,25 @@ void Chg_Password()
 	while (TRUE) {
 	    Enter(1);
 	    /* New password: */
-	    language(9, 0, 121);
+	    language(LIGHTBLUE, BLACK, 121);
 	    colour(CFG.InputColourF, CFG.InputColourB);
 	    Getpass(temp1);
 	    if((strlen(temp1)) >= CFG.password_length) {
 		Enter(1);
 		/* Confirm new password: */
-		language(9, 0, 122);
+		language(LIGHTBLUE, BLACK, 122);
 		colour(CFG.InputColourF, CFG.InputColourB);
 		Getpass(temp2);
 		if(( strcmp(temp1,temp2)) != 0) {
 		    /* Passwords do not match! */
 		    Enter(2);
-		    language(12, 0, 123);
+		    language(LIGHTRED, BLACK, 123);
 		    Enter(1);
 		} else {
 		    break;
 		}
 	    } else {
-		colour(12, 0);
+		colour(LIGHTRED, BLACK);
 		/* Your password must contain at least %d characters! Try again.*/
 		sprintf(temp2, "\r\n%s%d %s\r\n\r\n", (char *) Language(42), CFG.password_length, (char *) Language(43));
 		PUTSTR(temp2);
@@ -211,14 +211,14 @@ void Chg_Password()
 	    exitinfo.tLastPwdChange = time(NULL);
 	    Enter(1);
 	    /* Password Change Successful */
-	    language(10, 0, 124);
+	    language(LIGHTGREEN, BLACK, 124);
 	    Syslog('+', "User changed his password");
 	    WriteExitinfo();
 	}
     } else {
 	Enter(1);
 	/* Old password incorrect! */
-	language(12, 0, 125);
+	language(LIGHTRED, BLACK, 125);
     }
 
     free(temp1);
@@ -277,7 +277,7 @@ void Chg_Handle()
     while (TRUE) {
 	Enter(1);
 	/* Enter a handle (Enter to Quit): */
-	pout(9, 0, (char *) Language(412));
+	pout(LIGHTBLUE, BLACK, (char *) Language(412));
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(temp, 34);
 
@@ -289,14 +289,14 @@ void Chg_Handle()
 	strcpy(Handle, tlcap(temp));
 
 	if (CheckHandle(Handle) || CheckUnixNames(Handle)) {
-	    pout(12, 0, (char *)"\r\nThat handle is already been used\r\n");
+	    pout(LIGHTRED, BLACK, (char *)"\r\nThat handle is already been used\r\n");
 	} else if (CheckName(Handle)) {
-	    pout(12, 0, (char *)"\r\nThat name is already been used\r\n");
+	    pout(LIGHTRED, BLACK, (char *)"\r\nThat name is already been used\r\n");
 	} else if((strcasecmp(Handle, "sysop")) == 0) {
-	    pout(12, 0, (char *)"\r\nYou cannot use Sysop as a handle\r\n");
+	    pout(LIGHTRED, BLACK, (char *)"\r\nYou cannot use Sysop as a handle\r\n");
 	} else if(strcmp(temp, "") != 0) {
 	    Setup(exitinfo.sHandle, temp);
-	    pout(10, 0, (char *)"\r\nHandle Changed!\r\n\r\n");
+	    pout(LIGHTGREEN, BLACK, (char *)"\r\nHandle Changed!\r\n\r\n");
 	    Syslog('+', "New handle \"%s\"", exitinfo.sHandle);
 	    break;
 	}
@@ -320,11 +320,11 @@ void Chg_Hotkeys()
     if (exitinfo.HotKeys) {
 	exitinfo.HotKeys = FALSE;
 	/* Hotkeys are now OFF */
-	pout(10, 0, (char *) Language(146));
+	pout(LIGHTGREEN, BLACK, (char *) Language(146));
     } else {
 	exitinfo.HotKeys = TRUE;
 	/* Hotkeys are now ON */
-	pout(10, 0, (char *) Language(145));
+	pout(LIGHTGREEN, BLACK, (char *) Language(145));
     }
 
     Enter(2);
@@ -346,11 +346,11 @@ void Chg_MailCheck()
     if (exitinfo.MailScan) {
 	exitinfo.MailScan = FALSE;
 	/* New Mail check is now OFF */
-	pout(10, 0, (char *) Language(367));
+	pout(LIGHTGREEN, BLACK, (char *) Language(367));
     } else {
 	exitinfo.MailScan = TRUE;
 	/* New Mail check is now ON */
-	pout(10, 0, (char *) Language(366));
+	pout(LIGHTGREEN, BLACK, (char *) Language(366));
     }
 
     Enter(2);
@@ -372,11 +372,11 @@ void Chg_FileCheck()
     if (exitinfo.ieFILE) {
 	exitinfo.ieFILE = FALSE;
 	/* New Files check is now OFF */
-	pout(10, 0, (char *) Language(371));
+	pout(LIGHTGREEN, BLACK, (char *) Language(371));
     } else {
 	exitinfo.ieFILE = TRUE;
 	/* New Files check is now ON */
-	pout(10, 0, (char *) Language(370));
+	pout(LIGHTGREEN, BLACK, (char *) Language(370));
     }
 
     Enter(2);
@@ -457,11 +457,11 @@ void Chg_FsMsgedKeys()
     if (exitinfo.FSemacs) {
 	exitinfo.FSemacs = FALSE;
 	/* Fullscreen Editor shortcut keys set to Wordstar */
-	pout(10, 0, (char *) Language(473));
+	pout(LIGHTGREEN, BLACK, (char *) Language(473));
     } else {
 	exitinfo.FSemacs = TRUE;
 	/* Fullscreen Editor shortcut keys set to Emacs */
-	pout(10, 0, (char *) Language(472));
+	pout(LIGHTGREEN, BLACK, (char *) Language(472));
     }
     Enter(2);
     sleep(2);
@@ -482,11 +482,11 @@ void Chg_Disturb()
     if(exitinfo.DoNotDisturb) {
 	exitinfo.DoNotDisturb = FALSE;
 	/* Do not disturb turned OFF */
-	pout(10, 0, (char *) Language(416));
+	pout(LIGHTGREEN, BLACK, (char *) Language(416));
     } else {
 	exitinfo.DoNotDisturb = TRUE;
 	/* Do not disturb turned ON */
-	pout(10, 0, (char *) Language(417));
+	pout(LIGHTGREEN, BLACK, (char *) Language(417));
     }
 
     Enter(2);
@@ -509,11 +509,11 @@ void Chg_Location()
 	/* Old Location: */
 	Enter(1);
 	/* Old location: */
-	pout(15, 0, (char *) Language(73));
+	pout(WHITE, BLACK, (char *) Language(73));
 	pout(9, 0, exitinfo.sLocation);
 	Enter(2);
 	/* Please enter your location: */
-	pout(14, 0, (char *) Language(49));
+	pout(YELLOW, BLACK, (char *) Language(49));
 
 	colour(CFG.InputColourF, CFG.InputColourB);
 	if (CFG.iCapLocation) {
@@ -528,7 +528,7 @@ void Chg_Location()
 	if(( strlen(temp)) < CFG.CityLen) {
 	    Enter(1);
 	    /* Please enter a longer location (min */
-	    colour(12, 0);
+	    colour(LIGHTRED, BLACK);
 	    sprintf(temp, "%s%d)", (char *) Language(74), CFG.CityLen);
 	    PUTSTR(temp);
 	    Enter(1);
@@ -608,11 +608,11 @@ void Chg_Graphics()
     if (exitinfo.GraphMode) {
 	exitinfo.GraphMode = FALSE;
 	/* Ansi Mode turned OFF */
-	pout(15, 0, (char *) Language(76));
+	pout(WHITE, BLACK, (char *) Language(76));
     } else {
 	exitinfo.GraphMode = TRUE;
 	/* Ansi Mode turned ON */
-	pout(15, 0, (char *) Language(75));
+	pout(WHITE, BLACK, (char *) Language(75));
     }
 
     Syslog('+', "Graphics mode now %s", exitinfo.GraphMode?"On":"Off");
@@ -634,16 +634,16 @@ void Chg_VoicePhone()
     while (TRUE) {
 	Enter(1);
 	/* Please enter you Voice Number */
-	pout(10, 0, (char *) Language(45));
+	pout(LIGHTGREEN, BLACK, (char *) Language(45));
 	Enter(1);
-	pout(10, 0, (char *)": ");
+	pout(LIGHTGREEN, BLACK, (char *)": ");
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetPhone(temp, 16);
 
 	if (strlen(temp) < 6) {
 	    Enter(1);
 	    /* Please enter a proper phone number */
-	    pout(12, 0, (char *) Language(47));
+	    pout(LIGHTRED, BLACK, (char *) Language(47));
 	    Enter(1);
 	} else {
 	    strcpy(exitinfo.sVoicePhone, temp);
@@ -667,16 +667,16 @@ void Chg_DataPhone()
     while (1) {
 	Enter(1);
 	/* Please enter you Data Number */
-	pout(10, 0, (char *) Language(48));
+	pout(LIGHTGREEN, BLACK, (char *) Language(48));
 	Enter(1);
-	pout(10, 0, (char *)": ");
+	pout(LIGHTGREEN, BLACK, (char *)": ");
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetPhone(temp, 16);
 
 	if( strlen(temp) < 6) {
 	    Enter(1);
 	    /* Please enter a proper phone number */
-	    pout(12, 0, (char *) Language(47));
+	    pout(LIGHTRED, BLACK, (char *) Language(47));
 	    Enter(1);
 	} else {
 	    strcpy(exitinfo.sDataPhone, temp);
@@ -698,11 +698,11 @@ void Chg_News()
     if (exitinfo.ieNEWS) {
 	exitinfo.ieNEWS = FALSE;
 	/* News bulletins turned OFF */
-	pout(10, 0, (char *) Language(79));
+	pout(LIGHTGREEN, BLACK, (char *) Language(79));
     } else {
 	exitinfo.ieNEWS = TRUE;
 	/* News bulletins turned ON */
-	pout(10, 0, (char *) Language(78));
+	pout(LIGHTGREEN, BLACK, (char *) Language(78));
     }
 
     Enter(2);
@@ -723,7 +723,7 @@ void Chg_ScreenLen()
 
     Enter(1);
     /* Please enter your Screen Length? [24]: */
-    pout(13, 0, (char *) Language(64));
+    pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
     colour(CFG.InputColourF, CFG.InputColourB);
     Getnum(temp, 2);
 
@@ -768,7 +768,7 @@ int Test_DOB(char *DOB)
     if (strlen(DOB) != 10) {
 	Syslog('!', "Date format length %d characters", strlen(DOB));
 	/* Please enter the correct date format */
-	language(14, 0, 83);
+	language(YELLOW, BLACK, 83);
 	return FALSE;
     }
 	
@@ -822,7 +822,7 @@ void Chg_DOB()
     while (TRUE) {
 	Enter(1);
 	/* Please enter your Date of Birth DD-MM-YYYY: */
-	pout(3, 0, (char *) Language(56));
+	pout(CYAN, BLACK, (char *) Language(56));
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetDate(temp, 10);
 	if (Test_DOB(temp)) {
@@ -916,14 +916,14 @@ void Chg_Protocol()
 	} else {
 	    if (!iFoundProt) {
 	        Enter(2);
-	        pout(10, 0, (char *) Language(265));
+	        pout(LIGHTGREEN, BLACK, (char *) Language(265));
 	        Enter(2);
 	        /* Loop for new attempt */
 	    } else {
 	        Setup(exitinfo.sProtocol, sProtName);
 	        Enter(1);
 	        /* Protocol now set to: */
-	        pout(10, 0, (char *) Language(266));
+	        pout(LIGHTGREEN, BLACK, (char *) Language(266));
 		PUTSTR(sProtName);
 	        Enter(2);
 	        Pause();

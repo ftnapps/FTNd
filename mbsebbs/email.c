@@ -94,19 +94,19 @@ void ShowEmailHdr(void)
 
     clear();
     sprintf(temp, "   %-70s", sMailbox);
-    pout(1, 7, temp);
+    pout(BLUE, LIGHTGRAY, temp);
 
     sprintf(temp, "#%-5lu", Msg.Id);
-    pout(4, 7, temp);
+    pout(RED, LIGHTGRAY, temp);
     Enter(1);
 
     /* Date     : */
-    pout(14, 0, (char *) Language(206));
+    pout(YELLOW, BLACK, (char *) Language(206));
     tm = gmtime(&Msg.Written);
     sprintf(temp, "%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
 		tm->tm_year+1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
-    pout(10, 0, temp);
-    colour(12, 0);
+    pout(LIGHTGREEN, BLACK, temp);
+    colour(LIGHTRED, BLACK);
     if (Msg.Local)          PUTSTR((char *)" Local");
     if (Msg.Intransit)      PUTSTR((char *)" Transit");
     if (Msg.Private)        PUTSTR((char *)" Priv.");
@@ -141,18 +141,18 @@ void ShowEmailHdr(void)
     Enter(1);
 
     /* From    : */
-    pout(14,0, (char *) Language(209));
-    pout(10, 0, Msg.From);
+    pout(YELLOW, BLACK, (char *) Language(209));
+    pout(LIGHTGREEN, BLACK, Msg.From);
     Enter(1);
 
     /* To      : */
-    pout(14,0, (char *) Language(208));
-    pout(10, 0, Msg.To);
+    pout(YELLOW, BLACK, (char *) Language(208));
+    pout(LIGHTGREEN, BLACK, Msg.To);
     Enter(1);
 
     /* Subject : */
-    pout(14,0, (char *) Language(210));
-    pout(10, 0, Msg.Subject);
+    pout(YELLOW, BLACK, (char *) Language(210));
+    pout(LIGHTGREEN, BLACK, Msg.Subject);
     Enter(1);
     
     if (Msg.Reply)
@@ -161,7 +161,7 @@ void ShowEmailHdr(void)
 	sprintf(Buf2, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
     sprintf(Buf3, "%s%s ", Buf1, Buf2);
     sprintf(temp, "%78s  ", Buf3);
-    pout(14, 1, temp);
+    pout(YELLOW, BLUE, temp);
     Enter(1);
 }
 
@@ -584,7 +584,7 @@ int EmailPanel(void)
 	}
     } else {
 	/* Next */
-	pout(15, 0, (char *) Language(216));
+	pout(WHITE, BLACK, (char *) Language(216));
 	if (LastNum < EmailBase.Highest)
 	    LastNum++;
 	else
@@ -835,7 +835,7 @@ void Write_Email(void)
     Msg_New();
 
     Enter(1);
-    colour(9, 0);
+    colour(LIGHTBLUE, BLACK);
     /* Posting message in area: */
     pout(LIGHTBLUE, BLACK, (char *) Language(156));
     PUTSTR((char *)"\"mailbox\"");
@@ -1014,9 +1014,9 @@ void Choose_Mailbox(char *Option)
     pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(231));
     Enter(2);
 
-    pout(15, 0, (char *)"    1"); pout(9, 0, (char *)" . "); pout(3, 0, (char *) Language(467)); Enter(1);
-    pout(15, 0, (char *)"    2"); pout(9, 0, (char *)" . "); pout(3, 0, (char *) Language(468)); Enter(1);
-    pout(15, 0, (char *)"    3"); pout(9, 0, (char *)" . "); pout(3, 0, (char *) Language(469)); Enter(1);
+    pout(WHITE, BLACK, (char *)"    1"); pout(LIGHTBLUE, BLACK, (char *)" . "); pout(CYAN, BLACK, (char *) Language(467)); Enter(1);
+    pout(WHITE, BLACK, (char *)"    2"); pout(LIGHTBLUE, BLACK, (char *)" . "); pout(CYAN, BLACK, (char *) Language(468)); Enter(1);
+    pout(WHITE, BLACK, (char *)"    3"); pout(LIGHTBLUE, BLACK, (char *)" . "); pout(CYAN, BLACK, (char *) Language(469)); Enter(1);
 
     pout(CFG.MoreF, CFG.MoreB, (char *) Language(470));
     colour(CFG.InputColourF, CFG.InputColourB);

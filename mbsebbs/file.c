@@ -4,7 +4,7 @@
  * Purpose ...............: All the file functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1118,7 +1118,7 @@ void Delete_Home()
 
     Enter(1);
     /* Please enter filename to delete: */
-    pout(9, 0, (char *) Language(292));
+    pout(LIGHTBLUE, BLACK, (char *) Language(292));
     colour(CFG.InputColourF, CFG.InputColourB);
     GetstrC(temp1, 80);
 
@@ -1131,7 +1131,7 @@ void Delete_Home()
     if (temp1[0] == '.') {
 	Enter(1);
 	/* Sorry you may not delete hidden files ...*/
-	pout(12, 0, (char *) Language(293));
+	pout(LIGHTRED, BLACK, (char *) Language(293));
     } else {
 	strcat(temp, temp1);
 

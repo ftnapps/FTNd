@@ -4,7 +4,7 @@
  * Purpose ...............: Display and handle the menus.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -685,7 +685,7 @@ void DoMenu(int Type)
 
 	default:
 		Enter(1);
-		pout(15, 0, (char *) Language(339));
+		pout(WHITE, BLACK, (char *) Language(339));
 		Enter(2);
 		Syslog('?', "Option: %s -> Unknown Menu Type: %d on %s", menus.MenuKey, Type, Menus[MenuLevel]); 
 		Pause();

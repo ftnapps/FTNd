@@ -340,7 +340,7 @@ int DisplayFileEnter(char *File)
     rc = DisplayFile(File);
     Enter(1);
     /* Press ENTER to continue */
-    language(13, 0, 436);
+    language(LIGHTMAGENTA, BLACK, 436);
     alarm_on();
     Readkey();
     return rc;

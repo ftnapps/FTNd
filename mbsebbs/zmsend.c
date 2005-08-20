@@ -4,7 +4,7 @@
  * Purpose ...............: Zmodem sender
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -522,7 +522,6 @@ to:
 	    Txwcnt = 0;  e = ZCRCQ;
 	} else
 	    e = ZCRCG;
-	Syslog('Z', "%7ld ZMODEM%s    ", Txpos, Crc32t?" CRC-32":"");
 	Nopper();
 	alarm_on();
 	zsdata(txbuf, n, e);

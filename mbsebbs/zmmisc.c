@@ -315,8 +315,6 @@ int zrdata(register char *buf, int length)
     register char *end;
     register int d;
 
-    Syslog('Z', "zrdata: len=%d, Crc32r=%s", length, Crc32r ? "true":"false");
-
     if (Crc32r)
 	return zrdat32(buf, length);
 

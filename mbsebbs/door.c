@@ -4,7 +4,7 @@
  * Purpose ...............: Run external door
  *
  *****************************************************************************
- * Copyright (C) 1997-2004 
+ * Copyright (C) 1997-2005 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -153,7 +153,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 
     if ((strstr(Program, "/A")) != NULL) {
 	Enter(1);
-	colour(3, 0);
+	colour(CYAN, BLACK);
 	if ((String = strstr(Program, "/T=")) != NULL) {
 	    String1 = String + 3;
 	    PUTSTR(String1);

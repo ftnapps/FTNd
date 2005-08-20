@@ -4,7 +4,7 @@
  * Purpose ...............: Input functions, also for some utils.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -52,7 +52,6 @@ int Waitchar(unsigned char *ch, int wtime)
 	rc = GETCHAR(0);
 	if (tty_status == STAT_SUCCESS) {
 	    *ch = (unsigned char)rc;
-// 	    memcpy(ch, &rc, sizeof(unsigned char)); /* doesn't work on bigendian machines */
 	    return 1;
 	}
 	if (tty_status != STAT_TIMEOUT) {

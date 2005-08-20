@@ -4,7 +4,7 @@
  * Purpose ...............: Misc functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -123,7 +123,6 @@ void DisplayLogo()
 	WriteError("$DisplayLogo: Can't open %s", temp);
     else {
 	while (Fgets(sString, 1023, pLogo) != NULL) {
-//	    Striplf(sString);
 	    PUTSTR(sString);
 	    Enter(1);
 	}
