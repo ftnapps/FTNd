@@ -343,7 +343,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     charset_set_in_out(charset,getrfcchrs(msgs.Charset));
 
     do {
-	Syslog('m', "split loop, splitpart = %d", splitpart);
+	Syslog('m', "rfc2ftn: split loop, splitpart = %d", splitpart);
 	datasize = 0;
 
 	if (splitpart) {
@@ -734,15 +734,22 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    rc = postnetmail(ofp, fmsg->from, fmsg->to, origin, fmsg->subj, fmsg->date, 
 		    fmsg->flags, FALSE, fmsg->from->zone, fmsg->to->zone);
 
+	Syslog('m', "rfc2ftn: message posted rc=%d", rc);
+
 	free(origin);
         fclose(ofp);
     } while (needsplit);
+
+    Syslog('m', "rfc2ftn: out of splitloop");
 
     free(temp);
     if (charset)
 	free(charset);
     tidyrfc(msg);
     tidy_ftnmsg(fmsg);
+
+    Syslog('m', "rfc2ftn: memory freed");
+
     UpdateMsgs();
 
     return 0;
