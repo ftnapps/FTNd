@@ -1660,6 +1660,7 @@ struct	_nodes {
 	unsigned	FNC		: 1;	/* Node needs 8.3 filenames */
 	unsigned	WrongEscape	: 1;	/* Binkp wrong escape	    */
 	unsigned	NoBinkp11	: 1;	/* No binkp/1.1 mode	    */
+	unsigned	IgnHold		: 1;	/* Ignore Hold/Down status  */
 
 	char		xExtra[94];
 	time_t		StartDate;		/* Node start date	    */
