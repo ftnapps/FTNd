@@ -4,7 +4,7 @@
  * Purpose ...............: Nodes Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -810,6 +810,7 @@ void SessionScreen(void)
     mbse_mvprintw(17,41, "18.  No Hydra");
     mbse_mvprintw(18,41, "19.  Binkp old esc");
     mbse_mvprintw(19,41, "20.  No binkp/1.1");
+    mbse_mvprintw(20,41, "21.  Ign. Hold");
 }
 
 
@@ -842,8 +843,9 @@ void SessionEdit(void)
 	show_bool(17,61,    nodes.NoHydra);
 	show_bool(18,61,    nodes.WrongEscape);
 	show_bool(19,61,    nodes.NoBinkp11);
+	show_bool(20,61,    nodes.IgnHold);
 
-	switch(select_menu(20)) {
+	switch(select_menu(21)) {
 	case 0: return;
 	case 1: E_STR(  7,26,15, nodes.Spasswd,     "The ^Session password^ for this node")
 	case 2: E_STR(  8,26,40, nodes.dial,        "If needed, give a special modem ^dial command^ for this node")
@@ -868,6 +870,7 @@ void SessionEdit(void)
 	case 18:E_BOOL(17,61,    nodes.NoHydra,     "Disable ^Hydra^ protocol with this node")
 	case 19:E_BOOL(18,61,    nodes.WrongEscape, "Use the ^old escape^ for long filenames (Argus, Irex)")
 	case 20:E_BOOL(19,61,    nodes.NoBinkp11,   "Disable ^binkp/1.1^ (fallback to binkp/1.0) mode for this node")
+	case 21:E_BOOL(20,61,    nodes.IgnHold,     "Ignore node ^Hold or Down^ nodelist status")
 	}
     }
 }
@@ -1477,150 +1480,153 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
 	    fprintf(wp, "<TBODY>\n");
 	    add_webtable(wp, (char *)"Sysop", nodes.Sysop);
-	    fprintf(fp, "     Sysop          %s\n", nodes.Sysop);
+	    fprintf(fp, "     Sysop            %s\n", nodes.Sysop);
 	    if (strlen(nodes.OutBox)) {
-		fprintf(fp, "     Outbox dir     %s\n", nodes.OutBox);
+		fprintf(fp, "     Outbox dir       %s\n", nodes.OutBox);
 		add_webtable(wp, (char *)"Outbox directory", nodes.OutBox);
 	    }
-	    fprintf(fp, "     First date     %s", ctime(&nodes.StartDate));
+	    fprintf(fp, "     First date       %s", ctime(&nodes.StartDate));
 	    add_webtable(wp, (char *)"First date", ctime(&nodes.StartDate));
-	    fprintf(fp, "     Last date      %s", ctime(&nodes.LastDate));
+	    fprintf(fp, "     Last date        %s", ctime(&nodes.LastDate));
 	    add_webtable(wp, (char *)"Last date", ctime(&nodes.LastDate));
 	    for (i = 0; i < 20; i++)
 		if (nodes.Aka[i].zone) {
-		    fprintf(fp, "     Aka %2d         %s\n", i+1, aka2str(nodes.Aka[i]));
+		    fprintf(fp, "     Aka %2d           %s\n", i+1, aka2str(nodes.Aka[i]));
 		    sprintf(temp, "Aka %d", i+1);
 		    add_webtable(wp, temp, aka2str(nodes.Aka[i]));
 		}
 	    if (nodes.RouteVia.zone) {
-		fprintf(fp, "     Route via      %s\n", aka2str(nodes.RouteVia));
+		fprintf(fp, "     Route via        %s\n", aka2str(nodes.RouteVia));
 		add_webtable(wp, (char *)"Route via", aka2str(nodes.RouteVia));
 	    }
-	    fprintf(fp, "     Session pwd    %s\n", nodes.Spasswd);
+	    fprintf(fp, "     Session pwd      %s\n", nodes.Spasswd);
 	    add_webtable(wp, (char *)"Session password", nodes.Spasswd);
 	    if (strlen(nodes.dial)) {
-		fprintf(fp, "     Dial command   %s\n", nodes.dial);
+		fprintf(fp, "     Dial command     %s\n", nodes.dial);
 		add_webtable(wp, (char *)"Dial command", nodes.dial);
 	    }
 	    if (strlen(nodes.phone[0]) || strlen(nodes.phone[1])) {
-	        fprintf(fp, "     Phone numbers  %s %s\n", nodes.phone[0], nodes.phone[1]);
+	        fprintf(fp, "     Phone numbers    %s %s\n", nodes.phone[0], nodes.phone[1]);
 		sprintf(temp, "%s %s", nodes.phone[0], nodes.phone[1]);
 		add_webtable(wp, (char *)"Phone numbers", temp);
 	    }
 	    if (strlen(nodes.Nl_flags)) {
-	        fprintf(fp, "     Nodelist flags %s\n", nodes.Nl_flags);
+	        fprintf(fp, "     Nodelist flags   %s\n", nodes.Nl_flags);
 		add_webtable(wp, (char *)"Nodelist flags", nodes.Nl_flags);
 	    }
 	    if (strlen(nodes.Nl_hostname)) {
-	        fprintf(fp, "     Hostname       %s\n", nodes.Nl_hostname);
+	        fprintf(fp, "     Hostname         %s\n", nodes.Nl_hostname);
 		add_webtable(wp, (char *)"Hostname", nodes.Nl_hostname);
 	    }
-	    fprintf(fp, "     PKT password   %s\n", nodes.Epasswd);
+	    fprintf(fp, "     PKT password     %s\n", nodes.Epasswd);
 	    add_webtable(wp, (char *)"PKT password", nodes.Epasswd);
-	    fprintf(fp, "     Files passwd   %s\n", nodes.Fpasswd);
+	    fprintf(fp, "     Files passwd     %s\n", nodes.Fpasswd);
 	    add_webtable(wp, (char *)"Files passwd", nodes.Fpasswd);
-	    fprintf(fp, "     Areamgr pwd    %s\n\n", nodes.Apasswd);
+	    fprintf(fp, "     Areamgr pwd      %s\n\n", nodes.Apasswd);
 	    add_webtable(wp, (char *)"Areamgr pwd", nodes.Apasswd);
 	    fprintf(wp, "<TR><TD colspan='2'>&nbsp;</TD></TR>\n");
 
-	    fprintf(fp, "     Mail direct    %s", getboolean(nodes.Direct));
+	    fprintf(fp, "     Mail direct      %s", getboolean(nodes.Direct));
 	    add_webtable(wp, (char *)"Mail direct", getboolean(nodes.Direct));
-	    fprintf(fp, "     Mail crash     %s", getboolean(nodes.Crash));
+	    fprintf(fp, "     Mail crash       %s", getboolean(nodes.Crash));
 	    add_webtable(wp, (char *)"Mail crash", getboolean(nodes.Crash));
-	    fprintf(fp, "     Mail hold      %s\n", getboolean(nodes.Hold));
+	    fprintf(fp, "     Mail hold        %s\n", getboolean(nodes.Hold));
 	    add_webtable(wp, (char *)"Mail hold", getboolean(nodes.Hold));
-	    fprintf(fp, "     Pack mail      %s", getboolean(nodes.PackNetmail));
+	    fprintf(fp, "     Pack mail        %s", getboolean(nodes.PackNetmail));
 	    add_webtable(wp, (char *)"Pack mail", getboolean(nodes.PackNetmail));
-	    fprintf(fp, "     Send notify    %s", getboolean(nodes.Notify));
+	    fprintf(fp, "     Send notify      %s", getboolean(nodes.Notify));
 	    add_webtable(wp, (char *)"Send notify messages", getboolean(nodes.Notify));
-	    fprintf(fp, "     Language       %c\n", nodes.Language);
+	    fprintf(fp, "     Language         %c\n", nodes.Language);
 	    sprintf(temp, "%c", nodes.Language);
 	    add_webtable(wp, (char *)"Language", temp);
-	    fprintf(fp, "     No EMSI        %s", getboolean(nodes.NoEMSI));
+	    fprintf(fp, "     No EMSI          %s", getboolean(nodes.NoEMSI));
 	    add_webtable(wp, (char *)"No EMSI", getboolean(nodes.NoEMSI));
-	    fprintf(fp, "     No YooHoo/2U2  %s", getboolean(nodes.NoWaZOO));
+	    fprintf(fp, "     No YooHoo/2U2    %s", getboolean(nodes.NoWaZOO));
 	    add_webtable(wp, (char *)"No YooHoo/2U2", getboolean(nodes.NoWaZOO));
-	    fprintf(fp, "     No Requests    %s\n", getboolean(nodes.NoFreqs));
+	    fprintf(fp, "     No Filerequests  %s\n", getboolean(nodes.NoFreqs));
 	    add_webtable(wp, (char *)"No File Requests", getboolean(nodes.NoFreqs));
-	    fprintf(fp, "     Don't call     %s", getboolean(nodes.NoCall));
+	    fprintf(fp, "     Don't call       %s", getboolean(nodes.NoCall));
 	    add_webtable(wp, (char *)"Don't call", getboolean(nodes.NoCall));
-	    fprintf(fp, "     8.3 filenames  %s", getboolean(nodes.FNC));
+	    fprintf(fp, "     8.3 filenames    %s", getboolean(nodes.FNC));
 	    add_webtable(wp, (char *)"8.3 filenames", getboolean(nodes.FNC));
-	    fprintf(fp, "     No PLZ         %s\n", getboolean(nodes.NoPLZ));
+	    fprintf(fp, "     No PLZ           %s\n", getboolean(nodes.NoPLZ));
 	    add_webtable(wp, (char *)"No PLZ compression", getboolean(nodes.NoPLZ));
-	    fprintf(fp, "     No GZ/BZ2      %s\n", getboolean(nodes.NoGZ));
+	    fprintf(fp, "     No GZ/BZ2        %s\n", getboolean(nodes.NoGZ));
 	    add_webtable(wp, (char *)"No GZ/BZ2 compression", getboolean(nodes.NoGZ));
-	    fprintf(fp, "     No Zmodem      %s\n", getboolean(nodes.NoZmodem));
+	    fprintf(fp, "     No Zmodem        %s\n", getboolean(nodes.NoZmodem));
 	    add_webtable(wp, (char *)"No Zmodem", getboolean(nodes.NoZmodem));
-	    fprintf(fp, "     No Zedzap      %s", getboolean(nodes.NoZedzap));
+	    fprintf(fp, "     No Zedzap        %s", getboolean(nodes.NoZedzap));
 	    add_webtable(wp, (char *)"No Zedzap", getboolean(nodes.NoZedzap));
-	    fprintf(fp, "     No Hydra       %s", getboolean(nodes.NoHydra));
+	    fprintf(fp, "     No Hydra         %s", getboolean(nodes.NoHydra));
 	    add_webtable(wp, (char *)"No Hydra", getboolean(nodes.NoHydra));
-	    fprintf(fp, "     binkp old esc  %s\n", getboolean(nodes.WrongEscape));
+	    fprintf(fp, "     binkp old esc    %s\n", getboolean(nodes.WrongEscape));
 	    add_webtable(wp, (char *)"Binkp old esc method", getboolean(nodes.WrongEscape));
-	    fprintf(fp, "     No binkp/1.1   %s", getboolean(nodes.NoBinkp11));
+	    fprintf(fp, "     No binkp/1.1     %s", getboolean(nodes.NoBinkp11));
 	    add_webtable(wp, (char *)"No binkp/1.1 sessions", getboolean(nodes.NoBinkp11));
-	    fprintf(fp, "     Mail forward   %s", getboolean(nodes.MailFwd));
+	    fprintf(fp, "     Ignore Hold/Down %s", getboolean(nodes.IgnHold));
+	    add_webtable(wp, (char *)"Ignore Hold/Down", getboolean(nodes.IgnHold));
+
+	    fprintf(fp, "     Mail forward     %s\n", getboolean(nodes.MailFwd));
 	    add_webtable(wp, (char *)"Mail forward", getboolean(nodes.MailFwd));
-	    fprintf(fp, "     Check mailpwd  %s\n", getboolean(nodes.MailPwdCheck));
+	    fprintf(fp, "     Check mailpwd    %s", getboolean(nodes.MailPwdCheck));
 	    add_webtable(wp, (char *)"Check mailpassword", getboolean(nodes.MailPwdCheck));
-	    fprintf(fp, "     ARCmail comp.  %s", getboolean(nodes.ARCmailCompat));
+	    fprintf(fp, "     ARCmail comp.    %s", getboolean(nodes.ARCmailCompat));
 	    add_webtable(wp, (char *)" ARCmail compatibility", getboolean(nodes.ARCmailCompat));
-	    fprintf(fp, "     ACRmail a..z   %s", getboolean(nodes.ARCmailAlpha));
+	    fprintf(fp, "     ACRmail a..z     %s\n", getboolean(nodes.ARCmailAlpha));
 	    add_webtable(wp, (char *)"ACRmail a..z", getboolean(nodes.ARCmailAlpha));
-	    fprintf(fp, "     Send message   %s\n", getboolean(nodes.Message));
+	    fprintf(fp, "     Send message     %s", getboolean(nodes.Message));
 	    add_webtable(wp, (char *)"Send netmail with files", getboolean(nodes.Message));
-	    fprintf(fp, "     Send .TIC      %s", getboolean(nodes.Tic));
+	    fprintf(fp, "     Send .TIC        %s", getboolean(nodes.Tic));
 	    add_webtable(wp, (char *)"Send .TIC files", getboolean(nodes.Tic));
-	    fprintf(fp, "     File forward   %s", getboolean(nodes.FileFwd));
+	    fprintf(fp, "     File forward     %s\n", getboolean(nodes.FileFwd));
 	    add_webtable(wp, (char *)"File forward", getboolean(nodes.FileFwd));
-	    fprintf(fp, "     Advanced TIC   %s\n", getboolean(nodes.AdvTic));
+	    fprintf(fp, "     Advanced TIC     %s", getboolean(nodes.AdvTic));
 	    add_webtable(wp, (char *)"Advanced TIC files", getboolean(nodes.AdvTic));
-	    fprintf(fp, "     Advanded SB    %s", getboolean(nodes.TIC_AdvSB));
+	    fprintf(fp, "     Advanded SB      %s", getboolean(nodes.TIC_AdvSB));
 	    add_webtable(wp, (char *)" Advanded SB lines in .TIC", getboolean(nodes.TIC_AdvSB));
-	    fprintf(fp, "     Sent To line   %s", getboolean(nodes.TIC_To));
+	    fprintf(fp, "     Sent To line     %s\n", getboolean(nodes.TIC_To));
 	    add_webtable(wp, (char *)"Sent 'To' lines in .TIC", getboolean(nodes.TIC_To));
-	    fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
+	    fprintf(fp, "     Security flags   %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
 	    add_webtable(wp, (char *)"Security flags", getflag(nodes.Security.flags, nodes.Security.notflags));
 	    fprintf(wp, "<TR><TD colspan='2'>&nbsp;</TD></TR>\n");
 
-	    fprintf(fp, "     Outb session   %s\n", get_sessiontype(nodes.Session_out));
+	    fprintf(fp, "     Outbound session %s\n", get_sessiontype(nodes.Session_out));
 	    add_webtable(wp, (char *)"Outbound session", get_sessiontype(nodes.Session_out));
 	    if (nodes.Session_out == S_DIR) {
-		fprintf(fp, "     Path           %s\n", nodes.Dir_out_path);
+		fprintf(fp, "     Path             %s\n", nodes.Dir_out_path);
 		add_webtable(wp, (char *)"Path", nodes.Dir_out_path);
-	        fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_out_chklck));
+	        fprintf(fp, "     Check lock       %s", getboolean(nodes.Dir_out_chklck));
 		add_webtable(wp, (char *)"Check lock", getboolean(nodes.Dir_out_chklck));
-	        fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_out_waitclr));
+	        fprintf(fp, "     Wait clear lock  %s\n", getboolean(nodes.Dir_out_waitclr));
 		add_webtable(wp, (char *)"Wait clear lock", getboolean(nodes.Dir_out_waitclr));
 	        if (nodes.Dir_out_chklck) {
-		    fprintf(fp, "     File to check  %s\n", nodes.Dir_out_clock);
+		    fprintf(fp, "     File to check    %s\n", nodes.Dir_out_clock);
 		    add_webtable(wp, (char *)"File to check", nodes.Dir_out_clock);
 		}
-		fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_out_mklck));
+		fprintf(fp, "     Create lock      %s\n", getboolean(nodes.Dir_out_mklck));
 		add_webtable(wp, (char *)"Create lock", getboolean(nodes.Dir_out_mklck));
 	        if (nodes.Dir_out_mklck) {
-		    fprintf(fp, "     File to create %s\n", nodes.Dir_out_mlock);
+		    fprintf(fp, "     File to create   %s\n", nodes.Dir_out_mlock);
 		    add_webtable(wp, (char *)"File to create", nodes.Dir_out_mlock);
 		}
 	    }
-	    fprintf(fp, "     Inb session    %s\n", get_sessiontype(nodes.Session_in));
+	    fprintf(fp, "     Inbound session  %s\n", get_sessiontype(nodes.Session_in));
 	    add_webtable(wp, (char *)"Inbound session", get_sessiontype(nodes.Session_in));
 	    if (nodes.Session_in == S_DIR) {
-	        fprintf(fp, "     Path           %s\n", nodes.Dir_in_path);
+	        fprintf(fp, "     Path             %s\n", nodes.Dir_in_path);
 		add_webtable(wp, (char *)"Path", nodes.Dir_in_path);
-	        fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_in_chklck));
+	        fprintf(fp, "     Check lock       %s", getboolean(nodes.Dir_in_chklck));
 		add_webtable(wp, (char *)"Check lock", getboolean(nodes.Dir_in_chklck));
-	        fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_in_waitclr));
+	        fprintf(fp, "     Wait clear lock  %s\n", getboolean(nodes.Dir_in_waitclr));
 		add_webtable(wp, (char *)"Wait clear lock", getboolean(nodes.Dir_in_waitclr));
 	        if (nodes.Dir_in_chklck) {
-		    fprintf(fp, "     File to check  %s\n", nodes.Dir_in_clock);
+		    fprintf(fp, "     File to check    %s\n", nodes.Dir_in_clock);
 		    add_webtable(wp, (char *)"File to check", nodes.Dir_in_clock);
 		}
-		fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_in_mklck));
+		fprintf(fp, "     Create lock      %s\n", getboolean(nodes.Dir_in_mklck));
 		add_webtable(wp, (char *)"Create lock", getboolean(nodes.Dir_in_mklck));
 	        if (nodes.Dir_in_mklck) {
-		    fprintf(fp, "     File to create %s\n", nodes.Dir_in_mlock);
+		    fprintf(fp, "     File to create   %s\n", nodes.Dir_in_mlock);
 		    add_webtable(wp, (char *)"File to create", nodes.Dir_in_mlock);
 		}
 	    }

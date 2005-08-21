@@ -2,6 +2,9 @@ $Id$
 
 v0.71.5		18-Aug-2005
 
+	nodelist.a:
+		Clear node Hold or Down status if set in nodes setup.
+
 	mbfido:
 		Removed debug logging for solved crash.
 		Code cleanup.
@@ -30,6 +33,9 @@ v0.71.5		18-Aug-2005
 
 	mbsebbs:
 		Code cleanup.
+
+	mbsetup:
+		Added node setup switch to override node Hold or Down status.
 
 
 v0.71.4		12-Aug-2005 - 18-Aug-2005

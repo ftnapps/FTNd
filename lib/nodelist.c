@@ -4,7 +4,7 @@
  * Purpose ...............: Read nodelists information
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -726,6 +726,16 @@ node *getnlent(faddr *addr)
     
     nodebuf.type = ndx.type;
     nodebuf.pflag = ndx.pflag;
+
+    /*
+     * If an override exists on Hold and Down status,
+     * clear these bits.
+     */
+    if (ndrecord && nd.IgnHold && (nodebuf.pflag & (NL_HOLD + NL_DOWN))) {
+	nodebuf.pflag &= ~NL_DOWN;
+	nodebuf.pflag &= ~NL_HOLD;
+	Syslog('+', "getnlent: %s override node Down/Hold status", ascfnode(addr,0xff));
+    }
 
     if (*(p = buf + strlen(buf) -1) == '\n') 
 	*p = '\0';

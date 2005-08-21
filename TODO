@@ -97,8 +97,6 @@ mbfido:
 mbcico:
 	L: Implement binkp option ND.
 
-	N: Overrule Down or Hold node is not possible.
-
 mbfile:
 	L: Possibility to skip file areas from checking and reindexing.
 
