@@ -1122,8 +1122,6 @@ TrType binkp_receiver(void)
 		bp.rmode = CompGZ;
 	    else if (strcmp((char *)"BZ2", bp.ropts) == 0)
 		bp.rmode = CompBZ2;
-	    else
-		Syslog('!', "Binkp: unknown EXTCMD received \"%s\"", printable(bp.ropts, 0));
 	} else {
 	    /*
 	     * Corrupted command, in case this was serious, send the M_GOT back so it's
