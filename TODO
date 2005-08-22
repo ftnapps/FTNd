@@ -24,8 +24,6 @@ everything:
 
 	N: Add personal message area.
 
-	N: Fix JAM message base endian on big-endian machines.
-
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
