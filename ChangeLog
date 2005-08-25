@@ -5,6 +5,10 @@ v0.71.5		18-Aug-2005
 	nodelist.a:
 		Clear node Hold or Down status if set in nodes setup.
 
+	mbcico:
+		Only disallow GZ/BZ2 compression by default if both zlib and
+		bzlib are not present.
+
 	mbfido:
 		Removed debug logging for solved crash.
 		Code cleanup.

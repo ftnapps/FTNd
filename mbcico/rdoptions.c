@@ -95,10 +95,9 @@ void rdoptions(int Loaded)
 
 #ifndef	HAVE_ZLIB_H
     localoptions |= NOPLZ;
-    localoptions |= NOGZBZ2;
-#endif
 #ifndef	HAVE_BZLIB_H
     localoptions |= NOGZBZ2;
+#endif
 #endif
 
     if (nodes.Aka[0].zone == 0) {
