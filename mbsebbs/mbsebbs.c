@@ -55,11 +55,12 @@ time_t		t_start;
 
 int main(int argc, char **argv)
 {
-    FILE	*pTty;
-    char	*p, *tty, temp[PATH_MAX];
-    int		i, rc;
-    struct stat	sb;
-
+    FILE	    *pTty;
+    char	    *p, *tty, temp[PATH_MAX];
+    int		    i, rc;
+    struct stat	    sb;
+    struct winsize  ws;
+    
     pTTY = calloc(15, sizeof(char));
     tty = ttyname(1);
 
@@ -99,6 +100,10 @@ int main(int argc, char **argv)
     IsDoing("Loging in");
     Syslog(' ', " ");
     Syslog(' ', "MBSEBBS v%s", VERSION);
+
+    if(ioctl(1, TIOCGWINSZ, &ws) != -1 && ws.ws_col>0 && ws.ws_row>0){
+	Syslog('b', "columns=%d lines=%d", ws.ws_col, ws.ws_row);
+    }
 
     if ((rc = rawport()) != 0) {
 	WriteError("Unable to set raw mode");
