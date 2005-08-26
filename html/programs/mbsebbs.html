@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 21-Jan-2002</h5></div>
+<div align="right"><h5>Last update 26-Aug-2005</h5></div>
 <div align="center"><H1>mbsebbs - The main BBS program</H1></div>
 
 <H3>Synopsis.</H3>
@@ -131,6 +131,14 @@ will be made with the caller id.
 <P>
 The environment variable <strong>LOGNAME</strong> must contain the unix
 username. This is set by the <b>mblogin</b> program.
+<P>
+If the environment variable <strong>REMOTEHOST</strong> is present, a log entry
+will be made with the name or IP address of the remote host.
+<P>
+If the environment variable <strong>TERM</strong> is present, a log entry
+will be made with the terminal type of the remote user.
+<P>
+
 <P>&nbsp;<P>
 
 
