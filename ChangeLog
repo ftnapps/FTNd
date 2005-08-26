@@ -41,6 +41,9 @@ v0.71.5		18-Aug-2005
 	mbsetup:
 		Added node setup switch to override node Hold or Down status.
 
+	script:
+		Added mbfile check to monthly maintenance script.
+
 
 v0.71.4		12-Aug-2005 - 18-Aug-2005
 
