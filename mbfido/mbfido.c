@@ -64,6 +64,7 @@
 #define	UNPACK_FACTOR 300
 
 
+int	do_obs_a   = FALSE;		/* Obsolete command used	    */
 int	do_areas   = FALSE;		/* Process area taglists	    */
 int	do_toss    = FALSE;		/* Toss flag			    */
 int	do_scan    = FALSE;		/* Scan flag			    */
@@ -461,7 +462,7 @@ int main(int argc, char **argv)
 	else if (strncmp(tl(argv[i]), "-q", 2) == 0)
 	    do_quiet = TRUE;
 	else if (strncmp(tl(argv[i]), "-a", 2) == 0)
-	    WriteError("The -a option is obsolete, adjust your setup");
+	    do_obs_a = TRUE;
 	else if (strncmp(tl(argv[i]), "-unp", 4) == 0)
 	    do_unprot = TRUE;
 	else if (strncmp(tl(argv[i]), "-uns", 4) == 0)
@@ -495,6 +496,8 @@ int main(int argc, char **argv)
     Syslog(' ', "MBFIDO v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
+    if (do_obs_a)
+	WriteError("The -a option is obsolete, adjust your setup");
 
     /*
      * Not yet locked, if anything goes wrong, exit with die(MBERR_NO_PROGLOCK)
