@@ -589,8 +589,9 @@ void HtmlIndex(char *Lang)
 
     /*
      * Setup the correct table to produce file listings for the www.
+     * This make ANSI grafics look a bit nicer with browsers.
      */
-    charset_set_in_out((char *)"x-ibmpc", (char *)"iso-8859-1");
+    charset_set_in_out((char *)"cp437", (char *)"iso-8859-1");
 
     for (i = 1; i <= iAreas; i++) {
 
@@ -615,12 +616,13 @@ void HtmlIndex(char *Lang)
 	    sprintf(temp, "%s/index.html", area.Path);
 	    obj_time = (int) file_time(temp);
 
-	    Syslog('f', "Area %d index.html is %s", i, (obj_time < db_time) ? "outdated" : "up todate");
+	    if (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)
+		Syslog('f', "Area %d index.html is %s", i, (obj_time < db_time) ? "outdated" : "up todate");
     
 	    /*
 	     * Create index.html pages in each available download area when not up to date.
 	     */
-	    if (fm && (obj_time < db_time) && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
+	    if (fm && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
 
 		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		AreasHtml++;
@@ -633,117 +635,137 @@ void HtmlIndex(char *Lang)
 		aSize = 0L;
 		aTotal = 0;
 		last = 0L;
-		if ((fb = OpenMacro("html.areas", 'E', TRUE)) == NULL) {
-		    fa = NULL;
-		} else {
-		    fa = newpage(area.Path, area.Name, later, inArea, aTotal, fb);
-		    fileptr1 = gfilepos;
-		}
 
-		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-		    if (!fdb.Deleted) {
-			/*
-			 * The next is to reduce system load
-			 */
-			x++;
-			TotalHtml++;
-			aTotal++;
-			if (CFG.slow_util && do_quiet && ((x % 3) == 0))
-			    msleep(1);
+		if (obj_time < db_time) {
+		    /*
+		     * If not up todate
+		     */
+		    if ((fb = OpenMacro("html.areas", 'E', TRUE)) == NULL) {
+			fa = NULL;
+		    } else {
+			fa = newpage(area.Path, area.Name, later, inArea, aTotal, fb);
+			fileptr1 = gfilepos;
+		    }
+
+		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+			if (!fdb.Deleted) {
+			    /*
+			     * The next is to reduce system load
+			     */
+			    x++;
+			    TotalHtml++;
+			    aTotal++;
+			    if (CFG.slow_util && do_quiet && ((x % 3) == 0))
+				msleep(1);
 			 
-			MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
-			MacroVars("e", "d", aTotal);
+			    MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
+			    MacroVars("e", "d", aTotal);
 
-			/*
-			 * Check if this is a .gif or .jpg file, if so then
-			 * check if a thumbnail file exists. If not try to
-			 * create a thumbnail file to add to the html listing.
-			 */
-			isthumb = FALSE;
-			if (strstr(fdb.LName, ".gif") || strstr(fdb.LName, ".jpg") ||
-			    strstr(fdb.LName, ".GIF") || strstr(fdb.LName, ".JPG")) {
-			    sprintf(linebuf, "%s/%s", area.Path, fdb.LName);
-			    sprintf(outbuf, "%s/.%s", area.Path, fdb.LName);
-			    if (file_exist(outbuf, R_OK)) {
-				if (strlen(CFG.www_convert)) {
-				    if ((execute_str(CFG.www_convert, linebuf, outbuf,
+			    /*
+			     * Check if this is a .gif or .jpg file, if so then
+			     * check if a thumbnail file exists. If not try to
+			     * create a thumbnail file to add to the html listing.
+			     */
+			    isthumb = FALSE;
+			    if (strstr(fdb.LName, ".gif") || strstr(fdb.LName, ".jpg") ||
+				strstr(fdb.LName, ".GIF") || strstr(fdb.LName, ".JPG")) {
+				sprintf(linebuf, "%s/%s", area.Path, fdb.LName);
+				sprintf(outbuf, "%s/.%s", area.Path, fdb.LName);
+				if (file_exist(outbuf, R_OK)) {
+				    if (strlen(CFG.www_convert)) {
+					if ((execute_str(CFG.www_convert, linebuf, outbuf,
 						    (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
-					Syslog('+', "Failed to create thumbnail for %s", fdb.LName);
+					    Syslog('+', "Failed to create thumbnail for %s", fdb.LName);
+					} else {
+					    chmod(outbuf, 0644);
+					    isthumb = TRUE;
+					}
 				    } else {
-					chmod(outbuf, 0644);
-					isthumb = TRUE;
+					Syslog('+', "No convert program to create thumbnail %s", outbuf);
 				    }
 				} else {
-				    Syslog('+', "No convert program to create thumbnail %s", outbuf);
+				    isthumb = TRUE;
 				}
-			    } else {
-				isthumb = TRUE;
 			    }
-			}
-			sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
-				area.Path+strlen(CFG.ftp_base), fdb.LName);
-			if (isthumb) {
-			    sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), fdb.LName);
-			    MacroVars("fghi", "dsss", 1, outbuf, fdb.LName, linebuf);
-			} else {
 			    sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
+				area.Path+strlen(CFG.ftp_base), fdb.LName);
+			    if (isthumb) {
+				sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
 					area.Path+strlen(CFG.ftp_base), fdb.LName);
-			    MacroVars("fghi", "dsss", 0, outbuf, fdb.LName, "");
-			}
-
-			sprintf(outbuf, "%lu Kb.", (long)(fdb.Size / 1024));
-			MacroVars("jkl", "ssd", StrDateDMY(fdb.FileDate), outbuf, fdb.TimesDL);
-			memset(&desc, 0, sizeof(desc));
-			k = 0;
-			for (j = 0; j < 25; j++)
-			    if (strlen(fdb.Desc[j])) {
-				if (j) {
-				    sprintf(desc+k, "\n");
-				    k += 1;
-				}
-			        sprintf(linebuf, "%s", To_Html(fdb.Desc[j]));
-				html_massage(linebuf, outbuf);
-				sprintf(desc+k, "%s", outbuf);
-				k += strlen(outbuf);
+				MacroVars("fghi", "dsss", 1, outbuf, fdb.LName, linebuf);
+			    } else {
+				sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
+					area.Path+strlen(CFG.ftp_base), fdb.LName);
+				MacroVars("fghi", "dsss", 0, outbuf, fdb.LName, "");
 			    }
-			MacroVars("m", "s", desc);
-			fseek(fb, fileptr1, SEEK_SET);
-			MacroRead(fb, fa);
-			aSize += fdb.Size;
-			MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
-			if (fdb.FileDate > last)
-			    last = fdb.FileDate;
-			if ((aTotal % CFG.www_files_page) == 0) {
-			    closepage(fa, area.Path, inArea, aTotal, fb);
-			    fseek(fb, 0, SEEK_SET);
-			    fa = newpage(area.Path, area.Name, later, inArea, aTotal, fb);
-			}
-		    } /* if (!file.deleted) */
-		}
-		if (aTotal == 0) {
+
+			    sprintf(outbuf, "%lu Kb.", (long)(fdb.Size / 1024));
+			    MacroVars("jkl", "ssd", StrDateDMY(fdb.FileDate), outbuf, fdb.TimesDL);
+			    memset(&desc, 0, sizeof(desc));
+			    k = 0;
+			    for (j = 0; j < 25; j++)
+				if (strlen(fdb.Desc[j])) {
+				    if (j) {
+					sprintf(desc+k, "\n");
+					k += 1;
+				    }
+				    sprintf(linebuf, "%s", To_Html(fdb.Desc[j]));
+				    html_massage(linebuf, outbuf);
+				    sprintf(desc+k, "%s", outbuf);
+				    k += strlen(outbuf);
+				}
+			    MacroVars("m", "s", desc);
+			    fseek(fb, fileptr1, SEEK_SET);
+			    MacroRead(fb, fa);
+			    aSize += fdb.Size;
+			    MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
+			    if (fdb.FileDate > last)
+				last = fdb.FileDate;
+			    if ((aTotal % CFG.www_files_page) == 0) {
+				closepage(fa, area.Path, inArea, aTotal, fb);
+				fseek(fb, 0, SEEK_SET);
+				fa = newpage(area.Path, area.Name, later, inArea, aTotal, fb);
+			    }
+			} /* if (!file.deleted) */
+		    }
+		    if (aTotal == 0) {
+			/*
+			 * Nothing written, skip skip fileblock
+			 */
+			while ((fgets(linebuf, 254, fb) != NULL) && ((linebuf[0]!='@') || (linebuf[1]!='|')));
+		    }
+
+		    KSize += aSize / 1024;
+		    closepage(fa, area.Path, inArea, aTotal, fb);
+		    fclose(fb);
+
 		    /*
-		     * Nothing written, skip skip fileblock
+		     * If the time before there were more files in this area then now,
+		     * the number of html pages may de decreased. We try to delete these
+		     * files if they should exist.
 		     */
-		    while ((fgets(linebuf, 254, fb) != NULL) && ((linebuf[0]!='@') || (linebuf[1]!='|')));
-		}
-
-		KSize += aSize / 1024;
-		closepage(fa, area.Path, inArea, aTotal, fb);
-		fclose(fb);
-
-		/*
-		 * If the time before there were more files in this area then now,
-		 * the number of html pages may de decreased. We try to delete these
-		 * files if they should exist.
-		 */
-		filenr = lastfile / CFG.www_files_page;
-		while (TRUE) {
-		    filenr++;
-		    sprintf(linebuf, "%s/index%d.html", area.Path, filenr);
-		    if (unlink(linebuf))
-			break;
-		    Syslog('+', "Removed obsolete %s", linebuf);
+		    filenr = lastfile / CFG.www_files_page;
+		    while (TRUE) {
+			filenr++;
+			sprintf(linebuf, "%s/index%d.html", area.Path, filenr);
+			if (unlink(linebuf))
+			    break;
+			Syslog('+', "Removed obsolete %s", linebuf);
+		    }
+		} else {
+		    /*
+		     * Area was up todate, but we need some data for the main index page.
+		     */
+		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+			if (!fdb.Deleted) {
+			    TotalHtml++;
+			    aTotal++;
+			    aSize += fdb.Size;
+			    if (fdb.FileDate > last)
+				last = fdb.FileDate;
+			}
+		    }
+		    KSize += aSize / 1024;
 		}
 
 		strcpy(linebuf, area.Name);
