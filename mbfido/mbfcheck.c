@@ -193,7 +193,7 @@ void Check(long AreaNr)
     free(sAreas);
     free(fAreas);
 
-    Syslog('+', "Check Areas [%5d] Files [%5d]  Errors [%5d]", iAreasNew, iTotal, iErrors);
+    Syslog('+', "Check Areas [%6d] Files [%6d]  Errors [%6d]", iAreasNew, iTotal, iErrors);
 }
 
 

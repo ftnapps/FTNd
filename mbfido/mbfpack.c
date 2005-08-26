@@ -129,7 +129,7 @@ void PackFileBase(void)
     }
 
     fclose(pAreas);
-    Syslog('+', "Pack  Areas [%5d] Files [%5d] Removed [%5d]", iAreasNew, iTotal, iRemoved);
+    Syslog('+', "Pack  Areas [%6d] Files [%6d] Removed [%6d]", iAreasNew, iTotal, iRemoved);
 
     if (!do_quiet) {
 	printf("\r                                                              \r");

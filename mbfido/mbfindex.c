@@ -43,6 +43,7 @@ int		lastfile;		/* Last file number	    */
 long		gfilepos = 0;		/* Global file position	    */
 int		TotalHtml = 0;		/* Total html files	    */
 int		AreasHtml = 0;		/* Total html areas	    */
+int		aUpdate = 0;		/* Updated areas	    */
 
 
 
@@ -262,7 +263,6 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current, FIL
         char            linebuf[1024], outbuf[1024];
         static FILE*    fa;
 
-	Syslog('f', "newpage %s %s %d %d", Path, Name, inArea, Current);
         lastfile = Current;
         if (Current)
                 sprintf(linebuf, "%s/index%d.temp", Path, Current / CFG.www_files_page);
@@ -290,8 +290,6 @@ void closepage(FILE *, char *, int, int, FILE *);
 void closepage(FILE *fa, char *Path, int inArea, int Current, FILE *fi)
 {
         char    *temp1, *temp2;
-
-	Syslog('f', "closepage %s %d %d", Path, inArea, Current);
 
         if (fa == NULL)
                 return;
@@ -325,7 +323,7 @@ void ReqIndex(void)
     FILE                *pAreas, *pIndex, *fp;
     unsigned long       i, iAreas, iAreasNew = 0, record;
     int                 iTotal = 0, j, z, x = 0;
-    int                 fbAreas = 0, fbFiles = 0;
+    int                 fbAreas = 0, fbFiles = 0, fbUpdate = 0;
     char                *sAreas, *newdir = NULL, *sIndex, *temp;
     Findex              *fdx = NULL;
     Findex              *tmp;
@@ -428,6 +426,7 @@ void ReqIndex(void)
 		    WriteError("$Can't create %s", temp);
 		} else {
 		    fbAreas++;
+		    fbUpdate++;
 		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (!fdb.Deleted) {
@@ -440,6 +439,17 @@ void ReqIndex(void)
 		    }
 		    fclose(fp);
 		    chmod(temp, 0644);
+		}
+	    } else {
+		/*
+		 * Just count for statistics
+		 */
+		fbAreas++;
+		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+		    if (!fdb.Deleted) {
+			fbFiles++;
+		    }
 		}
 	    }
 
@@ -501,8 +511,8 @@ void ReqIndex(void)
     fclose(pIndex);
     tidy_index(&fdx);
 
-    Syslog('+', "FREQ. Areas [%5d] Files [%5d]", iAreasNew, iTotal);
-    Syslog('+', "Index Areas [%5d] Files [%5d]", fbAreas, fbFiles);
+    Syslog('+', "FREQ. Areas [%6d] Files [%6d] Updated [%6d]", iAreasNew, iTotal, fbUpdate);
+    Syslog('+', "Index Areas [%6d] Files [%6d] Updated [%6d]", fbAreas, fbFiles, fbUpdate);
 
     free(sAreas);
     free(sIndex);
@@ -533,6 +543,7 @@ void HtmlIndex(char *Lang)
 
     AreasHtml = 0;
     TotalHtml = 0;
+    aUpdate = 0;
     later = time(NULL) + 86400;
 
     IsDoing("Create html");
@@ -655,6 +666,7 @@ void HtmlIndex(char *Lang)
 			    x++;
 			    TotalHtml++;
 			    aTotal++;
+			    aUpdate++;
 			    if (CFG.slow_util && do_quiet && ((x % 3) == 0))
 				msleep(1);
 			 
@@ -818,7 +830,7 @@ void Index(void)
 {
     ReqIndex();
     HtmlIndex(NULL);
-    Syslog('+', "HTML  Areas [%5d] Files [%5d]", AreasHtml, TotalHtml);
+    Syslog('+', "HTML  Areas [%6d] Files [%6d] Updated [%6d]", AreasHtml, TotalHtml, aUpdate);
 }
 
 
