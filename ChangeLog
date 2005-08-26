@@ -28,6 +28,7 @@ v0.71.5		18-Aug-2005
 
 	mbfile:
 		Code cleanup.
+		With the index command only changed areas are indexed.
 
 	mbmsg:
 		Code cleanup and removed dead code.

@@ -262,6 +262,7 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current, FIL
         char            linebuf[1024], outbuf[1024];
         static FILE*    fa;
 
+	Syslog('f', "newpage %s %s %d %d", Path, Name, inArea, Current);
         lastfile = Current;
         if (Current)
                 sprintf(linebuf, "%s/index%d.temp", Path, Current / CFG.www_files_page);
@@ -290,6 +291,8 @@ void closepage(FILE *fa, char *Path, int inArea, int Current, FILE *fi)
 {
         char    *temp1, *temp2;
 
+	Syslog('f', "closepage %s %d %d", Path, inArea, Current);
+
         if (fa == NULL)
                 return;
 
@@ -313,6 +316,9 @@ void closepage(FILE *fa, char *Path, int inArea, int Current, FILE *fi)
 
 
 
+/*
+ * Build a sorted index for the file request processor.
+ */
 void ReqIndex(void);
 void ReqIndex(void)
 {
@@ -325,6 +331,7 @@ void ReqIndex(void)
     Findex              *tmp;
     struct FILEIndex    idx;
     struct _fdbarea	*fdb_area = NULL;
+    time_t		db_time, obj_time;
 
     IsDoing("Index files");
     if (!do_quiet) {
@@ -381,6 +388,8 @@ void ReqIndex(void)
 
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
 		die(MBERR_GENERAL);
+	    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+	    db_time = (int) file_time(temp);
 
 	    /*
 	     * Create file request index if requests are allowed in this area.
@@ -406,64 +415,79 @@ void ReqIndex(void)
 	    } /* if area.Filereq */
 
 	    /*
-	     * Create files.bbs
+	     * Create files.bbs if needed.
 	     */
 	    sprintf(temp, "%s/files.bbs", area.Path);
-	    if ((fp = fopen(temp, "w")) == NULL) {
-		WriteError("$Can't create %s", temp);
-	    } else {
-		fbAreas++;
-		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
-		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-		    if (!fdb.Deleted) {
-			fbFiles++;
-			fprintf(fp, "%-12s [%ld] %s\r\n", fdb.Name, fdb.TimesDL, fdb.Desc[0]);
-			for (j = 1; j < 25; j++)
-			    if (strlen(fdb.Desc[j]))
-				fprintf(fp, " +%s\r\n", fdb.Desc[j]);
-		    }
-		}
-		fclose(fp);
-		chmod(temp, 0644);
-	    }
+	    obj_time = (int) file_time(temp);
 
-	    /*
-	     * Create 00index file.
-	     */
-	    if (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0) {
-
-		sprintf(temp, "%s/00index", area.Path);
+	    if (obj_time < db_time) {
+		/*
+		 * File is outdated, recreate
+		 */
 		if ((fp = fopen(temp, "w")) == NULL) {
 		    WriteError("$Can't create %s", temp);
 		} else {
+		    fbAreas++;
 		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (!fdb.Deleted) {
-			    /*
-			     * The next is to reduce system load
-			     */
-			    x++;
-			    if (CFG.slow_util && do_quiet && ((x % 3) == 0))
-				msleep(1);
-
-			    for (z = 0; z <= 25; z++) {
-				if (strlen(fdb.Desc[z])) {
-				    if (z == 0)
-					fprintf(fp, "%-12s %7luK %s ", fdb.Name, (long)(fdb.Size / 1024), 
-						StrDateDMY(fdb.UploadDate));
-				    else
-					fprintf(fp, "                                 ");
-				    if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X'))
-					fprintf(fp, "%s\n", fdb.Desc[z]+4);
-				    else
-					fprintf(fp, "%s\n", fdb.Desc[z]);
-				}
-			    }
+			    fbFiles++;
+			    fprintf(fp, "%-12s [%ld] %s\r\n", fdb.Name, fdb.TimesDL, fdb.Desc[0]);
+			    for (j = 1; j < 25; j++)
+				if (strlen(fdb.Desc[j]))
+				    fprintf(fp, " +%s\r\n", fdb.Desc[j]);
 			}
 		    }
 		    fclose(fp);
 		    chmod(temp, 0644);
 		}
+	    }
+
+	    /*
+	     * Create 00index file if needed.
+	     */
+	    if (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0) {
+
+		sprintf(temp, "%s/00index", area.Path);
+		obj_time = (int) file_time(temp);
+
+		if (obj_time < db_time) {
+		    /*
+		     * File is outdated, recreate
+		     */
+		    if ((fp = fopen(temp, "w")) == NULL) {
+			WriteError("$Can't create %s", temp);
+		    } else {
+			fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+			while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+			    if (!fdb.Deleted) {
+				/*
+				 * The next is to reduce system load
+				 */
+				x++;
+				if (CFG.slow_util && do_quiet && ((x % 3) == 0))
+				    msleep(1);
+
+				for (z = 0; z <= 25; z++) {
+				    if (strlen(fdb.Desc[z])) {
+					if (z == 0)
+					    fprintf(fp, "%-12s %7luK %s ", fdb.Name, (long)(fdb.Size / 1024), 
+					    	StrDateDMY(fdb.UploadDate));
+					else
+					    fprintf(fp, "                                 ");
+					if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X'))
+					    fprintf(fp, "%s\n", fdb.Desc[z]+4);
+					else
+					    fprintf(fp, "%s\n", fdb.Desc[z]);
+				    }
+				}
+			    }
+			}
+			fclose(fp);
+			chmod(temp, 0644);
+		    }
+		}
+
 	    }
 	    mbsedb_CloseFDB(fdb_area);
     	    }
@@ -477,8 +501,8 @@ void ReqIndex(void)
     fclose(pIndex);
     tidy_index(&fdx);
 
-    Syslog('+', "Index Areas [%5d] Files [%5d]", iAreasNew, iTotal);
-    Syslog('+', "Files Areas [%5d] Files [%5d]", fbAreas, fbFiles);
+    Syslog('+', "FREQ. Areas [%5d] Files [%5d]", iAreasNew, iTotal);
+    Syslog('+', "Index Areas [%5d] Files [%5d]", fbAreas, fbFiles);
 
     free(sAreas);
     free(sIndex);
@@ -488,7 +512,6 @@ void ReqIndex(void)
 
 
 /*
- * Build a sorted index for the file request processor.
  * Build html index pages for download.
  */
 void HtmlIndex(char *);
@@ -498,14 +521,15 @@ void HtmlIndex(char *Lang)
     unsigned long	i, iAreas, KSize = 0L, aSize = 0;
     int			AreaNr = 0, j, k, x = 0, isthumb;
     int			aTotal = 0, inArea = 0, filenr;
-    char		*sAreas, *fn;
+    char		*sAreas, *fn, *temp;
     char		linebuf[1024], outbuf[1024], desc[6400], namebuf[1024];
-    time_t		last = 0L, later;
+    time_t		last = 0L, later, db_time, obj_time;
     long		fileptr = 0, fileptr1 = 0;
     struct _fdbarea	*fdb_area = NULL;
     
     sAreas = calloc(PATH_MAX, sizeof(char));
     fn     = calloc(PATH_MAX, sizeof(char));
+    temp   = calloc(PATH_MAX, sizeof(char));
 
     AreasHtml = 0;
     TotalHtml = 0;
@@ -564,7 +588,7 @@ void HtmlIndex(char *Lang)
     }
 
     /*
-     * Setup the correct tabel to produce file listings for the www.
+     * Setup the correct table to produce file listings for the www.
      */
     charset_set_in_out((char *)"x-ibmpc", (char *)"iso-8859-1");
 
@@ -586,11 +610,17 @@ void HtmlIndex(char *Lang)
 
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
 		die(MBERR_GENERAL);
+            sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+	    db_time = (int) file_time(temp);
+	    sprintf(temp, "%s/index.html", area.Path);
+	    obj_time = (int) file_time(temp);
 
+	    Syslog('f', "Area %d index.html is %s", i, (obj_time < db_time) ? "outdated" : "up todate");
+    
 	    /*
-	     * Create index.html pages in each available download area.
+	     * Create index.html pages in each available download area when not up to date.
 	     */
-	    if (fm && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
+	    if (fm && (obj_time < db_time) && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
 
 		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		AreasHtml++;
@@ -754,6 +784,7 @@ void HtmlIndex(char *Lang)
 	fflush(stdout);
     }
 
+    free(temp);
     free(sAreas);
     free(fn);
     RemoveSema((char *)"reqindex");
