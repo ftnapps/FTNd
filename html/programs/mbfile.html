@@ -34,7 +34,7 @@ removing or moving old files, checking the database and packing the database.
 The best way to do the maintenance is to run <strong>mbfile</strong>
 from the crontab. example:
 <P><pre>
-30 05 * * * export MBSE_ROOT=/opt/mbse; /opt/mbse/bin/mbfile kill pack check index -quiet
+30 05 * * * export MBSE_ROOT=/opt/mbse; /opt/mbse/bin/mbfile kill pack index -quiet
 </pre>
 Other functions in <b>mbfile</b> are meant to do manual maintenance such as
 adding, deleting or moving files.
