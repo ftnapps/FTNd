@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 08-Mar-2004</h5></div>
+<div align="right"><h5>Last update 26-Aug-2005</h5></div>
 <div align="center"><H1>mbfile - File database maintenance program.</H1></div>
 
 <H3>Synopsys.</H3>
@@ -59,7 +59,7 @@ adopt needs to be in your current directory and will be copied to the new area.
 If you have virus scanners defined, the file will be checked for virusses. 
 
 <P>
-<code><strong>mbfile</strong> check</code>
+<code><strong>mbfile</strong> check [area]</code>
 Check the database integrity. All files in the filedatabase must exist on
 disk and all files on disk must exist in the filedatabase. There are some
 exceptions, files.bbs, files.bak, 00index, index*.html, header, readme and 
@@ -68,6 +68,7 @@ Of all files the date and time is checked, the size and the crc
 value of the file. If there is something wrong, the error is corrected or the
 file is removed. If the area is a CD-rom area, the check that files on disk
 must exist in the filedatabase is skipped.
+If no area number is given, all areas are checked.
 <P>
 
 <code><strong>mbfile</strong> delete &lt;area&gt; "&lt;filemask&gt;"</code>
@@ -101,12 +102,15 @@ Create fast filerequest index for the <strong>mbcico</strong> filerequest
 processor. In each directory with the downloadable files is also a 
 <strong>files.bbs</strong> file written in msdos cr/lf format. This includes a
 download counter.
-Also, if defined, in each available download area for ftp/http, index files are
+Also, if defined, in each available download area for ftp/http, <b>00index</b>
+and <b>index.html</b> files are
 created, starting at the ftp pub directory. If the area contains gif or jpg
 images, thumbnails are created using the <b>convert</b> program if you have that
 installed. The thumbnails have the same filenames as the original images, only
 they start with a dot. The convert command is defined with <b>mbsetup</b> menu
 1.19.8, if you don't have it or don't want thumbnails, make that entry empty.
+The index command only rebuilds area index files (files.bbs, index.html and
+00index) when there was a change in the area. 
 <P>
 
 <code><strong>mbfile</strong> kill</code>
@@ -146,6 +150,13 @@ Re-archive file(s) in an file area to the archiver that must be set in the
 Sort the files in area on the long filenames. The sort is case insensitive. When
 the sort is completed, the command <strong>mbfile index</strong> will automatic
 run to rebuild all indexes.
+<P>
+
+<code><strong>mbfile</strong> toberep</code>
+Shows which files are to be reported. This lists only the files that are
+received during .tic processing, new uploaded files are not displayed. This list
+is automatic removed after newfiles are announced.
+See also <A HREF="mbtoberep.html">mbtoberep</A>.
 <P>
 
 <code><strong>mbfile</strong> undelete &lt;area&gt; "&lt;filemask&gt;"</code>
