@@ -14,22 +14,31 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 11-May-2004</h5></div>
+<div align="right"><h5>Last update 26-Aug-2005</h5></div>
 <div align="center"><H1>mbnntp - News server</H1></div>
 
 <H3>Synopsis.</H3>
 <P>
-<code><strong>mbnntp</strong></code>You should not run this from the
+<code><strong>mbnntp</strong></code> You should not run this from the
 commandline, instead it should be run by <b>inetd</b> or <b>xinetd</b>.
 <P>&nbsp;<P>
 
 <H3>Description.</H3>
 <P>
-<strong>mbnntp</strong> is a RFC977 and RFC2980 compatible news server. It uses
-the bbs echomail and news areas. To use the server, the user must login in the
+<strong>mbnntp</strong> is a RFC977 and RFC2980 compatible news server. 
+The purpose is to make echomail available to newsreader clients so that bbs
+users can use their favourite newsreader to participate in echomail. It will
+not make your newsgroups available if you have any, the bbs user can get these
+directly from the internet. The bbs echomail areas are only made available if
+they have a valid newsgroup name set in the area setup. If this is not alread
+set, invent your own newsgroup name. For example the WWB echomail area MBSE
+could be set as fido.wwb.mbse, but you can use anything as long as it doesn't
+conflict with real newsgroups.
+<P>
+To use the server, the user must login in the
 news server with his bbs unix name and password, thus the user must exist on the
 bbs. The access to the areas is the same as if the user would be logged into the
-bbs. Only echomail areas are available to the user as newsgroups.
+bbs.
 <P>&nbsp;<P>
 
 <H3>Installation.</H3>
@@ -39,12 +48,15 @@ If installed from <b>inetd</b> add the following line to
 <pre>
 nntp    stream  tcp     nowait  mbse    /opt/mbse/bin/mbnntp    mbnntp
 </pre>
-
 <P>&nbsp;<P>
 
-<H3>Bugs.</H3>
+<H3>Building.</H3>
 <P>
-Maybe a lot, this is a new program.
+If you did run <code>./configure --enable-newsgate</code> when you compiled the
+mbse package, <b>mbnntp</b> will be build as a not working program. This is
+intended to prevent loops between real news and echomail. With normal builds
+without <code>--enable-newsgate</code> (recommended) <b>mbnntp</b> will function
+as newsserver.
 <P>
 
 
