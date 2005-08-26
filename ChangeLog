@@ -28,7 +28,9 @@ v0.71.5		18-Aug-2005
 
 	mbfile:
 		Code cleanup.
-		With the index command only changed areas are indexed.
+		With the index command only changed areas are indexed. This
+		removes the feature request for a switch per area from the
+		TODO list because this solution works better.
 
 	mbmsg:
 		Code cleanup and removed dead code.

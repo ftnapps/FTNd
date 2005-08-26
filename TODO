@@ -95,9 +95,6 @@ mbfido:
 mbcico:
 	L: Implement binkp option ND.
 
-mbfile:
-	L: Possibility to skip file areas from checking and reindexing.
-
 mbnntp:
 	U: fetched mail doesn't get the status Rcvd if it was for the user.
 
