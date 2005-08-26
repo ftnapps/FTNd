@@ -868,6 +868,10 @@ int main(int argc, char *argv[])
 //           Gewone stervelingen mogen dit niet kunnen starten.
 //	     Dit programma is een groot security gat.
 
+//	On Linux: use getppid to get the parent pid.
+//		  cat /proc/<pid>/cmdline gives name of parent.
+//		  check parent name: mbsebbs | mbnewusr | mbsetup
+
 	if (argc != 4) {
 		fprintf(stderr, "\nmbpasswd commandline:\n\n");
 		fprintf(stderr, "mbpasswd [-opt] [username] [newpassword]\n");
