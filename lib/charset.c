@@ -65,7 +65,7 @@ int str_printf(char *buf, size_t len, const char *fmt, ...)
 	        
     va_start(args, fmt);
 		    
-    n = vsprintf(buf, fmt, args);
+    n = vsnprintf(buf, len, fmt, args);
     if (n >= len) {
 	WriteError("Internal error - str_printf() buf overflow");
 	/**NOT REACHED**/

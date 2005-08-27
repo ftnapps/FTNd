@@ -739,7 +739,7 @@ Mfunc(f_edtime)
 {
     double val;
     Dsarg(pic);
-    long ltime;
+    time_t ltime;
     struct tm *jd;
     char *pp = pic;
 

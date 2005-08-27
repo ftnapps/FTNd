@@ -156,7 +156,7 @@ void SockS(const char *format, ...)
 	out = calloc(SS_BUFSIZE, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsprintf(out, format, va_ptr);
+	vsnprintf(out, SS_BUFSIZE -1, format, va_ptr);
 	va_end(va_ptr);
 
 	if (socket_send(out) == 0)
@@ -177,7 +177,7 @@ char *SockR(const char *format, ...)
 	out = calloc(SS_BUFSIZE, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsprintf(out, format, va_ptr);
+	vsnprintf(out, SS_BUFSIZE -1, format, va_ptr);
 	va_end(va_ptr);
 
 	if (socket_send(out) == 0)
@@ -198,7 +198,8 @@ void WriteError(const char *format, ...)
 	outputstr = calloc(10240, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsprintf(outputstr, format, va_ptr);
+	vsnprintf(outputstr, 10239, format, va_ptr);
+
 	va_end(va_ptr);
 
 	for (i = 0; i < strlen(outputstr); i++)
@@ -247,7 +248,7 @@ void Syslog(int level, const char *format, ...)
 	outstr = calloc(10240, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsprintf(outstr, format, va_ptr);
+	vsnprintf(outstr, 10239, format, va_ptr);
 	va_end(va_ptr);
 	Syslogp(level, outstr);
 	free(outstr);
@@ -347,7 +348,7 @@ void Mgrlog(const char *format, ...)
     outstr = calloc(10240, sizeof(char));
 
     va_start(va_ptr, format);
-    vsprintf(outstr, format, va_ptr);
+    vsnprintf(outstr, 10239, format, va_ptr);
     va_end(va_ptr);
 
     for (i = 0; i < strlen(outstr); i++)
@@ -371,7 +372,7 @@ void IsDoing(const char *format, ...)
 	outputstr = calloc(SS_BUFSIZE, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsprintf(outputstr, format, va_ptr);
+	vsnprintf(outputstr, SS_BUFSIZE -1, format, va_ptr);
 	va_end(va_ptr);
 
 	SockS("ADOI:2,%d,%s;", mypid, outputstr);
