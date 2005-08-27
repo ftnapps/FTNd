@@ -90,7 +90,7 @@ int getarchiver(char *unarc)
 
 	memset(&archiver, 0, sizeof(archiver));
 	filename = calloc(PATH_MAX, sizeof(char));
-	sprintf(filename, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(filename, PATH_MAX -1, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 
 	if ((fp = fopen(filename, "r")) == NULL) {
 		WriteError("$Can't open %s", filename);

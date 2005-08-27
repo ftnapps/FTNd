@@ -4,7 +4,7 @@
  * Purpose ...............: Node locking
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -45,7 +45,7 @@ int nodelock(faddr *addr, pid_t mypid)
     tfn = xstrcpy(fn);
     if ((p=strrchr(tfn,'/'))) 
 	*++p='\0';
-    sprintf(tmp, "aa%d", mypid);
+    snprintf(tmp, 15, "aa%d", mypid);
     tfn = xstrcat(tfn, tmp);
     mkdirs(tfn, 0770);
 

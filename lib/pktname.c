@@ -4,7 +4,7 @@
  * Purpose ...............: BinkleyTerm outbound naming
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -56,7 +56,7 @@ char *prepbuf(faddr *addr)
     char	*p, *domain=NULL, zpref[8];
     int		i;
 
-    sprintf(buf, "%s", CFG.outbound);
+    snprintf(buf, PATH_MAX -1, "%s", CFG.outbound);
 
     if (CFG.addr4d) {
 	Syslog('o', "Use 4d addressing, zone is %d", addr->zone);
@@ -64,7 +64,7 @@ char *prepbuf(faddr *addr)
 	if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
 	    zpref[0] = '\0';
 	else
-	    sprintf(zpref, ".%03x", addr->zone);
+	    snprintf(zpref, 7, ".%03x", addr->zone);
     } else {
 	/*
 	 * If we got a 5d address we use the given domain, if
@@ -96,7 +96,7 @@ char *prepbuf(faddr *addr)
 	    if (CFG.aka[i].zone == addr->zone)
 		zpref[0] = '\0';
 	    else
-		sprintf(zpref, ".%03x", addr->zone);
+		snprintf(zpref, 7, ".%03x", addr->zone);
 	} else {
 	    /*
 	     * this is our primary domain
@@ -104,16 +104,16 @@ char *prepbuf(faddr *addr)
 	    if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
 		zpref[0]='\0';
 	    else 
-		sprintf(zpref,".%03x",addr->zone);
+		snprintf(zpref, 7, ".%03x",addr->zone);
 	}
     }
 
     p = buf + strlen(buf);
 
     if (addr->point)
-	sprintf(p,"%s/%04x%04x.pnt/%08x.", zpref,addr->net,addr->node,addr->point);
+	snprintf(p, PATH_MAX -1, "%s/%04x%04x.pnt/%08x.", zpref,addr->net,addr->node,addr->point);
     else
-	sprintf(p,"%s/%04x%04x.",zpref,addr->net,addr->node);
+	snprintf(p, PATH_MAX -1, "%s/%04x%04x.",zpref,addr->net,addr->node);
 
     if (domain)
 	free(domain);
@@ -133,7 +133,7 @@ char *pktname(faddr *addr, char flavor)
 	flavor = 'd';
 
     q = p + strlen(p);
-    sprintf(q, "%c%s", flavor, ptyp);
+    snprintf(q, PATH_MAX -1, "%c%s", flavor, ptyp);
     return p;
 }
 
@@ -150,7 +150,7 @@ char *floname(faddr *addr, char flavor)
 	flavor = 'd';
 
     q = p + strlen(p);
-    sprintf(q, "%c%s", flavor, ftyp);
+    snprintf(q, PATH_MAX -1, "%c%s", flavor, ftyp);
     return p;
 }
 
@@ -162,7 +162,7 @@ char *reqname(faddr *addr)
 
     p = prepbuf(addr);
     q = p + strlen(p);    
-    sprintf(q, "%s", rtyp);
+    snprintf(q, PATH_MAX -1, "%s", rtyp);
     return p;
 }
 
@@ -174,7 +174,7 @@ char *splname(faddr *addr)
 
     p = prepbuf(addr);
     q = p + strlen(p);
-    sprintf(q, "%s", styp);
+    snprintf(q, PATH_MAX -1, "%s", styp);
     return p;
 }
 
@@ -186,7 +186,7 @@ char *bsyname(faddr *addr)
 
     p = prepbuf(addr);
     q = p + strlen(p);
-    sprintf(q, "%s", btyp);
+    snprintf(q, PATH_MAX -1, "%s", btyp);
     return p;
 }
 
@@ -198,7 +198,7 @@ char *stsname(faddr *addr)
 
     p = prepbuf(addr);
     q = p + strlen(p);
-    sprintf(q, "%s", qtyp);
+    snprintf(q, PATH_MAX -1, "%s", qtyp);
     return p;
 }
 
@@ -210,7 +210,7 @@ char *polname(faddr *addr)
 
     p = prepbuf(addr);
     q = p + strlen(p);
-    sprintf(q, "%s", ltyp);
+    snprintf(q, PATH_MAX -1, "%s", ltyp);
     return p;
 }
 
@@ -227,7 +227,7 @@ char *dayname(void)
     
     tt = time(NULL);
     ptm = localtime(&tt);
-    sprintf(buf, "%s", dow[ptm->tm_wday]);
+    snprintf(buf, 2, "%s", dow[ptm->tm_wday]);
 
     return buf;	
 }
@@ -257,10 +257,10 @@ char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 		 * Generate ARCfile name from the CRC of the ASCII string
 		 * of the node address.
 		 */
-		sprintf(p, "/%08lx.%s0", StringCRC32(ascfnode(addr, 0x1f)), ext);
+		snprintf(p, PATH_MAX -1, "/%08lx.%s0", StringCRC32(ascfnode(addr, 0x1f)), ext);
 	} else {
 		if (addr->point) {
-			sprintf(p, "/%04x%04x.%s0",
+			snprintf(p, PATH_MAX -1, "/%04x%04x.%s0",
 				((bestaka->net) - (addr->net)) & 0xffff,
 				((bestaka->node) - (addr->node) + (addr->point)) & 0xffff,
 				ext);
@@ -269,10 +269,10 @@ char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 			 * Inserted the next code for if we are a point,
 			 * I hope this is ARCmail 0.60 compliant. 21-May-1999
 			 */
-			sprintf(p, "/%04x%04x.%s0", ((bestaka->net) - (addr->net)) & 0xffff,
+			snprintf(p, PATH_MAX -1, "/%04x%04x.%s0", ((bestaka->net) - (addr->net)) & 0xffff,
 				((bestaka->node) - (addr->node) - (bestaka->point)) & 0xffff, ext);
 		} else {
-			sprintf(p, "/%04x%04x.%s0", ((bestaka->net) - (addr->net)) & 0xffff,
+			snprintf(p, PATH_MAX -1, "/%04x%04x.%s0", ((bestaka->net) - (addr->net)) & 0xffff,
 				((bestaka->node) - (addr->node)) &0xffff, ext);
 		}
 	}

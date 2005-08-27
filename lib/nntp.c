@@ -230,7 +230,7 @@ int nntp_cmd(char *cmd, int resp)
 	if (nntp_send(cmd) == -1)
 		return -1;
 
-	sprintf(rsp, "%d", resp);
+	snprintf(rsp, 5, "%d", resp);
 	p = nntp_receive();
 
         if (strncmp(p, "480", 3) == 0) {
@@ -273,11 +273,11 @@ int nntp_auth(void)
 	}
 	cmd = calloc(128, sizeof(char));
 
-	sprintf(cmd, "AUTHINFO USER %s\r\n", CFG.nntpuser);
+	snprintf(cmd, 127, "AUTHINFO USER %s\r\n", CFG.nntpuser);
 	if (nntp_cmd(cmd, 381))
 		return FALSE;
 
-	sprintf(cmd, "AUTHINFO PASS %s\r\n", CFG.nntppass);
+	snprintf(cmd, 127, "AUTHINFO PASS %s\r\n", CFG.nntppass);
 	if (nntp_cmd(cmd, 281) == 0) {
 		free(cmd);
 		Syslog('+', "NNTP: logged in");

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -133,10 +133,10 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor, int session)
         memset(&str, 0, 8);
         if (session) {
 	   if (noderecord(addr) && strlen(nodes.Spasswd))
-	        sprintf(str, "%s", nodes.Spasswd);
+	        snprintf(str, 8, "%s", nodes.Spasswd);
 	} else {
 	    if (noderecord(addr) && strlen(nodes.Epasswd))
-	        sprintf(str, "%s", nodes.Epasswd);
+	        snprintf(str, 8, "%s", nodes.Epasswd);
 	}
 	for (i = 0; i < 8; i++)
 	    buffer[0x1a + i] = toupper(str[i]);	 /* FSC-0039 only talks about A-Z, 0-9, so force uppercase */

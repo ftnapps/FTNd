@@ -389,7 +389,7 @@ int initnl(void)
 	rc = MBERR_INIT_ERROR;
     } else {
 	while (fread(&fdx, sizeof(fdx), 1, dbf) == 1) {
-	    sprintf(nlpath, "%s/%s", CFG.nodelists, fdx.filename);
+	    snprintf(nlpath, PATH_MAX -1, "%s/%s", CFG.nodelists, fdx.filename);
 	    if ((fp = fopen(nlpath, "r")) == NULL) {
 		WriteError("$Can't open %s", nlpath);
 		rc = MBERR_INIT_ERROR;
@@ -405,7 +405,7 @@ int initnl(void)
     /*
      * Read and parse ~/etc/nodelist.conf
      */
-    sprintf(nlpath, "%s/etc/nodelist.conf", getenv("MBSE_ROOT"));
+    snprintf(nlpath, PATH_MAX -1, "%s/etc/nodelist.conf", getenv("MBSE_ROOT"));
     if ((dbf = fopen(nlpath, "r")) == NULL) {
 	WriteError("$Can't open %s", nlpath);
 	rc = MBERR_INIT_ERROR;
@@ -456,7 +456,7 @@ int initnl(void)
     /*
      * Howmany TCP sessions are allowd
      */
-    sprintf(nlpath, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    snprintf(nlpath, PATH_MAX -1, "%s/etc/task.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(nlpath, "r"))) {
 	fread(&TCFG, sizeof(TCFG), 1, fp);
 	fclose(fp);
@@ -468,7 +468,7 @@ int initnl(void)
      *  Read all our TCP/IP capabilities and set the global flag.
      */
     if (TCFG.max_tcp) {
-	sprintf(buf, "%s", CFG.IP_Flags);
+	snprintf(buf, 255, "%s", CFG.IP_Flags);
 	q = buf;
 	for (p = q; p; p = q) {
 	    if ((q = strchr(p, ',')))
@@ -484,14 +484,14 @@ int initnl(void)
      * All lines are ORed so we have a global and total lines
      * capability.
      */
-    sprintf(nlpath, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(nlpath, PATH_MAX -1, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(nlpath, "r"))) {
 	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
 
 	while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
 	    if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && (ttyinfo.available) && (ttyinfo.callout)) {
 
-		sprintf(buf, "%s", ttyinfo.flags);
+		snprintf(buf, 255, "%s", ttyinfo.flags);
 		q = buf;
 		for (p = q; p; p = q) {
 		    if ((q = strchr(p, ',')))
@@ -603,7 +603,7 @@ node *getnlent(faddr *addr)
      * Search domainname for the requested aka, should not fail.
      */
     path = calloc(PATH_MAX, sizeof(char));
-    sprintf(path, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(path, PATH_MAX -1, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(path, "r"))) {
 	fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
 	while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
@@ -624,7 +624,7 @@ node *getnlent(faddr *addr)
     /*
      *  First, lookup node in index. NOTE -- NOT 5D YET
      */
-    sprintf(path, "%s/%s", CFG.nodelists, "node.index");
+    snprintf(path, PATH_MAX -1, "%s/%s", CFG.nodelists, "node.index");
     if ((fp = fopen(path, "r")) == NULL) {
 	WriteError("$Can't open %s", path);
 	free(path);
@@ -659,7 +659,7 @@ node *getnlent(faddr *addr)
 	goto retdummy;
     }
 
-    sprintf(path, "%s/%s", CFG.nodelists, "node.files");
+    snprintf(path, PATH_MAX -1, "%s/%s", CFG.nodelists, "node.files");
     if ((fp = fopen(path, "r")) == NULL) {
 	WriteError("$Can't open %s", path);
 	free(path);
@@ -678,7 +678,7 @@ node *getnlent(faddr *addr)
     /*
      *  Open and read in real nodelist
      */
-    sprintf(path, "%s/%s", CFG.nodelists, fdx.filename);
+    snprintf(path, PATH_MAX -1, "%s/%s", CFG.nodelists, fdx.filename);
     if ((fp = fopen(path, "r")) == NULL) {
 	WriteError("$Can't open %s", path);
 	free(path);
@@ -703,7 +703,7 @@ node *getnlent(faddr *addr)
      * nodelist overrides in this record will be used instead of 
      * the nodelist entries.
      */
-    sprintf(path, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(path, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((np = fopen(path, "r")) != NULL) {
 	fread(&ndhdr, sizeof(nodeshdr), 1, np);
 
@@ -925,15 +925,12 @@ node *getnlent(faddr *addr)
      */
     if (nodebuf.iflags & mytcpip) {
 	memset(&tbuf, 0, sizeof(tbuf));
-//	Syslog('n', "getnlent: node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
 	for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
 	    if ((*tmpm)->mask & nodebuf.iflags) {
-//		Syslog('n', "getnlent: best flag is %s", (*tmpm)->name);
 		for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
 		    if (strcmp((*tmps)->flag, (*tmpm)->name) == 0) {
-			sprintf(tbuf, "%s", (*tmps)->service);
+			snprintf(tbuf, 255, "%s", (*tmps)->service);
 			tport = (*tmps)->tmpport;
-//			Syslog('n', "getnlent: protocol %s at port %d", (*tmps)->service, (*tmps)->tmpport);
 		    }
 		}
 	    }
@@ -952,13 +949,13 @@ node *getnlent(faddr *addr)
 	memset(&tbuf, 0, sizeof(tbuf));
 	if (ndrecord && strlen(nd.Nl_hostname)) {
 	    Syslog('n', "getnlent: using override %s for FQDN", nd.Nl_hostname);
-	    sprintf(tbuf, nodebuf.name);
+	    snprintf(tbuf, 255, nodebuf.name);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	} else {
 	    for (tmpa = &nl_search; *tmpa; tmpa=&((*tmpa)->next)) {
 		Syslog('n', "getnlent: search FQDN method %s", (*tmpa)->name);
 		if (strcasecmp((*tmpa)->name, "field3") == 0) {
-		    sprintf(tbuf, nodebuf.name);
+		    snprintf(tbuf, 255, nodebuf.name);
 		    if (strchr(tbuf, '.')) {
 			/*
 			 * Okay, there are dots, this can be a FQDN or IP address.
@@ -974,7 +971,7 @@ node *getnlent(faddr *addr)
 		    for (tmpaa = &nl_ipprefix; *tmpaa; tmpaa=&((*tmpaa)->next)) {
 			if (nodebuf.phone && strncmp(nodebuf.phone, (*tmpaa)->name, strlen((*tmpaa)->name)) == 0) {
 			    Syslog('n', "getnlent: found %s prefix", (*tmpaa)->name);
-			    sprintf(tbuf, "%s", nodebuf.phone+strlen((*tmpaa)->name));
+			    snprintf(tbuf, 255, "%s", nodebuf.phone+strlen((*tmpaa)->name));
 			    for (i = 0; i < strlen(tbuf); i++)
 				if (tbuf[i] == '-')
 				    tbuf[i] = '.';
@@ -1035,10 +1032,10 @@ node *getnlent(faddr *addr)
 				for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 				    if ((*tmpd)->zone == nodebuf.addr.zone) {
 					if (*r++ == '\0')
-					    sprintf(tbuf, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
+					    snprintf(tbuf, 255, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
 						    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
 					else
-					    sprintf(tbuf, "f%d.n%d.z%d.%s.%s%s", nodebuf.addr.node, nodebuf.addr.net,
+					    snprintf(tbuf, 255, "f%d.n%d.z%d.%s.%s%s", nodebuf.addr.node, nodebuf.addr.net,
 						    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name, r);
 					Syslog('n', "getnlent: will try default domain \"%s\"", tbuf);
 					nodebuf.url = xstrcat(nodebuf.url, tbuf);
@@ -1051,7 +1048,7 @@ node *getnlent(faddr *addr)
 			    }
 			    if (strchr(r, '.')) {
 				Syslog('n', "getnlent: found a FQDN \"%s\"", MBSE_SS(r));
-				sprintf(tbuf, "%s", r);
+				snprintf(tbuf, 255, "%s", r);
 				nodebuf.url = xstrcat(nodebuf.url, tbuf);
 				break;
 			    }
@@ -1065,7 +1062,7 @@ node *getnlent(faddr *addr)
 		    if (nodebuf.addr.domain) {
 			for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 			    if ((*tmpd)->zone == nodebuf.addr.zone) {
-				sprintf(tbuf, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
+				snprintf(tbuf, 255, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
 					nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
 				Syslog('n', "getnlent: will try default domain \"%s\"", tbuf);
 				nodebuf.url = xstrcat(nodebuf.url, tbuf);
@@ -1093,8 +1090,7 @@ node *getnlent(faddr *addr)
 	     * No optional port number, add one from the default
 	     * for this protocol.
 	     */
-	    sprintf(tbuf, ":%lu", tport);
-//	    Syslog('n', "getnlent: adding default port %s", tbuf);
+	    snprintf(tbuf, 255, ":%lu", tport);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	}
 

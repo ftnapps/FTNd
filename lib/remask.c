@@ -4,7 +4,7 @@
  * Purpose ...............: Regular Expression Mask
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -60,11 +60,11 @@ char *re_mask(char *nm, int forceupper)
 	    case '*':   *q++ = '.';  
 			*q++ = '*'; 
 			break;
-	    case '@':   sprintf(q, "[A-Za-z]"); 
+	    case '@':   snprintf(q, 9, "[A-Za-z]"); 
 			while (*q) 
 			    q++; 
 			break;
-	    case '#':   sprintf(q, "[0-9]"); 
+	    case '#':   snprintf(q, 6, "[0-9]"); 
 			while (*q) 
 			    q++; 
 			break;

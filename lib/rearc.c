@@ -113,7 +113,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 	return -1;
     }
 
-    sprintf(p, "%s", archiver.name);
+    snprintf(p, 5, "%s", archiver.name);
     Syslog('f', "new filename %s", newname);
 
     arccmd = xstrcpy(archiver.farc);
@@ -135,8 +135,8 @@ int rearc(char *filename, char *arctype, int do_quiet)
     oldpath = calloc(PATH_MAX, sizeof(char));
     temp = calloc(PATH_MAX, sizeof(char));
     getcwd(oldpath, PATH_MAX);
-    sprintf(workpath, "%s/tmp/rearc%d", getenv("MBSE_ROOT"), getpid());
-    sprintf(temp, "%s/%s", workpath, filename);
+    snprintf(workpath, PATH_MAX -1, "%s/tmp/rearc%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(temp, PATH_MAX -1, "%s/%s", workpath, filename);
     rc = mkdirs(temp, 0755) ? 0 : -1;
     if (rc == 0) {
 	if ((rc = chdir(workpath)) == -1) {
@@ -155,12 +155,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
      */
     if (rc == 0) {
 	if ((rc = execute_str(uncmd,filename,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null"))) {
-	    sync();
-	    sleep(1);
-	    WriteError("Warning: unpack %s failed, trying again after sync()", filename);
-	    if ((rc = execute_str(uncmd,filename,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null"))) {
-		WriteError("$Can't unpack %s", filename);
-	    }
+	    WriteError("$Can't unpack %s", filename);
 	}
     }
 
@@ -174,12 +169,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
      */
     if (rc == 0) {
         if ((rc = execute_str(arccmd,newname,(char *)".",(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null"))) {
-	    sync();
-	    sleep(1);
-	    WriteError("Warning: pack %s failed, trying again after sync()", newname);
-	    if ((rc = execute_str(arccmd,newname,(char *)".",(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null"))) {
-		WriteError("$Can't pack %s", newname);
-	    }
+	    WriteError("$Can't pack %s", newname);
 	}
     }
 
@@ -193,10 +183,10 @@ int rearc(char *filename, char *arctype, int do_quiet)
     /*
      * Clean and remove workdir
      */
-    sprintf(temp, "-rf %s", workpath);
+    snprintf(temp, PATH_MAX -1, "-rf %s", workpath);
     execute_pth((char *)"rm", temp, (char*)"/dev/null", (char*)"/dev/null", (char*)"/dev/null");
     if (rc == 0)
-	sprintf(filename, "%s", newname);
+	snprintf(filename, PATH_MAX -1, "%s", newname);
 
     free(workpath);
     free(oldpath);

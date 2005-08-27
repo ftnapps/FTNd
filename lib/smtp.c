@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Internet Library
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -105,7 +105,7 @@ int smtp_connect(void)
 
 	Syslog('+', "SMTP: %s", p);
 	
-	sprintf(temp, "HELO %s\r\n", CFG.sysdomain);
+	snprintf(temp, 39, "HELO %s\r\n", CFG.sysdomain);
 	if (smtp_cmd(temp, 250)) {
 		smtp_close();
 		return -1;
@@ -193,7 +193,7 @@ int smtp_cmd(char *cmd, int resp)
 	if (smtp_send(cmd) == -1)
 		return -1;
 
-	sprintf(rsp, "%d", resp);
+	snprintf(rsp, 5, "%d", resp);
 	p = smtp_receive();
 
 	if (strncmp(p, rsp, strlen(rsp))) {
