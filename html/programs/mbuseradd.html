@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 02-Feb-2001</h5></div>
+<div align="right"><h5>Last update 27-Aug-2005</h5></div>
 <div align="center"><H1>mbuseradd - The useradd wrapper.</H1></div>
 
 <H3>Sysnopsis.</H3>
@@ -31,8 +31,8 @@ things that need to be done as <strong>root</strong> to create a new Unix
 account that can be used with MBSE BBS. The solution for these problems is
 <strong>mbuseradd</strong>, this little program runs setuid root and setgid 
 root. If it fails to do that it aborts. <strong>mbuseradd</strong> is called
-by <strong>mbsebbs</strong> from the newuser function. You never need to
-run <strong>mbuseradd</strong> by hand. If it is successfull the user will
+by <strong>mbnewusr</strong> and checks if it's called like that. 
+If it is successfull the user will
 have an entry in /etc/passwd, the comment is his Fidonet name, and his shell
 is $MBSE_ROOT/bin/mbsebbs.
 <P>
@@ -58,9 +58,8 @@ installed setuid root and setgid root, ls -la looks like this:<br>
 
 <H3>Commands.</H3>
 <P>
-<code><strong>mbuseradd</strong> [gid] [name] [comment] [usersdir]</code> for example:<br>
-<pre>
-mbuseradd bbs mbroek "Michiel Broek" /opt/mbse/home
+Not mentioned here because <b>mbuseradd</b> is only called by mbnewusr,
+running manually is not supported.
 </pre>
 <P>
 

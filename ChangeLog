@@ -56,6 +56,9 @@ v0.71.5		18-Aug-2005
 		Added security checks to see if this program is legally called.
 		Changed commandline syntax.
 
+	mbuseradd:
+		Added security checks to see if this program is legally called.
+
 
 v0.71.4		12-Aug-2005 - 18-Aug-2005
 

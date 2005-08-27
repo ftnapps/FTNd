@@ -4,7 +4,7 @@
  * Purpose ...............: setuid root version of useradd
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek	FIDO:		2:280/2802
  * Beekmansbos 10
@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <pwd.h>
 #include <sys/types.h>
+#include <grp.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -44,6 +45,7 @@
 #include <syslog.h>
 #include <time.h>
 
+#include "xmalloc.h"
 #include "mbuseradd.h"
 
 
@@ -86,6 +88,7 @@ int execute(char **args, char *in, char *out, char *err)
     char    buf[PATH_MAX];
     int	    i, pid, status = 0, rc = 0;
 
+    memset(&buf, 0, sizeof(buf));
     for (i = 0; i < 16; i++) {
 	if (args[i])
 	    sprintf(buf, "%s %s", buf, args[i]);
@@ -149,14 +152,29 @@ void makedir(char *path, mode_t mode, uid_t owner, gid_t group)
 
 
 /*
+ *  Internal version of basename to make this better portable.
+ */
+char *Basename(char *str)
+{
+    char *cp = strrchr(str, '/');
+
+    return cp ? cp+1 : str;
+}
+
+
+
+/*
  * Function will create the users name in the passwd file
  * Note that this function must run setuid root!
  */
 int main(int argc, char *argv[])
 {
-    char	    *temp, *shell, *homedir, *args[16];
+    char	    *temp, *shell, *homedir, *args[16], *parent;
     int		    i;
     struct passwd   *pwent, *pwuser;
+    struct group    *gr;
+    pid_t	    ppid;
+    FILE	    *fp;
 
     if (argc != 5)
 	Help();
@@ -171,12 +189,59 @@ int main(int argc, char *argv[])
 	}
     }
 
+    /*
+     * Check calling username
+     */
+    ppid = getuid();
+    pwent = getpwuid(ppid);
+    if (!pwent) {
+	fprintf(stderr, "mbuseradd: Cannot determine your user name.\n");
+	exit(1);
+    }
+    if (strcmp(pwent->pw_name, (char *)"mbse") && strcmp(pwent->pw_name, (char *)"bbs")) {
+	fprintf(stderr, "mbuseradd: only users `mbse' and `bbs' may do this.\n");
+	exit(1);
+    }
+
+    /*
+     * Get my groupname, this must be "bbs", other users may not
+     * use this program, not even root.
+     */
+    gr = getgrgid(pwent->pw_gid);
+    if (!gr) {
+	fprintf(stderr, "mbuseradd: Cannot determine group name.\n");
+	exit(1);
+    }
+    if (strcmp(gr->gr_name, (char *)"bbs")) {
+	fprintf(stderr, "mbuseradd: You are not a member of group `bbs'.\n");
+	exit(1);
+    }
+
+    /*
+     * Find out the name of our parent.
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    ppid = getppid();
+    sprintf(temp, "/proc/%d/cmdline", ppid);
+    if ((fp = fopen(temp, "r")) == NULL) {
+	fprintf(stderr, "mbuseradd: can't read %s\n", temp);
+	exit(1);
+    }
+    fgets(temp, PATH_MAX-1, fp);
+    fclose(fp);
+    parent = xstrcpy(Basename(temp));
+
+    if (strcmp((char *)"-mbnewusr", parent)) {
+	fprintf(stderr, "mbpasswd: illegal parent\n");
+	free(temp);
+	free(parent);
+	exit(1);
+    }
+
     memset(args, 0, sizeof(args));
 
-    temp    = calloc(PATH_MAX, sizeof(char));
     shell   = calloc(PATH_MAX, sizeof(char));
     homedir = calloc(PATH_MAX, sizeof(char));
-
 
     if (setuid(0) == -1 || setgid(1) == -1) {
         perror("");
