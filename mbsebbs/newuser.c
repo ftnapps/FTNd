@@ -723,10 +723,9 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     sprintf(progname, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
     memset(args, 0, sizeof(args));
     args[0] = progname;
-    args[1] = (char *)"-f";
-    args[2] = Name;
-    args[3] = Password;
-    args[4] = NULL;
+    args[1] = Name;
+    args[2] = Password;
+    args[3] = NULL;
 
     if ((err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
         WriteError("Failed to set unix password");

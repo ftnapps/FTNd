@@ -378,14 +378,13 @@ int EditUsrRec2(void)
                             memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
                             strcpy(usrconfig.Password, temp);
 			    usrconfig.tLastPwdChange = time(NULL);
-			    Syslog('+', "%s/bin/mbpasswd -f %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
+			    Syslog('+', "%s/bin/mbpasswd %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
 			    sprintf(temp, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
 			    memset(args, 0, sizeof(args));
 			    args[0] = temp;
-			    args[1] = (char *)"-f";
-			    args[2] = usrconfig.Name;
-			    args[3] = usrconfig.Password;
-			    args[4] = NULL;
+			    args[1] = usrconfig.Name;
+			    args[2] = usrconfig.Password;
+			    args[3] = NULL;
 
 			    if (execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")!= 0) {
 			        WriteError("$Failed to set new Unix password");

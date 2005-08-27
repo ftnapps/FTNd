@@ -1,5 +1,7 @@
-#ifndef _MBUSERADD_H
-#define _MBUSERADD_H
+#ifndef _MBPASSWD_H
+#define _MBPASSWD_H
+
+/* $Id$ */
 
 
                                         /* danger - side effects */
@@ -39,6 +41,7 @@ static void	update_noshadow(int);
 struct spwd     *pwd_to_spwd(const struct passwd *);
 static void	update_shadow(void);
 #endif
+char		*Basename(char *);
 
 #endif
 

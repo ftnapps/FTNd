@@ -1,13 +1,12 @@
 /*****************************************************************************
  *
- * File ..................: mbuseradd/xmalloc.c
+ * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 25-Jul-2000
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -52,20 +51,33 @@
 
 char *xmalloc(size_t size)
 {
-	char *ptr;
+    char *ptr;
 
-	ptr = malloc(size);
-	if (!ptr && size) {
-		fprintf(stderr, "malloc(%d) failed\n", (int) size);
-		exit(13);
-	}
-	return ptr;
+    ptr = malloc(size);
+    if (!ptr && size) {
+	fprintf(stderr, "malloc(%d) failed\n", (int) size);
+	exit(13);
+    }
+    return ptr;
 }
 
 
 
 char *xstrdup(const char *str)
 {
-	return strcpy(xmalloc(strlen(str) + 1), str);
+    return strcpy(xmalloc(strlen(str) + 1), str);
+}
+
+
+
+char *xstrcpy(char *src)
+{
+    char    *tmp;
+
+    if (src == NULL) 
+	return(NULL);
+    tmp = xmalloc(strlen(src)+1);
+    strcpy(tmp, src);
+    return tmp;
 }
 

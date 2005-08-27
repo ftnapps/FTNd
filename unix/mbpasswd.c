@@ -810,241 +810,267 @@ static void update_shadow(void)
 
 
 /*
+ *  Internal version of basename to make this better portable.
+ */
+char *Basename(char *str)
+{
+    char *cp = strrchr(str, '/');
+
+    return cp ? cp+1 : str;
+}
+
+
+
+/*
  * Function will set a new password in the users password file.
  * Note that this function must run setuid root!
  */
 int main(int argc, char *argv[])
 {
 #if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
-	const struct passwd	*pw;
-	const struct group	*gr;
+    const struct passwd	    *pw;
+    const struct group	    *gr;
 #ifdef SHADOW_PASSWORD
-	const struct spwd	*sp;
+    const struct spwd	    *sp;
 #endif
 #else
-	static struct passwd	*pw;
-	static struct group	*gr;
-	int			pfd, tfd;
+    static struct passwd    *pw;
+    static struct group	    *gr;
+    int			    pfd, tfd;
 #endif
-	char			*cp;
+    char		    *cp;
 #ifdef _VPOPMAIL_PATH
-	char			temp[PATH_MAX];
-	char			*args[16];
+    char		    *args[16];
 #endif
+    char		    temp[PATH_MAX];
+    pid_t		    ppid;
+    char		    *parent;
+    FILE		    *fp;
 
+    /*
+     * Init $MBSE_ROOT/etc/login.defs file before the *pw gets overwritten.
+     */
+    def_load();
+
+    /*
+     * Get my username
+     */
+    pw = get_my_pwent();
+    if (!pw) {
+	fprintf(stderr, "mbpasswd: Cannot determine your user name.\n");
+	exit(1);
+    }
+    myname = xstrdup(pw->pw_name);
+
+    /*
+     * Get my groupname, this must be "bbs", other users may not
+     * use this program, not even root.
+     */
+    gr = getgrgid(pw->pw_gid);
+    if (!gr) {
+	fprintf(stderr, "mbpasswd: Cannot determine group name.\n");
+	free(myname);
+	exit(E_NOPERM);
+    }
+    if (strcmp(gr->gr_name, (char *)"bbs")) {
+	fprintf(stderr, "mbpasswd: You are not a member of group \"bbs\".\n");
+	free(myname);
+	exit(E_NOPERM);
+    }
+
+    /*
+     * We don't log into MBSE BBS logfiles but to the system logfiles,
+     * because we are modifying system files not belonging to MBSE BBS.
+     */
+    openlog("mbpasswd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
+
+    /*
+     * Find out the name of our parent.
+     */
+    ppid = getppid();
+    sprintf(temp, "/proc/%d/cmdline", ppid);
+    if ((fp = fopen(temp, "r")) == NULL) {
+	fprintf(stderr, "mbpasswd: can't read %s\n", temp);
+	syslog(LOG_ERR, "mbpasswd: can't read %s", temp);
+	free(myname);
+	exit(E_FAILURE);
+    }
+    fgets(temp, PATH_MAX-1, fp);
+    fclose(fp);
+    parent = xstrcpy(Basename(temp));
+
+    if (strcmp((char *)"mbsetup", parent) && strcmp((char *)"-mbsebbs", parent) && strcmp((char *)"-mbnewusr", parent)) {
+	fprintf(stderr, "mbpasswd: illegal parent\n");
+	syslog(LOG_ERR, "mbpasswd: illegal parent \"%s\"", parent);
+	free(myname);
+	exit(E_FAILURE);
+    }
+
+    if (argc != 3) {
+	fprintf(stderr, "\nmbpasswd commandline:\n\n");
+	fprintf(stderr, "mbpasswd [username] [newpassword]\n");
+	free(myname);
+	exit(E_FAILURE);
+    }
+
+    if ((strcmp((char *)"-mbnewusr", parent) == 0) || (strcmp((char *)"mbsetup", parent) == 0)) {
 	/*
-	 * Init $MBSE_ROOT/etc/login.defs file before the *pw gets overwritten.
+	 * This is a new user setting his password, or the sysop resetting
+	 * the password using mbsetup. This program runs under account mbse.
 	 */
-	def_load();
-
+	force = 1;
+	if (strcmp(pw->pw_name, (char *)"mbse") && strcmp(pw->pw_name, (char *)"bbs")) {
+	    fprintf(stderr, "mbpasswd: only users `mbse' and `bbs' may do this.\n");
+	    free(myname);
+	    exit(E_NOPERM);
+	}
+    } else if (strcmp((char *)"-mbsebbs", parent) == 0) {
 	/*
-	 * Get my username
+	 * Normal password change by user, check caller is the user.
+	 * Calling program is only mbsebbs.
 	 */
-	pw = get_my_pwent();
-	if (!pw) {
-		fprintf(stderr, "mbpasswd: Cannot determine your user name.\n");
-		exit(1);
+	force = 0;
+	if (strcmp(pw->pw_name, argv[1])) {
+	    fprintf(stderr, "mbpasswd: only owner may do this.\n");
+	    free(myname);
+	    exit(E_NOPERM);
 	}
-	myname = xstrdup(pw->pw_name);
+    } else {
+	syslog(LOG_ERR, "mbpasswd: illegal called");
+	free(myname);
+	exit(E_NOPERM);
+    }
 
-	/*
-	 * Get my groupname, this must be "bbs", other users may not
-	 * use this program, not even root.
-	 */
-	gr = getgrgid(pw->pw_gid);
-	if (!gr) {
-		fprintf(stderr, "mbpasswd: Cannot determine group name.\n");
-		free(myname);
-		exit(E_NOPERM);
-	}
-	if (strcmp(gr->gr_name, (char *)"bbs")) {
-		fprintf(stderr, "mbpasswd: You are not a member of group \"bbs\".\n");
-		free(myname);
-		exit(E_NOPERM);
-	}
+    /*
+     *  Check commandline arguments
+     */
+    if (strlen(argv[1]) > 32) {
+	fprintf(stderr, "mbpasswd: Username too long\n");
+	free(myname);
+	exit(E_FAILURE);
+    }
+    if (strlen(argv[2]) > 32) {
+	fprintf(stderr, "mbpasswd: Password too long\n");
+	free(myname);
+	exit(E_FAILURE);
+    }
 
-//	NOOT dit programma moet kontroleren of het is aangeroepen door mbsebbs.
-//	     ook kontroleren of de originele uid en gid correct zijn.
-//           Gewone stervelingen mogen dit niet kunnen starten.
-//	     Dit programma is een groot security gat.
-
-//	On Linux: use getppid to get the parent pid.
-//		  cat /proc/<pid>/cmdline gives name of parent.
-//		  check parent name: mbsebbs | mbnewusr | mbsetup
-
-	if (argc != 4) {
-		fprintf(stderr, "\nmbpasswd commandline:\n\n");
-		fprintf(stderr, "mbpasswd [-opt] [username] [newpassword]\n");
-		fprintf(stderr, "options are:  -n   normal password change\n");
-		fprintf(stderr, "              -f   forced password change\n");
-		free(myname);
-		exit(E_FAILURE);
-	}
-
-	if (strncmp(argv[1], "-f", 2) == 0) {
-		/*
-		 * This is a new user setting his password,
-		 * this program runs under account mbse.
-		 */
-		force = 1;
-		if (strcmp(pw->pw_name, (char *)"mbse") && strcmp(pw->pw_name, (char *)"bbs")) {
-			fprintf(stderr, "mbpasswd: only users `mbse' and `bbs' may do this.\n");
-			free(myname);
-			exit(E_NOPERM);
-		}
-	} else if (strncmp(argv[1], "-n", 2) == 0) {
-		/*
-		 * Normal password change by user, check
-		 * caller is the user.
-		 */
-		force = 0;
-		if (strcmp(pw->pw_name, argv[2])) {
-			fprintf(stderr, "mbpasswd: only owner may do this.\n");
-			free(myname);
-			exit(E_NOPERM);
-		}
-	} else {
-		fprintf(stderr, "mbpasswd: wrong option switch.\n");
-		free(myname);
-		exit(E_FAILURE);
-	}
-
-	/*
-	 *  Check stringlengths
-	 */
-	if (strlen(argv[2]) > 16) {
-		fprintf(stderr, "mbpasswd: Username too long\n");
-		free(myname);
-		exit(E_FAILURE);
-	}
-	if (strlen(argv[3]) > 16) {
-		fprintf(stderr, "mbpasswd: Password too long\n");
-		free(myname);
-		exit(E_FAILURE);
-	}
-
-	/*
-	 * We don't log into MBSE BBS logfiles but to the system logfiles,
-	 * because we are modifying system files not belonging to MBSE BBS.
-	 */
-	openlog("mbpasswd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
-
-	name = strdup(argv[2]);
-	if ((pw = getpwnam(name)) == NULL) {
-		syslog(LOG_ERR, "mbpasswd: Unknown user %s", name);
-		fprintf(stderr, "mbpasswd: Unknown user %s\n", name);
-		free(myname);
-		exit(E_FAILURE);
-	}
+    name = strdup(argv[1]);
+    if ((pw = getpwnam(name)) == NULL) {
+	syslog(LOG_ERR, "mbpasswd: Unknown user %s", name);
+	fprintf(stderr, "mbpasswd: Unknown user %s\n", name);
+	free(myname);
+	exit(E_FAILURE);
+    }
 
 
 #ifdef SHADOW_PASSWORD
-	is_shadow_pwd = spw_file_present();
+    is_shadow_pwd = spw_file_present();
 
-	sp = getspnam(name);
-	if (!sp)
-		sp = pwd_to_spwd(pw);
+    sp = getspnam(name);
+    if (!sp)
+	sp = pwd_to_spwd(pw);
 
-	cp = sp->sp_pwdp;
+    cp = sp->sp_pwdp;
 #else
-	cp = pw->pw_passwd;
+    cp = pw->pw_passwd;
 #endif
-	/*
-	 * See if the user is permitted to change the password.
-	 * Otherwise, go ahead and set a new password.
-	 */
+    /*
+     * See if the user is permitted to change the password.
+     * Otherwise, go ahead and set a new password.
+     */
 #ifdef SHADOW_PASSWORD
-	check_password(pw, sp);
+    check_password(pw, sp);
 #else
-	check_password(pw);
+    check_password(pw);
 #endif
 
-	if (new_password(pw, argv[3])) {
-		fprintf(stderr, "The password for %s is unchanged.\n", name);
-		syslog(LOG_ERR, "The password for %s is unchanged", name);
-		closelog();
-		free(myname);
-		exit(E_FAILURE);
-	}
-	do_update_pwd = 1;
-	do_update_age = 1;
+    if (new_password(pw, argv[2])) {
+	fprintf(stderr, "The password for %s is unchanged.\n", name);
+	syslog(LOG_ERR, "The password for %s is unchanged", name);
+	closelog();
+	free(myname);
+	exit(E_FAILURE);
+    }
+    do_update_pwd = 1;
+    do_update_age = 1;
 
-	/*
-	 * Before going any further, raise the ulimit to prevent
-	 * colliding into a lowered ulimit, and set the real UID
-	 * to root to protect against unexpected signals.  Any
-	 * keyboard signals are set to be ignored.
-	 */
+    /*
+     * Before going any further, raise the ulimit to prevent
+     * colliding into a lowered ulimit, and set the real UID
+     * to root to protect against unexpected signals.  Any
+     * keyboard signals are set to be ignored.
+     */
 #if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
-	pwd_init();
+    pwd_init();
 #else
-	pw_init();
+    pw_init();
 #endif
 
-	if (setuid(0)) {
-		fprintf(stderr, "Cannot change ID to root.\n");
-		syslog(LOG_ERR, "can't setuid(0)");
-		closelog();
-		free(myname);
-		exit(E_FAILURE);
-	}
+    if (setuid(0)) {
+	fprintf(stderr, "Cannot change ID to root.\n");
+	syslog(LOG_ERR, "can't setuid(0)");
+	closelog();
+	free(myname);
+	exit(E_FAILURE);
+    }
 
 #if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 
 #ifdef  HAVE_USERSEC_H
-        update_userpw(pw->pw_passwd);
+    update_userpw(pw->pw_passwd);
 #else  /* !HAVE_USERSEC_H */
 
 #ifdef SHADOW_PASSWORD
-	if (spw_file_present())
-		update_shadow();
-	else
+    if (spw_file_present())
+	update_shadow();
+    else
 #endif
-		update_noshadow(0);
+	update_noshadow(0);
 #endif /* !HAVE_USERSEC_H */
 
 #else /* __FreeBSD__ && __NetBSD__ && __OpenBSD__ */
-	/*
-	 *  FreeBSD password change, borrowed from the original FreeBSD sources
-	 */
+    /*
+     *  FreeBSD password change, borrowed from the original FreeBSD sources
+     */
 
-        /*
-         * Get the new password.  Reset passwd change time to zero by
-         * default.
-         */
-	pw->pw_change = 0;
-	pw->pw_passwd = crypt_passwd;
+    /*
+     * Get the new password.  Reset passwd change time to zero by
+     * default.
+     */
+    pw->pw_change = 0;
+    pw->pw_passwd = crypt_passwd;
 
-	pfd = pw_lock();
-	tfd = pw_tmp();
-	pw_copy(pfd, tfd, pw);
+    pfd = pw_lock();
+    tfd = pw_tmp();
+    pw_copy(pfd, tfd, pw);
 
-	if (!pw_mkdb(pw->pw_name))
-		pw_error((char *)NULL, 0, 1);
+    if (!pw_mkdb(pw->pw_name))
+	pw_error((char *)NULL, 0, 1);
 
 #endif /* __FreeBSD__ && __NetBSD__ && __OpenBSD__ */
 
 #ifdef _VPOPMAIL_PATH
-	fflush(stdout);
-	fflush(stdin);
-	memset(args, 0, sizeof(args));
+    fflush(stdout);
+    fflush(stdin);
+    memset(args, 0, sizeof(args));
     
-	sprintf(temp, "%s/vpasswd", (char *)_VPOPMAIL_PATH);
-	args[0] = temp;
-	args[1] = argv[2];
-	args[2] = argv[3];
-	args[3] = NULL;
+    sprintf(temp, "%s/vpasswd", (char *)_VPOPMAIL_PATH);
+    args[0] = temp;
+    args[1] = argv[1];
+    args[2] = argv[2];
+    args[3] = NULL;
 
-	if (execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty") != 0) {
-	    perror("mbpasswd: Failed to change vpopmail password\n");
-	    syslog(LOG_ERR, "Failed to change vpopmail password");
-	}
+    if (execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty") != 0) {
+	perror("mbpasswd: Failed to change vpopmail password\n");
+	syslog(LOG_ERR, "Failed to change vpopmail password");
+    }
 #endif
 	
-	syslog(LOG_NOTICE, "password for `%s' changed by user `%s'", name, myname);
-	closelog();
-	free(myname);
-	exit(E_SUCCESS);
+    syslog(LOG_NOTICE, "password for `%s' changed by user `%s'", name, myname);
+    closelog();
+    free(myname);
+    exit(E_SUCCESS);
 }
 
 

@@ -40,12 +40,21 @@ v0.71.5		18-Aug-2005
 
 	mbsebbs:
 		Code cleanup.
+		Changed syntax for calling mbpasswd.
+
+	mbnewusr:
+		Changed syntax for calling mbpasswd.
 
 	mbsetup:
 		Added node setup switch to override node Hold or Down status.
+		Changed syntax for calling mbpasswd.
 
 	script:
 		Added mbfile check to monthly maintenance script.
+
+	mbpasswd:
+		Added security checks to see if this program is legally called.
+		Changed commandline syntax.
 
 
 v0.71.4		12-Aug-2005 - 18-Aug-2005

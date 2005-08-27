@@ -194,14 +194,13 @@ void Chg_Password()
 	    }
 	}
 
-	Syslog('+', "%s/bin/mbpasswd -n %s ******", getenv("MBSE_ROOT"), exitinfo.Name);
+	Syslog('+', "%s/bin/mbpasswd %s ******", getenv("MBSE_ROOT"), exitinfo.Name);
 	sprintf(temp1, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
 	memset(args, 0, sizeof(args));
 	args[0] = temp1;
-	args[1] = (char *)"-n";
-	args[2] = exitinfo.Name;
-	args[3] = temp2;
-	args[4] = NULL;
+	args[1] = exitinfo.Name;
+	args[2] = temp2;
+	args[3] = NULL;
 
 	if (execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") != 0) {
 	    WriteError("Failed to set new Unix password");
