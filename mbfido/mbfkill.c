@@ -222,7 +222,7 @@ void Kill(void)
 
     fclose(pAreas);
 
-    Syslog('+', "Kill  Areas [%5d] Files [%5d] Deleted [%5d] Moved [%5d]", iAreasNew, iTotal, iKilled, iMoved);
+    Syslog('+', "Kill  Areas [%6d] Files [%6d] Deleted [%6d] Moved [%6d]", iAreasNew, iTotal, iKilled, iMoved);
 
     if (!do_quiet) {
 	printf("\r                                                          \r");
