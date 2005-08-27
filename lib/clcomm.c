@@ -109,15 +109,15 @@ void InitClient(char *user, char *myname, char *where, char *logfname, long logg
 		exit(MBERR_INIT_ERROR);
 	}
 
-	sprintf(progname, "%s", myname);
-	sprintf(logfile, "%s", logfname);
-	sprintf(errfile, "%s", err);
-	sprintf(mgrfile, "%s", mgr);
-	sprintf(logdebug, "%s", debug);
+	snprintf(progname, 20, "%s", myname);
+	snprintf(logfile, PATH_MAX -1, "%s", logfname);
+	snprintf(errfile, PATH_MAX -1, "%s", err);
+	snprintf(mgrfile, PATH_MAX -1, "%s", mgr);
+	snprintf(logdebug, PATH_MAX -1, "%s", debug);
 	loggrade = loggr;
 
-        sprintf(cpath, "%s/tmp/%s%d", getenv("MBSE_ROOT"), progname, getpid());
-        sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+        snprintf(cpath, 107, "%s/tmp/%s%d", getenv("MBSE_ROOT"), progname, getpid());
+        snprintf(spath, 107, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
 
         /*
          * Store my pid in case a child process is forked and wants to do
@@ -181,7 +181,7 @@ char *SockR(const char *format, ...)
 	va_end(va_ptr);
 
 	if (socket_send(out) == 0)
-		sprintf(buf, "%s", socket_receive());
+		snprintf(buf, SS_BUFSIZE -1, "%s", socket_receive());
 
 	free(out);
 	return buf;
@@ -207,7 +207,7 @@ void WriteError(const char *format, ...)
 			outputstr[i] = ' ';
 
 	if (*outputstr == '$')
-		sprintf(outputstr+strlen(outputstr), ": %s", strerror(errno));
+		snprintf(outputstr+strlen(outputstr), 10239, ": %s", strerror(errno));
 
 	if (strlen(outputstr) > (SS_BUFSIZE - 64)) {
 		outputstr[SS_BUFSIZE - 65] = ';';
@@ -451,7 +451,7 @@ unsigned long sequencer()
 	unsigned long	seq = 0;
 
 	buf = calloc(SS_BUFSIZE, sizeof(char));
-	sprintf(buf, "SSEQ:0;");
+	snprintf(buf, SS_BUFSIZE -1, "SSEQ:0;");
 
 	if (socket_send(buf) == 0) {
 		free(buf);
@@ -477,10 +477,10 @@ int enoughspace(unsigned long needed)
     unsigned long   avail = 0L;
 
     buf = calloc(SS_BUFSIZE, sizeof(char));
-    sprintf(buf, "DSPC:1,%ld;", needed);
+    snprintf(buf, SS_BUFSIZE -1, "DSPC:1,%ld;", needed);
 
     if (socket_send(buf) == 0) {
-	sprintf(buf, "%s", socket_receive());
+	snprintf(buf, SS_BUFSIZE -1, "%s", socket_receive());
 	res = strtok(buf, ":");
 	cnt = atoi(strtok(NULL, ","));
 	if (cnt == 1) {
@@ -535,7 +535,7 @@ char *printable(char *s, int l)
 		case '\n': *p++='\\'; *p++='n'; break;
 		case '\t': *p++='\\'; *p++='t'; break;
 		case '\b': *p++='\\'; *p++='b'; break;
-		default:   sprintf(p,"\\%02x", (*s & 0xff)); p+=3; break;
+		default:   snprintf(p, 5, "\\%02x", (*s & 0xff)); p+=3; break;
 	    }
 	    s++;
     }

@@ -305,7 +305,7 @@ int charset_read_bin(void)
     char	    *name;
     
     name = calloc(PATH_MAX, sizeof(char));
-    sprintf(name, "%s/etc/charset.bin", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/etc/charset.bin", getenv("MBSE_ROOT"));
     if ((fp = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
 	free(name);

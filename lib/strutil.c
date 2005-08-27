@@ -262,7 +262,7 @@ char *StrTimeHM(time_t date)
 	struct tm	*l_d;
 
 	l_d = localtime(&date);
-	sprintf(ttime, "%02d:%02d", l_d->tm_hour, l_d->tm_min);
+	snprintf(ttime, 5, "%02d:%02d", l_d->tm_hour, l_d->tm_min);
 	return ttime;
 }
 
@@ -277,7 +277,7 @@ char *StrTimeHMS(time_t date)
 	struct tm	*l_d;
 
 	l_d = localtime(&date);
-	sprintf(ttime, "%02d:%02d:%02d", l_d->tm_hour, l_d->tm_min, l_d->tm_sec);
+	snprintf(ttime, 8, "%02d:%02d:%02d", l_d->tm_hour, l_d->tm_min, l_d->tm_sec);
 	return ttime;
 }
 
@@ -292,7 +292,7 @@ char *GetLocalHM()
 	time_t		T_Now;
 
 	T_Now = time(NULL);
-	sprintf(gettime,"%s", StrTimeHM(T_Now));
+	snprintf(gettime, 14, "%s", StrTimeHM(T_Now));
 	return(gettime);
 }
 
@@ -308,7 +308,7 @@ char *GetLocalHMS()
 	time_t		T_Now;
 
 	T_Now = time(NULL);
-	sprintf(gettime,"%s", StrTimeHMS(T_Now));
+	snprintf(gettime, 14, "%s", StrTimeHMS(T_Now));
 	return(gettime);
 }
 
@@ -323,7 +323,7 @@ char *StrDateMDY(time_t *Clock)
 	static char cdate[12];
 	
 	tm = localtime(Clock);
-	sprintf(cdate,"%02d-%02d-%04d", tm->tm_mon+1, tm->tm_mday, tm->tm_year+1900);
+	snprintf(cdate, 11, "%02d-%02d-%04d", tm->tm_mon+1, tm->tm_mday, tm->tm_year+1900);
 	return(cdate);
 }
 
@@ -338,7 +338,7 @@ char *StrDateDMY(time_t date)
 	struct tm	*l_d;
 
 	l_d = localtime(&date);
-	sprintf(tdate, "%02d-%02d-%04d", l_d->tm_mday, l_d->tm_mon+1, l_d->tm_year+1900);
+	snprintf(tdate, 14, "%02d-%02d-%04d", l_d->tm_mday, l_d->tm_mon+1, l_d->tm_year+1900);
 	return tdate;
 }
 
@@ -357,7 +357,7 @@ char *GetDateDMY()
 
 	T_Now = time(NULL);
 	l_d = localtime(&T_Now);
- 	sprintf(tdate, "%02d-%02d-%04d", l_d->tm_mday,l_d->tm_mon+1,l_d->tm_year+1900);
+ 	snprintf(tdate, 14, "%02d-%02d-%04d", l_d->tm_mday,l_d->tm_mon+1,l_d->tm_year+1900);
 	return(tdate);
 }
 
@@ -408,7 +408,7 @@ char *TearLine()
 {
     static char	    tearline[41];
 
-    sprintf(tearline, "--- MBSE BBS v%s (%s-%s)", VERSION, OsName(), OsCPU());
+    snprintf(tearline, 40, "--- MBSE BBS v%s (%s-%s)", VERSION, OsName(), OsCPU());
     return tearline;
 }
 
