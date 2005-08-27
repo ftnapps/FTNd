@@ -657,6 +657,7 @@ void HtmlIndex(char *Lang)
 			fa = newpage(area.Path, area.Name, later, inArea, aTotal, fb);
 			fileptr1 = gfilepos;
 		    }
+		    aUpdate++;
 
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (!fdb.Deleted) {
@@ -666,7 +667,6 @@ void HtmlIndex(char *Lang)
 			    x++;
 			    TotalHtml++;
 			    aTotal++;
-			    aUpdate++;
 			    if (CFG.slow_util && do_quiet && ((x % 3) == 0))
 				msleep(1);
 			 
