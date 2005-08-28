@@ -60,7 +60,7 @@ int newspost(void)
      *  a file, try to post the articles. They may be
      *  still here if the newsserver wasn't available.
      */
-    sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+    snprintf(buf, 10239, "%s/tmp/newsout", getenv("MBSE_ROOT"));
     if ((nfp = fopen(buf, "r")) == NULL) {
 	if (newsopen)
 	    WriteError("$Can't reopen %s", buf);
@@ -115,7 +115,7 @@ int newspost(void)
      */
     if ((CFG.newsfeed == FEEDUUCP) || (CFG.newsfeed == FEEDRNEWS)) {
 	Syslog('+', "Posting news articles to the news batchfile");
-	sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+	snprintf(buf, 10239, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
 	if ((ofp = fopen(buf, "w+")) == NULL) {
 	    WriteError("$Can't create %s", buf);
 	    free(buf);
@@ -178,7 +178,7 @@ int newspost(void)
 	} else
 	    Syslog('+', "Articles send through %s", CFG.rnewspath);
 	fclose(ofp);
-	sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+	snprintf(buf, 10239, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
 	unlink(buf);
     }
 
@@ -194,7 +194,7 @@ int newspost(void)
 	    return TRUE;
 	}
 
-	sprintf(buf, "%s/C.%s%lx", CFG.rnewspath, CFG.nntpnode, seqnr);
+	snprintf(buf, 10239, "%s/C.%s%lx", CFG.rnewspath, CFG.nntpnode, seqnr);
 	if ((nb = fopen(buf, "a")) == NULL) {
 	    WriteError("Can't create %s", buf);
 	    newsopen = FALSE;
@@ -204,7 +204,7 @@ int newspost(void)
 	fprintf(nb, "E D.%s%lx D.%s%lx news -C D.%s%lx 0666 \"\" 0 rnews\n", 
 			utsbuf.nodename, seqnr, utsbuf.nodename, seqnr, utsbuf.nodename, seqnr);
 	fclose(nb);
-	sprintf(buf, "%s/D.%s%lx", CFG.rnewspath, utsbuf.nodename, seqnr);
+	snprintf(buf, 10239, "%s/D.%s%lx", CFG.rnewspath, utsbuf.nodename, seqnr);
 	if ((nb = fopen(buf, "a")) == NULL) {
 	    WriteError("Can't create %s", buf);
 	    newsopen = FALSE;
@@ -215,12 +215,12 @@ int newspost(void)
         }
         Syslog('+', "Articles placed in %s", CFG.rnewspath);
         fclose(ofp);
-        sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+        snprintf(buf, 10239, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
         unlink(buf);
     }
 
     if (! news_bad) {
-	sprintf(buf, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+	snprintf(buf, 10239, "%s/tmp/newsout", getenv("MBSE_ROOT"));
 	unlink(buf);
     }
 

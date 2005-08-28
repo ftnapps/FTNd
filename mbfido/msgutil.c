@@ -72,7 +72,7 @@ void Msg_Id(fidoaddr aka)
 	unsigned long	crc = -1;
 
 	temp = calloc(81, sizeof(char));
-	sprintf(temp, "\001MSGID: %s %08lx", aka2str(aka), sequencer());
+	snprintf(temp, 80, "\001MSGID: %s %08lx", aka2str(aka), sequencer());
 	MsgText_Add2(temp);
 	Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
 	Msg.ReplyCRC = 0xffffffff;
@@ -87,16 +87,16 @@ void Msg_Pid(void)
 	time_t	tt;
 
 	temp = calloc(81, sizeof(char));
-	sprintf(temp, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
+	snprintf(temp, 80, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
 	MsgText_Add2(temp);
 	if (msgs.Charset != FTNC_NONE) {
-	    sprintf(temp, "\001CHRS: %s", getftnchrs(msgs.Charset));
+	    snprintf(temp, 80, "\001CHRS: %s", getftnchrs(msgs.Charset));
 	} else {
-	    sprintf(temp, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
+	    snprintf(temp, 80, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
 	}
 	MsgText_Add2(temp);
 	tt = time(NULL);
-	sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
+	snprintf(temp, 80, "\001TZUTC: %s", gmtoffset(tt));
 	MsgText_Add2(temp);
 	free(temp);
 }
@@ -168,7 +168,7 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 	    hasmodems = TRUE;
 	}
 
-	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) != NULL) {
 	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
 	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
@@ -220,11 +220,11 @@ void Msg_Bot(fidoaddr UseAka, char *Org, char *template)
 	MsgText_Add2(TearLine());
 
 	if (UseAka.point)
-		sprintf(aka, "(%d:%d/%d.%d)", UseAka.zone, UseAka.net, UseAka.node, UseAka.point);
+		snprintf(aka, 39, "(%d:%d/%d.%d)", UseAka.zone, UseAka.net, UseAka.node, UseAka.point);
 	else
-		sprintf(aka, "(%d:%d/%d)", UseAka.zone, UseAka.net, UseAka.node);
+		snprintf(aka, 39, "(%d:%d/%d)", UseAka.zone, UseAka.net, UseAka.node);
 
-	sprintf(temp, " * Origin: %s %s", Org, aka);
+	snprintf(temp, 80, " * Origin: %s %s", Org, aka);
 	MsgText_Add2(temp);
 	free(aka);
 	free(temp);
@@ -238,7 +238,7 @@ void CountPosted(char *Base)
 	FILE	*fp;
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r+")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, fp);
 

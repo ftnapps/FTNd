@@ -103,7 +103,7 @@ int toss_onemsg(char *msgname)
 {
     int		    rc = 0, islocal, empty = TRUE;
     char	    *temp, *dospath, *flagstr = NULL, *l, *r, *msgid = NULL; 
-    char	    fromUserName[36], toUserName[36], subject[72], DateTime[20];
+    char	    fromUserName[37], toUserName[37], subject[73], DateTime[21];
     FILE	    *fp, *np;
     faddr	    *ta;
     unsigned char   buf[0xbe];
@@ -114,7 +114,7 @@ int toss_onemsg(char *msgname)
 
     net_msgs++;
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s", CFG.msgs_path, msgname);
+    snprintf(temp, PATH_MAX -1, "%s/%s", CFG.msgs_path, msgname);
     
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -315,7 +315,7 @@ int toss_onemsg(char *msgname)
 		(strncasecmp(toUserName, "postmaster", 10) == 0) ||
 		(strncasecmp(toUserName, "coordinator", 11) == 0)) {
 		Syslog('+', "  Readdress from %s to %s", toUserName, CFG.sysop_name);
-		sprintf(toUserName, "%s", CFG.sysop_name);
+		snprintf(toUserName, 36, "%s", CFG.sysop_name);
 		strcpy(Msg.To, toUserName);
 	    }
 	    net_imp++;
@@ -328,19 +328,19 @@ int toss_onemsg(char *msgname)
 	Msg.Netmail = TRUE;
 
 	if (origPoint)
-	    sprintf(Msg.FromAddress, "%d:%d/%d.%d@%s", origZone, origNet, origNode, origPoint, fidonet.domain);
+	    snprintf(Msg.FromAddress, 100, "%d:%d/%d.%d@%s", origZone, origNet, origNode, origPoint, fidonet.domain);
 	else
-	    sprintf(Msg.FromAddress, "%d:%d/%d@%s", origZone, origNet, origNode, fidonet.domain);
+	    snprintf(Msg.FromAddress, 100, "%d:%d/%d@%s", origZone, origNet, origNode, fidonet.domain);
 	if (SearchFidonet(destZone)) {
 	    if (destPoint)
-		sprintf(Msg.ToAddress, "%d:%d/%d.%d@%s", destZone, destNet, destNode, destPoint, fidonet.domain);
+		snprintf(Msg.ToAddress, 100, "%d:%d/%d.%d@%s", destZone, destNet, destNode, destPoint, fidonet.domain);
 	    else
-		sprintf(Msg.ToAddress, "%d:%d/%d@%s", destZone, destNet, destNode, fidonet.domain);
+		snprintf(Msg.ToAddress, 100, "%d:%d/%d@%s", destZone, destNet, destNode, fidonet.domain);
 	} else {
 	    if (destPoint)
-		sprintf(Msg.ToAddress, "%d:%d/%d.%d", destZone, destNet, destNode, destPoint);
+		snprintf(Msg.ToAddress, 100, "%d:%d/%d.%d", destZone, destNet, destNode, destPoint);
 	    else
-		sprintf(Msg.ToAddress, "%d:%d/%d", destZone, destNet, destNode);
+		snprintf(Msg.ToAddress, 100, "%d:%d/%d", destZone, destNet, destNode);
 	}
 	
 	/*
@@ -367,7 +367,7 @@ int toss_onemsg(char *msgname)
 
 	if (!islocal) {
 	    do_scan = TRUE;
-	    sprintf(temp, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX -1, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
 	    if ((np = fopen(temp, "a")) != NULL) {
 		fprintf(np, "%s %lu\n", msgs.Base, Msg.Id);
 		fclose(np);
@@ -385,7 +385,7 @@ int toss_onemsg(char *msgname)
 
     if (rc == 0) {
 	net_in++;
-	sprintf(temp, "%s/%s", CFG.msgs_path, msgname);
+	snprintf(temp, PATH_MAX -1, "%s/%s", CFG.msgs_path, msgname);
 	if (unlink(temp) != 0)
 	    WriteError("Can't remove %s", temp);
     }
