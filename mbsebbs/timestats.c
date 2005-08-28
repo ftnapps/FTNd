@@ -4,7 +4,7 @@
  * Purpose ...............: Time Statistics
  *
  *****************************************************************************
- * Copyright (C) 1997-2004 
+ * Copyright (C) 1997-2005 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -46,7 +46,7 @@ void TimeStats()
 
     Time_Now = time(NULL);
     l_date = localtime(&Time_Now);
-    sprintf(Logdate, "%02d-%s %02d:%02d:%02d", l_date->tm_mday, GetMonth(l_date->tm_mon+1),
+    snprintf(Logdate, 21, "%02d-%s %02d:%02d:%02d", l_date->tm_mday, GetMonth(l_date->tm_mon+1),
                         l_date->tm_hour, l_date->tm_min, l_date->tm_sec);
 
     clear();
@@ -54,10 +54,10 @@ void TimeStats()
 
     Enter(1);
     /* TIME STATISTICS for */
-    sprintf(msg, "%s%s ", (char *) Language(134), exitinfo.sUserName);
+    snprintf(msg, 81, "%s%s ", (char *) Language(134), exitinfo.sUserName);
     pout(WHITE, BLACK, msg);
     /* on */
-    sprintf(msg, "%s %s", (char *) Language(135), Logdate);
+    snprintf(msg, 81, "%s %s", (char *) Language(135), Logdate);
     poutCR(WHITE, BLACK, msg);
 
     colour(LIGHTRED, BLACK);
@@ -66,28 +66,28 @@ void TimeStats()
     Enter(1);
 	
     /* Current Time */
-    sprintf(msg, "%s %s", (char *) Language(136), (char *) GetLocalHMS());
+    snprintf(msg, 81, "%s %s", (char *) Language(136), (char *) GetLocalHMS());
     poutCR(LIGHTGREEN, BLACK, msg);
 
     /* Current Date */
-    sprintf(msg, "%s %s", (char *) Language(137), (char *) GLCdateyy());
+    snprintf(msg, 81, "%s %s", (char *) Language(137), (char *) GLCdateyy());
     poutCR(LIGHTGREEN, BLACK, msg);
     Enter(1);
 
     /* Connect time */
-    sprintf(msg, "%s %d %s", (char *) Language(138), exitinfo.iConnectTime, (char *) Language(471));
+    snprintf(msg, 81, "%s %d %s", (char *) Language(138), exitinfo.iConnectTime, (char *) Language(471));
     poutCR(LIGHTGREEN, BLACK, msg);
     
     /* Time used today */
-    sprintf(msg, "%s %d %s", (char *) Language(139), exitinfo.iTimeUsed, (char *) Language(471));
+    snprintf(msg, 81, "%s %d %s", (char *) Language(139), exitinfo.iTimeUsed, (char *) Language(471));
     poutCR(LIGHTGREEN, BLACK, msg);
     
     /* Time remaining today */
-    sprintf(msg, "%s %d %s", (char *) Language(140), exitinfo.iTimeLeft, (char *) Language(471));
+    snprintf(msg, 81, "%s %d %s", (char *) Language(140), exitinfo.iTimeLeft, (char *) Language(471));
     poutCR(LIGHTGREEN, BLACK, msg);
     
     /* Daily time limit */
-    sprintf(msg, "%s %d %s", (char *) Language(141), exitinfo.iTimeUsed + exitinfo.iTimeLeft, (char *) Language(471));
+    snprintf(msg, 81, "%s %d %s", (char *) Language(141), exitinfo.iTimeUsed + exitinfo.iTimeLeft, (char *) Language(471));
     poutCR(LIGHTGREEN, BLACK, msg);
     
     Enter(1);

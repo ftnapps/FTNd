@@ -4,7 +4,7 @@
  * Purpose ...............: File Transfers
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -178,13 +178,13 @@ int download(down_list *download_list)
     chdir("./tag");
     for (tmpf = download_list; tmpf; tmpf = tmpf->next) {
         if (!tmpf->sent && !tmpf->failed) {
-	    sprintf(symFrom, "%s/%s/tag/%s", CFG.bbs_usersdir, exitinfo.Name, tmpf->remote);
+	    snprintf(symFrom, PATH_MAX, "%s/%s/tag/%s", CFG.bbs_usersdir, exitinfo.Name, tmpf->remote);
 	    Syslog('b', "test \"%s\" \"%s\"", symFrom, tmpf->local);
 	    if (strcmp(symFrom, tmpf->local)) {
 		Syslog('b', "different, need a symlink");
 		unlink(tmpf->remote);
-		sprintf(symFrom, "%s", tmpf->remote);
-		sprintf(symTo, "%s", tmpf->local);
+		snprintf(symFrom, PATH_MAX, "%s", tmpf->remote);
+		snprintf(symTo, PATH_MAX, "%s", tmpf->local);
 		if (symlink(symTo, symFrom)) {
 		    WriteError("$Can't create symlink %s %s %d", symTo, symFrom, errno);
 		    tmpf->failed = TRUE;
@@ -199,7 +199,7 @@ int download(down_list *download_list)
 	    /*
 	     * Check if file or symlink is really there.
 	     */
-	    sprintf(symFrom, "%s", tmpf->remote);
+	    snprintf(symFrom, PATH_MAX, "%s", tmpf->remote);
 	    if ((access(symFrom, F_OK)) != 0) {
 	        WriteError("File or symlink %s check failed, unmarking download", symFrom);
 	        tmpf->failed = TRUE;
@@ -223,11 +223,11 @@ int download(down_list *download_list)
 
     clear();
     /* File(s)     : */
-    pout(YELLOW, BLACK, (char *) Language(349)); sprintf(temp, "%d", Count);     PUTSTR(temp); Enter(1);
+    pout(YELLOW, BLACK, (char *) Language(349)); snprintf(temp, PATH_MAX, "%d", Count);     PUTSTR(temp); Enter(1);
     /* Size        : */
-    pout(  CYAN, BLACK, (char *) Language(350)); sprintf(temp, "%lu", Size);     PUTSTR(temp); Enter(1);
+    pout(  CYAN, BLACK, (char *) Language(350)); snprintf(temp, PATH_MAX, "%lu", Size);     PUTSTR(temp); Enter(1);
     /* Protocol    : */
-    pout(  CYAN, BLACK, (char *) Language(351)); sprintf(temp, "%s", sProtName); PUTSTR(temp); Enter(1);
+    pout(  CYAN, BLACK, (char *) Language(351)); snprintf(temp, PATH_MAX, "%s", sProtName); PUTSTR(temp); Enter(1);
 
     Syslog('+', "Download files start, protocol: %s", sProtName);
 
@@ -240,7 +240,7 @@ int download(down_list *download_list)
     sleep(2);
     
     if (uProtInternal) {
-	sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
 	chdir(temp);
 	if (strncasecmp(sProtName, "zmodem-8k", 9) == 0) {
 	    maxrc = zmsndfiles(download_list, TRUE);
@@ -273,7 +273,7 @@ int download(down_list *download_list)
 	alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
 	Altime((exitinfo.iTimeLeft + 10) * 60);
 
-	sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
 	if ((dirp = opendir(temp)) == NULL) {
 	    WriteError("$Download: Can't open dir: %s", temp);
 	    free(temp);
@@ -321,7 +321,7 @@ int download(down_list *download_list)
 
 	for (tmpf = download_list; tmpf && (maxrc < 2); tmpf = tmpf->next) {
 	    if (!tmpf->sent && !tmpf->failed) {
-		sprintf(symTo, "./tag/%s", tmpf->remote);
+		snprintf(symTo, PATH_MAX, "./tag/%s", tmpf->remote);
 		/*
 		 * If symlink is gone the file is sent.
 		 */
@@ -404,12 +404,12 @@ int upload(up_list **upload_list)
     temp  = calloc(PATH_MAX, sizeof(char));
 
     /* Please start your upload now */
-    sprintf(temp, "%s, %s", sProtAdvice, (char *) Language(283));
+    snprintf(temp, PATH_MAX, "%s, %s", sProtAdvice, (char *) Language(283));
     pout(CFG.HiliteF, CFG.HiliteB, temp);
     Enter(2);
     Syslog('+', "Upload using %s", sProtName);
 
-    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
 
     if (chdir(temp)) {
 	WriteError("$Can't chdir to %s", temp);
@@ -455,7 +455,7 @@ int upload(up_list **upload_list)
 			if (rc == 0) {
 			    stat(dp->d_name, &statfile);
 			    Syslog('b', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
-			    sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, dp->d_name);
+			    snprintf(temp, PATH_MAX, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, dp->d_name);
 			    chmod(temp, 0660);
 
 			    /*
@@ -524,7 +524,7 @@ int upload(up_list **upload_list)
 		    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
 		    Count++;
 		    Size += statfile.st_size;
-		    sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, dp->d_name);
+		    snprintf(temp, PATH_MAX, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, dp->d_name);
 		    chmod(temp, 0660);
 
 		    /*
@@ -571,10 +571,10 @@ char *transfertime(struct timeval start, struct timeval end, long bytes, int sen
     if (!elapsed)
 	elapsed = 1L;
     if (bytes > 1000000)
-	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
+	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
 		bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes / elapsed) * 1000) / 1024);
     else
-	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
+	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
 		bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes * 1000) / elapsed) / 1024);   
     return resp;
 }

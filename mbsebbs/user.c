@@ -6,7 +6,7 @@
  *                          does a lot of checking in general.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -73,7 +73,7 @@ void GetLastUser(void)
         char    *sDataFile;
 
         sDataFile = calloc(PATH_MAX, sizeof(char));
-        sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+        snprintf(sDataFile, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
 	/*
 	 * Fix security in case it is wrong.
 	 */
@@ -180,7 +180,7 @@ void user()
     grecno = 0;
     Syslog('+', "Unixmode login: %s", sUnixName);
 
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((pUsrConfig = fopen(temp,"r+")) == NULL) {
 	/*
 	 * This should not happen.
@@ -202,13 +202,13 @@ void user()
 							
     if (!FoundName) {
 	fclose(pUsrConfig);
-	sprintf(temp, "Unknown username: %s\r\n", sUnixName);
+	snprintf(temp, PATH_MAX, "Unknown username: %s\r\n", sUnixName);
 	PUTSTR(temp);
 	/* FATAL ERROR: You are not in the BBS users file.*/
-	sprintf(temp, "%s\r\n", (char *) Language(389));
+	snprintf(temp, PATH_MAX, "%s\r\n", (char *) Language(389));
 	PUTSTR(temp);
 	/* Please run 'newuser' to create an account */
-	sprintf(temp, "%s\r\n", (char *) Language(390));
+	snprintf(temp, PATH_MAX, "%s\r\n", (char *) Language(390));
 	PUTSTR(temp);
 	Syslog('?', "FATAL: Could not find user in BBS users file.");
 	Syslog('?', "       and system is using unix accounts\n");
@@ -265,9 +265,9 @@ void user()
     Start = TRUE;
     while (TRUE) {
 	if (Start)
-	    sprintf(buf, "GMON:1,1;");
+	    snprintf(buf, 128, "GMON:1,1;");
 	else
-	    sprintf(buf, "GMON:1,0;");
+	    snprintf(buf, 128, "GMON:1,0;");
 	Start = FALSE;
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());
@@ -291,7 +291,7 @@ void user()
     if (CFG.max_logins && (logins > CFG.max_logins)) {
 	Syslog('+', "User logins %d, allowed %d, disconnecting", logins, CFG.max_logins);
 	colour(LIGHTRED, BLACK);
-	sprintf(temp, "%s %d %s\r\n", (char *) Language(18), CFG.max_logins, (char *) Language(19));
+	snprintf(temp, PATH_MAX, "%s %d %s\r\n", (char *) Language(18), CFG.max_logins, (char *) Language(19));
 	PUTSTR(temp);
 	Quick_Bye(MBERR_INIT_ERROR);
     }
@@ -350,7 +350,7 @@ void user()
     /*
      * Check to see if user must expire
      */
-    sprintf(temp,"%s", (char *) GetDateDMY());
+    snprintf(temp,PATH_MAX, "%s", (char *) GetDateDMY());
     SwapDate(temp, usrconfig.sExpiryDate);
 
     /* Convert Date1 & Date2 to longs for compare */
@@ -376,7 +376,7 @@ void user()
     /* 
      * Copy limits.data into memory
      */
-    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
 
     if ((pLimits = fopen(temp,"rb")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -400,7 +400,7 @@ void user()
 	/*
 	 * Give user new time limit everyday, also new users get a new limit.
 	 */
-	sprintf(temp,"%s", (char *) GetDateDMY());
+	snprintf(temp,PATH_MAX, "%s", (char *) GetDateDMY());
 	if (((strcmp(StrDateDMY(usrconfig.tLastLoginDate), temp)) != 0) || IsNew) {
 	    /*
 	     *  If no timelimit set give user 24 hours.
@@ -434,8 +434,8 @@ void user()
      * Set last login Date and Time, copy previous session
      * values in memory.
      */
-    sprintf(LastLoginDate, "%s", StrDateDMY(usrconfig.tLastLoginDate));
-    sprintf(LastLoginTime, "%s", StrTimeHMS(usrconfig.tLastLoginDate));
+    snprintf(LastLoginDate, 12, "%s", StrDateDMY(usrconfig.tLastLoginDate));
+    snprintf(LastLoginTime, 9, "%s", StrTimeHMS(usrconfig.tLastLoginDate));
     LastLogin = usrconfig.tLastLoginDate;
     usrconfig.tLastLoginDate = ltime; /* Set current login to current date */
     usrconfig.iTotalCalls++;
@@ -496,23 +496,23 @@ void user()
 	DisplayFile((char *)"welcome8");
 	DisplayFile((char *)"welcome9");
 
-	sprintf(temp, "%s", (char *) GetDateDMY() );
+	snprintf(temp, PATH_MAX, "%s", (char *) GetDateDMY() );
 	if ((strcmp(exitinfo.sDateOfBirth, temp)) == 0)
 	    DisplayFile((char *)"birthday");
 
 	/*
 	 * Displays file if it exists DD-MM.A??
 	 */
-	sprintf(temp, "%s", (char *) GetDateDMY());
+	snprintf(temp, PATH_MAX, "%s", (char *) GetDateDMY());
 	strcpy(temp1, "");
 	strncat(temp1, temp, 5);
-	sprintf(temp, "%s", temp1);
+	snprintf(temp, PATH_MAX, "%s", temp1);
 	DisplayFile(temp);
 	
 	/*
 	 * Displays users security file if it exists
 	 */
-	sprintf(temp, "sec%d", exitinfo.Security.level);
+	snprintf(temp, PATH_MAX, "sec%d", exitinfo.Security.level);
 	DisplayFile(temp);
 
 	/*
@@ -527,18 +527,18 @@ void user()
      */
     st.st_mtime = 0;
     if (exitinfo.GraphMode) {
-	sprintf(temp, "%s/onceonly.ans", lang.TextPath);
+	snprintf(temp, PATH_MAX, "%s/onceonly.ans", lang.TextPath);
 	stat(temp, &st);
 	if (st.st_mtime == 0) {
-	    sprintf(temp, "%s/onceonly.ans", CFG.bbs_txtfiles);
+	    snprintf(temp, PATH_MAX, "%s/onceonly.ans", CFG.bbs_txtfiles);
 	    stat(temp, &st);
 	}
     }
     if (st.st_mtime == 0) {
-	sprintf(temp, "%s/onceonly.asc", lang.TextPath);
+	snprintf(temp, PATH_MAX, "%s/onceonly.asc", lang.TextPath);
 	stat(temp, &st);
 	if (st.st_mtime == 0) {
-	    sprintf(temp, "%s/onceonly.asc", CFG.bbs_txtfiles);
+	    snprintf(temp, PATH_MAX, "%s/onceonly.asc", CFG.bbs_txtfiles);
 	    stat(temp, &st);
 	}
     }

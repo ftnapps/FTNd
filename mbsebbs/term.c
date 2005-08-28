@@ -4,7 +4,7 @@
  * Purpose ...............: Terminal output routines.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -104,7 +104,7 @@ void colour(int fg, int bg)
 	int att=0, fore=37, back=40;
 
 	if (fg<0 || fg>31 || bg<0 || bg>7) {
-	    sprintf(temp, "ANSI: Illegal colour specified: %i, %i\n", fg, bg);
+	    snprintf(temp, 61, "ANSI: Illegal colour specified: %i, %i\n", fg, bg);
 	    PUTSTR(temp);
 	    return; 
 	}
@@ -137,7 +137,7 @@ void colour(int fg, int bg)
 	else if (bg == LIGHTGRAY) back=47;
 	else                      back=40;
 		
-	sprintf(temp, "%d;%d;%dm", att, fore, back);
+	snprintf(temp, 61, "%d;%d;%dm", att, fore, back);
 	PUTSTR(temp);
     }
 }
@@ -192,9 +192,9 @@ void locate(int y, int x)
 
     if (termmode > 0) {
 	if (y > termy || x > termx) {
-	    sprintf(temp, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
+	    snprintf(temp, 61, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
 	} else {
-	    sprintf(temp, "\x1B[%i;%iH", y, x);
+	    snprintf(temp, 61, "\x1B[%i;%iH", y, x);
 	}
 	PUTSTR(temp);
     }
@@ -238,7 +238,7 @@ void mvprintw(int y, int x, const char *format, ...)
     outputstr = calloc(2048, sizeof(char));
 
     va_start(va_ptr, format);
-    vsprintf(outputstr, format, va_ptr);
+    vsnprintf(outputstr, 2048, format, va_ptr);
     va_end(va_ptr);
 
     locate(y, x);

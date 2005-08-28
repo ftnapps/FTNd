@@ -56,7 +56,7 @@ void Check_PM(void)
     static char buf[200];
     char        resp[128], msg[81];
 
-    sprintf(buf, "CIPM:1,%d;", mypid);
+    snprintf(buf, 200, "CIPM:1,%d;", mypid);
     if (socket_send(buf) == 0) {
         strcpy(buf, socket_receive());
         if (strncmp(buf, "100:0;", 6) == 0)
@@ -70,7 +70,7 @@ void Check_PM(void)
 	PUTCHAR('\007');
         colour(CYAN, BLACK);
         /* ** Message ** from */
-        sprintf(msg, "%s %s:", (char *)Language(434), resp);
+        snprintf(msg, 81, "%s %s:", (char *)Language(434), resp);
 	poutCR(CYAN, BLACK, msg);
 	strncpy(resp, strtok(NULL, "\0"), 80);   /* The real message	*/
 	resp[strlen(resp)-1] = '\0';
@@ -95,14 +95,14 @@ void TimeCheck(void)
     /*
      * Update the global string for the menu prompt
      */
-    sprintf(sUserTimeleft, "%d", iUserTimeLeft);
+    snprintf(sUserTimeleft, 7, "%d", iUserTimeLeft);
     ReadExitinfo();
 
     if (iUserTimeLeft != ((Time2Go - Now) / 60)) {
 
 	Elapsed = iUserTimeLeft - ((Time2Go - Now) / 60);
 	iUserTimeLeft -= Elapsed;
-	sprintf(sUserTimeleft, "%d", iUserTimeLeft);
+	snprintf(sUserTimeleft, 7, "%d", iUserTimeLeft);
 
 	/*
 	 * Update users counter if not chatting
