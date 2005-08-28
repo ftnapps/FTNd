@@ -4,7 +4,7 @@
  * Purpose ...............: Statistic rollover util.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -73,7 +73,7 @@ FILE *OpenData(char *Name)
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/etc/%s", getenv("MBSE_ROOT"), Name);
+    snprintf(temp, PATH_MAX -1, "%s/etc/%s", getenv("MBSE_ROOT"), Name);
     if ((fp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -364,7 +364,7 @@ void Rollover()
 
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r"))) {
 	fread(&history, sizeof(history), 1, fp);
 	Temp = history.online;
@@ -386,7 +386,7 @@ void Rollover()
 	    t->tm_sec = 0;
 	    Now = mktime(t);
 	    Syslog('+', "Packing mailer history since %s", rfcdate(Now));
-	    sprintf(temp1, "%s/var/mailer.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp1, PATH_MAX -1, "%s/var/mailer.temp", getenv("MBSE_ROOT"));
 	    if ((ft = fopen(temp1, "a")) == NULL) {
 		WriteError("$Can't create %s", temp1);
 		fclose(fp);

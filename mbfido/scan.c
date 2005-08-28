@@ -87,7 +87,7 @@ void ScanMail(int DoAll)
 	Fname = calloc(PATH_MAX, sizeof(char));
 	temp  = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(Fname, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+	snprintf(Fname, PATH_MAX -1, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
 	if ((fp = fopen(Fname, "r")) != NULL) {
 	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
 		path = strtok(temp, " \n\0");
@@ -106,7 +106,7 @@ void ScanMail(int DoAll)
 	    unlink(Fname); 
 	}
 
-	sprintf(Fname, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+	snprintf(Fname, PATH_MAX -1, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
 	if ((fp = fopen(Fname, "r")) != NULL) {
 	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
 		path = strtok(temp, " \n\0");
@@ -164,7 +164,7 @@ void ScanFull()
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
-    sprintf(sAreas, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX -1, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) != NULL) {
 	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pAreas);
 
@@ -179,7 +179,7 @@ void ScanFull()
 		    fflush(stdout);
 		}
 
-		sprintf(sAreas, "%s/%s/mailbox", CFG.bbs_usersdir, usrconfig.Name);
+		snprintf(sAreas, PATH_MAX -1, "%s/%s/mailbox", CFG.bbs_usersdir, usrconfig.Name);
 		if (Msg_Open(sAreas)) {
 		    if ((Total = Msg_Number()) != 0L) {
 			Number = Msg_Lowest();
@@ -218,7 +218,7 @@ void ScanFull()
 	fclose(pAreas);
     }
 
-    sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	free(sAreas);
@@ -271,7 +271,7 @@ void ScanFull()
 					if (CFG.akavalid[i] && (msgs.Aka.zone == CFG.aka[i].zone) &&
 						(CFG.aka[i].point == 0) && !((msgs.Aka.net == CFG.aka[i].net) &&
 						(msgs.Aka.node == CFG.aka[i].node))) {
-					    sprintf(sbe, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
+					    snprintf(sbe, 127, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
 					    fill_list(&sbl, sbe, NULL);
 					}
 				    }
@@ -378,7 +378,7 @@ void ScanOne(char *path, unsigned long MsgNum)
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
-    sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	free(sAreas);
@@ -426,7 +426,7 @@ void ScanOne(char *path, unsigned long MsgNum)
 				for (i = 0; i < 40; i++) {
 				    if (CFG.akavalid[i] && (msgs.Aka.zone == CFG.aka[i].zone) && (CFG.aka[i].point == 0) &&
 					    !((msgs.Aka.net == CFG.aka[i].net) && (msgs.Aka.node == CFG.aka[i].node))) {
-					sprintf(sbe, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
+					snprintf(sbe, 127, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
 					fill_list(&sbl, sbe, NULL);
 				    }
 				}
@@ -576,7 +576,7 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
 void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
 {
     int	    rc, seenlen, oldnet, flags = 0, kludges = TRUE;
-    char    *p, sbe[16], ext[4];
+    char    *p, sbe[128], ext[4];
     fa_list *tmpl;
     FILE    *qp;
     faddr   *from, *dest;
@@ -600,13 +600,13 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
     
     memset(&ext, 0, sizeof(ext));
     if (nodes.PackNetmail)
-	sprintf(ext, (char *)"qqq");
+	snprintf(ext, 3, (char *)"qqq");
     else if (nodes.Crash)
-	sprintf(ext, (char *)"ccc");
+	snprintf(ext, 3, (char *)"ccc");
     else if (nodes.Hold)
-	sprintf(ext, (char *)"hhh");
+	snprintf(ext, 3, (char *)"hhh");
     else
-	sprintf(ext, (char *)"nnn");
+	snprintf(ext, 3, (char *)"nnn");
 
     if ((qp = OpenPkt(msgs.Aka, L.aka, (char *)ext)) == NULL)
 	return;
@@ -655,15 +655,15 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
     oldnet = (*sbl)->addr->net - 1;
     for (tmpl = *sbl; tmpl; tmpl = tmpl->next) {
 	if (tmpl->addr->net == oldnet)
-	    sprintf(sbe, " %u", tmpl->addr->node);
+	    snprintf(sbe, 127, " %u", tmpl->addr->node);
 	else
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 127, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	oldnet = tmpl->addr->net;
 	seenlen += strlen(sbe);
 	if (seenlen > MAXSEEN) {
 	    seenlen = 0;
 	    fprintf(qp, "\rSEEN-BY:");
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 127, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	    seenlen = strlen(sbe);
 	}
 	fprintf(qp, "%s", sbe);
@@ -684,7 +684,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 {
     char    *p;
     int     i, seenlen, oldnet, flags = 0;
-    char    sbe[16];
+    char    sbe[128];
     fa_list *tmpl;
     FILE    *qp;
     faddr   *from, *dest;
@@ -755,15 +755,15 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
     oldnet = (*sbl)->addr->net - 1;
     for (tmpl = *sbl; tmpl; tmpl = tmpl->next) {
 	if (tmpl->addr->net == oldnet)
-	    sprintf(sbe, " %u", tmpl->addr->node);
+	    snprintf(sbe, 127, " %u", tmpl->addr->node);
 	else
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 127, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	oldnet = tmpl->addr->net;
 	seenlen += strlen(sbe);
 	if (seenlen > MAXSEEN) {
 	    seenlen = 0;
 	    fprintf(qp, "\nSEEN-BY:");
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 127, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	    seenlen = strlen(sbe);
 	}
 	fprintf(qp, "%s", sbe);
@@ -837,7 +837,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	for (i = 0; i < strlen(fromname); i++)
 	    if (fromname[i] == ' ')
 		    fromname[i] = '_';
-	sprintf(MailFrom, "%s@%s", fromname, ascinode(from, 0x2f));
+	snprintf(MailFrom, 127, "%s@%s", fromname, ascinode(from, 0x2f));
 
         if (Msg_Read(MsgNum, 79)) {
             if ((p = (char *)MsgText_First()) != NULL) {
@@ -851,7 +851,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 			    q = strtok(p, " ");
 			    q = strtok(NULL, " \n\r\t");
 			}
-			sprintf(MailTo, "%s", q);
+			snprintf(MailTo, 127, "%s", q);
 			Syslog('m', "Final MailTo \"%s\"", MailTo);
 			break;
 						
@@ -933,11 +933,11 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
     if (Msg.Crash || Msg.Direct || Msg.FileAttach || Msg.Immediate) {
 	memset(&ext, 0, sizeof(ext));
 	if (Msg.Immediate)
-	    sprintf(ext, (char *)"ddd");
+	    snprintf(ext, 3, (char *)"ddd");
 	else if (Msg.Crash)
-	    sprintf(ext, (char *)"ccc");
+	    snprintf(ext, 3, (char *)"ccc");
 	else
-	    sprintf(ext, (char *)"nnn");
+	    snprintf(ext, 3, (char *)"nnn");
 
 	/*
 	 * If the destination is a point, check if it is our point
@@ -981,13 +981,13 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	 */
 	memset(&ext, 0, sizeof(ext));
 	if (nodes.PackNetmail)
-	    sprintf(ext, (char *)"qqq");
+	    snprintf(ext, 3, (char *)"qqq");
 	else if (nodes.Crash)
-	    sprintf(ext, (char *)"ccc");
+	    snprintf(ext, 3, (char *)"ccc");
 	else if (nodes.Hold)
-	    sprintf(ext, (char *)"hhh");
+	    snprintf(ext, 3, (char *)"hhh");
 	else
-	    sprintf(ext, (char *)"nnn");
+	    snprintf(ext, 3, (char *)"nnn");
 	if ((qp = OpenPkt(msgs.Aka, Route, (char *)ext)) == NULL) {
 	    net_bad++;
 	    return;
@@ -1064,7 +1064,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 
 	ta = parsefnode(Msg.ToAddress);
 	p = calloc(PATH_MAX, sizeof(char));
-	sprintf(p, "%s/%d.%d.%d.%d/.filelist", CFG.out_queue, ta->zone, ta->net, ta->node, ta->point);
+	snprintf(p, PATH_MAX -1, "%s/%d.%d.%d.%d/.filelist", CFG.out_queue, ta->zone, ta->net, ta->node, ta->point);
 	mkdirs(p, 0750);
 
 	if ((fl = fopen(p, "a+")) == NULL) {
@@ -1160,26 +1160,26 @@ void ExportEmail(unsigned long MsgNum)
 	if ((strchr(p, '<') != NULL) && (strchr(p, '>') != NULL)) {
 	    q = strtok(p, "<");
 	    q = strtok(NULL, ">");
-	    sprintf(MailFrom, "%s", q);
+	    snprintf(MailFrom, 127, "%s", q);
 	} else if (Msg.From[0] == ' ') {
 	    q = strtok(p, " ");
 	    q = strtok(NULL, " \n\r\t");
-	    sprintf(MailFrom, "%s", q);
+	    snprintf(MailFrom, 127, "%s", q);
 	} else {
-	    sprintf(MailFrom, "%s", Msg.From);
+	    snprintf(MailFrom, 127, "%s", Msg.From);
 	}
 
         p = Msg.To;
 	if ((strchr(p, '<') != NULL) && (strchr(p, '>') != NULL)) {
 	    q = strtok(p, "<");
 	    q = strtok(NULL, ">");
-	    sprintf(MailTo, "%s", q);
+	    snprintf(MailTo, 127, "%s", q);
 	} else if (Msg.To[0] == ' ') {
 	    q = strtok(p, " ");
 	    q = strtok(NULL, " \n\r\t");
-	    sprintf(MailTo, "%s", q);
+	    snprintf(MailTo, 127, "%s", q);
 	} else {
-	    sprintf(MailTo, "%s", Msg.To);
+	    snprintf(MailTo, 127, "%s", Msg.To);
 	}
 
 	retval = postemail(qp, MailFrom, MailTo);
