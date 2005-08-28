@@ -211,9 +211,9 @@ void add_webtable(FILE *fp, char *hstr, char *dstr)
 {
     char    left[1024], right[1024];
 
-    html_massage(hstr, left);
+    html_massage(hstr, left, 1023);
     if (strlen(dstr))
-	html_massage(dstr, right);
+	html_massage(dstr, right, 1023);
     else
 	sprintf(right, "&nbsp;");
     fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%s</TD></TR>\n", left, right);
@@ -225,7 +225,7 @@ void add_webdigit(FILE *fp, char *hstr, int digit)
 {
     char    left[1024];
 
-    html_massage(hstr, left);
+    html_massage(hstr, left, 1023);
     fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%d</TD></TR>\n", left, digit);
 }
 

@@ -67,7 +67,7 @@ void Kill(void)
 	printf("Kill/move files...\n");
     }
 
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX -1, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
@@ -148,8 +148,8 @@ void Kill(void)
 		    if (area.MoveArea) {
 			fseek(pAreas, ((area.MoveArea -1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 			fread(&darea, areahdr.recsize, 1, pAreas);
-			sprintf(from, "%s/%s", area.Path, fdb.Name);
-			sprintf(to,   "%s/%s", darea.Path, fdb.Name);
+			snprintf(from, PATH_MAX -1, "%s/%s", area.Path, fdb.Name);
+			snprintf(to,   PATH_MAX -1, "%s/%s", darea.Path, fdb.Name);
 			if ((rc = file_mv(from, to)) == 0) {
 			    Syslog('+', "Move %s, area %d => %d", fdb.Name, i, area.MoveArea);
 			    if ((dst_area = mbsedb_OpenFDB(area.MoveArea, 30))) {
@@ -162,22 +162,22 @@ void Kill(void)
 			    /*
 			     * Now again if there is a dotted version (thumbnail) of this file.
 			     */
-			    sprintf(from, "%s/.%s", area.Path, fdb.Name);
-			    sprintf(to,   "%s/.%s", darea.Path, fdb.Name);
+			    snprintf(from, PATH_MAX -1, "%s/.%s", area.Path, fdb.Name);
+			    snprintf(to,   PATH_MAX -1, "%s/.%s", darea.Path, fdb.Name);
 			    if (file_exist(from, R_OK) == 0)
 				file_mv(from, to);
 
 			    /*
 			     * Unlink the old symbolic link
 			     */
-			    sprintf(from, "%s/%s", area.Path, fdb.LName);
+			    snprintf(from, PATH_MAX -1, "%s/%s", area.Path, fdb.LName);
 			    unlink(from);
 
 			    /*
 			     * Create the new symbolic link
 			     */
-			    sprintf(from, "%s/%s", darea.Path, fdb.Name);
-			    sprintf(to,   "%s/%s", darea.Path, fdb.LName);
+			    snprintf(from, PATH_MAX -1, "%s/%s", darea.Path, fdb.Name);
+			    snprintf(to,   PATH_MAX -1, "%s/%s", darea.Path, fdb.LName);
 			    symlink(from, to);
 
 			    fdb.Deleted = TRUE;
@@ -199,11 +199,11 @@ void Kill(void)
 			    mbsedb_UnlockFDB(fdb_area);
 			}
 			iKilled++;
-			sprintf(from, "%s/%s", area.Path, fdb.LName);
+			snprintf(from, PATH_MAX -1, "%s/%s", area.Path, fdb.LName);
 			unlink(from);
-			sprintf(from, "%s/%s", area.Path, fdb.Name);
+			snprintf(from, PATH_MAX -1, "%s/%s", area.Path, fdb.Name);
 			unlink(from);
-			sprintf(from, "%s/.%s", area.Path, fdb.Name);
+			snprintf(from, PATH_MAX -1, "%s/.%s", area.Path, fdb.Name);
 			unlink(from);
 		    }
 		}

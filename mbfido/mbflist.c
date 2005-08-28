@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - List areas and totals
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -69,7 +69,7 @@ void ListFileAreas(int Area)
     sTic    = calloc(PATH_MAX, sizeof(char));
     ticarea = calloc(21, sizeof(char));
 
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX -1, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	printf("Can't open %s\n", sAreas);
@@ -83,7 +83,7 @@ void ListFileAreas(int Area)
     if (Area) {
 	IsDoing("List area %d", Area);
 
-	sprintf(sTic, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(sTic, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((pTic = fopen(sTic, "r")) == NULL) {
 	    WriteError("Can't open %s", sTic);
 	    printf("Can't open %s\n", sTic);
@@ -121,7 +121,7 @@ void ListFileAreas(int Area)
 	    mbse_colour(LIGHTGRAY, BLACK);
 
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-		sprintf(flags, "---");
+		snprintf(flags, 3, "---");
 		if (fdb.Deleted)
 		    flags[0] = 'D';
 		if (fdb.NoKill)

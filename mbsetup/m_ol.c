@@ -596,7 +596,7 @@ void ol_doc(void)
 	    fread(&olhdr, sizeof(olhdr), 1, fp);
 	    while (fread(&ol, olhdr.recsize, 1, fp) == 1) {
 		nr++;
-		html_massage(ol.Oneline, out);
+		html_massage(ol.Oneline, out, 1023);
 		fprintf(wp, "<TR><TD>%d</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		    nr, out, ol.UserName, ol.DateOfEntry, getboolean(ol.Available));
 	    }
