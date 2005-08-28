@@ -374,7 +374,7 @@ int rfc2ftn(FILE *fp)
 	datasize = 0;
 
 	if (splitpart) {
-	    sprintf(newsubj,"[part %d] ",splitpart+1);
+	    snprintf(newsubj,4 * (MAXSUBJ+1),"[part %d] ",splitpart+1);
 	    strncat(newsubj,fmsg->subj,MAXSUBJ-strlen(newsubj));
 	} else {
 	    strncpy(newsubj,fmsg->subj,MAXSUBJ);
@@ -465,7 +465,7 @@ int rfc2ftn(FILE *fp)
 	}
 
 	if (!(hdr((char *)"X-FTN-Tearline", msg)) && !(hdr((char *)"X-FTN-TID", msg))) {
-	    sprintf(temp, " MBSE-NNTPD %s (%s-%s)", VERSION, OsName(), OsCPU());
+	    snprintf(temp, 4096, " MBSE-NNTPD %s (%s-%s)", VERSION, OsName(), OsCPU());
 	    hdrsize += 4 + strlen(temp);
 	    fprintf(ofp, "\1TID:");
 	    kludgewrite(temp, ofp);
@@ -623,12 +623,12 @@ int rfc2ftn(FILE *fp)
 	    for (i = 0; i < 40; i++) {
 		if (CFG.akavalid[i] && (CFG.aka[i].point == 0) && (msgs.Aka.zone == CFG.aka[i].zone) &&
 				    !((msgs.Aka.net == CFG.aka[i].net) && (msgs.Aka.node == CFG.aka[i].node))) {
-		    sprintf(sbe, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
+		    snprintf(sbe, 16, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
 		    fill_list(&sbl, sbe, NULL);
 		}
 	    }
 	    if (msgs.Aka.point == 0) {
-		sprintf(sbe, "%u/%u", msgs.Aka.net, msgs.Aka.node);
+		snprintf(sbe, 16, "%u/%u", msgs.Aka.net, msgs.Aka.node);
 		fill_list(&sbl, sbe, NULL);
 	    }
 
@@ -644,15 +644,15 @@ int rfc2ftn(FILE *fp)
 		oldnet = sbl->addr->net-1;
 		for (tmpl = sbl; tmpl; tmpl = tmpl->next) {
 		    if (tmpl->addr->net == oldnet)
-			sprintf(sbe," %u",tmpl->addr->node);
+			snprintf(sbe,16," %u",tmpl->addr->node);
 		    else
-			sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,16," %u/%u",tmpl->addr->net, tmpl->addr->node);
 		    oldnet = tmpl->addr->net;
 		    seenlen += strlen(sbe);
 		    if (seenlen > MAXSEEN) {
 			seenlen = 0;
 			fprintf(ofp,"\nSEEN-BY:");
-			sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,16," %u/%u",tmpl->addr->net, tmpl->addr->node);
 			seenlen = strlen(sbe);
 		    }
 		    fprintf(ofp,"%s",sbe);
@@ -667,7 +667,7 @@ int rfc2ftn(FILE *fp)
 		if (!strcasecmp(tmp->key,"X-FTN-PATH"))
 		    fill_path(&ptl,tmp->val);
 		if (msgs.Aka.point == 0) {
-		    sprintf(sbe,"%u/%u",msgs.Aka.net, msgs.Aka.node);
+		    snprintf(sbe,16,"%u/%u",msgs.Aka.net, msgs.Aka.node);
 		    fill_path(&ptl,sbe);
 		}
 
@@ -681,15 +681,15 @@ int rfc2ftn(FILE *fp)
 		oldnet = ptl->addr->net-1;
 		for (tmpl = ptl; tmpl; tmpl = tmpl->next) {
 		    if (tmpl->addr->net == oldnet)
-			sprintf(sbe," %u",tmpl->addr->node);
+			snprintf(sbe,16," %u",tmpl->addr->node);
 		    else
-			sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,16," %u/%u",tmpl->addr->net, tmpl->addr->node);
 		    oldnet = tmpl->addr->net;
 		    seenlen += strlen(sbe);
 		    if (seenlen > MAXPATH) {
 			seenlen = 0;
 			fprintf(ofp,"\n\1PATH:");
-			sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,16," %u/%u",tmpl->addr->net, tmpl->addr->node);
 			seenlen = strlen(sbe);
 		    }
 		    fprintf(ofp,"%s",sbe);
@@ -744,7 +744,7 @@ int rfc2ftn(FILE *fp)
 		/*
 		 * Create fast scan index
 		 */
-		sprintf(temp, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
 		if ((qfp = fopen(temp, "a")) != NULL) {
 		    fprintf(qfp, "%s %lu\n", msgs.Base, Msg.Id);
 		    fclose(qfp);
@@ -776,7 +776,7 @@ int rfc2ftn(FILE *fp)
 		mgroup.MsgsSent.month[l_date->tm_mon]++;
 		UpdateMsgs();
 
-		sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
 		if ((qfp = fopen(temp, "r+"))) {
 		    fread(&usrconfighdr, sizeof(usrconfighdr), 1, qfp);
 		    fseek(qfp, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), SEEK_SET);

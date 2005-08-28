@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE NNTP Server
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -237,7 +237,7 @@ void send_nntp(const char *format, ...)
     out = calloc(4096, sizeof(char));
 
     va_start(va_ptr, format);
-    vsprintf(out, format, va_ptr);
+    vsnprintf(out, 4096, format, va_ptr);
     va_end(va_ptr);
 
     Syslog('n', "> \"%s\"", printable(out, 0));

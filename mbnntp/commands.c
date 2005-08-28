@@ -100,7 +100,7 @@ char *make_msgid(char *msgid)
 {
     static char	buf[100];
 
-    sprintf(buf, "<%8lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
+    snprintf(buf, 100, "<%8lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
     return buf;
 }
 
@@ -216,6 +216,7 @@ void command_abhs(char *buf)
 	    send_nntp("Newsgroups: %s", currentgroup);
 	    asprintf(&subj,"Subject: %s", Msg.Subject);
 	    send_xlat(subj);
+	    free(subj);
 	    send_nntp("Date: %s", rfcdate(Msg.Written + (gmt_offset((time_t)0) * 60)));
 	    send_nntp("Message-ID: %s", make_msgid(Msg.Msgid));
 	    if (strlen(Msg.Replyid))
@@ -308,7 +309,7 @@ void command_group(char *cmd)
     }
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r"))) {
 	fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
@@ -322,7 +323,7 @@ void command_group(char *cmd)
 		    Msg_Highest();
 		    Msg_Lowest();
 		    send_nntp("211 %lu %lu %lu %s", MsgBase.Total, MsgBase.Lowest, MsgBase.Highest, msgs.Newsgroup);
-		    sprintf(currentgroup, "%s", msgs.Newsgroup);
+		    snprintf(currentgroup, 81, "%s", msgs.Newsgroup);
 		} else {
 		    send_nntp("411 No such news group");
 		}
@@ -363,7 +364,7 @@ void command_list(char *cmd)
     if ((opt == NULL) || (strcasecmp(opt, "ACTIVE") == 0) || (strcasecmp(opt, "NEWSGROUPS") == 0)) {
 	send_nntp("215 Information follows");
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r"))) {
 	    fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	    while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
@@ -625,10 +626,10 @@ void command_xover(char *cmd)
 		    } while ((p = (char *)MsgText_Next()) != NULL);
 		}
 	    }
-	    sprintf(msgid, "%s", make_msgid(Msg.Msgid));
+	    snprintf(msgid, 100, "%s", make_msgid(Msg.Msgid));
 	    reply[0] = 0;
 	    if (strlen(Msg.Replyid))
-		sprintf(reply, "%s", make_msgid(Msg.Replyid));
+		snprintf(reply, 100, "%s", make_msgid(Msg.Replyid));
 	    send_nntp("%lu\t%s\t%s <%s>\t%s\t%s\t%s\t%d\t%d", i, Msg.Subject, Msg.From, Msg.FromAddress, 
 		    rfcdate(Msg.Written + (gmt_offset((time_t)0) * 60)), msgid, reply, bytecount, linecount);
 	}

@@ -3,7 +3,7 @@
  * $Id$
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -95,7 +95,7 @@ void auth_pass(char *cmd)
     p = strtok(NULL, " \0");
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp,"r+")) == NULL) {
 	/*
 	 * This should not happen
