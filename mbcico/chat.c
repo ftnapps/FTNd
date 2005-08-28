@@ -102,12 +102,12 @@ int send_str(char *str, char *Phone)
 		case 'p':   msleep(250); *q++ = '\\'; *q++ = 'p';  break;
 		case 'D':   if (Phone) {
 				PUTSTR(Phone);
-				sprintf(q, "%s", Phone);
+				snprintf(q, 20, "%s", Phone);
 			    }
 			    break;
 		case 'T':   if (Phone) {
 				PUTSTR(tranphone(Phone));
-				sprintf(q, "%s", tranphone(Phone));
+				snprintf(q, 20, "%s", tranphone(Phone));
 			    }
 			    break;
 		default:    PUTCHAR(*p);  *q++ = *p; break;

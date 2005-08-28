@@ -4,7 +4,7 @@
  * Purpose ...............: fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ static char *tmpkname(void)
 {
     static char buf[16];
 
-    sprintf(buf,"%08lx.pkt", sequencer());
+    snprintf(buf,15,"%08lx.pkt", sequencer());
     return buf;
 }
 
@@ -233,7 +233,7 @@ void check_filebox(char *boxpath, file_list **st)
 	pw = getpwnam((char *)"mbse");
         while ((de = readdir(dp))) {
             if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", boxpath, de->d_name);
+		snprintf(temp, PATH_MAX -1, "%s/%s", boxpath, de->d_name);
                 if (stat(temp, &stbuf) == 0) {
                     Syslog('o' ,"checking file \"%s\"", de->d_name);
                     if (S_ISREG(stbuf.st_mode)) {
@@ -360,7 +360,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	     */
 	    nm = reqname(tmpa->addr);
 	    if ((nm != NULL) && (stat(nm, &stbuf) == 0)) {
-		sprintf(tmpreq, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
+		snprintf(tmpreq, 12, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
 		add_list(&st, nm, tmpreq, DSF, 0L, NULL, 1);
 		made_request = 1;
 	    }
@@ -375,7 +375,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
        Syslog('o', "Checking T-Mail short box \"%s\"", CFG.tmailshort);
        while ((de = readdir(dp))) {
            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-               sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+               snprintf(temp, PATH_MAX -1, "%s/%s", CFG.tmailshort, de->d_name);
                if (stat(temp, &sb) == 0) {
                    Syslog('o' ,"checking \"%s\"", de->d_name);
                    if (S_ISDIR(sb.st_mode)) {
@@ -441,13 +441,13 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
        Syslog('o', "Checking T-Mail long box \"%s\"", CFG.tmaillong);
        while ((de = readdir(dp))) {
            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-               sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
+               snprintf(temp, PATH_MAX -1, "%s/%s", CFG.tmaillong, de->d_name);
                if (stat(temp, &sb) == 0) {
                    Syslog('o' ,"checking \"%s\"", de->d_name);
                    if (S_ISDIR(sb.st_mode)) {
                        char c, d;
                        int n;
-                       sprintf(temp2, "%s", de->d_name);
+                       snprintf(temp2, PATH_MAX -1, "%s", de->d_name);
                        fa = (faddr*)malloc(sizeof(faddr));
                        fa->name = NULL;
                        fa->domain = NULL;
@@ -515,7 +515,7 @@ file_list *create_freqlist(fa_list *al)
     for (tmpa = al; tmpa; tmpa = tmpa->next) {
 	nm = reqname(tmpa->addr);
 	if ((nm != NULL) && (stat(nm, &stbuf) == 0)) {
-	    sprintf(tmpreq, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
+	    snprintf(tmpreq, 12, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
 	    add_list(&st, nm, tmpreq, DSF, 0L, NULL, 1);
 	    made_request = 1;
 	}
@@ -668,10 +668,10 @@ char *transfertime(struct timeval start, struct timeval end, long bytes, int sen
     if (!elapsed)
 	elapsed = 1L;
     if (bytes > 1000000)
-	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
+	snprintf(resp, 80, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
 	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes / elapsed) * 1000) / 1024);
     else
-	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
+	snprintf(resp, 80, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
 	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes * 1000) / elapsed) / 1024);   
     return resp;
 }
@@ -682,7 +682,7 @@ char *compress_stat(long original, long saved)
 {
     static char	    resp[81];
 
-    sprintf(resp, "compressed %ld bytes, compression %0.1f%%", saved, ((saved * 100.0) / original));
+    snprintf(resp, 80, "compressed %ld bytes, compression %0.1f%%", saved, ((saved * 100.0) / original));
     return resp;
 }
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -523,7 +523,7 @@ SM_STATE(senddata)
     PUTCHAR('*');
     PUTCHAR('*');
     PUTSTR(p);
-    sprintf(trailer, "%04X\r\021", crc16xmodem(p, strlen(p)));
+    snprintf(trailer, 7, "%04X\r\021", crc16xmodem(p, strlen(p)));
     PUTSTR(trailer);
     Syslog('i', "TXEMSI: send **%s%04X", p, crc16xmodem(p, strlen(p)));
     free(p);

@@ -555,7 +555,7 @@ int resync(off_t resofs)
 	Syslog('x', "trying to resync at offset %ld",resofs);
 
 	sblk=resofs/XMBLKSIZ+1;
-	sprintf(resynbuf,"%ld",sblk);
+	snprintf(resynbuf,15,"%ld",sblk);
 	lcrc=crc16xmodem(resynbuf,strlen(resynbuf));
 	gotack=0;
 	gotnak=0;

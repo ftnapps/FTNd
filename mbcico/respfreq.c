@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer - respond to filerequests
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -438,7 +438,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 
 	Syslog('+', "Magic execute: %s", strrchr(xstrcpy(cmd), '/')+1);
 	add_report((char *)"RQ: Magic \"%s\"",cmd);
-	sprintf(tmpfn, "%s/tmp/%08lX", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
+	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08lX", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
 	Syslog('+', "tmpfn \"%s\"", tmpfn);
 	if ((p = strrchr(cmd,'/'))) 
 		p++;
@@ -483,7 +483,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 		unlink(tmpfn);
 	} else {
 		if (stat(tmpfn, &st) == 0) {
-			sprintf(tmptx, "%s/tmp/%08lX", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
+			snprintf(tmptx, PATH_MAX -1, "%s/tmp/%08lX", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
 			Syslog('+', "tmptx \"%s\"", tmptx);
 
 			if ((fp = fopen(tmptx, "w"))) {
@@ -523,7 +523,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 				}
 				fwrite(&zeroes, 1, 3, fp);
 				fclose(fp);
-				sprintf(remname, "%08lX.PKT", (unsigned long)sequencer());
+				snprintf(remname, 31, "%08lX.PKT", (unsigned long)sequencer());
 
 				add_list(&fl, tmptx, remname, KFS, 0L, NULL, 0);
 				fmsg.from->name = svname;
@@ -574,7 +574,7 @@ static void attach_report(file_list **fl)
 	/*
 	 * Add random quote
 	 */
-	sprintf(tmpfn, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+	snprintf(tmpfn, PATH_MAX -1, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(tmpfn, "r+")) != NULL) {
 	    fread(&olhdr, sizeof(olhdr), 1, fp);
 	    fseek(fp, 0, SEEK_END);
@@ -595,7 +595,7 @@ static void attach_report(file_list **fl)
 
 	add_report((char *)"\r%s\r", TearLine());
 
-	sprintf(tmpfn, "%s/tmp/%08lX.rpl", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
+	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08lX.rpl", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
 	if ((fp = fopen(tmpfn,"w"))) {
 		fmsg.flags = M_PVT|M_KILLSENT;
 		fmsg.from = bestaka_s(remote->addr);
@@ -622,7 +622,7 @@ static void attach_report(file_list **fl)
 		fwrite(report_text, 1, strlen(report_text), fp);
 		fwrite(&zeroes, 1, 3, fp);
 		fclose(fp);
-		sprintf(remname, "%08lX.PKT", (unsigned long)sequencer());
+		snprintf(remname, 13, "%08lX.PKT", (unsigned long)sequencer());
 		add_list(fl, tmpfn, remname, KFS, 0L, NULL, 0);
 		fmsg.from->name = svname;
 	} else {
@@ -643,13 +643,13 @@ static void add_report(char *format, ...)
 	char	buf[1024];
 
 	if (report_text == NULL) {
-		sprintf(buf,
+		snprintf(buf, 1023,
 "                    Status of file request\r\
                     ======================\r\r\
                     Received By: %s\r\
 ",
 			ascfnode(bestaka_s(remote->addr),0x1f));
-		sprintf(buf+strlen(buf),
+		snprintf(buf+strlen(buf), 1023 - strlen(buf),
 "                           From: %s\r\
                              On: %s\r\r\
 ",
@@ -659,7 +659,7 @@ static void add_report(char *format, ...)
 	}
 
 	va_start(va_ptr, format);
-	vsprintf(buf, format, va_ptr);
+	vsnprintf(buf, 1023, format, va_ptr);
 	va_end(va_ptr);
 	strcat(buf,"\r");
 	report_text = xstrcat(report_text,buf);

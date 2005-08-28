@@ -67,19 +67,19 @@ int nlinfo(faddr *addr)
 	 */
 	for (tmpf = &nl_online; *tmpf; tmpf = &((*tmpf)->next))
 	    if ((nlent->oflags & (*tmpf)->value) == (*tmpf)->value)
-		sprintf(flagbuf + strlen(flagbuf), "%s,", (*tmpf)->name);
+		snprintf(flagbuf + strlen(flagbuf), 255 - strlen(flagbuf), "%s,", (*tmpf)->name);
 	for (tmpf = &nl_request; *tmpf; tmpf = &((*tmpf)->next))
 	    if (nlent->xflags == (*tmpf)->value)
-		sprintf(flagbuf + strlen(flagbuf), "%s,", (*tmpf)->name);
+		snprintf(flagbuf + strlen(flagbuf), 255 - strlen(flagbuf), "%s,", (*tmpf)->name);
 	for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next))
 	    if ((nlent->mflags & (*tmpm)->mask) == (*tmpm)->mask)
-		sprintf(flagbuf + strlen(flagbuf), "%s,", (*tmpm)->name);
+		snprintf(flagbuf + strlen(flagbuf), 255 - strlen(flagbuf), "%s,", (*tmpm)->name);
 	for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next))
 	    if ((nlent->dflags & (*tmpm)->mask) == (*tmpm)->mask)
-		sprintf(flagbuf + strlen(flagbuf), "%s,", (*tmpm)->name);
+		snprintf(flagbuf + strlen(flagbuf), 255 - strlen(flagbuf), "%s,", (*tmpm)->name);
 	for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
 	    if ((nlent->iflags & (*tmpm)->mask) == (*tmpm)->mask)
-		sprintf(flagbuf + strlen(flagbuf), "%s,", (*tmpm)->name);
+		snprintf(flagbuf + strlen(flagbuf), 255 - strlen(flagbuf), "%s,", (*tmpm)->name);
 	flagbuf[strlen(flagbuf)-1] = '\0';
 	printf("Flags       : %s\n", flagbuf);
 
@@ -88,7 +88,7 @@ int nlinfo(faddr *addr)
 	 */
 	flagbuf[0] = 0;
 	for (i = 0; nlent->uflags[i]; i++) {
-	    sprintf(flagbuf + strlen(flagbuf), "%s,", nlent->uflags[i]);
+	    snprintf(flagbuf + strlen(flagbuf), 255 - strlen(flagbuf), "%s,", nlent->uflags[i]);
 	}
 	if (strlen(flagbuf)) {
 	    flagbuf[strlen(flagbuf) - 1] = 0;

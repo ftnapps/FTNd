@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -222,7 +222,7 @@ static int sendtfile(char *ln, char *rn)
 	return 0;
     }
 
-    sprintf(txbuf,"S %s %lu %lu",rn,(unsigned long)st.st_size,(unsigned long)st.st_mtime+(st.st_mtime%2));
+    snprintf(txbuf,TCP_BLKSIZE -1, "S %s %lu %lu",rn,(unsigned long)st.st_size,(unsigned long)st.st_mtime+(st.st_mtime%2));
     bufl = strlen(txbuf);
     rc = tcp_sblk(txbuf, bufl, TCP_CMD);
     rc = tcp_rblk(rxbuf, &bufl);
@@ -274,7 +274,7 @@ static int sendtfile(char *ln, char *rn)
 
 static int resync(off_t off)
 {
-    sprintf(txbuf,"ROK %ld",(long)off);
+    snprintf(txbuf, TCP_BLKSIZE -1, "ROK %ld",(long)off);
     return 0;
 }
 

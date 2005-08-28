@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -206,7 +206,7 @@ SM_STATE(sendblk0)
 	if (telink) 
 		for (i=23;(i>8) && (xmblk.data[i] == '\0');i--)
 			xmblk.data[i]=' ';
-	sprintf(xmblk.data+25,"mbcico %s",VERSION);
+	snprintf(xmblk.data+25, 15, "mbcico %s", VERSION);
 	xmblk.data[40]=((session_flags & FTSC_XMODEM_SLO) != 0);
 	xmblk.data[41]=((session_flags & FTSC_XMODEM_RES) != 0);
 	xmblk.data[42]=((session_flags & FTSC_XMODEM_XOF) != 0);

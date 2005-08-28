@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ int lock(char *line)
 	else 
 		p++;
 	mypid = getpid();
-	sprintf(tmpname,"%s%d",LCKTMP,mypid);
+	snprintf(tmpname,255,"%s%d",LCKTMP,mypid);
 	if ((f = fopen(tmpname,"w")) == NULL) {
 		WriteError("$ulock: can't create %s",tmpname);
 		return(-1);
@@ -68,7 +68,7 @@ int lock(char *line)
 	fprintf(f,"%10d\n",mypid);
 	fclose(f);
 	chmod(tmpname,0444);
-	sprintf(lckname,"%s%s",LCKPREFIX,p);
+	snprintf(lckname,255,"%s%s",LCKPREFIX,p);
 	p=lckname+strlen(lckname)-1;
 	*p=tolower(*p);
 
@@ -116,7 +116,7 @@ int ulock(char *line)
 	else 
 		p++;
 	mypid=getpid();
-	sprintf(lckname,"%s%s",LCKPREFIX,p);
+	snprintf(lckname,255,"%s%s",LCKPREFIX,p);
 	p=lckname+strlen(lckname)-1;
 	*p=tolower(*p);
 

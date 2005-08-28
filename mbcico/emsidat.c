@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -204,7 +204,7 @@ char *mkemsidat(int caller)
     else 
 	p=xstrcat(p,(char *)"}");
 
-    sprintf(cbuf,"{%X}",PRODCODE);
+    snprintf(cbuf,15,"{%X}",PRODCODE);
     p=xstrcat(p,cbuf);
     p=xstrcat(p,(char *)"{mbcico}{");
     p=xstrcat(p,(char *)VERSION);
@@ -220,7 +220,7 @@ char *mkemsidat(int caller)
     p=xstrcat(p,phone?emsiencode(phone):(char *)"-Unpublished-");
     p=xstrcat(p,(char *)"][");
     if ((CFG.IP_Speed) && (emsi_local_protos & PROT_TCP))
-	sprintf(cbuf,"%ld",CFG.IP_Speed);
+	snprintf(cbuf,15,"%ld",CFG.IP_Speed);
     else 
 	strcpy(cbuf,"9600");
     p=xstrcat(p,cbuf);
@@ -228,13 +228,13 @@ char *mkemsidat(int caller)
     p=xstrcat(p,flags?emsiencode(flags):(char *)"");
     p=xstrcat(p,(char *)"]}{TRX#}{[");
     tt = time(NULL);
-    sprintf(cbuf,"%08lX", (unsigned long)mtime2sl(tt));
+    snprintf(cbuf,15,"%08lX", (unsigned long)mtime2sl(tt));
     p=xstrcat(p,cbuf);
     p=xstrcat(p,(char *)"]}{TZUTC}{[");
     p=xstrcat(p,gmtoffset(tt));
     p=xstrcat(p,(char *)"]}");
 
-    sprintf(cbuf,"%04X",(unsigned int)strlen(p+12));
+    snprintf(cbuf,15,"%04X",(unsigned int)strlen(p+12));
     memcpy(p+8,cbuf,4);
     emsiencode(NULL);   /* Free memory */
     return p;
@@ -396,7 +396,7 @@ int scanemsidat(char *buf)
 	history.aka.net   = remote->addr->net;
 	history.aka.node  = remote->addr->node;
 	history.aka.point = remote->addr->point;
-	sprintf(history.aka.domain, "%s", printable(remote->addr->domain, 0));
+	snprintf(history.aka.domain, 12, "%s", printable(remote->addr->domain, 0));
     }
 
     if (emsi_remote_password) 

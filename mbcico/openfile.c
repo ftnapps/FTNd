@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -64,7 +64,7 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
     Syslog('s', "openfile(\"%s\",%s,%lu,...)", MBSE_SS(fname), MBSE_SS(ctt), (unsigned long)remsize);
 
     if ((fname == NULL) || (fname[0] == '\0')) {
-	sprintf(tmpfname,"%08lx.pkt",(unsigned long)sequencer());
+	snprintf(tmpfname,15,"%08lx.pkt",(unsigned long)sequencer());
 	fname=tmpfname;
     }
 
@@ -141,7 +141,7 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
 	rc = 1;
 	p = strrchr(infpath,'/');
 	*p = '\0';
-	sprintf(ctt,"%08lx.doe",(unsigned long)sequencer());
+	snprintf(ctt,31,"%08lx.doe",(unsigned long)sequencer());
 	free(infpath);
 	infpath = xstrcpy(p);
 	infpath = xstrcat(infpath, ctt);

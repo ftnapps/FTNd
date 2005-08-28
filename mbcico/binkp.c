@@ -486,7 +486,7 @@ SM_STATE(WaitAddr)
 		history.aka.net   = remote->addr->net;
 		history.aka.node  = remote->addr->node;
 		history.aka.point = remote->addr->point;
-		sprintf(history.aka.domain, "%s", printable(remote->addr->domain, 0));
+		snprintf(history.aka.domain, 12, "%s", printable(remote->addr->domain, 0));
 
 		SM_PROCEED(SendPasswd)
 	    } else if (bp.rxbuf[0] == MM_BSY) {
@@ -787,7 +787,7 @@ SM_STATE(WaitAddr)
 	        history.aka.net   = remote->addr->net;
 	        history.aka.node  = remote->addr->node;
 	        history.aka.point = remote->addr->point;
-	        sprintf(history.aka.domain, "%s", printable(remote->addr->domain, 0));
+	        snprintf(history.aka.domain, 12, "%s", printable(remote->addr->domain, 0));
 
 	        SM_PROCEED(IsPasswd)
     
@@ -1113,11 +1113,11 @@ TrType binkp_receiver(void)
 
 	bp.rmode = CompNone;
 	if (strlen(bp.rxbuf) < 512) {
-	    sprintf(bp.rname, "%s", strtok(bp.rxbuf+1, " \n\r"));
+	    snprintf(bp.rname, 511, "%s", strtok(bp.rxbuf+1, " \n\r"));
 	    bp.rsize = atoi(strtok(NULL, " \n\r"));
 	    bp.rtime = atoi(strtok(NULL, " \n\r"));
 	    bp.roffs = atoi(strtok(NULL, " \n\r"));
-	    sprintf(bp.ropts, "%s", printable(strtok(NULL, " \n\r\0"), 0));
+	    snprintf(bp.ropts, 511, "%s", printable(strtok(NULL, " \n\r\0"), 0));
 	    if (strcmp((char *)"GZ", bp.ropts) == 0)
 		bp.rmode = CompGZ;
 	    else if (strcmp((char *)"BZ2", bp.ropts) == 0)
@@ -1871,7 +1871,7 @@ int binkp_send_command(int id, ...)
     fmt = va_arg(args, char*);
 
     if (fmt) {
-	vsprintf(buf, fmt, args);
+	vsnprintf(buf, 1023, fmt, args);
 	sz = (strlen(buf) & 0x7fff);
     } else {
 	buf[0]='\0';
@@ -2272,11 +2272,11 @@ int binkp_process_messages(void)
 	Syslog('+', "Binkp: %s \"%s\"", bstate[tmpq->cmd], printable(tmpq->data, 0));
 	if (tmpq->cmd == MM_GET) {
 	    rmode = CompNone;
-	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
+	    snprintf(lname, 511, "%s", strtok(tmpq->data, " \n\r"));
 	    lsize = atoi(strtok(NULL, " \n\r"));
 	    ltime = atoi(strtok(NULL, " \n\r"));
 	    loffs = atoi(strtok(NULL, " \n\r"));
-	    sprintf(ropts, "%s", strtok(NULL, " \n\r"));
+	    snprintf(ropts, 511, "%s", strtok(NULL, " \n\r"));
 	    Syslog('b', "Binkp: m_file options \"%s\"", ropts);
 	    if (strcmp((char *)"GZ", ropts) == 0)
     		rmode = CompGZ;
@@ -2371,7 +2371,7 @@ int binkp_process_messages(void)
 		}
 	    }
 	} else if (tmpq->cmd == MM_GOT) {
-	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
+	    snprintf(lname, 511, "%s", strtok(tmpq->data, " \n\r"));
 	    lsize = atoi(strtok(NULL, " \n\r"));
 	    ltime = atoi(strtok(NULL, " \n\r"));
 	    Found = FALSE;
@@ -2404,7 +2404,7 @@ int binkp_process_messages(void)
 		Syslog('+', "Binkp: unexpected M_GOT \"%s\"", tmpq->data); /* Ignore frame */
 	    }
 	} else if (tmpq->cmd == MM_SKIP) {
-	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
+	    snprintf(lname, 511, "%s", strtok(tmpq->data, " \n\r"));
 	    lsize = atoi(strtok(NULL, " \n\r"));
 	    ltime = atoi(strtok(NULL, " \n\r"));
 	    Found = FALSE;
@@ -2508,9 +2508,9 @@ char *unix2binkp(char *fn)
 	    *q = '\0';
 	} else {
 	    if (nodes.WrongEscape) {
-		sprintf(q, "\\%2x", p[0]);
+		snprintf(q, 4, "\\%2x", p[0]);
 	    } else {
-		sprintf(q, "\\x%2x", p[0]);
+		snprintf(q, 5, "\\x%2x", p[0]);
 	    }
 	}
 	while (*q)

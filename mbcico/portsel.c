@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -42,7 +42,7 @@ int load_port(char *tty)
 	FILE	*fp;
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 
 	if ((fp = fopen(temp, "r")) == NULL) {
 		WriteError("$Can't open %s", temp);
@@ -93,7 +93,7 @@ int load_modem(char *ModemName)
 	FILE		*fp;
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/modem.data", getenv("MBSE_ROOT"));
 
 	if ((fp = fopen(temp, "r")) == NULL) {
 		WriteError("$Can't open %s", temp);

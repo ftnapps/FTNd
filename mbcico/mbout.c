@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
 	    Fatal((char *)"File doesn't exist", MBERR_COMMANDLINE);
 
 	cmd = calloc(PATH_MAX, sizeof(char));
-	sprintf(cmd, "%s/%d.%d.%d.%d/.filelist", CFG.out_queue, addr->zone, addr->net, addr->node, addr->point);
+	snprintf(cmd, PATH_MAX -1, "%s/%d.%d.%d.%d/.filelist", CFG.out_queue, addr->zone, addr->net, addr->node, addr->point);
 	mkdirs(cmd, 0750);
 	if ((fl = fopen(cmd, "a+")) == NULL) {
 	    Fatal((char *)"File attach failed", MBERR_ATTACH_FAILED);

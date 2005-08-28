@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer - awnser a call
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -137,7 +137,7 @@ int answer(char *stype)
 	history.inbound = TRUE;
 
 	p = calloc(PATH_MAX, sizeof(char));
-	sprintf(p, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+	snprintf(p, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
 	if ((fp = fopen(p, "a")) == NULL)
 	    WriteError("$Can't open %s", p);
 	else {

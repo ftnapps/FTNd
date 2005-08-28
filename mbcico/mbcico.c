@@ -4,7 +4,7 @@
  * Purpose: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
      *  Check if history file exists, if not create a new one.
      */
     cmd = calloc(PATH_MAX, sizeof(char));
-    sprintf(cmd, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+    snprintf(cmd, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
     if ((fp = fopen(cmd, "r")) == NULL) {
 	if ((fp = fopen(cmd, "a")) == NULL) {
 	    WriteError("$Can't create %s", cmd);
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         if (strncasecmp(p, "EMSI_NAKEEC3", 12) == 0) {
 
 	    Syslog('+', "Detected IEMSI client, starting mblogin");
-            sprintf(temp, "%s/bin/mblogin", getenv("MBSE_ROOT"));
+            snprintf(temp, PATH_MAX -1, "%s/bin/mblogin", getenv("MBSE_ROOT"));
             socket_shutdown(mypid);
 
             if (execl(temp, "mblogin", (char *)NULL) == -1)

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -147,7 +147,7 @@ int call(faddr *addr)
     history.aka.node  = addr->node;
     history.aka.point = addr->point;
     if (addr->domain && strlen(addr->domain))
-	sprintf(history.aka.domain, "%s", printable(addr->domain, 0));
+	snprintf(history.aka.domain, 12, "%s", printable(addr->domain, 0));
 
     /*
      * Extract the protocol from the URL.

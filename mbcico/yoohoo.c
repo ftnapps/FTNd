@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -604,7 +604,7 @@ int checkhello(void)
     strncpy(history.system_name, hello2.my_name, 35);
     Syslog('+', "   sysop: %s",(char*)hello2.sysop);
     strncpy(history.sysop, hello2.sysop, 35);
-    sprintf(history.location, "Somewhere");
+    snprintf(history.location, 10, "Somewhere");
 
     free(prodnm);
     return loaded;

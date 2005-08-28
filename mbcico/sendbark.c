@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -123,7 +123,7 @@ SM_EDECL
     unsigned short  crc;
     int		    c, count = 0;
 
-    sprintf(buf,"%s %s %s",nm,dt,pw);
+    snprintf(buf,255,"%s %s %s",nm,dt,pw);
     crc = crc16xmodem(buf, strlen(buf));
     Syslog('s', "sending bark packet \"%s\", crc = 0x%04x", buf, crc);
 

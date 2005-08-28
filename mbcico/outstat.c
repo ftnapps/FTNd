@@ -79,7 +79,7 @@ void checkdir(char *boxpath, faddr *fa, char flavor)
     } else {
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", boxpath, de->d_name);
+		snprintf(temp, PATH_MAX -1, "%s/%s", boxpath, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    Syslog('o' ,"checking: \"%s\"", de->d_name);
 		    if (S_ISREG(sb.st_mode)) {
@@ -149,7 +149,7 @@ int outstat()
      * Also, check directory outbounds for FTP nodes.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Error open %s, aborting", temp);
 	free(temp);
@@ -188,7 +188,7 @@ int outstat()
 	Syslog('o', "Checking T-Mail short box \"%s\"", CFG.tmailshort);
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+		snprintf(temp, PATH_MAX -1, "%s/%s", CFG.tmailshort, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    Syslog('o' ,"checking \"%s\"", de->d_name);
 		    if (S_ISDIR(sb.st_mode)) {
@@ -251,13 +251,13 @@ int outstat()
 	Syslog('o', "Checking T-Mail long box \"%s\"", CFG.tmaillong);
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
+		snprintf(temp, PATH_MAX -1, "%s/%s", CFG.tmaillong, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    Syslog('o' ,"checking \"%s\"", de->d_name);
 		    if (S_ISDIR(sb.st_mode)) {
 			char	c, d;
 			int	n;
-			sprintf(temp2, "%s", de->d_name);
+			snprintf(temp2, PATH_MAX -1, "%s", de->d_name);
 			fa = (faddr*)malloc(sizeof(faddr));
 			fa->name = NULL;
 			fa->domain = NULL;
@@ -301,7 +301,8 @@ int outstat()
 	    cst = getstatus(&(tmp->addr));
 	    age = time(NULL);
 	    age -= tmp->time;
-	    sprintf(temp, "%s %3d %9lu %s %s", flstr, cst->tryno, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
+	    snprintf(temp, PATH_MAX -1, "%s %3d %9lu %s %s", 
+		    flstr, cst->tryno, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
 
 	    if (!do_quiet)
 		printf("%s\n", temp);
@@ -442,9 +443,9 @@ int IsZMH()
 {
     static  char buf[81];
 
-    sprintf(buf, "SBBS:0;");
+    snprintf(buf, 80, "SBBS:0;");
     if (socket_send(buf) == 0) {
-	strcpy(buf, socket_receive());
+	strncpy(buf, socket_receive(), 80);
 	if (strncmp(buf, "100:2,2", 7) == 0)
 	    return TRUE;
     }

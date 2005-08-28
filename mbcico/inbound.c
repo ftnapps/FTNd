@@ -5,7 +5,7 @@
  * Purpose ...............: Fidonet mailer, inbound functions 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -62,9 +62,9 @@ int inbound_open(faddr *addr, int protected)
 	inbound = xstrcpy(CFG.inbound);
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/tmp.%d.%d.%d.%d", inbound, addr->zone, addr->net, addr->node, addr->point);
+    snprintf(temp, PATH_MAX -1, "%s/tmp.%d.%d.%d.%d", inbound, addr->zone, addr->net, addr->node, addr->point);
     tempinbound = xstrcpy(temp);
-    sprintf(temp, "%s/foobar", tempinbound);
+    snprintf(temp, PATH_MAX -1, "%s/foobar", tempinbound);
     mkdirs(temp, 0700);
     free(temp);
 
@@ -109,8 +109,8 @@ int inbound_close(int success)
     dest   = calloc(PATH_MAX, sizeof(char));
 
     while ((de = readdir(dp))) {
-	sprintf(source, "%s/%s", tempinbound, de->d_name);
-	sprintf(dest, "%s/%s", inbound, de->d_name);
+	snprintf(source, PATH_MAX -1, "%s/%s", tempinbound, de->d_name);
+	snprintf(dest, PATH_MAX -1, "%s/%s", inbound, de->d_name);
 	if ((lstat(source, &stb) == 0) && (S_ISREG(stb.st_mode))) {
 	    if (file_exist(dest, F_OK) == 0) {
 		Syslog('!', "Cannot move %s to %s, file exists", de->d_name, inbound);

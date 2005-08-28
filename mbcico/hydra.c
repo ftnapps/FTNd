@@ -5,7 +5,7 @@
  * Remark ................: See below for more copyright details and credits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -765,7 +765,7 @@ int hydra_batch(int role, file_list *to_send)
 		    outbuf = txbuf;
 
 		    /* Application ID string */
-		    outbuf += sprintf(outbuf, "%08lx%s,%s", H_REVSTAMP, "mbcico", VERSION) + 1;
+		    outbuf += snprintf(outbuf, H_ZIPBUFLEN -1, "%08lx%s,%s", H_REVSTAMP, "mbcico", VERSION) + 1;
 
 		    /* Supported options */
 		    outbuf += put_flags(outbuf, HCAN_OPTIONS) + 1;
@@ -776,7 +776,7 @@ int hydra_batch(int role, file_list *to_send)
 		    Syslog('h', "Hydra: desired options  : %08lx", HDEF_OPTIONS & HCAN_OPTIONS & ~HUNN_OPTIONS);
 
 		    /* Desired transmitter and receiver window size */
-		    outbuf += sprintf(outbuf, "%08lx%08lx", H_TXWINDOW, H_RXWINDOW) + 1;
+		    outbuf += snprintf(outbuf, H_ZIPBUFLEN -1, "%08lx%08lx", H_TXWINDOW, H_RXWINDOW) + 1;
 
 		    /* Packet prefix string */
 		    *outbuf++ = 0;
@@ -901,7 +901,7 @@ int hydra_batch(int role, file_list *to_send)
 		    break;
 		} else {
 		    if (to_send) {
-			txlen = sprintf(txbuf, "%08lx%08lx%08lx%08lx%08lx",
+			txlen = snprintf(txbuf, H_ZIPBUFLEN -1, "%08lx%08lx%08lx%08lx%08lx",
 					(long)mtime2sl(txstat.st_mtime+(txstat.st_mtime%2)),
 					(long)(txstat.st_size), 0UL, 0UL, 0UL);
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -368,7 +368,7 @@ SM_START(recv_packet)
 
 SM_STATE(recv_packet)
 
-    sprintf(recvpktname,"%08lx.pkt",(unsigned long)sequencer());
+    snprintf(recvpktname,15, "%08lx.pkt",(unsigned long)sequencer());
     if ((rc = xmrecv(recvpktname)) == 1) {
 	SM_SUCCESS;
     } else if (rc == 0) {
@@ -443,7 +443,7 @@ SM_STATE(scan_packet)
 		history.aka.node  = remote->addr->node;
 		history.aka.point = remote->addr->point;
 		if (remote->addr->domain && strlen(remote->addr->domain))
-		    sprintf(history.aka.domain, "%s", printable(remote->addr->domain, 0));
+		    snprintf(history.aka.domain, 12, "%s", printable(remote->addr->domain, 0));
 	
 		if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
 		    Syslog('+', "remote is a listed system");
@@ -452,8 +452,8 @@ SM_STATE(scan_packet)
 		    strncpy(history.sysop, nlent->sysop, 35);
 		    UserCity(mypid, nlent->sysop, nlent->location);
 		} else {
-		    sprintf(history.system_name, "Unknown");
-		    sprintf(history.location, "Somewhere");
+		    snprintf(history.system_name, 35, "Unknown");
+		    snprintf(history.location, 35, "Somewhere");
 		}
 
 		if (nlent) 
