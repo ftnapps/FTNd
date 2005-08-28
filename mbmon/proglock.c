@@ -4,7 +4,7 @@
  * Purpose ...............: Program Locking
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -47,8 +47,8 @@ int lockprogram(char *progname)
     tempfile  = calloc(PATH_MAX, sizeof(char));
     lockfile = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(tempfile, "%s/var/run/%s.tmp", getenv("MBSE_ROOT"), progname);
-    sprintf(lockfile, "%s/var/run/%s", getenv("MBSE_ROOT"), progname);
+    snprintf(tempfile, PATH_MAX, "%s/var/run/%s.tmp", getenv("MBSE_ROOT"), progname);
+    snprintf(lockfile, PATH_MAX, "%s/var/run/%s", getenv("MBSE_ROOT"), progname);
 
     if ((fp = fopen(tempfile, "w")) == NULL) {
 	Syslog('?', "$Can't create lockfile \"%s\"", tempfile);
@@ -113,7 +113,7 @@ void ulockprogram(char *progname)
     FILE    *fp;
 
     lockfile = calloc(PATH_MAX, sizeof(char));
-    sprintf(lockfile, "%s/var/run/%s", getenv("MBSE_ROOT"), progname);
+    snprintf(lockfile, PATH_MAX, "%s/var/run/%s", getenv("MBSE_ROOT"), progname);
 
     if ((fp = fopen(lockfile, "r")) == NULL) {
 	Syslog('?', "$Can't open lockfile \"%s\"", lockfile);

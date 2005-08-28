@@ -4,7 +4,7 @@
  * Purpose ...............: Monitor Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -68,9 +68,9 @@ static void die(int onsig)
     else
 	Syslog(' ', "MBMON Normally finished");
     
-    sprintf(buf, "CSYS:2,%d,0;", mypid);
+    snprintf(buf, 128, "CSYS:2,%d,0;", mypid);
     if (socket_send(buf) == 0)
-	sprintf(buf, "%s", socket_receive());
+	snprintf(buf, 128, "%s", socket_receive());
     ulockprogram((char *)"mbmon");
     ExitClient(0);
 }
@@ -99,9 +99,9 @@ void ShowSysinfo(void)
     do {
 	show_date(LIGHTGRAY, BLACK, 0, 0);
 	set_color(LIGHTGRAY, BLACK);
-	sprintf(buf, "GSYS:1,%d;", getpid());
+	snprintf(buf, 128, "GSYS:1,%d;", getpid());
 	if (socket_send(buf) == 0) {
-	    sprintf(buf, "%s", socket_receive());
+	    snprintf(buf, 128, "%s", socket_receive());
 	    if (strncmp(buf, "100:7,", 6) == 0) {
 		cnt = strtok(buf, ",");
 		mbse_mvprintw( 7,26, "%s", strtok(NULL, ","));
@@ -138,9 +138,9 @@ void ShowLastcaller(void)
     do {
 	show_date(LIGHTGRAY, BLACK, 0, 0);
 	records = 0;
-	sprintf(buf, "GLCC:0;");
+	snprintf(buf, 128, "GLCC:0;");
 	if (socket_send(buf) == 0) {
-	    sprintf(buf, "%s", socket_receive());
+	    snprintf(buf, 128, "%s", socket_receive());
 	    if (strncmp(buf, "100:1,", 6) == 0) {
 		cnt = strtok(buf, ",");
 		records = atoi(strtok(NULL, ";"));
@@ -155,9 +155,9 @@ void ShowLastcaller(void)
 		o = 1;
 	    set_color(CYAN, BLACK);
 	    for (i = o; i <= records; i++) {
-		sprintf(buf, "GLCR:1,%d;", i);
+		snprintf(buf, 128, "GLCR:1,%d;", i);
 		if (socket_send(buf) == 0) {
-		    sprintf(buf, "%s", socket_receive());
+		    snprintf(buf, 128, "%s", socket_receive());
 		    if (strncmp(buf, "100:9,", 6) == 0) {
 			cnt = strtok(buf, ",");
 			mbse_mvprintw(y, 1, "%2d", i);
@@ -204,12 +204,12 @@ void system_moni(void)
 
 	for (y = 8; y <= lines - 2; y++) { 
 	    if (y == 8)
-		sprintf(buf, "GMON:1,1;");
+		snprintf(buf, 128, "GMON:1,1;");
 	    else
-		sprintf(buf, "GMON:1,0;");
+		snprintf(buf, 128, "GMON:1,0;");
 	    if (eof == 0) {
 		if (socket_send(buf) == 0) {
-		    strcpy(buf, socket_receive());
+		    strncpy(buf, socket_receive(), 128);
 		    mbse_locate(y, 1);
 		    clrtoeol();
 		    if (strncmp(buf, "100:0;", 6) == 0) {
@@ -283,9 +283,9 @@ void system_stat(void)
     do {
 	show_date(LIGHTGRAY, BLACK, 0, 0);
 
-	sprintf(buf, "GSTA:1,%d;", getpid());
+	snprintf(buf, 256, "GSTA:1,%d;", getpid());
 	if (socket_send(buf) == 0) {
-	    strcpy(buf, socket_receive());
+	    strncpy(buf, socket_receive(), 256);
 	    set_color(LIGHTGRAY, BLACK);
 	    cnt = strtok(buf, ",");
 	    now = atoi(strtok(NULL, ","));
@@ -352,7 +352,7 @@ void disk_stat(void)
     do {
 	show_date(LIGHTGRAY, BLACK, 0, 0);
 
-	sprintf(buf, "DGFS:0;");
+	snprintf(buf, 1024, "DGFS:0;");
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());
 	    set_color(LIGHTGRAY, BLACK);
@@ -449,12 +449,12 @@ void soft_info(void)
 	center_addstr(10, (char *)"Made in the Netherlands.");
 	set_color(WHITE, BLACK);
 #ifdef __GLIBC__
-	sprintf(temp, "Compiled on glibc v%d.%d", __GLIBC__, __GLIBC_MINOR__);
+	snprintf(temp, 81, "Compiled on glibc v%d.%d", __GLIBC__, __GLIBC_MINOR__);
 #else
 #ifdef __GNU_LIBRARY__
-	sprintf(temp, "Compiled on libc v%d", __GNU_LIBRARY__);
+	snprintf(temp, 81, "Compiled on libc v%d", __GNU_LIBRARY__);
 #else
-	sprintf(temp, "Compiled on unknown library");
+	snprintf(temp, 81, "Compiled on unknown library");
 #endif
 #endif
 	center_addstr(12, temp);
@@ -524,7 +524,7 @@ void DispMsg(char *msg)
 	for (i = 0; i <= rsize; i++) {
 	    mbse_locate(i+4,1);
 	    clrtoeol();
-	    sprintf(rbuf[i], "%s", rbuf[i+1]);
+	    snprintf(rbuf[i], 80, "%s", rbuf[i+1]);
 	    Showline(i+4, 1, rbuf[i]);
 	}
     } else {
@@ -549,7 +549,7 @@ void Chat(int sysop)
     rsize = lines - 7;
     rpointer = 0;
 
-    sprintf(buf, "CCON,4,%d,%s,%s,%s;", mypid, CFG.sysop_name, CFG.sysop, sysop ? "1":"0");
+    snprintf(buf, 200, "CCON,4,%d,%s,%s,%s;", mypid, CFG.sysop_name, CFG.sysop, sysop ? "1":"0");
     Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
@@ -582,7 +582,7 @@ void Chat(int sysop)
 	/*
 	 * Join channel #sysop automatic
 	 */
-	sprintf(buf, "CPUT:2,%d,/JOIN #sysop;", mypid);
+	snprintf(buf, 200, "CPUT:2,%d,/JOIN #sysop;", mypid);
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());
 	}
@@ -597,7 +597,7 @@ void Chat(int sysop)
 	 */
 	data = TRUE;
 	while (data) {
-	    sprintf(buf, "CGET:1,%d;", mypid);
+	    snprintf(buf, 200, "CGET:1,%d;", mypid);
 	    if (socket_send(buf) == 0) {
 		memset(&buf, 0, sizeof(buf));
 		strncpy(buf, socket_receive(), sizeof(buf)-1);
@@ -655,7 +655,7 @@ void Chat(int sysop)
 		putchar(7);
 	    }
 	} else if ((ch == '\r') && curpos) {
-	    sprintf(buf, "CPUT:2,%d,%s;", mypid, sbuf);
+	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, sbuf);
 	    Syslog('-', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
@@ -688,7 +688,7 @@ void Chat(int sysop)
      */
     data = TRUE;
     while (data) {
-	sprintf(buf, "CGET:1,%d;", mypid);
+	snprintf(buf, 200, "CGET:1,%d;", mypid);
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
@@ -715,7 +715,7 @@ void Chat(int sysop)
     /*
      * Close server connection
      */
-    sprintf(buf, "CCLO,1,%d;", mypid);
+    snprintf(buf, 200, "CCLO,1,%d;", mypid);
     Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
@@ -755,9 +755,9 @@ int main(int argc, char *argv[])
     /*
      * Report sysop available for chat
      */
-    sprintf(buf, "CSYS:2,%d,1;", mypid);
+    snprintf(buf, 128, "CSYS:2,%d,1;", mypid);
     if (socket_send(buf) == 0)
-	sprintf(buf, "%s", socket_receive());
+	snprintf(buf, 128, "%s", socket_receive());
 
 	
     /*

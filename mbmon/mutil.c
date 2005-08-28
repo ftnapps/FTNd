@@ -4,7 +4,7 @@
  * Purpose ...............: Utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -139,7 +139,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
 	unsigned int	ch;
 
 	memset((char *)s, 0, 256);
-	sprintf(s, "%s", s_);
+	snprintf(s, 256, "%s", s_);
 	curpos = 0;
 	first = 1;
 	newinsert(1, YELLOW, BLUE);
@@ -298,7 +298,7 @@ int select_menu(int max)
     char	help[80];
     int		pick;
 
-    sprintf(help, "Select menu item (1..%d) or ^\"-\"^ for previous level.", max);
+    snprintf(help, 80, "Select menu item (1..%d) or ^\"-\"^ for previous level.", max);
     showhelp(help);
 
     /* 
