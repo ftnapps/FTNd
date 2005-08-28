@@ -161,7 +161,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 
     if (newsmode) {
 	news_in++;
-	snprintf(currentgroup, 80, "%s", msgs.Newsgroup);
+	snprintf(currentgroup, 81, "%s", msgs.Newsgroup);
     } else
 	email_in++;
     
@@ -634,12 +634,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    for (i = 0; i < 40; i++) {
 		if (CFG.akavalid[i] && (CFG.aka[i].point == 0) && (msgs.Aka.zone == CFG.aka[i].zone) &&
 				    !((msgs.Aka.net == CFG.aka[i].net) && (msgs.Aka.node == CFG.aka[i].node))) {
-		    snprintf(sbe, 127, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
+		    snprintf(sbe, 128, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
 		    fill_list(&sbl, sbe, NULL);
 		}
 	    }
 	    if (msgs.Aka.point == 0) {
-		snprintf(sbe, 127, "%u/%u", msgs.Aka.net, msgs.Aka.node);
+		snprintf(sbe, 128, "%u/%u", msgs.Aka.net, msgs.Aka.node);
 		fill_list(&sbl, sbe, NULL);
 	    }
 
@@ -655,15 +655,15 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		oldnet = sbl->addr->net-1;
 		for (tmpl = sbl; tmpl; tmpl = tmpl->next) {
 		    if (tmpl->addr->net == oldnet)
-			snprintf(sbe,127," %u",tmpl->addr->node);
+			snprintf(sbe,128," %u",tmpl->addr->node);
 		    else
-			snprintf(sbe,127," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,128," %u/%u",tmpl->addr->net, tmpl->addr->node);
 		    oldnet = tmpl->addr->net;
 		    seenlen += strlen(sbe);
 		    if (seenlen > MAXSEEN) {
 			seenlen = 0;
 			fprintf(ofp,"\nSEEN-BY:");
-			snprintf(sbe,127," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,128," %u/%u",tmpl->addr->net, tmpl->addr->node);
 			seenlen = strlen(sbe);
 		    }
 		    fprintf(ofp,"%s",sbe);
@@ -678,7 +678,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		if (!strcasecmp(tmp->key,"X-FTN-PATH"))
 		    fill_path(&ptl,tmp->val);
 		if (msgs.Aka.point == 0) {
-		    snprintf(sbe,127,"%u/%u",msgs.Aka.net, msgs.Aka.node);
+		    snprintf(sbe,128,"%u/%u",msgs.Aka.net, msgs.Aka.node);
 		    fill_path(&ptl,sbe);
 		}
 
@@ -692,15 +692,15 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		oldnet = ptl->addr->net-1;
 		for (tmpl = ptl; tmpl; tmpl = tmpl->next) {
 		    if (tmpl->addr->net == oldnet)
-			snprintf(sbe,127," %u",tmpl->addr->node);
+			snprintf(sbe,128," %u",tmpl->addr->node);
 		    else
-			snprintf(sbe,127," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,128," %u/%u",tmpl->addr->net, tmpl->addr->node);
 		    oldnet = tmpl->addr->net;
 		    seenlen += strlen(sbe);
 		    if (seenlen > MAXPATH) {
 			seenlen = 0;
 			fprintf(ofp,"\n\1PATH:");
-			snprintf(sbe,127," %u/%u",tmpl->addr->net, tmpl->addr->node);
+			snprintf(sbe,128," %u/%u",tmpl->addr->net, tmpl->addr->node);
 			seenlen = strlen(sbe);
 		    }
 		    fprintf(ofp,"%s",sbe);

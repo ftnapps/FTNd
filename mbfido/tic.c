@@ -247,7 +247,7 @@ int LoadTic(char *inb, char *tfn)
 
 	} else if (strncasecmp(Temp, "crc ", 4) == 0) {
 	    TIC.Crc_Int = strtoul(Temp+4, (char **)NULL, 16);
-	    snprintf(TIC.TicIn.Crc, 8, "%08lX", TIC.Crc_Int);
+	    snprintf(TIC.TicIn.Crc, 9, "%08lX", TIC.Crc_Int);
 	    strcpy(T_File.Crc, TIC.TicIn.Crc);
 
 	} else if (strncasecmp(Temp, "pw ", 3) == 0) {
@@ -414,7 +414,7 @@ int LoadTic(char *inb, char *tfn)
 	    tidy_falist(&sbl);
 	    return 2;
 	}
-	snprintf(Temp2, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.FullName);
+	snprintf(Temp2, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.FullName);
 	if ((rc = file_mv(Temp, Temp2))) {
 	    WriteError("Can't move %s to inbound: %s", Temp, strerror(rc));
 	    tidy_falist(&sbl);
@@ -468,7 +468,7 @@ int LoadTic(char *inb, char *tfn)
 	     * processing is based on 8.3 filenames.
 	     */
 	    snprintf(Temp, bufsize, "%s/%s", TIC.Inbound, RealName);
-	    snprintf(Temp2, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	    snprintf(Temp2, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	    if (rename(Temp, Temp2))
 		WriteError("$Can't rename %s to %s", Temp, Temp2);
 	    else

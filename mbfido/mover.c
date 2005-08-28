@@ -43,8 +43,8 @@ void mover(char *fn)
     From = calloc(PATH_MAX, sizeof(char));
     To   = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(From, PATH_MAX -1, "%s/%s", TIC.Inbound, fn);
-    snprintf(To,   PATH_MAX -1, "%s/%s", CFG.badtic, fn);
+    snprintf(From, PATH_MAX, "%s/%s", TIC.Inbound, fn);
+    snprintf(To,   PATH_MAX, "%s/%s", CFG.badtic, fn);
     Syslog('!', "Moving %s to %s", From, To);
 
     if (mkdirs(To, 0770)) {

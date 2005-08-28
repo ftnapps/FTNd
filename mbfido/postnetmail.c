@@ -247,7 +247,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
     na.node  = t->node;
     na.point = t->point;
     if (SearchFidonet(na.zone))
-	snprintf(na.domain, 12, "%s", fidonet.domain);
+	snprintf(na.domain, 13, "%s", fidonet.domain);
 
     switch(TrackMail(na, &routeto)) {
 	case R_LOCAL:
@@ -288,7 +288,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	     */
 	    (void)noderecord(f);
 	    p = calloc(PATH_MAX, sizeof(char));
-	    snprintf(p, PATH_MAX -1, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	    snprintf(p, PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
 	    if ((sfp = fopen(p, "r")) == NULL) {
 		WriteError("$Can't open %s", p);
 	    } else {
@@ -374,13 +374,13 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 
 		memset(&ext, 0, sizeof(ext));
 		if (nodes.PackNetmail)
-		    snprintf(ext, 3, (char *)"qqq");
+		    snprintf(ext, 4, (char *)"qqq");
 		else if (nodes.Crash)
-		    snprintf(ext, 3, (char *)"ccc");
+		    snprintf(ext, 4, (char *)"ccc");
 		else if (nodes.Hold)
-		    snprintf(ext, 3, (char *)"hhh");
+		    snprintf(ext, 4, (char *)"hhh");
 		else 
-		    snprintf(ext, 3, (char *)"nnn");
+		    snprintf(ext, 4, (char *)"nnn");
 
 		if ((net = OpenPkt(Orig , routeto, (char *)ext)) == NULL) {
 		    net_bad++;

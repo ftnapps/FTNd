@@ -254,7 +254,7 @@ char *fullpath(char *fname)
 {
     static char path[PATH_MAX];
 
-    snprintf(path, PATH_MAX -1, "%s/%s", CFG.nodelists, fname);
+    snprintf(path, PATH_MAX, "%s/%s", CFG.nodelists, fname);
     return path;
 }
 
@@ -686,7 +686,7 @@ void fill_fdlist(fd_list **fdp, char *filename, time_t filedate)
 
     tmp = (fd_list *)malloc(sizeof(fd_list));
     tmp->next = *fdp;
-    snprintf(tmp->fname, 64, "%s", filename);
+    snprintf(tmp->fname, 65, "%s", filename);
     tmp->fdate = filedate;
     *fdp = tmp;
 }
@@ -757,7 +757,7 @@ char *pull_fdlist(fd_list **fdp)
 
 	ta = *fdp;
 	memset(&buf, 0, sizeof(buf));
-	snprintf(buf, 64, "%s", ta->fname);
+	snprintf(buf, 65, "%s", ta->fname);
 
 	if (ta->next != NULL)
 		*fdp = ta->next;
@@ -825,8 +825,8 @@ int makelist(char *base, unsigned short zo, unsigned short ne, unsigned short no
 	tidy_fdlist(&fdl); 
 
 	memset(&fdx, 0, sizeof(fdx));
-	snprintf(fdx.filename, 12, "%s", p);
-	snprintf(fdx.domain, 12, "%s", fidonet.domain);
+	snprintf(fdx.filename, 13, "%s", p);
+	snprintf(fdx.domain, 13, "%s", fidonet.domain);
 	fdx.number = filenr;
 	fwrite(&fdx, sizeof(fdx), 1, ffp);
 

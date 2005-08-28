@@ -68,7 +68,7 @@ int Notify(char *Options)
 	}
 
 	if (strlen(Options)) {
-		snprintf(Opt, 43, "%s~", Options);
+		snprintf(Opt, 44, "%s~", Options);
 		if (strchr(Opt, '.') != NULL) {
 			temp = strdup(strtok(Opt, ":"));
 			if (atoi(temp))
@@ -112,7 +112,7 @@ int Notify(char *Options)
 	Syslog('m', "Parsing nodes %d:%d/%d.%d", Zones, Nets, Nodes, Points);
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	if ((np = fopen(temp, "r")) == NULL) {
 		WriteError("$Can't open %s", temp);
 		return FALSE;

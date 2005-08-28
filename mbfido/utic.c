@@ -45,7 +45,7 @@ char *MakeTicName()
     static char	buf[13];
 
     buf[12] = '\0';
-    snprintf(buf, 12, "%08lx.tic", sequencer());
+    snprintf(buf, 13, "%08lx.tic", sequencer());
     buf[0] = 'm';
     buf[1] = 'b';
 
@@ -112,7 +112,7 @@ int Rearc(char *unarc)
 
     Syslog('f' , "NewFile=\"%s\", NewFullName=\"%s\"", TIC.NewFile, TIC.NewFullName);
 	
-    snprintf(temp, PATH_MAX -1, "%s/%s .", TIC.Inbound, TIC.NewFile);
+    snprintf(temp, PATH_MAX, "%s/%s .", TIC.Inbound, TIC.NewFile);
     if (execute_str(cmd, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 	free(cmd);
 	return TRUE;
@@ -138,7 +138,7 @@ void DeleteVirusWork()
     buf  = calloc(PATH_MAX, sizeof(char));
     temp = calloc(PATH_MAX, sizeof(char));
     getcwd(buf, PATH_MAX);
-    snprintf(temp, PATH_MAX -1, "%s/tmp", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp", getenv("MBSE_ROOT"));
 
     if (chdir(temp) == 0) {
 	Syslog('f', "DeleteVirusWork %s/arc", temp);
@@ -160,7 +160,7 @@ void Bad(char *format, ...)
     va_list va_ptr;
 
     va_start(va_ptr, format);
-    vsnprintf(outstr, 1023, format, va_ptr);
+    vsnprintf(outstr, 1024, format, va_ptr);
     va_end(va_ptr);
 
     WriteError(outstr);
@@ -173,7 +173,7 @@ void Bad(char *format, ...)
 void ReCalcCrc(char *fn)
 {
     TIC.Crc_Int = file_crc(fn, CFG.slow_util && do_quiet);
-    snprintf(TIC.TicIn.Crc, 8, "%08lX", TIC.Crc_Int);
+    snprintf(TIC.TicIn.Crc, 9, "%08lX", TIC.Crc_Int);
     strcpy(T_File.Crc, TIC.TicIn.Crc);
 }
 
@@ -187,9 +187,9 @@ int Get_File_Id()
     int	    i, j, lines = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
-	snprintf(temp, PATH_MAX -1, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) == NULL) {
 	    free(temp);
 	    return FALSE;

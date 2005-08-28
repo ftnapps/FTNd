@@ -60,14 +60,14 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 	Orig.net   = From.net;
 	Orig.node  = From.node;
 	Orig.point = From.point;
-	snprintf(Orig.domain, 12, "%s", From.domain);
+	snprintf(Orig.domain, 13, "%s", From.domain);
 
 	memset(&Dest, 0, sizeof(Dest));
 	Dest.zone  = t->zone;
 	Dest.net   = t->net;
 	Dest.node  = t->node;
 	Dest.point = t->point;
-	snprintf(Dest.domain, 12, "%s", t->domain);
+	snprintf(Dest.domain, 13, "%s", t->domain);
 
 	if (!SearchNode(Dest)) {
 		Syslog('!', "SendMgrMail(): Can't find node %s", aka2str(Dest));
@@ -90,13 +90,13 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 
 	memset(&ext, 0, sizeof(ext));
 	if (nodes.PackNetmail)
-		snprintf(ext, 3, (char *)"qqq");
+		snprintf(ext, 4, (char *)"qqq");
 	else if (nodes.Crash)
-		snprintf(ext, 3, (char *)"ccc");
+		snprintf(ext, 4, (char *)"ccc");
 	else if (nodes.Hold)
-		snprintf(ext, 3, (char *)"hhh");
+		snprintf(ext, 4, (char *)"hhh");
 	else
-		snprintf(ext, 3, (char *)"nnn");
+		snprintf(ext, 4, (char *)"nnn");
 
 	if ((qp = OpenPkt(Orig, Dest, (char *)ext)) == NULL)
 		return NULL;

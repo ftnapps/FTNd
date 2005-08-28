@@ -101,7 +101,7 @@ int ProcessTic(fa_list **sbl)
 	/*
 	 * Now check the age of the .tic file.
 	 */
-	snprintf(Temp, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicName);
+	snprintf(Temp, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicName);
 	Fdate = file_time(Temp);
 	Age = (Now - Fdate) / 84400;
 	Syslog('+', "Orphaned tic age %d days", Age);
@@ -115,7 +115,7 @@ int ProcessTic(fa_list **sbl)
 	return 2;
     }
 
-    snprintf(Temp, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+    snprintf(Temp, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
     crc = file_crc(Temp, CFG.slow_util && do_quiet);
     TIC.FileSize = file_size(Temp);
     TIC.FileDate = file_time(Temp);
@@ -210,7 +210,7 @@ int ProcessTic(fa_list **sbl)
     }
 
     if (Magic_DeleteFile()) {
-	snprintf(temp1, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicName);
+	snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicName);
 	file_rm(temp1);
 	Syslog('+', "Deleted file %s", temp1);
 	file_rm(Temp);
@@ -238,7 +238,7 @@ int ProcessTic(fa_list **sbl)
 	strcpy(TIC.BBSpath, CFG.ticout);
 	strcpy(TIC.BBSdesc, tic.Comment);
     } else {
-	snprintf(Temp, PATH_MAX -1, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(Temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(Temp, "r")) == NULL) {
 	    WriteError("Can't access fareas.data area: %ld", tic.FileArea);
 	    free(Temp);
@@ -282,7 +282,7 @@ int ProcessTic(fa_list **sbl)
     }
 
     if ((tic.DupCheck) && (check_dupe)) {
-	snprintf(Temp, PATH_MAX -1, "%s%s", TIC.TicIn.Area, TIC.TicIn.Crc);
+	snprintf(Temp, PATH_MAX, "%s%s", TIC.TicIn.Area, TIC.TicIn.Crc);
 	crc2 = 0xffffffff;
 	crc2 = upd_crc32(Temp, crc2, strlen(Temp));
 	if (CheckDupe(crc2, D_FILEECHO, CFG.tic_dupes)) {
@@ -364,8 +364,8 @@ int ProcessTic(fa_list **sbl)
      * it's a passthru area.
      */
     if (((tic.SendOrg) && (MustRearc || strlen(tic.Banner))) || (!tic.FileArea)) {
-	snprintf(temp1, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
-	snprintf(temp2, PATH_MAX -1, "%s/%s", CFG.ticout, TIC.TicIn.File);
+	snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	snprintf(temp2, PATH_MAX, "%s/%s", CFG.ticout, TIC.TicIn.File);
 	if ((rc = file_cp(temp1, temp2) == 0)) {
 	    TIC.SendOrg = TRUE;
 	} else {
@@ -378,7 +378,7 @@ int ProcessTic(fa_list **sbl)
 	/*
 	 * Check if there is a temp directory for the archive conversion.
 	 */
-	snprintf(temp2, PATH_MAX -1, "%s/tmp/arc", getenv("MBSE_ROOT"));
+	snprintf(temp2, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
 	if ((access(temp2, R_OK)) != 0) {
 	    if (mkdir(temp2, 0777)) {
 		WriteError("$Can't create %s", temp2);
@@ -391,16 +391,16 @@ int ProcessTic(fa_list **sbl)
 	/*
 	 * Check for stale FILE_ID.DIZ files
 	 */
-	snprintf(temp1, PATH_MAX -1, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+	snprintf(temp1, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
 	if (!unlink(temp1))
 	    Syslog('+', "Removed stale %s", temp1);
-	snprintf(temp1, PATH_MAX -1, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+	snprintf(temp1, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
 	if (!unlink(temp1))
 	    Syslog('+', "Removed stale %s", temp1);
-	snprintf(temp1, PATH_MAX -1, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+	snprintf(temp1, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
 	if (!unlink(temp1))
 	    Syslog('+', "Removed stale %s", temp1);
-	snprintf(temp1, PATH_MAX -1, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
+	snprintf(temp1, PATH_MAX, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
 	if (!unlink(temp1))
 	    Syslog('+', "Removed stale %s", temp1);
 
@@ -431,7 +431,7 @@ int ProcessTic(fa_list **sbl)
 	if ((cmd == NULL) || (cmd == "")) {
 	    Syslog('!', "No unarc command available");
 	} else {
-	    snprintf(temp1, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	    snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 		UnPacked = TRUE;
 	    } else {
@@ -451,8 +451,8 @@ int ProcessTic(fa_list **sbl)
 	 * whatever that is. This should catch single files
 	 * with worms or other macro viri
 	 */
-	snprintf(temp1, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
-	snprintf(temp2, PATH_MAX -1, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), TIC.TicIn.File);
+	snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), TIC.TicIn.File);
 
 	if ((rc = file_cp(temp1, temp2))) {
 	    WriteError("Can't copy %s to %s: %s", temp1, temp2, strerror(rc));
@@ -461,7 +461,7 @@ int ProcessTic(fa_list **sbl)
 	    return 1;
 	}
 
-	snprintf(temp2, PATH_MAX -1, "%s/tmp/arc", getenv("MBSE_ROOT"));
+	snprintf(temp2, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
 	if (chdir(temp2) != 0) {
 	    WriteError("$Can't change to %s", temp2);
 	    free(Temp);
@@ -495,12 +495,12 @@ int ProcessTic(fa_list **sbl)
 
     if (tic.FileId && tic.FileArea && IsArchive) {
 	if (UnPacked) {
-	    snprintf(temp1, PATH_MAX -1, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-	    snprintf(temp2, PATH_MAX -1, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+	    snprintf(temp1, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+	    snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
 	    if (file_cp(temp1, temp2) == 0) {
 		File_Id = TRUE;
 	    } else {
-		snprintf(temp1, PATH_MAX -1, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+		snprintf(temp1, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
 		if (file_cp(temp1, temp2) == 0) {
 		    File_Id = TRUE;
 		}
@@ -514,13 +514,13 @@ int ProcessTic(fa_list **sbl)
 		if (cmd == NULL) {
 		    WriteError("No unarc command available");
 		} else {
-		    snprintf(temp1, PATH_MAX -1, "%s/tmp", getenv("MBSE_ROOT"));
+		    snprintf(temp1, PATH_MAX, "%s/tmp", getenv("MBSE_ROOT"));
 		    chdir(temp1);
-		    snprintf(temp1, PATH_MAX -1, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.TicIn.File);
+		    snprintf(temp1, PATH_MAX, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.TicIn.File);
 		    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 			File_Id = TRUE;
 		    } else {
-			snprintf(temp1, PATH_MAX -1, "%s/%s file_id.diz", TIC.Inbound, TIC.TicIn.File);
+			snprintf(temp1, PATH_MAX, "%s/%s file_id.diz", TIC.Inbound, TIC.TicIn.File);
 			if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 			    File_Id = TRUE;
 			}
@@ -584,7 +584,7 @@ int ProcessTic(fa_list **sbl)
 	    /*
 	     * Get new filesize for import and announce
 	     */
-	    snprintf(temp1, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.NewFile);
+	    snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
 	    TIC.FileSize = file_size(temp1);
 	    T_File.Size = TIC.FileSize;
 	    T_File.SizeKb = TIC.FileSize / 1024;
@@ -607,8 +607,8 @@ int ProcessTic(fa_list **sbl)
 	if ((cmd == NULL) || (!strlen(cmd))) {
 	    Syslog('!', "No banner command for %s", archiver.name);
 	} else {
-	    snprintf(temp1, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.NewFile);
-	    snprintf(Temp, PATH_MAX -1, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);
+	    snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
+	    snprintf(Temp, PATH_MAX, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);
 	    if (execute_str(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
 		WriteError("Changing the banner failed");
 	    } else {
@@ -629,7 +629,7 @@ int ProcessTic(fa_list **sbl)
      * If the file is converted, we set the date of the original
      * received file as the file creation date.
      */
-    snprintf(Temp, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.NewFile);
+    snprintf(Temp, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
     if ((MustRearc || DidBanner) && CFG.ct_KeepDate) {
 	if ((tic.Touch) && (tic.FileArea)) {
 	    ut.actime = mktime(localtime(&TIC.FileDate));
@@ -687,7 +687,7 @@ int ProcessTic(fa_list **sbl)
 	 * file in the inbound anymore so it can be
 	 * deleted.
 	 */
-	snprintf(temp1, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	if (file_rm(temp1) == 0)
 	    Syslog('f', "Deleted %s", temp1);
     }
@@ -703,7 +703,7 @@ int ProcessTic(fa_list **sbl)
 	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
 		p_from = fido2faddr(CFG.aka[i]);
 		if (! in_list(p_from, sbl, TRUE)) {
-		    snprintf(sbe, 23, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
+		    snprintf(sbe, 24, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
 		    fill_list(sbl, sbe, NULL);
 		}
 		tidy_faddr(p_from);
@@ -715,7 +715,7 @@ int ProcessTic(fa_list **sbl)
 	 */
 	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
 	    if (tmpq->send) {
-		snprintf(sbe, 23, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+		snprintf(sbe, 24, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
 		fill_list(sbl, sbe, NULL);
 	    }
 	}
@@ -739,7 +739,7 @@ int ProcessTic(fa_list **sbl)
     Magic_AdoptFile();
 
     
-    snprintf(Temp, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicName);
+    snprintf(Temp, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicName);
     unlink(Temp);
 
     free(Temp);

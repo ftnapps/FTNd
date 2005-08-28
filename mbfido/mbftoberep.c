@@ -57,7 +57,7 @@ void ToBeRep(void)
 
     mbse_colour(CYAN, BLACK);
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	printf("No toberep database present\n");
     } else {

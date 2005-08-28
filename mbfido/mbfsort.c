@@ -59,7 +59,7 @@ void SortFileBase(int Area)
 	mbse_colour(CYAN, BLACK);
     }
 
-    snprintf(sAreas, PATH_MAX -1, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);

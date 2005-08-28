@@ -61,7 +61,7 @@ void PackFileBase(void)
 	printf("Packing file database...\n");
     }
 
-    snprintf(sAreas, PATH_MAX -1, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
@@ -102,18 +102,18 @@ void PackFileBase(void)
 			Syslog('+', "Removed double record file \"%s\" from area %d", fdb.LName, i);
 		    } else {
 			Syslog('+', "Removed file \"%s\" from area %d", fdb.LName, i);
-			snprintf(fn, PATH_MAX -1, "%s/%s", area.Path, fdb.LName);
+			snprintf(fn, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 			rc = unlink(fn);
 			if (rc && (errno != ENOENT))
 			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
-			snprintf(fn, PATH_MAX -1, "%s/%s", area.Path, fdb.Name);
+			snprintf(fn, PATH_MAX, "%s/%s", area.Path, fdb.Name);
 			rc = unlink(fn);
 			if (rc && (errno != ENOENT))
 			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
 			/*
 			 * If a dotted version (thumbnail) exists, remove it silently
 			 */
-			snprintf(fn, PATH_MAX -1, "%s/.%s", area.Path, fdb.Name);
+			snprintf(fn, PATH_MAX, "%s/.%s", area.Path, fdb.Name);
 			unlink(fn);
 		    }
 		    do_index = TRUE;

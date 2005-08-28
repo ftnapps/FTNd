@@ -49,7 +49,7 @@ FILE *newpage(char *Name, FILE *fi)
 
     later = time(NULL) + 86400;
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/stat/%s.temp", CFG.www_root, Name);
+    snprintf(temp, PATH_MAX, "%s/stat/%s.temp", CFG.www_root, Name);
     mkdirs(temp, 0755);
 
     if ((fa = fopen(temp, "w")) == NULL) {
@@ -79,8 +79,8 @@ void closepage(FILE *fa, char *Name, FILE *fi)
     temp2 = calloc(PATH_MAX, sizeof(char));
     MacroRead(fi, fa);
     fclose(fa);
-    snprintf(temp1, PATH_MAX -1, "%s/stat/%s.html", CFG.www_root, Name);
-    snprintf(temp2, PATH_MAX -1, "%s/stat/%s.temp", CFG.www_root, Name);
+    snprintf(temp1, PATH_MAX, "%s/stat/%s.html", CFG.www_root, Name);
+    snprintf(temp2, PATH_MAX, "%s/stat/%s.temp", CFG.www_root, Name);
     rename(temp2, temp1);
     chmod(temp1, 0644);
     free(temp2);
@@ -97,10 +97,10 @@ char *adate(time_t now)
     struct tm	ptm;
 
     if (now == 0L) {
-	snprintf(buf, 39, "&nbsp;");
+	snprintf(buf, 40, "&nbsp;");
     } else {
 	ptm = *localtime(&now);
-	snprintf(buf, 39, "%02d-%02d-%04d %02d:%02d", ptm.tm_mday, ptm.tm_mon +1, ptm.tm_year + 1900, ptm.tm_hour, ptm.tm_min);
+	snprintf(buf, 40, "%02d-%02d-%04d %02d:%02d", ptm.tm_mday, ptm.tm_mon +1, ptm.tm_year + 1900, ptm.tm_hour, ptm.tm_min);
     }
     return buf;
 }
@@ -133,7 +133,7 @@ void MakeStat(void)
     else
 	Lm = Miy -1;
 
-    snprintf(name, PATH_MAX -1, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("Can't open %s", name);
     } else {
@@ -174,7 +174,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -225,7 +225,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX -1, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -265,7 +265,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -307,7 +307,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -355,7 +355,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -407,7 +407,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX -1, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) != NULL ) {
 	if ((fi = OpenMacro("html.sysinfo", 'E', TRUE)) == NULL) {
 	    Syslog('+', "Can't open macro file, skipping html pages creation");

@@ -69,7 +69,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
-    snprintf(sAreas, PATH_MAX -1, "%s//etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
 	free(sAreas);
@@ -163,8 +163,8 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     /*
      * Start writing the message
      */
-    snprintf(Msg.From, 100, CFG.sysop_name);
-    snprintf(Msg.To, 100, To);
+    snprintf(Msg.From, 101, CFG.sysop_name);
+    snprintf(Msg.To, 101, To);
 
     /*
      * If netmail, clean the To field.
@@ -180,8 +180,8 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	}
     }
 
-    snprintf(Msg.Subject, 100, "%s", Subj);
-    snprintf(Msg.FromAddress, 100, "%s", aka2str(msgs.Aka));
+    snprintf(Msg.Subject, 101, "%s", Subj);
+    snprintf(Msg.FromAddress, 101, "%s", aka2str(msgs.Aka));
     Msg.Written = time(NULL);
     Msg.Arrived = time(NULL);
     Msg.Local = TRUE;
@@ -200,7 +200,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 
 	case NETMAIL:
 			Msg.Netmail = TRUE;
-			snprintf(Msg.ToAddress, 100, "%s", ascfnode(parsefaddr(To), 0xff));
+			snprintf(Msg.ToAddress, 101, "%s", ascfnode(parsefaddr(To), 0xff));
 			break;
 
 	case ECHOMAIL:
@@ -213,22 +213,22 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     }
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
+    snprintf(temp, PATH_MAX, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
     MsgText_Add2(temp);
     Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
     Msg.ReplyCRC = 0xffffffff;
-    snprintf(temp, PATH_MAX -1, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
+    snprintf(temp, PATH_MAX, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
     MsgText_Add2(temp);
     if (msgs.Charset != FTNC_NONE) {
-	snprintf(temp, PATH_MAX -1, "\001CHRS: %s", getftnchrs(msgs.Charset));
+	snprintf(temp, PATH_MAX, "\001CHRS: %s", getftnchrs(msgs.Charset));
     } else {
-	snprintf(temp, PATH_MAX -1, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
+	snprintf(temp, PATH_MAX, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
     }
     MsgText_Add2(temp);
-    snprintf(temp, PATH_MAX -1, "\001TZUTC: %s", gmtoffset(tt));
+    snprintf(temp, PATH_MAX, "\001TZUTC: %s", gmtoffset(tt));
     MsgText_Add2(temp);
 
-    while ((Fgets(temp, PATH_MAX -1, tp)) != NULL) {
+    while ((Fgets(temp, PATH_MAX, tp)) != NULL) {
 	if (strncmp(temp, "--- ", 4) == 0)
 	    has_tear = TRUE;
 	if (strncmp(temp, " * Origin: ", 11) == 0)
@@ -255,14 +255,14 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	aka = calloc(40, sizeof(char));
 
 	if (msgs.Aka.point)
-	    snprintf(aka, 39, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
+	    snprintf(aka, 40, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
 	else
-	    snprintf(aka, 39, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+	    snprintf(aka, 40, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
 
 	if (strlen(msgs.Origin))
-	    snprintf(temp, 80, " * Origin: %s %s", msgs.Origin, aka);
+	    snprintf(temp, 81, " * Origin: %s %s", msgs.Origin, aka);
 	else
-	    snprintf(temp, 80, " * Origin: %s %s", CFG.origin, aka);
+	    snprintf(temp, 81, " * Origin: %s %s", CFG.origin, aka);
 
 	MsgText_Add2(temp);
 	free(aka);
@@ -273,7 +273,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     Syslog('+', "Posted message %ld", Msg.Id);
 
     if (msgs.Type != LOCALMAIL) {
-	snprintf(temp, PATH_MAX -1, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), (msgs.Type == ECHOMAIL) ? "echo" : "net");
+	snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), (msgs.Type == ECHOMAIL) ? "echo" : "net");
 	if ((fp = fopen(temp, "a")) != NULL) {
 	    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
 	    fclose(fp);

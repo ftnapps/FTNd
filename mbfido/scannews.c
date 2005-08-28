@@ -109,7 +109,7 @@ void fill_artlist(List **fdp, char *id, long nr, int dupe)
 	for (tmp = fdp; *tmp; tmp = &((*tmp)->next));
 	*tmp = (List *)malloc(sizeof(List));
 	(*tmp)->next = NULL;
-	snprintf((*tmp)->msgid, MAX_MSGID_LEN -1, "%s", id);
+	snprintf((*tmp)->msgid, MAX_MSGID_LEN, "%s", id);
 	(*tmp)->nr = nr;
 	(*tmp)->isdupe = dupe;
 }
@@ -196,7 +196,7 @@ void ScanNews(void)
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
-    snprintf(sAreas, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open Messages Areas File.");
 	return;
@@ -259,7 +259,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 
     Syslog('m', "do_one_group(%s, %s)", grpname, ftntag);
     IsDoing((char *)"Scan %s", grpname);
-    snprintf(temp, 127, "GROUP %s\r\n", grpname);
+    snprintf(temp, 128, "GROUP %s\r\n", grpname);
     nntp_send(temp);
     resp = nntp_receive();
     retval = atoi(strtok(resp, " "));
@@ -341,11 +341,11 @@ int get_article(char *msgid, char *ftntag)
 	return RETVAL_ERROR;
     }
 
-    snprintf(dpath, PATH_MAX -1, "%s/tmp/scannews.last", getenv("MBSE_ROOT"));
+    snprintf(dpath, PATH_MAX, "%s/tmp/scannews.last", getenv("MBSE_ROOT"));
     dp = fopen(dpath, "w");
 
     IsDoing("Article %d", (news_in + 1));
-    snprintf(cmd, 80, "ARTICLE %s\r\n", msgid);
+    snprintf(cmd, 81, "ARTICLE %s\r\n", msgid);
     fprintf(dp, "ARTICLE %s\n", msgid);
     nntp_send(cmd);
     resp = nntp_receive();
@@ -396,7 +396,7 @@ int get_xover(char *grpname, long startnr, long endnr, List **art)
     unsigned long   crc;
     POverview	    pov;
 
-    snprintf(cmd, 80, "XOVER %ld-%ld\r\n", startnr, endnr);
+    snprintf(cmd, 81, "XOVER %ld-%ld\r\n", startnr, endnr);
     if ((retval = nntp_cmd(cmd, 224))) {
 	switch (retval) {
 	    case 412:	WriteError("No newsgroup selected");

@@ -114,7 +114,7 @@ int toss_onemsg(char *msgname)
 
     net_msgs++;
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/%s", CFG.msgs_path, msgname);
+    snprintf(temp, PATH_MAX, "%s/%s", CFG.msgs_path, msgname);
     
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -315,7 +315,7 @@ int toss_onemsg(char *msgname)
 		(strncasecmp(toUserName, "postmaster", 10) == 0) ||
 		(strncasecmp(toUserName, "coordinator", 11) == 0)) {
 		Syslog('+', "  Readdress from %s to %s", toUserName, CFG.sysop_name);
-		snprintf(toUserName, 36, "%s", CFG.sysop_name);
+		snprintf(toUserName, 37, "%s", CFG.sysop_name);
 		strcpy(Msg.To, toUserName);
 	    }
 	    net_imp++;
@@ -328,19 +328,19 @@ int toss_onemsg(char *msgname)
 	Msg.Netmail = TRUE;
 
 	if (origPoint)
-	    snprintf(Msg.FromAddress, 100, "%d:%d/%d.%d@%s", origZone, origNet, origNode, origPoint, fidonet.domain);
+	    snprintf(Msg.FromAddress, 101, "%d:%d/%d.%d@%s", origZone, origNet, origNode, origPoint, fidonet.domain);
 	else
-	    snprintf(Msg.FromAddress, 100, "%d:%d/%d@%s", origZone, origNet, origNode, fidonet.domain);
+	    snprintf(Msg.FromAddress, 101, "%d:%d/%d@%s", origZone, origNet, origNode, fidonet.domain);
 	if (SearchFidonet(destZone)) {
 	    if (destPoint)
-		snprintf(Msg.ToAddress, 100, "%d:%d/%d.%d@%s", destZone, destNet, destNode, destPoint, fidonet.domain);
+		snprintf(Msg.ToAddress, 101, "%d:%d/%d.%d@%s", destZone, destNet, destNode, destPoint, fidonet.domain);
 	    else
-		snprintf(Msg.ToAddress, 100, "%d:%d/%d@%s", destZone, destNet, destNode, fidonet.domain);
+		snprintf(Msg.ToAddress, 101, "%d:%d/%d@%s", destZone, destNet, destNode, fidonet.domain);
 	} else {
 	    if (destPoint)
-		snprintf(Msg.ToAddress, 100, "%d:%d/%d.%d", destZone, destNet, destNode, destPoint);
+		snprintf(Msg.ToAddress, 101, "%d:%d/%d.%d", destZone, destNet, destNode, destPoint);
 	    else
-		snprintf(Msg.ToAddress, 100, "%d:%d/%d", destZone, destNet, destNode);
+		snprintf(Msg.ToAddress, 101, "%d:%d/%d", destZone, destNet, destNode);
 	}
 	
 	/*
@@ -367,7 +367,7 @@ int toss_onemsg(char *msgname)
 
 	if (!islocal) {
 	    do_scan = TRUE;
-	    snprintf(temp, PATH_MAX -1, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
 	    if ((np = fopen(temp, "a")) != NULL) {
 		fprintf(np, "%s %lu\n", msgs.Base, Msg.Id);
 		fclose(np);
@@ -385,7 +385,7 @@ int toss_onemsg(char *msgname)
 
     if (rc == 0) {
 	net_in++;
-	snprintf(temp, PATH_MAX -1, "%s/%s", CFG.msgs_path, msgname);
+	snprintf(temp, PATH_MAX, "%s/%s", CFG.msgs_path, msgname);
 	if (unlink(temp) != 0)
 	    WriteError("Can't remove %s", temp);
     }

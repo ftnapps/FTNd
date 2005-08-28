@@ -90,7 +90,7 @@ void ReArc(int Area, char *File)
     while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 	if (re_exec(fdb.LName) || re_exec(fdb.Name)) {
 	    Syslog('+', "Will rearc %s", fdb.LName);
-	    snprintf(temp, PATH_MAX -1, "%s/%s", area.Path, fdb.Name);
+	    snprintf(temp, PATH_MAX, "%s/%s", area.Path, fdb.Name);
 	    count++;
 
 	    rc = rearc(temp, area.Archiver, do_quiet);
@@ -105,7 +105,7 @@ void ReArc(int Area, char *File)
 		}
 
                 linkpath = calloc(PATH_MAX, sizeof(char));
-		snprintf(linkpath, PATH_MAX -1, "%s/%s", area.Path, fdb.LName);
+		snprintf(linkpath, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 		unlink(linkpath);
 
 		Syslog('+', "New name %s", temp);
@@ -129,7 +129,7 @@ void ReArc(int Area, char *File)
 		    *p = '\0';
 		else if ((p = strstr(fdb.Name, "HA")))
 		    *p = '\0';
-		snprintf(p, 5, "%s", archiver.name);
+		snprintf(p, 6, "%s", archiver.name);
 		if ((p = strstr(fdb.LName, "arc")))
 		    *p = '\0';
 		else if ((p = strstr(fdb.LName, "lha")))
@@ -154,7 +154,7 @@ void ReArc(int Area, char *File)
 		    *p = '\0';
 		else if ((p = strstr(fdb.LName, "ha")))
 		    *p = '\0';
-		snprintf(p, 5, "%s", tl(archiver.name));
+		snprintf(p, 6, "%s", tl(archiver.name));
 		Syslog('f', "%s %s", fdb.Name, fdb.LName);
 		fdb.Size = file_size(temp);
 		fdb.Crc32 = file_crc(temp, FALSE);
@@ -172,7 +172,7 @@ void ReArc(int Area, char *File)
 		if (strcmp(fdb.Name, mname)) {
 		    Syslog('+', "Converted 8.3 name to %s", mname);
 		    strcpy(fdb.Name, mname);
-		    snprintf(mname, PATH_MAX -1, "%s/%s", area.Path, fdb.Name);
+		    snprintf(mname, PATH_MAX, "%s/%s", area.Path, fdb.Name);
 		    rename(temp, mname);
 		    strcpy(temp, mname);
 		}
@@ -186,7 +186,7 @@ void ReArc(int Area, char *File)
 		/*
 		 * Update symbolic link to long filename
 		 */
-		snprintf(linkpath, PATH_MAX -1, "%s/%s", area.Path, fdb.LName);
+		snprintf(linkpath, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 		symlink(temp, linkpath);
 		free(linkpath);
 		if (strlen(fdb.Magic))

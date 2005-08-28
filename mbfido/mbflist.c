@@ -69,7 +69,7 @@ void ListFileAreas(int Area)
     sTic    = calloc(PATH_MAX, sizeof(char));
     ticarea = calloc(21, sizeof(char));
 
-    snprintf(sAreas, PATH_MAX -1, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	printf("Can't open %s\n", sAreas);
@@ -83,7 +83,7 @@ void ListFileAreas(int Area)
     if (Area) {
 	IsDoing("List area %d", Area);
 
-	snprintf(sTic, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(sTic, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((pTic = fopen(sTic, "r")) == NULL) {
 	    WriteError("Can't open %s", sTic);
 	    printf("Can't open %s\n", sTic);
@@ -121,7 +121,7 @@ void ListFileAreas(int Area)
 	    mbse_colour(LIGHTGRAY, BLACK);
 
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-		snprintf(flags, 3, "---");
+		snprintf(flags, 4, "---");
 		if (fdb.Deleted)
 		    flags[0] = 'D';
 		if (fdb.NoKill)

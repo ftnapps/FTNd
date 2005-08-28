@@ -48,9 +48,9 @@ int VirScan(char *path)
     stdlog = calloc(PATH_MAX, sizeof(char));
     errlog = calloc(PATH_MAX, sizeof(char));
     
-    snprintf(temp,   PATH_MAX -1, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-    snprintf(stdlog, PATH_MAX -1, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
-    snprintf(errlog, PATH_MAX -1, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(temp,   PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
 
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("No virus scanners defined");

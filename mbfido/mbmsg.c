@@ -264,7 +264,7 @@ void DoMsgBase()
 	Syslog('-', "------    ------ ------   ------ ------ ----------------------------------");
     }
 
-    snprintf(sAreas, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
 	die(MBERR_GENERAL);
@@ -331,7 +331,7 @@ void DoMsgBase()
     fclose(pAreas);
 
     if (!do_area) {
-	snprintf(sAreas, PATH_MAX -1, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(sAreas, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	    WriteError("$Can't open %s", sAreas);
 	    die(MBERR_GENERAL);
@@ -341,13 +341,13 @@ void DoMsgBase()
 	while (fread(&usrconfig, usrconfighdr.recsize, 1, pAreas) == 1) {
 	    if (usrconfig.Email && strlen(usrconfig.Name)) {
 		Nopper();
-		snprintf(Name, PATH_MAX -1, "User %s email area: mailbox", usrconfig.Name);
+		snprintf(Name, PATH_MAX, "User %s email area: mailbox", usrconfig.Name);
 		if (!do_quiet) {
 		    mbse_colour(CYAN, BLACK);
 		    printf("\r      .. %-40s", Name);
 		    fflush(stdout);
 		}
-		snprintf(sAreas, PATH_MAX -1, "%s/%s/mailbox", CFG.bbs_usersdir, usrconfig.Name);
+		snprintf(sAreas, PATH_MAX, "%s/%s/mailbox", CFG.bbs_usersdir, usrconfig.Name);
 		are_tot++;
 		processed = FALSE;
 		if (do_kill)
@@ -360,7 +360,7 @@ void DoMsgBase()
 		    LinkArea(sAreas, 0);
 		if (processed)
 		    are_proc++;
-		snprintf(sAreas, PATH_MAX -1, "%s/%s/archive", CFG.bbs_usersdir, usrconfig.Name);
+		snprintf(sAreas, PATH_MAX, "%s/%s/archive", CFG.bbs_usersdir, usrconfig.Name);
 		snprintf(Name, 80, "User %s email area: archive", usrconfig.Name);
 		are_tot++;
 		processed = FALSE;
@@ -373,7 +373,7 @@ void DoMsgBase()
 		    LinkArea(sAreas, 0);
 		if (processed)
 		    are_proc++;
-		snprintf(sAreas, PATH_MAX -1, "%s/%s/trash", CFG.bbs_usersdir, usrconfig.Name);
+		snprintf(sAreas, PATH_MAX, "%s/%s/trash", CFG.bbs_usersdir, usrconfig.Name);
 		snprintf(Name, 80, "User %s email area: trash", usrconfig.Name);
 		are_tot++;
 		processed = FALSE;
