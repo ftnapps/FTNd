@@ -4,7 +4,7 @@
  * Purpose ...............: Zmodem receive
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -617,7 +617,7 @@ long getfree(void)
     char	    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
     
     if (statfs(temp, &sfs) != 0) {
 	WriteError("$cannot statfs \"%s\", assume enough space", temp);

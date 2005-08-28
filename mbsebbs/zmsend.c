@@ -213,7 +213,8 @@ static int sendzfile(char *rn)
     Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned long)st.st_size, rfcdate(st.st_mtime));
     gettimeofday(&starttime, &tz);
 
-    sprintf(txbuf,"%s %lu %lo %o 0 0 0", rn,(unsigned long)st.st_size, (long)st.st_mtime+(st.st_mtime%2), st.st_mode);
+    snprintf(txbuf,MAXBLOCK + 1024,"%s %lu %lo %o 0 0 0", rn,
+	    (unsigned long)st.st_size, (long)st.st_mtime+(st.st_mtime%2), st.st_mode);
     bufl = strlen(txbuf);
     *(strchr(txbuf,' ')) = '\0'; /*hope no blanks in filename*/
 

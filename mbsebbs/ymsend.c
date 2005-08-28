@@ -4,7 +4,7 @@
  * Purpose ...............: Ymodem sender
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -184,7 +184,7 @@ static int wctxpn(char *fname)
 	    
 	if (protocol == ZM_XMODEM) {
 	    if (*fname) {
-		sprintf(name2, "Sending %s, %ld blocks: ", fname, (long) (f.st_size >> 7));
+		snprintf(name2, PATH_MAX +1, "Sending %s, %ld blocks: ", fname, (long) (f.st_size >> 7));
 		PUTSTR(name2);
 		Enter(1);
 	    }
@@ -222,7 +222,7 @@ static int wctxpn(char *fname)
      * int. But i believe sending %lo instead of %o _could_ break compatability
      */
     if ((input_f != stdin) && *fname)
-	sprintf(p, "%lu %lo %o 0 %d %ld", (long) f.st_size, (long) f.st_mtime,
+	snprintf(p, MAXBLOCK + 1024, "%lu %lo %o 0 %d %ld", (long) f.st_size, (long) f.st_mtime,
 	    (unsigned int)((no_unixmode) ? 0 : f.st_mode), Filesleft, Totalleft);
 
     Totalleft -= f.st_size;

@@ -4,7 +4,7 @@
  * Purpose ...............: Display Userlist
  *
  *****************************************************************************
- * Copyright (C) 1997-2004 
+ * Copyright (C) 1997-2005 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ void UserList(char *OpData)
     Enter(1);
     LineCount = 1;
 
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((pUsrConfig = fopen(temp, "rb")) == NULL) {
 	WriteError("UserList: Can't open file: %s", temp);
 	return;
@@ -84,27 +84,27 @@ void UserList(char *OpData)
     while (fread(&u, uhdr.recsize, 1, pUsrConfig) == 1) {
 	if ((strcmp(Name,"")) != 0) {
 	    if (((strcasecmp(OpData, "/H")) == 0) && strlen(u.sHandle))
-		sprintf(User, "%s", u.sHandle);
+		snprintf(User, 36, "%s", u.sHandle);
 	    else if ((strcasecmp(OpData, "/U")) == 0)
-		sprintf(User, "%s", u.Name);
+		snprintf(User, 36, "%s", u.Name);
 	    else
-		sprintf(User, "%s", u.sUserName);
+		snprintf(User, 36, "%s", u.sUserName);
 
 	    if ((strstr(tl(User), tl(Name)) != NULL)) {
 		if ((!u.Hidden) && (!u.Deleted)) {
 		    if ((strcasecmp(OpData, "/H")) == 0) {
 			if ((strcmp(u.sHandle, "") != 0 && *(u.sHandle) != ' '))
-			    sprintf(msg, "%-25s", u.sHandle);
+			    snprintf(msg, 81, "%-25s", u.sHandle);
 			else
-			    sprintf(msg, "%-25s", u.sUserName);
+			    snprintf(msg, 81, "%-25s", u.sUserName);
 		    } else if (strcasecmp(OpData, "/U") == 0) {
-			sprintf(msg, "%-25s", u.Name);
+			snprintf(msg, 81, "%-25s", u.Name);
 		    } else {
-			sprintf(msg, "%-25s", u.sUserName);
+			snprintf(msg, 81, "%-25s", u.sUserName);
 		    }
 		    PUTSTR(msg);
 
-		    sprintf(msg, "%-30s%-14s%-10d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
+		    snprintf(msg, 81, "%-30s%-14s%-10d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
 		    PUTSTR(msg);
 		    iFoundName = TRUE;
 		    LineCount++;
@@ -115,17 +115,17 @@ void UserList(char *OpData)
 	} else if ((!u.Hidden) && (!u.Deleted) && (strlen(u.sUserName) > 0)) {
 	    if ((strcmp(OpData, "/H")) == 0) {
 		if ((strcasecmp(u.sHandle, "") != 0 && *(u.sHandle) != ' '))
-		    sprintf(msg, "%-25s", u.sHandle);
+		    snprintf(msg, 81, "%-25s", u.sHandle);
 		else
-		    sprintf(msg, "%-25s", u.sUserName);
+		    snprintf(msg, 81, "%-25s", u.sUserName);
 	    } else if (strcasecmp(OpData, "/U") == 0) {
-		sprintf(msg, "%-25s", u.Name);
+		snprintf(msg, 81, "%-25s", u.Name);
 	    } else {
-		sprintf(msg, "%-25s", u.sUserName);
+		snprintf(msg, 81, "%-25s", u.sUserName);
 	    }
 	    PUTSTR(msg);
 	    
-	    sprintf(msg, "%-30s%-14s%-10d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
+	    snprintf(msg, 81, "%-30s%-14s%-10d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
 	    PUTSTR(msg);
 	    iFoundName = TRUE;
 	    LineCount++;

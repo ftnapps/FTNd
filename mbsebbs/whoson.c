@@ -4,7 +4,7 @@
  * Purpose ...............: Who's online functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -66,12 +66,12 @@ void WhosOn(char *OpData)
     Enter(1);
     colour(WHITE, BLACK);
     /* Callers On-Line to */
-    sprintf(Heading, "%s%s", (char *) Language(414), CFG.bbs_name);
+    snprintf(Heading, 81, "%s%s", (char *) Language(414), CFG.bbs_name);
     Center(Heading);
     x = strlen(Heading);
 
     for(i = 0; i < x; i++)
-	sprintf(Underline, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
+	snprintf(Underline, 81, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
     colour(LIGHTRED, BLACK);
     Center(Underline);
     Enter(1);
@@ -84,9 +84,9 @@ void WhosOn(char *OpData)
 
     while (TRUE) {
 	if (Start)
-		sprintf(buf, "GMON:1,1;");
+		snprintf(buf, 128, "GMON:1,1;");
 	else
-		sprintf(buf, "GMON:1,0;");
+		snprintf(buf, 128, "GMON:1,0;");
 	Start = FALSE;
 	if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
@@ -107,7 +107,7 @@ void WhosOn(char *OpData)
 		     * want the handle or real name instead.
 		     */
 		    temp = calloc(PATH_MAX, sizeof(char));
-		    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp,"rb")) != NULL) {
 			fread(&ushdr, sizeof(ushdr), 1, fp);
 
@@ -127,11 +127,11 @@ void WhosOn(char *OpData)
 		    }
 		    free(temp);
 		}
-		sprintf(msg, "%-30s", fullname);
+		snprintf(msg, 81, "%-30s", fullname);
 		pout(LIGHTCYAN, BLACK, msg);
 		free(fullname);
 
-		sprintf(msg, "%-9s", device);
+		snprintf(msg, 81, "%-9s", device);
 		pout(LIGHTBLUE, BLACK, msg);
 		free(device);
 
@@ -141,37 +141,37 @@ void WhosOn(char *OpData)
 
 		if (strstr(isdoing, "Browsing"))
 		    /* Browseng */
-		    sprintf(msg, "%-15s", (char *) Language(418));
+		    snprintf(msg, 81, "%-15s", (char *) Language(418));
 		else if (strstr(isdoing, "Downloading"))
 		    /* Downloading */
-		    sprintf(msg, "%-15s", (char *) Language(419));
+		    snprintf(msg, 81, "%-15s", (char *) Language(419));
 		else if (strstr(isdoing, "Uploading"))
 		    /* Uploading */
-		    sprintf(msg, "%-15s", (char *) Language(420));
+		    snprintf(msg, 81, "%-15s", (char *) Language(420));
 		else if (strstr(isdoing, "Read"))
 		    /* Msg Section */
-		    sprintf(msg, "%-15s", (char *) Language(421));
+		    snprintf(msg, 81, "%-15s", (char *) Language(421));
 		else if (strstr(isdoing, "External"))
 		    /* External Door */
-		    sprintf(msg, "%-15s", (char *) Language(422));
+		    snprintf(msg, 81, "%-15s", (char *) Language(422));
 		else if (strstr(isdoing, "Chat"))
 		    /* Chatting */
-		    sprintf(msg, "%-15s", (char *) Language(423));
+		    snprintf(msg, 81, "%-15s", (char *) Language(423));
 		else if (strstr(isdoing, "Files"))
 		    /* Listing Files */
-		    sprintf(msg, "%-15s", (char *) Language(424));
+		    snprintf(msg, 81, "%-15s", (char *) Language(424));
 		else if (strstr(isdoing, "Time"))
 		    /* Banking Door */
-		    sprintf(msg, "%-15s", (char *) Language(426));
+		    snprintf(msg, 81, "%-15s", (char *) Language(426));
 		else if (strstr(isdoing, "Safe"))
 		    /* Safe Door */
-		    sprintf(msg, "%-15s", (char *) Language(427));
+		    snprintf(msg, 81, "%-15s", (char *) Language(427));
 		else if (strstr(isdoing, "Whoson"))
 		    /* WhosOn List */
-		    sprintf(msg, "%-15s", (char *) Language(428));
+		    snprintf(msg, 81, "%-15s", (char *) Language(428));
 		else if (strstr(isdoing, "Offline"))
 		    /* Offline Reader */
-		    sprintf(msg, "%-15s", (char *) Language(429));
+		    snprintf(msg, 81, "%-15s", (char *) Language(429));
 		else {
 		    /* 
 		     * This is default when nothing matches, with doors this
@@ -179,11 +179,11 @@ void WhosOn(char *OpData)
 		     */
 		    if (strlen(isdoing) > 15)
 			isdoing[15] = '\0';
-		    sprintf(msg, "%-15s", isdoing);
+		    snprintf(msg, 81, "%-15s", isdoing);
 		}
 		pout(WHITE, BLACK, msg);
 
-		sprintf(msg, "%-25s", location);
+		snprintf(msg, 81, "%-25s", location);
 		pout(LIGHTRED, BLACK, msg);
 		Enter(1);
 		free(location);
@@ -292,17 +292,17 @@ void SendOnlineMsg(char *OpData)
      * users unix name to send to mbtask.
      */
     if ((strcasecmp(OpData, "/H") == 0) || (strlen(OpData) == 0)) {
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "rb")) != NULL) {
 	    fread(&ushdr, sizeof(ushdr), 1, fp);
 	    Syslog('-', "Using translate");
 
 	    while (fread(&us, ushdr.recsize, 1, fp) == 1) {
 		if ((strcasecmp(OpData, "/H") == 0) && strlen(us.sHandle) && (strcasecmp(User, us.sHandle) == 0)) {
-		    sprintf(User, "%s", us.Name);
+		    snprintf(User, 36, "%s", us.Name);
 		    break;
 		} else if ((strlen(OpData) == 0) && (strcasecmp(User, us.sUserName) == 0)) {
-		    sprintf(User, "%s", us.Name);
+		    snprintf(User, 36, "%s", us.Name);
 		    break;
 		}
 	    }
@@ -320,11 +320,11 @@ void SendOnlineMsg(char *OpData)
     if ((strcmp(String, "")) != 0) {
 	buf[0] = '\0';
 	if ((strcasecmp(OpData, "/H") == 0) && strlen(exitinfo.sHandle))
-	    sprintf(buf, "CSPM:3,%s,%s,%s;", exitinfo.sHandle, User, String);
+	    snprintf(buf, 128, "CSPM:3,%s,%s,%s;", exitinfo.sHandle, User, String);
 	else if (strcasecmp(OpData, "/U") == 0)
-	    sprintf(buf, "CSPM:3,%s,%s,%s;", exitinfo.Name, User, String);
+	    snprintf(buf, 128, "CSPM:3,%s,%s,%s;", exitinfo.Name, User, String);
 	else
-	    sprintf(buf, "CSPM:3,%s,%s,%s;", exitinfo.sUserName, User, String);
+	    snprintf(buf, 128, "CSPM:3,%s,%s,%s;", exitinfo.sUserName, User, String);
 
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());
@@ -332,7 +332,7 @@ void SendOnlineMsg(char *OpData)
 	    if (strncmp(buf, "100:1,3;", 8) == 0) {
 		Enter(1);
 		/* Sorry, there is no user on */
-		sprintf(temp, "%s %s", (char *) Language(431), User);
+		snprintf(temp, PATH_MAX, "%s %s", (char *) Language(431), User);
 		PUTSTR(temp);
 		Enter(1);
 	    }
@@ -344,7 +344,7 @@ void SendOnlineMsg(char *OpData)
 	    if (strncmp(buf, "100:1,1;", 8) == 0) {
 		Enter(1);
 		/* doesn't wish to be disturbed */
-		sprintf(temp, "%s %s", User, (char *) Language(432));
+		snprintf(temp, PATH_MAX, "%s %s", User, (char *) Language(432));
 		pout(LIGHTRED, BLACK, temp);
 		Enter(1);
 	    }
