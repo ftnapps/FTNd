@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS database library header
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -51,10 +51,10 @@ void	CloseDupes(void);
 /*
  * Fidonet database
  */
-struct	_fidonethdr	fidonethdr;	/* Header record		    */
-struct	_fidonet	fidonet;	/* Fidonet datarecord		    */
-int			fidonet_cnt;	/* Fidonet records in database	    */
-char			fidonet_fil[81];/* Fidonet database filename	    */
+struct _fidonethdr  fidonethdr;		    /* Header record		    */
+struct _fidonet	    fidonet;		    /* Fidonet datarecord	    */
+int		    fidonet_cnt;	    /* Fidonet records in database  */
+char		    fidonet_fil[PATH_MAX];  /* Fidonet database filename    */
 
 int	InitFidonet(void);		/* Initialize fidonet database	    */
 int	TestFidonet(unsigned short);	/* Test if zone is in memory	    */
@@ -102,10 +102,10 @@ void	UpdateTic(void);		/* Update current messages record   */
 /*
  * User records
  */
-struct	userhdr		usrhdr;		/* Header record		    */
-struct	userrec		usr;		/* User datarecord		    */
-int			usr_cnt;	/* User records in database	    */
-char			usr_fil[81];	/* User database filename	    */
+struct	userhdr	    usrhdr;		/* Header record		    */
+struct	userrec	    usr;		/* User datarecord		    */
+int		    usr_cnt;		/* User records in database	    */
+char		    usr_fil[PATH_MAX];	/* User database filename	    */
 
 int	InitUser(void);			/* Initialize user database	    */
 int	TestUser(char *);		/* Test if user is in memory	    */

@@ -4,7 +4,7 @@
  * Purpose ...............: Noderecord Access
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -50,7 +50,7 @@ int InitNode(void)
 	memset(&nodes, 0, sizeof(nodes));
 	LoadConfig();
 
-	sprintf(nodes_fil, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	snprintf(nodes_fil, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(nodes_fil, "r")) == NULL)
 		return FALSE;
 

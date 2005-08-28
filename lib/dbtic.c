@@ -4,7 +4,7 @@
  * Purpose ...............: Tic areas record Access
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,7 +54,7 @@ int InitTic(void)
 	LoadConfig();
 	sysstart = -1;
 
-	sprintf(tic_fil, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(tic_fil, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(tic_fil, "r")) == NULL)
 		return FALSE;
 
@@ -63,7 +63,7 @@ int InitTic(void)
 	tic_cnt = (ftell(fil) - tichdr.hdrsize) / (tichdr.recsize + tichdr.syssize);
 	fclose(fil);
 
-	sprintf(tgrp_fil, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(tgrp_fil, PATH_MAX -1, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	return TRUE;
 }
 

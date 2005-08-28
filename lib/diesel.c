@@ -4,7 +4,7 @@
  * Purpose ...............: TURBODIESEL Macro language
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -441,7 +441,7 @@ static void mledreal(double r, char *edbuf)
 {
     int sprec;
 
-    V sprintf(edbuf, "%.12f", r);
+    V snprintf(edbuf, MAXSTR -1, "%.12f", r);
     if ((!strchr(edbuf, 'E')) && strchr(edbuf, '.')) {
 	/* Trim redundant trailing zeroes off the number. */
 	for (sprec = strlen(edbuf) - 1; sprec > 0; sprec--) {
@@ -495,7 +495,7 @@ static int rarg(char *argstr, double *realres)
 #define Dsarg(s)   char s[MAXSTR]     /* Declare string argument */
 #define Sarg(v,n)  if (diesel(argv[(n)], (v)) != 0) return FALSE
 
-#define Rint(n)     V sprintf(output, "%d", (n)); return TRUE/* Return int */
+#define Rint(n)     V snprintf(output, MAXSTR -1, "%d", (n)); return TRUE/* Return int */
 #define Rreal(n)    mledreal((n), output); return TRUE	     /* Return double */
 #define Rstr(s)     V strcpy(output, (s)); return TRUE	     /* Return str */
 
@@ -910,7 +910,7 @@ Mfunc(f_edtime)
 	    for (i = 0; i < ELEMENTS(pictab); i++) {
 		if (strncasecmp(pp, pictab[i].pname,
 				strlen(pictab[i].pname)) == 0) {
-		    V sprintf(output + strlen(output), pictab[i].pfmt,
+		    V snprintf(output + strlen(output), MAXSTR -1, pictab[i].pfmt,
 				*pictab[i].pitem);
 		    pp += strlen(pictab[i].pname);
 		    foundit = TRUE;
@@ -1321,7 +1321,7 @@ Mfunc(f_time)
 {
     ArgCount(0, 0);
 
-    V sprintf(output, "%ld", (long) time((time_t *) NULL)); 
+    V snprintf(output, MAXSTR -1, "%ld", (long) time((time_t *) NULL)); 
     return TRUE;
 }
 #endif /* UNIXTENSIONS */
@@ -1627,7 +1627,7 @@ static int macrovalue(int nargs, char *args, char *output)
 	       message, make up a general-purpose message here. */
 
 	    if (mstat == FALSE) {
-		V sprintf(output, " @(%s,%c%c) ", macname, '?', '?');
+		V snprintf(output, MAXSTR -1, " @(%s,%c%c) ", macname, '?', '?');
 	    }
 	    if (mstat != TRUE) {
 #ifdef DIESEL_TRACE
@@ -1645,7 +1645,7 @@ static int macrovalue(int nargs, char *args, char *output)
 	    return TRUE;
 	}
     }
-    V sprintf(output, " @(%s)?? ", macname);
+    V snprintf(output, MAXSTR -1, " @(%s)?? ", macname);
 #ifdef DIESEL_TRACE
     if (tracing) {
 	 V printf("Err:  %s\n", output);
@@ -1673,7 +1673,7 @@ static int macroeval(char **in, char **out)
 #ifdef ECHOMAC
 	*op++ = ' ';
 	*op++ = '<';
-	V sprintf(op, "(%d)", mstat);
+	V snprintf(op, MAXSTR -1, "(%d)", mstat);
 	op += strlen(op);
 	ma = margs;
 	while (mstat-- > 0) {
@@ -1779,7 +1779,7 @@ main()
 
 	/* Cheap way to be insensitive to EOL conventions. */
 
-	sprintf(out,"%s",ParseMacro(in,&err));
+	snprintf(out, MAXSTR, "%s",ParseMacro(in,&err));
 	if (err) {
 	    V printf("=> %s\n", in);
 	    V printf("---");

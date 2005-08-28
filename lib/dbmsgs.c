@@ -4,7 +4,7 @@
  * Purpose ...............: Message areas record Access
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ int InitMsgs(void)
 	LoadConfig();
 	sysstart = -1;
 
-	sprintf(msgs_fil, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(msgs_fil, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(msgs_fil, "r")) == NULL)
 		return FALSE;
 
@@ -62,7 +62,7 @@ int InitMsgs(void)
 	msgs_cnt = (ftell(fil) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize);
 	fclose(fil);
 
-	sprintf(mgrp_fil, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(mgrp_fil, PATH_MAX -1, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	return TRUE;
 }
 

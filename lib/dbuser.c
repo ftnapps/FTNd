@@ -43,7 +43,7 @@ int InitUser(void)
 	memset(&usr, 0, sizeof(usr));
 	LoadConfig();
 
-	sprintf(usr_fil, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(usr_fil, PATH_MAX -1, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(usr_fil, "r")) == NULL)
 		return FALSE;
 

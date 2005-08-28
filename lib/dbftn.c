@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonetrecord Access
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -43,7 +43,7 @@ int InitFidonet(void)
 	memset(&fidonet, 0, sizeof(fidonet));
 	LoadConfig();
 
-	sprintf(fidonet_fil, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+	snprintf(fidonet_fil, PATH_MAX -1, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(fidonet_fil, "r")) == NULL)
 		return FALSE;
 
