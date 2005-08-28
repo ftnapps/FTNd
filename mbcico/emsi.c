@@ -523,7 +523,7 @@ SM_STATE(senddata)
     PUTCHAR('*');
     PUTCHAR('*');
     PUTSTR(p);
-    snprintf(trailer, 7, "%04X\r\021", crc16xmodem(p, strlen(p)));
+    snprintf(trailer, 8, "%04X\r\021", crc16xmodem(p, strlen(p)));
     PUTSTR(trailer);
     Syslog('i', "TXEMSI: send **%s%04X", p, crc16xmodem(p, strlen(p)));
     free(p);

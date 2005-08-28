@@ -443,7 +443,7 @@ int IsZMH()
 {
     static  char buf[81];
 
-    snprintf(buf, 80, "SBBS:0;");
+    snprintf(buf, 81, "SBBS:0;");
     if (socket_send(buf) == 0) {
 	strncpy(buf, socket_receive(), 80);
 	if (strncmp(buf, "100:2,2", 7) == 0)

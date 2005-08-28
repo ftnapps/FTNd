@@ -59,7 +59,7 @@ int lock(char *line)
 	else 
 		p++;
 	mypid = getpid();
-	snprintf(tmpname,255,"%s%d",LCKTMP,mypid);
+	snprintf(tmpname,256,"%s%d",LCKTMP,mypid);
 	if ((f = fopen(tmpname,"w")) == NULL) {
 		WriteError("$ulock: can't create %s",tmpname);
 		return(-1);
@@ -68,7 +68,7 @@ int lock(char *line)
 	fprintf(f,"%10d\n",mypid);
 	fclose(f);
 	chmod(tmpname,0444);
-	snprintf(lckname,255,"%s%s",LCKPREFIX,p);
+	snprintf(lckname,256,"%s%s",LCKPREFIX,p);
 	p=lckname+strlen(lckname)-1;
 	*p=tolower(*p);
 
@@ -116,7 +116,7 @@ int ulock(char *line)
 	else 
 		p++;
 	mypid=getpid();
-	snprintf(lckname,255,"%s%s",LCKPREFIX,p);
+	snprintf(lckname,256,"%s%s",LCKPREFIX,p);
 	p=lckname+strlen(lckname)-1;
 	*p=tolower(*p);
 

@@ -523,7 +523,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 				}
 				fwrite(&zeroes, 1, 3, fp);
 				fclose(fp);
-				snprintf(remname, 31, "%08lX.PKT", (unsigned long)sequencer());
+				snprintf(remname, 32, "%08lX.PKT", (unsigned long)sequencer());
 
 				add_list(&fl, tmptx, remname, KFS, 0L, NULL, 0);
 				fmsg.from->name = svname;
@@ -622,7 +622,7 @@ static void attach_report(file_list **fl)
 		fwrite(report_text, 1, strlen(report_text), fp);
 		fwrite(&zeroes, 1, 3, fp);
 		fclose(fp);
-		snprintf(remname, 13, "%08lX.PKT", (unsigned long)sequencer());
+		snprintf(remname, 14, "%08lX.PKT", (unsigned long)sequencer());
 		add_list(fl, tmpfn, remname, KFS, 0L, NULL, 0);
 		fmsg.from->name = svname;
 	} else {
@@ -643,13 +643,13 @@ static void add_report(char *format, ...)
 	char	buf[1024];
 
 	if (report_text == NULL) {
-		snprintf(buf, 1023,
+		snprintf(buf, 1024,
 "                    Status of file request\r\
                     ======================\r\r\
                     Received By: %s\r\
 ",
 			ascfnode(bestaka_s(remote->addr),0x1f));
-		snprintf(buf+strlen(buf), 1023 - strlen(buf),
+		snprintf(buf+strlen(buf), 1024 - strlen(buf),
 "                           From: %s\r\
                              On: %s\r\r\
 ",
@@ -659,7 +659,7 @@ static void add_report(char *format, ...)
 	}
 
 	va_start(va_ptr, format);
-	vsnprintf(buf, 1023, format, va_ptr);
+	vsnprintf(buf, 1024, format, va_ptr);
 	va_end(va_ptr);
 	strcat(buf,"\r");
 	report_text = xstrcat(report_text,buf);

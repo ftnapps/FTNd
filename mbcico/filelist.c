@@ -53,7 +53,7 @@ static char *tmpkname(void)
 {
     static char buf[16];
 
-    snprintf(buf,15,"%08lx.pkt", sequencer());
+    snprintf(buf,16,"%08lx.pkt", sequencer());
     return buf;
 }
 
@@ -360,7 +360,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	     */
 	    nm = reqname(tmpa->addr);
 	    if ((nm != NULL) && (stat(nm, &stbuf) == 0)) {
-		snprintf(tmpreq, 12, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
+		snprintf(tmpreq, 13, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
 		add_list(&st, nm, tmpreq, DSF, 0L, NULL, 1);
 		made_request = 1;
 	    }
@@ -515,7 +515,7 @@ file_list *create_freqlist(fa_list *al)
     for (tmpa = al; tmpa; tmpa = tmpa->next) {
 	nm = reqname(tmpa->addr);
 	if ((nm != NULL) && (stat(nm, &stbuf) == 0)) {
-	    snprintf(tmpreq, 12, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
+	    snprintf(tmpreq, 13, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
 	    add_list(&st, nm, tmpreq, DSF, 0L, NULL, 1);
 	    made_request = 1;
 	}
@@ -668,10 +668,10 @@ char *transfertime(struct timeval start, struct timeval end, long bytes, int sen
     if (!elapsed)
 	elapsed = 1L;
     if (bytes > 1000000)
-	snprintf(resp, 80, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
+	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
 	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes / elapsed) * 1000) / 1024);
     else
-	snprintf(resp, 80, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
+	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
 	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes * 1000) / elapsed) / 1024);   
     return resp;
 }
@@ -682,7 +682,7 @@ char *compress_stat(long original, long saved)
 {
     static char	    resp[81];
 
-    snprintf(resp, 80, "compressed %ld bytes, compression %0.1f%%", saved, ((saved * 100.0) / original));
+    snprintf(resp, 81, "compressed %ld bytes, compression %0.1f%%", saved, ((saved * 100.0) / original));
     return resp;
 }
 

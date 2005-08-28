@@ -66,7 +66,7 @@ char *date(time_t t)
 	else 
 		now = time(NULL);
 	ptm=*localtime(&now);
-	snprintf(buf, 19, "%s %02d %02d:%02d:%02d", mon[ptm.tm_mon],ptm.tm_mday,ptm.tm_hour,ptm.tm_min,ptm.tm_sec);
+	snprintf(buf, 20, "%s %02d %02d:%02d:%02d", mon[ptm.tm_mon],ptm.tm_mday,ptm.tm_hour,ptm.tm_min,ptm.tm_sec);
 	return(buf);
 }
 
@@ -76,7 +76,7 @@ int IsZMH()
 {
 	static	char buf[81];
 
-	snprintf(buf, 80, "SBBS:0;");
+	snprintf(buf, 81, "SBBS:0;");
 	if (socket_send(buf) == 0) {
 		strncpy(buf, socket_receive(), 80);
 		if (strncmp(buf, "100:2,2", 7) == 0)

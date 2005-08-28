@@ -368,7 +368,7 @@ SM_START(recv_packet)
 
 SM_STATE(recv_packet)
 
-    snprintf(recvpktname,15, "%08lx.pkt",(unsigned long)sequencer());
+    snprintf(recvpktname,16, "%08lx.pkt",(unsigned long)sequencer());
     if ((rc = xmrecv(recvpktname)) == 1) {
 	SM_SUCCESS;
     } else if (rc == 0) {
@@ -443,7 +443,7 @@ SM_STATE(scan_packet)
 		history.aka.node  = remote->addr->node;
 		history.aka.point = remote->addr->point;
 		if (remote->addr->domain && strlen(remote->addr->domain))
-		    snprintf(history.aka.domain, 12, "%s", printable(remote->addr->domain, 0));
+		    snprintf(history.aka.domain, 13, "%s", printable(remote->addr->domain, 0));
 	
 		if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
 		    Syslog('+', "remote is a listed system");
@@ -452,8 +452,8 @@ SM_STATE(scan_packet)
 		    strncpy(history.sysop, nlent->sysop, 35);
 		    UserCity(mypid, nlent->sysop, nlent->location);
 		} else {
-		    snprintf(history.system_name, 35, "Unknown");
-		    snprintf(history.location, 35, "Somewhere");
+		    snprintf(history.system_name, 36, "Unknown");
+		    snprintf(history.location, 36, "Somewhere");
 		}
 
 		if (nlent) 

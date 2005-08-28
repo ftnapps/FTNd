@@ -210,7 +210,7 @@ int scanout(int (*fn)(faddr *, char, int, char *))
 					 */
 					if (fidonet.zone[j]) {
 						if (j) {
-							snprintf(fext, 4, ".%03x", fidonet.zone[j]);
+							snprintf(fext, 5, ".%03x", fidonet.zone[j]);
 							p = xstrcat(p, fext);
 						}
 						Syslog('o', "Zone %d Dir %s", fidonet.zone[j], p);

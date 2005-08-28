@@ -147,7 +147,7 @@ int call(faddr *addr)
     history.aka.node  = addr->node;
     history.aka.point = addr->point;
     if (addr->domain && strlen(addr->domain))
-	snprintf(history.aka.domain, 12, "%s", printable(addr->domain, 0));
+	snprintf(history.aka.domain, 13, "%s", printable(addr->domain, 0));
 
     /*
      * Extract the protocol from the URL.

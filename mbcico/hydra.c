@@ -765,7 +765,7 @@ int hydra_batch(int role, file_list *to_send)
 		    outbuf = txbuf;
 
 		    /* Application ID string */
-		    outbuf += snprintf(outbuf, H_ZIPBUFLEN -1, "%08lx%s,%s", H_REVSTAMP, "mbcico", VERSION) + 1;
+		    outbuf += snprintf(outbuf, H_ZIPBUFLEN, "%08lx%s,%s", H_REVSTAMP, "mbcico", VERSION) + 1;
 
 		    /* Supported options */
 		    outbuf += put_flags(outbuf, HCAN_OPTIONS) + 1;
@@ -776,7 +776,7 @@ int hydra_batch(int role, file_list *to_send)
 		    Syslog('h', "Hydra: desired options  : %08lx", HDEF_OPTIONS & HCAN_OPTIONS & ~HUNN_OPTIONS);
 
 		    /* Desired transmitter and receiver window size */
-		    outbuf += snprintf(outbuf, H_ZIPBUFLEN -1, "%08lx%08lx", H_TXWINDOW, H_RXWINDOW) + 1;
+		    outbuf += snprintf(outbuf, H_ZIPBUFLEN, "%08lx%08lx", H_TXWINDOW, H_RXWINDOW) + 1;
 
 		    /* Packet prefix string */
 		    *outbuf++ = 0;
@@ -901,7 +901,7 @@ int hydra_batch(int role, file_list *to_send)
 		    break;
 		} else {
 		    if (to_send) {
-			txlen = snprintf(txbuf, H_ZIPBUFLEN -1, "%08lx%08lx%08lx%08lx%08lx",
+			txlen = snprintf(txbuf, H_ZIPBUFLEN, "%08lx%08lx%08lx%08lx%08lx",
 					(long)mtime2sl(txstat.st_mtime+(txstat.st_mtime%2)),
 					(long)(txstat.st_size), 0UL, 0UL, 0UL);
 
