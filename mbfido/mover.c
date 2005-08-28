@@ -4,7 +4,7 @@
  * Purpose ...............: Bad file mover
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -43,8 +43,8 @@ void mover(char *fn)
     From = calloc(PATH_MAX, sizeof(char));
     To   = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(From, "%s/%s", TIC.Inbound, fn);
-    sprintf(To,   "%s/%s", CFG.badtic, fn);
+    snprintf(From, PATH_MAX -1, "%s/%s", TIC.Inbound, fn);
+    snprintf(To,   PATH_MAX -1, "%s/%s", CFG.badtic, fn);
     Syslog('!', "Moving %s to %s", From, To);
 
     if (mkdirs(To, 0770)) {

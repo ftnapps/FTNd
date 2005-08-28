@@ -106,7 +106,7 @@ void WriteMailGroups(FILE *fp, faddr *f)
     fgetpos(fi,&fileptr);
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -165,7 +165,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
     fgetpos(fi,&fileptr);
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -312,14 +312,14 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
     Orig.net   = From->net;
     Orig.node  = From->node;
     Orig.point = From->point;
-    sprintf(Orig.domain, "%s", From->domain);
+    snprintf(Orig.domain, 12, "%s", From->domain);
 
     memset(&Dest, 0, sizeof(Dest));
     Dest.zone  = t->zone;
     Dest.net   = t->net;
     Dest.node  = t->node;
     Dest.point = t->point;
-    sprintf(Dest.domain, "%s", t->domain);
+    snprintf(Dest.domain, 12, "%s", t->domain);
 
     if (!SearchNode(Dest)) {
 	Syslog('+', "Can't find node %s in setup", aka2str(Dest));
@@ -365,13 +365,13 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
 
     memset(&ext, 0, sizeof(ext));
     if (nodes.PackNetmail)
-	sprintf(ext, (char *)"qqq");
+	snprintf(ext, 3, (char *)"qqq");
     else if (nodes.Crash)
-	sprintf(ext, (char *)"ccc");
+	snprintf(ext, 3, (char *)"ccc");
     else if (nodes.Hold)
-	sprintf(ext, (char *)"hhh");
+	snprintf(ext, 3, (char *)"hhh");
     else
-	sprintf(ext, (char *)"nnn");
+	snprintf(ext, 3, (char *)"nnn");
 
     if ((qp = OpenPkt(Orig, Dest, (char *)ext)) == NULL)
 	return 4;
@@ -437,7 +437,7 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
 
 
 
-void GetRpSubject(const char *report, char* subject)
+void GetRpSubject(const char *report, char* subject, size_t size)
 {
     FILE    *fi;
     char    *temp;
@@ -454,7 +454,7 @@ void GetRpSubject(const char *report, char* subject)
     res=diesel((char *)"@(getvar,subject)",temp);
     
     if(res==0)
-    	sprintf(subject,"%s",temp);
+    	snprintf(subject,size,"%s",temp);
     free(temp);
 }
 
@@ -542,7 +542,7 @@ int Areas(void)
     temp = calloc(PATH_MAX, sizeof(char));
     buf  = calloc(4097, sizeof(char));
 
-    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("Can't open %s", temp);
     } else {
@@ -557,7 +557,7 @@ int Areas(void)
 		    fflush(stdout);
 		}
 		Syslog('+', "Checking mail group %s, file %s", mgroup.Name, mgroup.AreaFile);
-		sprintf(temp, "%s/%s", CFG.alists_path, mgroup.AreaFile);
+		snprintf(temp, PATH_MAX -1, "%s/%s", CFG.alists_path, mgroup.AreaFile);
 		if ((ap = fopen(temp, "r")) == NULL) {
 		    WriteError("Can't open %s", temp);
 		} else {
@@ -577,7 +577,7 @@ int Areas(void)
 			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
-		    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp, "r")) == NULL) {
 			WriteError("Can't open %s", temp);
 			tidy_arealist(&alist);
@@ -652,7 +652,7 @@ int Areas(void)
 		     * the area is set to read-only and all links are disconnected.
 		     * If the area is empty, it is removed from the setup.
 		     */
-		    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp, "r+")) == NULL) {
 			WriteError("Can't open %s for r/w");
 		    } else {
@@ -666,12 +666,12 @@ int Areas(void)
 				while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 				    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name)) {
 					fseek(fp, - msgshdr.recsize, SEEK_CUR);
-					sprintf(temp, "%s.jhr", msgs.Base);
+					snprintf(temp, PATH_MAX -1, "%s.jhr", msgs.Base);
 					if (strlen(msgs.Base) && (file_size(temp) != 1024)) {
 					    Mgrlog("Marking echo %s, group %s, area %d read-only", msgs.Tag, mgroup.Name,
 						    ((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1);
 					    msgs.MsgKinds = RONLY;          // Area read-only
-					    sprintf(msgs.Group, "DELETED"); // Make groupname invalid
+					    snprintf(msgs.Group, 12, "DELETED"); // Make groupname invalid
 					} else {
 					    Mgrlog("Removing empty echo %s, group %s, area %d", msgs.Tag, mgroup.Name,
 						((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1);
@@ -740,7 +740,7 @@ int Areas(void)
 	fclose(gp);
     }
     
-    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("Can't open %s", temp);
     } else {
@@ -755,7 +755,7 @@ int Areas(void)
 		    fflush(stdout);
 		}
 		Syslog('+', "Checking tic group %s, file %s", fgroup.Name, fgroup.AreaFile);
-		sprintf(temp, "%s/%s", CFG.alists_path, fgroup.AreaFile);
+		snprintf(temp, PATH_MAX -1, "%s/%s", CFG.alists_path, fgroup.AreaFile);
 		if ((ap = fopen(temp, "r")) == NULL) {
 		    WriteError("Can't open %s", temp);
 		} else {
@@ -819,7 +819,7 @@ int Areas(void)
 			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
-		    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp, "r")) == NULL) {
 			WriteError("Can't open %s", temp);
 			tidy_arealist(&alist);
@@ -896,7 +896,7 @@ int Areas(void)
 		     * still warned about that by the "mbfile check" command.
 		     */
 		    Found = FALSE;
-                    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+                    snprintf(temp, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp, "r+")) == NULL) { 
 			WriteError("Can't open %s for r/w");
 		    } else {
@@ -938,7 +938,7 @@ int Areas(void)
 			/*
 			 * Purge marked records
 			 */
-			sprintf(buf, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+			snprintf(buf, 4096, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 			if ((fp = fopen(temp, "r")) == NULL) {
 			    WriteError("Can't open %s", temp);
 			} else if ((ap = fopen(buf, "w")) == NULL) {

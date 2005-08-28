@@ -72,7 +72,7 @@ void F_Help(faddr *t, char *replyid)
     Mgrlog("FileMgr: Help");
     subject=calloc(255,sizeof(char));
     sprintf(subject,"FileMgr help");
-    GetRpSubject("filemgr.help",subject);
+    GetRpSubject("filemgr.help",subject,254);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
 	if ((fi = OpenMacro("filemgr.help", nodes.Language, FALSE)) != NULL ){
@@ -122,22 +122,22 @@ void F_List(faddr *t, char *replyid, int Notify)
     switch (Notify) {
 	case LIST_NOTIFY:   Mgrlog("FileMgr: Notify to %s", ascfnode(t, 0xff));
 			    sprintf(subject,"FileMgr Notify");
-			    GetRpSubject("filemgr.notify.list",subject);
+			    GetRpSubject("filemgr.notify.list",subject,254);
 			    fi=OpenMacro("filemgr.notify.list", nodes.Language, FALSE);
 			    break;
 	case LIST_LIST:	    Mgrlog("FileMgr: List");
 			    sprintf(subject,"FileMgr list");
-			    GetRpSubject("filemgr.list",subject);
+			    GetRpSubject("filemgr.list",subject,254);
 			    fi=OpenMacro("filemgr.list", nodes.Language, FALSE);
 			    break;
 	case LIST_QUERY:    Mgrlog("FileMgr: Query");
 			    sprintf(subject,"FileMgr Query");
-			    GetRpSubject("filemgr.query",subject);
+			    GetRpSubject("filemgr.query",subject,254);
 			    fi=OpenMacro("filemgr.query", nodes.Language, FALSE);
 			    break;
 	default:	    Mgrlog("FileMgr: Unlinked");
 			    sprintf(subject,"FileMgr: Unlinked areas");
-			    GetRpSubject("filemgr.unlink",subject);
+			    GetRpSubject("filemgr.unlink",subject,254);
 			    fi=OpenMacro("filemgr.unlink", nodes.Language, FALSE);
 			    break;
     }
@@ -318,7 +318,7 @@ void F_Status(faddr *t, char *replyid)
     MacroVars("k", "d", nodes.F_KbRcvd.month[i]);
     MacroVars("l", "d", nodes.F_KbRcvd.total);
     MacroVars("s", "s", nodes.Sysop);
-    GetRpSubject("filemgr.status",subject);
+    GetRpSubject("filemgr.status",subject,254);
 
     if ((fi = OpenMacro("filemgr.status", nodes.Language, FALSE)) == NULL ) {
 	free(subject);
@@ -945,7 +945,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
         MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 	MacroVars("RABCDE", "ssssss","","","","","","");
 	sprintf(subject,"Your FileMgr request");
-	GetRpSubject("filemgr.responses",subject);
+	GetRpSubject("filemgr.responses",subject,72);
 	if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
 	    MacroVars("RABCDE", "ssssss","WELLCOME","","","","","");
 	    MsgResult("filemgr.responses",np,'\r');

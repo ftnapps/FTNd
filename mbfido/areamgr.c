@@ -78,7 +78,7 @@ void A_Help(faddr *t, char *replyid)
     
     subject = calloc(255, sizeof(char));
     sprintf(subject,"AreaMgr Help");
-    GetRpSubject("areamgr.help",subject);
+    GetRpSubject("areamgr.help",subject,254);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject , replyid)) != NULL) {
 	if ((fi = OpenMacro("areamgr.help", nodes.Language, FALSE)) != NULL ) {
@@ -133,22 +133,22 @@ void A_List(faddr *t, char *replyid, int Notify)
     switch (Notify) {
 	case LIST_NOTIFY:   Mgrlog("AreaMgr: Notify to %s", ascfnode(t, 0xff));
 			    sprintf(subject,"AreaMgr Notify");
-			    GetRpSubject("areamgr.notify.list",subject);
+			    GetRpSubject("areamgr.notify.list",subject,254);
 			    fi = OpenMacro("areamgr.notify.list", nodes.Language, FALSE);
 			    break;
 	case LIST_LIST:	    Mgrlog("AreaMgr: List");
 			    sprintf(subject,"AreaMgr list");
-			    GetRpSubject("areamgr.list",subject);
+			    GetRpSubject("areamgr.list",subject,254);
 			    fi = OpenMacro("areamgr.list", nodes.Language, FALSE);
 			    break;
 	case LIST_QUERY:    Mgrlog("AreaMgr: Query");
 			    sprintf(subject,"AreaMgr Query");
-			    GetRpSubject("areamgr.query",subject);
+			    GetRpSubject("areamgr.query",subject,254);
 			    fi = OpenMacro("areamgr.query", nodes.Language, FALSE);
 			    break;
 	case LIST_UNLINK:   Mgrlog("AreaMgr: Unlinked");
 			    sprintf(subject,"AreaMgr: Unlinked areas");
-			    GetRpSubject("areamgr.unlink",subject);
+			    GetRpSubject("areamgr.unlink",subject,254);
 			    fi = OpenMacro("areamgr.unlink", nodes.Language, FALSE);
 			    break;
     }
@@ -334,12 +334,12 @@ void A_Flow(faddr *t, char *replyid, int Notify)
     if (Notify) {
 	Mgrlog("AreaMgr: Flow report to %s", ascfnode(t, 0xff));
         sprintf(subject,"AreaMgr Notify Flow Report");
-        GetRpSubject("areamgr.notify.flow",subject);
+        GetRpSubject("areamgr.notify.flow",subject,254);
 	fi = OpenMacro("areamgr.notify.flow", nodes.Language, FALSE);
     } else {
 	Mgrlog("AreaMgr: Flow report");
         sprintf(subject,"AreaMgr Flow Report");
-        GetRpSubject("areamgr.flow",subject);
+        GetRpSubject("areamgr.flow",subject,254);
 	fi = OpenMacro("areamgr.flow", nodes.Language, FALSE);
     }
 
@@ -512,7 +512,7 @@ void A_Status(faddr *t, char *replyid)
     MacroVars("y", "s", ascfnode(ta, 0xf));
     tidy_faddr(ta);
 
-    GetRpSubject("areamgr.status",subject);
+    GetRpSubject("areamgr.status",subject,254);
 
     if ((fi = OpenMacro("areamgr.status", nodes.Language, FALSE)) == NULL ){
 	MacroClear();
@@ -1134,7 +1134,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
         MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","","","","","","");
 	sprintf(subject,"Your AreaMgr request");
-	GetRpSubject("areamgr.responses",subject);
+	GetRpSubject("areamgr.responses",subject,72);
 	if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
 	    MacroVars("RABCDE", "ssssss","WELLCOME","","","","","");
 	    MsgResult("areamgr.responses",np,'\r');
