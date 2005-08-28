@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -209,7 +209,7 @@ void DeleteVirusWork()
         buf  = calloc(PATH_MAX, sizeof(char));
         temp = calloc(PATH_MAX, sizeof(char));
         getcwd(buf, PATH_MAX);
-        sprintf(temp, "%s/tmp", getenv("MBSE_ROOT"));
+        snprintf(temp, PATH_MAX -1, "%s/tmp", getenv("MBSE_ROOT"));
 
         if (chdir(temp) == 0) {
                 Syslog('f', "DeleteVirusWork %s/arc", temp);
@@ -243,7 +243,7 @@ int UnpackFile(char *File)
     /*
      * Check if there is a temp directory to unpack the archive.
      */
-    sprintf(temp, "%s/tmp/arc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/tmp/arc", getenv("MBSE_ROOT"));
     if ((access(temp, R_OK)) != 0) {
 	if (mkdir(temp, 0777)) {
 	    WriteError("$Can't create %s", temp);
@@ -256,10 +256,10 @@ int UnpackFile(char *File)
     /*
      * Check for stale FILE_ID.DIZ files
      */
-    sprintf(temp, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
     if (!unlink(temp))
 	Syslog('+', "Removed stale %s", temp);
-    sprintf(temp, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
     if (!unlink(temp))
 	Syslog('+', "Removed stale %s", temp);
 
@@ -278,7 +278,7 @@ int UnpackFile(char *File)
 	return FALSE;
     }
 
-    sprintf(temp, "%s/tmp/arc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/tmp/arc", getenv("MBSE_ROOT"));
     if (chdir(temp) != 0) {
 	WriteError("$Can't change to %s", temp);
 	die(MBERR_GENERAL);
@@ -367,7 +367,7 @@ int CheckFDB(int Area, char *Path)
     int	    rc = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 
     /*
      * Open the file database, create new one if it doesn't excist.
@@ -397,7 +397,7 @@ int CheckFDB(int Area, char *Path)
      * Now check the download directory
      */
     if (access(Path, W_OK) == -1) {
-	sprintf(temp, "%s/foobar", Path);
+	snprintf(temp, PATH_MAX -1, "%s/foobar", Path);
 	if (mkdirs(temp, 0775))
 	    Syslog('+', "Created directory %s", Path);
     }
@@ -419,7 +419,7 @@ int LoadAreaRec(int Area)
 
     sAreas = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX -1, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
         WriteError("$Can't open %s", sAreas);
         if (!do_quiet)

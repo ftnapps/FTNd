@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Show toberep database
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -57,7 +57,7 @@ void ToBeRep(void)
 
     mbse_colour(CYAN, BLACK);
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	printf("No toberep database present\n");
     } else {
