@@ -4,7 +4,7 @@
  * Purpose ...............: .TIC files magic processing. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -49,27 +49,27 @@ char *Magic_Macro(int C)
 
     buf[0] = '\0';
     switch(toupper(C)) {
-	case 'F':   sprintf(buf, "%s/%s", TIC.BBSpath, TIC.NewFile);
+	case 'F':   snprintf(buf, PATH_MAX, "%s/%s", TIC.BBSpath, TIC.NewFile);
 		    break;
-	case 'P':   sprintf(buf, "%s", TIC.BBSpath);
+	case 'P':   snprintf(buf, PATH_MAX, "%s", TIC.BBSpath);
 		    break;
-	case 'N':   sprintf(buf, "%s", strtok(strdup(TIC.NewFile), "."));
+	case 'N':   snprintf(buf, PATH_MAX, "%s", strtok(strdup(TIC.NewFile), "."));
 		    break;
-	case 'E':   sprintf(buf, "%s", strrchr(TIC.NewFile, '.'));
+	case 'E':   snprintf(buf, PATH_MAX, "%s", strrchr(TIC.NewFile, '.'));
 		    break;
-	case 'L':   sprintf(buf, "%s", strrchr(TIC.NewFile, '.'));
+	case 'L':   snprintf(buf, PATH_MAX, "%s", strrchr(TIC.NewFile, '.'));
 		    buf[0] = buf[1];
 		    buf[1] = buf[2];
 		    buf[2] = '\0';
 		    break;
-	case 'D':   sprintf(buf, "%03d", Day_Of_Year());
+	case 'D':   snprintf(buf, 3, "%03d", Day_Of_Year());
 		    break;
-	case 'C':   sprintf(buf, "%03d", Day_Of_Year());
+	case 'C':   snprintf(buf, 3, "%03d", Day_Of_Year());
 		    buf[0] = buf[1];
 		    buf[1] = buf[2];
 		    buf[2] = '\0';
 		    break;
-	case 'A':   sprintf(buf, "%s", TIC.TicIn.Area);
+	case 'A':   snprintf(buf, PATH_MAX, "%s", TIC.TicIn.Area);
 		    break;
     }
 
@@ -90,7 +90,7 @@ int GetMagicRec(int Typ, int First)
 	MagicNr = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
     if ((FeM = fopen(temp, "r")) == NULL) {
 	Syslog('+', "Huh? No magic file? (%s)", temp);
 	free(temp);
@@ -147,7 +147,7 @@ void MagicResult(char *format, ...)
     outputstr = calloc(1024, sizeof(char));
 
     va_start(va_ptr, format);
-    vsprintf(outputstr, format, va_ptr);
+    vsnprintf(outputstr, 1024, format, va_ptr);
     va_end(va_ptr);
 
     Syslog('+', "Magic: %s", outputstr);
@@ -200,7 +200,7 @@ void Magic_ExecCommand(void)
 		    j++;
 		} else {
 		    Temp[0] = '\0';
-		    sprintf(Temp, "%s", Magic_Macro(magic.Cmd[i]));
+		    snprintf(Temp, PATH_MAX, "%s", Magic_Macro(magic.Cmd[i]));
 		    for (k = 0; k < strlen(Temp); k++) {
 			Line[j] = Temp[k];
 			j++;
@@ -236,8 +236,8 @@ void Magic_CopyFile(void)
 
     while (GetMagicRec(MG_COPY, First)) {
 	First = FALSE;
-	sprintf(From, "%s/%s", TIC.BBSpath, TIC.NewFile);
-	sprintf(To, "%s/%s", magic.Path, TIC.NewFile);
+	snprintf(From, PATH_MAX, "%s/%s", TIC.BBSpath, TIC.NewFile);
+	snprintf(To, PATH_MAX, "%s/%s", magic.Path, TIC.NewFile);
 
 	if ((rc = file_cp(From, To) == 0)) {
 	    MagicResult((char *)"%s copied to %s", From, To);
@@ -264,7 +264,7 @@ void Magic_UnpackFile(void)
 	getcwd(buf, 128);
 
 	if (chdir(magic.Path) == 0) {
-	    sprintf(Fn, "%s/%s", TIC.BBSpath, TIC.NewFile);
+	    snprintf(Fn, PATH_MAX, "%s/%s", TIC.BBSpath, TIC.NewFile);
 	    if ((unarc = unpacker(Fn)) != NULL) {
 		if (getarchiver(unarc)) {
 		    cmd = xstrcpy(archiver.munarc);
@@ -325,7 +325,7 @@ void Magic_AdoptFile(void)
 	if (SearchTic(magic.ToArea)) {
 	    MagicResult((char *)"Adoptfile in %s", magic.ToArea);
 
-	    sprintf(temp, "%s/%s", TIC.Inbound, MakeTicName());
+	    snprintf(temp, PATH_MAX, "%s/%s", TIC.Inbound, MakeTicName());
 	    if ((Tf = fopen(temp, "a+")) == NULL)
 		WriteError("$Can't create %s", temp);
 	    else {

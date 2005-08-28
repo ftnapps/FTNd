@@ -85,7 +85,7 @@ void Check(long AreaNr)
     }
 
     iAreasNew = iTotal = iErrors = 0;
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
@@ -120,7 +120,7 @@ void Check(long AreaNr)
 	    } else {
 
 		if (strlen(area.Name) == 0) {
-		    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+		    snprintf(fAreas, PATH_MAX, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
 		    if (unlink(fAreas) == 0) {
 			Syslog('+', "Removed obsolete %s", fAreas);
 		    }
@@ -147,7 +147,7 @@ void Check(long AreaNr)
 	    } else {
 		while ((de = readdir(dp))) {
 		    if (de->d_name[0] != '.') {
-			sprintf(temp, "%s/%s", CFG.req_magic, de->d_name);
+			snprintf(temp, PATH_MAX, "%s/%s", CFG.req_magic, de->d_name);
 			if (file_exist(temp, X_OK) == 0) {
 			    Syslog('f', "%s is executable", temp);
 			} else if (file_exist(temp, R_OK) == 0) {
@@ -155,7 +155,7 @@ void Check(long AreaNr)
 				fgets(mname, PATH_MAX -1, pFile);
 				fclose(pFile);
 				Striplf(mname);
-				sprintf(newdir, "%s/etc/request.index", getenv("MBSE_ROOT"));
+				snprintf(newdir, PATH_MAX, "%s/etc/request.index", getenv("MBSE_ROOT"));
 				Found = FALSE;
 				if ((pFile = fopen(newdir, "r"))) {
 				    while (fread(&idx, sizeof(idx), 1, pFile)) {
@@ -228,7 +228,7 @@ void CheckArea(long Area)
      */
     if (access(area.Path, R_OK) == -1) {
 	Syslog('!', "No dir: %s", area.Path);
-	sprintf(newdir, "%s/foobar", area.Path);
+	snprintf(newdir, PATH_MAX, "%s/foobar", area.Path);
 	mkdirs(newdir, 0775);
     }
 
@@ -300,8 +300,8 @@ void CheckArea(long Area)
 
 	iTotal++;
 	inArea++;
-	sprintf(newdir, "%s/%s", area.Path, fdb.LName);
-	sprintf(mname,  "%s/%s", area.Path, fdb.Name);
+	snprintf(newdir, PATH_MAX, "%s/%s", area.Path, fdb.LName);
+	snprintf(mname,  PATH_MAX, "%s/%s", area.Path, fdb.Name);
 
 	if (file_exist(newdir, R_OK) && file_exist(mname, R_OK)) {
 	    Syslog('+', "File %s area %ld not on disk.", newdir, Area);
@@ -324,13 +324,13 @@ void CheckArea(long Area)
 
 	    strcpy(temp, fdb.LName);
 	    name_mangle(temp);
-	    sprintf(mname, "%s/%s", area.Path, temp);
+	    snprintf(mname, PATH_MAX, "%s/%s", area.Path, temp);
 	    if (strcmp(fdb.Name, temp))  {
 		Syslog('!', "Converted %s to %s", fdb.Name, temp);
 	    	tname = calloc(PATH_MAX, sizeof(char));
-	    	sprintf(tname, "%s/%s", area.Path, fdb.Name);
+	    	snprintf(tname, PATH_MAX, "%s/%s", area.Path, fdb.Name);
 	    	rename(tname, mname);
-	    	sprintf(tname, "%s/%s", area.Path, fdb.LName);
+	    	snprintf(tname, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 	    	unlink(tname);
 	    	symlink(mname, tname);
 	    	free(tname);
@@ -347,10 +347,10 @@ void CheckArea(long Area)
 	    	 * 8.3 and LFN are the same.
 	    	 */
 	    	tname = calloc(PATH_MAX, sizeof(char));
-	    	sprintf(tname, "%s/%s", area.Path, fdb.LName);
+	    	snprintf(tname, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 	    	for (j = 0; j < strlen(fdb.LName); j++)
 	    	    fdb.LName[j] = tolower(fdb.LName[j]);
-	    	sprintf(newdir, "%s/%s", area.Path, fdb.LName);
+	    	snprintf(newdir, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 	    	if (strcmp(tname, newdir)) {
 	    	    Syslog('+', "Rename LFN from %s to %s", fdb.Name, fdb.LName);
 	    	    rename(tname, newdir);
@@ -433,7 +433,7 @@ void CheckArea(long Area)
     	     * It could be that there is a thumbnail made of the 8.3 filename
     	     */
     	    tname = calloc(PATH_MAX, sizeof(char));
-    	    sprintf(tname, "%s/.%s", area.Path, fdb.Name);
+    	    snprintf(tname, PATH_MAX, "%s/.%s", area.Path, fdb.Name);
     	    if (file_exist(tname, R_OK) == 0) {
     		Syslog('+', "Removing wrong 8.3 thumbnail %s", tname);
     		iErrors++;
@@ -532,7 +532,7 @@ void CheckArea(long Area)
     			(strncmp(de->d_name, "header", 6)) &&
     			(strncmp(de->d_name, "index", 5)) &&
     			(strncmp(de->d_name, "readme", 6))) {
-    		    sprintf(fn, "%s/%s", area.Path, de->d_name);
+    		    snprintf(fn, PATH_MAX, "%s/%s", area.Path, de->d_name);
     		    if (stat(fn, &stb) == 0)
     		        if (S_ISREG(stb.st_mode)) {
     			    if (unlink(fn) == 0) {

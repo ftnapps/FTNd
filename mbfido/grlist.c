@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -75,8 +75,8 @@ void fill_grlist(gr_list **fdp, char *groupname, char *echoname)
 	 */
 	tmp = (gr_list *)malloc(sizeof(gr_list));
 	tmp->next = *fdp;
-	sprintf(tmp->group, "%s", groupname);
-	sprintf(tmp->echo,  "%s", echoname);
+	snprintf(tmp->group, 13, "%s", groupname);
+	snprintf(tmp->echo,  21, "%s", echoname);
 	tmp->count = 1;
 	*fdp = tmp;
 }

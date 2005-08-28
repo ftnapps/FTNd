@@ -4,7 +4,7 @@
  * Purpose ...............: Hatch files
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -69,7 +69,7 @@ void Hatch()
 	    LastDay++;
     }
 
-    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -85,7 +85,7 @@ void Hatch()
 		HatchToday = TRUE;
 	    if ((hatch.Month[Tm->tm_mday -1]) || (hatch.Month[31] && (LastDay == Tm->tm_mday)))
 		HatchToday = TRUE;
-	    sprintf(temp, "%s", hatch.Spec);
+	    snprintf(temp, PATH_MAX, "%s", hatch.Spec);
 
 	    if (HatchToday)
 		CheckHatch(temp);
@@ -132,7 +132,7 @@ int CheckHatch(char *temp)
 	    if (re_exec(de->d_name)) {
 		hatched = TRUE;
 		Syslog('+', "Hatch \"%s\" in area %s", de->d_name, hatch.Name);
-		sprintf(tf, "%s/%s", CFG.pinbound, MakeTicName());
+		snprintf(tf, PATH_MAX, "%s/%s", CFG.pinbound, MakeTicName());
 
 		if ((Tf = fopen(tf, "a+")) == NULL) {
 		    WriteError("Can't create %s", tf);
@@ -153,7 +153,7 @@ int CheckHatch(char *temp)
 		    if (strlen(hatch.Magic))
 			fprintf(Tf, "Magic %s\r\n", hatch.Magic);
 		    temp2 = calloc(strlen(de->d_name) + 1, sizeof(char));
-		    sprintf(temp2, "%s", de->d_name);
+		    snprintf(temp2, strlen(de->d_name) + 1, "%s", de->d_name);
 		    name_mangle(temp2);
 		    fprintf(Tf, "File %s\r\n", temp2);
 		    free(temp2);

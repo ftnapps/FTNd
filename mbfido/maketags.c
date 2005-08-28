@@ -4,7 +4,7 @@
  * Purpose ...............: Make tag files
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -45,8 +45,8 @@ void MakeTags(void)
     tname = calloc(PATH_MAX, sizeof(char));
     aname = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(gname, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-    sprintf(dname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(gname, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(dname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
     if (((fg = fopen(gname, "r")) == NULL) || ((fd = fopen(dname, "r")) == NULL)) {
 	WriteError("$Can't open data");
@@ -56,10 +56,10 @@ void MakeTags(void)
 
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
 	    if (mgroup.Active) {
-		sprintf(tname, "%s/share/doc/tags/%s.msgs.tag", getenv("MBSE_ROOT"), mgroup.Name);
+		snprintf(tname, PATH_MAX, "%s/share/doc/tags/%s.msgs.tag", getenv("MBSE_ROOT"), mgroup.Name);
 		mkdirs(tname, 0755);
 		td = fopen(tname, "w");
-		sprintf(aname, "%s/share/doc/tags/%s.msgs.are", getenv("MBSE_ROOT"), mgroup.Name);
+		snprintf(aname, PATH_MAX, "%s/share/doc/tags/%s.msgs.are", getenv("MBSE_ROOT"), mgroup.Name);
 		ad = fopen(aname, "w");
 		fprintf(ad, "; Mail areas in group %s\n", mgroup.Name);
 		fprintf(ad, ";\n");
@@ -81,8 +81,8 @@ void MakeTags(void)
 	fclose(fd);
     }
 
-    sprintf(gname, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-    sprintf(dname, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(gname, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(dname, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 
     if (((fg = fopen(gname, "r")) == NULL) || ((fd = fopen(dname, "r")) == NULL)) {
 	WriteError("$Can't open data");
@@ -92,9 +92,9 @@ void MakeTags(void)
 
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
 	    if (fgroup.Active) {
-		sprintf(tname, "%s/share/doc/tags/%s.file.tag", getenv("MBSE_ROOT"), fgroup.Name);
+		snprintf(tname, PATH_MAX, "%s/share/doc/tags/%s.file.tag", getenv("MBSE_ROOT"), fgroup.Name);
 		td = fopen(tname, "w");
-		sprintf(aname, "%s/share/doc/tags/%s.file.are", getenv("MBSE_ROOT"), fgroup.Name);
+		snprintf(aname, PATH_MAX, "%s/share/doc/tags/%s.file.are", getenv("MBSE_ROOT"), fgroup.Name);
 		ad = fopen(aname, "w");
 		fprintf(ad, "; TIC file areas in group %s\n", fgroup.Name);
 		fprintf(ad, ";\n");

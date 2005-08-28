@@ -177,7 +177,7 @@ void editor_configs(void)
     /*
      * Export ~/etc/msg.txt for MsgEd.
      */
-    sprintf(temp, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "w")) != NULL) {
 	fprintf(fp, "; msg.txt -- Automatic created by mbsetup %s -- Do not edit!\n;\n", VERSION);
 	fprintf(fp, "; Mail areas for MsgEd.\n;\n");
@@ -191,7 +191,7 @@ void editor_configs(void)
     /*
      * Export ~/etc/golded.inc for GoldED
      */
-    sprintf(temp, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "w")) != NULL) {
 	fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
 	fprintf(fp, "; Basic information.\n;\n");
@@ -419,7 +419,7 @@ int main(int argc, char **argv)
                             ((strchr(argv[i + 1], ':') != NULL) || 
 			     (atoi(argv[i + 1])) ||
 			     (strncmp(argv[i + 1], "*", 1) == 0))) {
-				sprintf(Options, "%s", argv[i + 1]);
+				snprintf(Options, 81, "%s", argv[i + 1]);
 				i++;
 	    }
 	}
@@ -559,7 +559,7 @@ int main(int argc, char **argv)
      *  Read alias file
      */
     cmd = calloc(PATH_MAX, sizeof(char));
-    sprintf(cmd, "%s/etc/aliases", getenv("MBSE_ROOT"));
+    snprintf(cmd, PATH_MAX, "%s/etc/aliases", getenv("MBSE_ROOT"));
     if ((do_news || do_scan || do_toss || do_mail) && file_exist(cmd, R_OK) == 0)
         readalias(cmd);
     free(cmd);

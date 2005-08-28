@@ -77,11 +77,11 @@ void AdoptFile(int Area, char *File, char *Description)
 	    fflush(stdout);
 	}
 
-	sprintf(temp, "%s/%s", pwd, File);
-	sprintf(tmpdir, "%s/tmp/arc", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/%s", pwd, File);
+	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
 	if ((unarc = unpacker(File)) == NULL) {
 	    Syslog('+', "No known archive: %s", File);
-	    sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), File);
+	    snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), File);
 	    mkdirs(temp2, 0755);
 	    if ((rc = file_cp(temp, temp2))) {
 		WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
@@ -150,12 +150,12 @@ void AdoptFile(int Area, char *File, char *Description)
 	    /*
 	     * Try to get a FILE_ID.DIZ
 	     */
-            sprintf(temp, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-            sprintf(temp2, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+            snprintf(temp, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+            snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
             if (file_cp(temp, temp2) == 0) {
                 File_Id = TRUE;
 	    } else {
-		sprintf(temp, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
 		if (file_cp(temp, temp2) == 0)
 		    File_Id = TRUE;
 	    }
@@ -284,7 +284,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	f_db.Size = file_size(f_db.Name);
 	f_db.Crc32 = file_crc(f_db.Name, TRUE);
 	f_db.FileDate = file_time(f_db.Name);
-	sprintf(temp2, "%s/%s", area.Path, f_db.Name);
+	snprintf(temp2, PATH_MAX, "%s/%s", area.Path, f_db.Name);
 
 	if (!do_quiet) {
 	    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
@@ -293,7 +293,7 @@ void AdoptFile(int Area, char *File, char *Description)
 
 	if (strcmp(f_db.Name, f_db.LName)) {
 	    lname = calloc(PATH_MAX, sizeof(char));
-	    sprintf(lname, "%s/%s", area.Path, f_db.LName);
+	    snprintf(lname, PATH_MAX, "%s/%s", area.Path, f_db.LName);
 	    if (AddFile(f_db, Area, temp2, f_db.Name, lname) == FALSE) {
 		die(MBERR_GENERAL);
 	    }

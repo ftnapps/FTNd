@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Import files with files.bbs
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -58,7 +58,7 @@ void ImportFiles(int Area)
 	mbse_colour(CYAN, BLACK);
 
     temp   = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "xxxxx%d", getpid());
+    snprintf(temp, PATH_MAX, "xxxxx%d", getpid());
     if ((fbbs = fopen(temp, "a+")) == NULL) {
 	WriteError("$Can't write to directory");
 	if (!do_quiet)
@@ -86,14 +86,14 @@ void ImportFiles(int Area)
         getcwd(pwd, PATH_MAX);
 	if (CheckFDB(Area, area.Path))
 	    die(MBERR_GENERAL);
-	sprintf(tmpdir, "%s/tmp/arc", getenv("MBSE_ROOT"));
+	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
 
 	IsDoing("Import files");
 
 	/*
 	 * Find and open files.bbs
 	 */
-	sprintf(temp, "FILES.BBS");
+	snprintf(temp, PATH_MAX, "FILES.BBS");
 	if (getfilecase(area.Path, temp) == FALSE) {
 	    WriteError("Can't find files.bbs anywhere");
 	    if (!do_quiet)
@@ -117,7 +117,7 @@ void ImportFiles(int Area)
 		    Doit = TRUE;
 		    if ((unarc = unpacker(temp)) == NULL) {
 			Syslog('+', "Unknown archive format %s", temp);
-			sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.Name);
+			snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.Name);
 			mkdirs(temp2, 0755);
 			if ((rc = file_cp(temp, temp2))) {
 			    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
@@ -238,7 +238,7 @@ void ImportFiles(int Area)
 			strcpy(f_db.Name, temp2);
 		    }
 
-		    sprintf(temp, "%s/%s", pwd, fod);
+		    snprintf(temp, PATH_MAX, "%s/%s", pwd, fod);
 		    stat(temp, &statfile);
 
 		    if (do_annon)
@@ -310,8 +310,8 @@ void ImportFiles(int Area)
 			strcpy(f_db.Desc[0], "No description");
 		    }
 
-		    sprintf(dest, "%s/%s", area.Path, f_db.Name);
-		    sprintf(lname, "%s/%s", area.Path, f_db.LName);
+		    snprintf(dest, PATH_MAX, "%s/%s", area.Path, f_db.Name);
+		    snprintf(lname, PATH_MAX, "%s/%s", area.Path, f_db.LName);
 		    Append = TRUE;
 		    f_db.Size = statfile.st_size;
 		    f_db.FileDate = statfile.st_mtime;
@@ -375,7 +375,7 @@ void ImportFiles(int Area)
 	    Doit = TRUE;
 	    if ((unarc = unpacker(temp)) == NULL) {
 		Syslog('+', "Unknown archive format %s", temp);
-		sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.LName);
+		snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.LName);
 		mkdirs(temp2, 0755);
 		if ((rc = file_cp(temp, temp2))) {
 		    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));

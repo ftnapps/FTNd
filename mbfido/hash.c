@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,7 +45,7 @@ void hash_update_n(unsigned long *id, unsigned long mod)
 {
 	char	buf[32];
 
-	sprintf(buf,"%030lu",mod);
+	snprintf(buf,32, "%030lu",mod);
 	*id ^= lh_strhash(buf);
 }
 

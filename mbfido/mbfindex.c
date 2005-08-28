@@ -215,7 +215,7 @@ char *rfcdate(time_t now)
 
         ptm = *gmtime(&now);
 
-        sprintf(buf,"%s, %02d %s %04d %02d:%02d:%02d GMT",
+        snprintf(buf,40,"%s, %02d %s %04d %02d:%02d:%02d GMT",
                 wdays[ptm.tm_wday], ptm.tm_mday, months[ptm.tm_mon],
                 ptm.tm_year + 1900, ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
         return(buf);
@@ -233,18 +233,18 @@ void pagelink(FILE *fa, char *Path, int inArea, int Current)
 
         if ((Current >= CFG.www_files_page) && (inArea >= CFG.www_files_page)) {
                 if (((Current / CFG.www_files_page) - 1) > 0) {
-                    sprintf(nr, "%d", (Current / CFG.www_files_page) -1);
+                    snprintf(nr, 25, "%d", (Current / CFG.www_files_page) -1);
 		} else {
                     nr[0] = '\0';
 		}
-		sprintf(temp, "%s/%s%s/index%s.html", CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), nr);
+		snprintf(temp, 256, "%s/%s%s/index%s.html", CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), nr);
 		MacroVars("c", "s", temp);
         } else {
 	    MacroVars("c", "s", "");
 	}
 
         if ((Current < (inArea - CFG.www_files_page)) && (inArea >= CFG.www_files_page)) {
-	    sprintf(temp, "%s/%s%s/index%d.html", CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), 
+	    snprintf(temp, 256, "%s/%s%s/index%d.html", CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), 
 		    (Current / CFG.www_files_page) + 1);
 	    MacroVars("d", "s", temp);
         } else {
@@ -265,14 +265,14 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current, FIL
 
         lastfile = Current;
         if (Current)
-                sprintf(linebuf, "%s/index%d.temp", Path, Current / CFG.www_files_page);
+                snprintf(linebuf, 1024, "%s/index%d.temp", Path, Current / CFG.www_files_page);
         else
-                sprintf(linebuf, "%s/index.temp", Path);
+                snprintf(linebuf, 1024, "%s/index.temp", Path);
         if ((fa = fopen(linebuf, "w")) == NULL) {
                 WriteError("$Can't create %s", linebuf);
         } else {
-                sprintf(linebuf, "%s", Name);
-                html_massage(linebuf, outbuf, 1023);
+                snprintf(linebuf, 1024, "%s", Name);
+                html_massage(linebuf, outbuf, 1024);
 		MacroVars("ab", "ss", rfcdate(later), outbuf);
                 pagelink(fa, Path, inArea, Current);
 		MacroRead(fi, fa);
@@ -299,11 +299,11 @@ void closepage(FILE *fa, char *Path, int inArea, int Current, FILE *fi)
 	MacroRead(fi, fa);
         fclose(fa);
         if (lastfile) {
-                sprintf(temp1, "%s/index%d.html", Path, lastfile / CFG.www_files_page);
-                sprintf(temp2, "%s/index%d.temp", Path, lastfile / CFG.www_files_page);
+                snprintf(temp1, PATH_MAX, "%s/index%d.html", Path, lastfile / CFG.www_files_page);
+                snprintf(temp2, PATH_MAX, "%s/index%d.temp", Path, lastfile / CFG.www_files_page);
         } else {
-                sprintf(temp1, "%s/index.html", Path);
-                sprintf(temp2, "%s/index.temp", Path);
+                snprintf(temp1, PATH_MAX, "%s/index.html", Path);
+                snprintf(temp2, PATH_MAX, "%s/index.temp", Path);
         }
         rename(temp2, temp1);
 	chmod(temp1, 0644);
@@ -341,13 +341,13 @@ void ReqIndex(void)
     sIndex = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
 	die(MBERR_INIT_ERROR);
     }
 
-    sprintf(sIndex, "%s/etc/request.index", getenv("MBSE_ROOT"));
+    snprintf(sIndex, PATH_MAX, "%s/etc/request.index", getenv("MBSE_ROOT"));
     if ((pIndex = fopen(sIndex, "w")) == NULL) {
 	WriteError("$Can't create %s", sIndex);
 	die(MBERR_GENERAL);
@@ -386,7 +386,7 @@ void ReqIndex(void)
 
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
 		die(MBERR_GENERAL);
-	    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+	    snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
 	    db_time = (int) file_time(temp);
 
 	    /*
@@ -402,8 +402,8 @@ void ReqIndex(void)
 		    if ((iTotal % 10) == 0)
 			Marker();
 		    memset(&idx, 0, sizeof(idx));
-		    sprintf(idx.Name, "%s", tu(fdb.Name));
-		    sprintf(idx.LName, "%s", tu(fdb.LName));
+		    snprintf(idx.Name, 13, "%s", tu(fdb.Name));
+		    snprintf(idx.LName, 81, "%s", tu(fdb.LName));
 		    idx.AreaNum = i;
 		    idx.Record = record;
 		    fill_index(idx, &fdx);
@@ -415,7 +415,7 @@ void ReqIndex(void)
 	    /*
 	     * Create files.bbs if needed.
 	     */
-	    sprintf(temp, "%s/files.bbs", area.Path);
+	    snprintf(temp, PATH_MAX, "%s/files.bbs", area.Path);
 	    obj_time = (int) file_time(temp);
 
 	    if (obj_time < db_time) {
@@ -458,7 +458,7 @@ void ReqIndex(void)
 	     */
 	    if (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0) {
 
-		sprintf(temp, "%s/00index", area.Path);
+		snprintf(temp, PATH_MAX, "%s/00index", area.Path);
 		obj_time = (int) file_time(temp);
 
 		if (obj_time < db_time) {
@@ -552,7 +552,7 @@ void HtmlIndex(char *Lang)
 	printf("\rCreate html pages...                                      \n");
     }
 
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
 	die(MBERR_INIT_ERROR);
@@ -567,7 +567,7 @@ void HtmlIndex(char *Lang)
      * download directories.
      */
     if (strlen(CFG.ftp_base) && strlen(CFG.www_url) && strlen(CFG.www_author) && strlen(CFG.www_charset)) {
-	sprintf(fn, "%s/index.temp", CFG.ftp_base);
+	snprintf(fn, PATH_MAX, "%s/index.temp", CFG.ftp_base);
 	if ((fm = fopen(fn, "w")) == NULL) {
 	    Syslog('+', "Can't open %s, skipping html pages creation", fn);
 	}
@@ -622,9 +622,9 @@ void HtmlIndex(char *Lang)
 
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
 		die(MBERR_GENERAL);
-            sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+            snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
 	    db_time = (int) file_time(temp);
-	    sprintf(temp, "%s/index.html", area.Path);
+	    snprintf(temp, PATH_MAX, "%s/index.html", area.Path);
 	    obj_time = (int) file_time(temp);
 
 	    if (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)
@@ -681,8 +681,8 @@ void HtmlIndex(char *Lang)
 			    isthumb = FALSE;
 			    if (strstr(fdb.LName, ".gif") || strstr(fdb.LName, ".jpg") ||
 				strstr(fdb.LName, ".GIF") || strstr(fdb.LName, ".JPG")) {
-				sprintf(linebuf, "%s/%s", area.Path, fdb.LName);
-				sprintf(outbuf, "%s/.%s", area.Path, fdb.LName);
+				snprintf(linebuf, 1024, "%s/%s", area.Path, fdb.LName);
+				snprintf(outbuf, 1024, "%s/.%s", area.Path, fdb.LName);
 				if (file_exist(outbuf, R_OK)) {
 				    if (strlen(CFG.www_convert)) {
 					if ((execute_str(CFG.www_convert, linebuf, outbuf,
@@ -699,31 +699,31 @@ void HtmlIndex(char *Lang)
 				    isthumb = TRUE;
 				}
 			    }
-			    sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
+			    snprintf(outbuf, 1024, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
 				area.Path+strlen(CFG.ftp_base), fdb.LName);
 			    if (isthumb) {
-				sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
+				snprintf(linebuf, 1024, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
 					area.Path+strlen(CFG.ftp_base), fdb.LName);
 				MacroVars("fghi", "dsss", 1, outbuf, fdb.LName, linebuf);
 			    } else {
-				sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
+				snprintf(outbuf, 1024, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
 					area.Path+strlen(CFG.ftp_base), fdb.LName);
 				MacroVars("fghi", "dsss", 0, outbuf, fdb.LName, "");
 			    }
 
-			    sprintf(outbuf, "%lu Kb.", (long)(fdb.Size / 1024));
+			    snprintf(outbuf, 1024, "%lu Kb.", (long)(fdb.Size / 1024));
 			    MacroVars("jkl", "ssd", StrDateDMY(fdb.FileDate), outbuf, fdb.TimesDL);
 			    memset(&desc, 0, sizeof(desc));
 			    k = 0;
 			    for (j = 0; j < 25; j++)
 				if (strlen(fdb.Desc[j])) {
 				    if (j) {
-					sprintf(desc+k, "\n");
+					snprintf(desc+k, 2, "\n");
 					k += 1;
 				    }
-				    sprintf(linebuf, "%s", To_Html(fdb.Desc[j]));
-				    html_massage(linebuf, outbuf, 1023);
-				    sprintf(desc+k, "%s", outbuf);
+				    snprintf(linebuf, 1024, "%s", To_Html(fdb.Desc[j]));
+				    html_massage(linebuf, outbuf, 1024);
+				    snprintf(desc+k, 6400 -k, "%s", outbuf);
 				    k += strlen(outbuf);
 				}
 			    MacroVars("m", "s", desc);
@@ -759,7 +759,7 @@ void HtmlIndex(char *Lang)
 		    filenr = lastfile / CFG.www_files_page;
 		    while (TRUE) {
 			filenr++;
-			sprintf(linebuf, "%s/index%d.html", area.Path, filenr);
+			snprintf(linebuf, 1024, "%s/index%d.html", area.Path, filenr);
 			if (unlink(linebuf))
 			    break;
 			Syslog('+', "Removed obsolete %s", linebuf);
@@ -781,12 +781,12 @@ void HtmlIndex(char *Lang)
 		}
 
 		strcpy(linebuf, area.Name);
-		html_massage(linebuf, namebuf, 1023);
-		sprintf(linebuf, "%s/%s%s/index.html", CFG.www_url, CFG.www_link2ftp, area.Path+strlen(CFG.ftp_base));
+		html_massage(linebuf, namebuf, 1024);
+		snprintf(linebuf, 1024, "%s/%s%s/index.html", CFG.www_url, CFG.www_link2ftp, area.Path+strlen(CFG.ftp_base));
 		if (aSize > 1048576)
-		    sprintf(outbuf, "%ld Mb.", aSize / 1048576);
+		    snprintf(outbuf, 1024, "%ld Mb.", aSize / 1048576);
 		else
-		    sprintf(outbuf, "%ld Kb.", aSize / 1024);
+		    snprintf(outbuf, 1024, "%ld Kb.", aSize / 1024);
 		MacroVars("efghi", "dssds", AreaNr, linebuf, namebuf, aTotal, outbuf);
 		if (last == 0L)
 		    MacroVars("j", "s", "&nbsp;");
@@ -800,13 +800,13 @@ void HtmlIndex(char *Lang)
     }
 
     if (fm) {
-	sprintf(linebuf, "%ld Mb.", KSize / 1024);
+	snprintf(linebuf, 1024, "%ld Mb.", KSize / 1024);
 	MacroVars("cd", "ds", TotalHtml, linebuf);
 	MacroRead(fi, fm);
 	fclose(fi);
 	MacroClear();
 	fclose(fm);
-	sprintf(linebuf, "%s/index.html", CFG.ftp_base);
+	snprintf(linebuf, 1024, "%s/index.html", CFG.ftp_base);
 	rename(fn, linebuf);
 	chmod(linebuf, 0644);
     }
