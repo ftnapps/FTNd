@@ -46,7 +46,7 @@ int create_ticarea(char *farea, faddr *p_from)
 
     Syslog('f', "create_ticarea(%s)", farea);
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
         WriteError("Can't open %s", temp);
         free(temp);
@@ -96,7 +96,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('f', "Checking file group \"%s\" \"%s\"", fgroup.Name, fgroup.Comment);
-    sprintf(temp, "%s/%s", CFG.alists_path , fgroup.AreaFile);
+    snprintf(temp, PATH_MAX, "%s/%s", CFG.alists_path , fgroup.AreaFile);
     if ((ap = fopen(temp, "r")) == NULL) {
         WriteError("Filegroup %s: area taglist %s not found", fgroup.Name, temp);
         free(temp);
@@ -192,9 +192,9 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      */
     if (SendUplink && SearchNode(fgroup.UpLink)) {
 	if (nodes.UplFmgrBbbs)
-	    sprintf(temp, "file +%s", tag);
+	    snprintf(temp, PATH_MAX, "file +%s", tag);
 	else
-	    sprintf(temp, "+%s", tag);
+	    snprintf(temp, PATH_MAX, "+%s", tag);
 
 	From = fido2faddr(fgroup.UseAka);
 	To   = fido2faddr(fgroup.UpLink);
@@ -215,7 +215,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      * Open tic area and set filepointer to the end to append
      * a new record.
      */
-    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
     if ((mp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	fclose(ap);
@@ -231,7 +231,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     /*
      * Open files area, and find a free slot
      */
-    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	fclose(ap);
@@ -309,7 +309,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     for (i = 0; i < strlen(temp); i++)
 	if (temp[i] == '.')
 	    temp[i] = '/';
-    sprintf(area.Path, "%s/%s", fgroup.BasePath, temp);
+    snprintf(area.Path, 81, "%s/%s", fgroup.BasePath, temp);
     area.DLSec = fgroup.DLSec;
     area.UPSec = fgroup.UPSec;
     area.LTSec = fgroup.LTSec;
@@ -324,7 +324,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     /*
      * Create download path
      */
-    sprintf(temp, "%s/foobar", area.Path);
+    snprintf(temp, PATH_MAX, "%s/foobar", area.Path);
     if (!mkdirs(temp, 0775))
 	WriteError("Can't create %s", temp);
 

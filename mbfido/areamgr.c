@@ -4,7 +4,7 @@
  * Purpose ...............: AreaMgr
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -77,8 +77,8 @@ void A_Help(faddr *t, char *replyid)
     Mgrlog("AreaMgr: Help");
     
     subject = calloc(255, sizeof(char));
-    sprintf(subject,"AreaMgr Help");
-    GetRpSubject("areamgr.help",subject,254);
+    snprintf(subject,255,"AreaMgr Help");
+    GetRpSubject("areamgr.help",subject,255);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject , replyid)) != NULL) {
 	if ((fi = OpenMacro("areamgr.help", nodes.Language, FALSE)) != NULL ) {
@@ -132,23 +132,23 @@ void A_List(faddr *t, char *replyid, int Notify)
 
     switch (Notify) {
 	case LIST_NOTIFY:   Mgrlog("AreaMgr: Notify to %s", ascfnode(t, 0xff));
-			    sprintf(subject,"AreaMgr Notify");
-			    GetRpSubject("areamgr.notify.list",subject,254);
+			    snprintf(subject,255,"AreaMgr Notify");
+			    GetRpSubject("areamgr.notify.list",subject,255);
 			    fi = OpenMacro("areamgr.notify.list", nodes.Language, FALSE);
 			    break;
 	case LIST_LIST:	    Mgrlog("AreaMgr: List");
-			    sprintf(subject,"AreaMgr list");
-			    GetRpSubject("areamgr.list",subject,254);
+			    snprintf(subject,255,"AreaMgr list");
+			    GetRpSubject("areamgr.list",subject,255);
 			    fi = OpenMacro("areamgr.list", nodes.Language, FALSE);
 			    break;
 	case LIST_QUERY:    Mgrlog("AreaMgr: Query");
-			    sprintf(subject,"AreaMgr Query");
-			    GetRpSubject("areamgr.query",subject,254);
+			    snprintf(subject,255,"AreaMgr Query");
+			    GetRpSubject("areamgr.query",subject,255);
 			    fi = OpenMacro("areamgr.query", nodes.Language, FALSE);
 			    break;
 	case LIST_UNLINK:   Mgrlog("AreaMgr: Unlinked");
-			    sprintf(subject,"AreaMgr: Unlinked areas");
-			    GetRpSubject("areamgr.unlink",subject,254);
+			    snprintf(subject,255,"AreaMgr: Unlinked areas");
+			    GetRpSubject("areamgr.unlink",subject,255);
 			    fi = OpenMacro("areamgr.unlink", nodes.Language, FALSE);
 			    break;
     }
@@ -173,7 +173,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 	fgetpos(fi,&fileptr);
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((mp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -185,7 +185,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
 	Cons = msgshdr.syssize / sizeof(System);
 
-	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -333,13 +333,13 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 
     if (Notify) {
 	Mgrlog("AreaMgr: Flow report to %s", ascfnode(t, 0xff));
-        sprintf(subject,"AreaMgr Notify Flow Report");
-        GetRpSubject("areamgr.notify.flow",subject,254);
+        snprintf(subject,255,"AreaMgr Notify Flow Report");
+        GetRpSubject("areamgr.notify.flow",subject,255);
 	fi = OpenMacro("areamgr.notify.flow", nodes.Language, FALSE);
     } else {
 	Mgrlog("AreaMgr: Flow report");
-        sprintf(subject,"AreaMgr Flow Report");
-        GetRpSubject("areamgr.flow",subject,254);
+        snprintf(subject,255,"AreaMgr Flow Report");
+        GetRpSubject("areamgr.flow",subject,255);
 	fi = OpenMacro("areamgr.flow", nodes.Language, FALSE);
     }
 
@@ -356,7 +356,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
         msgptr = ftell(qp);
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((mp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -368,7 +368,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
 	Cons = msgshdr.syssize / sizeof(System);
 	
-	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -487,7 +487,7 @@ void A_Status(faddr *t, char *replyid)
     faddr   *ta;
 
     subject = calloc(255, sizeof(char));
-    sprintf(subject,"AreaMgr Status");
+    snprintf(subject,255,"AreaMgr Status");
     Mgrlog("AreaMgr: Status");
 
     if (Miy == 0)
@@ -512,7 +512,7 @@ void A_Status(faddr *t, char *replyid)
     MacroVars("y", "s", ascfnode(ta, 0xf));
     tidy_faddr(ta);
 
-    GetRpSubject("areamgr.status",subject,254);
+    GetRpSubject("areamgr.status",subject,255);
 
     if ((fi = OpenMacro("areamgr.status", nodes.Language, FALSE)) == NULL ){
 	MacroClear();
@@ -656,7 +656,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 
 	Syslog('m', "  Area not found, trying to create");
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -801,7 +801,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     free(temp);
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((mp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -810,7 +810,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     fread(&msgshdr, sizeof(msgshdr), 1, mp);
     Cons = msgshdr.syssize / sizeof(Sys);
     
-    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -933,7 +933,7 @@ void A_Pause(faddr *t, int Pause, FILE *tmp)
     Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((mp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -1133,7 +1133,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
         subject=calloc(256,sizeof(char));
         MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","","","","","","");
-	sprintf(subject,"Your AreaMgr request");
+	snprintf(subject,256,"Your AreaMgr request");
 	GetRpSubject("areamgr.responses",subject,72);
 	if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
 	    MacroVars("RABCDE", "ssssss","WELLCOME","","","","","");

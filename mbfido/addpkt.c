@@ -4,7 +4,7 @@
  * Purpose ...............: Add mail to .pkt
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -65,7 +65,7 @@ int PrepARC(char *Queue, fidoaddr Dest)
     }
 
     pktfile = calloc(PATH_MAX, sizeof(char));
-    sprintf(pktfile, "%s/%d.%d.%d.%d/%08lx.pkt", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, sequencer());
+    snprintf(pktfile, PATH_MAX, "%s/%d.%d.%d.%d/%08lx.pkt", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, sequencer());
     Syslog('p', "Rename .pkt to %s", pktfile);
 
     if (rename(Queue, pktfile)) {
@@ -139,7 +139,7 @@ FILE *CreatePkt(char *Queue, fidoaddr Orig, fidoaddr Dest, char *Extension)
     memset(&str, 0, 8);		/* Packet password	*/
     if (SearchNode(Dest)) {
 	if (strlen(nodes.Epasswd)) {
-	    sprintf(str, "%s", nodes.Epasswd);
+	    snprintf(str, 81, "%s", nodes.Epasswd);
 	}
     }
 
@@ -186,7 +186,7 @@ FILE *OpenPkt(fidoaddr Orig, fidoaddr Dest, char *Extension)
 
     Queue = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(Queue, "%s/%d.%d.%d.%d/mailpkt.%s", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, Extension);
+    snprintf(Queue, PATH_MAX, "%s/%d.%d.%d.%d/mailpkt.%s", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, Extension);
     mkdirs(Queue, 0750);
     
     if (file_exist(Queue, R_OK))

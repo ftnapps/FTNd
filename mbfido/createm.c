@@ -49,7 +49,7 @@ int create_msgarea(char *marea, faddr *p_from)
 
     Syslog('m', "create_msgarea(%s)", marea);
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("Can't open %s", temp);
 	free(temp);
@@ -98,7 +98,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('m', "Checking echogroup %s %s", mgroup.Name, mgroup.Comment);
-    sprintf(temp, "%s/%s", CFG.alists_path , mgroup.AreaFile);
+    snprintf(temp, PATH_MAX, "%s/%s", CFG.alists_path , mgroup.AreaFile);
     if ((ap = fopen(temp, "r")) == NULL) {
 	WriteError("Echogroup %s: area taglist %s not found", mgroup.Name, temp);
 	free(temp);
@@ -130,9 +130,9 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		 */
 		if (SendUplink && SearchNode(mgroup.UpLink)) {
 		    if (nodes.UplAmgrBbbs)
-			sprintf(temp, "echo +%s", tag);
+			snprintf(temp, PATH_MAX, "echo +%s", tag);
 		    else
-			sprintf(temp, "+%s", tag);
+			snprintf(temp, PATH_MAX, "+%s", tag);
 		    From = fido2faddr(mgroup.UseAka);
 		    To   = fido2faddr(mgroup.UpLink);
 		    if (UplinkRequest(To, From, FALSE, temp)) {
@@ -148,7 +148,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		    tidy_faddr(To);
 		}
 
-		sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		if ((mp = fopen(temp, "r+")) == NULL) {
 		    WriteError("$Can't open %s", temp);
 		    fclose(ap);
@@ -256,8 +256,8 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		for (i = 0; i < strlen(tag); i++)
 		    if (tag[i] == '.')
 			tag[i] = '/';
-		sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
-		sprintf(msgs.Newsgroup, "%s.%s", GetFidoDomain(msgs.Aka.zone), tag);
+		snprintf(msgs.Base, 65, "%s/%s", mgroup.BasePath, tag);
+		snprintf(msgs.Newsgroup, 81, "%s.%s", GetFidoDomain(msgs.Aka.zone), tag);
 		for (i = 0; i < strlen(msgs.Newsgroup); i++) {
 		    msgs.Newsgroup[i] = tolower(msgs.Newsgroup[i]);
 		    if (msgs.Newsgroup[i] == '/')
@@ -309,7 +309,7 @@ void msged_areas(FILE *fp)
     int     i = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return;
@@ -363,7 +363,7 @@ void gold_areas(FILE *fp)
     int     i = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return;
@@ -420,7 +420,7 @@ void gold_akamatch(FILE *fp)
     faddr   *want, *ta;
     int     i;
 
-    sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
     if ((fido = fopen(temp, "r")) == NULL)
 	return;
 

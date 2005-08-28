@@ -71,7 +71,7 @@ void Uploads()
 	printf("  Checking uploads...\n");
     }
 
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
 	free(sAreas);
@@ -102,7 +102,7 @@ void Uploads()
 			if (strlen(fdb.TicArea))
 			    strncpy(T_File.Echo, fdb.TicArea, sizeof(T_File.Echo) -1);
 			else
-			    sprintf(T_File.Echo, "AREA %d", i);
+			    snprintf(T_File.Echo, 21, "AREA %d", i);
 			strncpy(T_File.Group, area.NewGroup, sizeof(T_File.Group) -1);
 			strncpy(T_File.Comment, area.Name, sizeof(T_File.Comment) -1);
 			strncpy(T_File.Name, fdb.Name, sizeof(T_File.Name) -1);
@@ -112,12 +112,12 @@ void Uploads()
 			T_File.Size = fdb.Size;
 			T_File.SizeKb = fdb.Size / 1024;
 			T_File.Fdate = fdb.FileDate;
-			sprintf(T_File.Crc, "%08lx", fdb.Crc32);
-			sprintf(T_File.Desc, "%s %s %s %s", fdb.Desc[0], fdb.Desc[1], fdb.Desc[2], fdb.Desc[3]);
+			snprintf(T_File.Crc, 9, "%08lx", fdb.Crc32);
+			snprintf(T_File.Desc, 256, "%s %s %s %s", fdb.Desc[0], fdb.Desc[1], fdb.Desc[2], fdb.Desc[3]);
 			k = 0;
 			for (j = 0; j < 25; j++) {
 			    if (strlen(fdb.Desc[j])) {
-				sprintf(T_File.LDesc[k], "%s", fdb.Desc[j]);
+				snprintf(T_File.LDesc[k], 49, "%s", fdb.Desc[j]);
 				T_File.LDesc[k][49] = '\0';
 				k++;
 			    }
@@ -173,14 +173,14 @@ long StartMsg(void)
 
     CountPosted(newfiles.Area);
 
-    sprintf(Msg.From, "%s", newfiles.From);
-    sprintf(Msg.To, "%s", newfiles.Too);
+    snprintf(Msg.From, 101, "%s", newfiles.From);
+    snprintf(Msg.To, 101, "%s", newfiles.Too);
     if (MsgCount == 1) {
-	sprintf(Msg.Subject, "%s", newfiles.Subject);
+	snprintf(Msg.Subject, 101, "%s", newfiles.Subject);
 	TotalSize = TotalFiles = 0;
     } else
-	sprintf(Msg.Subject, "%s #%d", newfiles.Subject, MsgCount);
-    sprintf(Msg.FromAddress, "%s", aka2str(newfiles.UseAka));
+	snprintf(Msg.Subject, 101, "%s #%d", newfiles.Subject, MsgCount);
+    snprintf(Msg.FromAddress, 101, "%s", aka2str(newfiles.UseAka));
     Msg.Written = time(NULL);
     Msg.Arrived = time(NULL);
     Msg.Local = TRUE;
@@ -224,7 +224,7 @@ void FinishMsg(int Final, long filepos)
     Msg_UnLock();
     Syslog('+', "Posted message %ld, %d bytes", Msg.Id, Msg.Size);
 
-    sprintf(temp, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "a")) != NULL) {
 	fprintf(fp, "%s %lu\n", newfiles.Area, Msg.Id);
 	fclose(fp);
@@ -250,7 +250,7 @@ long Report(gr_list *ta, long filepos)
     time_t	    ftime;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	return 0;
@@ -381,7 +381,7 @@ int Announce()
     IsDoing("Announce files");
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	Syslog('+', "No new files to announce");
 	free(temp);
@@ -421,7 +421,7 @@ int Announce()
      *  At this point we have a sorted list of groups with a counter
      *  indicating howmany files to report in each group.
      */
-    sprintf(temp, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	if (!do_quiet)
@@ -475,7 +475,7 @@ int Announce()
     tidy_grlist(&fgr);
 
     if (rc) {
-	sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
 	unlink(temp);
     }
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Add TIC file to the BBS
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -68,8 +68,8 @@ int Add_BBS(qualify **qal)
     if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
 	while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 	    if (strcmp(frec.Name, TIC.NewFile) == 0) {
-		sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
-		sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewFile);
+		snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
+		snprintf(temp2, PATH_MAX, "%s/%s", TIC.BBSpath, TIC.NewFile);
 		mkdirs(temp2, 0755);
 		if ((rc = file_cp(temp1, temp2))) {
 		    WriteError("Copy to %s failed: %s", temp2, strerror(rc));
@@ -124,7 +124,7 @@ int Add_BBS(qualify **qal)
     frec.Size = TIC.FileSize;
     frec.Crc32 = TIC.Crc_Int;
     frec.Announced = TRUE;
-    sprintf(frec.Uploader, "Filemgr");
+    snprintf(frec.Uploader, 36, "Filemgr");
     frec.UploadDate = time(NULL);
     frec.FileDate = TIC.FileDate;
     for (i = 0; i <= TIC.File_Id_Ct; i++) {
@@ -136,8 +136,8 @@ int Add_BBS(qualify **qal)
 	strncpy(frec.Magic, TIC.TicIn.Magic, sizeof(frec.Magic) -1);
     }
 
-    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
-    sprintf(temp2, "%s/%s", TIC.BBSpath, frec.Name);
+    snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
+    snprintf(temp2, PATH_MAX, "%s/%s", TIC.BBSpath, frec.Name);
     mkdirs(temp2, 0755);
 
     if ((rc = file_cp(temp1, temp2))) {
@@ -166,7 +166,7 @@ int Add_BBS(qualify **qal)
     }
     Found = FALSE;
     lname = calloc(PATH_MAX, sizeof(char));
-    sprintf(lname, "%s/%s", TIC.BBSpath, frec.LName);
+    snprintf(lname, PATH_MAX, "%s/%s", TIC.BBSpath, frec.LName);
     if (symlink(temp2, lname)) {
 	WriteError("$Create link %s to %s failed", temp2, lname);
     }
@@ -278,10 +278,10 @@ int Add_BBS(qualify **qal)
 	if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		if (fdb.Deleted) {
-		    sprintf(temp2, "%s/%s", area.Path, fdb.LName);
+		    snprintf(temp2, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 		    if (unlink(temp2) != 0)
 		        WriteError("$Can't unlink file %s", temp2);
-		    sprintf(temp2, "%s/%s", area.Path, fdb.Name);
+		    snprintf(temp2, PATH_MAX, "%s/%s", area.Path, fdb.Name);
 
 		    /*
 		     * With the path to the 8.3 name, we can check if this file
@@ -299,7 +299,7 @@ int Add_BBS(qualify **qal)
 
 		    if (unlink(temp2) != 0)
 		        WriteError("$Can't unlink file %s", temp2);
-		    sprintf(temp2, "%s/.%s", area.Path, fdb.Name);
+		    snprintf(temp2, PATH_MAX, "%s/.%s", area.Path, fdb.Name);
 		    unlink(temp2); /* Thumbnail, no logging if there is an error */
 		}
 	    }

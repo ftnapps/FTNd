@@ -4,7 +4,7 @@
  * Purpose ...............: Alias Database
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -66,7 +66,7 @@ static int alias_db_init(void)
 	if (opened) 
 		return 0;
 
-	sprintf(buf, "%s/var/aliases.data", getenv("MBSE_ROOT"));
+	snprintf(buf, PATH_MAX, "%s/var/aliases.data", getenv("MBSE_ROOT"));
 	if (stat(buf, &stbuf) != 0) {
 		afp = fopen(buf,"a");
 		if (afp) 
@@ -141,8 +141,8 @@ int registrate(char *freename, char *address)
 		}
 	}
 	
-	sprintf(key.freename, "%s", buf);
-	sprintf(key.address, "%s", address);
+	snprintf(key.freename, MAXNAME, "%s", buf);
+	snprintf(key.address, 128, "%s", address);
 	key.dtime = time(NULL);
 
 	if (fwrite(&key, sizeof(key), 1, afp) != 1) {
