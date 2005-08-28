@@ -5,7 +5,7 @@
  * Source ................: Eugene G. Crosser's ifmail package.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -99,9 +99,9 @@ char *gmtoffset(time_t now)
 	min = offset % 60L;
 
 	if (sign == '-')
-		sprintf(buf, "%c%02d%02d", sign, hr, min);
+		snprintf(buf, 5, "%c%02d%02d", sign, hr, min);
 	else
-		sprintf(buf, "%02d%02d", hr, min);
+		snprintf(buf, 5, "%02d%02d", hr, min);
 
 	return(buf);
 }
@@ -119,7 +119,7 @@ char *str_time(time_t total)
 	 * 0 .. 59 seconds
 	 */
 	if (total < (time_t)60) {
-		sprintf(buf, "%2d.00s", (int)total);
+		snprintf(buf, 9, "%2d.00s", (int)total);
 		return buf;
 	}
 
@@ -129,7 +129,7 @@ char *str_time(time_t total)
 	if (total < (time_t)3600) {
 		h = total / 60;
 		m = total % 60;
-		sprintf(buf, "%2d:%02d ", h, m);
+		snprintf(buf, 9, "%2d:%02d ", h, m);
 		return buf;
 	}
 
@@ -139,7 +139,7 @@ char *str_time(time_t total)
 	if (total < (time_t)86400) {
 		h = (total / 60) / 60;
 		m = (total / 60) % 60;
-		sprintf(buf, "%2d:%02dm", h, m);
+		snprintf(buf, 9, "%2d:%02dm", h, m);
 		return buf;
 	}
 
@@ -149,11 +149,11 @@ char *str_time(time_t total)
 	if (total < (time_t)2592000) {
 		h = (total / 3600) / 24;
 		m = (total / 3600) % 24;
-		sprintf(buf, "%2d/%02dh", h, m);
+		snprintf(buf, 9, "%2d/%02dh", h, m);
 		return buf;
 	}
 
-	sprintf(buf, "N/A   ");
+	snprintf(buf, 9, "N/A   ");
 	return buf;
 }
 

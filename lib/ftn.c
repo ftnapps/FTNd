@@ -5,7 +5,7 @@
  * Remark ................: From ifmail with patches from P.Saratxaga
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -243,7 +243,7 @@ faddr *parsefaddr(char *s)
 		goto leave;
 
 	p = calloc(PATH_MAX, sizeof(char));
-	sprintf(p, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+	snprintf(p, PATH_MAX -1, "%s/etc/domain.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(p, "r")) == NULL) {
 		WriteError("$Can't open %s", p);
 		free(p);
@@ -399,9 +399,9 @@ char *ascinode(faddr *a, int fl)
 		if ((strchr(a->name,'.')) || (strchr(a->name,'@')) ||
 		    (strchr(a->name,'\'')) || (strchr(a->name,',')) ||
 		    (strchr(a->name,'<')) || (strchr(a->name,'>')))
-			sprintf(buf+strlen(buf),"\"%s\" <",a->name);
+			snprintf(buf+strlen(buf), 127, "\"%s\" <", a->name);
 		else
-			sprintf(buf+strlen(buf),"%s <",a->name);
+			snprintf(buf+strlen(buf), 127, "%s <", a->name);
 	}
 
 	if ((fl & 0x40) && (a->name)) {
@@ -466,33 +466,33 @@ char *ascinode(faddr *a, int fl)
 	}
 
 	if ((fl & 0x01) && (a->point))
-		sprintf(buf+strlen(buf),"p%u.",a->point);
+		snprintf(buf+strlen(buf), 127, "p%u.", a->point);
 	if (fl & 0x02)
-		sprintf(buf+strlen(buf),"f%u.",a->node);
+		snprintf(buf+strlen(buf), 127, "f%u.", a->node);
 	if (fl & 0x04)
-		sprintf(buf+strlen(buf),"n%u.",a->net);
+		snprintf(buf+strlen(buf), 127, "n%u.", a->net);
 	if ((fl & 0x08) && (a->zone))
-		sprintf(buf+strlen(buf),"z%u.",a->zone);
+		snprintf(buf+strlen(buf), 127, "z%u.", a->zone);
 	buf[strlen(buf)-1]='\0';
 
 	if (fl & 0x10) {
 		if (a->domain)
-			sprintf(buf+strlen(buf),".%s",a->domain);
+			snprintf(buf+strlen(buf), 127, ".%s", a->domain);
 	}
 
 	if (fl & 0x20) {
 		if (a->domain) {
 			if ((fl & 0x10) == 0)
-				sprintf(buf+strlen(buf),".%s",a->domain);
+				snprintf(buf+strlen(buf), 127, ".%s", a->domain);
 		} else {
 			if (SearchFidonet(a->zone))
-				sprintf(buf+strlen(buf), ".%s", fidonet.domain);
+				snprintf(buf+strlen(buf), 127, ".%s", fidonet.domain);
 			else
-				sprintf(buf+strlen(buf),".fidonet");
+				snprintf(buf+strlen(buf), 127, ".fidonet");
 		}
 
 		p = calloc(128, sizeof(char));
-		sprintf(p, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+		snprintf(p, 127, "%s/etc/domain.data", getenv("MBSE_ROOT"));
 		if ((fp = fopen(p, "r")) == NULL) {
 			WriteError("$Can't open %s", p);
 		} else {
@@ -509,11 +509,11 @@ char *ascinode(faddr *a, int fl)
 		}
 		free(p);
 		if (!found) 
-			sprintf(buf + strlen(buf), ".ftn");
+			snprintf(buf + strlen(buf), 127, ".ftn");
 	}
 
 	if ((fl & 0x80) && (a->name))
-		sprintf(buf+strlen(buf),">");
+		snprintf(buf+strlen(buf), 127, ">");
 
 	return buf;
 }
@@ -535,17 +535,17 @@ char *ascfnode(faddr *a, int fl)
 
 	buf[0] = '\0';
 	if ((fl & 0x40) && (a->name))
-		sprintf(buf+strlen(buf),"%s of ",a->name);
+		snprintf(buf+strlen(buf),127,"%s of ",a->name);
 	if ((fl & 0x08) && (a->zone))
-		sprintf(buf+strlen(buf),"%u:",a->zone);
+		snprintf(buf+strlen(buf),127,"%u:",a->zone);
 	if (fl & 0x04)
-		sprintf(buf+strlen(buf),"%u/",a->net);
+		snprintf(buf+strlen(buf),127,"%u/",a->net);
 	if (fl & 0x02)
-		sprintf(buf+strlen(buf),"%u",a->node);
+		snprintf(buf+strlen(buf),127,"%u",a->node);
 	if ((fl & 0x01) && (a->point))
-		sprintf(buf+strlen(buf),".%u",a->point);
+		snprintf(buf+strlen(buf),127,".%u",a->point);
 	if ((fl & 0x10) && (a->domain))
-		sprintf(buf+strlen(buf),"@%s",a->domain);
+		snprintf(buf+strlen(buf),127,"@%s",a->domain);
 	return buf;
 }
 
@@ -600,7 +600,7 @@ fidoaddr *faddr2fido(faddr *aka)
 	Sys->node  = aka->node;
 	Sys->point = aka->point;
 	if (aka->domain != NULL)
-		sprintf(Sys->domain, "%s", aka->domain);
+		snprintf(Sys->domain, 12, "%s", aka->domain);
 
 	return Sys;
 }

@@ -10,7 +10,7 @@
  * MBSE BBS and utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -321,13 +321,13 @@ void JAM_DeleteJAM(char *Base)
     char    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s%s", Base, EXT_HDRFILE);
+    snprintf(temp, PATH_MAX -1, "%s%s", Base, EXT_HDRFILE);
     unlink(temp);
-    sprintf(temp, "%s%s", Base, EXT_IDXFILE);
+    snprintf(temp, PATH_MAX -1, "%s%s", Base, EXT_IDXFILE);
     unlink(temp);
-    sprintf(temp, "%s%s", Base, EXT_TXTFILE);
+    snprintf(temp, PATH_MAX -1, "%s%s", Base, EXT_TXTFILE);
     unlink(temp);
-    sprintf(temp, "%s%s", Base, EXT_LRDFILE);
+    snprintf(temp, PATH_MAX -1, "%s%s", Base, EXT_LRDFILE);
     unlink(temp);
     free(temp);
     Syslog('+', "JAM deleted %s", Base);
@@ -538,7 +538,7 @@ int JAM_Open(char *Msgbase)
 	pSubfield = NULL;
 	File = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(File, "%s%s", Msgbase, EXT_HDRFILE);
+	snprintf(File, PATH_MAX -1, "%s%s", Msgbase, EXT_HDRFILE);
 	if ((fdHdr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) != -1) {
 		if (read(fdHdr, &jamHdrInfo, sizeof(JAMHDRINFO)) != sizeof(JAMHDRINFO)) {
 			memset(&jamHdrInfo, 0, sizeof(JAMHDRINFO));
@@ -558,11 +558,11 @@ int JAM_Open(char *Msgbase)
 		    jamHdrInfo.Signature[1] == Signature[1] &&
 		    jamHdrInfo.Signature[2] == Signature[2] &&
 		    jamHdrInfo.Signature[3] == Signature[3]) {
-			sprintf(File, "%s%s", Msgbase, EXT_TXTFILE);
+			snprintf(File, PATH_MAX -1, "%s%s", Msgbase, EXT_TXTFILE);
 			fdJdt = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-			sprintf(File, "%s%s", Msgbase, EXT_IDXFILE);
+			snprintf(File, PATH_MAX -1, "%s%s", Msgbase, EXT_IDXFILE);
 			fdJdx = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-			sprintf(File, "%s%s", Msgbase, EXT_LRDFILE);
+			snprintf(File, PATH_MAX -1, "%s%s", Msgbase, EXT_LRDFILE);
 			fdJlr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 			RetVal = TRUE;
 
@@ -600,13 +600,13 @@ void JAM_Pack(void)
 
     File = calloc(PATH_MAX, sizeof(char));
     New  = calloc(PATH_MAX, sizeof(char));
-    sprintf(File, "%s%s", BaseName, ".$dr");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dr");
     fdnHdr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-    sprintf(File, "%s%s", BaseName, ".$dt");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dt");
     fdnJdt = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-    sprintf(File, "%s%s", BaseName, ".$dx");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dx");
     fdnJdx = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-    sprintf(File, "%s%s", BaseName, ".$lr");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$lr");
     fdnJlr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 
     /*
@@ -741,42 +741,42 @@ void JAM_Pack(void)
 	close(fdJlr);
 	fdHdr = fdJdt = fdJdx = fdJlr = -1;
 
-	sprintf(File, "%s%s", BaseName, ".$dr");
-	sprintf(New, "%s%s", BaseName, EXT_HDRFILE);
+	snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dr");
+	snprintf(New, PATH_MAX -1, "%s%s", BaseName, EXT_HDRFILE);
 	unlink(New);
 	rename(File, New);
-	sprintf(File, "%s%s", BaseName, ".$dt");
-	sprintf(New, "%s%s", BaseName, EXT_TXTFILE);
+	snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dt");
+	snprintf(New, PATH_MAX -1, "%s%s", BaseName, EXT_TXTFILE);
 	unlink(New);
 	rename(File, New);
-	sprintf(File, "%s%s", BaseName, ".$dx");
-	sprintf(New, "%s%s", BaseName, EXT_IDXFILE);
+	snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dx");
+	snprintf(New, PATH_MAX -1, "%s%s", BaseName, EXT_IDXFILE);
 	unlink(New);
 	rename(File, New);
-	sprintf(File, "%s%s", BaseName, ".$lr");
-	sprintf(New, "%s%s", BaseName, EXT_LRDFILE);
+	snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$lr");
+	snprintf(New, PATH_MAX -1, "%s%s", BaseName, EXT_LRDFILE);
 	unlink(New);
 	rename(File, New);
 
-	sprintf(File, "%s", BaseName);
+	snprintf(File, PATH_MAX -1, "%s", BaseName);
 	JAM_Open(File);
     }
 
     if (fdnHdr != -1)
 	close(fdnHdr);
-    sprintf(File, "%s%s", BaseName, ".$dr");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dr");
     unlink(File);
     if (fdnJdt != -1)
 	close(fdnJdt);
-    sprintf(File, "%s%s", BaseName, ".$dt");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dt");
     unlink(File);
     if (fdnJdx != -1)
 	close(fdnJdx);
-    sprintf(File, "%s%s", BaseName, ".$dx");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$dx");
     unlink(File);
     if (fdnJlr != -1)
 	close(fdnJlr);
-    sprintf(File, "%s%s", BaseName, ".$lr");
+    snprintf(File, PATH_MAX -1, "%s%s", BaseName, ".$lr");
     unlink(File);
     free(File);
     free(New);
@@ -1110,29 +1110,29 @@ int JAM_Read(unsigned long ulMsg, int nWidth)
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
 					memset(&Msg.Msgid, 0, sizeof(Msg.Msgid));
-					sprintf(Msg.Msgid, "%s", szBuff);
-					sprintf (szLine, "\001MSGID: %s", szBuff);
+					snprintf(Msg.Msgid, 80, "%s", szBuff);
+					snprintf(szLine, MAX_LINE_LENGTH, "\001MSGID: %s", szBuff);
 					MsgText_Add2(szLine);
 					break;
 
 				case JAMSFLD_REPLYID:
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
-					sprintf (szLine, "\001REPLY: %s", szBuff);
+					snprintf(szLine, MAX_LINE_LENGTH, "\001REPLY: %s", szBuff);
 					MsgText_Add2(szLine);
 					break;
 
 				case JAMSFLD_PID:
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
-					sprintf (szLine, "\001PID: %s", szBuff);
+					snprintf(szLine, MAX_LINE_LENGTH, "\001PID: %s", szBuff);
 					MsgText_Add2(szLine);
 					break;
 
 				case JAMSFLD_TRACE:
 					memcpy(szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
-					sprintf (szLine, "\001Via %s", szBuff);
+					snprintf(szLine, MAX_LINE_LENGTH, "\001Via %s", szBuff);
 					MsgText_Add2(szLine);
 					break;
 
@@ -1140,20 +1140,20 @@ int JAM_Read(unsigned long ulMsg, int nWidth)
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
 					if (!strncmp(szBuff, "AREA:", 5))
-						sprintf(szLine, "%s", szBuff);
+						snprintf(szLine, MAX_LINE_LENGTH, "%s", szBuff);
 					else {
-						sprintf (szLine, "\001%s", szBuff);
+						snprintf(szLine, MAX_LINE_LENGTH, "\001%s", szBuff);
 						if (strncmp(szLine, "\001REPLYADDR:", 11) == 0) {
-							sprintf(Msg.ReplyAddr, "%s", szLine+12);
+							snprintf(Msg.ReplyAddr, 80, "%s", szLine+12);
 						}
 						if (strncmp(szLine, "\001REPLYTO:", 9) == 0) {
-							sprintf(Msg.ReplyTo, "%s", szLine+10);
+							snprintf(Msg.ReplyTo, 80, "%s", szLine+10);
 						}
 						if (strncmp(szLine, "\001REPLYADDR", 10) == 0) {
-							sprintf(Msg.ReplyAddr, "%s", szLine+11);
+							snprintf(Msg.ReplyAddr, 80, "%s", szLine+11);
 						}
 						if (strncmp(szLine, "\001REPLYTO", 8) == 0) {
-							sprintf(Msg.ReplyTo, "%s", szLine+9);
+							snprintf(Msg.ReplyTo, 80, "%s", szLine+9);
 						}
 					}
 					MsgText_Add2(szLine);
@@ -1162,7 +1162,7 @@ int JAM_Read(unsigned long ulMsg, int nWidth)
 				case JAMSFLD_SEENBY2D:
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
-					sprintf (szLine, "SEEN-BY: %s", szBuff);
+					snprintf (szLine, MAX_LINE_LENGTH, "SEEN-BY: %s", szBuff);
 					if ((New = (LDATA *)malloc(sizeof(LDATA))) != NULL) {
 						memset(New, 0, sizeof(LDATA));
 						New->Value = strdup(szLine);
@@ -1182,7 +1182,7 @@ int JAM_Read(unsigned long ulMsg, int nWidth)
 				case JAMSFLD_PATH2D:
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
-					sprintf (szLine, "\001PATH: %s", szBuff);
+					snprintf(szLine, MAX_LINE_LENGTH, "\001PATH: %s", szBuff);
 					if ((New = (LDATA *)malloc(sizeof(LDATA))) != NULL) {
 						memset(New, 0, sizeof(LDATA));
 						New->Value = strdup(szLine);
@@ -1202,14 +1202,14 @@ int JAM_Read(unsigned long ulMsg, int nWidth)
 				case JAMSFLD_FLAGS:
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
-					sprintf (szLine, "\001FLAGS %s", szLine);
+					snprintf(szLine, MAX_LINE_LENGTH, "\001FLAGS %s", szLine);
 					MsgText_Add2(szLine);
 					break;
 
 				case JAMSFLD_TZUTCINFO:
 					memcpy (szBuff, pPos, (int)jamSubField->DatLen);
 					szBuff[(int)jamSubField->DatLen] = '\0';
-					sprintf (szBuff, "\001TZUTC %s", szLine);
+					snprintf(szBuff, MAX_LINE_LENGTH, "\001TZUTC %s", szLine);
 					MsgText_Add2(szLine);
 					break;
 

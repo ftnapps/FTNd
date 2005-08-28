@@ -52,19 +52,19 @@ void MacroVars( const char *codes, const char *fmt, ...)
         switch (fmt[j]) {
 	    case 's':   /* string */
                         vs = va_arg(ap, char *);
-                        sprintf(tmp1,"@(setvar,%c,\"%s\")",codes[j],vs);
+                        snprintf(tmp1, MAXSTR -1, "@(setvar,%c,\"%s\")",codes[j],vs);
                         break;
 	    case 'd':   /* int */
                         vd = va_arg(ap, int);
-                        sprintf(tmp1,"@(setvar,%c,%d)",codes[j],vd);
+                        snprintf(tmp1, MAXSTR -1, "@(setvar,%c,%d)",codes[j],vd);
                         break;
             case 'c':   /* char */
                         vc = va_arg(ap, int);
-                        sprintf(tmp1,"@(setvar,%c,%c)",codes[j],vc);
+                        snprintf(tmp1, MAXSTR -1, "@(setvar,%c,%c)",codes[j],vc);
                         break;
             case 'f':   /* char */
                         vf = va_arg(ap, double);
-                        sprintf(tmp1,"@(setvar,%c,%f)",codes[j],vf);
+                        snprintf(tmp1, MAXSTR -1, "@(setvar,%c,%f)",codes[j],vf);
                         break;
 	}
         dieselrc = diesel(tmp1,tmp2);
@@ -129,16 +129,16 @@ char *ParseMacro( const char *line, int *dieselrc)
 		    i++;
 		}
 		i--;
-		sprintf(tmp2,"@(GETVAR,%c)",code);
+		snprintf(tmp2, MAXSTR -1, "@(GETVAR,%c)",code);
 		if (!diesel(tmp2,tmp3)==0){
-		    sprintf(tmp3,"%c%c",'@',code);
+		    snprintf(tmp3, MAXSTR -1, "%c%c",'@',code);
 		}
 		if (l>2){
 		    if ( *i != '>')
 			l=-l;
-		    sprintf(&tmp1[strlen(tmp1)],"%*.*s",l,l, tmp3);
+		    snprintf(&tmp1[strlen(tmp1)], MAXSTR -1, "%*.*s", l, l, tmp3);
 		}else{
-		    sprintf(&tmp1[strlen(tmp1)],"%s",tmp3);
+		    snprintf(&tmp1[strlen(tmp1)], MAXSTR -1, "%s", tmp3);
 		}
 	    }else{
 		tmp1[(j=strlen(tmp1))]='@';
@@ -151,7 +151,7 @@ char *ParseMacro( const char *line, int *dieselrc)
     }
 
     i = tmp1;
-    sprintf(tmp2,"%s",tmp1);
+    snprintf(tmp2, MAXSTR -1, "%s", tmp1);
 
     if ((tmp1[0]=='@') && (tmp1[1]=='{')){
 	i++;
@@ -163,11 +163,11 @@ char *ParseMacro( const char *line, int *dieselrc)
 	    i++;
 	    res[0]='\0';
 	    if (j>2)
-		sprintf(res,"%.*s",j-2,&tmp1[2]);
+		snprintf(res, MAXSTR -1, "%.*s",j-2, &tmp1[2]);
 	    if ((diesel(res,tmp3)!=0) || (atoi(tmp3)==0))
-		sprintf(tmp2,"@!%s",i);
+		snprintf(tmp2, MAXSTR -1, "@!%s",i);
 	    else
-		sprintf(tmp2,"%s",i);
+		snprintf(tmp2, MAXSTR -1, "%s",i);
 	}
     }
     *dieselrc=diesel(tmp2, res);
@@ -197,7 +197,7 @@ void Cookie(int HtmlMode)
 
     MacroVars("F", "s", "");
     fname = calloc(PATH_MAX, sizeof(char));
-    sprintf(fname, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(fname, PATH_MAX -1, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((olf = fopen(fname, "r")) == NULL) {
 	WriteError("Can't open %s", fname);
@@ -218,7 +218,7 @@ void Cookie(int HtmlMode)
     if (fseek(olf, olhdr.hdrsize + (recno * olhdr.recsize), SEEK_SET) == 0) {
 	if (fread(&ol, olhdr.recsize, 1, olf) == 1) {
 	    if (HtmlMode) {
-		html_massage(ol.Oneline, outbuf);
+		html_massage(ol.Oneline, outbuf, 255);
 		MacroVars("F", "s", outbuf);
 	    } else {
 		MacroVars("F", "s", ol.Oneline);
@@ -240,7 +240,7 @@ void Cookie(int HtmlMode)
 /*
  * Translate ISO 8859-1 characters to named character entities
  */
-void html_massage(char *inbuf, char *outbuf)
+void html_massage(char *inbuf, char *outbuf, size_t size)
 {
         char    *inptr = inbuf;
         char    *outptr = outbuf;
@@ -251,106 +251,106 @@ void html_massage(char *inbuf, char *outbuf)
 
                 switch ((unsigned char)*inptr) {
 
-                        case '"':       sprintf(outptr, "&quot;");      break;
-                        case '&':       sprintf(outptr, "&amp;");       break;
-                        case '<':       sprintf(outptr, "&lt;");        break;
-                        case '>':       sprintf(outptr, "&gt;");        break;
-                        case 160:       sprintf(outptr, "&nbsp;");      break;
-                        case 161:       sprintf(outptr, "&iexcl;");     break;
-                        case 162:       sprintf(outptr, "&cent;");      break;
-                        case 163:       sprintf(outptr, "&pound;");     break;
-                        case 164:       sprintf(outptr, "&curren;");    break;
-                        case 165:       sprintf(outptr, "&yen;");       break;
-                        case 166:       sprintf(outptr, "&brvbar;");    break;
-                        case 167:       sprintf(outptr, "&sect;");      break;
-                        case 168:       sprintf(outptr, "&uml;");       break;
-                        case 169:       sprintf(outptr, "&copy;");      break;
-                        case 170:       sprintf(outptr, "&ordf;");      break;
-                        case 171:       sprintf(outptr, "&laquo;");     break;
-                        case 172:       sprintf(outptr, "&not;");       break;
-                        case 173:       sprintf(outptr, "&shy;");       break;
-                        case 174:       sprintf(outptr, "&reg;");       break;
-                        case 175:       sprintf(outptr, "&macr;");      break;
-                        case 176:       sprintf(outptr, "&deg;");       break;
-                        case 177:       sprintf(outptr, "&plumin;");    break;
-                        case 178:       sprintf(outptr, "&sup2;");      break;
-                        case 179:       sprintf(outptr, "&sup3;");      break;
-                        case 180:       sprintf(outptr, "&acute;");     break;
-                        case 181:       sprintf(outptr, "&micro;");     break;
-                        case 182:       sprintf(outptr, "&para;");      break;
-                        case 183:       sprintf(outptr, "&middot;");    break;
-                        case 184:       sprintf(outptr, "&cedil;");     break;
-                        case 185:       sprintf(outptr, "&supl;");      break;
-                        case 186:       sprintf(outptr, "&ordm;");      break;
-                        case 187:       sprintf(outptr, "&raquo;");     break;
-                        case 188:       sprintf(outptr, "&frac14;");    break;
-                        case 189:       sprintf(outptr, "&frac12;");    break;
-                        case 190:       sprintf(outptr, "&frac34;");    break;
-                        case 191:       sprintf(outptr, "&iquest;");    break;
-                        case 192:       sprintf(outptr, "&Agrave;");    break;
-                        case 193:       sprintf(outptr, "&Aacute;");    break;
-                        case 194:       sprintf(outptr, "&Acirc;");     break;
-                        case 195:       sprintf(outptr, "&Atilde;");    break;
-                        case 196:       sprintf(outptr, "&Auml;");      break;
-                        case 197:       sprintf(outptr, "&Aring;");     break;
-                        case 198:       sprintf(outptr, "&AElig;");     break;
-                        case 199:       sprintf(outptr, "&Ccedil;");    break;
-                        case 200:       sprintf(outptr, "&Egrave;");    break;
-                        case 201:       sprintf(outptr, "&Eacute;");    break;
-                        case 202:       sprintf(outptr, "&Ecirc;");     break;
-                        case 203:       sprintf(outptr, "&Euml;");      break;
-                        case 204:       sprintf(outptr, "&Igrave;");    break;
-                        case 205:       sprintf(outptr, "&Iacute;");    break;
-                        case 206:       sprintf(outptr, "&Icirc;");     break;
-                        case 207:       sprintf(outptr, "&Iuml;");      break;
-                        case 208:       sprintf(outptr, "&ETH;");       break;
-                        case 209:       sprintf(outptr, "&Ntilde;");    break;
-                        case 210:       sprintf(outptr, "&Ograve;");    break;
-                        case 211:       sprintf(outptr, "&Oacute;");    break;
-                        case 212:       sprintf(outptr, "&Ocirc;");     break;
-                        case 213:       sprintf(outptr, "&Otilde;");    break;
-                        case 214:       sprintf(outptr, "&Ouml;");      break;
-                        case 215:       sprintf(outptr, "&times;");     break;
-                        case 216:       sprintf(outptr, "&Oslash;");    break;
-                        case 217:       sprintf(outptr, "&Ugrave;");    break;
-                        case 218:       sprintf(outptr, "&Uacute;");    break;
-                        case 219:       sprintf(outptr, "&Ucirc;");     break;
-                        case 220:       sprintf(outptr, "&Uuml;");      break;
-                        case 221:       sprintf(outptr, "&Yacute;");    break;
-                        case 222:       sprintf(outptr, "&THORN;");     break;
-                        case 223:       sprintf(outptr, "&szlig;");     break;
-                        case 224:       sprintf(outptr, "&agrave;");    break;
-                        case 225:       sprintf(outptr, "&aacute;");    break;
-                        case 226:       sprintf(outptr, "&acirc;");     break;
-                        case 227:       sprintf(outptr, "&atilde;");    break;
-                        case 228:       sprintf(outptr, "&auml;");      break;
-                        case 229:       sprintf(outptr, "&aring;");     break;
-                        case 230:       sprintf(outptr, "&aelig;");     break;
-                        case 231:       sprintf(outptr, "&ccedil;");    break;
-                        case 232:       sprintf(outptr, "&egrave;");    break;
-                        case 233:       sprintf(outptr, "&eacute;");    break;
-                        case 234:       sprintf(outptr, "&ecirc;");     break;
-                        case 235:       sprintf(outptr, "&euml;");      break;
-                        case 236:       sprintf(outptr, "&igrave;");    break;
-                        case 237:       sprintf(outptr, "&iacute;");    break;
-                        case 238:       sprintf(outptr, "&icirc;");     break;
-                        case 239:       sprintf(outptr, "&iuml;");      break;
-                        case 240:       sprintf(outptr, "&eth;");       break;
-                        case 241:       sprintf(outptr, "&ntilde;");    break;
-                        case 242:       sprintf(outptr, "&ograve;");    break;
-                        case 243:       sprintf(outptr, "&oacute;");    break;
-                        case 244:       sprintf(outptr, "&ocirc;");     break;
-                        case 245:       sprintf(outptr, "&otilde;");    break;
-                        case 246:       sprintf(outptr, "&ouml;");      break;
-                        case 247:       sprintf(outptr, "&divide;");    break;
-                        case 248:       sprintf(outptr, "&oslash;");    break;
-                        case 249:       sprintf(outptr, "&ugrave;");    break;
-                        case 250:       sprintf(outptr, "&uacute;");    break;
-                        case 251:       sprintf(outptr, "&ucirc;");     break;
-                        case 252:       sprintf(outptr, "&uuml;");      break;
-                        case 253:       sprintf(outptr, "&yacute;");    break;
-                        case 254:       sprintf(outptr, "&thorn;");     break;
-                        case 255:       sprintf(outptr, "&yuml;");      break;
+                        case '"':       snprintf(outptr, size, "&quot;");      break;
+                        case '&':       snprintf(outptr, size, "&amp;");       break;
+                        case '<':       snprintf(outptr, size, "&lt;");        break;
+                        case '>':       snprintf(outptr, size, "&gt;");        break;
+                        case 160:       snprintf(outptr, size, "&nbsp;");      break;
+                        case 161:       snprintf(outptr, size, "&iexcl;");     break;
+                        case 162:       snprintf(outptr, size, "&cent;");      break;
+                        case 163:       snprintf(outptr, size, "&pound;");     break;
+                        case 164:       snprintf(outptr, size, "&curren;");    break;
+                        case 165:       snprintf(outptr, size, "&yen;");       break;
+                        case 166:       snprintf(outptr, size, "&brvbar;");    break;
+                        case 167:       snprintf(outptr, size, "&sect;");      break;
+                        case 168:       snprintf(outptr, size, "&uml;");       break;
+                        case 169:       snprintf(outptr, size, "&copy;");      break;
+                        case 170:       snprintf(outptr, size, "&ordf;");      break;
+                        case 171:       snprintf(outptr, size, "&laquo;");     break;
+                        case 172:       snprintf(outptr, size, "&not;");       break;
+                        case 173:       snprintf(outptr, size, "&shy;");       break;
+                        case 174:       snprintf(outptr, size, "&reg;");       break;
+                        case 175:       snprintf(outptr, size, "&macr;");      break;
+                        case 176:       snprintf(outptr, size, "&deg;");       break;
+                        case 177:       snprintf(outptr, size, "&plumin;");    break;
+                        case 178:       snprintf(outptr, size, "&sup2;");      break;
+                        case 179:       snprintf(outptr, size, "&sup3;");      break;
+                        case 180:       snprintf(outptr, size, "&acute;");     break;
+                        case 181:       snprintf(outptr, size, "&micro;");     break;
+                        case 182:       snprintf(outptr, size, "&para;");      break;
+                        case 183:       snprintf(outptr, size, "&middot;");    break;
+                        case 184:       snprintf(outptr, size, "&cedil;");     break;
+                        case 185:       snprintf(outptr, size, "&supl;");      break;
+                        case 186:       snprintf(outptr, size, "&ordm;");      break;
+                        case 187:       snprintf(outptr, size, "&raquo;");     break;
+                        case 188:       snprintf(outptr, size, "&frac14;");    break;
+                        case 189:       snprintf(outptr, size, "&frac12;");    break;
+                        case 190:       snprintf(outptr, size, "&frac34;");    break;
+                        case 191:       snprintf(outptr, size, "&iquest;");    break;
+                        case 192:       snprintf(outptr, size, "&Agrave;");    break;
+                        case 193:       snprintf(outptr, size, "&Aacute;");    break;
+                        case 194:       snprintf(outptr, size, "&Acirc;");     break;
+                        case 195:       snprintf(outptr, size, "&Atilde;");    break;
+                        case 196:       snprintf(outptr, size, "&Auml;");      break;
+                        case 197:       snprintf(outptr, size, "&Aring;");     break;
+                        case 198:       snprintf(outptr, size, "&AElig;");     break;
+                        case 199:       snprintf(outptr, size, "&Ccedil;");    break;
+                        case 200:       snprintf(outptr, size, "&Egrave;");    break;
+                        case 201:       snprintf(outptr, size, "&Eacute;");    break;
+                        case 202:       snprintf(outptr, size, "&Ecirc;");     break;
+                        case 203:       snprintf(outptr, size, "&Euml;");      break;
+                        case 204:       snprintf(outptr, size, "&Igrave;");    break;
+                        case 205:       snprintf(outptr, size, "&Iacute;");    break;
+                        case 206:       snprintf(outptr, size, "&Icirc;");     break;
+                        case 207:       snprintf(outptr, size, "&Iuml;");      break;
+                        case 208:       snprintf(outptr, size, "&ETH;");       break;
+                        case 209:       snprintf(outptr, size, "&Ntilde;");    break;
+                        case 210:       snprintf(outptr, size, "&Ograve;");    break;
+                        case 211:       snprintf(outptr, size, "&Oacute;");    break;
+                        case 212:       snprintf(outptr, size, "&Ocirc;");     break;
+                        case 213:       snprintf(outptr, size, "&Otilde;");    break;
+                        case 214:       snprintf(outptr, size, "&Ouml;");      break;
+                        case 215:       snprintf(outptr, size, "&times;");     break;
+                        case 216:       snprintf(outptr, size, "&Oslash;");    break;
+                        case 217:       snprintf(outptr, size, "&Ugrave;");    break;
+                        case 218:       snprintf(outptr, size, "&Uacute;");    break;
+                        case 219:       snprintf(outptr, size, "&Ucirc;");     break;
+                        case 220:       snprintf(outptr, size, "&Uuml;");      break;
+                        case 221:       snprintf(outptr, size, "&Yacute;");    break;
+                        case 222:       snprintf(outptr, size, "&THORN;");     break;
+                        case 223:       snprintf(outptr, size, "&szlig;");     break;
+                        case 224:       snprintf(outptr, size, "&agrave;");    break;
+                        case 225:       snprintf(outptr, size, "&aacute;");    break;
+                        case 226:       snprintf(outptr, size, "&acirc;");     break;
+                        case 227:       snprintf(outptr, size, "&atilde;");    break;
+                        case 228:       snprintf(outptr, size, "&auml;");      break;
+                        case 229:       snprintf(outptr, size, "&aring;");     break;
+                        case 230:       snprintf(outptr, size, "&aelig;");     break;
+                        case 231:       snprintf(outptr, size, "&ccedil;");    break;
+                        case 232:       snprintf(outptr, size, "&egrave;");    break;
+                        case 233:       snprintf(outptr, size, "&eacute;");    break;
+                        case 234:       snprintf(outptr, size, "&ecirc;");     break;
+                        case 235:       snprintf(outptr, size, "&euml;");      break;
+                        case 236:       snprintf(outptr, size, "&igrave;");    break;
+                        case 237:       snprintf(outptr, size, "&iacute;");    break;
+                        case 238:       snprintf(outptr, size, "&icirc;");     break;
+                        case 239:       snprintf(outptr, size, "&iuml;");      break;
+                        case 240:       snprintf(outptr, size, "&eth;");       break;
+                        case 241:       snprintf(outptr, size, "&ntilde;");    break;
+                        case 242:       snprintf(outptr, size, "&ograve;");    break;
+                        case 243:       snprintf(outptr, size, "&oacute;");    break;
+                        case 244:       snprintf(outptr, size, "&ocirc;");     break;
+                        case 245:       snprintf(outptr, size, "&otilde;");    break;
+                        case 246:       snprintf(outptr, size, "&ouml;");      break;
+                        case 247:       snprintf(outptr, size, "&divide;");    break;
+                        case 248:       snprintf(outptr, size, "&oslash;");    break;
+                        case 249:       snprintf(outptr, size, "&ugrave;");    break;
+                        case 250:       snprintf(outptr, size, "&uacute;");    break;
+                        case 251:       snprintf(outptr, size, "&ucirc;");     break;
+                        case 252:       snprintf(outptr, size, "&uuml;");      break;
+                        case 253:       snprintf(outptr, size, "&yacute;");    break;
+                        case 254:       snprintf(outptr, size, "&thorn;");     break;
+                        case 255:       snprintf(outptr, size, "&yuml;");      break;
                         default:        *outptr++ = *inptr; *outptr = '\0';     break;
                 }
                 while (*outptr)
@@ -376,7 +376,7 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
 	/*
 	 * Maybe a valid language character, try to load the language
 	 */
-	sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/language.data", getenv("MBSE_ROOT"));
 	if ((pLang = fopen(temp, "rb")) == NULL) {
 	    WriteError("mbdiesel: Can't open language file: %s", temp);
 	} else {
@@ -384,7 +384,7 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
     
 	    while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
 		if ((lang.LangKey[0] == Language) && (lang.Available)) {
-		    sprintf(temp,"%s/%s", lang.MacroPath, filename);
+		    snprintf(temp, PATH_MAX -1, "%s/%s", lang.MacroPath, filename);
 		    break;
 		}
 	    }
@@ -403,35 +403,35 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
      */
     if (fi == NULL) {
 	Syslog('-', "Macro file \"%s\" for language %c not found, trying default", filename, Language);
-	sprintf(temp, "%s/%s", CFG.bbs_macros, filename);
+	snprintf(temp, PATH_MAX -1, "%s/%s", CFG.bbs_macros, filename);
 	fi = fopen(temp,"r");
     }
 
     if (fi == NULL)
 	WriteError("OpenMacro(%s, %c): not found", filename, Language);
     else {
-	sprintf(temp, "%s-%s", OsName(), OsCPU());
+	snprintf(temp, PATH_MAX -1, "%s-%s", OsName(), OsCPU());
 	if (CFG.aka[0].point)
-	    sprintf(aka, "%d:%d/%d.%d@%s", CFG.aka[0].zone, CFG.aka[0].net, CFG.aka[0].node, CFG.aka[0].point, CFG.aka[0].domain);
+	    snprintf(aka, 80, "%d:%d/%d.%d@%s", CFG.aka[0].zone, CFG.aka[0].net, CFG.aka[0].node, CFG.aka[0].point, CFG.aka[0].domain);
 	else
-	    sprintf(aka, "%d:%d/%d@%s", CFG.aka[0].zone, CFG.aka[0].net, CFG.aka[0].node, CFG.aka[0].domain);
+	    snprintf(aka, 80, "%d:%d/%d@%s", CFG.aka[0].zone, CFG.aka[0].net, CFG.aka[0].node, CFG.aka[0].domain);
 
 	if (htmlmode) {
 	    MacroVars("O", "s", temp);
-	    sprintf(linebuf, "%s", CFG.sysop);
-	    html_massage(linebuf, outbuf);
+	    snprintf(linebuf, 1023, "%s", CFG.sysop);
+	    html_massage(linebuf, outbuf, 1023);
 	    MacroVars("U", "s", outbuf);
-	    sprintf(linebuf, "%s", CFG.location);
-	    html_massage(linebuf, outbuf);
+	    snprintf(linebuf, 1023, "%s", CFG.location);
+	    html_massage(linebuf, outbuf, 1023);
 	    MacroVars("L", "s", outbuf);
-	    sprintf(linebuf, "%s", CFG.bbs_name);
-	    html_massage(linebuf, outbuf);
+	    snprintf(linebuf, 1023, "%s", CFG.bbs_name);
+	    html_massage(linebuf, outbuf, 1023);
 	    MacroVars("N", "s", outbuf);
-	    sprintf(linebuf, "%s", CFG.sysop_name);
-	    html_massage(linebuf, outbuf);
+	    snprintf(linebuf, 1023, "%s", CFG.sysop_name);
+	    html_massage(linebuf, outbuf, 1023);
 	    MacroVars("S", "s", outbuf);
-	    sprintf(linebuf, "%s", CFG.comment);
-	    html_massage(linebuf, outbuf);
+	    snprintf(linebuf, 1023, "%s", CFG.comment);
+	    html_massage(linebuf, outbuf, 1023);
 	    MacroVars("T", "s", outbuf);
 	} else {
 	    MacroVars("L", "s", CFG.location);

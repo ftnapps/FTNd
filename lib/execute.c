@@ -4,7 +4,7 @@
  * Purpose ...............: Execute subprogram
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -45,7 +45,7 @@ int _execute(char **args, char *in, char *out, char *err)
     memset(&buf, 0, sizeof(buf));
     for (i = 0; i < 16; i++) {
 	if (args[i])
-	    sprintf(buf, "%s %s", buf, args[i]);
+	    snprintf(buf, PATH_MAX -1, "%s %s", buf, args[i]);
 	else
 	    break;
     }
@@ -164,9 +164,9 @@ int execute_str(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
     i = 0;
 
     if ((pkt != NULL) && strlen(pkt))
-	sprintf(buf, "%s %s %s", cmd, fil, pkt);
+	snprintf(buf, PATH_MAX -1, "%s %s %s", cmd, fil, pkt);
     else
-	sprintf(buf, "%s %s", cmd, fil);
+	snprintf(buf, PATH_MAX -1, "%s %s", cmd, fil);
 	
     args[i++] = strtok(buf, " \t\0");
     while ((args[i++] = strtok(NULL," \t\n")) && (i < 15));

@@ -4,7 +4,7 @@
  * Purpose ...............: DOS to Unix filename translation
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -40,7 +40,7 @@ char *Dos2Unix(char *dosname)
 
 	memset(&buf, 0, sizeof(buf));
 	memset(&buf2, 0, sizeof(buf2));
-	sprintf(buf, "%s", dosname);
+	snprintf(buf, PATH_MAX -1, "%s", dosname);
 	p = buf;
 
 	if (strlen(CFG.dospath)) {
@@ -72,7 +72,7 @@ char *Unix2Dos(char *uxname)
 	memset(&buf, 0, sizeof(buf));
 
 	if (strlen(CFG.dospath)) {
-		sprintf(buf, "%s", CFG.dospath);
+		snprintf(buf, PATH_MAX -1, "%s", CFG.dospath);
 
 		if (*(CFG.dospath+strlen(CFG.dospath)-1) != '\\')
 			buf[strlen(buf)] = '\\';
@@ -84,7 +84,7 @@ char *Unix2Dos(char *uxname)
 			buf[strlen(buf)] = (*q == '/')?'\\':*q;
 
 	} else {
-		sprintf(buf, "%s", uxname);
+		snprintf(buf, PATH_MAX -1, "%s", uxname);
 	}
 
 	return buf;

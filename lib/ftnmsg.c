@@ -5,7 +5,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -51,7 +51,7 @@ char *ftndate(time_t t)
 	if (ptm->tm_sec > 59)
 		ptm->tm_sec = 59;
 
-	sprintf(buf,"%02d %s %02d  %02d:%02d:%02d",ptm->tm_mday,
+	snprintf(buf, 31, "%02d %s %02d  %02d:%02d:%02d",ptm->tm_mday,
 		months[ptm->tm_mon], ptm->tm_year%100,
 		ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
 	return buf;

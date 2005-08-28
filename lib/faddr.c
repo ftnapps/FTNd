@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet Address conversions. 
  *
  *****************************************************************************
- * Copyright (C) 1993-2004
+ * Copyright (C) 1993-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -48,14 +48,14 @@ char *aka2str(fidoaddr aka)
     result[0] = '\0';
     if (strlen(aka.domain)) {
 	if (aka.point == 0) 
-	    sprintf(result, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
+	    snprintf(result, 42, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
 	else
-	    sprintf(result, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
+	    snprintf(result, 42, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
     } else {
 	if (aka.point == 0)
-	    sprintf(result, "%d:%d/%d", aka.zone, aka.net, aka.node);
+	    snprintf(result, 42, "%d:%d/%d", aka.zone, aka.net, aka.node);
 	else
-	    sprintf(result, "%d:%d/%d.%d", aka.zone, aka.net, aka.node, aka.point);
+	    snprintf(result, 42, "%d:%d/%d.%d", aka.zone, aka.net, aka.node, aka.point);
     }
     return result;
 }
@@ -84,7 +84,7 @@ fidoaddr str2aka(char *addr)
 	if (strlen(addr) > 42)
 		return n;
 	
-	sprintf(b, "%s~", addr);
+	snprintf(b, 42, "%s~", addr);
 	if ((strchr(b, ':') == NULL) || (strchr(b, '/') == NULL))
 		return n;
 

@@ -50,7 +50,7 @@ int diesel(char *, char *);
 char *ParseMacro( const char *, int * );
 void MacroVars( const char *, const char *, ... );
 void MacroClear(void);
-void html_massage(char *, char *);
+void html_massage(char *, char *, size_t);
 FILE *OpenMacro(const char *, int, int);
 
 #endif
