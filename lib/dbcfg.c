@@ -4,7 +4,7 @@
  * Purpose ...............: Config Database.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -56,7 +56,7 @@ void LoadConfig(void)
 	char	*FileName;
 
 	FileName = calloc(PATH_MAX, sizeof(char));
-	sprintf(FileName, "%s/etc/config.data", getenv("MBSE_ROOT"));
+	snprintf(FileName, PATH_MAX -1, "%s/etc/config.data", getenv("MBSE_ROOT"));
 	if ((pDataFile = fopen(FileName, "r")) == NULL) {
 		perror("\n\nFATAL ERROR:");
 		printf(" Can't open %s\n", FileName);

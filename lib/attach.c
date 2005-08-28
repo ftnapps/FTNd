@@ -4,7 +4,7 @@
  * Purpose ...............: Attach files to outbound
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -57,7 +57,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 
     flofile = calloc(PATH_MAX, sizeof(char));
     thefile = calloc(PATH_MAX, sizeof(char));
-    sprintf(flofile, "%s", floname(&noden, flavor));
+    snprintf(flofile, PATH_MAX -1, "%s", floname(&noden, flavor));
 
     /*
      * Check if outbound directory exists and 
@@ -86,33 +86,33 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 	case LEAVE:
 	    if (strlen(CFG.dospath)) {
 		if (CFG.leavecase)
-		    sprintf(thefile, "@%s", Unix2Dos(ofile));
+		    snprintf(thefile, PATH_MAX -1, "@%s", Unix2Dos(ofile));
 		else
-		    sprintf(thefile, "@%s", tu(Unix2Dos(ofile)));
+		    snprintf(thefile, PATH_MAX -1, "@%s", tu(Unix2Dos(ofile)));
 	    } else {
-		sprintf(thefile, "@%s", ofile);
+		snprintf(thefile, PATH_MAX -1, "@%s", ofile);
 	    }
 	    break;
 
 	case KFS:
 	    if (strlen(CFG.dospath)) {
 		if (CFG.leavecase)
-		    sprintf(thefile, "^%s", Unix2Dos(ofile));
+		    snprintf(thefile, PATH_MAX -1, "^%s", Unix2Dos(ofile));
 		else
-		    sprintf(thefile, "^%s", tu(Unix2Dos(ofile)));
+		    snprintf(thefile, PATH_MAX -1, "^%s", tu(Unix2Dos(ofile)));
 	    } else {
-		sprintf(thefile, "^%s", ofile);
+		snprintf(thefile, PATH_MAX -1, "^%s", ofile);
 	    }
 	    break;
 
 	case TFS:
 	    if (strlen(CFG.dospath)) {
 		if (CFG.leavecase)
-		    sprintf(thefile, "#%s", Unix2Dos(ofile));
+		    snprintf(thefile, PATH_MAX -1, "#%s", Unix2Dos(ofile));
 		else
-		    sprintf(thefile, "#%s", tu(Unix2Dos(ofile)));
+		    snprintf(thefile, PATH_MAX -1, "#%s", tu(Unix2Dos(ofile)));
 	    } else {
-		sprintf(thefile, "#%s", ofile);
+		snprintf(thefile, PATH_MAX -1, "#%s", ofile);
 	    }
 	    break;
     }
@@ -168,7 +168,7 @@ int check_flo(faddr *node, char *filename, char flavor)
     flofile = calloc(PATH_MAX, sizeof(char));
     ticfile = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(flofile, "%s", floname(node, flavor));
+    snprintf(flofile, PATH_MAX -1, "%s", floname(node, flavor));
     Syslog('p', "check_flo: %s", flofile);
     if ((fp = fopen(flofile, "r+"))) {
 	filepos = 0;

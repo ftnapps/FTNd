@@ -4,7 +4,7 @@
  * Purpose ...............: Files database functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -50,7 +50,7 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
     temp = calloc(PATH_MAX, sizeof(char));
     fdb_area = malloc(sizeof(struct _fdbarea));	    /* Will be freed by CloseFDB */
 
-    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 
     /*
      * Open the file database, if it's locked, just wait.
@@ -200,12 +200,12 @@ void mbsedb_Temp2Data(unsigned long fdb_area)
      * we will give that a new name on disk. Then we move the temp in place.
      * Finaly remove the old (still locked) original file.
      */
-    sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area);
-    sprintf(temp1, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area);
+    snprintf(temp2, PATH_MAX -1, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area);
+    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area);
     rename(temp2, temp1);
-    sprintf(temp1, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area);
+    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area);
     rename(temp1, temp2);
-    sprintf(temp1, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area);
+    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area);
     unlink(temp1);
 
     free(temp1);
@@ -241,7 +241,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
      * There are files, search the insert point.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
     Insert = 0;
     do {
@@ -356,7 +356,7 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
      * There are files, copy the remaining entries
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     if ((fp = fopen(temp, "a+")) == NULL) {
 	WriteError("$Can't create %s", temp);
 	mbsedb_UnlockFDB(fdb_area);
@@ -494,7 +494,7 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     }
     
     temp  = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     if ((fp = fopen(temp, "a+")) == NULL) {
         WriteError("$Can't create %s", temp);
         mbsedb_UnlockFDB(fdb_area);

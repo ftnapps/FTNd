@@ -79,7 +79,7 @@ int CheckDupe(unsigned long crc, int idx, int max)
 
     if (!dupes[idx].loaded) {
 	dfile = calloc(PATH_MAX, sizeof(char));
-	sprintf(dfile, "%s/etc/%s.dupe", getenv("MBSE_ROOT"), files[idx]);
+	snprintf(dfile, PATH_MAX -1, "%s/etc/%s.dupe", getenv("MBSE_ROOT"), files[idx]);
 	if ((fil = fopen(dfile, "r+")) == NULL) {
 	    /*
 	     * Dupe database doesn't exist yet.
@@ -155,7 +155,7 @@ void CloseDdb(int idx)
 		start = dupes[idx].count - dupes[idx].max;
 	    else
 		start = 0;
-	    sprintf(dfile, "%s/etc/%s.dupe", getenv("MBSE_ROOT"), files[idx]);
+	    snprintf(dfile, PATH_MAX -1, "%s/etc/%s.dupe", getenv("MBSE_ROOT"), files[idx]);
 	    if ((fil = fopen(dfile, "w"))) {
 		for (j = start; j < dupes[idx].count; j++)
 		    fwrite(&dupes[idx].crcs[j], sizeof(unsigned long), 1, fil);
