@@ -171,16 +171,16 @@ long StartReply(ff_list *ffl)
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(Msg.From, "%s", CFG.sysop_name);
-    sprintf(Msg.To, "%s", ffl->from);
-    sprintf(Msg.Subject, "Re: %s", ffl->subject);
-    sprintf(Msg.FromAddress, "%s", aka2str(scanmgr.Aka));
+    snprintf(Msg.From, 101, "%s", CFG.sysop_name);
+    snprintf(Msg.To, 101, "%s", ffl->from);
+    snprintf(Msg.Subject, 101, "Re: %s", ffl->subject);
+    snprintf(Msg.FromAddress, 101, "%s", aka2str(scanmgr.Aka));
     Msg.Written = time(NULL);
     Msg.Arrived = time(NULL);
     Msg.Local   = TRUE;
     if (scanmgr.NetReply){
 	Msg.Netmail = TRUE;
-	sprintf(Msg.ToAddress, "%d:%d/%d.%d", ffl->zone, ffl->net, ffl->node, ffl->point);
+	snprintf(Msg.ToAddress, 101, "%d:%d/%d.%d", ffl->zone, ffl->net, ffl->node, ffl->point);
 	Msg.Private = TRUE;
     } else
 	Msg.Echomail = TRUE;
@@ -189,7 +189,7 @@ long StartReply(ff_list *ffl)
      *  Start message text including kludges
      */
     Msg_Id(scanmgr.Aka);
-    sprintf(temp, "\001REPLY: %s", ffl->msgid);
+    snprintf(temp, PATH_MAX, "\001REPLY: %s", ffl->msgid);
     MsgText_Add2(temp);
     Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
     free(temp);
@@ -223,7 +223,7 @@ void FinishReply(int Reported, int Total, long filepos)
     Msg_UnLock();
     Syslog('+', "Posted message %ld", Msg.Id);
 
-    sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), scanmgr.NetReply?"net":"echo");
+    snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), scanmgr.NetReply?"net":"echo");
     if ((fp = fopen(temp, "a")) != NULL) {
 	if (strlen(scanmgr.ReplBoard))
 	    fprintf(fp, "%s %lu\n", scanmgr.ReplBoard, Msg.Id);
@@ -260,10 +260,10 @@ void ScanFiles(ff_list *tmp)
     }
 
     kwd  = calloc(81, sizeof(char));
-    temp = calloc(1024, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
     BigDesc = calloc(1230, sizeof(char));
 
-    sprintf(temp, "%s (%d:%d/%d.%d)", tmp->from, tmp->zone, tmp->net, tmp->node, tmp->point);
+    snprintf(temp, PATH_MAX, "%s (%d:%d/%d.%d)", tmp->from, tmp->zone, tmp->net, tmp->node, tmp->point);
     Syslog('+', "ff: %s [%s]", temp, tmp->subject);
 
     if (!do_quiet) {
@@ -276,7 +276,7 @@ void ScanFiles(ff_list *tmp)
 	fflush(stdout);
     }
 
-    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen(temp, "r")) != NULL) {
 	fread(&areahdr, sizeof(areahdr), 1, pAreas);
 
@@ -295,8 +295,8 @@ void ScanFiles(ff_list *tmp)
 		if ((fdb_area = mbsedb_OpenFDB(areanr, 30))) {
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			for (i = 0; i < 25; i++)
-			    sprintf(BigDesc, "%s%s", BigDesc, *(fdb.Desc + i));
-			sprintf(temp, "%s", tmp->subject);
+			    snprintf(BigDesc, 1230, "%s%s", BigDesc, *(fdb.Desc + i));
+			snprintf(temp, PATH_MAX, "%s", tmp->subject);
 
 			Found = FALSE;
 			while (strlen(temp) && (!Found)) {
@@ -314,7 +314,7 @@ void ScanFiles(ff_list *tmp)
 				    temp[j] = temp[j+i+1];
 				temp[j] = '\0';
 			    } else {
-				sprintf(kwd, "%s", temp);
+				snprintf(kwd, 81, "%s", temp);
 				temp[0] = '\0';
 			    }
 
@@ -371,7 +371,7 @@ void ScanFiles(ff_list *tmp)
 	if (((filepos = StartReply(tmp)) != -1) && ((fi = OpenMacro(scanmgr.template, scanmgr.Language, FALSE)) != NULL)) {
 	    areanr = 0;
 
-	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	    if ((pAreas = fopen(temp, "r")) != NULL) {
 		fread(&areahdr, sizeof(areahdr), 1, pAreas);
 
@@ -494,7 +494,7 @@ int Filefind()
     Syslog('+', "Processing FileFind requests");
     temp = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);

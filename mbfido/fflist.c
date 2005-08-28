@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -59,15 +59,15 @@ void fill_fflist(ff_list **fdp)
 	ff_list	*tmp, *ta;
 
 	b = calloc(44, sizeof(char));
-	sprintf(b, "%s~", Msg.FromAddress);
+	snprintf(b, 44, "%s~", Msg.FromAddress);
 
 	/*
 	 *  Add a new record
 	 */
 	tmp = (ff_list *)malloc(sizeof(ff_list));
 	tmp->next = NULL;
-	sprintf(tmp->from, "%s", Msg.From);
-	sprintf(tmp->subject, "%s", Msg.Subject);
+	snprintf(tmp->from, 36, "%s", Msg.From);
+	snprintf(tmp->subject, 72, "%s", Msg.Subject);
 	if (strchr(b, '.') == NULL) {
 		tmp->zone = atoi(strtok(b, ":"));
 		tmp->net  = atoi(strtok(NULL, "/"));
@@ -78,7 +78,7 @@ void fill_fflist(ff_list **fdp)
 		tmp->node  = atoi(strtok(NULL, "."));
 		tmp->point = atoi(strtok(NULL, "~"));
 	}
-	sprintf(tmp->msgid, "%s", Msg.Msgid);
+	snprintf(tmp->msgid, 81, "%s", Msg.Msgid);
 	tmp->msgnr = Msg.Id;
 	tmp->done  = FALSE;
 
@@ -127,7 +127,7 @@ void fill_rflist(rf_list **fdp, char *fname, unsigned long larea)
 	 */
 	tmp = (rf_list *)malloc(sizeof(rf_list));
 	tmp->next = NULL;
-	sprintf(tmp->filename, "%s", fname);
+	snprintf(tmp->filename, 15, "%s", fname);
 	tmp->area = larea;
 
 	/*

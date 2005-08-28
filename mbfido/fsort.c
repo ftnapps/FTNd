@@ -4,7 +4,7 @@
  * Purpose ...............: File sort
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ void fill_fdlist(fd_list **fdp, char *filename, time_t filedate)
 
 	tmp = (fd_list *)malloc(sizeof(fd_list));
 	tmp->next = *fdp;
-	sprintf(tmp->fname, "%s", filename);
+	snprintf(tmp->fname, 65, "%s", filename);
 	tmp->fdate = filedate;
 	*fdp = tmp;
 }
@@ -130,7 +130,7 @@ char *pull_fdlist(fd_list **fdp)
 
 	ta = *fdp;
 	memset(&buf, 0, sizeof(buf));
-	sprintf(buf, "%s", ta->fname);
+	snprintf(buf, PATH_MAX, "%s", ta->fname);
 
 	if (ta->next != NULL)
 		*fdp = ta->next;

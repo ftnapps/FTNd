@@ -4,7 +4,7 @@
  * Purpose ...............: File forward to a node
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,8 +59,8 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     fwdfile  = calloc(PATH_MAX, sizeof(char));
     queuedir = calloc(PATH_MAX, sizeof(char));
     listfile = calloc(PATH_MAX, sizeof(char));
-    sprintf(queuedir, "%s/%d.%d.%d.%d", CFG.out_queue, Node.zone, Node.net, Node.node, Node.point);
-    sprintf(listfile, "%s/.filelist", queuedir);
+    snprintf(queuedir, PATH_MAX, "%s/%d.%d.%d.%d", CFG.out_queue, Node.zone, Node.net, Node.node, Node.point);
+    snprintf(listfile, PATH_MAX, "%s/.filelist", queuedir);
     mkdirs(listfile, 0750);
     if ((fl = fopen(listfile, "a+")) == NULL) {
 	WriteError("$Can't open %s", listfile);
@@ -74,13 +74,13 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
      * Create the full filename
      */
     if (TIC.PassThru || TIC.SendOrg) {
-	sprintf(fwdfile, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	snprintf(fwdfile, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	subject = xstrcpy(TIC.TicIn.File);
     } else {
 	/*
 	 * Make sure the file attach is the 8.3 filename
 	 */
-	sprintf(fwdfile, "%s/%s", TIC.BBSpath, TIC.NewFile);
+	snprintf(fwdfile, PATH_MAX, "%s/%s", TIC.BBSpath, TIC.NewFile);
 	subject = xstrcpy(TIC.NewFile);
     }
 
@@ -101,10 +101,10 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     ticfile = calloc(PATH_MAX, sizeof(char));
     ticname = calloc(15, sizeof(char));
     if (nodes.Tic) {
-	sprintf(ticname, "%08lx.tic", sequencer());
+	snprintf(ticname, 15, "%08lx.tic", sequencer());
 	subject = xstrcat(subject, (char *)" ");
 	subject = xstrcat(subject, ticname);
-	sprintf(ticfile, "%s/%s", CFG.ticout, ticname);
+	snprintf(ticfile, PATH_MAX, "%s/%s", CFG.ticout, ticname);
     }
     free(ticname);
 

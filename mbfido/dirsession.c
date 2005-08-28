@@ -4,7 +4,7 @@
  * Purpose ...............: Directory Mail/Files sessions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -150,7 +150,7 @@ int dirinbound(void)
     Syslog('m', "Starting directory inbound sessions");
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) != NULL) {
 	fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
 
@@ -169,7 +169,7 @@ int dirinbound(void)
 			too  = calloc(PATH_MAX, sizeof(char));
 			while ((de = readdir(dp))) {
 			    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-				sprintf(from, "%s/%s", nodes.Dir_in_path, de->d_name);
+				snprintf(from, PATH_MAX, "%s/%s", nodes.Dir_in_path, de->d_name);
 				if (access(from, R_OK | W_OK)) {
 				    WriteError("$No rights to move %s", from);
 				} else {
@@ -178,9 +178,9 @@ int dirinbound(void)
 				     * protected or unprotected inbound.
 				     */
 				    if (do_unprot)
-					sprintf(too,  "%s/%s", CFG.inbound, de->d_name);
+					snprintf(too,  PATH_MAX, "%s/%s", CFG.inbound, de->d_name);
 				    else
-					sprintf(too,  "%s/%s", CFG.pinbound, de->d_name);
+					snprintf(too,  PATH_MAX, "%s/%s", CFG.pinbound, de->d_name);
 				    if (access(too, F_OK) == 0) {
 					WriteError("File %s already in inbound, skip", too);
 				    } else {

@@ -4,7 +4,7 @@
  * Purpose ...............: FileMgr
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -71,7 +71,7 @@ void F_Help(faddr *t, char *replyid)
 
     Mgrlog("FileMgr: Help");
     subject=calloc(255,sizeof(char));
-    sprintf(subject,"FileMgr help");
+    snprintf(subject,255,"FileMgr help");
     GetRpSubject("filemgr.help",subject,254);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
@@ -121,22 +121,22 @@ void F_List(faddr *t, char *replyid, int Notify)
  
     switch (Notify) {
 	case LIST_NOTIFY:   Mgrlog("FileMgr: Notify to %s", ascfnode(t, 0xff));
-			    sprintf(subject,"FileMgr Notify");
-			    GetRpSubject("filemgr.notify.list",subject,254);
+			    snprintf(subject,255,"FileMgr Notify");
+			    GetRpSubject("filemgr.notify.list",subject,255);
 			    fi=OpenMacro("filemgr.notify.list", nodes.Language, FALSE);
 			    break;
 	case LIST_LIST:	    Mgrlog("FileMgr: List");
-			    sprintf(subject,"FileMgr list");
-			    GetRpSubject("filemgr.list",subject,254);
+			    snprintf(subject,255,"FileMgr list");
+			    GetRpSubject("filemgr.list",subject,255);
 			    fi=OpenMacro("filemgr.list", nodes.Language, FALSE);
 			    break;
 	case LIST_QUERY:    Mgrlog("FileMgr: Query");
-			    sprintf(subject,"FileMgr Query");
-			    GetRpSubject("filemgr.query",subject,254);
+			    snprintf(subject,255,"FileMgr Query");
+			    GetRpSubject("filemgr.query",subject,255);
 			    fi=OpenMacro("filemgr.query", nodes.Language, FALSE);
 			    break;
 	default:	    Mgrlog("FileMgr: Unlinked");
-			    sprintf(subject,"FileMgr: Unlinked areas");
+			    snprintf(subject,255,"FileMgr: Unlinked areas");
 			    GetRpSubject("filemgr.unlink",subject,254);
 			    fi=OpenMacro("filemgr.unlink", nodes.Language, FALSE);
 			    break;
@@ -161,7 +161,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 	MacroRead(fi, qp);
 	fgetpos(fi,&fileptr);
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -173,7 +173,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 	fread(&tichdr, sizeof(tichdr), 1, fp);
 	Cons = tichdr.syssize / sizeof(System);
 
-	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -295,7 +295,7 @@ void F_Status(faddr *t, char *replyid)
     char    *subject;
 
     subject = calloc(255, sizeof(char));
-    sprintf(subject,"FileMgr Status");
+    snprintf(subject,255,"FileMgr Status");
     Mgrlog("FileMgr: Status");
     if (Miy == 0)
 	i = 11;
@@ -463,7 +463,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 
 	Syslog('f', "  Area not found, trying to create");
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -605,7 +605,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 
     f = bestaka_s(t);
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -614,7 +614,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     fread(&tichdr, sizeof(tichdr), 1, fp);
     Cons = tichdr.syssize / sizeof(Sys);
 
-    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -737,7 +737,7 @@ void F_Pause(faddr *t, int Pause, FILE *tmp)
     Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -944,8 +944,8 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
         subject=calloc(256,sizeof(char));
         MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 	MacroVars("RABCDE", "ssssss","","","","","","");
-	sprintf(subject,"Your FileMgr request");
-	GetRpSubject("filemgr.responses",subject,72);
+	snprintf(subject,256,"Your FileMgr request");
+	GetRpSubject("filemgr.responses",subject,256);
 	if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
 	    MacroVars("RABCDE", "ssssss","WELLCOME","","","","","");
 	    MsgResult("filemgr.responses",np,'\r');

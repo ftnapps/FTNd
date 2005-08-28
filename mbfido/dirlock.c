@@ -4,7 +4,7 @@
  * Purpose ...............: Lock mbfido processing.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -49,10 +49,10 @@ int lockdir(char *directory)
 
     Tmpfile  = calloc(PATH_MAX, sizeof(char));
     lockfile = calloc(PATH_MAX, sizeof(char));
-    sprintf(Tmpfile, "%s/", directory);
+    snprintf(Tmpfile, PATH_MAX, "%s/", directory);
     strcpy(lockfile, Tmpfile);
-    sprintf(Tmpfile + strlen(Tmpfile), "%s%u", TMPNAME, getpid());
-    sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
+    snprintf(Tmpfile + strlen(Tmpfile), PATH_MAX, "%s%u", TMPNAME, getpid());
+    snprintf(lockfile + strlen(lockfile), PATH_MAX - strlen(lockfile), "%s", LCKNAME);
 	
     if ((fp = fopen(Tmpfile, "w")) == NULL) {
 	WriteError("$Can't create lockfile \"%s\"", Tmpfile);
@@ -120,8 +120,8 @@ void ulockdir(char *directory)
     pid_t   oldpid;
 
     lockfile = calloc(PATH_MAX, sizeof(char));
-    sprintf(lockfile, "%s/", directory);
-    sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
+    snprintf(lockfile, PATH_MAX, "%s/", directory);
+    snprintf(lockfile + strlen(lockfile), PATH_MAX - strlen(lockfile), "%s", LCKNAME);
 
     if ((fp = fopen(lockfile, "r")) == NULL) {
 	/*
