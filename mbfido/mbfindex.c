@@ -272,7 +272,7 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current, FIL
                 WriteError("$Can't create %s", linebuf);
         } else {
                 sprintf(linebuf, "%s", Name);
-                html_massage(linebuf, outbuf);
+                html_massage(linebuf, outbuf, 1023);
 		MacroVars("ab", "ss", rfcdate(later), outbuf);
                 pagelink(fa, Path, inArea, Current);
 		MacroRead(fi, fa);
@@ -722,7 +722,7 @@ void HtmlIndex(char *Lang)
 					k += 1;
 				    }
 				    sprintf(linebuf, "%s", To_Html(fdb.Desc[j]));
-				    html_massage(linebuf, outbuf);
+				    html_massage(linebuf, outbuf, 1023);
 				    sprintf(desc+k, "%s", outbuf);
 				    k += strlen(outbuf);
 				}
@@ -781,7 +781,7 @@ void HtmlIndex(char *Lang)
 		}
 
 		strcpy(linebuf, area.Name);
-		html_massage(linebuf, namebuf);
+		html_massage(linebuf, namebuf, 1023);
 		sprintf(linebuf, "%s/%s%s/index.html", CFG.www_url, CFG.www_link2ftp, area.Path+strlen(CFG.ftp_base));
 		if (aSize > 1048576)
 		    sprintf(outbuf, "%ld Mb.", aSize / 1048576);

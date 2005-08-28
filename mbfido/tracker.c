@@ -168,7 +168,7 @@ int GetTableRoute(char *ftn, fidoaddr *res)
      * Check routing table
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/route.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return R_NOROUTE;
@@ -327,7 +327,7 @@ int TrackMail(fidoaddr too, fidoaddr *routeto)
 	    routeto->net   = nodes.RouteVia.net;
 	    routeto->node  = nodes.RouteVia.node;
 	    routeto->point = nodes.RouteVia.point;
-	    sprintf(routeto->domain, "%s", nodes.RouteVia.domain);
+	    snprintf(routeto->domain, 12, "%s", nodes.RouteVia.domain);
 	} else {
 	    for (i = 0; i < 20; i++)
 		if (routeto->zone == nodes.Aka[i].zone)
@@ -336,7 +336,7 @@ int TrackMail(fidoaddr too, fidoaddr *routeto)
 	    routeto->net   = nodes.Aka[i].net;
 	    routeto->node  = nodes.Aka[i].node;
 	    routeto->point = nodes.Aka[i].point;
-	    sprintf(routeto->domain, "%s", nodes.Aka[i].domain);
+	    snprintf(routeto->domain, 12, "%s", nodes.Aka[i].domain);
 	}
 	Syslog('r', "Final routing to: %s", aka2str(*routeto));
 	return R_ROUTE;
@@ -473,7 +473,7 @@ int GetRoute(char *ftn, fidoaddr *res)
     dir.net   = dest->net;
     dir.node  = dest->node;
     dir.point = dest->point;
-    sprintf(dir.domain, "%s", dest->domain);
+    snprintf(dir.domain, 12, "%s", dest->domain);
 
     /*
      * First direct match
@@ -557,7 +557,7 @@ int GetRoute(char *ftn, fidoaddr *res)
      */
     if (me_host != -1) {
 	Syslog('r', "We are a host");
-	sprintf(res->domain, "%s", CFG.aka[me_host].domain);
+	snprintf(res->domain, 12, "%s", CFG.aka[me_host].domain);
 	if (((myregion != dnlent->region) && (!(dnlent->pflag & NL_DUMMY))) || (CFG.aka[me_host].zone != dest->zone)) {
 	    res->zone = CFG.aka[me_host].zone;
 	    res->net  = myregion;
@@ -611,7 +611,7 @@ int GetRoute(char *ftn, fidoaddr *res)
      */
     if (me_hub != -1) {
 	Syslog('r', "We are a hub");
-	sprintf(res->domain, "%s", CFG.aka[me_hub].domain);
+	snprintf(res->domain, 12, "%s", CFG.aka[me_hub].domain);
 	if ((dnlent->upnode == CFG.aka[me_hub].node) && (dnlent->upnet  == CFG.aka[me_hub].net) && 
 		(dnlent->addr.zone == CFG.aka[me_hub].zone)) {
 	    res->zone  = dest->zone;
@@ -648,7 +648,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	    res->zone = bnlent->addr.zone;
 	    res->net  = bnlent->upnet;
 	    res->node = bnlent->upnode;
-	    sprintf(res->domain, "%s", bnlent->addr.domain);
+	    snprintf(res->domain, 12, "%s", bnlent->addr.domain);
 	    Syslog('+', "R: %s => %s", ascfnode(dest, 0xff), aka2str(*res));
 	    if (bnlent->addr.domain)
 		free(bnlent->addr.domain);

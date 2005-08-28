@@ -49,7 +49,7 @@ FILE *newpage(char *Name, FILE *fi)
 
     later = time(NULL) + 86400;
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/stat/%s.temp", CFG.www_root, Name);
+    snprintf(temp, PATH_MAX -1, "%s/stat/%s.temp", CFG.www_root, Name);
     mkdirs(temp, 0755);
 
     if ((fa = fopen(temp, "w")) == NULL) {
@@ -79,8 +79,8 @@ void closepage(FILE *fa, char *Name, FILE *fi)
     temp2 = calloc(PATH_MAX, sizeof(char));
     MacroRead(fi, fa);
     fclose(fa);
-    sprintf(temp1, "%s/stat/%s.html", CFG.www_root, Name);
-    sprintf(temp2, "%s/stat/%s.temp", CFG.www_root, Name);
+    snprintf(temp1, PATH_MAX -1, "%s/stat/%s.html", CFG.www_root, Name);
+    snprintf(temp2, PATH_MAX -1, "%s/stat/%s.temp", CFG.www_root, Name);
     rename(temp2, temp1);
     chmod(temp1, 0644);
     free(temp2);
@@ -97,10 +97,10 @@ char *adate(time_t now)
     struct tm	ptm;
 
     if (now == 0L) {
-	sprintf(buf, "&nbsp;");
+	snprintf(buf, 39, "&nbsp;");
     } else {
 	ptm = *localtime(&now);
-	sprintf(buf, "%02d-%02d-%04d %02d:%02d", ptm.tm_mday, ptm.tm_mon +1, ptm.tm_year + 1900, ptm.tm_hour, ptm.tm_min);
+	snprintf(buf, 39, "%02d-%02d-%04d %02d:%02d", ptm.tm_mday, ptm.tm_mon +1, ptm.tm_year + 1900, ptm.tm_hour, ptm.tm_min);
     }
     return buf;
 }
@@ -133,7 +133,7 @@ void MakeStat(void)
     else
 	Lm = Miy -1;
 
-    sprintf(name, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("Can't open %s", name);
     } else {
@@ -147,9 +147,9 @@ void MakeStat(void)
 		while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
 		    if (mgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			html_massage(mgroup.Name, name);
+			html_massage(mgroup.Name, name, PATH_MAX -1);
 			MacroVars("b", "s", name);
-			html_massage(mgroup.Comment, name);
+			html_massage(mgroup.Comment, name, PATH_MAX -1);
 			MacroVars("c", "s", name);
 			MacroVars("d", "s", mgroup.UseAka.zone ? aka2str(mgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(mgroup.LastDate));
@@ -174,7 +174,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    sprintf(name, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -196,11 +196,11 @@ void MakeStat(void)
 			}
 			fseek(fi, fileptr, SEEK_SET);
 			MacroVars("b", "d", Area);
-			html_massage(msgs.Name, name);
+			html_massage(msgs.Name, name, PATH_MAX -1);
 			MacroVars("c", "s", strlen(name) ? name:"&nbsp;");
-			html_massage(msgs.Tag, name);
+			html_massage(msgs.Tag, name, PATH_MAX -1);
 			MacroVars("d", "s", strlen(name) ? name:"&nbsp;");
-			html_massage(msgs.Group, name);
+			html_massage(msgs.Group, name, PATH_MAX -1);
 			MacroVars("e", "s", strlen(name) ? name:"&nbsp;");
 			MacroVars("f", "s", adate(msgs.LastRcvd));
 			MacroVars("g", "d", msgs.Received.lweek);
@@ -225,7 +225,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    sprintf(name, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -238,9 +238,9 @@ void MakeStat(void)
 		while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
 		    if (fgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			html_massage(fgroup.Name, name);
+			html_massage(fgroup.Name, name, PATH_MAX -1);
 			MacroVars("b", "s", name);
-			html_massage(fgroup.Comment, name);
+			html_massage(fgroup.Comment, name, PATH_MAX -1);
 			MacroVars("c", "s", name);
 			MacroVars("d", "s", fgroup.UseAka.zone ? aka2str(fgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(fgroup.LastDate));
@@ -265,7 +265,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    sprintf(name, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -278,11 +278,11 @@ void MakeStat(void)
 		while ((fread(&tic, tichdr.recsize, 1, fg)) == 1) {
 		    if (tic.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			html_massage(tic.Comment, name);
+			html_massage(tic.Comment, name, PATH_MAX -1);
 			MacroVars("b", "s", name);
-			html_massage(tic.Name, name);
+			html_massage(tic.Name, name, PATH_MAX -1);
 			MacroVars("c", "s", name);
-			html_massage(tic.Group, name);
+			html_massage(tic.Group, name, PATH_MAX -1);
 			MacroVars("d", "s", name);
 			MacroVars("e", "s", adate(tic.LastAction));
 			MacroVars("f", "d", tic.Files.lweek);
@@ -307,7 +307,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    sprintf(name, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -328,7 +328,7 @@ void MakeStat(void)
 		    else
 			q = xstrcpy((char *)"Normal");
 		    MacroVars("b", "s", aka2str(nodes.Aka[0]));
-		    html_massage(nodes.Sysop, name);
+		    html_massage(nodes.Sysop, name, PATH_MAX -1);
 		    MacroVars("c", "s", name);
 		    MacroVars("d", "s", q);
 		    MacroVars("e", "s", p);
@@ -355,7 +355,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    sprintf(name, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -376,11 +376,11 @@ void MakeStat(void)
 		    if (!strcmp(hist.aka.domain, "(null)"))
 			hist.aka.domain[0] = '\0';
 		    MacroVars("c", "s", hist.aka.zone ? aka2str(hist.aka):"&nbsp;");
-		    html_massage(hist.system_name, name);
+		    html_massage(hist.system_name, name, PATH_MAX -1);
 		    MacroVars("d", "s", strlen(name) ? name:"&nbsp;");
-		    html_massage(hist.sysop, name);
+		    html_massage(hist.sysop, name, PATH_MAX -1);
 		    MacroVars("e", "s", strlen(name) ? name:"&nbsp;");
-		    html_massage(hist.location, name);
+		    html_massage(hist.location, name, PATH_MAX -1);
 		    MacroVars("f", "s", strlen(name) ? name:"&nbsp;");
 		    MacroVars("g", "s", strlen(hist.tty) ? hist.tty:"&nbsp;");
 		    MacroVars("h", "s", adate(hist.online));
@@ -407,7 +407,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    sprintf(name, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX -1, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) != NULL ) {
 	if ((fi = OpenMacro("html.sysinfo", 'E', TRUE)) == NULL) {
 	    Syslog('+', "Can't open macro file, skipping html pages creation");

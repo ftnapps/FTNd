@@ -173,7 +173,7 @@ int LoadTic(char *inb, char *tfn)
     memset(&TIC, 0, sizeof(TIC));
     memset(&T_File, 0, sizeof(T_File));
 
-    sprintf(TIC.Inbound, "%s", inb);
+    snprintf(TIC.Inbound, PATH_MAX, "%s", inb);
     strncpy(TIC.TicName, tfn, 12);
 
     chdir(inb);
@@ -247,7 +247,7 @@ int LoadTic(char *inb, char *tfn)
 
 	} else if (strncasecmp(Temp, "crc ", 4) == 0) {
 	    TIC.Crc_Int = strtoul(Temp+4, (char **)NULL, 16);
-	    sprintf(TIC.TicIn.Crc, "%08lX", TIC.Crc_Int);
+	    snprintf(TIC.TicIn.Crc, 8, "%08lX", TIC.Crc_Int);
 	    strcpy(T_File.Crc, TIC.TicIn.Crc);
 
 	} else if (strncasecmp(Temp, "pw ", 3) == 0) {
@@ -406,7 +406,7 @@ int LoadTic(char *inb, char *tfn)
 	/*
 	 * Try to move the hatched file to the inbound
 	 */
-	sprintf(Temp, "%s/%s", TIC.TicIn.Pth, TIC.TicIn.FullName);
+	snprintf(Temp, bufsize, "%s/%s", TIC.TicIn.Pth, TIC.TicIn.FullName);
 	if (file_exist(Temp, R_OK) == 0) {
 	    strcpy(RealName, TIC.TicIn.FullName);
 	} else {
@@ -414,7 +414,7 @@ int LoadTic(char *inb, char *tfn)
 	    tidy_falist(&sbl);
 	    return 2;
 	}
-	sprintf(Temp2, "%s/%s", TIC.Inbound, TIC.TicIn.FullName);
+	snprintf(Temp2, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.FullName);
 	if ((rc = file_mv(Temp, Temp2))) {
 	    WriteError("Can't move %s to inbound: %s", Temp, strerror(rc));
 	    tidy_falist(&sbl);
@@ -467,8 +467,8 @@ int LoadTic(char *inb, char *tfn)
 	     * It may be a LFN but also a case difference. The whole tic
 	     * processing is based on 8.3 filenames.
 	     */
-	    sprintf(Temp, "%s/%s", TIC.Inbound, RealName);
-	    sprintf(Temp2, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	    snprintf(Temp, bufsize, "%s/%s", TIC.Inbound, RealName);
+	    snprintf(Temp2, PATH_MAX -1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	    if (rename(Temp, Temp2))
 		WriteError("$Can't rename %s to %s", Temp, Temp2);
 	    else

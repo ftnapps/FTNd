@@ -4,7 +4,7 @@
  * Purpose ...............: Output a netmail to one of our links.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -60,14 +60,14 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 	Orig.net   = From.net;
 	Orig.node  = From.node;
 	Orig.point = From.point;
-	sprintf(Orig.domain, "%s", From.domain);
+	snprintf(Orig.domain, 12, "%s", From.domain);
 
 	memset(&Dest, 0, sizeof(Dest));
 	Dest.zone  = t->zone;
 	Dest.net   = t->net;
 	Dest.node  = t->node;
 	Dest.point = t->point;
-	sprintf(Dest.domain, "%s", t->domain);
+	snprintf(Dest.domain, 12, "%s", t->domain);
 
 	if (!SearchNode(Dest)) {
 		Syslog('!', "SendMgrMail(): Can't find node %s", aka2str(Dest));
@@ -90,13 +90,13 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 
 	memset(&ext, 0, sizeof(ext));
 	if (nodes.PackNetmail)
-		sprintf(ext, (char *)"qqq");
+		snprintf(ext, 3, (char *)"qqq");
 	else if (nodes.Crash)
-		sprintf(ext, (char *)"ccc");
+		snprintf(ext, 3, (char *)"ccc");
 	else if (nodes.Hold)
-		sprintf(ext, (char *)"hhh");
+		snprintf(ext, 3, (char *)"hhh");
 	else
-		sprintf(ext, (char *)"nnn");
+		snprintf(ext, 3, (char *)"nnn");
 
 	if ((qp = OpenPkt(Orig, Dest, (char *)ext)) == NULL)
 		return NULL;
