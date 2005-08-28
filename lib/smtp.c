@@ -105,7 +105,7 @@ int smtp_connect(void)
 
 	Syslog('+', "SMTP: %s", p);
 	
-	snprintf(temp, 39, "HELO %s\r\n", CFG.sysdomain);
+	snprintf(temp, 40, "HELO %s\r\n", CFG.sysdomain);
 	if (smtp_cmd(temp, 250)) {
 		smtp_close();
 		return -1;
@@ -193,7 +193,7 @@ int smtp_cmd(char *cmd, int resp)
 	if (smtp_send(cmd) == -1)
 		return -1;
 
-	snprintf(rsp, 5, "%d", resp);
+	snprintf(rsp, 6, "%d", resp);
 	p = smtp_receive();
 
 	if (strncmp(p, rsp, strlen(rsp))) {

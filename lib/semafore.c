@@ -36,7 +36,7 @@ void CreateSema(char *sem)
 {
 	char	temp[40];
 
-	snprintf(temp, 39, "%s", SockR("SECR:1,%s;", sem));
+	snprintf(temp, 40, "%s", SockR("SECR:1,%s;", sem));
 	if (strncmp(temp, "200", 3) == 0)
 		WriteError("Can't create semafore %s", sem);
 }
@@ -47,7 +47,7 @@ void RemoveSema(char *sem)
 {
         char    temp[40];
 
-        snprintf(temp, 39, "%s", SockR("SERM:1,%s;", sem));
+        snprintf(temp, 40, "%s", SockR("SERM:1,%s;", sem));
         if (strncmp(temp, "200", 3) == 0)
                 WriteError("Can't remove semafore %s", sem);
 }
@@ -58,7 +58,7 @@ int IsSema(char *sem)
 {
         char    temp[40];
 
-        snprintf(temp, 39, "%s", SockR("SEST:1,%s;", sem));
+        snprintf(temp, 40, "%s", SockR("SEST:1,%s;", sem));
         if (strncmp(temp, "200", 3) == 0) {
                 WriteError("Can't read semafore %s", sem);
 		return FALSE;

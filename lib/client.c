@@ -117,7 +117,7 @@ int socket_connect(char *user, char *prg, char *city)
     /*
      * Send the information to the server. 
      */
-    snprintf(buf, SS_BUFSIZE -1, "AINI:5,%d,%s,%s,%s,%s;", getpid(), tty, user, prg, city);
+    snprintf(buf, SS_BUFSIZE, "AINI:5,%d,%s,%s,%s,%s;", getpid(), tty, user, prg, city);
     if (socket_send(buf) != 0) {
 	sock = -1;
 	return -1;
@@ -198,7 +198,7 @@ int socket_shutdown(pid_t pid)
     if (sock == -1)
 	return 0;
 
-    snprintf(buf, SS_BUFSIZE -1, "ACLO:1,%d;", pid);
+    snprintf(buf, SS_BUFSIZE, "ACLO:1,%d;", pid);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
 	if (strncmp(buf, "107:0;", 6) != 0) {

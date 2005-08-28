@@ -141,7 +141,7 @@ void mbse_mvprintw(int y, int x, const char *format, ...)
     outputstr = calloc(2048, sizeof(char));
 
     va_start(va_ptr, format);
-    vsnprintf(outputstr, 2047, format, va_ptr);
+    vsnprintf(outputstr, 2048, format, va_ptr);
     va_end(va_ptr);
 
     mbse_locate(y, x);

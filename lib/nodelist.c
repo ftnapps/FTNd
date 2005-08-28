@@ -468,7 +468,7 @@ int initnl(void)
      *  Read all our TCP/IP capabilities and set the global flag.
      */
     if (TCFG.max_tcp) {
-	snprintf(buf, 255, "%s", CFG.IP_Flags);
+	snprintf(buf, 256, "%s", CFG.IP_Flags);
 	q = buf;
 	for (p = q; p; p = q) {
 	    if ((q = strchr(p, ',')))
@@ -491,7 +491,7 @@ int initnl(void)
 	while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
 	    if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && (ttyinfo.available) && (ttyinfo.callout)) {
 
-		snprintf(buf, 255, "%s", ttyinfo.flags);
+		snprintf(buf, 256, "%s", ttyinfo.flags);
 		q = buf;
 		for (p = q; p; p = q) {
 		    if ((q = strchr(p, ',')))
@@ -929,7 +929,7 @@ node *getnlent(faddr *addr)
 	    if ((*tmpm)->mask & nodebuf.iflags) {
 		for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
 		    if (strcmp((*tmps)->flag, (*tmpm)->name) == 0) {
-			snprintf(tbuf, 255, "%s", (*tmps)->service);
+			snprintf(tbuf, 256, "%s", (*tmps)->service);
 			tport = (*tmps)->tmpport;
 		    }
 		}
@@ -949,13 +949,13 @@ node *getnlent(faddr *addr)
 	memset(&tbuf, 0, sizeof(tbuf));
 	if (ndrecord && strlen(nd.Nl_hostname)) {
 	    Syslog('n', "getnlent: using override %s for FQDN", nd.Nl_hostname);
-	    snprintf(tbuf, 255, nodebuf.name);
+	    snprintf(tbuf, 256, nodebuf.name);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	} else {
 	    for (tmpa = &nl_search; *tmpa; tmpa=&((*tmpa)->next)) {
 		Syslog('n', "getnlent: search FQDN method %s", (*tmpa)->name);
 		if (strcasecmp((*tmpa)->name, "field3") == 0) {
-		    snprintf(tbuf, 255, nodebuf.name);
+		    snprintf(tbuf, 256, nodebuf.name);
 		    if (strchr(tbuf, '.')) {
 			/*
 			 * Okay, there are dots, this can be a FQDN or IP address.
@@ -971,7 +971,7 @@ node *getnlent(faddr *addr)
 		    for (tmpaa = &nl_ipprefix; *tmpaa; tmpaa=&((*tmpaa)->next)) {
 			if (nodebuf.phone && strncmp(nodebuf.phone, (*tmpaa)->name, strlen((*tmpaa)->name)) == 0) {
 			    Syslog('n', "getnlent: found %s prefix", (*tmpaa)->name);
-			    snprintf(tbuf, 255, "%s", nodebuf.phone+strlen((*tmpaa)->name));
+			    snprintf(tbuf, 256, "%s", nodebuf.phone+strlen((*tmpaa)->name));
 			    for (i = 0; i < strlen(tbuf); i++)
 				if (tbuf[i] == '-')
 				    tbuf[i] = '.';
@@ -1032,10 +1032,10 @@ node *getnlent(faddr *addr)
 				for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 				    if ((*tmpd)->zone == nodebuf.addr.zone) {
 					if (*r++ == '\0')
-					    snprintf(tbuf, 255, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
+					    snprintf(tbuf, 256, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
 						    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
 					else
-					    snprintf(tbuf, 255, "f%d.n%d.z%d.%s.%s%s", nodebuf.addr.node, nodebuf.addr.net,
+					    snprintf(tbuf, 256, "f%d.n%d.z%d.%s.%s%s", nodebuf.addr.node, nodebuf.addr.net,
 						    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name, r);
 					Syslog('n', "getnlent: will try default domain \"%s\"", tbuf);
 					nodebuf.url = xstrcat(nodebuf.url, tbuf);
@@ -1048,7 +1048,7 @@ node *getnlent(faddr *addr)
 			    }
 			    if (strchr(r, '.')) {
 				Syslog('n', "getnlent: found a FQDN \"%s\"", MBSE_SS(r));
-				snprintf(tbuf, 255, "%s", r);
+				snprintf(tbuf, 256, "%s", r);
 				nodebuf.url = xstrcat(nodebuf.url, tbuf);
 				break;
 			    }
@@ -1062,7 +1062,7 @@ node *getnlent(faddr *addr)
 		    if (nodebuf.addr.domain) {
 			for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 			    if ((*tmpd)->zone == nodebuf.addr.zone) {
-				snprintf(tbuf, 255, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
+				snprintf(tbuf, 256, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
 					nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
 				Syslog('n', "getnlent: will try default domain \"%s\"", tbuf);
 				nodebuf.url = xstrcat(nodebuf.url, tbuf);
@@ -1090,7 +1090,7 @@ node *getnlent(faddr *addr)
 	     * No optional port number, add one from the default
 	     * for this protocol.
 	     */
-	    snprintf(tbuf, 255, ":%lu", tport);
+	    snprintf(tbuf, 256, ":%lu", tport);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	}
 

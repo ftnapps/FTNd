@@ -45,7 +45,7 @@ int nodelock(faddr *addr, pid_t mypid)
     tfn = xstrcpy(fn);
     if ((p=strrchr(tfn,'/'))) 
 	*++p='\0';
-    snprintf(tmp, 15, "aa%d", mypid);
+    snprintf(tmp, 16, "aa%d", mypid);
     tfn = xstrcat(tfn, tmp);
     mkdirs(tfn, 0770);
 

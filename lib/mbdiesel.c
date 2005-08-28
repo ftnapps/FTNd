@@ -129,16 +129,16 @@ char *ParseMacro( const char *line, int *dieselrc)
 		    i++;
 		}
 		i--;
-		snprintf(tmp2, MAXSTR -1, "@(GETVAR,%c)",code);
+		snprintf(tmp2, MAXSTR, "@(GETVAR,%c)",code);
 		if (!diesel(tmp2,tmp3)==0){
-		    snprintf(tmp3, MAXSTR -1, "%c%c",'@',code);
+		    snprintf(tmp3, MAXSTR, "%c%c",'@',code);
 		}
 		if (l>2){
 		    if ( *i != '>')
 			l=-l;
-		    snprintf(&tmp1[strlen(tmp1)], MAXSTR -1, "%*.*s", l, l, tmp3);
+		    snprintf(&tmp1[strlen(tmp1)], MAXSTR, "%*.*s", l, l, tmp3);
 		}else{
-		    snprintf(&tmp1[strlen(tmp1)], MAXSTR -1, "%s", tmp3);
+		    snprintf(&tmp1[strlen(tmp1)], MAXSTR, "%s", tmp3);
 		}
 	    }else{
 		tmp1[(j=strlen(tmp1))]='@';
@@ -151,7 +151,7 @@ char *ParseMacro( const char *line, int *dieselrc)
     }
 
     i = tmp1;
-    snprintf(tmp2, MAXSTR -1, "%s", tmp1);
+    snprintf(tmp2, MAXSTR, "%s", tmp1);
 
     if ((tmp1[0]=='@') && (tmp1[1]=='{')){
 	i++;
@@ -163,11 +163,11 @@ char *ParseMacro( const char *line, int *dieselrc)
 	    i++;
 	    res[0]='\0';
 	    if (j>2)
-		snprintf(res, MAXSTR -1, "%.*s",j-2, &tmp1[2]);
+		snprintf(res, MAXSTR, "%.*s",j-2, &tmp1[2]);
 	    if ((diesel(res,tmp3)!=0) || (atoi(tmp3)==0))
-		snprintf(tmp2, MAXSTR -1, "@!%s",i);
+		snprintf(tmp2, MAXSTR, "@!%s",i);
 	    else
-		snprintf(tmp2, MAXSTR -1, "%s",i);
+		snprintf(tmp2, MAXSTR, "%s",i);
 	}
     }
     *dieselrc=diesel(tmp2, res);
@@ -418,20 +418,20 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
 
 	if (htmlmode) {
 	    MacroVars("O", "s", temp);
-	    snprintf(linebuf, 1023, "%s", CFG.sysop);
-	    html_massage(linebuf, outbuf, 1023);
+	    snprintf(linebuf, 1024, "%s", CFG.sysop);
+	    html_massage(linebuf, outbuf, 1024);
 	    MacroVars("U", "s", outbuf);
-	    snprintf(linebuf, 1023, "%s", CFG.location);
-	    html_massage(linebuf, outbuf, 1023);
+	    snprintf(linebuf, 1024, "%s", CFG.location);
+	    html_massage(linebuf, outbuf, 1024);
 	    MacroVars("L", "s", outbuf);
-	    snprintf(linebuf, 1023, "%s", CFG.bbs_name);
-	    html_massage(linebuf, outbuf, 1023);
+	    snprintf(linebuf, 1024, "%s", CFG.bbs_name);
+	    html_massage(linebuf, outbuf, 1024);
 	    MacroVars("N", "s", outbuf);
-	    snprintf(linebuf, 1023, "%s", CFG.sysop_name);
-	    html_massage(linebuf, outbuf, 1023);
+	    snprintf(linebuf, 1024, "%s", CFG.sysop_name);
+	    html_massage(linebuf, outbuf, 1024);
 	    MacroVars("S", "s", outbuf);
-	    snprintf(linebuf, 1023, "%s", CFG.comment);
-	    html_massage(linebuf, outbuf, 1023);
+	    snprintf(linebuf, 1024, "%s", CFG.comment);
+	    html_massage(linebuf, outbuf, 1024);
 	    MacroVars("T", "s", outbuf);
 	} else {
 	    MacroVars("L", "s", CFG.location);

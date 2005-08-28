@@ -441,7 +441,7 @@ static void mledreal(double r, char *edbuf)
 {
     int sprec;
 
-    V snprintf(edbuf, MAXSTR -1, "%.12f", r);
+    V snprintf(edbuf, MAXSTR, "%.12f", r);
     if ((!strchr(edbuf, 'E')) && strchr(edbuf, '.')) {
 	/* Trim redundant trailing zeroes off the number. */
 	for (sprec = strlen(edbuf) - 1; sprec > 0; sprec--) {
@@ -495,7 +495,7 @@ static int rarg(char *argstr, double *realres)
 #define Dsarg(s)   char s[MAXSTR]     /* Declare string argument */
 #define Sarg(v,n)  if (diesel(argv[(n)], (v)) != 0) return FALSE
 
-#define Rint(n)     V snprintf(output, MAXSTR -1, "%d", (n)); return TRUE/* Return int */
+#define Rint(n)     V snprintf(output, MAXSTR, "%d", (n)); return TRUE/* Return int */
 #define Rreal(n)    mledreal((n), output); return TRUE	     /* Return double */
 #define Rstr(s)     V strcpy(output, (s)); return TRUE	     /* Return str */
 
@@ -910,7 +910,7 @@ Mfunc(f_edtime)
 	    for (i = 0; i < ELEMENTS(pictab); i++) {
 		if (strncasecmp(pp, pictab[i].pname,
 				strlen(pictab[i].pname)) == 0) {
-		    V snprintf(output + strlen(output), MAXSTR -1, pictab[i].pfmt,
+		    V snprintf(output + strlen(output), MAXSTR, pictab[i].pfmt,
 				*pictab[i].pitem);
 		    pp += strlen(pictab[i].pname);
 		    foundit = TRUE;
@@ -1321,7 +1321,7 @@ Mfunc(f_time)
 {
     ArgCount(0, 0);
 
-    V snprintf(output, MAXSTR -1, "%ld", (long) time((time_t *) NULL)); 
+    V snprintf(output, MAXSTR, "%ld", (long) time((time_t *) NULL)); 
     return TRUE;
 }
 #endif /* UNIXTENSIONS */
@@ -1627,7 +1627,7 @@ static int macrovalue(int nargs, char *args, char *output)
 	       message, make up a general-purpose message here. */
 
 	    if (mstat == FALSE) {
-		V snprintf(output, MAXSTR -1, " @(%s,%c%c) ", macname, '?', '?');
+		V snprintf(output, MAXSTR, " @(%s,%c%c) ", macname, '?', '?');
 	    }
 	    if (mstat != TRUE) {
 #ifdef DIESEL_TRACE
@@ -1645,7 +1645,7 @@ static int macrovalue(int nargs, char *args, char *output)
 	    return TRUE;
 	}
     }
-    V snprintf(output, MAXSTR -1, " @(%s)?? ", macname);
+    V snprintf(output, MAXSTR, " @(%s)?? ", macname);
 #ifdef DIESEL_TRACE
     if (tracing) {
 	 V printf("Err:  %s\n", output);
@@ -1673,7 +1673,7 @@ static int macroeval(char **in, char **out)
 #ifdef ECHOMAC
 	*op++ = ' ';
 	*op++ = '<';
-	V snprintf(op, MAXSTR -1, "(%d)", mstat);
+	V snprintf(op, MAXSTR, "(%d)", mstat);
 	op += strlen(op);
 	ma = margs;
 	while (mstat-- > 0) {

@@ -113,7 +113,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 	return -1;
     }
 
-    snprintf(p, 5, "%s", archiver.name);
+    snprintf(p, 6, "%s", archiver.name);
     Syslog('f', "new filename %s", newname);
 
     arccmd = xstrcpy(archiver.farc);

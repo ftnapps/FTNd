@@ -180,7 +180,7 @@ char *rfcdate(time_t now)
 	hr = offset / 60L;
 	min = offset % 60L;
 
-	snprintf(buf, 39, "%s, %02d %s %04d %02d:%02d:%02d %c%02d%02d", wdays[ptm.tm_wday], ptm.tm_mday, months[ptm.tm_mon],
+	snprintf(buf, 40, "%s, %02d %s %04d %02d:%02d:%02d %c%02d%02d", wdays[ptm.tm_wday], ptm.tm_mday, months[ptm.tm_mon],
 		ptm.tm_year + 1900, ptm.tm_hour, ptm.tm_min, ptm.tm_sec, sign, hr, min);
 	return(buf);
 }

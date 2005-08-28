@@ -399,9 +399,9 @@ char *ascinode(faddr *a, int fl)
 		if ((strchr(a->name,'.')) || (strchr(a->name,'@')) ||
 		    (strchr(a->name,'\'')) || (strchr(a->name,',')) ||
 		    (strchr(a->name,'<')) || (strchr(a->name,'>')))
-			snprintf(buf+strlen(buf), 127, "\"%s\" <", a->name);
+			snprintf(buf+strlen(buf), 128, "\"%s\" <", a->name);
 		else
-			snprintf(buf+strlen(buf), 127, "%s <", a->name);
+			snprintf(buf+strlen(buf), 128, "%s <", a->name);
 	}
 
 	if ((fl & 0x40) && (a->name)) {
@@ -466,33 +466,33 @@ char *ascinode(faddr *a, int fl)
 	}
 
 	if ((fl & 0x01) && (a->point))
-		snprintf(buf+strlen(buf), 127, "p%u.", a->point);
+		snprintf(buf+strlen(buf), 128, "p%u.", a->point);
 	if (fl & 0x02)
-		snprintf(buf+strlen(buf), 127, "f%u.", a->node);
+		snprintf(buf+strlen(buf), 128, "f%u.", a->node);
 	if (fl & 0x04)
-		snprintf(buf+strlen(buf), 127, "n%u.", a->net);
+		snprintf(buf+strlen(buf), 128, "n%u.", a->net);
 	if ((fl & 0x08) && (a->zone))
-		snprintf(buf+strlen(buf), 127, "z%u.", a->zone);
+		snprintf(buf+strlen(buf), 128, "z%u.", a->zone);
 	buf[strlen(buf)-1]='\0';
 
 	if (fl & 0x10) {
 		if (a->domain)
-			snprintf(buf+strlen(buf), 127, ".%s", a->domain);
+			snprintf(buf+strlen(buf), 128, ".%s", a->domain);
 	}
 
 	if (fl & 0x20) {
 		if (a->domain) {
 			if ((fl & 0x10) == 0)
-				snprintf(buf+strlen(buf), 127, ".%s", a->domain);
+				snprintf(buf+strlen(buf), 128, ".%s", a->domain);
 		} else {
 			if (SearchFidonet(a->zone))
-				snprintf(buf+strlen(buf), 127, ".%s", fidonet.domain);
+				snprintf(buf+strlen(buf), 128, ".%s", fidonet.domain);
 			else
-				snprintf(buf+strlen(buf), 127, ".fidonet");
+				snprintf(buf+strlen(buf), 128, ".fidonet");
 		}
 
 		p = calloc(128, sizeof(char));
-		snprintf(p, 127, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+		snprintf(p, 128, "%s/etc/domain.data", getenv("MBSE_ROOT"));
 		if ((fp = fopen(p, "r")) == NULL) {
 			WriteError("$Can't open %s", p);
 		} else {
@@ -509,11 +509,11 @@ char *ascinode(faddr *a, int fl)
 		}
 		free(p);
 		if (!found) 
-			snprintf(buf + strlen(buf), 127, ".ftn");
+			snprintf(buf + strlen(buf), 128, ".ftn");
 	}
 
 	if ((fl & 0x80) && (a->name))
-		snprintf(buf+strlen(buf), 127, ">");
+		snprintf(buf+strlen(buf), 128, ">");
 
 	return buf;
 }
@@ -535,17 +535,17 @@ char *ascfnode(faddr *a, int fl)
 
 	buf[0] = '\0';
 	if ((fl & 0x40) && (a->name))
-		snprintf(buf+strlen(buf),127,"%s of ",a->name);
+		snprintf(buf+strlen(buf),128,"%s of ",a->name);
 	if ((fl & 0x08) && (a->zone))
-		snprintf(buf+strlen(buf),127,"%u:",a->zone);
+		snprintf(buf+strlen(buf),128,"%u:",a->zone);
 	if (fl & 0x04)
-		snprintf(buf+strlen(buf),127,"%u/",a->net);
+		snprintf(buf+strlen(buf),128,"%u/",a->net);
 	if (fl & 0x02)
-		snprintf(buf+strlen(buf),127,"%u",a->node);
+		snprintf(buf+strlen(buf),128,"%u",a->node);
 	if ((fl & 0x01) && (a->point))
-		snprintf(buf+strlen(buf),127,".%u",a->point);
+		snprintf(buf+strlen(buf),128,".%u",a->point);
 	if ((fl & 0x10) && (a->domain))
-		snprintf(buf+strlen(buf),127,"@%s",a->domain);
+		snprintf(buf+strlen(buf),128,"@%s",a->domain);
 	return buf;
 }
 
@@ -600,7 +600,7 @@ fidoaddr *faddr2fido(faddr *aka)
 	Sys->node  = aka->node;
 	Sys->point = aka->point;
 	if (aka->domain != NULL)
-		snprintf(Sys->domain, 12, "%s", aka->domain);
+		snprintf(Sys->domain, 13, "%s", aka->domain);
 
 	return Sys;
 }

@@ -427,7 +427,7 @@ void mangle_name_83(char *s)
     if (crc16 > (MANGLE_BASE * MANGLE_BASE * MANGLE_BASE))
 	Syslog('!', "WARNING: mangle_name_83() crc16 overflow");
     crc16 = crc16 % (MANGLE_BASE * MANGLE_BASE * MANGLE_BASE);
-    snprintf(s, 8, "%s%c%c%c%c", base, magic_char, 
+    snprintf(s, 9, "%s%c%c%c%c", base, magic_char, 
 	    mangle(crc16 / (MANGLE_BASE * MANGLE_BASE)), mangle(crc16 / MANGLE_BASE), mangle(crc16));
     if ( *extension ) {
 	(void)strcat(s, ".");

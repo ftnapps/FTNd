@@ -143,7 +143,7 @@ int getheader(faddr *f, faddr *t, FILE *pkt, char *pname, int session)
     /*
      * Fill in a default product code in case it doesn't exist
      */
-    snprintf(buf, 4, "%04x", prodx);
+    snprintf(buf, 5, "%04x", prodx);
     prodn = xstrcpy((char *)"Unknown 0x");
     prodn = xstrcat(prodn, buf);
     for (i = 0; ftscprod[i].name; i++)

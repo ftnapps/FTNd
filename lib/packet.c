@@ -133,10 +133,10 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor, int session)
         memset(&str, 0, 8);
         if (session) {
 	   if (noderecord(addr) && strlen(nodes.Spasswd))
-	        snprintf(str, 8, "%s", nodes.Spasswd);
+	        snprintf(str, 9, "%s", nodes.Spasswd);
 	} else {
 	    if (noderecord(addr) && strlen(nodes.Epasswd))
-	        snprintf(str, 8, "%s", nodes.Epasswd);
+	        snprintf(str, 9, "%s", nodes.Epasswd);
 	}
 	for (i = 0; i < 8; i++)
 	    buffer[0x1a + i] = toupper(str[i]);	 /* FSC-0039 only talks about A-Z, 0-9, so force uppercase */

@@ -64,7 +64,7 @@ char *prepbuf(faddr *addr)
 	if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
 	    zpref[0] = '\0';
 	else
-	    snprintf(zpref, 7, ".%03x", addr->zone);
+	    snprintf(zpref, 8, ".%03x", addr->zone);
     } else {
 	/*
 	 * If we got a 5d address we use the given domain, if
@@ -96,7 +96,7 @@ char *prepbuf(faddr *addr)
 	    if (CFG.aka[i].zone == addr->zone)
 		zpref[0] = '\0';
 	    else
-		snprintf(zpref, 7, ".%03x", addr->zone);
+		snprintf(zpref, 8, ".%03x", addr->zone);
 	} else {
 	    /*
 	     * this is our primary domain
@@ -104,7 +104,7 @@ char *prepbuf(faddr *addr)
 	    if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
 		zpref[0]='\0';
 	    else 
-		snprintf(zpref, 7, ".%03x",addr->zone);
+		snprintf(zpref, 8, ".%03x",addr->zone);
 	}
     }
 
@@ -227,7 +227,7 @@ char *dayname(void)
     
     tt = time(NULL);
     ptm = localtime(&tt);
-    snprintf(buf, 2, "%s", dow[ptm->tm_wday]);
+    snprintf(buf, 3, "%s", dow[ptm->tm_wday]);
 
     return buf;	
 }

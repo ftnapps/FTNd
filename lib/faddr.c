@@ -48,14 +48,14 @@ char *aka2str(fidoaddr aka)
     result[0] = '\0';
     if (strlen(aka.domain)) {
 	if (aka.point == 0) 
-	    snprintf(result, 42, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
+	    snprintf(result, 43, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
 	else
-	    snprintf(result, 42, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
+	    snprintf(result, 43, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
     } else {
 	if (aka.point == 0)
-	    snprintf(result, 42, "%d:%d/%d", aka.zone, aka.net, aka.node);
+	    snprintf(result, 43, "%d:%d/%d", aka.zone, aka.net, aka.node);
 	else
-	    snprintf(result, 42, "%d:%d/%d.%d", aka.zone, aka.net, aka.node, aka.point);
+	    snprintf(result, 43, "%d:%d/%d.%d", aka.zone, aka.net, aka.node, aka.point);
     }
     return result;
 }
@@ -84,7 +84,7 @@ fidoaddr str2aka(char *addr)
 	if (strlen(addr) > 42)
 		return n;
 	
-	snprintf(b, 42, "%s~", addr);
+	snprintf(b, 43, "%s~", addr);
 	if ((strchr(b, ':') == NULL) || (strchr(b, '/') == NULL))
 		return n;
 

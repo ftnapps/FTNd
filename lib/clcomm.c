@@ -156,7 +156,7 @@ void SockS(const char *format, ...)
 	out = calloc(SS_BUFSIZE, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsnprintf(out, SS_BUFSIZE -1, format, va_ptr);
+	vsnprintf(out, SS_BUFSIZE, format, va_ptr);
 	va_end(va_ptr);
 
 	if (socket_send(out) == 0)
@@ -177,11 +177,11 @@ char *SockR(const char *format, ...)
 	out = calloc(SS_BUFSIZE, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsnprintf(out, SS_BUFSIZE -1, format, va_ptr);
+	vsnprintf(out, SS_BUFSIZE, format, va_ptr);
 	va_end(va_ptr);
 
 	if (socket_send(out) == 0)
-		snprintf(buf, SS_BUFSIZE -1, "%s", socket_receive());
+		snprintf(buf, SS_BUFSIZE, "%s", socket_receive());
 
 	free(out);
 	return buf;
@@ -198,7 +198,7 @@ void WriteError(const char *format, ...)
 	outputstr = calloc(10240, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsnprintf(outputstr, 10239, format, va_ptr);
+	vsnprintf(outputstr, 10240, format, va_ptr);
 
 	va_end(va_ptr);
 
@@ -207,7 +207,7 @@ void WriteError(const char *format, ...)
 			outputstr[i] = ' ';
 
 	if (*outputstr == '$')
-		snprintf(outputstr+strlen(outputstr), 10239, ": %s", strerror(errno));
+		snprintf(outputstr+strlen(outputstr), 10240, ": %s", strerror(errno));
 
 	if (strlen(outputstr) > (SS_BUFSIZE - 64)) {
 		outputstr[SS_BUFSIZE - 65] = ';';
@@ -248,7 +248,7 @@ void Syslog(int level, const char *format, ...)
 	outstr = calloc(10240, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsnprintf(outstr, 10239, format, va_ptr);
+	vsnprintf(outstr, 10240, format, va_ptr);
 	va_end(va_ptr);
 	Syslogp(level, outstr);
 	free(outstr);
@@ -348,7 +348,7 @@ void Mgrlog(const char *format, ...)
     outstr = calloc(10240, sizeof(char));
 
     va_start(va_ptr, format);
-    vsnprintf(outstr, 10239, format, va_ptr);
+    vsnprintf(outstr, 10240, format, va_ptr);
     va_end(va_ptr);
 
     for (i = 0; i < strlen(outstr); i++)
@@ -372,7 +372,7 @@ void IsDoing(const char *format, ...)
 	outputstr = calloc(SS_BUFSIZE, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsnprintf(outputstr, SS_BUFSIZE -1, format, va_ptr);
+	vsnprintf(outputstr, SS_BUFSIZE, format, va_ptr);
 	va_end(va_ptr);
 
 	SockS("ADOI:2,%d,%s;", mypid, outputstr);
@@ -451,7 +451,7 @@ unsigned long sequencer()
 	unsigned long	seq = 0;
 
 	buf = calloc(SS_BUFSIZE, sizeof(char));
-	snprintf(buf, SS_BUFSIZE -1, "SSEQ:0;");
+	snprintf(buf, SS_BUFSIZE, "SSEQ:0;");
 
 	if (socket_send(buf) == 0) {
 		free(buf);
@@ -477,10 +477,10 @@ int enoughspace(unsigned long needed)
     unsigned long   avail = 0L;
 
     buf = calloc(SS_BUFSIZE, sizeof(char));
-    snprintf(buf, SS_BUFSIZE -1, "DSPC:1,%ld;", needed);
+    snprintf(buf, SS_BUFSIZE, "DSPC:1,%ld;", needed);
 
     if (socket_send(buf) == 0) {
-	snprintf(buf, SS_BUFSIZE -1, "%s", socket_receive());
+	snprintf(buf, SS_BUFSIZE, "%s", socket_receive());
 	res = strtok(buf, ":");
 	cnt = atoi(strtok(NULL, ","));
 	if (cnt == 1) {
