@@ -4,7 +4,7 @@
  * Purpose ...............: Post echomail message.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -79,13 +79,13 @@ int EchoOut(fidoaddr aka, char *toname, char *fromname, char *subj, FILE *fp, in
      */
     memset(&ext, 0, sizeof(ext));
     if (nodes.PackNetmail)
-	sprintf(ext, (char *)"qqq");
+	snprintf(ext, 3, (char *)"qqq");
     else if (nodes.Crash)
-	sprintf(ext, (char *)"ccc");
+	snprintf(ext, 3, (char *)"ccc");
     else if (nodes.Hold)
-	sprintf(ext, (char *)"hhh");
+	snprintf(ext, 3, (char *)"hhh");
     else
-	sprintf(ext, (char *)"nnn");
+	snprintf(ext, 3, (char *)"nnn");
 
     if ((qp = OpenPkt(msgs.Aka, aka, (char *)ext)) == NULL) {
 	WriteError("EchoOut(): OpenPkt failed");
@@ -346,7 +346,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	     */
 	    Syslog('m', "Gated echomail, clean SB");
 	    tidy_falist(&sbl);
-	    sprintf(sbe, "%u/%u", Link.aka.net, Link.aka.node);
+	    snprintf(sbe, 15, "%u/%u", Link.aka.net, Link.aka.node);
 	    Syslog('m', "Add gate SB %s", sbe);
 	    fill_list(&sbl, sbe, NULL);
 	}
@@ -358,7 +358,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	for (i = 0; i < 40; i++) {
 	    if (CFG.akavalid[i] && (msgs.Aka.zone == CFG.aka[i].zone) && (CFG.aka[i].point == 0) &&
 		!((msgs.Aka.net == CFG.aka[i].net) && (msgs.Aka.node == CFG.aka[i].node))) {
-		sprintf(sbe, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
+		snprintf(sbe, 15, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
 		fill_list(&sbl, sbe, NULL);
 	    }
 	}
@@ -368,7 +368,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     /*
      * Add our system to the path for later export.
      */
-    sprintf(sbe, "%u/%u", msgs.Aka.net, msgs.Aka.node);
+    snprintf(sbe, 15, "%u/%u", msgs.Aka.net, msgs.Aka.node);
     fill_path(&ptl, sbe);
     uniq_list(&ptl);	/* remove possible duplicate own aka */
 
@@ -399,7 +399,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
      */
     for (tmpq = qal; tmpq; tmpq = tmpq->next) {
         if (tmpq->send) {
-	   sprintf(sbe, "%u/%u", tmpq->aka.net, tmpq->aka.node);
+	   snprintf(sbe, 15, "%u/%u", tmpq->aka.net, tmpq->aka.node);
 	    fill_list(&sbl, sbe, NULL);
 	}
     }
@@ -437,15 +437,15 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     oldnet = sbl->addr->net - 1;
     for (tmpl = sbl; tmpl; tmpl = tmpl->next) {
 	if (tmpl->addr->net == oldnet)
-	    sprintf(sbe, " %u", tmpl->addr->node);
+	    snprintf(sbe, 15, " %u", tmpl->addr->node);
 	else
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 15, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	oldnet = tmpl->addr->net;
 	seenlen += strlen(sbe);
 	if (seenlen > MAXSEEN) {
 	    seenlen = 0;
 	    fprintf(nfp, "\nSEEN-BY:");
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 15, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	    seenlen = strlen(sbe);
 	}
 	fprintf(nfp, "%s", sbe);
@@ -458,15 +458,15 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     oldnet = ptl->addr->net - 1;
     for (tmpl = ptl; tmpl; tmpl = tmpl->next) {
 	if (tmpl->addr->net == oldnet)
-	    sprintf(sbe, " %u", tmpl->addr->node);
+	    snprintf(sbe, 15, " %u", tmpl->addr->node);
 	else
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 15, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	oldnet = tmpl->addr->net;
 	seenlen += strlen(sbe);
 	if (seenlen > MAXPATH) {
 	    seenlen = 0;
 	    fprintf(nfp, "\n\001PATH:");
-	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    snprintf(sbe, 15, " %u/%u", tmpl->addr->net, tmpl->addr->node);
 	    seenlen = strlen(sbe);
 	}
 	fprintf(nfp, "%s", sbe);
