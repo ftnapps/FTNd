@@ -4,7 +4,7 @@
  * Purpose ...............: Post Netmail message from temp file
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -67,7 +67,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	int flags, int DoPing, unsigned int fzone, unsigned int tzone)
 {
     char    	*p, *msgid = NULL, *reply = NULL, *flagstr = NULL;
-    char    	name[36], *buf, *l, *r, *q, System[36], ext[4];
+    char    	name[37], *buf, *l, *r, *q, System[37], ext[4];
     int		result = 1, email = FALSE, fmpt = 0, topt = 0;
     faddr	*ta, *ra;
     fidoaddr	na, routeto, Orig;
@@ -247,7 +247,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
     na.node  = t->node;
     na.point = t->point;
     if (SearchFidonet(na.zone))
-	sprintf(na.domain, "%s", fidonet.domain);
+	snprintf(na.domain, 12, "%s", fidonet.domain);
 
     switch(TrackMail(na, &routeto)) {
 	case R_LOCAL:
@@ -255,12 +255,12 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	     *  Check the To: field.
 	     */
 	    if (strchr(t->name, '@') != NULL) {
-		sprintf(name, "%s", strtok(t->name, "@"));
-		sprintf(System, "%s", strtok(NULL, "\000"));
+		snprintf(name, 36, "%s", strtok(t->name, "@"));
+		snprintf(System, 36, "%s", strtok(NULL, "\000"));
 		email = TRUE;
 	    } else {
-		sprintf(name, "%s", t->name);
-		sprintf(System, "%s", CFG.sysdomain);
+		snprintf(name, 36, "%s", t->name);
+		snprintf(System, 36, "%s", CFG.sysdomain);
 	    }
 
 	    if (email) {
@@ -278,7 +278,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		(strcasecmp(name, "postmaster") == 0) ||
 		(strcasecmp(name, "coordinator") == 0)) {
 		Syslog('+', "  Readdress from %s to %s", name, CFG.sysop_name);
-		sprintf(name, "%s", CFG.sysop_name);
+		snprintf(name, 36, "%s", CFG.sysop_name);
 	    }
 
 	    /*
@@ -288,7 +288,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	     */
 	    (void)noderecord(f);
 	    p = calloc(PATH_MAX, sizeof(char));
-	    sprintf(p, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	    snprintf(p, PATH_MAX -1, "%s/etc/service.data", getenv("MBSE_ROOT"));
 	    if ((sfp = fopen(p, "r")) == NULL) {
 		WriteError("$Can't open %s", p);
 	    } else {
@@ -339,7 +339,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	     */
 	    net_bad++;
 	    Syslog('+', "  Readdress from %s to %s", name, CFG.sysop_name);
-	    sprintf(name, "%s", CFG.sysop_name);
+	    snprintf(name, 36, "%s", CFG.sysop_name);
 	    if (SearchUser(name)) {
 		return storenet(f, t, mdate, flags, subject, msgid, reply, fp, flagstr);
 	    } else {
@@ -374,13 +374,13 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 
 		memset(&ext, 0, sizeof(ext));
 		if (nodes.PackNetmail)
-		    sprintf(ext, (char *)"qqq");
+		    snprintf(ext, 3, (char *)"qqq");
 		else if (nodes.Crash)
-		    sprintf(ext, (char *)"ccc");
+		    snprintf(ext, 3, (char *)"ccc");
 		else if (nodes.Hold)
-		    sprintf(ext, (char *)"hhh");
+		    snprintf(ext, 3, (char *)"hhh");
 		else 
-		    sprintf(ext, (char *)"nnn");
+		    snprintf(ext, 3, (char *)"nnn");
 
 		if ((net = OpenPkt(Orig , routeto, (char *)ext)) == NULL) {
 		    net_bad++;

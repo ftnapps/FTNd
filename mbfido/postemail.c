@@ -4,7 +4,7 @@
  * Purpose ...............: Post Email message from temp file
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -90,7 +90,7 @@ int postemail(FILE *fp, char *MailFrom, char *MailTo)
     temp = calloc(MAX_LINE_LENGTH +1, sizeof(char));
 
     rfcaddr = parserfcaddr(MailFrom);
-    sprintf(temp, "MAIL FROM:<%s@%s>\r\n", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
+    snprintf(temp, MAX_LINE_LENGTH, "MAIL FROM:<%s@%s>\r\n", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
     Syslog('m', "%s", printable(temp, 0));
     if (smtp_cmd(temp, 250)) {
 	WriteError("SMTP: refused FROM <%s@%s>", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
@@ -101,7 +101,7 @@ int postemail(FILE *fp, char *MailFrom, char *MailTo)
     tidyrfcaddr(rfcaddr);
 
     rfcaddr = parserfcaddr(MailTo);
-    sprintf(temp, "RCPT TO:<%s@%s>\r\n", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
+    snprintf(temp, MAX_LINE_LENGTH, "RCPT TO:<%s@%s>\r\n", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
     Syslog('m', "%s", printable(temp, 0));
     if (smtp_cmd(temp, 250)) {
 	WriteError("SMTP: refused TO <%s@%s>", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
@@ -128,7 +128,7 @@ int postemail(FILE *fp, char *MailFrom, char *MailTo)
 	    }
 	    smtp_send(buf);
 	} else {
-	    sprintf(temp, " .\r\n");
+	    snprintf(temp, MAX_LINE_LENGTH, " .\r\n");
 	    smtp_send(temp);
 	}
     }

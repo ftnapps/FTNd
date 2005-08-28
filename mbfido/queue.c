@@ -4,7 +4,7 @@
  * Purpose ...............: Mail and file queue operations
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -79,7 +79,7 @@ void flush_dir(char *ndir)
     fd_list	    *fdl = NULL;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s", CFG.out_queue, ndir);
+    snprintf(temp, PATH_MAX -1, "%s/%s", CFG.out_queue, ndir);
     if (chdir(temp) == -1) {
 	WriteError("$Error chdir to %s", temp);
 	free(temp);
@@ -103,7 +103,7 @@ void flush_dir(char *ndir)
     nodenr.net   = noden.net;
     nodenr.node  = noden.node;
     nodenr.point = noden.point;
-    sprintf(nodenr.domain, "%s", noden.domain);
+    snprintf(nodenr.domain, 12, "%s", noden.domain);
 
     if (!SearchNode(nodenr)) {
 	/*
@@ -185,27 +185,27 @@ void flush_dir(char *ndir)
 	    /*
 	     * Generate ARCfile name from the CRC of the ASCII string of the node address.
 	     */
-	    sprintf(arcfile, "%s/%08lx.%s0", nodes.Dir_out_path, StringCRC32(ascfnode(&noden, 0x1f)), ext);
+	    snprintf(arcfile, PATH_MAX -1, "%s/%08lx.%s0", nodes.Dir_out_path, StringCRC32(ascfnode(&noden, 0x1f)), ext);
 	} else {
 	    bestaka = bestaka_s(&noden);
 
 	    if (noden.point) {
-		sprintf(arcfile, "%s/%04x%04x.%s0", nodes.Dir_out_path, ((bestaka->net) - (noden.net)) & 0xffff,
+		snprintf(arcfile, PATH_MAX -1, "%s/%04x%04x.%s0", nodes.Dir_out_path, ((bestaka->net) - (noden.net)) & 0xffff,
 			((bestaka->node) - (noden.node) + (noden.point)) & 0xffff, ext);
 	    } else if (bestaka->point) {
 		/*
 		 * Inserted the next code for if we are a point,
 		 * I hope this is ARCmail 0.60 compliant. 21-May-1999
 		 */
-		sprintf(arcfile, "%s/%04x%04x.%s0", nodes.Dir_out_path, ((bestaka->net) - (noden.net)) & 0xffff,
+		snprintf(arcfile, PATH_MAX -1, "%s/%04x%04x.%s0", nodes.Dir_out_path, ((bestaka->net) - (noden.net)) & 0xffff,
 			((bestaka->node) - (noden.node) - (bestaka->point)) & 0xffff, ext);
 	    } else {
-		sprintf(arcfile, "%s/%04x%04x.%s0", nodes.Dir_out_path, ((bestaka->net) - (noden.net)) & 0xffff,
+		snprintf(arcfile, PATH_MAX -1, "%s/%04x%04x.%s0", nodes.Dir_out_path, ((bestaka->net) - (noden.net)) & 0xffff,
 			((bestaka->node) - (noden.node)) &0xffff, ext);
 	    }
 	}
     } else {
-	sprintf(arcfile, "%s", arcname(&noden, nodes.Aka[0].zone, nodes.ARCmailCompat));
+	snprintf(arcfile, PATH_MAX -1, "%s", arcname(&noden, nodes.Aka[0].zone, nodes.ARCmailCompat));
     }
     Syslog('P', "Arcmail file %s", arcfile);
 
@@ -214,9 +214,9 @@ void flush_dir(char *ndir)
      */
     pktfile = calloc(PATH_MAX, sizeof(char));
     fname   = calloc(PATH_MAX, sizeof(char));
-    sprintf(fname, "%s/mailpkt.qqq", temp);
+    snprintf(fname, PATH_MAX -1, "%s/mailpkt.qqq", temp);
     if (access(fname, W_OK) == 0) {
-	sprintf(pktfile, "%s/%08lx.pkt", temp, sequencer());
+	snprintf(pktfile, PATH_MAX -1, "%s/%08lx.pkt", temp, sequencer());
 	if (rename(fname, pktfile)) {
 	    WriteError("$Can't rename %s to %s", fname, pktfile);
 	} else {
@@ -452,7 +452,7 @@ void flush_dir(char *ndir)
 	    flushed = TRUE;
 	}
 
-	sprintf(pktfile, "%s/%s", temp, fname);
+	snprintf(pktfile, PATH_MAX -1, "%s/%s", temp, fname);
 
 	if (strstr(fname, ".ddd"))
 	    flavor = 'd';
@@ -464,9 +464,9 @@ void flush_dir(char *ndir)
 	    flavor = 'o';
 
 	if (nodes.Session_out == S_DIR) {
-	    sprintf(arcfile, "%s/%08lx.pkt", nodes.Dir_out_path, sequencer());
+	    snprintf(arcfile, PATH_MAX -1, "%s/%08lx.pkt", nodes.Dir_out_path, sequencer());
 	} else {
-	    sprintf(arcfile, "%s", pktname(&noden, flavor));
+	    snprintf(arcfile, PATH_MAX -1, "%s", pktname(&noden, flavor));
 	}
 	Syslog('P', "Outfile: %s", arcfile);
 	Syslog('P', "Pktfile: %s", pktfile);
@@ -521,7 +521,7 @@ void flush_dir(char *ndir)
      * file, this tells the location of the file and what to do with
      * it after it is sent.
      */
-    sprintf(pktfile, "%s/.filelist", temp);
+    snprintf(pktfile, PATH_MAX -1, "%s/.filelist", temp);
     if ((fp = fopen(pktfile, "r")) != NULL) {
 
 	Syslog('+', "Adding files for %s via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
@@ -559,7 +559,7 @@ void flush_dir(char *ndir)
 	    if (nodes.Session_out == S_DIRECT) {
 		attach(noden, p, mode, flavor);
 	    } else if (nodes.Session_out == S_DIR) {
-		sprintf(arcfile, "%s/%s", nodes.Dir_out_path, Basename(p));
+		snprintf(arcfile, PATH_MAX -1, "%s/%s", nodes.Dir_out_path, Basename(p));
 		if (mode == LEAVE) {
 		    /*
 		     * LEAVE file, so we copy this one.
@@ -626,7 +626,7 @@ void flush_queue(void)
     }
     
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/foobar", CFG.out_queue);
+    snprintf(temp, PATH_MAX -1, "%s/foobar", CFG.out_queue);
     mkdirs(temp, 0750);
 
     if ((dp = opendir(CFG.out_queue)) == 0) {
@@ -641,7 +641,7 @@ void flush_queue(void)
      */
     while ((de = readdir(dp))) {
 	if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-	    sprintf(temp, "%s/%s", CFG.out_queue, de->d_name);
+	    snprintf(temp, PATH_MAX -1, "%s/%s", CFG.out_queue, de->d_name);
 	    Syslog('p', "Queue directory %s", temp);
 	    flush_dir(de->d_name);
 	    if (chdir(CFG.out_queue))
