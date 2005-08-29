@@ -55,7 +55,7 @@ int CountNoderec(void)
     char    ffile[PATH_MAX];
     int	    count;
 
-    sprintf(ffile, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -97,8 +97,8 @@ int OpenNoderec(void)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    sprintf(fnin,  "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-    sprintf(fnout, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
 
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
@@ -215,8 +215,8 @@ void CloseNoderec(int Force)
 
     fin  = calloc(PATH_MAX, sizeof(char));
     fout = calloc(PATH_MAX, sizeof(char));
-    sprintf(fin, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-    sprintf(fout,"%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
 
     if (NodeUpdated == 1) {
 	if (Force || (yes_no((char *)"Nodes database is changed, save changes") == 1)) {
@@ -291,7 +291,7 @@ int AppendNoderec(void)
     int	    i;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    sprintf(ffile, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
 
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&nodes, 0, sizeof(nodes));
@@ -334,7 +334,7 @@ int GroupInNode(char *Group, int Mail)
     int	    i, groups, RetVal = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return 0;
@@ -584,7 +584,7 @@ fidoaddr e_a(fidoaddr n, int x)
 		switch(select_menu(5)) {
 		case 0:	return n;
 		case 1:	n.zone = edit_int_range(7, 17, n.zone, 1, 4095, (char *)"The ^zone^ number 1..4095");
-			sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
 
@@ -714,7 +714,7 @@ void GeneralEdit(void)
 	show_bool(18,23, nodes.PackNetmail);
 
 	show_bool(16,63, nodes.Notify);
-	sprintf(temp1, "%c", nodes.Language);
+	snprintf(temp1, 32, "%c", nodes.Language);
 	show_str(17,63,1, temp1);
 	show_bool(18,63, nodes.Deleted);
 
@@ -723,10 +723,10 @@ void GeneralEdit(void)
 	case 1: E_STR( 7,23,35, nodes.Sysop,        "The name of the ^sysop^ for this node")
 	case 2: if (strlen(nodes.OutBox) == 0) {
 		    if (nodes.Aka[0].zone) {
-			sprintf(nodes.OutBox, "%s/var/boxes/node%d_%d_%d", getenv("MBSE_ROOT"), 
+			snprintf(nodes.OutBox, 65, "%s/var/boxes/node%d_%d_%d", getenv("MBSE_ROOT"), 
 				nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
 		    } else {
-			sprintf(nodes.OutBox, "%s/var/boxes/%s", getenv("MBSE_ROOT"), nodes.Sysop);
+			snprintf(nodes.OutBox, 65, "%s/var/boxes/%s", getenv("MBSE_ROOT"), nodes.Sysop);
 			for (i = (strlen(nodes.OutBox) - strlen(nodes.Sysop)); i < strlen(nodes.OutBox); i++) {
 			    nodes.OutBox[i] = tolower(nodes.OutBox[i]);
 			    if (nodes.OutBox[i] == ' ')
@@ -939,7 +939,7 @@ void DirectoryEdit(void)
 	    } else {
 		switch(pick) {
 		case 1:	if ((strlen(nodes.Dir_out_path) == 0) && (nodes.Aka[0].zone)) {
-			    sprintf(nodes.Dir_out_path, "%s/var/bbsftp/node%d_%d_%d/outbound", getenv("MBSE_ROOT"),
+			    snprintf(nodes.Dir_out_path, 65, "%s/var/bbsftp/node%d_%d_%d/outbound", getenv("MBSE_ROOT"),
 				nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
 			}
 			E_PTH( 8,23,56, nodes.Dir_out_path,    "^Outbound path^ for files and mail to this node", 0770)
@@ -950,7 +950,7 @@ void DirectoryEdit(void)
 			    if (p) {
 				p++;
 				*p = '\0';
-				sprintf(p, "lock.bsy");
+				snprintf(p, 9, "lock.bsy");
 			    }
 			}
 			nodes.Dir_out_chklck = temp;
@@ -964,7 +964,7 @@ void DirectoryEdit(void)
 			    if (p) {
 				p++;
 				*p = '\0';
-				sprintf(p, "lock.bsy");
+				snprintf(p, 9, "lock.bsy");
 			    }
 			}
 			nodes.Dir_out_mklck = temp;
@@ -978,7 +978,7 @@ void DirectoryEdit(void)
 	    } else {
 		switch(pick) {
                 case 7: if ((strlen(nodes.Dir_in_path) == 0) && (nodes.Aka[0].zone)) {
-                            sprintf(nodes.Dir_in_path, "%s/var/bbsftp/node%d_%d_%d/inbound", getenv("MBSE_ROOT"),
+                            snprintf(nodes.Dir_in_path, 65, "%s/var/bbsftp/node%d_%d_%d/inbound", getenv("MBSE_ROOT"),
                                 nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
                         }
                         E_PTH(15,23,56, nodes.Dir_in_path,    "^Inbound path^ for files and mail from this node", 0770)
@@ -989,7 +989,7 @@ void DirectoryEdit(void)
                             if (p) {
                                 p++;
                                 *p = '\0';
-                                sprintf(p, "lock.bsy");
+                                snprintf(p, 9, "lock.bsy");
                             }
                         }
                         nodes.Dir_in_chklck = temp;
@@ -1003,7 +1003,7 @@ void DirectoryEdit(void)
                             if (p) {
                                 p++;
                                 *p = '\0';
-                                sprintf(p, "lock.bsy");
+                                snprintf(p, 9, "lock.bsy");
                             }
                         }
                         nodes.Dir_in_mklck = temp;
@@ -1035,7 +1035,7 @@ int EditNodeRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Fido Node");
 
-    sprintf(mfile, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) != NULL) {
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 
@@ -1046,7 +1046,7 @@ int EditNodeRec(int Area)
 	sort_grlist(&egr);
     }
 
-    sprintf(mfile, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) != NULL) {
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
 
@@ -1057,7 +1057,7 @@ int EditNodeRec(int Area)
 	sort_grlist(&fgr);
     }
 
-    sprintf(mfile, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	tidy_grlist(&egr);
@@ -1138,7 +1138,7 @@ int EditNodeRec(int Area)
 			    if (tmp->tagged) {
 				i++;
 				memset(&group, 0, 13);
-				sprintf(group, "%s", tmp->group);
+				snprintf(group, 13, "%s", tmp->group);
 				fwrite(&group, 13, 1, fil);
 			    }
 
@@ -1152,7 +1152,7 @@ int EditNodeRec(int Area)
 			    if (tmp->tagged) {
 				i++;
 				memset(&group, 0, 13);
-				sprintf(group, "%s", tmp->group);
+				snprintf(group, 13, "%s", tmp->group);
 				fwrite(&group, 13, 1, fil);
 			    }
 
@@ -1234,7 +1234,7 @@ void EditNodes(void)
 	mbse_mvprintw( 5, 6, "7.  NODES SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
@@ -1254,7 +1254,7 @@ void EditNodes(void)
 			    set_color(CYAN, BLACK);
 			else
 			    set_color(LIGHTBLUE, BLACK); 
-			sprintf(temp, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
+			snprintf(temp, 81, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
 			temp[37] = 0;
 			mbse_mvprintw(y, x, temp);
 			y++;
@@ -1345,7 +1345,7 @@ fidoaddr PullUplink(char *Hdr)
 		mbse_mvprintw( 5, 4, "%s.  UPLINK SELECT", Hdr);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
@@ -1365,7 +1365,7 @@ fidoaddr PullUplink(char *Hdr)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK); 
-						sprintf(temp, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
+						snprintf(temp, 81, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -1389,7 +1389,7 @@ fidoaddr PullUplink(char *Hdr)
 				o = o - 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
 				fseek(fil, ((atoi(pick) -1) * (nodeshdr.recsize + nodeshdr.filegrp + nodeshdr.mailgrp)) + nodeshdr.hdrsize, SEEK_SET);
@@ -1442,7 +1442,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
     char	group[13];
     sysconnect	System;
 
-    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -1468,7 +1468,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	} else
 	    fprintf(fp, "\n\n");
 
-	sprintf(temp, "node_%d_%d_%d_%d_%s.html", nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node,
+	snprintf(temp, 81, "node_%d_%d_%d_%d_%s.html", nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node,
 		nodes.Aka[0].point, nodes.Aka[0].domain);
 	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, aka2str(nodes.Aka[0]), nodes.Sysop, nodes.Crash ? "Crash": nodes.Hold ? "Hold":"Normal");
@@ -1492,7 +1492,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    for (i = 0; i < 20; i++)
 		if (nodes.Aka[i].zone) {
 		    fprintf(fp, "     Aka %2d           %s\n", i+1, aka2str(nodes.Aka[i]));
-		    sprintf(temp, "Aka %d", i+1);
+		    snprintf(temp, 81, "Aka %d", i+1);
 		    add_webtable(wp, temp, aka2str(nodes.Aka[i]));
 		}
 	    if (nodes.RouteVia.zone) {
@@ -1507,7 +1507,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    if (strlen(nodes.phone[0]) || strlen(nodes.phone[1])) {
 	        fprintf(fp, "     Phone numbers    %s %s\n", nodes.phone[0], nodes.phone[1]);
-		sprintf(temp, "%s %s", nodes.phone[0], nodes.phone[1]);
+		snprintf(temp, 81, "%s %s", nodes.phone[0], nodes.phone[1]);
 		add_webtable(wp, (char *)"Phone numbers", temp);
 	    }
 	    if (strlen(nodes.Nl_flags)) {
@@ -1537,7 +1537,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "     Send notify      %s", getboolean(nodes.Notify));
 	    add_webtable(wp, (char *)"Send notify messages", getboolean(nodes.Notify));
 	    fprintf(fp, "     Language         %c\n", nodes.Language);
-	    sprintf(temp, "%c", nodes.Language);
+	    snprintf(temp, 81, "%c", nodes.Language);
 	    add_webtable(wp, (char *)"Language", temp);
 	    fprintf(fp, "     No EMSI          %s", getboolean(nodes.NoEMSI));
 	    add_webtable(wp, (char *)"No EMSI", getboolean(nodes.NoEMSI));
@@ -1721,7 +1721,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>TIC Areas</H3>\n");
 	    refs = 0;
-	    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&tichdr, tichdr.hdrsize, 1, ti);
 		systems = tichdr.syssize / sizeof(sysconnect);
@@ -1733,7 +1733,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 				    (System.aka.zone == nodes.Aka[k].zone) && (System.aka.net == nodes.Aka[k].net) && 
 				    (System.aka.node == nodes.Aka[k].node) && (System.aka.point == nodes.Aka[k].point) && 
 				    (strcmp(System.aka.domain, nodes.Aka[k].domain) == 0)) {
-				sprintf(temp, "---");
+				snprintf(temp, 81, "---");
 				if (System.sendto)
 				    temp[0] = 'S';
 				if (System.receivefrom)
@@ -1764,7 +1764,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Message Areas</H3>\n");
             nr = refs = 0;
-            sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+            snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
             if ((ti = fopen(temp, "r"))) {
                 fread(&msgshdr, msgshdr.hdrsize, 1, ti);
                 systems = msgshdr.syssize / sizeof(sysconnect);
@@ -1777,7 +1777,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
                                     (System.aka.zone == nodes.Aka[k].zone) && (System.aka.net == nodes.Aka[k].net) &&
                                     (System.aka.node == nodes.Aka[k].node) && (System.aka.point == nodes.Aka[k].point) &&
                                     (strcmp(System.aka.domain, nodes.Aka[k].domain) == 0)) {
-                                sprintf(temp, "----");
+                                snprintf(temp, 81, "----");
                                 if (System.sendto)
                                     temp[0] = 'S';
                                 if (System.receivefrom)
