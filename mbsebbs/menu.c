@@ -81,7 +81,7 @@ void InitMenu()
 	memset(Menus[i], 0, 51);
     MenuLevel = 0;
     MenuError = 0;
-    sprintf(Menus[0], "%s", CFG.default_menu);
+    snprintf(Menus[0], 15, "%s", CFG.default_menu);
 }
 
 
@@ -107,9 +107,9 @@ void menu()
 	 * Open menufile, first users language menu, if it fails
 	 * try to open the default menu.
 	 */
-	sprintf(sMenuPathFileName,"%s/%s", lang.MenuPath, Menus[MenuLevel]);
+	snprintf(sMenuPathFileName, PATH_MAX, "%s/%s", lang.MenuPath, Menus[MenuLevel]);
 	if ((pMenuFile = fopen(sMenuPathFileName, "r")) == NULL) {
-	    sprintf(sMenuPathFileName,"%s/%s", CFG.bbs_menus, Menus[MenuLevel]);
+	    snprintf(sMenuPathFileName, PATH_MAX, "%s/%s", CFG.bbs_menus, Menus[MenuLevel]);
 	    pMenuFile = fopen(sMenuPathFileName,"r");
 	    if (pMenuFile != NULL)
 		Syslog('b', "Menu %s (Default)", Menus[MenuLevel]);
@@ -127,7 +127,7 @@ void menu()
 	     */
 	    if (MenuError == 10) {
 		WriteError("FATAL ERROR: Too many menu errors");
-		sprintf(temp, "Too many menu errors, notifying Sysop\r\n\r\n");
+		snprintf(temp, 81, "Too many menu errors, notifying Sysop\r\n\r\n");
 		PUTSTR(temp);
 		sleep(3);
 		die(MBERR_CONFIG_ERROR);
@@ -180,7 +180,7 @@ void menu()
 	    if (IsSema((char *)"upsdown")) {
 		fclose(pMenuFile);
 		Syslog('+', "Kicking user out, upsdown semafore detected");
-		sprintf(temp, "System power failure, closing the bbs");
+		snprintf(temp, 81, "System power failure, closing the bbs");
 		PUTSTR(temp);
 		Enter(2);
 		sleep(3);
@@ -191,7 +191,7 @@ void menu()
 	     * Check if SysOp wants to chat to user everytime user gets prompt.
 	     */
 	    if (CFG.iChatPromptChk) {
-		sprintf(buf, "CISC:1,%d", mypid);
+		snprintf(buf, 81, "CISC:1,%d", mypid);
 		if (socket_send(buf) == 0) {
 		    strcpy(buf, socket_receive());
 		    if (strcmp(buf, "100:1,1;") == 0) {
@@ -210,7 +210,7 @@ void menu()
 
 	    if (exitinfo.HotKeys) {
 		Key = Readkey();
-		sprintf(Input, "%c", Key);
+		snprintf(Input, 81, "%c", Key);
 		Enter(1);
 	    } else {
 		colour(CFG.InputColourF, CFG.InputColourB);
@@ -302,7 +302,7 @@ void DoMenu(int Type)
 		    if (menus.OptionalData[x] == '~') {
 			strcat(sPrompt, sUserTimeleft);
 		    } else {
-			sprintf(temp, "%c", menus.OptionalData[x]);
+			snprintf(temp, 81, "%c", menus.OptionalData[x]);
 			strcat(sPrompt, temp);
 		    }
 		}
@@ -315,9 +315,9 @@ void DoMenu(int Type)
 		    else if (*(sPromptBak + x) == '^')
 			strcat(sPrompt, sMsgAreaDesc);
 		    else if (*(sPromptBak + x) == '#')
-			sprintf(sPrompt, "%s%s", sPrompt, (char *) GetLocalHM()); 
+			snprintf(sPrompt, 81, "%s%s", sPrompt, (char *) GetLocalHM()); 
 		    else {
-			sprintf(temp, "%c", *(sPromptBak + x));
+			snprintf(temp, 81, "%c", *(sPromptBak + x));
 			strcat(sPrompt, temp);
 		    }
 		}
@@ -384,7 +384,7 @@ void DoMenu(int Type)
 		    for (i = 0; i < strlen(menus.OptionalData); i++)
 			if (*(menus.OptionalData + i) == '@')
 			    *(menus.OptionalData + i) = '\n';
-		    sprintf(temp, "%s\r\n", menus.OptionalData);
+		    snprintf(temp, 81, "%s\r\n", menus.OptionalData);
 		    PUTSTR(temp);
 		}
 		break;

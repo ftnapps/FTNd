@@ -4,7 +4,7 @@
  * Purpose ...............: Display file with more
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -49,7 +49,7 @@ int MoreFile(char *filename)
     maxlines = lines = exitinfo.iScreenLen - 2;
 
     if ((fptr =  fopen(filename,"r")) == NULL) {
-	sprintf(Buf, "%s%s", (char *) Language(72), filename);
+	snprintf(Buf, 81, "%s%s", (char *) Language(72), filename);
 	pout(LIGHTRED, BLACK, Buf);
 	Enter(2);
 	return(0);
@@ -69,7 +69,7 @@ int MoreFile(char *filename)
 	}
 	if (lines == 0) {
 	    /* More (Y/n/=) */
-	    sprintf(Buf, " %sY\x08", (char *) Language(61));
+	    snprintf(Buf, 81, " %sY\x08", (char *) Language(61));
 	    PUTSTR(Buf);
 	    alarm_on();
 	    input = toupper(getchar());

@@ -69,7 +69,7 @@ int ChkFiles()
     /*
      * Check if users.data exists, if not create a new one.
      */
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp,"rb")) == NULL) {
 	if ((fp = fopen(temp,"wb")) == NULL) {
 	    WriteError("$Can't create %s", temp);
@@ -88,7 +88,7 @@ int ChkFiles()
     /*
      * Check if sysinfo.data exists, if not, create a new one.
      */
-    sprintf(temp, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "rb")) == NULL) {
 	if ((fp = fopen(temp, "wb")) == NULL) {
 	    WriteError("$ChkFiles: Can't create %s", temp);
@@ -118,7 +118,7 @@ void DisplayLogo()
     temp = calloc(PATH_MAX, sizeof(char));
     sString = calloc(1024, sizeof(char));
 
-    sprintf(temp, "%s/%s", CFG.bbs_txtfiles, CFG.welcome_logo);
+    snprintf(temp, PATH_MAX, "%s/%s", CFG.bbs_txtfiles, CFG.welcome_logo);
     if ((pLogo = fopen(temp,"rb")) == NULL)
 	WriteError("$DisplayLogo: Can't open %s", temp);
     else {
@@ -156,11 +156,11 @@ void SaveLastCallers()
      * First check if we passed midnight, in that case we create a fresh file.
      */
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName,"%s/etc/lastcall.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
     stat(sFileName, &statfile);
 
-    sprintf(sFileDate,"%s", StrDateDMY(statfile.st_mtime));
-    sprintf(sDate,"%s", (char *) GetDateDMY());
+    snprintf(sFileDate, 9, "%s", StrDateDMY(statfile.st_mtime));
+    snprintf(sDate, 9, "%s", (char *) GetDateDMY());
 
     if ((strcmp(sDate,sFileDate)) != 0) {
 	unlink(sFileName);
@@ -192,11 +192,11 @@ void SaveLastCallers()
     } else {
 	ReadExitinfo();
 	memset(&LCALL, 0, sizeof(LCALL));
-	sprintf(LCALL.UserName,"%s", exitinfo.sUserName);
-	sprintf(LCALL.Handle,"%s", exitinfo.sHandle);
-	sprintf(LCALL.Name, "%s", exitinfo.Name);
-	sprintf(LCALL.TimeOn,"%s", StartTime);
-	sprintf(LCALL.Device,"%s", pTTY);
+	snprintf(LCALL.UserName, 36, "%s", exitinfo.sUserName);
+	snprintf(LCALL.Handle, 36, "%s", exitinfo.sHandle);
+	snprintf(LCALL.Name, 9, "%s", exitinfo.Name);
+	snprintf(LCALL.TimeOn, 6, "%s", StartTime);
+	snprintf(LCALL.Device, 10, "%s", pTTY);
 	LCALL.SecLevel = exitinfo.Security.level;
 	LCALL.Calls    = exitinfo.iTotalCalls;
 	LCALL.CallTime = exitinfo.iConnectTime;
@@ -207,12 +207,12 @@ void SaveLastCallers()
 	LCALL.Chat     = LC_Chat;
 	LCALL.Olr      = LC_Olr;
 	LCALL.Door     = LC_Door;
-	sprintf(LCALL.Speed, "%s", ttyinfo.speed);
+	snprintf(LCALL.Speed, 21, "%s", ttyinfo.speed);
 
 	/* If true then set hidden so it doesn't display in lastcallers function */
 	LCALL.Hidden = exitinfo.Hidden;
 
-	sprintf(LCALL.Location,"%s", exitinfo.sLocation);
+	snprintf(LCALL.Location, 28, "%s", exitinfo.sLocation);
 
 	rewind(pGLC); /* ???????????? */
 	fwrite(&LCALL, sizeof(LCALL), 1, pGLC);
@@ -230,7 +230,7 @@ char *GLCdate()
 
     Time_Now = time(NULL);
     l_date = localtime(&Time_Now);
-    sprintf(GLcdate,"%02d-", l_date->tm_mday);
+    snprintf(GLcdate, 15, "%02d-", l_date->tm_mday);
 
     strcat(GLcdate,GetMonth(l_date->tm_mon+1));
     return(GLcdate);

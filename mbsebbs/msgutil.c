@@ -95,7 +95,7 @@ char *rfcdate(time_t now)
     hr=offset/60L;
     min=offset%60L;
 
-    sprintf(buf,"%s, %02d %s %04d %02d:%02d:%02d %c%02d%02d",
+    snprintf(buf,40,"%s, %02d %s %04d %02d:%02d:%02d %c%02d%02d",
 		wdays[gtm.tm_wday],gtm.tm_mday,months[gtm.tm_mon],
 		gtm.tm_year+1900,gtm.tm_hour,gtm.tm_min,gtm.tm_sec,
 		sign,hr,min);
@@ -167,55 +167,55 @@ void Add_Headkludges(faddr *dest, int IsReply)
 			break;
 
 	case NETMAIL:	Msg.Netmail = TRUE;
-			sprintf(Msg.FromAddress, "%s", aka2str(msgs.Aka));
-			sprintf(Msg.ToAddress, "%s", ascfnode(dest, 0x1f));
+			snprintf(Msg.FromAddress, 101, "%s", aka2str(msgs.Aka));
+			snprintf(Msg.ToAddress, 101, "%s", ascfnode(dest, 0x1f));
 			if (msgs.Aka.point) {
-			    sprintf(temp, "\001FMPT %d", msgs.Aka.point);
+			    snprintf(temp, 128, "\001FMPT %d", msgs.Aka.point);
 			    MsgText_Add2(temp);
 			}
 			if (dest->point) {
-			    sprintf(temp, "\001TOPT %d", dest->point);
+			    snprintf(temp, 128, "\001TOPT %d", dest->point);
 			    MsgText_Add2(temp);
 			}
-			sprintf(temp, "\001INTL %d:%d/%d %d:%d/%d", dest->zone, dest->net, 
+			snprintf(temp, 128, "\001INTL %d:%d/%d %d:%d/%d", dest->zone, dest->net, 
 				dest->node, msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
 			MsgText_Add2(temp);
 			break;
 
 	case LIST:	Msg.Echomail = TRUE;
-			sprintf(Msg.FromAddress, "%s", aka2str(msgs.Aka));
+			snprintf(Msg.FromAddress, 101, "%s", aka2str(msgs.Aka));
 			break;
 
 	case ECHOMAIL:	Msg.Echomail = TRUE;
-			sprintf(Msg.FromAddress, "%s", aka2str(msgs.Aka));
+			snprintf(Msg.FromAddress, 101, "%s", aka2str(msgs.Aka));
 			break;
 
 	case NEWS:	/*
 			 * Header style is the same as GoldED does.
 			 */
 			Msg.News = TRUE;
-			sprintf(temp, "\001Date: %s", rfcdate(Msg.Written));
+			snprintf(temp, 101, "\001Date: %s", rfcdate(Msg.Written));
 			MsgText_Add2(temp);
 			Node = fido2faddr(msgs.Aka);
-			sprintf(temp, "\001From: %s", Msg.From);
+			snprintf(temp, 101, "\001From: %s", Msg.From);
 			MsgText_Add2(temp);
-			sprintf(temp, "\001Subject: %s", Msg.Subject);
+			snprintf(temp, 101, "\001Subject: %s", Msg.Subject);
 			MsgText_Add2(temp);
-			sprintf(temp, "\001Sender: %s", Msg.From);
+			snprintf(temp, 101, "\001Sender: %s", Msg.From);
 			MsgText_Add2(temp);
 			tidy_faddr(Node);
 			MsgText_Add2((char *)"\001To: All");
 			MsgText_Add2((char *)"\001MIME-Version: 1.0");
 			if (exitinfo.Charset != FTNC_NONE) {
-			    sprintf(temp, "\001Content-Type: text/plain; charset=%s", getrfcchrs(exitinfo.Charset));
+			    snprintf(temp, PATH_MAX, "\001Content-Type: text/plain; charset=%s", getrfcchrs(exitinfo.Charset));
 			} else if (msgs.Charset != FTNC_NONE) {
-			    sprintf(temp, "\001Content-Type: text/plain; charset=%s", getrfcchrs(msgs.Charset));
+			    snprintf(temp, PATH_MAX, "\001Content-Type: text/plain; charset=%s", getrfcchrs(msgs.Charset));
 			} else {
-			    sprintf(temp, "\001Content-Type: text/plain; charset=iso8859-1");
+			    snprintf(temp, PATH_MAX, "\001Content-Type: text/plain; charset=iso8859-1");
 			}
 			MsgText_Add2(temp);
 			MsgText_Add2((char *)"\001Content-Transfer-Encoding: 8bit");
-			sprintf(temp, "\001X-Mailreader: MBSE BBS %s", VERSION);
+			snprintf(temp, PATH_MAX, "\001X-Mailreader: MBSE BBS %s", VERSION);
 			MsgText_Add2(temp);
 			break;
     }
@@ -224,29 +224,29 @@ void Add_Headkludges(faddr *dest, int IsReply)
      * Set the right charset kludge
      */
     if (exitinfo.Charset != FTNC_NONE) {
-	sprintf(temp, "\001CHRS: %s", getftnchrs(exitinfo.Charset));
+	snprintf(temp, PATH_MAX, "\001CHRS: %s", getftnchrs(exitinfo.Charset));
     } else if (msgs.Charset != FTNC_NONE) {
-	sprintf(temp, "\001CHRS: %s", getftnchrs(msgs.Charset));
+	snprintf(temp, PATH_MAX, "\001CHRS: %s", getftnchrs(msgs.Charset));
     } else {
-	sprintf(temp, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
+	snprintf(temp, PATH_MAX, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
     }
     MsgText_Add2(temp);
-    sprintf(temp, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
+    snprintf(temp, PATH_MAX, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
     MsgText_Add2(temp);
     Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
 
     if (IsReply) {
-	sprintf(temp, "\001REPLY: %s", Msg.Replyid);
+	snprintf(temp, PATH_MAX, "\001REPLY: %s", Msg.Replyid);
 	MsgText_Add2(temp);
 	crc = -1;
 	Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
     } else
 	Msg.ReplyCRC = 0xffffffff;
 
-    sprintf(temp, "\001PID: MBSE-BBS %s (%s-%s)", VERSION, OsName(), OsCPU());
+    snprintf(temp, PATH_MAX, "\001PID: MBSE-BBS %s (%s-%s)", VERSION, OsName(), OsCPU());
     MsgText_Add2(temp);
     tt = time(NULL);
-    sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
+    snprintf(temp, PATH_MAX, "\001TZUTC: %s", gmtoffset(tt));
     MsgText_Add2(temp);
     free(temp);
 }
@@ -270,7 +270,7 @@ void Add_Footkludges(int Quote, char *tear, int HasTear)
      * If Quote (message entered at the bbs) we append a signature.
      */
     if (Quote) {
-	sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
 	if ((fp = fopen(temp, "r"))) {
 	    MsgText_Add2((char *)"");
 	    while (fgets(temp, 80, fp)) {
@@ -283,7 +283,7 @@ void Add_Footkludges(int Quote, char *tear, int HasTear)
     }
 	
     if (msgs.Quotes && Quote) {
-	sprintf(temp, "... %s", Oneliner_Get());
+	snprintf(temp, 81, "... %s", Oneliner_Get());
 	MsgText_Add2(temp);
 	MsgText_Add2((char *)"");
     }
@@ -295,21 +295,21 @@ void Add_Footkludges(int Quote, char *tear, int HasTear)
 	if (tear == NULL) {
 	    MsgText_Add2(TearLine());
 	} else {
-	    sprintf(temp, "--- %s", tear);
+	    snprintf(temp, 81, "--- %s", tear);
 	    MsgText_Add2(temp);
 	}
     }
 
     if ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {
 	if (msgs.Aka.point)
-	    sprintf(aka, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
+	    snprintf(aka, 32, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
 	else
-	    sprintf(aka, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+	    snprintf(aka, 32, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
 
 	if (strlen(msgs.Origin))
-	    sprintf(temp, " * Origin: %s %s", msgs.Origin, aka);
+	    snprintf(temp, 81, " * Origin: %s %s", msgs.Origin, aka);
 	else
-	    sprintf(temp, " * Origin: %s %s", CFG.origin, aka);
+	    snprintf(temp, 81, " * Origin: %s %s", CFG.origin, aka);
 	MsgText_Add2(temp);
     }
 

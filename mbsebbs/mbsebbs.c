@@ -4,7 +4,7 @@
  * Purpose ...............: Main startup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -143,11 +143,11 @@ int main(int argc, char **argv)
     }
 
     if (strncmp("/dev/", tty, 5) == 0)
-	sprintf(pTTY, "%s", tty+5);
+	snprintf(pTTY, 15, "%s", tty+5);
     else if (*tty == '/') {
 	tty = strrchr(ttyname(0), '/');
 	++tty;
-	sprintf(pTTY, "%s", tty);
+	snprintf(pTTY, 15, "%s", tty);
     }
 
     umask(007);
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
     clear();
     DisplayLogo();
 
-    sprintf(temp, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
+    snprintf(temp, 81, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
     poutCR(YELLOW, BLACK, temp);
     pout(WHITE, BLACK, (char *)COPYRIGHT);
     Enter(2);
@@ -190,9 +190,9 @@ int main(int argc, char **argv)
      * Check users homedirectory, some *nix systems let users in if no
      * homedirectory exists
      */
-    sprintf(temp, "%s/%s", CFG.bbs_usersdir, sUnixName);
+    snprintf(temp, PATH_MAX, "%s/%s", CFG.bbs_usersdir, sUnixName);
     if (stat(temp, &sb)) {
-	sprintf(temp, "No homedirectory\r\n\r\n");
+	snprintf(temp, 81, "No homedirectory\r\n\r\n");
 	PUTSTR(temp);
 	WriteError("homedirectory %s doesn't exist", temp);
 	Quick_Bye(MBERR_OK);
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
      * Check if this port is available. In iNode we set a fake
      * line number, this will be used by doors.
      */
-    sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
     if ((pTty = fopen(temp, "r")) == NULL) {
 	WriteError("Can't read %s", temp);	
     } else {
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
 
 	if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
 	    Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
-	    sprintf(temp, "No BBS on this port allowed!\r\n\r\n");
+	    snprintf(temp, 81, "No BBS on this port allowed!\r\n\r\n");
 	    PUTSTR(temp);
 	    Free_Language();
 	    Quick_Bye(MBERR_OK);
@@ -227,10 +227,10 @@ int main(int argc, char **argv)
 	 */
 	if (CFG.iConnectString) {
 	    /* Connected on port */
-	    sprintf(temp, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	    snprintf(temp, 81, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
 	    pout(CYAN, BLACK, temp);
 	    /* on */
-	    sprintf(temp, "%s %s", (char *) Language(135), ctime(&ltime));
+	    snprintf(temp, 81, "%s %s", (char *) Language(135), ctime(&ltime));
 	    PUTSTR(temp);
 	    Enter(1);
 	}
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
     /* Next is not usefull */
     Syslog('b', "nl_langinfo(LC_CTYPE) returns \"%s\"", printable(nl_langinfo(LC_CTYPE), 0));
 
-    sprintf(sMailbox, "mailbox");
+    snprintf(sMailbox, 21, "mailbox");
     colour(LIGHTGRAY, BLACK);
     user();
     return 0;

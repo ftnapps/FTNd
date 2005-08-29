@@ -176,7 +176,7 @@ int newuser()
 	    Enter(2);
 	    /* Your password must contain at least */
 	    language(LIGHTRED, BLACK, 42);
-	    sprintf(temp, "%d ", CFG.password_length);
+	    snprintf(temp, 81, "%d ", CFG.password_length);
 	    PUTSTR(temp);
 	    /* characters! Try again. */
 	    language(WHITE, BLACK, 43);
@@ -185,9 +185,9 @@ int newuser()
     }
 
     memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
-    sprintf(usrconfig.Password, "%s", temp2);
+    snprintf(usrconfig.Password, Max_passlen +1, "%s", temp2);
     alarm_on();
-    sprintf(UnixName, "%s", (char *) NameCreate(NameGen(FullName), FullName, temp2));
+    snprintf(UnixName, 9, "%s", (char *) NameCreate(NameGen(FullName), FullName, temp2));
     UserCity(mypid, UnixName, (char *)"Unknown");
 
     strcpy(usrconfig.sUserName, FullName);
@@ -293,7 +293,7 @@ int newuser()
 		/* Please enter a longer location */
 		language(LIGHTRED, BLACK, 50);
 		Enter(1);
-		sprintf(temp, "%s%d)", (char *) Language(74), CFG.CityLen);
+		snprintf(temp, 81, "%s%d)", (char *) Language(74), CFG.CityLen);
 		PUTSTR(temp);
 		Enter(1);
 	    } else {
@@ -311,7 +311,7 @@ int newuser()
 	    language(LIGHTMAGENTA, BLACK, 474);
 	    Enter(1);
 	    for (i = 0; i < 3; i++) {
-		sprintf(temp, "%d: ", i+1);
+		snprintf(temp, 81, "%d: ", i+1);
 		pout(YELLOW, BLACK, temp);
 		colour(CFG.InputColourF, CFG.InputColourB);
 		alarm_on();
@@ -364,13 +364,13 @@ int newuser()
 
 	    if (i == Keystroke(51, 0)) {
 		/* Male */
-		sprintf(usrconfig.sSex, "Male");
+		snprintf(usrconfig.sSex, 8, "Male");
 		pout(CFG.InputColourF, CFG.InputColourB, (char *) Language(52));
 		Enter(1);
 		break;
 	    } else if (i == Keystroke(51, 1)) {
 		/* Female */
-		sprintf(usrconfig.sSex, "Female");
+		snprintf(usrconfig.sSex, 8, "Female");
 		pout(CFG.InputColourF, CFG.InputColourB, (char *) Language(53));
 		Enter(1);
 		break;
@@ -382,7 +382,7 @@ int newuser()
 	    }
 	}
     } else /* End of if Statement */
-	sprintf(usrconfig.sSex, "Unknown"); /* If set off, set to Unknown */
+	snprintf(usrconfig.sSex, 8, "Unknown"); /* If set off, set to Unknown */
 
     if (CFG.iDOB) {
 	while (TRUE) {
@@ -393,10 +393,10 @@ int newuser()
 	    alarm_on();
 	    GetDate(temp, 10);
 
-	    sprintf(temp1, "%c%c%c%c", temp[6], temp[7], temp[8], temp[9]);
-	    sprintf(temp2, "%02d", l_date->tm_year);
+	    snprintf(temp1, 81, "%c%c%c%c", temp[6], temp[7], temp[8], temp[9]);
+	    snprintf(temp2, 81, "%02d", l_date->tm_year);
 	    iLang = atoi(temp2) + 1900;
-	    sprintf(temp2, "%04d", iLang);
+	    snprintf(temp2, 81, "%04d", iLang);
 
 	    if ((strcmp(temp1,temp2)) == 0) {
 		Enter(1);
@@ -472,7 +472,7 @@ int newuser()
     usrconfig.iLastFileArea   = 1;
     usrconfig.iLastMsgArea    = 1;
 
-    sprintf(usrconfig.sProtocol, "%s", (char *) Language(65));
+    snprintf(usrconfig.sProtocol, 21, "%s", (char *) Language(65));
     usrconfig.DoNotDisturb = FALSE;
 
     switch (CFG.AskNewmail) {
@@ -537,7 +537,7 @@ int newuser()
     /*
      * Search a free slot in the users datafile
      */
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((pUsrConfig = fopen(temp, "r+")) == NULL) {
 	WriteError("Can't open file: %s", temp);
 	ExitClient(MBERR_GENERAL);
@@ -572,7 +572,7 @@ int newuser()
     /* Login Name : */
     pout(LIGHTBLUE, BLACK, (char *) Language(68));
     colour(CYAN, BLACK);
-    sprintf(temp, "%s (%s)", UnixName, FullName);
+    snprintf(temp, 81, "%s (%s)", UnixName, FullName);
     PUTSTR(temp);
     Enter(1);
     /* Password   : */
@@ -622,7 +622,7 @@ void Fast_Bye(int onsig)
     socket_shutdown(mypid);
 	
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/tmp/mbnewusr%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(temp, PATH_MAX, "%s/tmp/mbnewusr%d", getenv("MBSE_ROOT"), getpid());
     unlink(temp);
     free(temp);
 
@@ -703,8 +703,8 @@ char *NameCreate(char *Name, char *Comment, char *Password)
      * Call mbuseradd, this is a special setuid root program to create
      * unix acounts and home directories.
      */
-    sprintf(progname, "%s/bin/mbuseradd", getenv("MBSE_ROOT"));
-    sprintf(gidstr, "%d", getgid());
+    snprintf(progname, PATH_MAX, "%s/bin/mbuseradd", getenv("MBSE_ROOT"));
+    snprintf(gidstr, 10, "%d", getgid());
     args[0] = progname;
     args[1] = gidstr;
     args[2] = Name;
@@ -720,7 +720,7 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     }
     free(gidstr);
 
-    sprintf(progname, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+    snprintf(progname, PATH_MAX, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
     memset(args, 0, sizeof(args));
     args[0] = progname;
     args[1] = Name;
@@ -759,7 +759,7 @@ int BadNames(char *Username)
 
     strcpy(User, tl(Username));
 
-    sprintf(temp, "%s/etc/badnames.ctl", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/badnames.ctl", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) != NULL) {
         while ((fgets(String, 80, fp)) != NULL) {
             strcpy(String, tl(String));
@@ -799,7 +799,7 @@ int TelephoneScan(char *Number, char *Name)
 
     temp  = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp,"rb")) != NULL) {
         fread(&uhdr, sizeof(uhdr), 1, fp);
 
