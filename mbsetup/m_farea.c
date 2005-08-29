@@ -4,7 +4,7 @@
  * Purpose ...............: File Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -58,7 +58,7 @@ int CountFilearea(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -66,7 +66,7 @@ int CountFilearea(void)
 			areahdr.recsize = sizeof(area);
 			fwrite(&areahdr, sizeof(areahdr), 1, fil);
 			memset(&area, 0, sizeof(area));
-			sprintf(area.Name, "Local general files");
+			snprintf(area.Name, 45, "Local general files");
 			area.New       = TRUE;
 			area.Dupes     = TRUE;
 			area.FileFind  = TRUE;
@@ -75,13 +75,13 @@ int CountFilearea(void)
 			area.Available = TRUE;
 			area.FileFind  = TRUE;
 			area.Free      = TRUE;
-			sprintf(area.BbsGroup, "LOCAL");
-			sprintf(area.NewGroup, "LOCAL");
-			sprintf(area.Path, "%s/local/common", CFG.ftp_base);
+			snprintf(area.BbsGroup, 13, "LOCAL");
+			snprintf(area.NewGroup, 13, "LOCAL");
+			snprintf(area.Path, 81, "%s/local/common", CFG.ftp_base);
 			fwrite(&area, sizeof(area), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
-			sprintf(ffile, "%s/foobar", area.Path);
+			snprintf(ffile, 81, "%s/foobar", area.Path);
 			mkdirs(ffile, 0755);
 			return 1;
 		} else
@@ -109,8 +109,8 @@ int OpenFilearea(void)
     char    fnin[PATH_MAX], fnout[PATH_MAX];
     long    oldsize;
 
-    sprintf(fnin,  "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-    sprintf(fnout, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    fread(&areahdr, sizeof(areahdr), 1, fin);
@@ -170,8 +170,8 @@ void CloseFilearea(int force)
 {
 	char	fin[PATH_MAX], fout[PATH_MAX];
 
-	sprintf(fin, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
 
 	if (FileUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -198,7 +198,7 @@ int AppendFilearea(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&area, 0, sizeof(area));
 		/*
@@ -275,7 +275,7 @@ int EditFileRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit File Area");
 
-	sprintf(mfile, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -353,8 +353,8 @@ int EditFileRec(int Area)
 				count = 0;
 				Syslog('+', "Moving files from %s to %s", tpath, area.Path);
 				while ((de = readdir(dp))) {
-				    sprintf(frpath, "%s/%s", tpath, de->d_name);
-				    sprintf(topath, "%s/%s", area.Path, de->d_name);
+				    snprintf(frpath, 81, "%s/%s", tpath, de->d_name);
+				    snprintf(topath, 81, "%s/%s", area.Path, de->d_name);
 				    if (stat(frpath, &stb) == 0) {
 					if (S_ISREG(stb.st_mode)) {
 					    rc = file_mv(frpath, topath);
@@ -380,7 +380,7 @@ int EditFileRec(int Area)
 		case 5:	E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
 		case 6:	Available = edit_bool(11, 16, area.Available, (char *)"Is this area ^available^");
 			temp = calloc(PATH_MAX, sizeof(char));
-			sprintf(temp, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+			snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 			if (area.Available && !Available) {
 			    /*
 			     * Attempt to disable this area, but check first.
@@ -408,7 +408,7 @@ int EditFileRec(int Area)
 				     * Erase file in path if path is set and not the default
 				     * FTP base path
 				     */
-				    sprintf(temp, "-rf %s", area.Path);
+				    snprintf(temp, PATH_MAX, "-rf %s", area.Path);
 				    execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 				    rmdir(area.Path);
 				}
@@ -499,7 +499,7 @@ void EditFilearea(void)
 		mbse_mvprintw( 5, 4, "8.4 FILE AREA SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&areahdr, sizeof(areahdr), 1, fil);
@@ -519,7 +519,7 @@ void EditFilearea(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-32s", o + i, area.Name);
+						snprintf(temp, 81, "%3d.  %-32s", o + i, area.Name);
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -552,7 +552,7 @@ void EditFilearea(void)
 		    mbse_mvprintw(LINES -3,15, "To");
 		    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
 
-		    sprintf(temp, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
 		    if ((fil = fopen(temp, "r+")) != NULL) {
 			fread(&areahdr, sizeof(areahdr), 1, fil);
 			offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
@@ -590,8 +590,8 @@ void EditFilearea(void)
 				offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
 				fseek(fil, offset, 0);
 				fwrite(&area, areahdr.recsize, 1, fil);
-				sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), from);
-				sprintf(new,  "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), too);
+				snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), from);
+				snprintf(new,  PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), too);
 				rename(temp, new);
 
 				/*
@@ -622,7 +622,7 @@ void EditFilearea(void)
 				/*
 				 * Update references in tic areas to this filearea.
 				 */
-				sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 				if ((tfil = fopen(temp, "r+")) == NULL) {
 				    WriteError("Can't update %s", temp);
 				} else {
@@ -689,11 +689,11 @@ long PickFilearea(char *shdr)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		sprintf(temp, "%s.  FILE AREA SELECT", shdr);
+		snprintf(temp, 81, "%s.  FILE AREA SELECT", shdr);
 		mbse_mvprintw(5,3,temp);
 		set_color(CYAN, BLACK);
 		if (records) {
-			sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&areahdr, sizeof(areahdr), 1, fil);
@@ -713,7 +713,7 @@ long PickFilearea(char *shdr)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-31s", o + i, area.Name);
+						snprintf(temp, 81, "%3d.  %-31s", o + i, area.Name);
 						temp[38] = '\0';
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -736,7 +736,7 @@ long PickFilearea(char *shdr)
 				o -= 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = areahdr.hdrsize + ((atoi(pick) - 1) * areahdr.recsize);
 				fseek(fil, offset, SEEK_SET);
@@ -766,7 +766,7 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
     FILE    *ti, *wp, *ip, *no;
     int	    i = 0, j = 0, tics;
 
-    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -793,7 +793,7 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 		j++;
 	    }
 
-	    sprintf(temp, "filearea_%d.html", i);
+	    snprintf(temp, 81, "filearea_%d.html", i);
 
 	    fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD></TR>\n", temp, i, area.Name);
 	    if ((wp = open_webdoc(temp, (char *)"File area", area.Name))) {
@@ -832,7 +832,7 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 		fprintf(wp, "<HR>\n");
 		fprintf(wp, "<H3>TIC Areas Reference</H3>\n");
 		tics = 0;
-		sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 		if ((ti = fopen(temp, "r"))) {
 		    fread(&tichdr, sizeof(tichdr), 1, ti);
 		    fseek(ti, 0, SEEK_SET);

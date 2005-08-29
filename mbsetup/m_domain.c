@@ -4,7 +4,7 @@
  * Purpose ...............: Domain Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,7 +51,7 @@ int CountDomain(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -61,26 +61,26 @@ int CountDomain(void)
 			fwrite(&domainhdr, sizeof(domainhdr), 1, fil);
 			memset(&domtrans, 0, sizeof(domtrans));
 			domtrans.Active = TRUE;
-			sprintf(domtrans.ftndom, ".z1.fidonet");
-			sprintf(domtrans.intdom, ".z1.fidonet.org");
+			snprintf(domtrans.ftndom, 61, ".z1.fidonet");
+			snprintf(domtrans.intdom, 61, ".z1.fidonet.org");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
-			sprintf(domtrans.ftndom, ".z2.fidonet");
-			sprintf(domtrans.intdom, ".z2.fidonet.org");
+			snprintf(domtrans.ftndom, 61, ".z2.fidonet");
+			snprintf(domtrans.intdom, 61, ".z2.fidonet.org");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
-			sprintf(domtrans.ftndom, ".z3.fidonet");
-			sprintf(domtrans.intdom, ".z3.fidonet.org");
+			snprintf(domtrans.ftndom, 61, ".z3.fidonet");
+			snprintf(domtrans.intdom, 61, ".z3.fidonet.org");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
-			sprintf(domtrans.ftndom, ".z4.fidonet");
-			sprintf(domtrans.intdom, ".z4.fidonet.org");
+			snprintf(domtrans.ftndom, 61, ".z4.fidonet");
+			snprintf(domtrans.intdom, 61, ".z4.fidonet.org");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
-			sprintf(domtrans.ftndom, ".z5.fidonet");
-			sprintf(domtrans.intdom, ".z5.fidonet.org");
+			snprintf(domtrans.ftndom, 61, ".z5.fidonet");
+			snprintf(domtrans.intdom, 61, ".z5.fidonet.org");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
-			sprintf(domtrans.ftndom, ".z6.fidonet");
-			sprintf(domtrans.intdom, ".z6.fidonet.org");
+			snprintf(domtrans.ftndom, 61, ".z6.fidonet");
+			snprintf(domtrans.intdom, 61, ".z6.fidonet.org");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
-			sprintf(domtrans.ftndom, ".fidonet");
-			sprintf(domtrans.intdom, ".ftn");
+			snprintf(domtrans.ftndom, 61, ".fidonet");
+			snprintf(domtrans.intdom, 61, ".ftn");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
@@ -111,8 +111,8 @@ int OpenDomain(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/domain.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&domainhdr, sizeof(domainhdr), 1, fin);
@@ -158,8 +158,8 @@ void CloseDomain(int force)
 	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 
-	sprintf(fin, "%s/etc/domain.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
 
 	if (DomainUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -196,7 +196,7 @@ int AppendDomain(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&domtrans, 0, sizeof(domtrans));
 		/*
@@ -240,7 +240,7 @@ int EditDomainRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Domain");
 
-	sprintf(mfile, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -335,7 +335,7 @@ void EditDomain(void)
 		mbse_mvprintw( 5, 4, "17.   DOMAIN MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&domainhdr, sizeof(domainhdr), 1, fil);
@@ -352,7 +352,7 @@ void EditDomain(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-31s  %-31s", o+i, domtrans.ftndom, domtrans.intdom);
+						snprintf(temp, 81, "%3d.  %-31s  %-31s", o+i, domtrans.ftndom, domtrans.intdom);
 						temp[75] = 0;
 						mbse_mvprintw(y, 3, temp);
 						y++;
@@ -383,7 +383,7 @@ void EditDomain(void)
 			y = 0;
 			y = edit_int(LINES -3, 44, y, (char *)"Enter record number");
 			if ((y > 0) && (y <= records) && yes_no((char *)"Remove record")) {
-				sprintf(temp, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
 				if ((fil = fopen(temp, "r+")) != NULL) {
 					offset = ((y - 1) * domainhdr.recsize) + domainhdr.hdrsize;
 					fseek(fil, offset, SEEK_SET);
@@ -408,7 +408,7 @@ void EditDomain(void)
 			if ((from == too) || (from == 0) || (too == 0) || (from > records) || (too > records)) {
 				errmsg("That makes no sense");
 			} else if (yes_no((char *)"Proceed move")) {
-				sprintf(temp, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
 				if ((fil = fopen(temp, "r+")) != NULL) {
 					fseek(fil, ((from -1) * domainhdr.recsize) + domainhdr.hdrsize, SEEK_SET);
 					fread(&tdomtrans, domainhdr.recsize, 1, fil);
@@ -467,7 +467,7 @@ int domain_doc(FILE *fp, FILE *toc, int page)
 	FILE		*no, *wp;
 	int		j;
 
-	sprintf(temp, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return page;
 
