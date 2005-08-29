@@ -93,17 +93,17 @@ void ShowEmailHdr(void)
     Buf3[0] = '\0';
 
     clear();
-    sprintf(temp, "   %-70s", sMailbox);
+    snprintf(temp, 81, "   %-70s", sMailbox);
     pout(BLUE, LIGHTGRAY, temp);
 
-    sprintf(temp, "#%-5lu", Msg.Id);
+    snprintf(temp, 81, "#%-5lu", Msg.Id);
     pout(RED, LIGHTGRAY, temp);
     Enter(1);
 
     /* Date     : */
     pout(YELLOW, BLACK, (char *) Language(206));
     tm = gmtime(&Msg.Written);
-    sprintf(temp, "%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
+    snprintf(temp, 81, "%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
 		tm->tm_year+1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
     pout(LIGHTGREEN, BLACK, temp);
     colour(LIGHTRED, BLACK);
@@ -156,11 +156,11 @@ void ShowEmailHdr(void)
     Enter(1);
     
     if (Msg.Reply)
-	sprintf(Buf1, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
+	snprintf(Buf1, 35, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
     if (Msg.Original)
-	sprintf(Buf2, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
-    sprintf(Buf3, "%s%s ", Buf1, Buf2);
-    sprintf(temp, "%78s  ", Buf3);
+	snprintf(Buf2, 35, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
+    snprintf(Buf3, 35, "%s%s ", Buf1, Buf2);
+    snprintf(temp, 81, "%78s  ", Buf3);
     pout(YELLOW, BLUE, temp);
     Enter(1);
 }
@@ -211,7 +211,7 @@ int Export_a_Email(unsigned long Num)
      * written in M$DOS <cr/lf> format.
      */
     p = calloc(PATH_MAX, sizeof(char));
-    sprintf(p, "%s/%s/wrk/%s_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, sMailbox, Num);
+    snprintf(p, PATH_MAX, "%s/%s/wrk/%s_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, sMailbox, Num);
     if ((qf = fopen(p, "w")) != NULL) {
 	free(p);
 	p = NULL;
@@ -240,7 +240,7 @@ int Export_a_Email(unsigned long Num)
      */
     Enter(2);
     pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(46));
-    sprintf(temp, "%s_%lu.msg", sMailbox, Num);
+    snprintf(temp, 21, "%s_%lu.msg", sMailbox, Num);
     pout(CFG.HiliteF, CFG.HiliteB, temp);
     Enter(2);
     Pause();
@@ -276,36 +276,36 @@ int Save_Email(int IsReply)
     /*
      * Add header lines
      */
-    sprintf(temp, "\001Date: %s", rfcdate(Msg.Written));
+    snprintf(temp, PATH_MAX, "\001Date: %s", rfcdate(Msg.Written));
     MsgText_Add2(temp);
-    sprintf(temp, "\001From: %s", Msg.From);
+    snprintf(temp, PATH_MAX, "\001From: %s", Msg.From);
     MsgText_Add2(temp);
-    sprintf(temp, "\001Subject: %s", Msg.Subject);
+    snprintf(temp, PATH_MAX, "\001Subject: %s", Msg.Subject);
     MsgText_Add2(temp);
-    sprintf(temp, "\001Sender: %s", Msg.From);
+    snprintf(temp, PATH_MAX, "\001Sender: %s", Msg.From);
     MsgText_Add2(temp);
-    sprintf(temp, "\001To: %s", Msg.To);
+    snprintf(temp, PATH_MAX, "\001To: %s", Msg.To);
     MsgText_Add2(temp);
     MsgText_Add2((char *)"\001MIME-Version: 1.0");
     if (exitinfo.Charset != FTNC_NONE) {
-	sprintf(temp, "\001Content-Type: text/plain; charset=%s", getrfcchrs(exitinfo.Charset));
+	snprintf(temp, PATH_MAX, "\001Content-Type: text/plain; charset=%s", getrfcchrs(exitinfo.Charset));
     } else {
-	sprintf(temp, "\001Content-Type: text/plain; charset=iso8859-1");
+	snprintf(temp, PATH_MAX, "\001Content-Type: text/plain; charset=iso8859-1");
     }
     MsgText_Add2(temp);
     MsgText_Add2((char *)"\001Content-Transfer-Encoding: 8bit");
-    sprintf(temp, "\001X-Mailreader: MBSE BBS %s", VERSION);
+    snprintf(temp, PATH_MAX, "\001X-Mailreader: MBSE BBS %s", VERSION);
     MsgText_Add2(temp);
     p = calloc(81, sizeof(char));
     id = sequencer();
-    sprintf(p, "<%08lx@%s>", id, CFG.sysdomain);
-    sprintf(temp, "\001Message-id: %s", p);
+    snprintf(p, 81, "<%08lx@%s>", id, CFG.sysdomain);
+    snprintf(temp, PATH_MAX, "\001Message-id: %s", p);
     MsgText_Add2(temp);
     Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
     free(p);
 
     if (IsReply) {
-	sprintf(temp, "\001In-reply-to: %s", Msg.Replyid);
+	snprintf(temp, PATH_MAX, "\001In-reply-to: %s", Msg.Replyid);
 	MsgText_Add2(temp);
 	crc = -1;
 	Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
@@ -322,7 +322,7 @@ int Save_Email(int IsReply)
     /*
      * Add signature.
      */
-    sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
     if ((fp = fopen(temp, "r"))) {
         Syslog('m', "  Add .signature");
         MsgText_Add2((char *)"");
@@ -352,7 +352,7 @@ int Save_Email(int IsReply)
 
     Enter(1);
     /* Saving message to disk */
-    sprintf(temp, "%s(%ld)", (char *) Language(202), Msg.Id);
+    snprintf(temp, 81, "%s(%ld)", (char *) Language(202), Msg.Id);
     pout(CFG.HiliteF, CFG.HiliteB, temp);
     Enter(2);
     sleep(2);
@@ -360,7 +360,7 @@ int Save_Email(int IsReply)
     /*
      * Add quick mailscan info
      */
-    sprintf(temp, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "a")) != NULL) {
 	fprintf(fp, "%s/%s/mailbox %lu\n", CFG.bbs_usersdir, exitinfo.Name, Msg.Id);
 	fclose(fp);
@@ -416,7 +416,7 @@ int Read_a_Email(unsigned long Num)
      * for the Quote> strings at the start of each line.
      */
     fn = calloc(PATH_MAX, sizeof(char));
-    sprintf(fn, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(fn, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
     if ((qf = fopen(fn, "w")) != NULL) {
 	if (Msg_Read(Num, 75)) {
 	    if ((p = (char *)MsgText_First()) != NULL)
@@ -427,7 +427,7 @@ int Read_a_Email(unsigned long Num)
 			 * a reply will be made.
 			 */
 			if (strncasecmp(p, "\001Message-id: ", 13) == 0) {
-			    sprintf(Msg.Msgid, "%s", p+13);
+			    snprintf(Msg.Msgid, 101, "%s", p+13);
 			    Syslog('m', "Stored Msgid \"%s\"", Msg.Msgid);
 			}
 			if (Kludges) {
@@ -611,7 +611,7 @@ void Read_Email(void)
     Enter(1);
     temp = calloc(128, sizeof(char));
     /* Message area \"%s\" contains %lu messages. */
-    sprintf(temp, "\n%s\"%s\" %s%lu %s", (char *) Language(221), sMailbox, (char *) Language(222), 
+    snprintf(temp, 128, "\n%s\"%s\" %s%lu %s", (char *) Language(221), sMailbox, (char *) Language(222), 
 		EmailBase.Total, (char *) Language(223));
     pout(CFG.TextColourF, CFG.TextColourB, temp);
 
@@ -637,11 +637,11 @@ void Read_Email(void)
 
     Enter(1);
     /* Please enter a message between */
-    sprintf(temp, "%s(%lu - %lu)", (char *) Language(224), EmailBase.Lowest, EmailBase.Highest);
+    snprintf(temp, 81, "%s(%lu - %lu)", (char *) Language(224), EmailBase.Lowest, EmailBase.Highest);
     pout(WHITE, BLACK, temp);
     Enter(1);
     /* Message number [ */
-    sprintf(temp, "%s%lu]: ", (char *) Language(225), Start);
+    snprintf(temp, 81, "%s%lu]: ", (char *) Language(225), Start);
     PUTSTR(temp);
 
     colour(CFG.InputColourF, CFG.InputColourB);
@@ -668,31 +668,31 @@ void Read_Email(void)
 void Reply_Email(int IsReply)
 {
     int     i, j, x;
-    char    to[65], from[65], subj[72], msgid[81], replyto[81], replyaddr[81], *tmp, *buf, qin[9], temp[81];
+    char    to[101], from[101], subj[101], msgid[101], replyto[101], replyaddr[101], *tmp, *buf, qin[9], temp[81];
     faddr   *Dest = NULL;
 
-    sprintf(from, "%s", Msg.To);
-    sprintf(to, "%s", Msg.From);
-    sprintf(replyto, "%s", Msg.ReplyTo);
-    sprintf(replyaddr, "%s", Msg.ReplyAddr);
+    snprintf(from, 101, "%s", Msg.To);
+    snprintf(to, 101, "%s", Msg.From);
+    snprintf(replyto, 101, "%s", Msg.ReplyTo);
+    snprintf(replyaddr, 101, "%s", Msg.ReplyAddr);
 
     if (strncasecmp(Msg.Subject, "Re:", 3) && IsReply) {
-	sprintf(subj, "Re: %s", Msg.Subject);
+	snprintf(subj, 101, "Re: %s", Msg.Subject);
     } else {
-	sprintf(subj, "%s", Msg.Subject);
+	snprintf(subj, 101, "%s", Msg.Subject);
     }
     mbse_CleanSubject(subj);
     Syslog('m', "Reply msg to %s, subject %s", to, subj);
     Syslog('m', "Msgid was %s", Msg.Msgid);
-    sprintf(msgid, "%s", Msg.Msgid);
+    snprintf(msgid, 101, "%s", Msg.Msgid);
 
     x = 0;
     Line = 1;
     WhosDoingWhat(READ_POST, NULL);
     clear();
-    sprintf(temp, "   %-70s", sMailbox);
+    snprintf(temp, 81, "   %-70s", sMailbox);
     pout(BLUE, LIGHTGRAY, temp);
-    sprintf(temp, "#%-5lu", EmailBase.Highest + 1);
+    snprintf(temp, 81, "#%-5lu", EmailBase.Highest + 1);
     pout(RED, LIGHTGRAY, temp);
     Enter(1);
 
@@ -705,9 +705,9 @@ void Reply_Email(int IsReply)
     Line = 1;
     Msg_New();
 
-    sprintf(Msg.Replyid, "%s", msgid);
-    sprintf(Msg.ReplyTo, "%s", replyto);
-    sprintf(Msg.ReplyAddr, "%s", replyaddr);
+    snprintf(Msg.Replyid, 101, "%s", msgid);
+    snprintf(Msg.ReplyTo, 101, "%s", replyto);
+    snprintf(Msg.ReplyAddr, 101, "%s", replyaddr);
 
     /* From     : */
     pout(YELLOW, BLACK, (char *) Language(209));
@@ -716,9 +716,9 @@ void Reply_Email(int IsReply)
 	 * If not permanent connected to the internet, use fidonet.org style addressing.
 	 */
 	Dest = fido2faddr(CFG.EmailFidoAka);
-	sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
+	snprintf(Msg.From, 101, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
     } else {
-	sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
+	snprintf(Msg.From, 101, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
     }
     for (i = 0; i < strlen(Msg.From); i++) {
 	if (Msg.From[i] == ' ')
@@ -731,7 +731,7 @@ void Reply_Email(int IsReply)
     Syslog('b', "Setting From: %s", Msg.From);
 
     /* To       : */
-    sprintf(Msg.To, "%s", to);
+    snprintf(Msg.To, 101, "%s", to);
     pout(YELLOW, BLACK, (char *) Language(208));
     pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.To);
     Enter(1);
@@ -741,7 +741,7 @@ void Reply_Email(int IsReply)
     Enter(1);
     /* Subject  : */
     pout(YELLOW, BLACK, (char *) Language(210));
-    sprintf(Msg.Subject, "%s", subj);
+    snprintf(Msg.Subject, 101, "%s", subj);
     pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
 
     x = strlen(subj);
@@ -761,12 +761,12 @@ void Reply_Email(int IsReply)
      *  initials into qin. If its a name@system.dom the use the
      *  first 8 characters of the name part.
      */
-    sprintf(Message[1], "%s wrote to %s:", to, from);
+    snprintf(Message[1], TEXTBUFSIZE +1, "%s wrote to %s:", to, from);
     memset(&qin, 0, sizeof(qin));
     if (strchr(to, '@')) {
 	tmp = xstrcpy(strtok(to, "@"));
 	tmp[8] = '\0';
-	sprintf(qin, "%s", tmp);
+	snprintf(qin, 9, "%s", tmp);
 	free(tmp);
     } else {
 	x = TRUE;
@@ -785,14 +785,14 @@ void Reply_Email(int IsReply)
     }
 
     Line = 2;
-    tmp = calloc(128, sizeof(char));
-    buf = calloc(128, sizeof(char));
+    tmp = calloc(PATH_MAX, sizeof(char));
+    buf = calloc(TEXTBUFSIZE +1, sizeof(char));
 
-    sprintf(tmp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(tmp, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
     if ((qf = fopen(tmp, "r")) != NULL) {
-	while ((fgets(buf, 128, qf)) != NULL) {
+	while ((fgets(buf, TEXTBUFSIZE, qf)) != NULL) {
 	    Striplf(buf);
-	    sprintf(Message[Line], "%s> %s", (char *)qin, buf);
+	    snprintf(Message[Line], TEXTBUFSIZE +1, "%s> %s", (char *)qin, buf);
 	    Line++;
 	    if (Line == TEXTBUFSIZE)
 		break;
@@ -848,9 +848,9 @@ void Write_Email(void)
 	 * If not permanent connected to the internet, use fidonet.org style addressing.
 	 */
 	Dest = fido2faddr(CFG.EmailFidoAka);
-	sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
+	snprintf(Msg.From, 101, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
     } else
-	sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
+	snprintf(Msg.From, 101, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
     
     for (i = 0; i < strlen(Msg.From); i++) {
         if (Msg.From[i] == ' ')
@@ -940,14 +940,14 @@ void QuickScan_Email(void)
 	for (i = EmailBase.Lowest; i <= EmailBase.Highest; i++) {
 	    if (Msg_ReadHeader(i)) {
                                 
-		sprintf(temp, "%-6lu", Msg.Id);
+		snprintf(temp, 81, "%-6lu", Msg.Id);
 		pout(WHITE, BLACK, temp);
-		sprintf(temp, "%s ", padleft(Msg.From, 20, ' '));
+		snprintf(temp, 81, "%s ", padleft(Msg.From, 20, ' '));
 		pout(CYAN, BLACK, temp);
 
-		sprintf(temp, "%s ", padleft(Msg.To, 20, ' '));
+		snprintf(temp, 81, "%s ", padleft(Msg.To, 20, ' '));
 		pout(GREEN, BLACK, temp);
-		sprintf(temp, "%s", padleft(Msg.Subject, 31, ' '));
+		snprintf(temp, 81, "%s", padleft(Msg.Subject, 31, ' '));
 		pout(MAGENTA, BLACK, temp);
 		Enter(1);
 		FoundMsg = TRUE;
@@ -1043,8 +1043,8 @@ void SetEmailArea(char *box)
 	if (!exitinfo.Email)
 		return;
 
-	sprintf(sMailpath, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, box);
-	sprintf(sMailbox, "%s", box);
+	snprintf(sMailpath, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, box);
+	snprintf(sMailbox, 21, "%s", box);
 
 	/*
 	 * Get information from the message base

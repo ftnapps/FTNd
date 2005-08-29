@@ -57,9 +57,9 @@ char *Gdate(time_t tt, int Y2K)
 
         tm = localtime(&tt);
         if (Y2K)
-                sprintf(GLC, "%02d-%02d-%04d", tm->tm_mon +1, tm->tm_mday, tm->tm_year + 1900);
+                snprintf(GLC, 15, "%02d-%02d-%04d", tm->tm_mon +1, tm->tm_mday, tm->tm_year + 1900);
         else
-                sprintf(GLC, "%02d-%02d-%02d", tm->tm_mon +1, tm->tm_mday, tm->tm_year % 100);
+                snprintf(GLC, 15, "%02d-%02d-%02d", tm->tm_mon +1, tm->tm_mday, tm->tm_year % 100);
 
         return (GLC);
 }
@@ -113,9 +113,9 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 	 */
 	while (TRUE) {
 	    if (Start)
-		sprintf(buf, "GMON:1,1;");
+		snprintf(buf, 128, "GMON:1,1;");
 	    else
-		sprintf(buf, "GMON:1,0;");
+		snprintf(buf, 128, "GMON:1,0;");
 	    Start = FALSE;
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
@@ -147,7 +147,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     WhosDoingWhat(DOOR, What);
 
     if ((strstr(Program, "/N")) != NULL) {
-	sprintf(temp1, "%d", iNode);
+	snprintf(temp1, 81, "%d", iNode);
 	strreplace(Program, (char *)"/N", temp1);
     }
 
@@ -182,7 +182,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     /*
      * Always remove the old door.sys first.
      */
-    sprintf(temp1, "%s/%s/door.sys", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp1, PATH_MAX, "%s/%s/door.sys", CFG.bbs_usersdir, exitinfo.Name);
     unlink(temp1);
 
     /*
@@ -259,7 +259,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     /*
      * Always remove the old door32.sys first.
      */
-    sprintf(temp1, "%s/%s/door32.sys", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp1, PATH_MAX, "%s/%s/door32.sys", CFG.bbs_usersdir, exitinfo.Name);
     unlink(temp1);
 
     /*

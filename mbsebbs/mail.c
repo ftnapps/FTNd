@@ -1546,14 +1546,14 @@ int ReadPanel()
 void Reply_Msg(int IsReply)
 {
     int	    i, j, x, cc;
-    char    to[65], from[65], subj[73], msgid[81], replyto[81], replyaddr[81], *tmp, *buf, qin[6], msg[81];
+    char    to[101], from[101], subj[101], msgid[101], replyto[101], replyaddr[101], *tmp, *buf, qin[6], msg[81];
     faddr   *Dest = NULL;
 
     if (!Post_Allowed())
 	return;
 
-    strncpy(from, Msg.To, 64);
-    strncpy(to, Msg.From, 64);
+    strncpy(from, Msg.To, 100);
+    strncpy(to, Msg.From, 100);
     strncpy(replyto, Msg.ReplyTo, 80);
 
     /*
@@ -1563,20 +1563,20 @@ void Reply_Msg(int IsReply)
     tmp = Msg.ReplyAddr;
     while (*tmp && isspace(*tmp))
 	tmp++;
-    strncpy(replyaddr, tmp, 80);
+    strncpy(replyaddr, tmp, 100);
 
     Dest = parsefnode(Msg.FromAddress);
     Syslog('m', "Parsed from address %s", ascfnode(Dest, 0x1f));
 
     if (strncasecmp(Msg.Subject, "Re:", 3) && strncasecmp(Msg.Subject, "Re^2:", 5) && IsReply) {
-	snprintf(subj, 73, "Re: ");
-	strncpy(subj+4, Msg.Subject, 68);
+	snprintf(subj, 101, "Re: ");
+	strncpy(subj+4, Msg.Subject, 97);
     } else {
-	strncpy(subj, Msg.Subject, 72);
+	strncpy(subj, Msg.Subject, 101);
     }
     Syslog('m', "Reply msg to %s, subject %s", to, subj);
     Syslog('m', "Msgid was %s", Msg.Msgid);
-    strncpy(msgid, Msg.Msgid, 80);
+    strncpy(msgid, Msg.Msgid, 100);
 
     x = 0;
     WhosDoingWhat(READ_POST, NULL);
@@ -1594,9 +1594,9 @@ void Reply_Msg(int IsReply)
 	Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
     Msg_New();
 
-    strncpy(Msg.Replyid, msgid, 80);
-    strncpy(Msg.ReplyTo, replyto, 80);
-    strncpy(Msg.ReplyAddr, replyaddr, 80);
+    strncpy(Msg.Replyid, msgid, 101);
+    strncpy(Msg.ReplyTo, replyto, 101);
+    strncpy(Msg.ReplyAddr, replyaddr, 101);
 
     /* From     : */
     if (Alias_Option()) {
@@ -1617,7 +1617,7 @@ void Reply_Msg(int IsReply)
 		snprintf(Msg.From, 101, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
 	    }
 	} else {
-	    strncpy(Msg.From, exitinfo.sUserName, 100);
+	    strncpy(Msg.From, exitinfo.sUserName, 101);
 	    tlcap(Msg.From);
 	}
     }
@@ -1626,7 +1626,7 @@ void Reply_Msg(int IsReply)
     Enter(1);
 
     /* To       : */
-    strncpy(Msg.To, to, 100);
+    strncpy(Msg.To, to, 101);
     pout(YELLOW, BLACK, (char *) Language(208));
     pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.To);
     Enter(1);
@@ -1636,7 +1636,7 @@ void Reply_Msg(int IsReply)
     Enter(1);
     /* Subject  : */
     pout(YELLOW, BLACK, (char *) Language(210));
-    strncpy(Msg.Subject, subj, 100);
+    strncpy(Msg.Subject, subj, 101);
     pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
 
     x = strlen(subj);
@@ -1700,11 +1700,11 @@ void Reply_Msg(int IsReply)
 	Line = 2;
 
 	tmp = calloc(PATH_MAX, sizeof(char));
-	buf = calloc(129, sizeof(char));
+	buf = calloc(TEXTBUFSIZE +1, sizeof(char));
 
 	snprintf(tmp, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
 	if ((qf = fopen(tmp, "r")) != NULL) {
-	    while ((fgets(buf, 128, qf)) != NULL) {
+	    while ((fgets(buf, TEXTBUFSIZE, qf)) != NULL) {
 		Striplf(buf);
 		snprintf(Message[Line], TEXTBUFSIZE +1, "%s> %s", (char *)qin, buf);
 		Line++;
