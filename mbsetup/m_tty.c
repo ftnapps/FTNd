@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Ttyinfo structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ int CountTtyinfo(void)
     char    ffile[PATH_MAX];
     int	    count = 0, i;
 
-    sprintf(ffile, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    ttyinfohdr.hdrsize = sizeof(ttyinfohdr);
@@ -67,13 +67,13 @@ int CountTtyinfo(void)
 	    for (i = 0; i < 16; i++) {
 		count++;
 		memset(&ttyinfo, 0, sizeof(ttyinfo));
-		sprintf(ttyinfo.comment, "Network port %d", count);
-		sprintf(ttyinfo.tty,     "pts/%d", i);
-		sprintf(ttyinfo.speed,   "10 mbit");
-		sprintf(ttyinfo.flags,   "IBN,IFC,XX");
+		snprintf(ttyinfo.comment, 41, "Network port %d", count);
+		snprintf(ttyinfo.tty,      7, "pts/%d", i);
+		snprintf(ttyinfo.speed,   21, "10 mbit");
+		snprintf(ttyinfo.flags,   31, "IBN,IFC,XX");
 		ttyinfo.type = NETWORK;
 		ttyinfo.available = TRUE;
-		sprintf(ttyinfo.name,    "Network port #%d", count);
+		snprintf(ttyinfo.name,    36, "Network port #%d", count);
 		fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
 	    }
 #endif
@@ -81,13 +81,13 @@ int CountTtyinfo(void)
             for (i = 0; i < 16; i++) {
 		count++;
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
-		sprintf(ttyinfo.comment, "Network port %d", count);
-		sprintf(ttyinfo.tty,     "ttyp%x", i);
-                sprintf(ttyinfo.speed,   "10 mbit");
-                sprintf(ttyinfo.flags,   "IBN,IFC,XX");
+		snprintf(ttyinfo.comment, 41, "Network port %d", count);
+		snprintf(ttyinfo.tty,      7, "ttyp%x", i);
+                snprintf(ttyinfo.speed,   21, "10 mbit");
+                snprintf(ttyinfo.flags,   31, "IBN,IFC,XX");
                 ttyinfo.type = NETWORK;
                 ttyinfo.available = TRUE;
-                sprintf(ttyinfo.name,    "Network port #%d", count);
+                snprintf(ttyinfo.name,    36, "Network port #%d", count);
                 fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
             }
 
@@ -97,9 +97,9 @@ int CountTtyinfo(void)
 	     */
 	    for (i = 0; i < 6; i++) {
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
-                sprintf(ttyinfo.comment, "Console port %d", i+1);
-                sprintf(ttyinfo.tty,     "tty%d", i);
-                sprintf(ttyinfo.speed,   "10 mbit");
+                snprintf(ttyinfo.comment, 41, "Console port %d", i+1);
+                snprintf(ttyinfo.tty,      7, "tty%d", i);
+                snprintf(ttyinfo.speed,   21, "10 mbit");
                 ttyinfo.type = LOCAL;
                 ttyinfo.available = TRUE;
                 fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
@@ -113,9 +113,9 @@ int CountTtyinfo(void)
              */
             for (i = 0; i < 8; i++) {
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
-                sprintf(ttyinfo.comment, "Console port %d", i+1);
-                sprintf(ttyinfo.tty,     "ttyv%d", i);
-                sprintf(ttyinfo.speed,   "10 mbit");
+                snprintf(ttyinfo.comment, 41, "Console port %d", i+1);
+                snprintf(ttyinfo.tty,      7, "ttyv%d", i);
+                snprintf(ttyinfo.speed,   21, "10 mbit");
                 ttyinfo.type = LOCAL;
                 ttyinfo.available = TRUE;
                 fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
@@ -128,9 +128,9 @@ int CountTtyinfo(void)
 	     * By default, xxxBSD systems have only one console
 	     */
 	    memset(&ttyinfo, 0, sizeof(ttyinfo));
-	    sprintf(ttyinfo.comment, "Console port 1");
-	    sprintf(ttyinfo.tty, "console");
-	    sprintf(ttyinfo.speed,   "10 mbit");
+	    snprintf(ttyinfo.comment, 41, "Console port 1");
+	    snprintf(ttyinfo.tty,      7, "console");
+	    snprintf(ttyinfo.speed,   21, "10 mbit");
 	    ttyinfo.type = LOCAL;
 	    ttyinfo.available = TRUE;
 	    fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
@@ -139,45 +139,45 @@ int CountTtyinfo(void)
 
             for (i = 0; i < 4; i++) {
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
-                sprintf(ttyinfo.comment, "ISDN line %d", i+1);
+                snprintf(ttyinfo.comment, 41, "ISDN line %d", i+1);
 #if defined(__linux__)
-                sprintf(ttyinfo.tty,     "ttyI%d", i);
+                snprintf(ttyinfo.tty,      7, "ttyI%d", i);
 #elif defined(__FreeBSD__)
-		sprintf(ttyinfo.tty,     "cuaia%d", i);
+		snprintf(ttyinfo.tty,      7, "cuaia%d", i);
 #elif defined(__NetBSD__)
-		sprintf(ttyinfo.tty,     "ttyi%c", i + 'a'); // NetBSD on a Sparc, how about PC's? 
+		snprintf(ttyinfo.tty,      7, "ttyi%c", i + 'a'); // NetBSD on a Sparc, how about PC's? 
 #elif defined(__OpenBSD__)
-		sprintf(ttyinfo.tty,     "cuaia%d", i);	// I think this is wrong!
+		snprintf(ttyinfo.tty,      7, "cuaia%d", i);	// I think this is wrong!
 #else
 #error "Don't know the tty name for ISDN on this OS"
 #endif
-                sprintf(ttyinfo.speed,   "64 kbits");
-		sprintf(ttyinfo.flags,   "XA,X75,CM");
+                snprintf(ttyinfo.speed,   21, "64 kbits");
+		snprintf(ttyinfo.flags,   31, "XA,X75,CM");
                 ttyinfo.type = ISDN;
                 ttyinfo.available = FALSE;
 		ttyinfo.callout = TRUE;
 		ttyinfo.honor_zmh = TRUE;
-		sprintf(ttyinfo.name,    "ISDN line #%d", i+1);
+		snprintf(ttyinfo.name,    36, "ISDN line #%d", i+1);
                 fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
 		count++;
             }
 
             for (i = 0; i < 4; i++) {
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
-                sprintf(ttyinfo.comment, "Modem line %d", i+1);
+                snprintf(ttyinfo.comment, 41, "Modem line %d", i+1);
 #if defined(__linux__)
-		sprintf(ttyinfo.tty,     "ttyS%d", i);
+		snprintf(ttyinfo.tty,      7, "ttyS%d", i);
 #elif defined(__FreeBSD__)
-		sprintf(ttyinfo.tty,     "cuaa%d", i);
+		snprintf(ttyinfo.tty,      7, "cuaa%d", i);
 #elif defined(__NetBSD__)
-		sprintf(ttyinfo.tty,     "tty%c", i + 'a'); // NetBSD on a Sparc, how about PC's?
+		snprintf(ttyinfo.tty,      7, "tty%c", i + 'a'); // NetBSD on a Sparc, how about PC's?
 #elif defined(__OpenBSD__)
-		sprintf(ttyinfo.tty,	"tty0%d", i);
+		snprintf(ttyinfo.tty,	  7, "tty0%d", i);
 #else
 #error "Don't know the tty name of the serial ports on this OS"
 #endif
-                sprintf(ttyinfo.speed,   "33.6 kbits");
-		sprintf(ttyinfo.flags,   "CM,XA,V32B,V42B,V34");
+                snprintf(ttyinfo.speed,   21, "33.6 kbits");
+		snprintf(ttyinfo.flags,   31, "CM,XA,V32B,V42B,V34");
 		ttyinfo.type = POTS;
                 ttyinfo.available = FALSE;
                 ttyinfo.callout = TRUE;
@@ -187,7 +187,7 @@ int CountTtyinfo(void)
 #else
 		ttyinfo.portspeed = 57600;
 #endif
-                sprintf(ttyinfo.name,    "Modem line #%d", i+1);
+                snprintf(ttyinfo.name,    36, "Modem line #%d", i+1);
                 fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
 		count++;
             }
@@ -222,8 +222,8 @@ int OpenTtyinfo(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fin);
@@ -271,8 +271,8 @@ void CloseTtyinfo(int force)
 	FILE	*fi, *fo;
 	st_list	*tty = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
 
 	if (TtyUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -316,7 +316,7 @@ int AppendTtyinfo(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&ttyinfo, 0, sizeof(ttyinfo));
 		fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
@@ -368,7 +368,7 @@ int EditTtyRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Ttyinfo");
 
-	sprintf(mfile, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -501,7 +501,7 @@ void EditTtyinfo(void)
 		mbse_mvprintw( 5, 4, "6.  TTY LINES SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
 				x = 2;
@@ -520,7 +520,7 @@ void EditTtyinfo(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-6s %-25s", o+i, ttyinfo.tty, ttyinfo.comment);
+						snprintf(temp, 81, "%3d.  %-6s %-25s", o+i, ttyinfo.tty, ttyinfo.comment);
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -577,7 +577,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *tty;
     int	    j;
 
-    sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
     if ((tty = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -602,7 +602,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 
-	sprintf(temp, "ttyinfo_%s.html", ttyinfo.tty);
+	snprintf(temp, 81, "ttyinfo_%s.html", ttyinfo.tty);
 	fprintf(ip, "<TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, ttyinfo.tty, ttyinfo.comment, getboolean(ttyinfo.available));
 	if ((wp = open_webdoc(temp, (char *)"TTY Line", ttyinfo.comment))) {

@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Virus structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ int CountVirus(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -65,51 +65,51 @@ int CountVirus(void)
 			 *  Create some default records but don't enable them.
 			 */
 			memset(&virscan, 0, sizeof(virscan));
-			sprintf(virscan.comment, "AntiVir/Linux Scanner");
+			snprintf(virscan.comment, 41, "AntiVir/Linux Scanner");
 			if (strlen(_PATH_ANTIVIR)) {
-			    sprintf(virscan.scanner, "%s", _PATH_ANTIVIR);
+			    snprintf(virscan.scanner, 65, "%s", _PATH_ANTIVIR);
 			    virscan.available = TRUE;
 			} else {
-			    sprintf(virscan.scanner, "/usr/bin/antivir");
+			    snprintf(virscan.scanner, 65, "/usr/bin/antivir");
 			    virscan.available = FALSE;
 			}
-			sprintf(virscan.options, "-allfiles -s -q");
+			snprintf(virscan.options, 65, "-allfiles -s -q");
 			fwrite(&virscan, sizeof(virscan), 1, fil);
 
 			memset(&virscan, 0, sizeof(virscan));
-			sprintf(virscan.comment, "F-Prot scanner");
+			snprintf(virscan.comment, 41, "F-Prot scanner");
 			if (strlen(_PATH_FPROT)) {
-			    sprintf(virscan.scanner, "%s .", _PATH_FPROT);
+			    snprintf(virscan.scanner, 65, "%s .", _PATH_FPROT);
 			    virscan.available = TRUE;
 			} else {
-			    sprintf(virscan.scanner, "/usr/local/bin/f-prot .");
+			    snprintf(virscan.scanner, 65, "/usr/local/bin/f-prot .");
 			    virscan.available = FALSE;
 			}
-			sprintf(virscan.options, "-archive -silent");
+			snprintf(virscan.options, 65, "-archive -silent");
 			fwrite(&virscan, sizeof(virscan), 1, fil);
 
                         memset(&virscan, 0, sizeof(virscan));
-                        sprintf(virscan.comment, "McAfee VirusScan for Linux");
+                        snprintf(virscan.comment, 41, "McAfee VirusScan for Linux");
 			if (strlen(_PATH_UVSCAN)) {
-			    sprintf(virscan.scanner, "%s", _PATH_UVSCAN);
+			    snprintf(virscan.scanner, 65, "%s", _PATH_UVSCAN);
 			    virscan.available = TRUE;
 			} else {
-			    sprintf(virscan.scanner, "/usr/local/bin/uvscan");
+			    snprintf(virscan.scanner, 65, "/usr/local/bin/uvscan");
 			    virscan.available = FALSE;
 			}
-                        sprintf(virscan.options, "--noboot --noexpire -r --secure -");
+                        snprintf(virscan.options, 65, "--noboot --noexpire -r --secure -");
                         fwrite(&virscan, sizeof(virscan), 1, fil);
 
 			memset(&virscan, 0, sizeof(virscan));
-			sprintf(virscan.comment, "Clam AntiVirus");
+			snprintf(virscan.comment, 41, "Clam AntiVirus");
 			if (strlen(_PATH_CLAMAV)) {
-			    sprintf(virscan.scanner, "%s", _PATH_CLAMAV);
+			    snprintf(virscan.scanner, 65, "%s", _PATH_CLAMAV);
 			    virscan.available = TRUE;
 			} else {
-			    sprintf(virscan.scanner, "/usr/local/bin/clamscan");
+			    snprintf(virscan.scanner, 65, "/usr/local/bin/clamscan");
 			    virscan.available = FALSE;
 			}
-			sprintf(virscan.options, "--quiet --recursive");
+			snprintf(virscan.options, 65, "--quiet --recursive");
 			fwrite(&virscan, sizeof(virscan), 1, fil);
 
 			fclose(fil);
@@ -141,8 +141,8 @@ int OpenVirus(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&virscanhdr, sizeof(virscanhdr), 1, fin);
@@ -190,8 +190,8 @@ void CloseVirus(int force)
 	FILE	*fi, *fo;
 	st_list	*vir = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/virscan.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
 
 	if (VirUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -234,7 +234,7 @@ int AppendVirus(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&virscan, 0, sizeof(virscan));
 		fwrite(&virscan, sizeof(virscan), 1, fil);
@@ -262,7 +262,7 @@ int EditVirRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit VirScan");
 
-	sprintf(mfile, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -365,7 +365,7 @@ void EditVirus(void)
 		mbse_mvprintw( 5, 4, "4.  VIRUS SCANNERS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&virscanhdr, sizeof(virscanhdr), 1, fil);
 				x = 2;
@@ -383,7 +383,7 @@ void EditVirus(void)
 						set_color(CYAN, BLACK);
 					else
 						set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.  %-32s", i, virscan.comment);
+					snprintf(temp, 81, "%3d.  %-32s", i, virscan.comment);
 					temp[37] = 0;
 					mbse_mvprintw(y, x, temp);
 					y++;
@@ -429,7 +429,7 @@ int virus_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *vir;
     int	    nr = 0, j;
 
-    sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
     if ((vir = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -455,7 +455,7 @@ int virus_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	nr++;
-	sprintf(temp, "virscan_%d.html", nr);
+	snprintf(temp, 81, "virscan_%d.html", nr);
 	fprintf(ip, "<TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, nr, virscan.comment, getboolean(virscan.available));
 	if ((wp = open_webdoc(temp, (char *)"Virus Scanner", virscan.comment))) {

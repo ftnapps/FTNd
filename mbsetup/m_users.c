@@ -55,7 +55,7 @@ int CountUsers(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -94,8 +94,8 @@ int OpenUsers(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/users.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&usrconfighdr, sizeof(usrconfighdr), 1, fin);
@@ -150,8 +150,8 @@ void CloseUsers(int force)
 {
 	char	fin[PATH_MAX], fout[PATH_MAX];
 
-	sprintf(fin, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/users.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
 
 	if (UsrUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -176,7 +176,7 @@ int AppendUsers(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&usrconfig, 0, sizeof(usrconfig));
 		usrconfig.MailScan = TRUE;
@@ -242,17 +242,17 @@ void Fields1(void)
 	
 	now = usrconfig.tFirstLoginDate;
         ld = localtime(&now);
-        sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
+        snprintf(Date, 30, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
                 ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
         show_str(11,17,19, Date);
 	now = usrconfig.tLastLoginDate;
         ld = localtime(&now);
-        sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
+        snprintf(Date, 30, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
                 ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
         show_str(12,17,19, Date);
 	now = usrconfig.tLastPwdChange;
 	ld = localtime(&now);
-	sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
+	snprintf(Date, 30, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
 		ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
 	show_str(13,17,19, Date);
 	
@@ -333,7 +333,7 @@ void Fields2(void)
 	show_charset(18,17,usrconfig.Charset);
 
 	show_int(  7,76,   usrconfig.iScreenLen);
-	sprintf(temp, "%c",usrconfig.iLanguage);
+	snprintf(temp, 4, "%c",usrconfig.iLanguage);
 	show_str(  8,76,1, temp);
 	show_bool( 9,76,   usrconfig.HotKeys);
 	show_bool(10,76,   usrconfig.GraphMode);
@@ -379,7 +379,7 @@ int EditUsrRec2(void)
                             strcpy(usrconfig.Password, temp);
 			    usrconfig.tLastPwdChange = time(NULL);
 			    Syslog('+', "%s/bin/mbpasswd %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
-			    sprintf(temp, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+			    snprintf(temp, PATH_MAX, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
 			    memset(args, 0, sizeof(args));
 			    args[0] = temp;
 			    args[1] = usrconfig.Name;
@@ -454,7 +454,7 @@ void Reset_Time(void)
     FILE    *pLimits;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
     if ((pLimits = fopen(temp,"r")) == NULL) {
 	WriteError("$Can't open %s", temp);
     } else {
@@ -491,7 +491,7 @@ int EditUsrRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Users");
 
-    sprintf(mfile, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -607,7 +607,7 @@ void EditUsers(void)
 		mbse_mvprintw( 5, 3, "15.  USERS EDITOR");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&usrconfighdr, sizeof(usrconfighdr), 1, fil);
@@ -627,7 +627,7 @@ void EditUsers(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-32s", o + i, usrconfig.sUserName);
+						snprintf(temp, 81, "%3d.  %-32s", o + i, usrconfig.sUserName);
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -685,7 +685,7 @@ void users_doc(void)
     FILE    *wp, *ip, *fp;
     int	    nr = 0;
 
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL)
 	return;
 
@@ -697,7 +697,7 @@ void users_doc(void)
 		    
     while (fread(&usrconfig, usrconfighdr.recsize, 1, fp) == 1) {
 	nr++;
-	sprintf(temp, "user_%d.html", nr);
+	snprintf(temp, 81, "user_%d.html", nr);
 	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, usrconfig.sUserName);
 	if ((wp = open_webdoc(temp, (char *)"BBS User", usrconfig.sUserName))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"users.html\">Back</A>\n");
@@ -748,7 +748,7 @@ void users_doc(void)
 	    add_webtable(wp, (char *)"Archiver", usrconfig.Archiver);
 	    add_webtable(wp, (char *)"Character set", getftnchrs(usrconfig.Charset));
 	    add_webdigit(wp, (char *)"Screen length", usrconfig.iScreenLen);
-	    sprintf(temp, "%c", usrconfig.iLanguage);
+	    snprintf(temp, 4, "%c", usrconfig.iLanguage);
 	    add_webtable(wp, (char *)"Language", temp);
 	    add_webtable(wp, (char *)"Use hotkeys", getboolean(usrconfig.HotKeys));
 	    add_webtable(wp, (char *)"ANSI mode", getboolean(usrconfig.GraphMode));
