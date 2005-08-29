@@ -56,9 +56,22 @@ void Page_Sysop(char *String)
     char	*Reason, temp[81];
     static char buf[128];
 
+    clear();
+
+    if (SYSOP == TRUE) {
+	/*
+	 * Forbid the sysop to page, paging himself causes troubles on the
+	 * chatserver, the sysop can only use mbmon.
+	 */
+	Syslog('+', "The Sysop attempted to page the Sysop");
+	pout(LIGHTRED, BLACK, (char *)"The Sysop cannot page the Sysop!");
+	Enter(1);
+	Pause();
+	return;
+    }
+
     Reason = calloc(81, sizeof(char));
 
-    clear();
     /* MBSE BBS Chat */
     poutCenter(LIGHTRED, BLACK, (char *) Language(151));
 
@@ -90,6 +103,7 @@ void Page_Sysop(char *String)
 
 	locate(7, 2);
 	colour(LIGHTGRAY, BLACK);
+	temp[0] = '\0';
 	GetPageStr(temp, 76);
 
 	if ((strcmp(temp, "")) == 0)

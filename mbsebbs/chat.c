@@ -170,7 +170,18 @@ void Chat(char *username, char *channel)
 
     rsize = exitinfo.iScreenLen - 5;
     rpointer = 0;
-    
+
+    if (SYSOP == TRUE) {
+	/*
+	 * Forbid the sysop to chat, the sysop MUST use mbmon.
+	 */
+	Syslog('+', "The Sysop attempted to chat");
+	pout(LIGHTRED, BLACK, (char *)"The Sysop cannot use the bbs to chat! Use mbmon to chat.");
+	Enter(1);
+	Pause();
+	return;
+    }
+   
     if (username && channel) {
 	colour(LIGHTGREEN, BLACK);
 	PUTCHAR('\007');

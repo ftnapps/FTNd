@@ -41,6 +41,7 @@ v0.71.5		18-Aug-2005
 	mbsebbs:
 		Code cleanup.
 		Changed syntax for calling mbpasswd.
+		Blocked sysop to chat and page the sysop. Sysops use mbmon.
 
 	mbnewusr:
 		Changed syntax for calling mbpasswd.
