@@ -4,7 +4,7 @@
  * Purpose ...............: Hatch Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -62,7 +62,7 @@ int CountHatch(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -100,8 +100,8 @@ int OpenHatch(void)
 	long	oldsize;
 	int	FieldPatch = FALSE;
 
-	sprintf(fnin,  "%s/etc/hatch.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&hatchhdr, sizeof(hatchhdr), 1, fin);
@@ -156,8 +156,8 @@ void CloseHatch(int force)
 	FILE	*fi, *fo;
 	st_list	*hat = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
 
 	if (HatchUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -203,7 +203,7 @@ int AppendHatch(void)
 	char	ffile[PATH_MAX];
 	int	i;
 
-	sprintf(ffile, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&hatch, 0, sizeof(hatch));
 		/*
@@ -340,7 +340,7 @@ int EditHatchRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Hatch");
 
-	sprintf(mfile, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -484,7 +484,7 @@ void EditHatch(void)
 		mbse_mvprintw( 5, 4, "10.3. HATCH MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&hatchhdr, sizeof(hatchhdr), 1, fil);
@@ -504,7 +504,7 @@ void EditHatch(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-32s", o + i, hatch.Spec);
+						snprintf(temp, 81, "%3d.  %-32s", o + i, hatch.Spec);
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -561,7 +561,7 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *no;
     int	    i, j, nr = 0, All;
 
-    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -588,7 +588,7 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 
-	sprintf(temp, "hatch_%d.html", nr);
+	snprintf(temp, 81, "hatch_%d.html", nr);
 	fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, nr, hatch.Spec, getboolean(hatch.Active));
 	if ((wp = open_webdoc(temp, (char *)"Hatch Manager", hatch.Spec))) {

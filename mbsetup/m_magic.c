@@ -4,7 +4,7 @@
  * Purpose ...............: Edit Magics
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ int CountMagics(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -90,8 +90,8 @@ int OpenMagics(void)
 	long	oldsize;
 	int	FieldPatch = FALSE;
 
-	sprintf(fnin,  "%s/etc/magic.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&magichdr, sizeof(magichdr), 1, fin);
@@ -147,8 +147,8 @@ void CloseMagics(int force)
 	FILE	*fi, *fo;
 	st_list	*mag = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/magic.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
 
 	if (MagicUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -193,7 +193,7 @@ int AppendMagics(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&magic, 0, sizeof(magic));
 		fwrite(&magic, sizeof(magic), 1, fil);
@@ -289,7 +289,7 @@ int EditMagicRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Magics");
 
-	sprintf(mfile, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -414,7 +414,7 @@ void EditMagics(void)
 		mbse_mvprintw( 5, 2, "10.4.  MAGICS EDITOR");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&magichdr, sizeof(magichdr), 1, fil);
@@ -434,7 +434,7 @@ void EditMagics(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %s %s", o + i, getmagictype(magic.Attrib), magic.Mask);
+						snprintf(temp, 81, "%3d.  %s %s", o + i, getmagictype(magic.Attrib), magic.Mask);
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -491,7 +491,7 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *no;
     int	    nr = 0i, j;
 
-    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -516,7 +516,7 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	nr++;
-	sprintf(temp, "magic_%d.html", nr);
+	snprintf(temp, 81, "magic_%d.html", nr);
 	fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, nr, magic.Mask, getmagictype(magic.Attrib), getboolean(magic.Active));
 	if ((wp = open_webdoc(temp, (char *)"File Magic", magic.Mask))) {

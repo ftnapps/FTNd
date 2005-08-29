@@ -4,7 +4,7 @@
  * Purpose ...............: Global Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -57,7 +57,7 @@ void config_check(char *path)
 {
 	static char	buf[PATH_MAX];
 
-	sprintf(buf, "%s/etc/config.data", path);
+	snprintf(buf, PATH_MAX, "%s/etc/config.data", path);
 	some_fn = buf;
 
 	/*
@@ -271,10 +271,10 @@ void e_global2(void)
 	    case 11:E_PTH(16,16,64, CFG.badtic,     "The path to the ^bad tic files^.", 0750)
 	    case 12:E_PTH(17,16,64, CFG.ticout,     "The path to the ^outgoing TIC^ files.", 0750)
 	    case 13:if (strlen(CFG.tmailshort) == 0)
-			sprintf(CFG.tmailshort, "%s/var/tmail/short", getenv("MBSE_ROOT"));
+			snprintf(CFG.tmailshort, 65, "%s/var/tmail/short", getenv("MBSE_ROOT"));
 		    E_PTH(18,16,64, CFG.tmailshort, "The ^T-Mail 8.3 basepath^ (blank = disable)", 0770)
 	    case 14:if (strlen(CFG.tmaillong) == 0)
-			sprintf(CFG.tmaillong, "%s/var/tmail/long", getenv("MBSE_ROOT"));
+			snprintf(CFG.tmaillong, 65, "%s/var/tmail/long", getenv("MBSE_ROOT"));
 		    E_PTH(19,16,64, CFG.tmaillong,  "The ^T-Mail long basepath^ (blank = disable)", 0770)
         }
     }
@@ -673,7 +673,7 @@ void e_flags(int Users)
 	    }
 	}
 
-	sprintf(temp, "Enter a short ^description^ of flag bit %d", z);
+	snprintf(temp, 80, "Enter a short ^description^ of flag bit %d", z);
 	if (Users) {
 	    strcpy(CFG.fname[z-1], edit_str(y, x, 16, CFG.fname[z-1], temp));
 	} else {
@@ -1094,7 +1094,7 @@ void e_newfiles(void)
 			if (file_exist(logfile, R_OK)) {
 			    errmsg("Logfile \"%s\" doesn't exist", logfile);
 			} else {
-			    sprintf(CFG.www_logfile, "%s", logfile);
+			    snprintf(CFG.www_logfile, 81, "%s", logfile);
 			}
 		    } else {
 			CFG.www_logfile[0] = '\0';
@@ -1108,7 +1108,7 @@ void e_newfiles(void)
 			if (file_exist(logfile, R_OK)) {
 			    errmsg("Logfile \"%s\" doesn't exist", logfile);
 			} else {
-			    sprintf(CFG.ftp_logfile, "%s", logfile);
+			    snprintf(CFG.ftp_logfile, 81, "%s", logfile);
 			}
 		    } else {
 			CFG.ftp_logfile[0] = '\0';
@@ -1188,10 +1188,10 @@ void e_fidoakas(void)
 		else
 		    set_color(LIGHTBLUE, BLACK);
 		if (CFG.akavalid[o+i-1]) {
-		    sprintf(temp, "%3d   %s", o+i, aka2str(CFG.aka[o+i-1]));
+		    snprintf(temp, 81, "%3d   %s", o+i, aka2str(CFG.aka[o+i-1]));
 		    temp[38] = '\0';
 		} else
-		    sprintf(temp, "%3d", o+i);
+		    snprintf(temp, 81, "%3d", o+i);
 		mbse_mvprintw(y, x, temp);
 		y++;
 	    }
@@ -1319,7 +1319,7 @@ void e_trans(int start, int item)
 	set_color(CYAN, BLACK);
 	mbse_mvprintw( 7, 12, "String to match       String to replace");
 	for (i = 0; i < 10; i++) {
-		sprintf(temp, "%2d.", i+1);
+		snprintf(temp, 21, "%2d.", i+1);
 		mbse_mvprintw( 9+i, 6, temp);
 	}
 	for (;;) {
@@ -1460,25 +1460,25 @@ void global_menu(void)
     crc = upd_crc32((char *)&CFG, crc, sizeof(CFG));
 
     if (strlen(CFG.bbs_macros) == 0) {
-	sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
+	snprintf(CFG.bbs_macros, 65, "%s/english/macro", getenv("MBSE_ROOT"));
 	 Syslog('+', "Main config, upgraded default macro path");
     }
 
     if (strlen(CFG.out_queue) == 0) {
-	sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
+	snprintf(CFG.out_queue, 65, "%s/var/queue", getenv("MBSE_ROOT"));
 	 Syslog('+', "Main config, upgraded for new queue");
     }
 
     if (strlen(CFG.mgrlog) == 0) {
-	sprintf(CFG.mgrlog, "manager.log");
+	snprintf(CFG.mgrlog, 15, "manager.log");
 	for (i = 0; i < 32; i++)
-	    sprintf(CFG.aname[i], "Flags %d", i+1);
-	sprintf(CFG.aname[0], "Everyone");
+	    snprintf(CFG.aname[i], 17, "Flags %d", i+1);
+	snprintf(CFG.aname[0], 17, "Everyone");
 	Syslog('+', "Main config, upgraded for manager security");
     }
 
     if (strlen(CFG.debuglog) == 0) {
-	sprintf(CFG.debuglog, "debug.log");
+	snprintf(CFG.debuglog, 15, "debug.log");
 	Syslog('+', "Main config, upgraded for new debug logfile");
     }
 
@@ -1492,19 +1492,19 @@ void global_menu(void)
     }
 
     if (strlen(CFG.rulesdir) == 0) {
-	sprintf(CFG.rulesdir, "%s/var/rules", getenv("MBSE_ROOT"));
+	snprintf(CFG.rulesdir, 65, "%s/var/rules", getenv("MBSE_ROOT"));
 	Syslog('+', "Main config, upgraded rules directory");
     }
 
     if (!strlen(CFG.www_convert) && strlen(_PATH_CONVERT)) {
-	sprintf(CFG.www_convert,"%s -geometry x100", _PATH_CONVERT);
+	snprintf(CFG.www_convert, 81, "%s -geometry x100", _PATH_CONVERT);
 	Syslog('+', "Main config, installed convert for thumbnails");
     }
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/magic", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/magic", getenv("MBSE_ROOT"));
     if (strcmp(CFG.req_magic, temp) == 0) {
-	sprintf(CFG.req_magic, "%s/var/magic", getenv("MBSE_ROOT"));
+	snprintf(CFG.req_magic, 65, "%s/var/magic", getenv("MBSE_ROOT"));
 	Syslog('+', "Main config, magic dir moved to %s", CFG.req_magic);
     }
     free(temp);
@@ -1625,7 +1625,7 @@ int PickAka(char *msg, int openit)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		sprintf(temp, "%s.   AKA SELECT", msg);
+		snprintf(temp, 81, "%s.   AKA SELECT", msg);
 		mbse_mvprintw( 5, 4, temp);	
 		set_color(CYAN, BLACK);
 		x = 2;
@@ -1638,11 +1638,11 @@ int PickAka(char *msg, int openit)
 			if ((o + i) <= 40) {
 				if (CFG.akavalid[o+i-1]) {
 					set_color(CYAN, BLACK);
-					sprintf(temp, "%3d   %s", o+i, aka2str(CFG.aka[o+i-1]));
+					snprintf(temp, 81, "%3d   %s", o+i, aka2str(CFG.aka[o+i-1]));
 					temp[38] = '\0';
 				} else {
 					set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d", o+i);
+					snprintf(temp, 81, "%3d", o+i);
 				}
 				mbse_mvprintw(y, x, temp);
 				y++;
@@ -1741,7 +1741,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 #else
 #error "Don't know utsbuf.domainname on this OS"
 #endif
-	sprintf(temp, "%s %s", utsbuf.sysname, utsbuf.release);
+	snprintf(temp, 81, "%s %s", utsbuf.sysname, utsbuf.release);
 	add_webtable(wp, (char *)"Operating system", temp);
 	fprintf(fp, "      Operating system %s %s\n", utsbuf.sysname, utsbuf.release);
 	add_webtable(wp, (char *)"Kernel version", utsbuf.version);
@@ -1767,7 +1767,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     for (i = 0; i < 40; i++) {
 	if (CFG.akavalid[i]) {
 	    fprintf(fp, "      Aka %2d    %s\n", i+1, aka2str(CFG.aka[i]));
-	    sprintf(temp, "Aka %d", i+1);
+	    snprintf(temp, 81, "Aka %d", i+1);
 	    add_webtable(wp, temp, aka2str(CFG.aka[i]));
 	}
     }
@@ -1893,7 +1893,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webdigit(wp, (char *)"Minimum password length", CFG.password_length);
     add_webtable(wp, (char *)"BBS loglevel", getloglevel(CFG.bbs_loglevel));
     add_webtable(wp, (char *)"Util loglevel", getloglevel(CFG.util_loglevel));
-    sprintf(temp, "%c", CFG.iPasswd_Char);
+    snprintf(temp, 81, "%c", CFG.iPasswd_Char);
     add_webtable(wp, (char *)"Password char", temp);
     add_webdigit(wp, (char *)"Idle timeout in minutes", CFG.idleout);
     add_webdigit(wp, (char *)"Login enters", CFG.iCRLoginCount);
@@ -1907,9 +1907,9 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webdigit(wp, (char *)"FileAttach security level", CFG.iAttachLevel);
     add_webdigit(wp, (char *)"Free diskspace in MBytes", CFG.freespace);
     if (CFG.max_logins)
-	sprintf(temp, "%d", CFG.max_logins);
+	snprintf(temp, 81, "%d", CFG.max_logins);
     else
-	sprintf(temp, "Unlimited");
+	snprintf(temp, 81, "Unlimited");
     add_webtable(wp, (char *)"Simultaneous logins", temp);
     add_webdigit(wp, (char *)"Child priority", CFG.priority);
     add_webtable(wp, (char *)"Sync on execute", getboolean(CFG.do_sync));
@@ -1955,7 +1955,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
     fprintf(wp, "<TBODY>\n");
     for (i = 0; i < 32; i++) {
-	sprintf(temp, "Bit %d", i+1);
+	snprintf(temp, 81, "Bit %d", i+1);
 	add_webtable(wp, temp, CFG.fname[i]);
     }
     fprintf(wp, "</TBODY>\n");
@@ -2330,7 +2330,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
     fprintf(wp, "<TBODY>\n");
     for (i = 0; i < 32; i++) {
-	sprintf(temp, "Bit %d", i+1); 
+	snprintf(temp, 81, "Bit %d", i+1); 
 	add_webtable(wp, temp, CFG.aname[i]);
     }
     fprintf(wp, "</TBODY>\n");

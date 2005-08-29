@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Limits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ int CountLimits(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -69,7 +69,7 @@ int CountLimits(void)
 			LIMIT.Time = 5;
 			LIMIT.DownK = 1;
 			LIMIT.DownF = 1;
-			sprintf(LIMIT.Description, "Twit");
+			snprintf(LIMIT.Description, 41, "Twit");
 			LIMIT.Available = TRUE;
 			fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
@@ -78,7 +78,7 @@ int CountLimits(void)
                         LIMIT.Time = 15;
                         LIMIT.DownK = 100;
                         LIMIT.DownF = 2;
-                        sprintf(LIMIT.Description, "New User");
+                        snprintf(LIMIT.Description, 41, "New User");
                         LIMIT.Available = TRUE;
                         fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
@@ -87,7 +87,7 @@ int CountLimits(void)
                         LIMIT.Time = 60;
                         LIMIT.DownK = 10240;
                         LIMIT.DownF = 25;
-                        sprintf(LIMIT.Description, "Normal User");
+                        snprintf(LIMIT.Description, 41, "Normal User");
                         LIMIT.Available = TRUE;
                         fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
@@ -96,7 +96,7 @@ int CountLimits(void)
                         LIMIT.Time = 90;
                         LIMIT.DownK = 20480;
                         LIMIT.DownF = 100;
-                        sprintf(LIMIT.Description, "V.I.P. User");
+                        snprintf(LIMIT.Description, 41, "V.I.P. User");
                         LIMIT.Available = TRUE;
                         fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
@@ -104,7 +104,7 @@ int CountLimits(void)
                         LIMIT.Security = 80;
                         LIMIT.Time = 120;
                         LIMIT.DownK = 40960;
-                        sprintf(LIMIT.Description, "Fellow Sysop or Point");
+                        snprintf(LIMIT.Description, 41, "Fellow Sysop or Point");
                         LIMIT.Available = TRUE;
                         fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
@@ -112,7 +112,7 @@ int CountLimits(void)
                         LIMIT.Security = 100;
                         LIMIT.Time = 180;
                         LIMIT.DownK = 40960;
-                        sprintf(LIMIT.Description, "Co-Sysop");
+                        snprintf(LIMIT.Description, 41, "Co-Sysop");
                         LIMIT.Available = TRUE;
                         fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
@@ -120,7 +120,7 @@ int CountLimits(void)
                         LIMIT.Security = 32000;
                         LIMIT.Time = 240;
                         LIMIT.DownK = 40960;
-                        sprintf(LIMIT.Description, "Sysop");
+                        snprintf(LIMIT.Description, 41, "Sysop");
                         LIMIT.Available = TRUE;
                         fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
@@ -153,8 +153,8 @@ int OpenLimits(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/limits.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&LIMIThdr, sizeof(LIMIThdr), 1, fin);
@@ -202,8 +202,8 @@ void CloseLimits(int force)
 	FILE	*fi, *fo;
 	st_list	*lim = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/limits.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/limits.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
 
 	if (LimUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -215,7 +215,7 @@ void CloseLimits(int force)
 
 			while (fread(&LIMIT, LIMIThdr.recsize, 1, fi) == 1)
 				if (!LIMIT.Deleted) {
-					sprintf(temp, "%014ld", LIMIT.Security);
+					snprintf(temp, 20, "%014ld", LIMIT.Security);
 					fill_stlist(&lim, temp, ftell(fi) - LIMIThdr.recsize);
 				}
 			sort_stlist(&lim);
@@ -249,7 +249,7 @@ int AppendLimits(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&LIMIT, 0, sizeof(LIMIT));
 		fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
@@ -277,7 +277,7 @@ int EditLimRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Limits");
 
-	sprintf(mfile, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -383,7 +383,7 @@ void EditLimits(void)
 		mbse_mvprintw( 5, 7, "8.1 LIMITS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&LIMIThdr, sizeof(LIMIThdr), 1, fil);
 				x = 5;
@@ -401,7 +401,7 @@ void EditLimits(void)
 						set_color(CYAN, BLACK);
 					else
 						set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
+					snprintf(temp, 81, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
 					temp[37] = '\0';
 					mbse_mvprintw(y, x, temp);
 					y++;
@@ -467,11 +467,11 @@ char *PickLimits(int nr)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	sprintf(temp, "%d.  LIMITS SELECT", nr);
+	snprintf(temp, 81, "%d.  LIMITS SELECT", nr);
 	mbse_mvprintw( 5, 4, temp);
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-		sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
 		if ((fil = fopen(temp, "r")) != NULL) {
 			fread(&LIMIThdr, sizeof(LIMIThdr), 1, fil);
 			x = 2;
@@ -489,7 +489,7 @@ char *PickLimits(int nr)
 					set_color(CYAN, BLACK);
 				else
 					set_color(LIGHTBLUE, BLACK);
-				sprintf(temp, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
+				snprintf(temp, 81, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
 				temp[37] = '\0';
 				mbse_mvprintw(y, x, temp);
 				y++;
@@ -500,7 +500,7 @@ char *PickLimits(int nr)
 				offset = sizeof(LIMIThdr) + ((atoi(pick) - 1) * LIMIThdr.recsize);
 				fseek(fil, offset, 0);
 				fread(&LIMIT, LIMIThdr.recsize, 1, fil);
-				sprintf(Lim, "%ld", LIMIT.Security);
+				snprintf(Lim, 21, "%ld", LIMIT.Security);
 			}
 			fclose(fil);
 		}
@@ -516,8 +516,8 @@ char *get_limit_name(int level)
     char	temp[PATH_MAX];
     FILE	*fp;
 
-    sprintf(buf, "N/A");
-    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    snprintf(buf, 41, "N/A");
+    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL)
 	return buf;
 
@@ -525,7 +525,7 @@ char *get_limit_name(int level)
 
     while ((fread(&LIMIT, LIMIThdr.recsize, 1, fp)) == 1) {
 	if (level == LIMIT.Security) {
-	    sprintf(buf, "%s", LIMIT.Description);
+	    snprintf(buf, 41, "%s", LIMIT.Description);
 	    break;
 	}
     }
@@ -541,7 +541,7 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
     FILE    *up, *ip, *no;
     int	    nr;
 
-    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -579,7 +579,7 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
     fprintf(ip, "<TR><TH align='left'>Access Level</TH><TH align='left'>User</TH><TH align='left'>Location</TH></TR>\n");
     fseek(no, LIMIThdr.hdrsize, SEEK_SET);
 
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((up = fopen(temp, "r"))) {
 	fread(&usrconfighdr, sizeof(usrconfighdr), 1, up);
 	

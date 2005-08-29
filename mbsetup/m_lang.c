@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Languages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -52,7 +52,7 @@ int CountLanguage(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -64,82 +64,82 @@ int CountLanguage(void)
 			 *  Setup default records
 			 */
 			memset(&lang, 0, sizeof(lang));
-			sprintf(lang.Name,      "English");
-			sprintf(lang.LangKey,   "E");
-			sprintf(lang.MenuPath,  "%s/english/menus", getenv("MBSE_ROOT"));
-			sprintf(lang.TextPath,  "%s/english/txtfiles", getenv("MBSE_ROOT"));
-			sprintf(lang.MacroPath, "%s/english/macro", getenv("MBSE_ROOT"));
-			sprintf(lang.Filename,  "english.lang");
+			snprintf(lang.Name,      30, "English");
+			snprintf(lang.LangKey,    2, "E");
+			snprintf(lang.MenuPath,  81, "%s/english/menus", getenv("MBSE_ROOT"));
+			snprintf(lang.TextPath,  81, "%s/english/txtfiles", getenv("MBSE_ROOT"));
+			snprintf(lang.MacroPath, 81, "%s/english/macro", getenv("MBSE_ROOT"));
+			snprintf(lang.Filename,  81, "english.lang");
 			lang.Available = TRUE;
 			fwrite(&lang, sizeof(lang), 1, fil);
 
                         memset(&lang, 0, sizeof(lang));
-                        sprintf(lang.Name,      "Nederlands");
-                        sprintf(lang.LangKey,   "N");
-                        sprintf(lang.MenuPath,  "%s/dutch/menus", getenv("MBSE_ROOT"));
-                        sprintf(lang.TextPath,  "%s/dutch/txtfiles", getenv("MBSE_ROOT"));
-                        sprintf(lang.MacroPath, "%s/dutch/macro", getenv("MBSE_ROOT"));
-                        sprintf(lang.Filename,  "dutch.lang");
+                        snprintf(lang.Name,      30, "Nederlands");
+                        snprintf(lang.LangKey,    2, "N");
+                        snprintf(lang.MenuPath,  81, "%s/dutch/menus", getenv("MBSE_ROOT"));
+                        snprintf(lang.TextPath,  81, "%s/dutch/txtfiles", getenv("MBSE_ROOT"));
+                        snprintf(lang.MacroPath, 81, "%s/dutch/macro", getenv("MBSE_ROOT"));
+                        snprintf(lang.Filename,  81, "dutch.lang");
                         lang.Available = TRUE;
                         fwrite(&lang, sizeof(lang), 1, fil);
 
                         memset(&lang, 0, sizeof(lang));
-                        sprintf(lang.Name,      "Italian");
-                        sprintf(lang.LangKey,   "I");
-                        sprintf(lang.MenuPath,  "%s/italian/menus", getenv("MBSE_ROOT"));
-                        sprintf(lang.TextPath,  "%s/italian/txtfiles", getenv("MBSE_ROOT"));
-                        sprintf(lang.MacroPath, "%s/italian/macro", getenv("MBSE_ROOT"));
-                        sprintf(lang.Filename,  "italian.lang");
+                        snprintf(lang.Name,      30, "Italian");
+                        snprintf(lang.LangKey,    2, "I");
+                        snprintf(lang.MenuPath,  81, "%s/italian/menus", getenv("MBSE_ROOT"));
+                        snprintf(lang.TextPath,  81, "%s/italian/txtfiles", getenv("MBSE_ROOT"));
+                        snprintf(lang.MacroPath, 81, "%s/italian/macro", getenv("MBSE_ROOT"));
+                        snprintf(lang.Filename,  81, "italian.lang");
                         lang.Available = TRUE;
                         fwrite(&lang, sizeof(lang), 1, fil);
 
                         memset(&lang, 0, sizeof(lang));
-                        sprintf(lang.Name,      "Spanish");
-                        sprintf(lang.LangKey,   "S");
-                        sprintf(lang.MenuPath,  "%s/spanish/menus", getenv("MBSE_ROOT"));
-                        sprintf(lang.TextPath,  "%s/spanish/txtfiles", getenv("MBSE_ROOT"));
-                        sprintf(lang.MacroPath, "%s/spanish/macro", getenv("MBSE_ROOT"));
-                        sprintf(lang.Filename,  "spanish.lang");
+                        snprintf(lang.Name,      30, "Spanish");
+                        snprintf(lang.LangKey,    2, "S");
+                        snprintf(lang.MenuPath,  81, "%s/spanish/menus", getenv("MBSE_ROOT"));
+                        snprintf(lang.TextPath,  81, "%s/spanish/txtfiles", getenv("MBSE_ROOT"));
+                        snprintf(lang.MacroPath, 81, "%s/spanish/macro", getenv("MBSE_ROOT"));
+                        snprintf(lang.Filename,  81, "spanish.lang");
                         lang.Available = TRUE;
                         fwrite(&lang, sizeof(lang), 1, fil);
 
 			memset(&lang, 0, sizeof(lang));
-                        sprintf(lang.Name,      "Galego");
-			sprintf(lang.LangKey,   "G");
-			sprintf(lang.MenuPath,  "%s/galego/menus", getenv("MBSE_ROOT"));
-			sprintf(lang.TextPath,  "%s/galego/txtfiles", getenv("MBSE_ROOT"));
-			sprintf(lang.MacroPath, "%s/galego/macro", getenv("MBSE_ROOT"));
-			sprintf(lang.Filename,  "galego.lang");
+                        snprintf(lang.Name,      30, "Galego");
+			snprintf(lang.LangKey,    2, "G");
+			snprintf(lang.MenuPath,  81, "%s/galego/menus", getenv("MBSE_ROOT"));
+			snprintf(lang.TextPath,  81, "%s/galego/txtfiles", getenv("MBSE_ROOT"));
+			snprintf(lang.MacroPath, 81, "%s/galego/macro", getenv("MBSE_ROOT"));
+			snprintf(lang.Filename,  81, "galego.lang");
 			lang.Available = TRUE;
 			fwrite(&lang, sizeof(lang), 1, fil);
 
 			memset(&lang, 0, sizeof(lang));
-			sprintf(lang.Name,      "Deutsch");
-			sprintf(lang.LangKey,   "D");
-			sprintf(lang.MenuPath,  "%s/german/menus", getenv("MBSE_ROOT"));
-			sprintf(lang.TextPath,  "%s/german/txtfiles", getenv("MBSE_ROOT"));
-			sprintf(lang.MacroPath, "%s/german/macro", getenv("MBSE_ROOT"));
-			sprintf(lang.Filename,  "german.lang");
+			snprintf(lang.Name,      30, "Deutsch");
+			snprintf(lang.LangKey,    2, "D");
+			snprintf(lang.MenuPath,  81, "%s/german/menus", getenv("MBSE_ROOT"));
+			snprintf(lang.TextPath,  81, "%s/german/txtfiles", getenv("MBSE_ROOT"));
+			snprintf(lang.MacroPath, 81, "%s/german/macro", getenv("MBSE_ROOT"));
+			snprintf(lang.Filename,  81, "german.lang");
 			lang.Available = TRUE;
 			fwrite(&lang, sizeof(lang), 1, fil);
 
 			memset(&lang, 0, sizeof(lang));
-			sprintf(lang.Name,      "French");
-			sprintf(lang.LangKey,   "F");
-			sprintf(lang.MenuPath,  "%s/french/menus", getenv("MBSE_ROOT"));
-			sprintf(lang.TextPath,  "%s/french/txtfiles", getenv("MBSE_ROOT"));
-			sprintf(lang.MacroPath, "%s/french/macro", getenv("MBSE_ROOT"));
-			sprintf(lang.Filename,  "french.lang");
+			snprintf(lang.Name,      30, "French");
+			snprintf(lang.LangKey,    2, "F");
+			snprintf(lang.MenuPath,  81, "%s/french/menus", getenv("MBSE_ROOT"));
+			snprintf(lang.TextPath,  81, "%s/french/txtfiles", getenv("MBSE_ROOT"));
+			snprintf(lang.MacroPath, 81, "%s/french/macro", getenv("MBSE_ROOT"));
+			snprintf(lang.Filename,  81, "french.lang");
 			lang.Available = TRUE;  
 			fwrite(&lang, sizeof(lang), 1, fil);
 
                         memset(&lang, 0, sizeof(lang));
-			sprintf(lang.Name,      "Chinese");
-			sprintf(lang.LangKey,   "C");
-			sprintf(lang.MenuPath,  "%s/chinese/menus", getenv("MBSE_ROOT"));
-			sprintf(lang.TextPath,  "%s/chinese/txtfiles", getenv("MBSE_ROOT"));
-			sprintf(lang.MacroPath, "%s/chinese/macro", getenv("MBSE_ROOT"));
-			sprintf(lang.Filename,  "chinese.lang");
+			snprintf(lang.Name,      30, "Chinese");
+			snprintf(lang.LangKey,    2, "C");
+			snprintf(lang.MenuPath,  81, "%s/chinese/menus", getenv("MBSE_ROOT"));
+			snprintf(lang.TextPath,  81, "%s/chinese/txtfiles", getenv("MBSE_ROOT"));
+			snprintf(lang.MacroPath, 81, "%s/chinese/macro", getenv("MBSE_ROOT"));
+			snprintf(lang.Filename,  81, "chinese.lang");
 			lang.Available = TRUE;  
 			fwrite(&lang, sizeof(lang), 1, fil);
 
@@ -172,8 +172,8 @@ int OpenLanguage(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/language.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&langhdr, sizeof(langhdr), 1, fin);
@@ -221,8 +221,8 @@ void CloseLanguage(int force)
 	FILE	*fi, *fo;
 	st_list	*lan = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
 
 	if (LangUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -267,7 +267,7 @@ int AppendLanguage(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&lang, 0, sizeof(lang));
 		fwrite(&lang, sizeof(lang), 1, fil);
@@ -315,7 +315,7 @@ int EditLangRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Language");
 
-	sprintf(mfile, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -415,7 +415,7 @@ void EditLanguage(void)
 		mbse_mvprintw( 5, 6, "8.2 LANGUAGE SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&langhdr, sizeof(langhdr), 1, fil);
 				x = 4;
@@ -430,7 +430,7 @@ void EditLanguage(void)
 						set_color(CYAN, BLACK);
 					else
 						set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.  %s %-30s", i, lang.LangKey, lang.Name);
+					snprintf(temp, 81, "%3d.  %s %-30s", i, lang.LangKey, lang.Name);
 					mbse_mvprintw(i + 6, x, temp);
 				}
 				fclose(fil);
@@ -495,11 +495,11 @@ int PickLanguage(char *nr)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	sprintf(temp, "%s.  LANGUAGE SELECT", nr);
+	snprintf(temp, 81, "%s.  LANGUAGE SELECT", nr);
 	mbse_mvprintw( 5, 4, temp);
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-		sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
 		if ((fil = fopen(temp, "r")) != NULL) {
 			fread(&langhdr, sizeof(langhdr), 1, fil);
 			x = 2;
@@ -514,7 +514,7 @@ int PickLanguage(char *nr)
 					set_color(CYAN, BLACK);
 				else
 					set_color(LIGHTBLUE, BLACK);
-				sprintf(temp, "%3d.  %s %-28s", i, lang.LangKey, lang.Name);
+				snprintf(temp, 81, "%3d.  %s %-28s", i, lang.LangKey, lang.Name);
 				mbse_mvprintw(i + 6, x, temp);
 			}
 			strcpy(pick, select_pick(records, 20));
@@ -541,7 +541,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
     DIR		    *dp;
     struct dirent   *de;
 
-    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -563,7 +563,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 	
-	sprintf(temp, "language_%s.html", lang.LangKey);
+	snprintf(temp, 81, "language_%s.html", lang.LangKey);
         fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, lang.LangKey, lang.Name);
 	if ((wp = open_webdoc(temp, (char *)"Language", lang.Name))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"language.html\">Back</A>\n");

@@ -53,7 +53,7 @@ int CountIBC(void)
     char    ffile[PATH_MAX];
     int	    count;
 
-    sprintf(ffile, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -88,8 +88,8 @@ int OpenIBC(void)
     char    fnin[PATH_MAX], fnout[PATH_MAX];
     long    oldsize;
 
-    sprintf(fnin,  "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
-    sprintf(fnout, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fin);
@@ -137,8 +137,8 @@ void CloseIBC(int force)
     FILE	*fi, *fo;
     st_list	*vir = NULL, *tmp;
 
-    sprintf(fin, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
-    sprintf(fout,"%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
 
     if (IBCUpdated == 1) {
 	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -181,7 +181,7 @@ int AppendIBC(void)
     FILE    *fil;
     char    ffile[PATH_MAX];
 
-    sprintf(ffile, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&ibcsrv, 0, sizeof(ibcsrv));
 	strcpy(ibcsrv.myname, CFG.myfqdn);
@@ -210,7 +210,7 @@ int EditIBCRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit ibcsrv");
 
-    sprintf(mfile, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -316,7 +316,7 @@ void EditIBC(void)
 	mbse_mvprintw( 5, 4, "20. INTERNET BBS CHAT SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fil);
 		x = 2;
@@ -336,7 +336,7 @@ void EditIBC(void)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTBLUE, BLACK);
-		    sprintf(temp, "%3d.  %s (%s)", i, ibcsrv.server, ibcsrv.comment);
+		    snprintf(temp, 81, "%3d.  %s (%s)", i, ibcsrv.server, ibcsrv.comment);
 		    temp[37] = 0;
 		    mbse_mvprintw(y, x, temp);
 		    y++;
@@ -382,7 +382,7 @@ int ibc_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *vir;
     int	    nr = 0, j;
 
-    sprintf(temp, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
     if ((vir = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -405,7 +405,7 @@ int ibc_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	nr++;
-	sprintf(temp, "ibcsrv_%d.html", nr);
+	snprintf(temp, 81, "ibcsrv_%d.html", nr);
 	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, ibcsrv.comment);
 	if ((wp = open_webdoc(temp, (char *)"Internet BBS Chatserver", ibcsrv.comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"ibcsrv.html\">Back</A>\n");
