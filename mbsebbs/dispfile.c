@@ -63,7 +63,7 @@ int TotalUsers(void)
     struct  userrec u;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if(( pUsrConfig = fopen(temp,"rb")) == NULL)
         WriteError("ControlCodeK: Can't open users file %s for reading", temp);
     else {
@@ -97,7 +97,7 @@ void DisplayRules(void)
     DIR		    *dp;
     struct dirent   *de;
     int		    Found = FALSE;
-    char	    temp[128];
+    char	    temp[PATH_MAX];
 
     if ((dp = opendir(CFG.rulesdir)) == NULL) {
 	WriteError("$Can't open directory %s", CFG.rulesdir);
@@ -114,21 +114,21 @@ void DisplayRules(void)
 	    strcpy(temp, msgs.Tag);
 	    if (strcasecmp(de->d_name, temp) == 0) {
 		Found = TRUE;
-		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.rulesdir, de->d_name);
 		break;
 	    }
-	    sprintf(temp, "%s.rul", temp);
+	    snprintf(temp, PATH_MAX, "%s.rul", temp);
 	    if (strcasecmp(de->d_name, temp) == 0) {
 		Found = TRUE;
-		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.rulesdir, de->d_name);
 		break;
 	    }
 	    memset(&temp, 0, sizeof(temp));
 	    strncpy(temp, msgs.Tag, 8);
-	    sprintf(temp, "%s.rul", temp);
+	    snprintf(temp, PATH_MAX, "%s.rul", temp);
 	    if (strcasecmp(de->d_name, temp) == 0) {
 		Found = TRUE;
-		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.rulesdir, de->d_name);
 		break;
 	    }
 	}
@@ -247,16 +247,16 @@ int DisplayFile(char *filename)
      */
     pFileName = NULL;
     if (exitinfo.GraphMode) {
-	sprintf(newfile, "%s/%s.ans", lang.TextPath, filename);
+	snprintf(newfile, PATH_MAX, "%s/%s.ans", lang.TextPath, filename);
 	if ((pFileName = fopen(newfile, "rb")) == NULL) {
-	    sprintf(newfile, "%s/%s.ans", CFG.bbs_txtfiles, filename);
+	    snprintf(newfile, PATH_MAX, "%s/%s.ans", CFG.bbs_txtfiles, filename);
 	    pFileName = fopen(newfile, "rb");
 	}
     }
     if (pFileName == NULL) {
-	sprintf(newfile, "%s/%s.asc", lang.TextPath, filename);
+	snprintf(newfile, PATH_MAX, "%s/%s.asc", lang.TextPath, filename);
 	if ((pFileName = fopen(newfile, "rb")) == NULL) {
-	    sprintf(newfile, "%s/%s.asc", CFG.bbs_txtfiles, filename);
+	    snprintf(newfile, PATH_MAX, "%s/%s.asc", CFG.bbs_txtfiles, filename);
 	    if ((pFileName = fopen(newfile, "rb")) == NULL) {
 		free(sFileName);
 		free(tmp);
@@ -297,7 +297,7 @@ int DisplayFile(char *filename)
 			    x++;
 			    strcpy(tmp1, "");
 			    while (*(sFileName + x) != '') {
-				sprintf(tmp, "%c", *(sFileName + x));
+				snprintf(tmp, PATH_MAX, "%c", *(sFileName + x));
 				strcat(tmp1, tmp);
 				x++;
 			    }
@@ -357,50 +357,50 @@ void ControlCodeF(int ch)
 
     switch (toupper(ch)) {
 	case '!':
-		sprintf(temp, "%s", exitinfo.sProtocol);
+		snprintf(temp, 81, "%s", exitinfo.sProtocol);
 		break;
 	case 'A':
-		sprintf(temp, "%ld", exitinfo.Uploads);
+		snprintf(temp, 81, "%ld", exitinfo.Uploads);
 		break;
 
 	case 'B':
-		sprintf(temp, "%ld", exitinfo.Downloads);
+		snprintf(temp, 81, "%ld", exitinfo.Downloads);
 		break;
 
 	case 'C':
-		sprintf(temp, "%lu", exitinfo.DownloadK);
+		snprintf(temp, 81, "%lu", exitinfo.DownloadK);
 		break;
 
 	case 'D':
-		sprintf(temp, "%lu", exitinfo.UploadK);
+		snprintf(temp, 81, "%lu", exitinfo.UploadK);
 		break;
 
 	case 'E':
-		sprintf(temp, "%lu", exitinfo.DownloadK + exitinfo.UploadK);
+		snprintf(temp, 81, "%lu", exitinfo.DownloadK + exitinfo.UploadK);
 		break;
 
 	case 'F':
-		sprintf(temp, "%lu", LIMIT.DownK); 
+		snprintf(temp, 81, "%lu", LIMIT.DownK); 
 		break;
 
 	case 'H':
-		sprintf(temp, "%d", iAreaNumber);
+		snprintf(temp, 81, "%d", iAreaNumber);
 		break;
 
 	case 'I':
-		sprintf(temp, "%s", sAreaDesc);
+		snprintf(temp, 81, "%s", sAreaDesc);
 		break;
 
 	case 'J':
-		sprintf(temp, "%u", LIMIT.DownF);
+		snprintf(temp, 81, "%u", LIMIT.DownF);
 		break;
 
 	case 'K':
-		sprintf(temp, "%s", LIMIT.Description);
+		snprintf(temp, 81, "%s", LIMIT.Description);
 		break;
 
 	default:
-		sprintf(temp, " ");
+		snprintf(temp, 81, " ");
     }
     PUTSTR(temp);
 }
@@ -419,147 +419,147 @@ void ControlCodeU(int ch)
 
     switch (toupper(ch)) {
 	case 'A':
-		sprintf(temp, "%s", exitinfo.sUserName);
+		snprintf(temp, 81, "%s", exitinfo.sUserName);
 		break;
 
 	case 'B':
-		sprintf(temp, "%s", exitinfo.sLocation);
+		snprintf(temp, 81, "%s", exitinfo.sLocation);
 		break;
 
 	case 'C':
-		sprintf(temp, "%s", exitinfo.sVoicePhone);
+		snprintf(temp, 81, "%s", exitinfo.sVoicePhone);
 		break;
 
 	case 'D':
-		sprintf(temp, "%s", exitinfo.sDataPhone);
+		snprintf(temp, 81, "%s", exitinfo.sDataPhone);
 		break;
 
 	case 'E':
-		sprintf(temp, "%s", LastLoginDate);
+		snprintf(temp, 81, "%s", LastLoginDate);
 		break;
 
 	case 'F':
-		sprintf(temp, "%s %s", StrDateDMY(exitinfo.tFirstLoginDate), StrTimeHMS(exitinfo.tFirstLoginDate));
+		snprintf(temp, 81, "%s %s", StrDateDMY(exitinfo.tFirstLoginDate), StrTimeHMS(exitinfo.tFirstLoginDate));
 		break;
 		
 	case 'G':
-		sprintf(temp, "%s", LastLoginTime);
+		snprintf(temp, 81, "%s", LastLoginTime);
 		break;
 
 	case 'H':
-		sprintf(temp, "%d", exitinfo.Security.level);
+		snprintf(temp, 81, "%d", exitinfo.Security.level);
 		break;
 		
 	case 'I':
-		sprintf(temp, "%d",  exitinfo.iTotalCalls);
+		snprintf(temp, 81, "%d",  exitinfo.iTotalCalls);
 		break;
 
 	case 'J':
-		sprintf(temp, "%d", exitinfo.iTimeUsed);
+		snprintf(temp, 81, "%d", exitinfo.iTimeUsed);
 		break;
 
 	case 'K':
-		sprintf(temp, "%d", exitinfo.iConnectTime);
+		snprintf(temp, 81, "%d", exitinfo.iConnectTime);
 		break;
 
 	case 'L':
-		sprintf(temp, "%d", exitinfo.iTimeLeft);
+		snprintf(temp, 81, "%d", exitinfo.iTimeLeft);
 		break;
 
 	case 'M':
-		sprintf(temp, "%d", exitinfo.iScreenLen);
+		snprintf(temp, 81, "%d", exitinfo.iScreenLen);
 		break;
 
 	case 'N':
-		sprintf(temp, "%s", FirstName);
+		snprintf(temp, 81, "%s", FirstName);
 		break;
 
 	case 'O':
-		sprintf(temp, "%s", LastName);
+		snprintf(temp, 81, "%s", LastName);
 		break;
 
 	case 'Q':
-	 	sprintf(temp, "%s", exitinfo.ieNEWS ? (char *) Language(147) : (char *) Language(148));
+	 	snprintf(temp, 81, "%s", exitinfo.ieNEWS ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case 'P':
-		sprintf(temp, "%s", exitinfo.GraphMode ? (char *) Language(147) : (char *) Language(148));
+		snprintf(temp, 81, "%s", exitinfo.GraphMode ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case 'R':
-		sprintf(temp, "%s", exitinfo.HotKeys ? (char *) Language(147) : (char *) Language(148));
+		snprintf(temp, 81, "%s", exitinfo.HotKeys ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case 'S':
-		sprintf(temp, "%d", exitinfo.iTimeUsed + exitinfo.iTimeLeft);
+		snprintf(temp, 81, "%d", exitinfo.iTimeUsed + exitinfo.iTimeLeft);
 		break;
 
 	case 'T':
-		sprintf(temp, "%s", exitinfo.sDateOfBirth);
+		snprintf(temp, 81, "%s", exitinfo.sDateOfBirth);
 		break;
 
 	case 'U':
-		sprintf(temp, "%d", exitinfo.iPosted);
+		snprintf(temp, 81, "%d", exitinfo.iPosted);
 		break;
 
 	case 'X':
-		sprintf(temp, "%s", lang.Name);
+		snprintf(temp, 81, "%s", lang.Name);
 		break;
 
 	case 'Y':
-		sprintf(temp, "%s", exitinfo.sHandle);
+		snprintf(temp, 81, "%s", exitinfo.sHandle);
 		break;
 
 	case 'Z':
-	 	sprintf(temp, "%s", exitinfo.DoNotDisturb ? (char *) Language(147) : (char *) Language(148));
+	 	snprintf(temp, 81, "%s", exitinfo.DoNotDisturb ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '1':
-		sprintf(temp, "%s", exitinfo.MailScan ? (char *) Language(147) : (char *) Language(148));
+		snprintf(temp, 81, "%s", exitinfo.MailScan ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '2':
-		sprintf(temp, "%s", exitinfo.ieFILE ? (char *) Language(147) : (char *) Language(148));
+		snprintf(temp, 81, "%s", exitinfo.ieFILE ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '3':
 		switch(exitinfo.MsgEditor) {
-		    case LINEEDIT:  sprintf(temp, "%s", Language(387));
+		    case LINEEDIT:  snprintf(temp, 81, "%s", Language(387));
 				    break;
-		    case FSEDIT:    sprintf(temp, "%s", Language(388));
+		    case FSEDIT:    snprintf(temp, 81, "%s", Language(388));
 				    break;
-		    case EXTEDIT:   sprintf(temp, "%s", Language(389));
+		    case EXTEDIT:   snprintf(temp, 81, "%s", Language(389));
 				    break;
-		    default:	    sprintf(temp, "?");
+		    default:	    snprintf(temp, 81, "?");
 		}	    
 		break;
 
 	case '4':
-		sprintf(temp, "%s", exitinfo.FSemacs ? (char *) Language(147) : (char *) Language(148));
+		snprintf(temp, 81, "%s", exitinfo.FSemacs ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '5':
-		sprintf(temp, "%s", exitinfo.address[0]);
+		snprintf(temp, 81, "%s", exitinfo.address[0]);
 		break;
 
 	case '6':
-		sprintf(temp, "%s", exitinfo.address[1]);
+		snprintf(temp, 81, "%s", exitinfo.address[1]);
 		break;
 
 	case '7':
-		sprintf(temp, "%s", exitinfo.address[2]);
+		snprintf(temp, 81, "%s", exitinfo.address[2]);
 		break;
 
 	case '8':
-		sprintf(temp, "%s", exitinfo.OL_ExtInfo ? (char *) Language(147) : (char *) Language(148));
+		snprintf(temp, 81, "%s", exitinfo.OL_ExtInfo ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '9':
-		sprintf(temp, "%s", getftnchrs(exitinfo.Charset));
+		snprintf(temp, 81, "%s", getftnchrs(exitinfo.Charset));
 		break;
 
 	default:
-		sprintf(temp, " ");
+		snprintf(temp, 81, " ");
     }
     PUTSTR(temp);
 }
@@ -574,57 +574,57 @@ void ControlCodeK(int ch)
 
     switch (toupper(ch)) {
 	case 'A':
-		sprintf(temp, "%s", (char *) GetDateDMY());
+		snprintf(temp, 81, "%s", (char *) GetDateDMY());
 		break;
 
 	case 'B':
-		sprintf(temp, "%s", (char *) GetLocalHMS());
+		snprintf(temp, 81, "%s", (char *) GetLocalHMS());
 		break;
 
 	case 'C':
-		sprintf(temp, "%s", (char *) GLCdate());
+		snprintf(temp, 81, "%s", (char *) GLCdate());
 		break;
 
 	case 'D':
-		sprintf(temp, "%s", (char *) GLCdateyy());
+		snprintf(temp, 81, "%s", (char *) GLCdateyy());
 		break;
 
 	case 'E':
-		sprintf(temp, "%ld", Speed());
+		snprintf(temp, 81, "%ld", Speed());
 		break;
 
 	case 'F':
-	  	sprintf(temp, "%s", LastCaller);
+	  	snprintf(temp, 81, "%s", LastCaller);
 		break;
 
 	case 'G':
-		sprintf(temp, "%d", TotalUsers());
+		snprintf(temp, 81, "%d", TotalUsers());
 		break;
 
 	case 'H':
-		sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+		snprintf(sDataFile, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
 		if((pCallerLog = fopen(sDataFile, "rb")) != NULL) {
 		    fread(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
-		    sprintf(temp, "%ld", SYSINFO.SystemCalls);
+		    snprintf(temp, 81, "%ld", SYSINFO.SystemCalls);
 		    fclose(pCallerLog);
 		}
 		break;
 
 	case 'I':
-		sprintf(temp, "%d", iMsgAreaNumber + 1);
+		snprintf(temp, 81, "%d", iMsgAreaNumber + 1);
 		break;
 
 	case 'J':
-		sprintf(temp, "%s", sMsgAreaDesc);
+		snprintf(temp, 81, "%s", sMsgAreaDesc);
 		break;
 
 	case 'K':
-		sprintf(temp, "%s", Oneliner_Get());
+		snprintf(temp, 81, "%s", Oneliner_Get());
 		break;
 
 	case 'L':
 		SetMsgArea(iMsgAreaNumber);
-		sprintf(temp, "%ld", MsgBase.Total);
+		snprintf(temp, 81, "%ld", MsgBase.Total);
 		break;
 
 	case 'M':
@@ -633,42 +633,42 @@ void ControlCodeK(int ch)
 		    if (Msg_GetLastRead(&LR) == TRUE) {
 			if (LR.HighReadMsg > MsgBase.Highest)
 			    LR.HighReadMsg = MsgBase.Highest;
-			sprintf(temp, "%ld", LR.HighReadMsg);
+			snprintf(temp, 81, "%ld", LR.HighReadMsg);
 		    } else
-			sprintf(temp, "?");
+			snprintf(temp, 81, "?");
 		    Msg_Close();
 		}
 		break;
 
 	case 'N':
-		sprintf(temp, "%s", sMailbox);
+		snprintf(temp, 81, "%s", sMailbox);
 		break;
 
 	case 'O':
 		SetEmailArea(sMailbox);
-		sprintf(temp, "%ld", EmailBase.Total);
+		snprintf(temp, 81, "%ld", EmailBase.Total);
 		break;
 
 	case 'P':
-		sprintf(sDataFile, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, sMailbox);
+		snprintf(sDataFile, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, sMailbox);
 		LR.UserID = grecno;
 		if (Msg_Open(sDataFile)) {
 		    if (Msg_GetLastRead(&LR) == TRUE) {
 			if (LR.HighReadMsg > EmailBase.Highest)
 			    LR.HighReadMsg = EmailBase.Highest;
-			sprintf(temp, "%ld", LR.HighReadMsg);
+			snprintf(temp, 81, "%ld", LR.HighReadMsg);
 		    } else
-			sprintf(temp, "?");
+			snprintf(temp, 81, "?");
 		    Msg_Close();
 		}
 		break;
 
 	case 'Q':
-		sprintf(temp, "%s %s", StrDateDMY(LastCallerTime), StrTimeHMS(LastCallerTime));
+		snprintf(temp, 81, "%s %s", StrDateDMY(LastCallerTime), StrTimeHMS(LastCallerTime));
 		break;
 
 	default:
-		sprintf(temp, " ");
+		snprintf(temp, 81, " ");
 
     }
 

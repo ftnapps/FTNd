@@ -4,7 +4,7 @@
  * Purpose ...............: Sysop to user chat utility
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,7 +45,7 @@
 
 int		chat_with_sysop = FALSE;    /* Global sysop chat flag	*/
 int		chatting = FALSE;	    /* Global chatting flag	*/
-char		rbuf[50][80];		    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
+char		rbuf[50][81];		    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
 int		rpointer = 0;		    /* Chat receive pointer	*/
 int		rsize = 5;		    /* Chat receive size	*/
 extern pid_t	mypid;
@@ -123,7 +123,7 @@ void DispMsg(char *msg)
 {
     int     i;
 
-    strncpy(rbuf[rpointer], msg, 80);
+    strncpy(rbuf[rpointer], msg, 81);
     Showline(2 + rpointer, 1, rbuf[rpointer]);
     if (rpointer == rsize) {
 	/*
@@ -132,7 +132,7 @@ void DispMsg(char *msg)
 	for (i = 0; i <= rsize; i++) {
 	    locate(i + 2, 1);
 	    clrtoeol();
-	    sprintf(rbuf[i], "%s", rbuf[i+1]);
+	    snprintf(rbuf[i], 81, "%s", rbuf[i+1]);
 	    Showline(i + 2, 1, rbuf[i]);
 	}
     } else {
@@ -194,10 +194,10 @@ void Chat(char *username, char *channel)
     locate(1, 1);
     colour(WHITE, BLUE);
     clrtoeol();
-    sprintf(buf, "%-*s", 79, " MBSE BBS Chat Server");
+    snprintf(buf, 200, "%-*s", 79, " MBSE BBS Chat Server");
     mvprintw(1, 1, buf);
 
-    sprintf(buf, "CCON,4,%d,%s,%s,0;", mypid, exitinfo.sUserName, exitinfo.Name);
+    snprintf(buf, 200, "CCON,4,%d,%s,%s,0;", mypid, exitinfo.sUserName, exitinfo.Name);
     Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strncpy(buf, socket_receive(), sizeof(buf)-1);
@@ -218,7 +218,7 @@ void Chat(char *username, char *channel)
     locate(exitinfo.iScreenLen - 2, 1);
     colour(WHITE, BLUE);
     clrtoeol();
-    sprintf(buf, "%-*s", 79, " Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
+    snprintf(buf, 200, "%-*s", 79, " Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
     mvprintw(exitinfo.iScreenLen - 2, 1, buf);
 
     colour(LIGHTGRAY, BLACK);
@@ -231,10 +231,10 @@ void Chat(char *username, char *channel)
      * commands to the chatserver.
      */
     if (username && channel) {
-	sprintf(buf, "CPUT:2,%d,/nick %s;", mypid, username);
+	snprintf(buf, 200, "CPUT:2,%d,/nick %s;", mypid, username);
 	if (socket_send(buf) == 0)
 	    strcpy(buf, socket_receive());
-	sprintf(buf, "CPUT:2,%d,/join %s;", mypid, channel);
+	snprintf(buf, 200, "CPUT:2,%d,/join %s;", mypid, channel);
 	if (socket_send(buf) == 0)
 	    strcpy(buf, socket_receive());
     }
@@ -249,7 +249,7 @@ void Chat(char *username, char *channel)
 	 */
 	data = TRUE;
 	while (data) {
-	    sprintf(buf, "CGET:1,%d;", mypid);
+	    snprintf(buf, 200, "CGET:1,%d;", mypid);
 	    if (socket_send(buf) == 0) {
 		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
@@ -303,7 +303,7 @@ void Chat(char *username, char *channel)
 	    }
 	} else if ((ch == '\r') && curpos) {
 	    alarm_on();
-	    sprintf(buf, "CPUT:2,%d,%s;", mypid, sbuf);
+	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, sbuf);
 	    Syslog('c', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
@@ -336,7 +336,7 @@ void Chat(char *username, char *channel)
      */
     data = TRUE;
     while (data) {
-	sprintf(buf, "CGET:1,%d;", mypid);
+	snprintf(buf, 200, "CGET:1,%d;", mypid);
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
@@ -366,7 +366,7 @@ void Chat(char *username, char *channel)
 	 */
 
 	/* *** Sysop has terminated chat *** */
-	sprintf(buf, "%s", (char *) Language(60));
+	snprintf(buf, 200, "%s", (char *) Language(60));
 	DispMsg(buf);
 	Syslog('+', "Sysop chat ended");
 	chat_with_sysop = FALSE;
@@ -377,7 +377,7 @@ void Chat(char *username, char *channel)
     /*
      * Close server connection
      */
-    sprintf(buf, "CCLO,1,%d;", mypid);
+    snprintf(buf, 200, "CCLO,1,%d;", mypid);
     Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
