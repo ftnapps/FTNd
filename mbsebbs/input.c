@@ -352,7 +352,7 @@ void GetstrP(char *sStr, int iMaxLen, int Position)
 	} else if ((ch > 31 && ch < 127) || traduce(&ch)) {
 	    if (iPos <= iMaxLen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxLen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 	    } else {
 		PUTCHAR('\007');
@@ -393,7 +393,7 @@ void GetstrC(char *sStr, int iMaxlen)
 	if ((ch > 31) && (ch < 127) && (ch != ',')) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 	    } else
 		PUTCHAR('\007');
@@ -433,7 +433,7 @@ void GetstrU(char *sStr, int iMaxlen)
 	if (isalnum(ch) || (ch == '@') || (ch == '.') || (ch == '-') || (ch == '_')) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 	    } else
 		PUTCHAR('\007');
@@ -474,7 +474,7 @@ void GetPhone(char *sStr, int iMaxlen)
 	if ((ch >= '0' && ch <= '9') || (ch == '-') || (ch == '+')) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 	    } else 
 		PUTCHAR('\007');
@@ -516,7 +516,7 @@ void Getnum(char *sStr, int iMaxlen)
 
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 	    } else
 		PUTCHAR('\007');
@@ -563,11 +563,11 @@ void GetDate(char *sStr, int iMaxlen)
 	if (ch >= '0' && ch <= '9') {
 	    if (iPos < iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 		if (iPos == 2 || iPos == 5) {
 		    PUTCHAR('-');
-		    sprintf(sStr, "%s-", sStr);
+		    snprintf(sStr, iMaxlen, "%s-", sStr);
 		    iPos++;
 		}
 	    } else
@@ -628,7 +628,7 @@ void Getname(char *sStr, int iMaxlen)
 				if (iPos == 1 && CFG.iCapUserName)
 					ch = toupper(ch);
 
-				sprintf(sStr, "%s%c", sStr, ch);
+				snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 				printf("%c", ch);
 			} else
 				putchar('\007');
@@ -688,7 +688,7 @@ void GetnameNE(char *sStr, int iMaxlen)
 		if (iPos == 1)
 		    ch = toupper(ch);
 
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		printf("%c", ch);
 	    } else
 		putchar('\007');
@@ -755,7 +755,7 @@ void Pause()
     string = malloc(81);
 
     /* Press (Enter) to continue: */
-    sprintf(string, "\r%s", (char *) Language(375));
+    snprintf(string, 81, "\r%s", (char *) Language(375));
     colour(CFG.CRColourF, CFG.CRColourB);
     PUTSTR(string);
     

@@ -4,7 +4,7 @@
  * Purpose ...............: Language functions.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -67,7 +67,7 @@ int Keystroke(int lRecord, int Pos)
 	char	temp[30];
 
 	memset(&temp, 0, sizeof(temp));
-	sprintf(temp, "%s", *(mKeystroke + lRecord));
+	snprintf(temp, 30, "%s", *(mKeystroke + lRecord));
 
 	if ((Pos < 0) || (Pos > strlen(temp))) {
 		WriteError("Keystroke(%d, %d): Range Error", lRecord, Pos);
@@ -88,7 +88,7 @@ void Set_Language(int iLanguage)
     char    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
 
     if ((pLang = fopen(temp, "rb")) == NULL) {
 	WriteError("Language: Can't open file: %s", temp);
@@ -126,7 +126,7 @@ void InitLanguage()
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/etc/%s", getenv("MBSE_ROOT"), CFG.current_language);
+    snprintf(temp, PATH_MAX, "%s/etc/%s", getenv("MBSE_ROOT"), CFG.current_language);
     if ((pLang = fopen(temp, "rb")) == NULL) {
 	WriteError("$FATAL: Can't open %s", temp);
 	ExitClient(MBERR_INIT_ERROR);
