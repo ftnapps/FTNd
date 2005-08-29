@@ -4,7 +4,7 @@
  * Purpose ...............: Edit message signature.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -115,7 +115,7 @@ int loadsignature(void)
     int	    i;
 
     temp  = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
 
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't load %s", temp);
@@ -142,7 +142,7 @@ int loadsignature(void)
 
     toprow();
     for (i = 0; i < MAXSIGLINES; i++) {
-	sprintf(temp, "%d:", i+1);
+	snprintf(temp, 80, "%d:", i+1);
 	pout(LIGHTRED, BLACK, temp);
 	poutCR(CFG.MoreF, CFG.MoreB, sLiNE[i]);
     }
@@ -164,7 +164,7 @@ int editsignature(void)
 
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
 
     while (TRUE) {
 	Enter(1);
@@ -193,7 +193,7 @@ int editsignature(void)
 	} else if (i == Keystroke(114, 2)) {
 	    Enter(1);
 	    /* Edit which line: */
-	    sprintf(temp, " %s", (char *) Language(118));
+	    snprintf(temp, 80, " %s", (char *) Language(118));
 	    pout(CFG.HiliteF, CFG.HiliteB, temp);
 	    colour(CFG.InputColourF, CFG.InputColourB);
 	    GetstrC(temp, 3);
@@ -210,7 +210,7 @@ int editsignature(void)
 	    }
 
 	    x = strlen(sLiNE[i-1]);
-	    sprintf(temp, "%d:", i);
+	    snprintf(temp, 80, "%d:", i);
 	    pout(LIGHTRED, BLACK, temp);
 	    pout(CFG.InputColourF, CFG.InputColourB, sLiNE[i-1]);
 	    GetstrP(sLiNE[i-1], LENSIGLINES-1, x);
@@ -219,7 +219,7 @@ int editsignature(void)
 	    /* List lines */
 	    toprow();
 	    for (i = 0; i < MAXSIGLINES; i++) {
-		sprintf(temp, "%d:", i+1);
+		snprintf(temp, 80, "%d:", i+1);
 		pout(LIGHTRED, BLACK, temp);
 		poutCR(CFG.MoreF, CFG.MoreB, sLiNE[i]);
 	    }
@@ -231,7 +231,7 @@ int editsignature(void)
 	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(340));
 
 	    /* Open TextFile for Writing NextUser Info */
-	    sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
+	    snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
 	    if ((fp = fopen(temp, "w")) == NULL) {
 		WriteError("$Can't open %s", temp);
 		free(temp);
@@ -271,7 +271,7 @@ int editsignature(void)
 	    Enter(1);
 	    /* Line reads: */
 	    poutCR(CFG.MoreF, CFG.MoreB, (char *) Language(186));
-	    sprintf(temp, "%d:%s", i, sLiNE[i-1]);
+	    snprintf(temp, 81, "%d:%s", i, sLiNE[i-1]);
 	    poutCR(CFG.MoreF, CFG.MoreB, temp);
 
 	    Enter(1);

@@ -4,7 +4,7 @@
  * Purpose ...............: Oneliner functions.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -50,7 +50,7 @@ void Oneliner_Check()
     char    *sFileName;
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r")) == NULL) {
 	if ((pOneline = fopen(sFileName, "w")) != NULL) {
@@ -80,7 +80,7 @@ void Oneliner_Add()
     Oneliner_Check();
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName,"%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((pOneline = fopen(sFileName, "a+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName); 
@@ -124,8 +124,8 @@ void Oneliner_Add()
     Syslog('!', "User added oneliner:");
     Syslog('!', ol.Oneline);
 		
-    sprintf(ol.UserName,"%s", exitinfo.sUserName);
-    sprintf(ol.DateOfEntry,"%02d-%02d-%04d",l_date->tm_mday,l_date->tm_mon+1,l_date->tm_year+1900);
+    snprintf(ol.UserName,36,"%s", exitinfo.sUserName);
+    snprintf(ol.DateOfEntry,12,"%02d-%02d-%04d",l_date->tm_mday,l_date->tm_mon+1,l_date->tm_year+1900);
     ol.Available = TRUE;
 
     fwrite(&ol, sizeof(ol), 1, pOneline);
@@ -197,7 +197,7 @@ char *Oneliner_Get()
      * Get a random oneliner
      */
     sFileName = calloc(128, sizeof(char));
-    sprintf(sFileName,"%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
@@ -251,7 +251,7 @@ void Oneliner_List()
 	                                                                                  
     clear();
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName,"%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
@@ -272,23 +272,23 @@ void Oneliner_List()
 
     while (fread(&ol, olhdr.recsize, 1, pOneline) == 1) {
 	if ((SYSOP == TRUE) || (exitinfo.Security.level >= CFG.sysop_access)) {
-	    sprintf(msg, "%2d", recno);
+	    snprintf(msg, 81, "%2d", recno);
 	    pout(WHITE, BLACK, msg);
 
-	    sprintf(msg, "%2d ", ol.Available);
+	    snprintf(msg, 81, "%2d ", ol.Available);
 	    pout(LIGHTBLUE, BLACK, msg);
 
 	    pout(LIGHTCYAN, BLACK, ol.DateOfEntry);
 
-	    sprintf(msg, "%-15s ", ol.UserName);
+	    snprintf(msg, 81, "%-15s ", ol.UserName);
 	    pout(CYAN, BLACK, msg);
 
-	    sprintf(msg, "%-.48s", ol.Oneline);
+	    snprintf(msg, 81, "%-.48s", ol.Oneline);
 	    poutCR(Colour, BLACK, msg);
 	} else {
-	    sprintf(msg, "%2d ", recno);
+	    snprintf(msg, 81, "%2d ", recno);
 	    pout(WHITE, BLACK, msg);
-	    sprintf(msg, "%-.76s", ol.Oneline);
+	    snprintf(msg, 81, "%-.76s", ol.Oneline);
 	    poutCR(Colour, BLACK, msg);
 	}
 
@@ -313,7 +313,7 @@ void Oneliner_Show()
     char    *sFileName, msg[11];
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName,"%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
@@ -334,7 +334,7 @@ void Oneliner_Show()
     fread(&ol, olhdr.recsize, 1, pOneline);
 
     Enter(1);
-    sprintf(msg, "%d ", recno);
+    snprintf(msg, 11, "%d ", recno);
     pout(WHITE, BLACK, msg);
     pout(LIGHTRED, BLACK, ol.Oneline);
     Enter(2);
@@ -354,7 +354,7 @@ void Oneliner_Delete()
     char    srecno[7], *sFileName, stemp[50], sUser[36], msg[81];
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName,"%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
@@ -398,16 +398,16 @@ void Oneliner_Delete()
 	fread(&ol, olhdr.recsize, 1, pOneline);
 
 	/* Convert Record Int to string, so we can print to logfiles */
-	sprintf(stemp,"%d", nrecno);
+	snprintf(stemp,50,"%d", nrecno);
 
 	/* Print UserName to String, so we can compare for deletion */
-	sprintf(sUser,"%s", exitinfo.sUserName);
+	snprintf(sUser,36,"%s", exitinfo.sUserName);
 
 	if ((strcmp(sUser, ol.UserName)) != 0) {
 	    if ((!SYSOP) && (exitinfo.Security.level < CFG.sysop_access)) {
 		Enter(1);
 		/* Record *//* does not belong to you.*/
-		sprintf(msg, "%s%s %s", (char *) Language(332), stemp, (char *) Language(333));
+		snprintf(msg, 81, "%s%s %s", (char *) Language(332), stemp, (char *) Language(333));
 		pout(LIGHTRED, BLACK, msg);
 		Enter(2);
 		Syslog('!', "User tried to delete somebody else's record: %s", stemp);
@@ -420,13 +420,13 @@ void Oneliner_Delete()
 	Enter(1);
 	if ((ol.Available ) == FALSE) {
 	    /* Record: %d already marked for deletion			*/
-	    sprintf(msg, "%s%d %s", (char *) Language(332), nrecno, (char *) Language(334));
+	    snprintf(msg, 81, "%s%d %s", (char *) Language(332), nrecno, (char *) Language(334));
 	    pout(LIGHTRED, BLACK, msg);
 	    Syslog('!', "User tried to mark an already marked record: %s", stemp);
 	} else {
 	    ol.Available = FALSE;
 	    /* Record *//* marked for deletion */
-	    sprintf(msg, "%s%d %s", (char *) Language(332), nrecno, (char *) Language(334));
+	    snprintf(msg, 81, "%s%d %s", (char *) Language(332), nrecno, (char *) Language(334));
 	    pout(LIGHTGREEN, BLACK, msg);
 	    Syslog('+', "User marked oneliner record for deletion: %s", stemp);
 	}

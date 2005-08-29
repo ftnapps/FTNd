@@ -235,8 +235,8 @@ void OLR_TagArea()
     Tagname = calloc(PATH_MAX, sizeof(char));
     buf     = calloc(81,  sizeof(char));
 
-    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
     /*      Tag Offline Reader message areas */
@@ -269,12 +269,12 @@ void OLR_TagArea()
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && (!olrtagrec.Tagged) && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
-				sprintf(msg, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+				snprintf(msg, 81, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
 				poutCR(CYAN, BLACK, msg);
 			    }
 			    if (lines == 0) {
 				/* More (Y/n/=) */
-				sprintf(msg, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
+				snprintf(msg, 81, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
 				pout(WHITE, BLACK, msg);
 				alarm_on();
 				input = toupper(Readkey());
@@ -375,8 +375,8 @@ void OLR_UntagArea()
     Tagname = calloc(PATH_MAX, sizeof(char));
     buf	= calloc(81,  sizeof(char));
 
-    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
     /*      Untag Offline Reader message areas */
@@ -409,12 +409,12 @@ void OLR_UntagArea()
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && olrtagrec.Tagged && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
-				sprintf(msg, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+				snprintf(msg, 81, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
 				poutCR(CYAN, BLACK, msg);
 			    }
 			    if (lines == 0) {
 				/* More (Y/n/=) */
-				sprintf(msg, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
+				snprintf(msg, 81, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
 				pout(WHITE, BLACK, msg);
 				alarm_on();
 				input = toupper(Readkey());
@@ -516,12 +516,12 @@ void New_Hdr()
     clear();
     colour(YELLOW, BLACK);
     /* New or deleted mail areas at */
-    sprintf(temp, "%s%s", (char *) Language(364), CFG.bbs_name);
+    snprintf(temp, 128, "%s%s", (char *) Language(364), CFG.bbs_name);
     Center(temp);
     Enter(1);
     colour(WHITE, BLUE);
     /* Area  State  Type     Description */
-    sprintf(temp, "%-79s", (char *) Language(365));
+    snprintf(temp, 128, "%-79s", (char *) Language(365));
     poutCR(WHITE, BLUE, temp);
     free(temp);
 }
@@ -534,7 +534,7 @@ void New_Area(long Area)
     char    msg[81];
 
     	/*    New    */
-    sprintf(msg, "%4ld  %s", Area, (char *)Language(391));
+    snprintf(msg, 81, "%4ld  %s", Area, (char *)Language(391));
     pout(LIGHTCYAN, BLACK, msg);
 
     switch (msgs.Type) {
@@ -560,7 +560,7 @@ void Old_Area(long Area)
     char    msg[81];
 
     /*            Del */
-    sprintf(msg, "%4ld  %s", Area, (char *)Language(397));
+    snprintf(msg, 81, "%4ld  %s", Area, (char *)Language(397));
     poutCR(LIGHTRED, BLACK, msg);
 }
 
@@ -579,8 +579,8 @@ void OLR_SyncTags()
 
     Tagname = calloc(PATH_MAX, sizeof(char));
     Msgname = calloc(PATH_MAX, sizeof(char));
-    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
     if ((fp = fopen(Tagname, "r+")) == NULL) {
 
@@ -721,8 +721,8 @@ void OLR_ViewTags()
 
     Tagname = calloc(PATH_MAX, sizeof(char));
     Msgname = calloc(PATH_MAX, sizeof(char));
-    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
     if ((tf = fopen(Tagname, "r")) == NULL) {
 	WriteError("$Can't open %s", Tagname);
@@ -762,13 +762,13 @@ void OLR_ViewTags()
 		total = 0;
 	    if ( (lines != 0) || (ignore) ) {
 		lines--;
-		sprintf(msg, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+		snprintf(msg, 81, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
 		PUTSTR(msg);
 		Enter(1);
 	    }
 	    if (lines == 0) {
 		/* More (Y/n/=) */
-		sprintf(msg, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
+		snprintf(msg, 81, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
 		pout(WHITE, BLACK, msg);
 		alarm_on();
 		input = toupper(Readkey());
@@ -819,11 +819,11 @@ int OLR_Prescan()
 	check_popmail(exitinfo.Name, exitinfo.Password);
 
     Temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     mf = fopen(Temp, "r");
     fread(&msgshdr, sizeof(msgshdr), 1, mf);
 
-    sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
     tf = fopen(Temp, "r");
     Total = TotalPersonal = Areas = 0;
 
@@ -840,7 +840,7 @@ int OLR_Prescan()
 	    if (Msg_Open(msgs.Base)) {
 		Areas++;
 		Current = Personal = 0;
-		sprintf(msg, "%-20.20s %-41.41s ", msgs.QWKname, msgs.Name);
+		snprintf(msg, 81, "%-20.20s %-41.41s ", msgs.QWKname, msgs.Name);
 		pout(LIGHTCYAN, BLACK, msg);
 
 		memset(&LR, 0, sizeof(LR));
@@ -866,7 +866,7 @@ int OLR_Prescan()
 		    } while (Msg_Next(&Number));
 		}
 
-		sprintf(msg, "%5lu %5lu", Current, Personal);
+		snprintf(msg, 81, "%5lu %5lu", Current, Personal);
 		poutCR(LIGHTGREEN, BLACK, msg);
 		Msg_Close();
 	    }
@@ -877,7 +877,7 @@ int OLR_Prescan()
 
     Enter(1);
     /*        Total messages found: */
-    sprintf(msg, "%s %lu", (char *)Language(338), Total);
+    snprintf(msg, 81, "%s %lu", (char *)Language(338), Total);
     pout(LIGHTBLUE, BLACK, msg);
     Enter(2);
 
@@ -889,7 +889,7 @@ int OLR_Prescan()
     } else {
 	if (CFG.OLR_MaxMsgs != 0 && Total > CFG.OLR_MaxMsgs) {
 	    /*      Too much messages. Only the first    will be packed! */
-	    sprintf(msg, "%s %d %s", (char *)Language(377), CFG.OLR_MaxMsgs, (char *)Language(411));
+	    snprintf(msg, 81, "%s %d %s", (char *)Language(377), CFG.OLR_MaxMsgs, (char *)Language(411));
 	    PUTCHAR('\007');
 	    Enter(2);
 	    Total = CFG.OLR_MaxMsgs;
@@ -927,7 +927,7 @@ void DrawBar(char *Pktname)
 
     Enter(1);
     /*        Preparing packet */
-    sprintf(msg, "%s %s...", (char *)Language(445), Pktname);
+    snprintf(msg, 81, "%s %s...", (char *)Language(445), Pktname);
     pout(YELLOW, BLACK, msg);
     Enter(2);
     poutCR(LIGHTGREEN, BLACK, (char *)"0%%    10%%  20%%   30%%   40%%   50%%   60%%   70%%   80%%   90%%   100%%");
@@ -985,8 +985,8 @@ void OLR_Upload(void)
     Home();
     Enter(1);
 
-    sprintf(Dirpath, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-    sprintf(Filename, "%s.NEW", CFG.bbsid);
+    snprintf(Dirpath, PATH_MAX, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Filename, 81, "%s.NEW", CFG.bbsid);
 
     if (!RetVal) {
 	RetVal = getfilecase(Dirpath, Filename);
@@ -994,7 +994,7 @@ void OLR_Upload(void)
     }
 
     if (!RetVal) {
-	sprintf(Filename, "%s.REP", CFG.bbsid);
+	snprintf(Filename, 81, "%s.REP", CFG.bbsid);
 	RetVal = getfilecase(Dirpath, Filename);
 	Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
     }
@@ -1014,7 +1014,7 @@ void OLR_Upload(void)
     }
     tidy_upload(&up);
 
-    sprintf(File, "%s/%s", Dirpath, Filename);
+    snprintf(File, PATH_MAX, "%s/%s", Dirpath, Filename);
     Syslog('+', "Received OLR packet %s", File);
 
     if ((Arc = GetFileType(File)) == NULL) {
@@ -1028,7 +1028,7 @@ void OLR_Upload(void)
 
     Syslog('m', "File type is %s", Arc);
 
-    sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL)
 	return;
 
@@ -1055,7 +1055,7 @@ void OLR_Upload(void)
     /* Unpacking archive */
     pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(201));
     PUTCHAR(' ');
-    sprintf(temp, "%s %s", archiver.funarc, File);
+    snprintf(temp, PATH_MAX, "%s %s", archiver.funarc, File);
     Syslog('m', "Unarc %s", temp);
     colour(CFG.HiliteF, CFG.HiliteB);
 
@@ -1080,19 +1080,19 @@ void OLR_Upload(void)
      * Check for BlueWave files, case insensitive.
      */
     RetVal = FALSE;
-    sprintf(Dirpath, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
-    sprintf(Filename, "%s.UPL", CFG.bbsid);
+    snprintf(Dirpath, PATH_MAX, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Filename, 81, "%s.UPL", CFG.bbsid);
     RetVal = getfilecase(Dirpath, Filename);
     Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
 
     if (!RetVal) {
-	sprintf(Filename, "%s.REQ", CFG.bbsid);
+	snprintf(Filename, 81, "%s.REQ", CFG.bbsid);
 	RetVal = getfilecase(Dirpath, Filename);
 	Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
     }
 
     if (!RetVal) {
-	sprintf(Filename, "%s.OLC", CFG.bbsid);
+	snprintf(Filename, 81, "%s.OLC", CFG.bbsid);
 	RetVal = getfilecase(Dirpath, Filename);
 	Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
     }
@@ -1108,7 +1108,7 @@ void OLR_Upload(void)
     /*
      * Check for QWK packet
      */
-    sprintf(Filename, "%s.MSG", CFG.bbsid);
+    snprintf(Filename, 81, "%s.MSG", CFG.bbsid);
     RetVal = getfilecase(Dirpath, Filename);
     Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
 
@@ -1181,12 +1181,12 @@ void OLR_DownBW()
     tp = localtime(&Now);
     Syslog('+', "Preparing BlueWave packet");
 
-    sprintf(Pktname, "%s%s", CFG.bbsid , Extensions[tp->tm_wday]);
+    snprintf(Pktname, 32, "%s%s", CFG.bbsid , Extensions[tp->tm_wday]);
     Syslog('m', "Packet name %s", Pktname);
-    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
     Syslog('m', "Work path %s", Work);
 
-    sprintf(Temp, "%s/%s.INF", Work, CFG.bbsid);
+    snprintf(Temp, PATH_MAX, "%s/%s.INF", Work, CFG.bbsid);
     if ((fp = fopen(Temp, "w+")) == NULL) {
 	WriteError("$Can't create %s", Temp);
 	return;
@@ -1232,7 +1232,7 @@ void OLR_DownBW()
 	return;
     }
 
-    sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((mf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -1240,7 +1240,7 @@ void OLR_DownBW()
     }
     fread(&msgshdr, sizeof(msgshdr), 1, mf);
 
-    sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
     if ((tf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -1258,9 +1258,9 @@ void OLR_DownBW()
 
 	if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
 	    memset(&AreaInf, 0, sizeof(AreaInf));
-	    sprintf((char *)AreaInf.areanum, "%lu", Area);
-	    strcpy((char *)AreaInf.echotag, msgs.QWKname);
-	    strcpy((char *)AreaInf.title, msgs.Name);
+	    snprintf((char *)AreaInf.areanum, 6, "%lu", Area);
+	    strncpy((char *)AreaInf.echotag, msgs.QWKname, 21);
+	    strncpy((char *)AreaInf.title, msgs.Name, 50);
 	    if (olrtagrec.Tagged) {
 		AreaInf.area_flags |= INF_SCANNING;
 		RetVal = TRUE;
@@ -1356,7 +1356,7 @@ void OLR_DownBW()
 	Enter(1);
 	PUTSTR((char *)Language(446));
 	PUTCHAR(' ');
-	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
@@ -1364,16 +1364,16 @@ void OLR_DownBW()
 		    Syslog('+', "Archiver %s", archiver.comment);
 		    PUTSTR(archiver.comment);
 		    PUTCHAR(' ');
-		    sprintf(Temp, "%s/%s.DAT", Work, CFG.bbsid);
+		    snprintf(Temp, PATH_MAX, "%s/%s.DAT", Work, CFG.bbsid);
 		    AddArc(Temp, Pktname);
 		    alarm_on();
-		    sprintf(Temp, "%s/%s.FTI", Work, CFG.bbsid);
+		    snprintf(Temp, PATH_MAX, "%s/%s.FTI", Work, CFG.bbsid);
 		    AddArc(Temp, Pktname);
-		    sprintf(Temp, "%s/%s.INF", Work, CFG.bbsid);
+		    snprintf(Temp, PATH_MAX, "%s/%s.INF", Work, CFG.bbsid);
 		    AddArc(Temp, Pktname);
-		    sprintf(Temp, "%s/%s.MIX", Work, CFG.bbsid);
+		    snprintf(Temp, PATH_MAX, "%s/%s.MIX", Work, CFG.bbsid);
 		    AddArc(Temp, Pktname);
-		    sprintf(Temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    Syslog('m', "Download result %d", rc);
 		    unlink(Temp);
@@ -1432,10 +1432,10 @@ void BlueWave_Fetch()
     /*
      *  Process uploaded mail
      */
-    sprintf(Dirpath, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
-    sprintf(Filename, "%s.UPL", CFG.bbsid);
+    snprintf(Dirpath, PATH_MAX, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Filename, 81, "%s.UPL", CFG.bbsid);
     if (getfilecase(Dirpath, Filename)) {
-	sprintf(temp, "%s/%s", Dirpath, Filename);
+	snprintf(temp, PATH_MAX, "%s/%s", Dirpath, Filename);
 	up = fopen(temp, "r");
     }
     if (up != NULL) {
@@ -1494,7 +1494,7 @@ void BlueWave_Fetch()
 	    Syslog('m', "  File  : %s", Upr.filename);
 	    Syslog('m', "  Tag   : %s", Upr.echotag);
 
-	    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	    if ((mf = fopen(temp, "r+")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, mf);
 		Found = FALSE;
@@ -1546,7 +1546,7 @@ void BlueWave_Fetch()
 			    dest.point = Upr.destpoint;
 			    Add_Kludges(dest, FALSE, Upr.filename);
 			    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
-			    sprintf(temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Upr.filename);
+			    snprintf(temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Upr.filename);
 			    unlink(temp);
 			    i++;
 			    fseek(mf, - (msgshdr.recsize + msgshdr.syssize), SEEK_CUR);
@@ -1561,7 +1561,7 @@ void BlueWave_Fetch()
 			     * Add quick mailscan info
 			     */
 			    if (msgs.Type != LOCALMAIL) {
-				sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
+				snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
 					((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 				if ((fp = fopen(temp, "a")) != NULL) {
 				    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
@@ -1573,7 +1573,7 @@ void BlueWave_Fetch()
 		    } else {
 			Enter(1);
 			/*        No Write access to area */
-			sprintf(temp, "%s %s", (char *)Language(453), msgs.Name);
+			snprintf(temp, PATH_MAX, "%s %s", (char *)Language(453), msgs.Name);
 			poutCR(LIGHTRED, BLACK, temp);
 			WriteError("No Write Access to area %s", msgs.Name);
 		    }
@@ -1585,7 +1585,7 @@ void BlueWave_Fetch()
 	Enter(1);
 	if (i) {
 	    /*         Messages imported */
-	    sprintf(temp, "%d %s", i, (char *)Language(454));
+	    snprintf(temp, PATH_MAX, "%d %s", i, (char *)Language(454));
 	    poutCR(CFG.TextColourF, CFG.TextColourB, temp);
 	    ReadExitinfo();
 	    exitinfo.iPosted += i;
@@ -1593,7 +1593,7 @@ void BlueWave_Fetch()
 	    do_mailout = TRUE;
 	}
 	fclose(up);
-	sprintf(temp, "%s/%s", Dirpath, Filename);
+	snprintf(temp, PATH_MAX, "%s/%s", Dirpath, Filename);
 	unlink(temp);
     }
 
@@ -1605,9 +1605,9 @@ void BlueWave_Fetch()
     /*
      *  Process offline configuration
      */
-    sprintf(Filename, "%s.OLC", CFG.bbsid);
+    snprintf(Filename, 81, "%s.OLC", CFG.bbsid);
     if (getfilecase(Dirpath, Filename)) {
-	sprintf(temp, "%s/%s", Dirpath, Filename);
+	snprintf(temp, PATH_MAX, "%s/%s", Dirpath, Filename);
 	iol = fopen(temp, "r");
     }
     if (iol != NULL) {
@@ -1651,9 +1651,9 @@ void BlueWave_Fetch()
 			     * There are areachanges, first reset all areas.
 			     */
 			    Syslog('m', "Resetting all areas");
-			    sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+			    snprintf(temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 			    if ((up = fopen(temp, "r+")) != NULL) {
-				sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 				if ((mf = fopen(temp, "r")) != NULL) {
 				    fread(&msgshdr, sizeof(msgshdr), 1, mf);
 				    while (fread(&olrtagrec, sizeof(olrtagrec), 1, up) == 0) {
@@ -1718,9 +1718,9 @@ void BlueWave_Fetch()
 			buffer++;
 		    if ((strncasecmp(buffer,"All",3)==0) || (strncasecmp(buffer,"Pers",4)==0)) {
 			if (strlen(Echotag) > 0) {
-			    sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+			    snprintf(temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 			    if ((up = fopen(temp, "r+")) != NULL) {
-				sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 				if ((mf = fopen(temp, "r")) != NULL) {
 				    fread(&msgshdr, sizeof(msgshdr), 1, mf);
 				    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
@@ -1746,10 +1746,10 @@ void BlueWave_Fetch()
 	    }
 	}
 	fclose(iol);
-	sprintf(temp, "%s/%s", Dirpath, Filename);
+	snprintf(temp, PATH_MAX, "%s/%s", Dirpath, Filename);
 	unlink(temp);
 	/*         Message areas selected */
-	sprintf(temp, "%d %s", i, (char *)Language(456));
+	snprintf(temp, PATH_MAX, "%d %s", i, (char *)Language(456));
 	poutCR(CYAN, BLACK, temp);
 	Syslog('+', "  %d active message areas.", i);
     }
@@ -1757,7 +1757,7 @@ void BlueWave_Fetch()
     /*
      *  Check for .REQ file.
      */
-    sprintf(Filename, "%s.REQ", CFG.bbsid);
+    snprintf(Filename, 81, "%s.REQ", CFG.bbsid);
     if (getfilecase(Dirpath, Filename)) {
 	tp = fopen(temp, "r");
     }
@@ -1770,7 +1770,7 @@ void BlueWave_Fetch()
 
 	while (fread(&Req, sizeof(REQ_REC), 1, tp) == 1) {
 	    Syslog('m', "  File %s", Req.filename);
-	    sprintf(temp, "%-12s ", Req.filename);
+	    snprintf(temp, PATH_MAX, "%-12s ", Req.filename);
 	    pout(CFG.TextColourF, CFG.TextColourB, temp);
 	    colour(CFG.HiliteF, CFG.HiliteB);
 
@@ -1803,17 +1803,17 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
     Number = ulLast;
     Temp = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(Temp, "%s/%s/tmp/%s.FTI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.FTI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
     fdfti = fopen(Temp, "a+");
 
-    sprintf(Temp, "%s/%s/tmp/%s.MIX", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.MIX", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
     fdmix = fopen(Temp, "a+");
 
-    sprintf(Temp, "%s/%s/tmp/%s.DAT", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.DAT", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
     fdm = fopen(Temp, "a+");
 
     memset(&Mix, 0, sizeof(MIX_REC));
-    sprintf((char *)Mix.areanum, "%lu", Area);
+    snprintf((char *)Mix.areanum, 6, "%lu", Area);
     Mix.msghptr = ftell(fdfti);
 
     if ((fdfti != NULL) && (fdmix != NULL) && (fdm != NULL)) {
@@ -1847,7 +1847,7 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 		    Msg.Subject[sizeof(Fti.subject) - 1] = '\0';
 		    strcpy((char *)Fti.subject, Msg.Subject);
 		    tp = localtime(&Msg.Written);
-		    sprintf((char *)Fti.date, "%2d %.3s %2d %2d:%02d:%02d", tp->tm_mday, 
+		    snprintf((char *)Fti.date, 20, "%2d %.3s %2d %2d:%02d:%02d", tp->tm_mday, 
 			    (char *) Language(398 + tp->tm_mon), tp->tm_year, tp->tm_hour, tp->tm_min, tp->tm_sec);
 		    Fti.msgnum = Number;
 		    Fti.msgptr = ftell(fdm);
@@ -1876,7 +1876,7 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 
 		if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 		    BarWidth = (unsigned short)((Total * 61L) / TotalPack);
-		    sprintf(msg, "\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
+		    snprintf(msg, 81, "\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
 		    pout(CYAN, BLACK, msg);
 		}
 	    } while (Msg_Next(&Number));
@@ -1942,13 +1942,13 @@ void OLR_DownQWK(void)
     tp = localtime(&Now);
     Syslog('+', "Preparing QWK packet");
 
-    sprintf(Temp, "%s.QWK", CFG.bbsid);
-    sprintf(Pktname, "%s", tl(Temp));
+    snprintf(Temp, PATH_MAX, "%s.QWK", CFG.bbsid);
+    snprintf(Pktname, 32, "%s", tl(Temp));
     Syslog('m', "Packet name %s", Pktname);
-    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
     Syslog('m', "Work path %s", Work);
 
-    sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((mf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -1958,7 +1958,7 @@ void OLR_DownQWK(void)
     }
     fread(&msgshdr, sizeof(msgshdr), 1, mf);
 
-    sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
     if ((tf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -2001,7 +2001,7 @@ void OLR_DownQWK(void)
 	}
     }
 
-    sprintf(Temp, "%s/CONTROL.DAT", Work);
+    snprintf(Temp, PATH_MAX, "%s/CONTROL.DAT", Work);
     if ((fp = fopen(Temp, "w+")) != NULL) {
 	fprintf(fp, "%s\n", CFG.bbs_name);
 	fprintf(fp, "%s\n", CFG.location);
@@ -2011,7 +2011,7 @@ void OLR_DownQWK(void)
 		
 	fprintf(fp, "%02d-%02d-%04d,%02d:%02d:%02d\n", tp->tm_mday, tp->tm_mon+1, tp->tm_year+1900, 
 				tp->tm_hour, tp->tm_min, tp->tm_sec);
-	sprintf(Temp, "%s", exitinfo.sUserName);
+	snprintf(Temp, PATH_MAX, "%s", exitinfo.sUserName);
 	fprintf(fp, "%s\n", tu(Temp));
 	fprintf(fp, " \n");
 	fprintf(fp, "0\n");
@@ -2050,7 +2050,7 @@ void OLR_DownQWK(void)
 	fclose(fp);	
     }
 
-    sprintf(Temp, "%s/DOOR.ID", Work);
+    snprintf(Temp, PATH_MAX, "%s/DOOR.ID", Work);
     if ((fp = fopen(Temp, "w+")) != 0) {
 	fprintf(fp, "DOOR = MBSE BBS QWK\n");
 	fprintf(fp, "VERSION = %s\n", VERSION);
@@ -2079,7 +2079,7 @@ void OLR_DownQWK(void)
 	/*        Packing with */
 	PUTSTR((char *)Language(446));
 	PUTCHAR(' ');
-	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
@@ -2087,26 +2087,26 @@ void OLR_DownQWK(void)
 		    Syslog('+', "Archiver %s", archiver.comment);
 		    PUTSTR(archiver.comment);
 		    PUTCHAR(' ');
-		    sprintf(Temp, "%s/CONTROL.DAT", Work);
+		    snprintf(Temp, PATH_MAX, "%s/CONTROL.DAT", Work);
 		    AddArc(Temp, Pktname);
 		    alarm_on();
-		    sprintf(Temp, "%s/MESSAGES.DAT", Work);
+		    snprintf(Temp, PATH_MAX, "%s/MESSAGES.DAT", Work);
 		    AddArc(Temp, Pktname);
 
 		    for (tmp = mhl; tmp; tmp = tmp->next) {
-			sprintf(Temp, "%s/%03ld.NDX", Work, tmp->Area);
+			snprintf(Temp, PATH_MAX, "%s/%03ld.NDX", Work, tmp->Area);
 			AddArc(Temp, Pktname);
 		    }
 
-		    sprintf(Temp, "%s/PERSONAL.NDX", Work);
+		    snprintf(Temp, PATH_MAX, "%s/PERSONAL.NDX", Work);
 		    if (TotalPersonal) {
 			AddArc(Temp, Pktname);
 		    } else
 			unlink(Temp);
 
-		    sprintf(Temp, "%s/DOOR.ID", Work);
+		    snprintf(Temp, PATH_MAX, "%s/DOOR.ID", Work);
 		    AddArc(Temp, Pktname);
-		    sprintf(Temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    Syslog('m', "Download result %d", rc);
 		    unlink(Temp);
@@ -2159,10 +2159,10 @@ void QWK_Fetch()
     otemp = calloc(PATH_MAX, sizeof(char));
     nWidth = 78;
 
-    sprintf(Dirpath, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
-    sprintf(Filename, "%s.MSG", CFG.bbsid);
+    snprintf(Dirpath, PATH_MAX, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Filename, 81, "%s.MSG", CFG.bbsid);
     if (getfilecase(Dirpath, Filename)) {
-	sprintf(temp, "%s/%s", Dirpath, Filename);
+	snprintf(temp, PATH_MAX, "%s/%s", Dirpath, Filename);
         up = fopen(temp, "r");
     }
 
@@ -2196,15 +2196,15 @@ void QWK_Fetch()
 		Syslog('m', "To         %s", tlcap(StripSpaces(Qwk.MsgTo, sizeof(Qwk.MsgTo))));
 		Syslog('m', "From       %s", tlcap(StripSpaces(Qwk.MsgFrom, sizeof(Qwk.MsgFrom))));
 		Syslog('m', "Subject    %s", StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
-		sprintf(Temp, "%s", StripSpaces(Qwk.Msgdate, sizeof(Qwk.Msgdate)));
+		snprintf(Temp, 128, "%s", StripSpaces(Qwk.Msgdate, sizeof(Qwk.Msgdate)));
 		Syslog('m', "Date       %s %s", Temp, StripSpaces(Qwk.Msgtime, sizeof(Qwk.Msgtime)));
 
 		if (strcmp("MBSEQWK", StripSpaces(Qwk.MsgTo, sizeof(Qwk.MsgTo))) == 0) {
 		    Syslog('m', "Command %s", StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
-		    sprintf(otemp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+		    snprintf(otemp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 		    if ((op = fopen(otemp, "r+")) != NULL) {
 
-			sprintf(otemp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+			snprintf(otemp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 			if ((mf = fopen(otemp, "r")) != NULL) {
 			    fread(&msgshdr, sizeof(msgshdr), 1, mf);
 			    fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
@@ -2241,7 +2241,7 @@ void QWK_Fetch()
 		     */
 		    Syslog('m', "Message");
 		    HasTear = FALSE;
-		    sprintf(otemp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    snprintf(otemp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		    if ((mf = fopen(otemp, "r+")) != NULL) {
 			fread(&msgshdr, sizeof(msgshdr), 1, mf);
 			if ((fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET) == 0) &&
@@ -2361,7 +2361,7 @@ void QWK_Fetch()
 				     * Add quick mailscan info
 				     */
 				    if (msgs.Type != LOCALMAIL) {
-					sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
+					snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
 					    ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 					if ((fp = fopen(temp, "a")) != NULL) {
 					    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
@@ -2390,14 +2390,14 @@ void QWK_Fetch()
     Enter(1);
     if (nPosted) {
 	/*         Messages imported */
-	sprintf(temp, "%d %s", nPosted, (char *)Language(454));
+	snprintf(temp, 81, "%d %s", nPosted, (char *)Language(454));
 	poutCR(CFG.TextColourF, CFG.TextColourB, temp);
 	ReadExitinfo();
 	exitinfo.iPosted += nPosted;
 	WriteExitinfo();
 	do_mailout = TRUE;
     }
-    sprintf(temp, "%s/%s", Dirpath, Filename);
+    snprintf(temp, PATH_MAX, "%s/%s", Dirpath, Filename);
     Syslog('m', "Unlink %s rc=%d", temp, unlink(temp));
     free(temp);
     free(otemp);
@@ -2462,19 +2462,19 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 
     Temp = calloc(PATH_MAX, sizeof(char));
     Work = calloc(PATH_MAX, sizeof(char));
-    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-    sprintf(Temp, "%s/%03ld.NDX", Work, Area);
+    snprintf(Temp, PATH_MAX, "%s/%03ld.NDX", Work, Area);
     fdi = fopen(Temp, "a+");
 
-    sprintf(Temp, "%s/PERSONAL.NDX", Work);
+    snprintf(Temp, PATH_MAX, "%s/PERSONAL.NDX", Work);
     fdp = fopen(Temp, "a+");
 
     /*
      * Open MESSAGES.DAT, if it doesn't exist, create it and write
      * the header. Then reopen the file in r/w mode.
      */
-    sprintf(Temp, "%s/MESSAGES.DAT", Work);
+    snprintf(Temp, PATH_MAX, "%s/MESSAGES.DAT", Work);
     if ((fdm = fopen (Temp, "r+")) == NULL) {
 	Syslog('m', "Creating new %s", Temp);
 	fdm = fopen(Temp, "a+");
@@ -2488,7 +2488,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 	memset(Temp, ' ', 54);
 	fwrite(Temp, 54, 1, fdm);
 	fclose(fdm);
-	sprintf(Temp, "%s/MESSAGES.DAT", Work);
+	snprintf(Temp, PATH_MAX, "%s/MESSAGES.DAT", Work);
 	fdm = fopen(Temp, "r+");
     }
 
@@ -2520,7 +2520,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 		     */
                     Pos = ftell(fdm);
 		    Blocks = (Pos / 128L) + 1L;
-		    sprintf(Temp, "%lu", Blocks);
+		    snprintf(Temp, 6, "%lu", Blocks);
 		    in = atof(Temp);
 		    out = IEEToMSBIN(in);
 		    fwrite(&out, sizeof(float), 1, fdi);
@@ -2529,13 +2529,13 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 		    Total++;
 
 		    memset(&Qwk, ' ', sizeof(Qwk));
-		    sprintf(Temp, "%-*lu", (int)sizeof(Qwk.Msgnum), (long)Number);
+		    snprintf(Temp, 81, "%-*lu", (int)sizeof(Qwk.Msgnum), (long)Number);
 		    Syslog('M', "Message %s", Temp);
 		    memcpy(Qwk.Msgnum, Temp, sizeof(Qwk.Msgnum));
 		    tp = localtime(&Msg.Written);
-		    sprintf(Temp, "%02d-%02d-%02d", tp->tm_mon+1, tp->tm_mday, tp->tm_year % 100);
+		    snprintf(Temp, 81, "%02d-%02d-%02d", tp->tm_mon+1, tp->tm_mday, tp->tm_year % 100);
 		    memcpy(Qwk.Msgdate, Temp, sizeof(Qwk.Msgdate));
-		    sprintf(Temp, "%02d:%02d", tp->tm_hour, tp->tm_min);
+		    snprintf(Temp, 81, "%02d:%02d", tp->tm_hour, tp->tm_min);
 		    memcpy(Qwk.Msgtime, Temp, sizeof(Qwk.Msgtime));
 		    Msg.From[sizeof(Qwk.MsgFrom) - 1] = '\0';
 		    memcpy(Qwk.MsgFrom, Msg.From, strlen(Msg.From));
@@ -2562,7 +2562,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 			    Size += fwrite(Temp, (int)(128L - (Size % 128L)), 1, fdm);
 			}
 
-			sprintf(Qwk.Msgrecs, "%-*lu", (int)sizeof(Qwk.Msgrecs), (long)((ftell(fdm) - Pos) / 128L));
+			snprintf(Qwk.Msgrecs, 6, "%-*lu", (int)sizeof(Qwk.Msgrecs), (long)((ftell(fdm) - Pos) / 128L));
 			fseek(fdm, Pos, SEEK_SET);
 			fwrite(&Qwk, sizeof(Qwk), 1, fdm);
 			fseek(fdm, 0L, SEEK_END);
@@ -2573,7 +2573,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 			BarWidth = (unsigned short)((Total * 61L) / TotalPack);
 			PUTCHAR('\r');
-			sprintf(msg, "%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
+			snprintf(msg, 81, "%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
 			pout(CYAN, BLACK, msg);
 		    }
 		}
@@ -2652,11 +2652,11 @@ void OLR_DownASCII(void)
     tp = localtime(&Now);
     Syslog('+', "Preparing ASCII packet");
 
-    sprintf(Temp, "%s.MSG", CFG.bbsid);
-    sprintf(Pktname, "%s", tl(Temp));
-    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Temp, PATH_MAX, "%s.MSG", CFG.bbsid);
+    snprintf(Pktname, 32, "%s", tl(Temp));
+    snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-    sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((mf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -2664,7 +2664,7 @@ void OLR_DownASCII(void)
     }
     fread(&msgshdr, sizeof(msgshdr), 1, mf);
 
-    sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
     if ((tf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -2709,7 +2709,7 @@ void OLR_DownASCII(void)
 	/*        Packing with */
 	PUTSTR((char *)Language(446));
 	PUTCHAR(' ');
-	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
@@ -2720,10 +2720,10 @@ void OLR_DownASCII(void)
 		    alarm_on();
 
 		    for (tmp = mhl; tmp; tmp = tmp->next) {
-			sprintf(Temp, "%s/%03ld.TXT", Work, tmp->Area);
+			snprintf(Temp, PATH_MAX, "%s/%03ld.TXT", Work, tmp->Area);
 			AddArc(Temp, Pktname);
 		    }
-		    sprintf(Temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    unlink(Temp);
 		}
@@ -2771,9 +2771,9 @@ unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 
     Temp = calloc(PATH_MAX, sizeof(char));
     Work = calloc(PATH_MAX, sizeof(char));
-    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-    sprintf(Temp, "%s/%03ld.TXT", Work, Area);
+    snprintf(Temp, PATH_MAX, "%s/%03ld.TXT", Work, Area);
     if ((fp = fopen(Temp, "a+")) != NULL) {
 	if (Msg_Next(&Number)) {
 	    do {
@@ -2818,7 +2818,7 @@ unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 			BarWidth = (unsigned short)((Total * 61L) / TotalPack);
 			PUTCHAR('\r');
-			sprintf(msg, "%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
+			snprintf(msg, 81, "%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
 			pout(CYAN, BLACK, msg);
 		    }
 		}

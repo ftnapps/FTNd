@@ -4,7 +4,7 @@
  * Purpose ...............: Product information
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -91,17 +91,17 @@ void cr(void)
 
     wl(a);
     ls(a);
-    sprintf(temp, "MBSE Bulletin Board System %s (%s-%s)", VERSION, OsName(), OsCPU());
+    snprintf(temp, 81, "MBSE Bulletin Board System %s (%s-%s)", VERSION, OsName(), OsCPU());
     pout(YELLOW, BLACK, padleft(temp, 76, ' '));
     rs(a);
     wl(a);
     ls(a);
-    sprintf(temp, "%s", COPYRIGHT);
+    snprintf(temp, 81, "%s", COPYRIGHT);
     pout(LIGHTCYAN, BLACK, padleft(temp, 76, ' '));
     rs(a);
     wl(a);
     ls(a);
-    sprintf(temp, "Compiled on %s at %s", __DATE__, __TIME__);
+    snprintf(temp, 81, "Compiled on %s at %s", __DATE__, __TIME__);
     pout(LIGHTRED, BLACK, padleft(temp, 76, ' '));
     rs(a);
     wl(a);

@@ -5,7 +5,7 @@
  * Todo ..................: Implement new config settings.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -98,7 +98,7 @@ void Page_Sysop(char *String)
 	Syslog('+', "Chat Reason: %s", temp);
 	strcpy(Reason, temp);
     } else {
-	sprintf(Reason, "User want's to chat");
+	snprintf(Reason, 81, "User want's to chat");
     }
 
     CFG.iMaxPageTimes--;
@@ -132,7 +132,7 @@ void Page_Sysop(char *String)
 
     locate(16, ((80 - CFG.iPageLength) / 2 - 2) + 1);
 
-    sprintf(buf, "CPAG:2,%d,%s;", mypid, Reason);
+    snprintf(buf, 128, "CPAG:2,%d,%s;", mypid, Reason);
     if (socket_send(buf)) {
 	Syslog('+', "Failed to send message to mbtask");
 	free(Reason);
@@ -183,14 +183,14 @@ void Page_Sysop(char *String)
 	    PUTCHAR(219);
 	    sleep(1);
 
-	    sprintf(buf, "CISC:1,%d", mypid);
+	    snprintf(buf, 128, "CISC:1,%d", mypid);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
 		if (strcmp(buf, "100:1,1;") == 0) {
 		    /*
 		     * First cancel page request
 		     */
-		    sprintf(buf, "CCAN:1,%d;", mypid);
+		    snprintf(buf, 128, "CCAN:1,%d;", mypid);
 		    socket_send(buf);
 		    socket_receive();
 		    Syslog('+', "Sysop responded to paging request");
@@ -204,7 +204,7 @@ void Page_Sysop(char *String)
 	/*
 	 * Cancel page request
 	 */
-	sprintf(buf, "CCAN:1,%d;", mypid);
+	snprintf(buf, 128, "CCAN:1,%d;", mypid);
 	socket_send(buf);
 	strcpy(buf, socket_receive());
     }
@@ -247,7 +247,7 @@ void GetPageStr(char *sStr, int iMaxlen)
 	if (ch > 31 && ch < 127) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, 4, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 		fflush(stdout);
 	    } else
@@ -275,7 +275,7 @@ void PageReason()
     temp = calloc(PATH_MAX, sizeof(char));
     String = calloc(81, sizeof(char));
 
-    sprintf(temp, "%s/page.asc", CFG.bbs_txtfiles);
+    snprintf(temp, PATH_MAX, "%s/page.asc", CFG.bbs_txtfiles);
     if ((Page = fopen(temp, "r")) != NULL) {
 
 	while (( fgets(String, 80 ,Page)) != NULL)
@@ -310,7 +310,7 @@ void PageReason()
 
     if (!iFoundString) {
 	/* Sysop currently is not available ... please leave a comment */
-	sprintf(String, "%s", (char *) Language(155));
+	snprintf(String, 81, "%s", (char *) Language(155));
 	locate(18, ((78 - strlen(String) ) / 2));
 	pout(WHITE, BLACK, (char *)"[");
 	pout(LIGHTBLUE, BLACK, String);

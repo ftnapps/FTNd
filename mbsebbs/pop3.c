@@ -4,7 +4,7 @@
  * Purpose ...............: POP3 client
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -57,11 +57,11 @@ void retr_msg(int msgnum)
     int		    Header;
     unsigned long   crc = -1;
 
-    sprintf(temp, "RETR %d\r\n", msgnum);
+    snprintf(temp, 81, "RETR %d\r\n", msgnum);
     if (pop3_cmd(temp) == 0) {
 	Msg_New();
 	Header = TRUE;
-	sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
 	base = xstrcpy(temp);
 	Open_Msgbase(base, 'w');
 	Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
@@ -78,17 +78,17 @@ void retr_msg(int msgnum)
 		    if (strncmp(p, "To: ", 4) == 0) {
 			if (strlen(p) > 104)
 			    p[104] = '\0';
-			sprintf(Msg.To, "%s", p+4);
+			snprintf(Msg.To, 101, "%s", p+4);
 		    }
 		    if (strncmp(p, "From: ", 6) == 0) {
 		        if (strlen(p) > 106)
 			    p[106] = '\0';
-			sprintf(Msg.From, "%s", p+6);
+			snprintf(Msg.From, 101, "%s", p+6);
 		    }
 		    if (strncmp(p, "Subject: ", 9) == 0) {
 			if (strlen(p) > 109)
 			    p[109] = '\0';
-			sprintf(Msg.Subject, "%s", p+9);
+			snprintf(Msg.Subject, 101, "%s", p+9);
 			mbse_CleanSubject(Msg.Subject);
 		    }
 		    if (strncmp(p, "Date: ", 6) == 0)
@@ -102,7 +102,7 @@ void retr_msg(int msgnum)
 		    if (strlen(p) == 0) {
 			Header = FALSE;
 		    } else {
-			sprintf(temp, "\001%s", p);
+			snprintf(temp, PATH_MAX, "\001%s", p);
 			MsgText_Add2(temp);
 		    }
 		} else {
@@ -114,7 +114,7 @@ void retr_msg(int msgnum)
 	Msg_UnLock();
 	Close_Msgbase(base);
 	free(base);
-	sprintf(temp, "DELE %d\r\n", msgnum);
+	snprintf(temp, 81, "DELE %d\r\n", msgnum);
 	pop3_cmd(temp);
     } else {
 	WriteError("POP3: Can't retrieve message %d", msgnum);
@@ -142,16 +142,16 @@ void check_popmail(char *user, char *pass)
     }
 
     if (CFG.UsePopDomain)
-	sprintf(temp, "USER %s@%s\r\n", user, CFG.sysdomain);
+	snprintf(temp, 128, "USER %s@%s\r\n", user, CFG.sysdomain);
     else
-	sprintf(temp, "USER %s\r\n", user);
+	snprintf(temp, 128, "USER %s\r\n", user);
     
     if (pop3_cmd(temp)) {
 	error_popmail((char *)"You have no email box");
 	return;
     }
 
-    sprintf(temp, "PASS %s\r\n", pass);
+    snprintf(temp, 128, "PASS %s\r\n", pass);
     if (pop3_cmd(temp)) {
 	error_popmail((char *)"Wrong email password, reset your password");
 	return;
@@ -186,7 +186,7 @@ void check_popmail(char *user, char *pass)
 		     *  Show progress
 		     */
 		    PUTCHAR('\r');
-		    sprintf(temp, "Fetching message %02d/%02d, total %d bytes", msgnum, tmsgs, size);
+		    snprintf(temp, 128, "Fetching message %02d/%02d, total %d bytes", msgnum, tmsgs, size);
 		    pout(color, BLACK, temp);
 		    if (color < WHITE)
 			color++;
