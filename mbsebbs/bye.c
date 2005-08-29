@@ -4,7 +4,7 @@
  * Purpose ...............: Hangup functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -74,9 +74,9 @@ void Good_Bye(int onsig)
     /*
      * Update the users database record.
      */
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((pUsrConfig = fopen(temp,"r+")) != NULL) {
-	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
 	if ((pExitinfo = fopen(temp,"rb")) != NULL) {
 	    fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
 	    fread(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
@@ -143,10 +143,10 @@ void Good_Bye(int onsig)
      * Start shutting down this session
      */
     socket_shutdown(mypid);
-    sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(temp, PATH_MAX, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
     unlink(temp);
 
-    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
     unlink(temp);
     free(temp);
     unlink("taglist");
@@ -169,7 +169,7 @@ void Quick_Bye(int onsig)
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('+', "Quick_Bye");
     socket_shutdown(mypid);
-    sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(temp, PATH_MAX, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
     unlink(temp);
     free(temp);
     colour(LIGHTGRAY, BLACK);

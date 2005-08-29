@@ -56,10 +56,10 @@ int Chg_Language(int NewMode)
 	ReadExitinfo();
 
     while(TRUE) {
-	sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
 	if(( pLang = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
-	    sprintf(temp, "\nFATAL: Can't open language file\n\n");
+	    snprintf(temp, 81, "\nFATAL: Can't open language file\n\n");
 	    PUTSTR(temp);
 	    Pause();
 	    free(temp);
@@ -69,7 +69,7 @@ int Chg_Language(int NewMode)
 
 	colour(CFG.HiliteF, CFG.HiliteB);
 	/* Select your preferred language */
-	sprintf(temp, "\r\n%s\r\n\r\n", (char *) Language(378));
+	snprintf(temp, 81, "\r\n%s\r\n\r\n", (char *) Language(378));
 	PUTSTR(temp);
 
 	iLang = 6;
@@ -77,13 +77,13 @@ int Chg_Language(int NewMode)
 	while (fread(&lang, langhdr.recsize, 1, pLang) == 1)
 	    if (lang.Available) {
 		colour(LIGHTMAGENTA, BLACK);
-		sprintf(temp, "(%s)", lang.LangKey);
+		snprintf(temp, 81, "(%s)", lang.LangKey);
 		PUTSTR(temp);
    		colour(DARKGRAY, BLACK);
-   		sprintf(temp, " %c ", 46);
+   		snprintf(temp, 81, " %c ", 46);
 		PUTSTR(temp);
    		colour(CYAN, BLACK);
-		sprintf(temp, "%-29s    ", lang.Name);
+		snprintf(temp, 81, "%-29s    ", lang.Name);
 		PUTSTR(temp);
 
 		iLang++;
@@ -96,7 +96,7 @@ int Chg_Language(int NewMode)
 
 	colour(CFG.HiliteF, CFG.HiliteB);
 	/* Select language: */
-        sprintf(temp, "\n%s", (char *) Language(379));
+        snprintf(temp, 81, "\n%s", (char *) Language(379));
 	PUTSTR(temp);
 
 	alarm_on();
@@ -130,7 +130,7 @@ int Chg_Language(int NewMode)
 
 	    colour(LIGHTGREEN, BLACK);
 	    /* Language now set to" */
-	    sprintf(temp, "\r\n\r\n%s%s\r\n\r\n", (char *) Language(380), lang.Name);
+	    snprintf(temp, 81, "\r\n\r\n%s%s\r\n\r\n", (char *) Language(380), lang.Name);
 	    PUTSTR(temp);
 
 	    if (!NewMode) {
@@ -189,13 +189,13 @@ void Chg_Password()
 	    } else {
 		colour(LIGHTRED, BLACK);
 		/* Your password must contain at least %d characters! Try again.*/
-		sprintf(temp2, "\r\n%s%d %s\r\n\r\n", (char *) Language(42), CFG.password_length, (char *) Language(43));
+		snprintf(temp2, PATH_MAX, "\r\n%s%d %s\r\n\r\n", (char *) Language(42), CFG.password_length, (char *) Language(43));
 		PUTSTR(temp2);
 	    }
 	}
 
 	Syslog('+', "%s/bin/mbpasswd %s ******", getenv("MBSE_ROOT"), exitinfo.Name);
-	sprintf(temp1, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+	snprintf(temp1, PATH_MAX, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
 	memset(args, 0, sizeof(args));
 	args[0] = temp1;
 	args[1] = exitinfo.Name;
@@ -241,7 +241,7 @@ int CheckHandle(char *Name)
     char    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp,"rb")) != NULL) {
         fread(&uhdr, sizeof(uhdr), 1, fp);
 
@@ -401,7 +401,7 @@ void Chg_FsMsged()
     pout(LIGHTMAGENTA, BLACK, (char *)Language(372));
     /*                 Line/Fullscreen/External    */
     colour(LIGHTCYAN, BLACK);
-    sprintf(temp, " %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    snprintf(temp, 81, " %s ", Language(387 + (exitinfo.MsgEditor & 3)));
     PUTSTR(temp);
     /*                                      Editor */
     pout(LIGHTMAGENTA, BLACK, (char *)Language(390));
@@ -433,7 +433,7 @@ void Chg_FsMsged()
     pout(LIGHTMAGENTA, BLACK, (char *)Language(372));
     /*                 Line/Fullscreen/External    */
     colour(LIGHTCYAN, BLACK);
-    sprintf(temp, " %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    snprintf(temp, 81, " %s ", Language(387 + (exitinfo.MsgEditor & 3)));
     PUTSTR(temp);
     /*                                      Editor */
     pout(LIGHTMAGENTA, BLACK, (char *)Language(390));
@@ -528,7 +528,7 @@ void Chg_Location()
 	    Enter(1);
 	    /* Please enter a longer location (min */
 	    colour(LIGHTRED, BLACK);
-	    sprintf(temp, "%s%d)", (char *) Language(74), CFG.CityLen);
+	    snprintf(temp, 81, "%s%d)", (char *) Language(74), CFG.CityLen);
 	    PUTSTR(temp);
 	    Enter(1);
 	} else {
@@ -728,10 +728,10 @@ void Chg_ScreenLen()
 
     if((strcmp(temp, "")) == 0) {
 	exitinfo.iScreenLen = 24;
-	sprintf(temp, "\r\n%s\r\n\r\n", (char *) Language(80));
+	snprintf(temp, 81, "\r\n%s\r\n\r\n", (char *) Language(80));
     } else {
 	exitinfo.iScreenLen = atoi(temp);
-	sprintf(temp, "\r\n%s%d\r\n\r\n", (char *) Language(81), exitinfo.iScreenLen);
+	snprintf(temp, 81, "\r\n%s%d\r\n\r\n", (char *) Language(81), exitinfo.iScreenLen);
     }
     PUTSTR(temp);
 
@@ -852,7 +852,7 @@ void Chg_Protocol()
     Syslog('+', "Old protocol %s", sProtName);
 
     while(TRUE) {
-	sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
 	
 	if ((pProtConfig = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
@@ -879,7 +879,7 @@ void Chg_Protocol()
 		colour(WHITE, BLACK);
 		PUTSTR(PROT.ProtKey);
 		colour(LIGHTBLUE, BLACK);
-		sprintf(temp, ")  %-20s Efficiency %3d %%\r\n", PROT.ProtName, PROT.Efficiency);
+		snprintf(temp, 81, ")  %-20s Efficiency %3d %%\r\n", PROT.ProtName, PROT.Efficiency);
 		PUTSTR(temp);
 	    }
 	}
@@ -891,7 +891,7 @@ void Chg_Protocol()
         iProt = toupper(Readkey());
 
         PUTCHAR(iProt);
-        sprintf(Prot, "%c", iProt);
+        snprintf(Prot, 2, "%c", iProt);
 
         fseek(pProtConfig, PROThdr.hdrsize, 0);
         while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
@@ -947,7 +947,7 @@ void Set_Protocol(char *Protocol)
     memset(&sProtName, 0, sizeof(sProtName));
     temp = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
 
     if (( pProtConfig = fopen(temp, "rb")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -1024,13 +1024,13 @@ void Chg_Charset()
         colour(LIGHTBLUE, BLACK);
 	for (i = (FTNC_NONE + 1); i <= FTNC_MAXCHARS; i++) {
 	    colour(LIGHTBLUE, BLACK);
-	    sprintf(temp, "%2d ", i);
+	    snprintf(temp, 81, "%2d ", i);
 	    PUTSTR(temp);
 	    colour(LIGHTCYAN, BLACK);
-	    sprintf(temp, "%-9s ", getftnchrs(i));
+	    snprintf(temp, 81, "%-9s ", getftnchrs(i));
 	    PUTSTR(temp);
 	    colour(LIGHTMAGENTA, BLACK);
-	    sprintf(temp, "%s\r\n", getchrsdesc(i));
+	    snprintf(temp, 81, "%s\r\n", getchrsdesc(i));
 	    PUTSTR(temp);
 	}
 
@@ -1056,7 +1056,7 @@ void Chg_Charset()
 	    Enter(2);
 	    colour(LIGHTGREEN, BLACK);
 	    /* Character set now set to: */
-	    sprintf(temp, "%s%s", (char *) Language(25), getftnchrs(i));
+	    snprintf(temp, 81, "%s%s", (char *) Language(25), getftnchrs(i));
 	    PUTSTR(temp);
 	    free(temp);
 	    Enter(2);
