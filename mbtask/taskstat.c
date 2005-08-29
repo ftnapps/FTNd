@@ -102,7 +102,7 @@ void status_init()
     size_t  cnt;
     int	    stat_fd;
 
-    sprintf(stat_fn,  "%s/var/status.mbsed", getenv("MBSE_ROOT"));
+    snprintf(stat_fn, PATH_MAX, "%s/var/status.mbsed", getenv("MBSE_ROOT"));
 
     /*
      * First check if this is the very first time we start the show.
@@ -224,7 +224,7 @@ int get_zmh()
 #else
     l_date = *gmtime(&Now);
 #endif
-    sprintf(sstime, "%02d:%02d", l_date.tm_hour, l_date.tm_min);
+    snprintf(sstime, 6, "%02d:%02d", l_date.tm_hour, l_date.tm_min);
 
     if ((strncmp(sstime, TCFG.zmh_start, 5) >= 0) && (strncmp(sstime, TCFG.zmh_end, 5) < 0)) {
 	if (!ZMH) {
@@ -319,7 +319,7 @@ char *stat_status()
 	chncnt++;
     for (tmpu = users; tmpu; tmpu = tmpu->next)
 	usrcnt++;
-    sprintf(buf, "100:23,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu,%d,%d,%d;",
+    snprintf(buf, 160, "100:23,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu,%d,%d,%d;",
 	(long)status.start, (long)status.laststart, (long)status.daily,
 	status.startups, status.clients, 
 	status.total.tot_clt, status.total.peak_clt,
@@ -360,7 +360,7 @@ char *getseq(void)
     buf[0] = '\0';
     status.sequence++;
     status_write();
-    sprintf(buf, "100:1,%lu;", status.sequence);
+    snprintf(buf, 80, "100:1,%lu;", status.sequence);
     return buf;
 }
 
@@ -413,7 +413,7 @@ char *sem_status(char *data)
     int		value;
 
     buf[0] = '\0';
-    sprintf(buf, "200:1,16;");
+    snprintf(buf, 40, "200:1,16;");
     cnt = strtok(data, ",");
     sem = strtok(NULL, ";");
 
@@ -442,7 +442,7 @@ char *sem_status(char *data)
 	return buf;
     }
 
-    sprintf(buf, "100:1,%s;", value ? "1":"0");
+    snprintf(buf, 40, "100:1,%s;", value ? "1":"0");
     return buf;
 }
 
@@ -456,10 +456,10 @@ char *sem_create(char *data)
     cnt = strtok(data, ",");
     sem = strtok(NULL, ";");
     buf[0] = '\0';
-    sprintf(buf, "200:1,16;");
+    snprintf(buf, 40, "200:1,16;");
 
     if (sem_set(sem, TRUE))
-	sprintf(buf, "100:0;");
+	snprintf(buf, 40, "100:0;");
 
     return buf;
 }
@@ -474,10 +474,10 @@ char *sem_remove(char *data)
     cnt = strtok(data, ",");
     sem = strtok(NULL, ";");
     buf[0] = '\0';
-    sprintf(buf, "200:1,16;");
+    snprintf(buf, 40, "200:1,16;");
 
     if (sem_set(sem, FALSE))
-	sprintf(buf, "100:0;");
+	snprintf(buf, 40, "100:0;");
 
     return buf;
 }

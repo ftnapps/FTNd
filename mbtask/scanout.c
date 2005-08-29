@@ -4,7 +4,7 @@
  * Purpose ...............: Outbound scanning
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -67,7 +67,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 	/*
 	 * Create a fake filename, mkdirs() likes that.
 	 */
-	sprintf(fname, "%s/foo", dname);
+	snprintf(fname, PATH_MAX, "%s/foo", dname);
 	(void)mkdirs(fname, 0770);
 	if ((dp = opendir(dname)) == NULL) {
 	    Syslog('o' ,"\"%s\" cannot be opened, proceed",MBSE_SS(dname));
@@ -136,7 +136,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		if ((rc = fn(&addr, flavor, isflo, fname)))
 		    goto exout;
 
-		sprintf(fname, "%s/%s", dname, de->d_name);
+		snprintf(fname, PATH_MAX, "%s/%s", dname, de->d_name);
 		fage = (int)((t_start - file_time(fname)) / 86400);
 
 		if (file_size(fname) == 0) {
@@ -206,7 +206,7 @@ int scanout(int (*fn)(faddr *, char, int, char *))
 		     */
 		    if (fidonet.zone[j]) {
 			if (j) {
-			    sprintf(fext, ".%03x", fidonet.zone[j]);
+			    snprintf(fext, 5, ".%03x", fidonet.zone[j]);
 			    p = xstrcat(p, fext);
 			}
 			addr.zone = fidonet.zone[j];

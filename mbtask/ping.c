@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - ping functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -353,14 +353,14 @@ printf("Start ping thread\n");
 	if (pingnr == 1) {
 	    pingnr = 2;
 	    if (strlen(TCFG.isp_ping2)) {
-		sprintf(pingaddress, "%s", TCFG.isp_ping2);
+		snprintf(pingaddress, 41, "%s", TCFG.isp_ping2);
 	    } else {
 		pingresult[2] = FALSE;
 	    }
 	} else {
 	    pingnr = 1;
 	    if (strlen(TCFG.isp_ping1)) {
-		sprintf(pingaddress, "%s", TCFG.isp_ping1);
+		snprintf(pingaddress, 41, "%s", TCFG.isp_ping1);
 	    } else {
 		pingresult[1] = FALSE;
 	    }

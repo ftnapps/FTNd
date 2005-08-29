@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager, utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -75,7 +75,7 @@ char *date(void)
 #else
     ptm = *localtime(&now);
 #endif
-    sprintf(buf,"%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+    snprintf(buf, 20, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
     return(buf);
 }
@@ -92,7 +92,7 @@ char *rfcdate(time_t now)
 #else
     ptm = *localtime(&now);
 #endif
-    sprintf(buf,"%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+    snprintf(buf, 20, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 		ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
     return(buf);
 }
@@ -106,7 +106,7 @@ void WriteError(const char *format, ...)
 
     outputstr = calloc(10240, sizeof(char));
     va_start(va_ptr, format);
-    vsprintf(outputstr, format, va_ptr);
+    vsnprintf(outputstr, 10240, format, va_ptr);
     va_end(va_ptr);
     Syslog('?', outputstr);
     free(outputstr);
@@ -127,7 +127,7 @@ void Syslog(int grade, const char *format, ...)
 
     debug = isalpha(grade);
     va_start(va_ptr, format);
-    vsprintf(outstr, format, va_ptr);
+    vsnprintf(outstr, 1024, format, va_ptr);
     va_end(va_ptr);
 
     tcrc = StringCRC32(outstr);
@@ -140,7 +140,7 @@ void Syslog(int grade, const char *format, ...)
     if (!debug) {
 	logname = calloc(PATH_MAX, sizeof(char));
 	oldmask=umask(066);
-	sprintf(logname, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
+	snprintf(logname, PATH_MAX, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
 	logfile = fopen(logname, "a");
 	umask(oldmask);
 	if (logfile == NULL) {
@@ -152,7 +152,7 @@ void Syslog(int grade, const char *format, ...)
 
     debugname = calloc(PATH_MAX, sizeof(char));
     oldmask=umask(066);
-    sprintf(debugname, "%s/log/%s", getenv("MBSE_ROOT"), CFG.debuglog);
+    snprintf(debugname, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), CFG.debuglog);
     debugfile = fopen(debugname, "a");
     umask(oldmask);
     if (debugfile == NULL) {
@@ -287,7 +287,7 @@ void CreateSema(char *sem)
     FILE    *fp;
     int	    oldmask;
 
-    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
+    snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK) == 0)
 	return;
     oldmask = umask(002);
@@ -306,7 +306,7 @@ void TouchSema(char *sem)
     FILE    *fp;
     int	    oldmask;
 
-    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
+    snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     oldmask = umask(002);
     if ((fp = fopen(temp, "w")))
 	fclose(fp);
@@ -321,7 +321,7 @@ void RemoveSema(char *sem)
 {
     char    temp[PATH_MAX];
 
-    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
+    snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK))
 	return;
     if (unlink(temp) == -1)
@@ -334,7 +334,7 @@ int IsSema(char *sem)
 {
     char    temp[PATH_MAX];
 
-    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
+    snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     return (access(temp, F_OK) == 0);
 }
 
@@ -433,15 +433,15 @@ char *ascfnode(faddr *a, int fl)
 
     buf[0] = '\0';
     if ((fl & 0x08) && (a->zone))
-        sprintf(buf+strlen(buf),"%u:",a->zone);
+        snprintf(buf+strlen(buf), 10, "%u:",a->zone);
     if (fl & 0x04)
-        sprintf(buf+strlen(buf),"%u/",a->net);
+        snprintf(buf+strlen(buf), 10, "%u/",a->net);
     if (fl & 0x02)
-        sprintf(buf+strlen(buf),"%u",a->node);
+        snprintf(buf+strlen(buf), 10, "%u",a->node);
     if ((fl & 0x01) && (a->point))
-        sprintf(buf+strlen(buf),".%u",a->point);
+        snprintf(buf+strlen(buf), 10, ".%u",a->point);
     if ((fl & 0x10) && (strlen(a->domain)))
-        sprintf(buf+strlen(buf),"@%s",a->domain);
+        snprintf(buf+strlen(buf), 14, "@%s",a->domain);
     return buf;
 }
 
@@ -456,15 +456,15 @@ char *fido2str(fidoaddr a, int fl)
 
     buf[0] = '\0';
     if ((fl & 0x08) && (a.zone))
-	sprintf(buf+strlen(buf),"%u:",a.zone);
+	snprintf(buf+strlen(buf), 10, "%u:",a.zone);
     if (fl & 0x04)
-	sprintf(buf+strlen(buf),"%u/",a.net);
+	snprintf(buf+strlen(buf), 10, "%u/",a.net);
     if (fl & 0x02)
-	sprintf(buf+strlen(buf),"%u",a.node);
+	snprintf(buf+strlen(buf), 10, "%u",a.node);
     if ((fl & 0x01) && (a.point))
-	sprintf(buf+strlen(buf),".%u",a.point);
+	snprintf(buf+strlen(buf), 10, ".%u",a.point);
     if ((fl & 0x10) && (strlen(a.domain)))
-	sprintf(buf+strlen(buf),"@%s",a.domain);
+	snprintf(buf+strlen(buf), 14, "@%s",a.domain);
     return buf;
 }
 
@@ -478,7 +478,7 @@ char *Dos2Unix(char *dosname)
 
     memset(&buf, 0, sizeof(buf));
     memset(&buf2, 0, sizeof(buf2));
-    sprintf(buf, "%s", dosname);
+    snprintf(buf, PATH_MAX, "%s", dosname);
     p = buf;
 
     if (strlen(CFG.dospath)) {
@@ -517,7 +517,7 @@ char *dayname(void)
 #else
     ptm = *localtime(&tt);
 #endif
-    sprintf(buf, "%s", dow[ptm.tm_wday]);
+    snprintf(buf, 3, "%s", dow[ptm.tm_wday]);
 
     return buf;     
 }
@@ -537,7 +537,7 @@ int SearchFidonet(unsigned short zone)
     char    fidonet_fil[PATH_MAX];
     int	    i;
 
-    sprintf(fidonet_fil, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(fidonet_fil, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(fidonet_fil, "r")) == NULL) {
         return FALSE;
     }
@@ -603,7 +603,7 @@ char *printable(char *s, int l)
 	    case '\n': *p++='\\'; *p++='n'; break;
 	    case '\t': *p++='\\'; *p++='t'; break;
 	    case '\b': *p++='\\'; *p++='b'; break;
-	    default:   sprintf(p,"\\%02x", (*s & 0xff)); p+=3; break;
+	    default:   snprintf(p, 4, "\\%02x", (*s & 0xff)); p+=3; break;
 	}
 	s++;
     }

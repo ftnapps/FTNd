@@ -4,7 +4,7 @@
  * Purpose ...............: Buffers for registration information.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -389,7 +389,7 @@ char *reg_ipm(char *data)
     int		rec;
 
     buf[0] = '\0';
-    sprintf(buf, "100:0;");
+    snprintf(buf, 128, "100:0;");
     cnt = strtok(data, ",");
     pid = strtok(NULL, ";");
 
@@ -401,7 +401,7 @@ char *reg_ipm(char *data)
 	return buf;
 
     buf[0] = '\0';
-    sprintf(buf, "100:2,%s,%s;", reginfo[rec].fname[reginfo[rec].ptr_out], reginfo[rec].msg[reginfo[rec].ptr_out]);
+    snprintf(buf, 128, "100:2,%s,%s;", reginfo[rec].fname[reginfo[rec].ptr_out], reginfo[rec].msg[reginfo[rec].ptr_out]);
     if (reginfo[rec].ptr_out < RB)
 	reginfo[rec].ptr_out++;
     else
@@ -463,7 +463,7 @@ int reg_spm(char *data)
 
 	    if (CFG.iAutoLog && strlen(CFG.chat_log)) {
 		logm = calloc(PATH_MAX, sizeof(char));
-		sprintf(logm, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+		snprintf(logm, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
 		ulog(logm, (char *)"+", from, (char *)"-1", txt);
 		free(logm);
 	    }
@@ -507,9 +507,9 @@ char *reg_fre(void)
     }
 
     if (users || utils)
-	sprintf(buf, "100:1,Running utilities: %02d  Active users: %02d;", utils, users);
+	snprintf(buf, 80, "100:1,Running utilities: %02d  Active users: %02d;", utils, users);
     else
-	sprintf(buf, "100:0;");
+	snprintf(buf, 80, "100:0;");
     return buf;
 }
 
@@ -525,7 +525,7 @@ char *get_reginfo(int first)
     static char	buf[256];
 
     memset(&buf, 0, sizeof(buf));
-    sprintf(buf, "100:0;");
+    snprintf(buf, 256, "100:0;");
 
     /*
      * Loop forever until an error occours, eof is reached or
@@ -542,7 +542,7 @@ char *get_reginfo(int first)
 	    return buf;
 
 	if ((int)reginfo[entrypos].pid != 0) {
-	    sprintf(buf, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
+	    snprintf(buf, 256, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
 				reginfo[entrypos].pid, reginfo[entrypos].tty,
 				reginfo[entrypos].uname, reginfo[entrypos].prg,
 				reginfo[entrypos].city, reginfo[entrypos].doing,
@@ -633,15 +633,15 @@ char *reg_checkpage(char *data)
     memset(&buf, 0, sizeof(buf));
     for (i = 1; i < MAXCLIENT; i++) {
 	if (reginfo[i].pid && reginfo[i].paging) {
-	    sprintf(buf, "100:3,%d,1,%s;", reginfo[i].pid, reginfo[i].reason);
+	    snprintf(buf, 128, "100:3,%d,1,%s;", reginfo[i].pid, reginfo[i].reason);
 	    return buf;
 	}
 	if (reginfo[i].pid && reginfo[i].haspaged) {
-	    sprintf(buf, "100:3,%d,0,%s;", reginfo[i].pid, reginfo[i].reason);
+	    snprintf(buf, 128, "100:3,%d,0,%s;", reginfo[i].pid, reginfo[i].reason);
 	    return buf;
 	}
     }
-    sprintf(buf, "100:0;");
+    snprintf(buf, 128, "100:0;");
     return buf;
 }
 

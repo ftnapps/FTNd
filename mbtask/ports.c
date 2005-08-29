@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - mode portlists
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -191,7 +191,7 @@ void check_ports(void)
     pots_free = isdn_free = 0;
 
     for (tpl = pl; tpl; tpl = tpl->next) {
-	sprintf(lckname, "%s%s", LCKPREFIX, tpl->tty);
+	snprintf(lckname, 256, "%s%s", LCKPREFIX, tpl->tty);
 	if ((lf = fopen(lckname, "r")) == NULL) {
 	    if (tpl->locked) {
 		tpl->locked = 0;

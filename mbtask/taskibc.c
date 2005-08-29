@@ -516,7 +516,7 @@ void send_all(const char *format, ...)
     va_list	va_ptr;
 
     va_start(va_ptr, format);
-    vsprintf(buf, format, va_ptr);
+    vsnprintf(buf, 512, format, va_ptr);
     va_end(va_ptr);
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
@@ -538,7 +538,7 @@ void broadcast(char *origin, const char *format, ...)
     char	buf[512];
 
     va_start(va_ptr, format);
-    vsprintf(buf, format, va_ptr);
+    vsnprintf(buf, 512, format, va_ptr);
     va_end(va_ptr);
     
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
@@ -559,7 +559,7 @@ int send_msg(ncs_list *tnsl, const char *format, ...)
     va_list     va_ptr;
 	
     va_start(va_ptr, format);
-    vsprintf(buf, format, va_ptr);
+    vsnprintf(buf, 512, format, va_ptr);
     va_end(va_ptr);
 
     Syslog('r', "> %s: %s", tnsl->server, printable(buf, 0));
@@ -583,7 +583,7 @@ void check_servers(void)
     struct servent  *se;
     struct hostent  *he;
 
-    sprintf(scfgfn, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(scfgfn, PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
     
     /*
      * Check if configuration is changed, if so then apply the changes.
@@ -1247,7 +1247,7 @@ int command_join(char *hostname, char *parameters)
 	    pthread_mutex_unlock(&b_mutex);
 	    Syslog('+', "IBC: user %s joined channel %s", nick, channel);
 	    usrchg = TRUE;
-	    sprintf(msg, "* %s@%s has joined %s", nick, server, channel);
+	    snprintf(msg, 81, "* %s@%s has joined %s", nick, server, channel);
 	    chat_msg(channel, NULL, msg);
 	}
     }
@@ -1306,10 +1306,10 @@ int command_part(char *hostname, char *parameters)
 	    pthread_mutex_unlock(&b_mutex);
 	    if (message) {
 		Syslog('+', "IBC: user %s left channel %s: %s", nick, channel, message);
-		sprintf(msg, "* %s@%s has left: %s", nick, server, message);
+		snprintf(msg, 81, "* %s@%s has left: %s", nick, server, message);
 	    } else {
 		Syslog('+', "IBC: user %s left channel %s", nick, channel);
-		sprintf(msg, "* %s@%s has silently left this channel", nick, server);
+		snprintf(msg, 81, "* %s@%s has silently left this channel", nick, server);
 	    }
 	    chat_msg(channel, NULL, msg);
 	    usrchg = TRUE;
@@ -1350,7 +1350,7 @@ int command_topic(char *hostname, char *parameters)
 	    chnchg = TRUE;
 	    strncpy(tmp->topic, topic, 54);
 	    Syslog('+', "IBC: channel %s topic: %s", channel, topic);
-	    sprintf(msg, "* Channel topic is now: %s", tmp->topic);
+	    snprintf(msg, 81, "* Channel topic is now: %s", tmp->topic);
 	    chat_msg(channel, NULL, msg);
 	    break;
 	}

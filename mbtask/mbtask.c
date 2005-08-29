@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -146,58 +146,58 @@ void load_maincfg(void)
         /*
          * Fill Registration defaults
          */
-        sprintf(CFG.bbs_name, "MBSE BBS");
+        snprintf(CFG.bbs_name, 36, "MBSE BBS");
         uname((struct utsname *)&un); 
 #if defined(__USE_GNU)
-        sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.domainname); 
+        snprintf(CFG.sysdomain, 36, "%s.%s", un.nodename, un.domainname); 
 #elif defined(__linux__)
-        sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.__domainname);
+        snprintf(CFG.sysdomain, 36, "%s.%s", un.nodename, un.__domainname);
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-	sprintf(CFG.sysdomain, "%s", un.nodename);	/* No domain in FreeBSD */
+	snprintf(CFG.sysdomain, 36, "%s", un.nodename);	/* No domain in FreeBSD */
 #else
 #error "Don't know un.domainname on this OS"
 #endif
-        sprintf(CFG.comment, "MBSE BBS development");
-        sprintf(CFG.origin, "MBSE BBS. Made in the Netherlands");
-        sprintf(CFG.location, "Earth");
+        snprintf(CFG.comment, 56,  "MBSE BBS development");
+        snprintf(CFG.origin, 51,   "MBSE BBS. Made in the Netherlands");
+        snprintf(CFG.location, 36, "Earth");
 
         /*
          * Fill Filenames defaults
          */
-        sprintf(CFG.logfile, "system.log");
-        sprintf(CFG.error_log, "error.log");
-        sprintf(CFG.default_menu, "main.mnu");
-        sprintf(CFG.current_language, "english.lang");
-        sprintf(CFG.chat_log, "chat.log");
-        sprintf(CFG.welcome_logo, "logo.asc");
-	sprintf(CFG.mgrlog, "manager.log");
-	sprintf(CFG.debuglog, "debug.log");
+        snprintf(CFG.logfile, 15, "system.log");
+        snprintf(CFG.error_log, 15, "error.log");
+        snprintf(CFG.default_menu, 15, "main.mnu");
+        snprintf(CFG.current_language, 15, "english.lang");
+        snprintf(CFG.chat_log, 15, "chat.log");
+        snprintf(CFG.welcome_logo, 15, "logo.asc");
+	snprintf(CFG.mgrlog, 15, "manager.log");
+	snprintf(CFG.debuglog, 15, "debug.log");
 
         /*
          * Fill Global defaults
          */
-        sprintf(CFG.bbs_menus, "%s/english/menus", getenv("MBSE_ROOT"));
-        sprintf(CFG.bbs_txtfiles, "%s/english/txtfiles", getenv("MBSE_ROOT"));
-	sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
-        sprintf(CFG.bbs_usersdir, "%s/home", getenv("MBSE_ROOT"));
-        sprintf(CFG.nodelists, "%s/var/nodelist", getenv("MBSE_ROOT"));
-        sprintf(CFG.inbound, "%s/var/unknown", getenv("MBSE_ROOT"));
-        sprintf(CFG.pinbound, "%s/var/inbound", getenv("MBSE_ROOT"));
-        sprintf(CFG.outbound, "%s/var/bso/outbound", getenv("MBSE_ROOT"));
-	sprintf(CFG.msgs_path, "%s/var/msgs", getenv("MBSE_ROOT"));
-        sprintf(CFG.uxpath, "%s", getenv("MBSE_ROOT"));
-        sprintf(CFG.badtic, "%s/var/badtic", getenv("MBSE_ROOT"));
-        sprintf(CFG.ticout, "%s/var/ticqueue", getenv("MBSE_ROOT"));
-        sprintf(CFG.req_magic, "%s/var/magic", getenv("MBSE_ROOT"));
-	sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
-	sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
-	sprintf(CFG.rulesdir, "%s/var/rules", getenv("MBSE_ROOT"));
+        snprintf(CFG.bbs_menus, 65, "%s/english/menus", getenv("MBSE_ROOT"));
+        snprintf(CFG.bbs_txtfiles, 65, "%s/english/txtfiles", getenv("MBSE_ROOT"));
+	snprintf(CFG.bbs_macros, 65, "%s/english/macro", getenv("MBSE_ROOT"));
+        snprintf(CFG.bbs_usersdir, 65, "%s/home", getenv("MBSE_ROOT"));
+        snprintf(CFG.nodelists, 65, "%s/var/nodelist", getenv("MBSE_ROOT"));
+        snprintf(CFG.inbound, 65, "%s/var/unknown", getenv("MBSE_ROOT"));
+        snprintf(CFG.pinbound, 65, "%s/var/inbound", getenv("MBSE_ROOT"));
+        snprintf(CFG.outbound, 65, "%s/var/bso/outbound", getenv("MBSE_ROOT"));
+	snprintf(CFG.msgs_path, 65, "%s/var/msgs", getenv("MBSE_ROOT"));
+        snprintf(CFG.uxpath, 65, "%s", getenv("MBSE_ROOT"));
+        snprintf(CFG.badtic, 65, "%s/var/badtic", getenv("MBSE_ROOT"));
+        snprintf(CFG.ticout, 65, "%s/var/ticqueue", getenv("MBSE_ROOT"));
+        snprintf(CFG.req_magic, 65, "%s/var/magic", getenv("MBSE_ROOT"));
+	snprintf(CFG.alists_path, 65, "%s/var/arealists", getenv("MBSE_ROOT"));
+	snprintf(CFG.out_queue, 65, "%s/var/queue", getenv("MBSE_ROOT"));
+	snprintf(CFG.rulesdir, 65, "%s/var/rules", getenv("MBSE_ROOT"));
 	CFG.leavecase = TRUE;
 
         /*
          * Newfiles reports
          */
-        sprintf(CFG.ftp_base, "%s/ftp/pub", getenv("MBSE_ROOT"));
+        snprintf(CFG.ftp_base, 65, "%s/ftp/pub", getenv("MBSE_ROOT"));
         CFG.newdays = 30;
         CFG.security.level = 20;
         CFG.new_split = 27;
@@ -233,7 +233,7 @@ void load_maincfg(void)
         CFG.iCrashLevel = 100;
         CFG.iAttachLevel = 100;
         CFG.new_groups = 25;
-        sprintf(CFG.startname, "bbs");
+        snprintf(CFG.startname, 9, "bbs");
         CFG.freespace = 10;
 
         /*
@@ -297,7 +297,7 @@ void load_maincfg(void)
         CFG.ct_Message = TRUE;
         CFG.ct_TIC = TRUE;
         CFG.tic_days = 30;
-        sprintf(CFG.hatchpasswd, "DizIzMyBIGseeKret");
+        snprintf(CFG.hatchpasswd, 21, "DizIzMyBIGseeKret");
         CFG.tic_systems = 10;
         CFG.tic_groups  = 25;
         CFG.tic_dupes   = 16000;
@@ -307,11 +307,11 @@ void load_maincfg(void)
          */
         CFG.maxpktsize = 150;
         CFG.maxarcsize = 300;
-        sprintf(CFG.badboard, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
-        sprintf(CFG.dupboard, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
-        sprintf(CFG.popnode, "localhost");
-        sprintf(CFG.smtpnode, "localhost");
-        sprintf(CFG.nntpnode, "localhost");
+        snprintf(CFG.badboard, 65, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
+        snprintf(CFG.dupboard, 65, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
+        snprintf(CFG.popnode, 65, "localhost");
+        snprintf(CFG.smtpnode, 65, "localhost");
+        snprintf(CFG.nntpnode, 65, "localhost");
         CFG.toss_days = 30;
         CFG.toss_dupes = 16000;
         CFG.toss_old = 60;
@@ -322,7 +322,7 @@ void load_maincfg(void)
         CFG.UUCPgate.zone = 2;
         CFG.UUCPgate.net  = 292;
         CFG.UUCPgate.node = 875;
-        sprintf(CFG.UUCPgate.domain, "fidonet");
+        snprintf(CFG.UUCPgate.domain, 13, "fidonet");
         CFG.nntpdupes = 16000;
 	CFG.ca_PlusAll = TRUE;
 	CFG.ca_Notify = TRUE;
@@ -331,10 +331,10 @@ void load_maincfg(void)
 	CFG.ca_Check = TRUE;
 
         for (i = 0; i < 32; i++) {
-	    sprintf(CFG.fname[i], "Flag %d", i+1);
-	    sprintf(CFG.aname[i], "Flag %d", i+1);
+	    snprintf(CFG.fname[i], 17, "Flag %d", i+1);
+	    snprintf(CFG.aname[i], 17, "Flag %d", i+1);
 	}
-	sprintf(CFG.aname[0], "Everyone");
+	snprintf(CFG.aname[0], 17, "Everyone");
 
 
         /*
@@ -342,25 +342,25 @@ void load_maincfg(void)
          */
         CFG.timeoutreset = 3L;
         CFG.timeoutconnect = 60L;
-        sprintf(CFG.phonetrans[0].match, "31-255");
-        sprintf(CFG.phonetrans[1].match, "31-");
-        sprintf(CFG.phonetrans[1].repl, "0");
-        sprintf(CFG.phonetrans[2].repl, "00");
+        snprintf(CFG.phonetrans[0].match, 21, "31-255");
+        snprintf(CFG.phonetrans[1].match, 21, "31-");
+        snprintf(CFG.phonetrans[1].repl, 21, "0");
+        snprintf(CFG.phonetrans[2].repl, 21, "00");
         CFG.IP_Speed = 256000;
         CFG.dialdelay = 60;
-        sprintf(CFG.IP_Flags, "ICM,XX,IBN");
+        snprintf(CFG.IP_Flags, 31, "ICM,XX,IBN");
         CFG.cico_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
 
 	/*
 	 *  WWW defaults
 	 */
-        sprintf(CFG.www_root, "/var/www/htdocs");
-        sprintf(CFG.www_link2ftp, "files");
-        sprintf(CFG.www_url, "http://%s", CFG.sysdomain);
-        sprintf(CFG.www_charset, "ISO 8859-1");
-        sprintf(CFG.www_author, "Your Name");
+        snprintf(CFG.www_root, 81, "/var/www/htdocs");
+        snprintf(CFG.www_link2ftp, 21, "files");
+        snprintf(CFG.www_url, 41, "http://%s", CFG.sysdomain);
+        snprintf(CFG.www_charset, 21, "ISO 8859-1");
+        snprintf(CFG.www_author, 41, "Your Name");
 	if (strlen(_PATH_CONVERT))
-	    sprintf(CFG.www_convert,"%s -geometry x100", _PATH_CONVERT);
+	    snprintf(CFG.www_convert, 81, "%s -geometry x100", _PATH_CONVERT);
         CFG.www_files_page = 10;
 
 	CFG.maxarticles = 500;
@@ -383,7 +383,7 @@ void load_maincfg(void)
         fread(&CFG, sizeof(CFG), 1, fp);
         fclose(fp);
 	if (strlen(CFG.debuglog) == 0)
-	    sprintf(CFG.debuglog, "debug.log");
+	    snprintf(CFG.debuglog, 15, "debug.log");
     }
 
     cfg_time = file_time(cfgfn);
@@ -401,19 +401,19 @@ void load_taskcfg(void)
 	if ((fp = fopen(tcfgfn, "r")) == NULL) {
 		memset(&TCFG, 0, sizeof(TCFG));
 		TCFG.maxload = 1.50;
-		sprintf(TCFG.zmh_start, "02:30");
-		sprintf(TCFG.zmh_end, "03:30");
-		sprintf(TCFG.cmd_mailout,  "%s/bin/mbfido scan web -quiet", getenv("MBSE_ROOT"));
-		sprintf(TCFG.cmd_mailin,   "%s/bin/mbfido tic toss web -quiet", getenv("MBSE_ROOT"));
-		sprintf(TCFG.cmd_newnews,  "%s/bin/mbfido news web -quiet", getenv("MBSE_ROOT"));
-		sprintf(TCFG.cmd_mbindex1, "%s/bin/mbindex -quiet", getenv("MBSE_ROOT"));
+		snprintf(TCFG.zmh_start, 6, "02:30");
+		snprintf(TCFG.zmh_end, 6, "03:30");
+		snprintf(TCFG.cmd_mailout,  81, "%s/bin/mbfido scan web -quiet", getenv("MBSE_ROOT"));
+		snprintf(TCFG.cmd_mailin,   81, "%s/bin/mbfido tic toss web -quiet", getenv("MBSE_ROOT"));
+		snprintf(TCFG.cmd_newnews,  81, "%s/bin/mbfido news web -quiet", getenv("MBSE_ROOT"));
+		snprintf(TCFG.cmd_mbindex1, 81, "%s/bin/mbindex -quiet", getenv("MBSE_ROOT"));
 		if (strlen(_PATH_GOLDNODE))
-		    sprintf(TCFG.cmd_mbindex2, "%s -f -q", _PATH_GOLDNODE);
-		sprintf(TCFG.cmd_msglink,  "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
-		sprintf(TCFG.cmd_reqindex, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
+		    snprintf(TCFG.cmd_mbindex2, 81, "%s -f -q", _PATH_GOLDNODE);
+		snprintf(TCFG.cmd_msglink,  81, "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
+		snprintf(TCFG.cmd_reqindex, 81, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
 		TCFG.max_tcp  = 0;
-		sprintf(TCFG.isp_ping1, "192.168.1.1");
-		sprintf(TCFG.isp_ping2, "192.168.1.1");
+		snprintf(TCFG.isp_ping1, 41, "192.168.1.1");
+		snprintf(TCFG.isp_ping2, 41, "192.168.1.1");
 		if ((fp = fopen(tcfgfn, "a+")) == NULL) {
 			Syslog('?', "$Can't create %s", tcfgfn);
 			die(MBERR_INIT_ERROR);
@@ -450,9 +450,9 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
     memset(vector, 0, sizeof(vector));
 
     if (opts == NULL)
-	sprintf(buf, "%s", cmd);
+	snprintf(buf, PATH_MAX, "%s", cmd);
     else
-	sprintf(buf, "%s %s", cmd, opts);
+	snprintf(buf, PATH_MAX, "%s %s", cmd, opts);
 
     i = 0;
     vector[i++] = strtok(buf," \t\n\0");
@@ -717,7 +717,7 @@ void die(int onsig)
      */
     count = 30;
     while (count) {
-	sprintf(temp, "%s", reg_fre());
+	snprintf(temp, 80, "%s", reg_fre());
 	if (strcmp(temp, "100:0;") == 0) {
 	    Syslog('+', "Good, no more other programs running");
 	    break;
@@ -785,8 +785,8 @@ int locktask(char *root)
     tempfile = calloc(PATH_MAX, sizeof(char));
     lockfile = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(tempfile, "%s/var/run/mbtask.tmp", root);
-    sprintf(lockfile, "%s/var/run/mbtask", root);
+    snprintf(tempfile, PATH_MAX, "%s/var/run/mbtask.tmp", root);
+    snprintf(lockfile, PATH_MAX, "%s/var/run/mbtask", root);
 
     if ((fp = fopen(tempfile, "w")) == NULL) {
 	perror("mbtask");
@@ -857,7 +857,7 @@ void ulocktask(void)
 
     pw = getpwnam((char *)"mbse");
     lockfile = calloc(PATH_MAX, sizeof(char));
-    sprintf(lockfile, "%s/var/run/mbtask", pw->pw_dir);
+    snprintf(lockfile, PATH_MAX, "%s/var/run/mbtask", pw->pw_dir);
 
     if ((fp = fopen(lockfile, "r")) == NULL) {
 	WriteError("$Can't open lockfile \"%s\"", lockfile);
@@ -1131,19 +1131,19 @@ void *scheduler(void)
 	 */
 	memset(&doing, 0, sizeof(doing));
 	if ((running = checktasks(0)))
-	    sprintf(doing, "Run %d tasks", running);
+	    snprintf(doing, 32, "Run %d tasks", running);
 	else if (UPSdown)
-	    sprintf(doing, "UPS shutdown");
+	    snprintf(doing, 32, "UPS shutdown");
 	else if (UPSalarm)
-	    sprintf(doing, "UPS alarm");
+	    snprintf(doing, 32, "UPS alarm");
 	else if (!s_bbsopen)
-	    sprintf(doing, "BBS is closed");
+	    snprintf(doing, 32, "BBS is closed");
 	else if (Processing)
-	    sprintf(doing, "%s", waitmsg);
+	    snprintf(doing, 32, "%s", waitmsg);
 	else
-	    sprintf(doing, "Overload %2.2f", Load);
+	    snprintf(doing, 32, "Overload %2.2f", Load);
 
-	sprintf(reginfo[0].doing, "%s", doing);
+	snprintf(reginfo[0].doing, 36, "%s", doing);
 	reginfo[0].lastcon = time(NULL);
 
 	/*
@@ -1377,14 +1377,14 @@ void *scheduler(void)
 			switch (calllist[call_entry].callmode) {
 			    case CM_ISDN:   for (tpl = pl; tpl; tpl = tpl->next) {
 						if (!tpl->locked && (tpl->dflags  & calllist[call_entry].diflags)) {
-						    sprintf(port, "-l %s ", tpl->tty);
+						    snprintf(port, 21, "-l %s ", tpl->tty);
 						    break;
 						}
 					    }
 					    break;
 			    case CM_POTS:   for (tpl = pl; tpl; tpl = tpl->next) {
 						if (!tpl->locked && (tpl->mflags  & calllist[call_entry].moflags)) {
-						    sprintf(port, "-l %s ", tpl->tty);
+						    snprintf(port, 21, "-l %s ", tpl->tty);
 						    break;
 						}
 					    }
@@ -1393,11 +1393,11 @@ void *scheduler(void)
 					    break;
 			}
 			if (calllist[call_entry].addr.point) {
-			    sprintf(opts, "%sp%u.f%u.n%u.z%u.%s", port, calllist[call_entry].addr.point, 
+			    snprintf(opts, 41, "%sp%u.f%u.n%u.z%u.%s", port, calllist[call_entry].addr.point, 
 				    calllist[call_entry].addr.node, calllist[call_entry].addr.net, 
 				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			} else {
-			    sprintf(opts, "%sf%u.n%u.z%u.%s", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
+			    snprintf(opts, 41, "%sf%u.n%u.z%u.%s", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
 				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			}
 			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
@@ -1491,7 +1491,7 @@ int main(int argc, char **argv)
         exit(MBERR_NO_PROGLOCK);
     }
 
-    sprintf(cfgfn, "%s/etc/config.data", getenv("MBSE_ROOT"));
+    snprintf(cfgfn, PATH_MAX, "%s/etc/config.data", getenv("MBSE_ROOT"));
     load_maincfg();
     if (nodaemon)
 	printf("main config loaded\n");
@@ -1506,15 +1506,16 @@ int main(int argc, char **argv)
     if (nodaemon)
 	Syslog('+', "Starting in no-daemon mode");
 
-    sprintf(tcfgfn, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    snprintf(tcfgfn, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
     load_taskcfg();
+
     status_init();
 
     memset(&task, 0, sizeof(task));
     memset(&reginfo, 0, sizeof(reginfo));
     memset(&calllist, 0, sizeof(calllist));
-    sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
-    sprintf(ttyfn, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(spath, PATH_MAX, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+    snprintf(ttyfn, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
     initnl();
     load_ports();
     check_ports();
@@ -1583,7 +1584,7 @@ int main(int argc, char **argv)
 		 * in the lockfile before leaving.
 		 */
 		lockfile = calloc(PATH_MAX, sizeof(char));
-		sprintf(lockfile, "%s/var/run/mbtask", pw->pw_dir);
+		snprintf(lockfile, PATH_MAX, "%s/var/run/mbtask", pw->pw_dir);
 		if ((fp = fopen(lockfile, "w"))) {
 		    fprintf(fp, "%10u\n", frk);
 		    fclose(fp);

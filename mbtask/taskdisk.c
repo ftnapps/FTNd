@@ -239,7 +239,7 @@ char *disk_reset(void)
     static char	buf[10];
 
     disk_reread = TRUE;
-    sprintf(buf, "100:0;");
+    snprintf(buf, 10, "100:0;");
     return buf;
 }
 
@@ -263,7 +263,7 @@ char *disk_check(char *token)
 	/*
 	 * Answer Error
 	 */
-	sprintf(buf, "100:1,3");
+	snprintf(buf, SS_BUFSIZE, "100:1,3");
 	return buf;
     }
 
@@ -279,9 +279,9 @@ char *disk_check(char *token)
 	Syslog('!', "disk_check() mutex_unlock failed rc=%d", rc);
 
     if (lowest < needed) {
-	sprintf(buf, "100:2,0,%ld;", lowest);
+	snprintf(buf, SS_BUFSIZE, "100:2,0,%ld;", lowest);
     } else {
-	sprintf(buf, "100:2,1,%ld;", lowest);
+	snprintf(buf, SS_BUFSIZE, "100:2,1,%ld;", lowest);
     }
     return buf;
 }
@@ -301,7 +301,7 @@ char *disk_getfs()
 
     buf[0] = '\0';
     if (mfs == NULL) {
-	sprintf(buf, "100:0;");
+	snprintf(buf, SS_BUFSIZE, "100:0;");
 	return buf;
     }
 
@@ -315,7 +315,7 @@ char *disk_getfs()
 	else
 	    ans = xstrcat(ans, (char *)",");
 	tt[0] = '\0';
-	sprintf(tt, "%lu %lu %s %s %d", tmp->size, tmp->avail, tmp->mountpoint, tmp->fstype, tmp->ro);
+	snprintf(tt, 80, "%lu %lu %s %s %d", tmp->size, tmp->avail, tmp->mountpoint, tmp->fstype, tmp->ro);
 	ans = xstrcat(ans, tt);
 	if (i == 10) /* No more then 10 filesystems */
 	    break;
@@ -324,9 +324,9 @@ char *disk_getfs()
 	Syslog('!', "disk_getfs() mutex_unlock failed rc=%d", rc);
 
     if (strlen(ans) > (SS_BUFSIZE - 8))
-	sprintf(buf, "100:0;");
+	snprintf(buf, SS_BUFSIZE, "100:0;");
     else
-	sprintf(buf, "100:%d%s;", i, ans);
+	snprintf(buf, SS_BUFSIZE, "100:%d%s;", i, ans);
 
     if (ans != NULL)
 	free(ans);
@@ -426,9 +426,9 @@ void add_path(char *lpath)
 		     * mounted filesystem that matches must be the one we seek.
 		     */
 		    if (strncmp(fs, rpath, strlen(fs)) == 0) {
-			sprintf(fsname, "%s", fs);
+			snprintf(fsname, PATH_MAX, "%s", fs);
 			fs = strtok(NULL, " \t");
-			sprintf(fstype, "%s", fs);
+			snprintf(fstype, PATH_MAX, "%s", fs);
 		    }
 		}
 		fclose(fp);
@@ -442,8 +442,8 @@ void add_path(char *lpath)
 
 		for (i = 0; i < mntsize; i++) {
 		    if (strncmp(mntbuf[i].f_mntonname, rpath, strlen(mntbuf[i].f_mntonname)) == 0) {
-			sprintf(fsname, "%s", mntbuf[i].f_mntonname);
-			sprintf(fstype, "%s", mntbuf[i].f_fstypename);
+			snprintf(fsname, PATH_MAX, "%s", mntbuf[i].f_mntonname);
+			snprintf(fstype, PATH_MAX, "%s", mntbuf[i].f_fstypename);
 		    }
 		}
 		fill_mfslist(&mfs, fsname, fstype);
@@ -520,7 +520,7 @@ void *disk_thread(void)
 	    add_path(CFG.tmaillong);
 	
 	    temp = calloc(PATH_MAX, sizeof(char ));
-	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&areahdr, sizeof(areahdr), 1, fp);
@@ -537,7 +537,7 @@ void *disk_thread(void)
 	    if (T_Shutdown)
 		break;
 	    
-	    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&msgshdr, sizeof(msgshdr), 1, fp);
@@ -554,7 +554,7 @@ void *disk_thread(void)
 	    if (T_Shutdown)
 		break;
 	    
-	    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&langhdr, sizeof(langhdr), 1, fp);
@@ -573,7 +573,7 @@ void *disk_thread(void)
 	    if (T_Shutdown)
 		break;
 	    
-	    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
@@ -593,7 +593,7 @@ void *disk_thread(void)
 	    if (T_Shutdown)
 		break;
 	    
-	    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
@@ -609,7 +609,7 @@ void *disk_thread(void)
 	    if (T_Shutdown)
 		break;
 	    
-	    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
@@ -625,7 +625,7 @@ void *disk_thread(void)
 	    if (T_Shutdown)
 		break;
 	    
-	    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
@@ -641,7 +641,7 @@ void *disk_thread(void)
 	    if (T_Shutdown)
 		break;
 	    
-	    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
 		fread(&magichdr, sizeof(magichdr), 1, fp);

@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Daemon
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -58,12 +58,12 @@ int userlog(char *);
 int userlog(char *param)
 {
 	char		*prname, *prpid, *grade, *msg;
-	static char	lfn[64], token[14];
+	static char	lfn[PATH_MAX], token[14];
 
 	lfn[0] = '\0';
 	strcpy(token, strtok(param, ","));
 	strcpy(token, strtok(NULL, ","));
-	sprintf(lfn, "%s/log/%s", getenv("MBSE_ROOT"), token);
+	snprintf(lfn, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), token);
 	prname = strtok(NULL, ",");
 	prpid  = strtok(NULL, ",");
 	grade  = strtok(NULL, ",");
@@ -111,7 +111,7 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "AINI", 4) == 0) {
 	if ((result = reg_newcon(token)) != -1) {
-	    sprintf(obuf, "100:1,%d;", result);
+	    snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
 	    return obuf;
 	} else {
 	    stat_inc_serr();
@@ -183,7 +183,7 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "ALOG", 4) == 0) {
 	if (userlog(token) != 0) 
-	    sprintf(obuf, "201:1,%d;", oserr);
+	    snprintf(obuf, SS_BUFSIZE, "201:1,%d;", oserr);
 	return obuf;
     }
 
@@ -260,7 +260,7 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "CSPM", 4) == 0) {
 	if ((result = reg_spm(token)))
-	    sprintf(obuf, "100:1,%d;", result);
+	    snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
 	return obuf;
     }
 
@@ -281,7 +281,7 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "CPAG", 4) == 0) {
 	if ((result = reg_page(token))) {
-	    sprintf(obuf, "100:1,%d;", result);
+	    snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
 	    Syslog('+', "%s", obuf);
 	}
 	return obuf;
@@ -412,7 +412,7 @@ char *exe_cmd(char *in)
      *  100:n,data;
      */
     if (strncmp(cmd, "GPNG", 4) == 0) {
-	sprintf(obuf, "100:%s", token);
+	snprintf(obuf, SS_BUFSIZE, "100:%s", token);
 	return obuf;
     }
 
@@ -421,7 +421,7 @@ char *exe_cmd(char *in)
      *  100:1,Version ...;
      */
     if (strncmp(cmd, "GVER", 4) == 0) {
-	sprintf(obuf, "100:1,Version %s;", VERSION);
+	snprintf(obuf, SS_BUFSIZE, "100:1,Version %s;", VERSION);
 	return obuf;
     }
 
@@ -491,11 +491,11 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "SBBS", 4) == 0) {
 	switch(stat_bbs_stat()) {
-	    case 0: sprintf(obuf, "100:2,0,The system is open for use;");
+	    case 0: snprintf(obuf, SS_BUFSIZE, "100:2,0,The system is open for use;");
 		    break;
-	    case 1: sprintf(obuf, "100:2,1,The system is closed right now!;");
+	    case 1: snprintf(obuf, SS_BUFSIZE, "100:2,1,The system is closed right now!;");
 		    break;
-	    case 2: sprintf(obuf, "100:2,2,The system is closed for Zone Mail Hour!;");
+	    case 2: snprintf(obuf, SS_BUFSIZE, "100:2,2,The system is closed for Zone Mail Hour!;");
 		    break;
 	}
 	return obuf;
@@ -584,7 +584,7 @@ void do_cmd(char *cmd)
 
     if (logtrans)
 	Syslog('-', "< %s", cmd);
-    sprintf(buf, "%s", exe_cmd(cmd));
+    snprintf(buf, SS_BUFSIZE, "%s", exe_cmd(cmd));
     if (logtrans)
 	Syslog('-', "> %s", buf);
 

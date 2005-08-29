@@ -4,7 +4,7 @@
  * Purpose ...............: Give system information
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -44,9 +44,9 @@ char *get_sysinfo(void)
     char	*temp;
     time_t	startdate;
 
-    sprintf(buf, "201:1,16;");
+    snprintf(buf, SS_BUFSIZE, "201:1,16;");
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
 
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
@@ -56,7 +56,7 @@ char *get_sysinfo(void)
 
     if (fread(&SYSINFO, sizeof(SYSINFO), 1, fp) == 1) {
 	startdate = SYSINFO.StartDate;
-	sprintf(buf, "100:7,%ld,%ld,%ld,%ld,%ld,%s,%s;", SYSINFO.SystemCalls,
+	snprintf(buf, SS_BUFSIZE, "100:7,%ld,%ld,%ld,%ld,%ld,%s,%s;", SYSINFO.SystemCalls,
 			SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network, SYSINFO.Local,
 			ctime(&startdate), SYSINFO.LastCaller);
     }
@@ -74,17 +74,18 @@ char *get_lastcallercount(void)
 	char			*temp;
 	FILE			*fp;
 
-	sprintf(buf, "201:1,16;");
-	temp = calloc(128, sizeof(char));
-	sprintf(temp, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
+	snprintf(buf, SS_BUFSIZE, "201:1,16;");
+	temp = calloc(PATH_MAX, sizeof(char));
+	snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) == NULL) {
 		free(temp);
 		return buf;
 	}
 	fread(&LCALLhdr, sizeof(LCALLhdr), 1, fp);
 	fseek(fp, 0, SEEK_END);
-	sprintf(buf, "100:1,%ld;", ((ftell(fp) - LCALLhdr.hdrsize) / LCALLhdr.recsize));
+	snprintf(buf, SS_BUFSIZE, "100:1,%ld;", ((ftell(fp) - LCALLhdr.hdrsize) / LCALLhdr.recsize));
 	fclose(fp);
+	free(temp);
 	return buf;
 }
 
@@ -96,9 +97,9 @@ char *get_lastcallerrec(int Rec)
 	char                    *temp, action[9];
 	FILE                    *fp;
 
-	sprintf(buf, "201:1,16;");
-	temp = calloc(128, sizeof(char));
-	sprintf(temp, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
+	snprintf(buf, SS_BUFSIZE, "201:1,16;");
+	temp = calloc(PATH_MAX, sizeof(char));
+	snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) == NULL) {
 		free(temp);
 		return buf;
@@ -127,11 +128,12 @@ char *get_lastcallerrec(int Rec)
 		if (LCALL.Door)
 			action[7] = 'E';
 		action[8] = '\0';
-		sprintf(buf, "100:9,%s,%s,%d,%s,%s,%d,%d,%s,%s;", LCALL.UserName, LCALL.Location,
+		snprintf(buf, SS_BUFSIZE, "100:9,%s,%s,%d,%s,%s,%d,%d,%s,%s;", LCALL.UserName, LCALL.Location,
 			LCALL.SecLevel, LCALL.Device, LCALL.TimeOn, 
 			LCALL.CallTime, LCALL.Calls, LCALL.Speed, action);
 	}
 
+	free(temp);
 	fclose(fp);
 	return buf;
 }

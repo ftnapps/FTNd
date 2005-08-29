@@ -4,7 +4,7 @@
  * Purpose ...............: Read mailer last call status
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -44,13 +44,13 @@ char *stsname(faddr *addr)
     char	*p, *domain=NULL, zpref[8];
     int		i;
 
-    sprintf(buf, "%s", CFG.outbound);
+    snprintf(buf, PATH_MAX, "%s", CFG.outbound);
 
     if (CFG.addr4d) {
 	if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
 	    zpref[0] = '\0';
 	else
-	    sprintf(zpref, ".%03x", addr->zone);
+	    snprintf(zpref, 8, ".%03x", addr->zone);
     } else {
 	/*
 	 * If we got a 5d address we use the given domain, if
@@ -85,7 +85,7 @@ char *stsname(faddr *addr)
 	    if (CFG.aka[i].zone == addr->zone)
 		zpref[0] = '\0';
 	    else
-		sprintf(zpref, ".%03x", addr->zone);
+		snprintf(zpref, 8, ".%03x", addr->zone);
 	} else {
 	    /*
 	     * this is our primary domain
@@ -93,16 +93,16 @@ char *stsname(faddr *addr)
 	    if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
 		zpref[0]='\0';
 	    else 
-		sprintf(zpref,".%03x",addr->zone);
+		snprintf(zpref, 8, ".%03x",addr->zone);
 	}
     }
 
     p = buf + strlen(buf);
 
     if (addr->point)
-	sprintf(p,"%s/%04x%04x.pnt/%08x.sts", zpref,addr->net,addr->node,addr->point);
+	snprintf(p, PATH_MAX - strlen(buf), "%s/%04x%04x.pnt/%08x.sts", zpref,addr->net,addr->node,addr->point);
     else
-	sprintf(p,"%s/%04x%04x.sts",zpref,addr->net,addr->node);
+	snprintf(p, PATH_MAX - strlen(buf), "%s/%04x%04x.sts",zpref,addr->net,addr->node);
 
     if (domain)
 	free(domain);

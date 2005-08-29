@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - Scan mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -68,7 +68,7 @@ int load_node(fidoaddr n)
     int	    i, j = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
 	memset(&nodes, 0, sizeof(nodes));
@@ -103,9 +103,9 @@ char *size_str(long size)
     static char	fmt[25];
     
     if (size > 1048575) {
-	sprintf(fmt, "%ldK", size / 1024);
+	snprintf(fmt, 25, "%ldK", size / 1024);
     } else {
-	sprintf(fmt, "%ld ", size);
+	snprintf(fmt, 25, "%ld ", size);
     }
     return fmt;
 }
@@ -199,7 +199,7 @@ void checkdir(char *boxpath, faddr *fa, char flavor)
     if ((dp = opendir(boxpath)) != NULL) {
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", boxpath, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", boxpath, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    if (S_ISREG(sb.st_mode)) {
 			if (pw->pw_uid == sb.st_uid) {
@@ -288,7 +288,7 @@ int outstat()
 #endif
     uhour = tm.tm_hour;
     umin  = tm.tm_min;
-    sprintf(utc, "%02d:%02d", uhour, umin);
+    snprintf(utc, 6, "%02d:%02d", uhour, umin);
     Syslog('+', "Scanning outbound at %s UTC.", utc);
     nxt_hour = 24;
     nxt_min  = 0;
@@ -312,7 +312,7 @@ int outstat()
      * Check private outbound box for nodes in the setup.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	Syslog('?', "Error open %s, aborting", temp);
 	free(temp);
@@ -355,7 +355,7 @@ int outstat()
 	Syslog('o', "Checking T-Mail short box \"%s\"", CFG.tmailshort);
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.tmailshort, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    Syslog('o' ,"checking \"%s\"", de->d_name);
 		    if (S_ISDIR(sb.st_mode)) {
@@ -413,13 +413,13 @@ int outstat()
 	Syslog('o', "Checking T-Mail long box \"%s\"", CFG.tmaillong);
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.tmaillong, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    Syslog('o' ,"checking \"%s\"", de->d_name);
 		    if (S_ISDIR(sb.st_mode)) {
 			char c, d;
 			int n;
-			sprintf(temp2, "%s", de->d_name);
+			snprintf(temp2, PATH_MAX, "%s", de->d_name);
 			fa = (faddr*)malloc(sizeof(faddr));
 			fa->name = NULL;
 			fa->domain = NULL;
@@ -510,14 +510,14 @@ int outstat()
 		tmin = 0;
 	    else
 		tmin = 30;
-	    sprintf(as, "%02d:%02d", thour, tmin);
+	    snprintf(as, 6, "%02d:%02d", thour, tmin);
 	    set_next(thour, tmin);
 	    thour = toupper(tmp->t2) - 'A';
 	    if (isupper(tmp->t2))
 		tmin = 0;
 	    else
 		tmin = 30;
-	    sprintf(be, "%02d:%02d", thour, tmin);
+	    snprintf(be, 6, "%02d:%02d", thour, tmin);
 	    set_next(thour, tmin);
 	    if (strcmp(as, be) > 0) {
 		/*
@@ -691,7 +691,7 @@ int outstat()
 	/*
 	 * Show callresult for this node.
 	 */
-	sprintf(temp, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, size_str(tmp->size),
+	snprintf(temp, PATH_MAX, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, size_str(tmp->size),
 		(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
 		(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
 		tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), fido2str(tmp->addr, 0x0f));
@@ -723,7 +723,7 @@ int outstat()
     /*
      * Log results
      */
-    sprintf(waitmsg, "Next event at %02d:%02d UTC", nxt_hour, nxt_min);
+    snprintf(waitmsg, 81, "Next event at %02d:%02d UTC", nxt_hour, nxt_min);
     Syslog('+', "Systems to call: Inet=%d, ISDN=%d, POTS=%d, Next event at %02d:%02d UTC", 
 	    inet_calls, isdn_calls, pots_calls, nxt_hour, nxt_min);
     free(temp);
@@ -758,7 +758,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	(*tmp)->addr.net    = addr->net;
 	(*tmp)->addr.node   = addr->node;
 	(*tmp)->addr.point  = addr->point;
-	sprintf((*tmp)->addr.domain, "%s", addr->domain);
+	snprintf((*tmp)->addr.domain, 13, "%s", addr->domain);
 	if (nlent->addr.domain)
 	    free(nlent->addr.domain);
 	if (nlent->url)
