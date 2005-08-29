@@ -4,7 +4,7 @@
  * Purpose ...............: FullScreen Message editor.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ void Top_Help()
 
     locate(1,1);
     colour(YELLOW, BLUE);
-    sprintf(temp, "%s", padleft((char *)"Press ESC for menu, other keys is edit text", 79, ' '));
+    snprintf(temp, 81, "%s", padleft((char *)"Press ESC for menu, other keys is edit text", 79, ' '));
     PUTSTR(temp);
     Show_Ins();
 }
@@ -71,7 +71,7 @@ void Top_Menu(void)
 
     locate(1,1);
     colour(WHITE, RED);
-    sprintf(temp, "%s", padleft((char *)"(A)bort (H)elp (S)ave - Any other key is continue edit", 79, ' '));
+    snprintf(temp, 81, "%s", padleft((char *)"(A)bort (H)elp (S)ave - Any other key is continue edit", 79, ' '));
     PUTSTR(temp);
 }
 
@@ -215,7 +215,7 @@ void GetstrLC(char *sStr, int iMaxlen)
 	if ((ch > 31 && ch < 127) || traduce(&ch)) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 	    } else {
 		Beep();
@@ -325,7 +325,7 @@ void FsMove(unsigned char Direction)
 int FsWordWrap()
 {
     int		    WCol, i = 0;
-    unsigned char   tmpLine[80];
+    unsigned char   tmpLine[81];
     tmpLine[0]	    = '\0';
 
     /*
@@ -349,12 +349,12 @@ int FsWordWrap()
 	 * character 79.  Otherwise, drop it, because it's a space.
 	 */
 	if ((WCol == 80) || (WCol-1 == Col))
-	    sprintf(tmpLine, "%s%c", tmpLine, Message[CurRow][79]);
+	    snprintf(tmpLine, 81, "%s%c", tmpLine, Message[CurRow][79]);
 	/*
 	 * Grab all characters from WCol to end of line.
 	 */
 	for (i = WCol; i < strlen(Message[CurRow]); i++) {
-	    sprintf(tmpLine, "%s%c", tmpLine, Message[CurRow][i]);
+	    snprintf(tmpLine, 81, "%s%c", tmpLine, Message[CurRow][i]);
 	}
 	/*
 	 * Truncate current row.
@@ -378,8 +378,8 @@ int FsWordWrap()
 	 */
 	if ((strlen(tmpLine) + strlen(Message[CurRow+1])) > 79) {
 	    for (i = Line; i > CurRow; i--)
-		sprintf(Message[i+1], "%s", Message[i]);
-	    sprintf(Message[CurRow+1], "%s", tmpLine);
+		snprintf(Message[i+1], TEXTBUFSIZE +1, "%s", Message[i]);
+	    snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s", tmpLine);
 	    Line++;
 	    WCol = strlen(tmpLine) + 1;
 	} else {
@@ -387,10 +387,10 @@ int FsWordWrap()
 		WCol = strlen(tmpLine)+1; 
 	    else {
 		if (tmpLine[strlen(tmpLine)] != ' ')
-		    sprintf(tmpLine, "%s ", tmpLine);
+		    snprintf(tmpLine, 81, "%s ", tmpLine);
 		WCol = strlen(tmpLine);
 	    }
-	    sprintf(Message[CurRow+1], "%s", strcat(tmpLine, Message[CurRow+1]));
+	    snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s", strcat(tmpLine, Message[CurRow+1]));
 	}
     }
 
@@ -425,18 +425,18 @@ int Fs_Edit()
 			    if (Col == 1) {
 				/* Enter at beginning of line */
 				for (i = Line; i >= CurRow; i--) {
-				    sprintf(Message[i+1], "%s", Message[i]);
+				    snprintf(Message[i+1], TEXTBUFSIZE +1, "%s", Message[i]);
 				}
 				Message[i+1][0] = '\0';
 			    } else {
 				for (i = Line; i > CurRow; i--) {
-				    sprintf(Message[i+1], "%s", Message[i]);
+				    snprintf(Message[i+1], TEXTBUFSIZE +1, "%s", Message[i]);
 				}
 				Message[CurRow+1][0] = '\0';
 				if (Col <= strlen(Message[CurRow])) {
 				    /* Enter in middle of line */
 				    for (i = Col-1; i <= strlen(Message[CurRow]); i++) {
-					sprintf(Message[CurRow+1], "%s%c", Message[CurRow+1], Message[CurRow][i]);
+					snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s%c", Message[CurRow+1], Message[CurRow][i]);
 				    }
 				    Message[CurRow][Col-1] = '\0';
 				}
@@ -453,7 +453,7 @@ int Fs_Edit()
 
 	    case ('N' - 64):  /* Insert line, scroll down */
 			    for (i = Line; i >= CurRow; i--)
-				sprintf(Message[i+1], "%s", Message[i]);
+				snprintf(Message[i+1], TEXTBUFSIZE +1, "%s", Message[i]);
 			    Message[CurRow][0] = '\0';
 			    Line++;
 			    Col = 1;
@@ -481,7 +481,7 @@ int Fs_Edit()
 			    } else {
 				/* Erasing line in the middle */
 				for (i = CurRow; i < Line; i++) {
-				    sprintf(Message[i], "%s", Message[i+1]);
+				    snprintf(Message[i], TEXTBUFSIZE +1, "%s", Message[i+1]);
 				}
 				Message[i+1][0] = '\0';
 				Line--;
@@ -529,9 +529,9 @@ int Fs_Edit()
 			    } else if (((strlen(Message[CurRow]) + strlen(Message[CurRow+1]) < 75) 
 				    || (strlen(Message[CurRow]) == 0)) && (CurRow < Line)) {
 				for (i = 0; i < strlen(Message[CurRow+1]); i++)
-				    sprintf(Message[CurRow], "%s%c", Message[CurRow], Message[CurRow+1][i]);
+				    snprintf(Message[CurRow], TEXTBUFSIZE +1, "%s%c", Message[CurRow], Message[CurRow+1][i]);
 				for (i = CurRow+1; i < Line; i++)
-				    sprintf(Message[i], "%s", Message[i+1]);
+				    snprintf(Message[i], TEXTBUFSIZE +1, "%s", Message[i+1]);
 				Message[Line][0] = '\0';
 				Line--;
 				Refresh();
@@ -557,7 +557,7 @@ int Fs_Edit()
 				    Col = strlen(Message[CurRow-1]) + 1;
 				    strcat(Message[CurRow-1], Message[CurRow]);
 				    for ( i = CurRow; i < Line; i++)
-					sprintf(Message[i], "%s", Message[i+1]);
+					snprintf(Message[i], TEXTBUFSIZE +1, "%s", Message[i+1]);
 				    Message[i+1][0] = '\0';
 				    Line--;
 				    if (Row == 1) 
@@ -647,7 +647,7 @@ int Fs_Edit()
 				break;
 			    }
 
-			    sprintf(tmpname, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, filname);
+			    snprintf(tmpname, PATH_MAX, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, filname);
 			    if ((fd = fopen(tmpname, "r")) == NULL) {
 				WriteError("$Can't open %s", tmpname);
 				Enter(2);
@@ -673,7 +673,7 @@ int Fs_Edit()
 					filname[1] = 'v';
 				    if (strncmp(filname, (char *)" * Origin:", 10) == 0)
 					filname[1] = '+';
-				    sprintf(Message[Line], "%s", filname);
+				    snprintf(Message[Line], TEXTBUFSIZE +1, "%s", filname);
 				    Line++;
 				    if ((Line - 1) == TEXTBUFSIZE)
 					break;
@@ -725,7 +725,7 @@ int Fs_Edit()
 				    /*
 				     *  Append to line
 				     */
-				    sprintf(Message[CurRow], "%s%c", Message[CurRow], ch);
+				    snprintf(Message[CurRow], TEXTBUFSIZE +1, "%s%c", Message[CurRow], ch);
 				    if (strlen(Message[CurRow]) > 79){
 					Col = FsWordWrap();
 					Row++;

@@ -4,7 +4,7 @@
  * Purpose ...............: All the file sub functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -111,7 +111,7 @@ void GetstrD(char *sStr, int iMaxlen)
 	if (ch > 31 && ch < 127) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		sprintf(sStr, "%s%c", sStr, ch);
+		snprintf(sStr, iMaxlen, "%s%c", sStr, ch);
 		PUTCHAR(ch);
 	    } else
 		PUTCHAR(7);
@@ -132,7 +132,7 @@ FILE *OpenFareas(int Write)
     char	*FileArea;
 
     FileArea = calloc(PATH_MAX, sizeof(char));
-    sprintf(FileArea, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(FileArea, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 		
     if (Write)
 	pAreas = fopen(FileArea, "r+");
@@ -163,14 +163,14 @@ void Header()
 	
     pout(RED, LIGHTGRAY, (char *)" Area ");
 
-    sprintf(temp, "%-5d   ", iAreaNumber);
+    snprintf(temp, 81, "%-5d   ", iAreaNumber);
     pout(RED, LIGHTGRAY, temp);
 
-    sprintf(temp, "%-65s", sAreaDesc);
+    snprintf(temp, 81, "%-65s", sAreaDesc);
     pout(BLUE, LIGHTGRAY, temp);
     Enter(1);
 
-    colour(15,0);
+    colour(WHITE, BLACK);
     fLine(79);
 }
 
@@ -184,12 +184,12 @@ void Sheader()
     char    temp[81];
 
     PUTCHAR('\r');
-    sprintf(temp, "  %-4ld", arecno);
+    snprintf(temp, 81, "  %-4ld", arecno);
     pout(Hcolor, BLACK, temp);
 
     pout(LIGHTBLUE, BLACK, (char *)" ... ");
 
-    sprintf(temp, "%-44s", area.Name);
+    snprintf(temp, 81, "%-44s", area.Name);
     pout(Hcolor, BLACK, temp);
 
     if (Hcolor < WHITE)
@@ -245,7 +245,7 @@ void Mark()
     }
 
     /* Marked: */
-    sprintf(temp, "%s%d, %dK; ", (char *) Language(360), Count, Size);
+    snprintf(temp, 81, "%s%d, %dK; ", (char *) Language(360), Count, Size);
     pout(CFG.HiliteF, CFG.HiliteB, temp);
 
     /* Mark file number of press <Enter> to stop */
@@ -354,25 +354,25 @@ int ShowOneFile()
 
     if (!fdb.Deleted) {
 
-	sprintf(temp, " %02d ", Tagnr);
+	snprintf(temp, 81, " %02d ", Tagnr);
 	pout(LIGHTGRAY, BLACK, temp);
 
-	sprintf(temp, "%-12s", fdb.Name);
+	snprintf(temp, 81, "%-12s", fdb.Name);
 	pout(CFG.FilenameF, CFG.FilenameB, temp);
 
-	sprintf(temp, "%10lu ", (long)(fdb.Size));
+	snprintf(temp, 81, "%10lu ", (long)(fdb.Size));
 	pout(CFG.FilesizeF, CFG.FilesizeB, temp);
 
-	sprintf(temp, "%-10s  ", StrDateDMY(fdb.UploadDate));
+	snprintf(temp, 81, "%-10s  ", StrDateDMY(fdb.UploadDate));
 	pout(CFG.FiledateF, CFG.FiledateB, temp);
 
-	sprintf(temp, "[%4ld] ", fdb.TimesDL);
+	snprintf(temp, 81, "[%4ld] ", fdb.TimesDL);
 	pout(LIGHTRED, BLACK, temp);
 
 	if ((strcmp(fdb.Uploader, "")) == 0)
 	    strcpy(fdb.Uploader, "SysOp");
 
-	sprintf(temp, "%s%s", (char *) Language(238), fdb.Uploader);
+	snprintf(temp, 81, "%s%s", (char *) Language(238), fdb.Uploader);
 	pout(CFG.HiliteF, CFG.HiliteB, temp);
 	Enter(1);
 
@@ -390,10 +390,10 @@ int ShowOneFile()
 		    else
 			fg = (int)fdb.Desc[z][3] - 48;
 		    bg = (int)fdb.Desc[z][2] - 48;
-		    sprintf(temp, "    %s",fdb.Desc[z]+4);
+		    snprintf(temp, 81, "    %s",fdb.Desc[z]+4);
 		    pout(fg, bg, temp);
 		} else {
-		    sprintf(temp, "    %s",fdb.Desc[z]);
+		    snprintf(temp, 81, "    %s",fdb.Desc[z]);
 		    pout(CFG.FiledescF, CFG.FiledescB, temp);
 		}
 		Enter(1);
@@ -425,7 +425,7 @@ int CheckBytesAvailable(long CostSize)
 	    Enter(2);
 
 	    /* Kilobytes currently available: */
-	    sprintf(temp, "%s%lu Kbytes.", (char *) Language(254), exitinfo.DownloadKToday);
+	    snprintf(temp, 81, "%s%lu Kbytes.", (char *) Language(254), exitinfo.DownloadKToday);
 	    pout(YELLOW, BLACK, temp);
 	    Enter(2);
 
@@ -447,7 +447,7 @@ void Home()
     char    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
     chdir(temp);
     free(temp);
 }
@@ -468,10 +468,10 @@ int ScanDirect(char *fn)
     stdlog = calloc(PATH_MAX, sizeof(char));
     errlog = calloc(PATH_MAX, sizeof(char));
     
-    sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
-    sprintf(temp1, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-    sprintf(stdlog, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
-    sprintf(errlog, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(temp,   PATH_MAX, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    snprintf(temp1,  PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
 
     if ((fp = fopen(temp1, "r")) != NULL) {
 	fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
@@ -480,7 +480,7 @@ int ScanDirect(char *fn)
 
 	    if (virscan.available) {
 				      /* Scanning */               /* with */
-		sprintf(msg, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
+		snprintf(msg, 81, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 		pout(CFG.TextColourF, CFG.TextColourB, msg);
 
 		Altime(3600);
@@ -508,12 +508,12 @@ int ScanDirect(char *fn)
 		if (err != virscan.error) {
 		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
 		    /* Possible VIRUS found! */
-		    sprintf(msg, "%s", (char *) Language(199));
+		    snprintf(msg, 81, "%s", (char *) Language(199));
 		    pout(CFG.HiliteF, CFG.HiliteB, msg);
 		    Found = TRUE;
 		} else {
 		    /* Ok */
-		    sprintf(msg, "%s", (char *) Language(200));
+		    snprintf(msg, 81, "%s", (char *) Language(200));
 		    PUTSTR(msg);
 		}
 		Enter(1);
@@ -556,9 +556,9 @@ int ScanArchive(char *fn, char *ftype)
     stdlog = calloc(PATH_MAX, sizeof(char));
     errlog = calloc(PATH_MAX, sizeof(char));
 	
-    sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-    sprintf(stdlog, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
-    sprintf(errlog, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(temp,   PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
 	
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
@@ -579,7 +579,7 @@ int ScanArchive(char *fn, char *ftype)
     }
 
     cwd = getcwd(cwd, 80);
-    sprintf(temp, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
     if (chdir(temp)) {
 	WriteError("$Can't chdir(%s)", temp);
 	free(temp);
@@ -587,13 +587,13 @@ int ScanArchive(char *fn, char *ftype)
     }
 
     /* Unpacking archive */
-    sprintf(msg, "%s %s ", (char *) Language(201), fn);
+    snprintf(msg, 81, "%s %s ", (char *) Language(201), fn);
     pout(CFG.TextColourF, CFG.TextColourB, msg);
 
     if (!strlen(archiver.funarc)) {
 	WriteError("No unarc command available");
     } else {
-	sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+	snprintf(temp, PATH_MAX, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
 	if (execute_str(archiver.funarc, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
 	    WriteError("$Failed %s %s", archiver.funarc, temp);
 	    execute_pth((char *)"rm", (char *)"-r -f ./*", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
@@ -610,7 +610,7 @@ int ScanArchive(char *fn, char *ftype)
     PUTSTR((char *) Language(200));
     Enter(1);
 
-    sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 
     if ((fp = fopen(temp, "r")) != NULL) {
 	fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
@@ -618,7 +618,7 @@ int ScanArchive(char *fn, char *ftype)
 
 	    if (virscan.available) {
 				    /* Scanning */		   /* with */
-		sprintf(msg, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
+		snprintf(msg, 81, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 		pout(CFG.TextColourF, CFG.TextColourB, msg);
 
 		Altime(3600);
@@ -699,9 +699,9 @@ char *GetFileType(char *fn)
 
 	for (i = 0; i < sizeof(buf); i++)
 		if ((buf[i] >= ' ') && (buf[i] <= 127))
-			sprintf((char*)dbuf+strlen(dbuf), "  %c", buf[i]);
+			snprintf((char*)dbuf+strlen(dbuf), 80, "  %c", buf[i]);
 		else
-			sprintf((char*)dbuf+strlen(dbuf), " %02x", buf[i]);
+			snprintf((char*)dbuf+strlen(dbuf), 80, " %02x", buf[i]);
 
 	/*
 	 * Various expected uploads. Not that the standard MS-DOS archivers
@@ -765,8 +765,8 @@ int ImportFile(char *fn, int Area, int fileid, off_t Size)
 
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s", area.Path, basename(fn));
-    sprintf(temp1, "%s", fn);
+    snprintf(temp, PATH_MAX, "%s/%s", area.Path, basename(fn));
+    snprintf(temp1, PATH_MAX, "%s", fn);
 
     if ((file_mv(temp1, temp))) {
 	WriteError("$Can't move %s to %s", fn, area.Path);
@@ -786,7 +786,7 @@ int ImportFile(char *fn, int Area, int fileid, off_t Size)
 		exitinfo.UploadKToday += (Size / 1024);
 		Syslog('b', "Uploads %d, Kb %d, Kb today %d", exitinfo.Uploads, exitinfo.UploadK, exitinfo.UploadKToday);
 		/* You have */  /* extra download KBytes. */
-		sprintf(msg, "%s %ld %s", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
+		snprintf(msg, 81, "%s %ld %s", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
 		PUTSTR(msg);
 		Enter(1);
 	
@@ -826,7 +826,7 @@ int Addfile(char *File, int AreaNum, int fileid)
     temp1    = calloc(PATH_MAX, sizeof(char));  
     lname    = calloc(PATH_MAX, sizeof(char));
 	
-    sprintf(Filename, "%s/%s", area.Path, File);
+    snprintf(Filename, PATH_MAX, "%s/%s", area.Path, File);
 
     if ((fdb_area = mbsedb_OpenFDB(AreaNum, 30))) {
 	/*
@@ -839,7 +839,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    Enter(1);
 	    colour(10, 0);
 	    /* Upload was unsuccessful for: */
-	    sprintf(msg, "%s%s", (char *) Language(284), File);
+	    snprintf(msg, 81, "%s%s", (char *) Language(284), File);
 	    pout(LIGHTGREEN, BLACK, msg);
 	    Enter(2);
 
@@ -865,7 +865,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	     * Rename the file first to the 8.3 name, this is the
 	     * standard way to store files in the filebase.
 	     */
-	    sprintf(lname, "%s/%s", area.Path, fdb.Name);
+	    snprintf(lname, PATH_MAX, "%s/%s", area.Path, fdb.Name);
 	    rename(Filename, lname);
 	    /*
 	     * Then make a symlink to the 8.3 name
@@ -896,7 +896,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	     * The right unarchiver is still in memory,
 	     * get the FILE_ID.DIZ if it exists.
 	     */
-	    sprintf(temp, "%s/%s", area.Path, File);
+	    snprintf(temp, PATH_MAX, "%s/%s", area.Path, File);
 	    if ((err = execute_str(archiver.iunarc, temp, (char *)"FILE_ID.DIZ", (char *)"/dev/null", 
 					(char *)"/dev/null", (char *)"/dev/null"))) {
 		if ((err = execute_str(archiver.iunarc, temp, (char *)"file_id.diz", (char *)"/dev/null",
@@ -969,7 +969,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 		if (lines) {
 		    Syslog('+', "Using %d FILE_ID.DIZ lines for description", lines);
 		    /* Found FILE_ID.DIZ in */
-		    sprintf(msg, "%s %s", (char *) Language(257), File);
+		    snprintf(msg, 81, "%s %s", (char *) Language(257), File);
 		    pout(CFG.TextColourF, CFG.TextColourB, msg);
 		    Enter(1);
 		} else {
@@ -988,12 +988,12 @@ int Addfile(char *File, int AreaNum, int fileid)
 
 	    Enter(1);
 	    /* Please enter description of file */
-	    sprintf(msg, "%s %s", (char *) Language(287), File);
+	    snprintf(msg, 81, "%s %s", (char *) Language(287), File);
 	    pout(LIGHTRED, BLACK, msg);
 	    Enter(2);
 
 	    while (TRUE) {
-		sprintf(msg, "%2d> ", iDesc);
+		snprintf(msg, 81, "%2d> ", iDesc);
 		pout(LIGHTGREEN, BLACK, msg);
 		colour(CFG.InputColourF, CFG.InputColourB);
 		GetstrC(*(Desc + iDesc), 47);
@@ -1017,7 +1017,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	mbsedb_InsertFDB(fdb_area, fdb, area.AddAlpha);
 	mbsedb_CloseFDB(fdb_area);
 
-	sprintf(temp, "%s/log/uploads.log", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/log/uploads.log", getenv("MBSE_ROOT"));
 	if ((pPrivate = fopen(temp, "a+")) == NULL)
 	    WriteError("$Can't open %s", temp);
 	else {
@@ -1089,13 +1089,13 @@ unsigned long Quota()
     FileName = calloc(PATH_MAX, sizeof(char));
     temp     = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
 
     if ((dirp = opendir(temp)) == NULL) {
 	WriteError("$Can't open dir %s", temp);
     } else {
 	while ((dp = readdir(dirp)) != NULL) {
-	    sprintf(FileName, "%s/%s", temp, dp->d_name);
+	    snprintf(FileName, PATH_MAX, "%s/%s", temp, dp->d_name);
 
 	    if (*(dp->d_name) != '.')
 		if (stat(FileName, &statfile) == 0)
@@ -1118,8 +1118,8 @@ void ImportHome(char *fn)
 
     temp1 = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp1, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
-    sprintf(temp2, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    snprintf(temp1, PATH_MAX, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    snprintf(temp2, PATH_MAX, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
 
     Syslog('+', "Move %s to home, result %d", fn, file_mv(temp2, temp1));
     free(temp1);

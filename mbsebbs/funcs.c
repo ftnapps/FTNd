@@ -4,7 +4,7 @@
  * Purpose ...............: Misc functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004 
+ * Copyright (C) 1997-2005 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -58,7 +58,7 @@ int CheckStatus()
 {
     static	char buf[81], msg[81];
 
-    sprintf(buf, "SBBS:0;");
+    snprintf(buf, 81, "SBBS:0;");
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
 	if (strncmp(buf, "100:2,0", 7) == 0)
@@ -68,7 +68,7 @@ int CheckStatus()
 	buf[strlen(buf) -1] = '\0';
 	Enter(2);
 	PUTCHAR('\007');
-	sprintf(msg, "*** %s ***", buf+8);
+	snprintf(msg, 81, "*** %s ***", buf+8);
 	PUTSTR(msg);
 	Enter(3);
     }
@@ -90,7 +90,7 @@ int CheckName(char *Name)
 
     temp   = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp,"rb")) != NULL) {
 	fread(&ushdr, sizeof(ushdr), 1, fp);
 
@@ -152,7 +152,7 @@ int CheckUnixNames(char *name)
      */
     if (! rc) {
         temp = calloc(PATH_MAX, sizeof(char));
-        sprintf(temp, "%s/etc/service.data", getenv("MBSE_ROOT"));
+        snprintf(temp, PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r")) != NULL) {
             fread(&servhdr, sizeof(servhdr), 1, fp);
 
@@ -200,7 +200,7 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 		ExitClient(MBERR_INIT_ERROR);
 	}
 
-	sprintf(temp1, "%s/%s", CFG.bbs_usersdir, Name);
+	snprintf(temp1, PATH_MAX, "%s/%s", CFG.bbs_usersdir, Name);
 
 	/*
 	 * Then check to see if users directory exists in the home dir
@@ -225,7 +225,7 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 	 * Check if user has a .signature file.
 	 * If not, create a simple one.
 	 */
-	sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, Name);
+	snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, Name);
 	if (access(temp, R_OK)) {
 	    Syslog('+', "Creating users .signature file");
 	    if ((fp = fopen(temp, "w")) == NULL) {
@@ -241,19 +241,19 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 	/*
 	 * Check subdirectories, create them if they don't exist.
 	 */
-	sprintf(temp, "%s/wrk", temp1);
+	snprintf(temp, PATH_MAX, "%s/wrk", temp1);
 	CheckDir(temp);
-	sprintf(temp, "%s/tag", temp1);
+	snprintf(temp, PATH_MAX, "%s/tag", temp1);
 	CheckDir(temp);
-	sprintf(temp, "%s/upl", temp1);
+	snprintf(temp, PATH_MAX, "%s/upl", temp1);
 	CheckDir(temp);
-	sprintf(temp, "%s/tmp", temp1);
+	snprintf(temp, PATH_MAX, "%s/tmp", temp1);
 	CheckDir(temp);
-	sprintf(temp, "%s/.dosemu", temp1);
+	snprintf(temp, PATH_MAX, "%s/.dosemu", temp1);
 	CheckDir(temp);
-	sprintf(temp, "%s/.dosemu/run", temp1);
+	snprintf(temp, PATH_MAX, "%s/.dosemu/run", temp1);
 	CheckDir(temp);
-	sprintf(temp, "%s/.dosemu/tmp", temp1);
+	snprintf(temp, PATH_MAX, "%s/.dosemu/tmp", temp1);
 	CheckDir(temp);
 	umask(007);
 
@@ -261,13 +261,13 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 	 * Check users private emailboxes
 	 */
 	if (Mailboxes) {
-		sprintf(temp, "%s/mailbox", temp1);
+		snprintf(temp, PATH_MAX, "%s/mailbox", temp1);
 		if (Msg_Open(temp))
 			Msg_Close();
-		sprintf(temp, "%s/archive", temp1);
+		snprintf(temp, PATH_MAX, "%s/archive", temp1);
 		if (Msg_Open(temp))
 			Msg_Close();
-		sprintf(temp, "%s/trash", temp1);
+		snprintf(temp, PATH_MAX, "%s/trash", temp1);
 		if (Msg_Open(temp))
 			Msg_Close();
 	}
@@ -309,7 +309,7 @@ void FindMBSE()
 	if (getenv("MBSE_ROOT") == NULL) {
 		pw = getpwnam("mbse");
 		memset(&p, 0, sizeof(p));
-		sprintf(p, "MBSE_ROOT=%s", pw->pw_dir);
+		snprintf(p, 81, "MBSE_ROOT=%s", pw->pw_dir);
 		putenv(p);
 	}
 
@@ -318,7 +318,7 @@ void FindMBSE()
 		free(FileName);
 		exit(MBERR_INIT_ERROR);
 	}
-	sprintf(FileName, "%s/etc/config.data", getenv("MBSE_ROOT"));
+	snprintf(FileName, PATH_MAX, "%s/etc/config.data", getenv("MBSE_ROOT"));
 
 	if(( pDataFile = fopen(FileName, "rb")) == NULL) {
 		printf("FATAL ERROR: Can't open %s for reading!\n", FileName);
@@ -397,10 +397,9 @@ char *GLCdateyy()
 	Time_Now = time(NULL);
 	l_date = localtime(&Time_Now);
 
-	sprintf(GLcdateyy,"%02d-",
-	  l_date->tm_mday);
+	snprintf(GLcdateyy, 15, "%02d-", l_date->tm_mday);
 
-	sprintf(ntime,"-%02d", l_date->tm_year+1900);
+	snprintf(ntime, 15, "-%02d", l_date->tm_year+1900);
 	strcat(GLcdateyy, GetMonth(l_date->tm_mon+1));
 	strcat(GLcdateyy,ntime);
 
