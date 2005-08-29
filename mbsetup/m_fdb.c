@@ -4,7 +4,7 @@
  * Purpose ...............: Edit Files DataBase.
  *
  *****************************************************************************
- * Copyright (C) 1999-2004
+ * Copyright (C) 1999-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -118,7 +118,7 @@ void E_F(long areanr)
 
     clr_index();
 
-    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), areanr);
+    snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), areanr);
     if ((fil = fopen(temp, "r+")) == NULL) {
 	working(2, 0, 0);
 	return;
@@ -154,7 +154,7 @@ void E_F(long areanr)
 		set_color(WHITE, BLACK);
 		mbse_mvprintw(y, 1, (char *)"%4d.", o + i);
 
-		sprintf(temp, "%s/%s", area.Path, fdb.LName);
+		snprintf(temp, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 		Ondisk = ((stat(temp, &statfile)) != -1);
 
 		if (fdb.Deleted)
@@ -181,7 +181,7 @@ void E_F(long areanr)
 		}
 
 		set_color(CYAN, BLACK);
-		sprintf(temp, "%s", fdb.Desc[0]);
+		snprintf(temp, 81, "%s", fdb.Desc[0]);
 		temp[30] = '\0';
 		mbse_mvprintw(y,49, (char *)"%s", temp);
 		y++;
@@ -190,11 +190,11 @@ void E_F(long areanr)
 
 	if (records)
 	    if (records > 10)
-		sprintf(help, "^1..%d^ Edit, ^-^ Return, ^N^/^P^ Page", records);
+		snprintf(help, 81, "^1..%d^ Edit, ^-^ Return, ^N^/^P^ Page", records);
 	    else
-		sprintf(help, "^1..%d^ Edit, ^-^ Return", records); 
+		snprintf(help, 81, "^1..%d^ Edit, ^-^ Return", records); 
 	else
-	    sprintf(help, "^-^ Return");
+	    snprintf(help, 81, "^-^ Return");
 
 	showhelp(help);
 
@@ -234,7 +234,7 @@ void E_F(long areanr)
 		crc = upd_crc32((char *)&fdb, crc, fdbhdr.recsize);
 		o = ((atoi(menu) - 1) / 10) * 10;
 				
-		sprintf(temp, "%s/%s", area.Path, fdb.LName);
+		snprintf(temp, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 		EditFile();
 
 		crc1 = 0xffffffff;
@@ -285,7 +285,7 @@ void EditFDB()
 	mbse_mvprintw( 5, 4, "14. EDIT FILES DATABSE");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&areahdr, sizeof(areahdr), 1, fil);
@@ -305,7 +305,7 @@ void EditFDB()
 			    set_color(CYAN, BLACK);
 			else
 			    set_color(LIGHTBLUE, BLACK);
-			sprintf(temp, "%3d.  %-32s", o + i, area.Name);
+			snprintf(temp, 81, "%3d.  %-32s", o + i, area.Name);
 			temp[37] = 0;
 			mbse_mvprintw(y, x, temp);
 			y++;
@@ -329,7 +329,7 @@ void EditFDB()
 		o = o - 20;
 
 	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		offset = areahdr.hdrsize + ((atoi(pick) - 1) * areahdr.recsize);
 		fseek(fil, offset, SEEK_SET);
@@ -367,19 +367,19 @@ void InitFDB(void)
 	return;
     
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(temp, "r")) != NULL) {
 	fread(&areahdr, sizeof(areahdr), 1, fil);
 
 	while (fread(&area, areahdr.recsize, 1, fil)) {
 	    Area++;
 	    if (area.Available) {
-		sprintf(temp, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
 		if ((fp1 = fopen(temp, "r")) != NULL) {
 		    /*
 		     * Old area available, upgrade.
 		     */
-		    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 		    if ((fp2 = fopen(temp, "w+")) == NULL) {
 			WriteError("$Can't create %s", temp);
 		    } else {
@@ -392,7 +392,7 @@ void InitFDB(void)
 			    memset(&fdb, 0, fdbhdr.recsize);
 			    strncpy(fdb.Name, old.Name, sizeof(fdb.Name) -1);
 			    strncpy(fdb.LName, old.LName, sizeof(fdb.LName) -1);
-			    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+			    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 			    if ((ft = fopen(temp, "r")) != NULL) {
 				fread(&tichdr, sizeof(tichdr), 1, ft);
 				while (fread(&tic, tichdr.recsize, 1, ft)) {
@@ -418,11 +418,11 @@ void InitFDB(void)
 			    /*
 			     * Search the magic directory to see if this file is a magic file.
 			     */
-			    sprintf(temp, "%s", CFG.req_magic);
+			    snprintf(temp, 81, "%s", CFG.req_magic);
 			    if ((dp = opendir(temp)) != NULL) {
 				while ((de = readdir(dp))) {
 				    if (de->d_name[0] != '.') {
-					sprintf(temp, "%s/%s", CFG.req_magic, de->d_name);
+					snprintf(temp, PATH_MAX, "%s/%s", CFG.req_magic, de->d_name);
 					/*
 					 * Only regular files without execute permission are magic requests.
 					 */
@@ -452,7 +452,7 @@ void InitFDB(void)
 			Syslog('+', "Upgraded file area database %d", Area);
 		    }
 		    fclose(fp1);
-		    sprintf(temp, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
 		    unlink(temp);
 		} // Old area type upgrade.
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Fidonet structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ int CountFidonet(void)
     char    ffile[PATH_MAX];
     int	    count;
 
-    sprintf(ffile, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -64,10 +64,10 @@ int CountFidonet(void)
 	     * Fill in the defaults
 	     */
 	    memset(&fidonet, 0, sizeof(fidonet));
-	    sprintf(fidonet.comment,  "Fidonet network");
-	    sprintf(fidonet.domain,   "fidonet");
-	    sprintf(fidonet.nodelist, "NODELIST");
-	    sprintf(fidonet.seclist[0].nodelist, "REGION28");
+	    snprintf(fidonet.comment,  41, "Fidonet network");
+	    snprintf(fidonet.domain,   13, "fidonet");
+	    snprintf(fidonet.nodelist,  9, "NODELIST");
+	    snprintf(fidonet.seclist[0].nodelist, 9, "REGION28");
 	    fidonet.seclist[0].zone = 2;
 	    fidonet.seclist[0].net = 28;
 	    fidonet.zone[0] = 2;
@@ -108,8 +108,8 @@ int OpenFidonet(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&fidonethdr, sizeof(fidonethdr), 1, fin);
@@ -157,8 +157,8 @@ void CloseFidonet(int force)
 	FILE	*fi, *fo;
 	st_list	*fid = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
 
 	if (FidoUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -171,7 +171,7 @@ void CloseFidonet(int force)
 
 			while (fread(&fidonet, fidonethdr.recsize, 1, fi) == 1)
 				if (!fidonet.deleted) {
-					sprintf(temp, "%05d", fidonet.zone[0]);
+					snprintf(temp, 10, "%05d", fidonet.zone[0]);
 					fill_stlist(&fid, temp, ftell(fi) - fidonethdr.recsize);
 				}
 			sort_stlist(&fid);
@@ -206,7 +206,7 @@ int AppendFidonet(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&fidonet, 0, sizeof(fidonet));
 		fwrite(&fidonet, sizeof(fidonet), 1, fil);
@@ -234,7 +234,7 @@ int EditFidoRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Fidonet");
 
-    sprintf(mfile, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -283,7 +283,7 @@ int EditFidoRec(int Area)
 	for (i = 0; i < 6; i++) {
 	    if ((fidonet.seclist[i].zone) || strlen(fidonet.seclist[i].nodelist)) {
 		show_str(i + 12,26,8, fidonet.seclist[i].nodelist);
-		sprintf(temp, "%d:%d/%d", fidonet.seclist[i].zone, fidonet.seclist[i].net, fidonet.seclist[i].node);
+		snprintf(temp, 18, "%d:%d/%d", fidonet.seclist[i].zone, fidonet.seclist[i].net, fidonet.seclist[i].node);
 		show_str(i + 12, 36,17, temp);
 	    } else 
 		show_str(i + 12,26,27, (char *)"                           ");
@@ -341,7 +341,7 @@ int EditFidoRec(int Area)
 				(char *)"The secondary ^nodelist^ or ^pointlist^ name for this domain"));
 		    if (strlen(fidonet.seclist[j-6].nodelist)) {
 			do {
-			    sprintf(temp, "%d:%d/%d", fidonet.seclist[j-6].zone, 
+			    snprintf(temp, 18, "%d:%d/%d", fidonet.seclist[j-6].zone, 
 				    fidonet.seclist[j-6].net, fidonet.seclist[j-6].node);
 			    strcpy(temp, edit_str(j+6,36,17, temp, 
 					(char *)"The top ^fidonet aka^ for this nodelist (zone:net/node)"));
@@ -408,7 +408,7 @@ void EditFidonet(void)
 		mbse_mvprintw( 5, 4, "2.  FIDONET SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
 				x = 2;
@@ -426,7 +426,7 @@ void EditFidonet(void)
 						x = 42;
 						y = 7;
 					}
-					sprintf(temp, "%3d.  z%d: %-32s", i, fidonet.zone[0], fidonet.comment);
+					snprintf(temp, 81, "%3d.  z%d: %-32s", i, fidonet.zone[0], fidonet.comment);
 					temp[38] = 0;
 					mbse_mvprintw(y, x, temp);
 					y++;
@@ -474,7 +474,7 @@ void gold_akamatch(FILE *fp)
     faddr   *want, *ta;
     int     i;
 
-    sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
     if ((fido = fopen(temp, "r")) == NULL)
 	return;
 
@@ -533,7 +533,7 @@ int fido_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *fido;
     int	    i, j;
 
-    sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
     if ((fido = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -558,7 +558,7 @@ int fido_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 
-	sprintf(temp, "fidonet_%d.html", fidonet.zone[0]);
+	snprintf(temp, 81, "fidonet_%d.html", fidonet.zone[0]);
 	fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, fidonet.zone[0], fidonet.comment, getboolean(fidonet.available));
 
@@ -574,14 +574,14 @@ int fido_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Nodelist", fidonet.nodelist);
 	    for (i = 0; i < 6; i++)
 		if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone) {
-		    sprintf(temp, "%d %-8s %d:%d/%d", i+1, fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
+		    snprintf(temp, 81, "%d %-8s %d:%d/%d", i+1, fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
 			fidonet.seclist[i].net, fidonet.seclist[i].node);
 		    add_webtable(wp, (char *)"Merge list", temp);
 		}
-	    sprintf(temp, "%d", fidonet.zone[0]);
+	    snprintf(temp, 81, "%d", fidonet.zone[0]);
 	    for (i = 1; i < 6; i++)
 		if (fidonet.zone[i])
-		    sprintf(temp, "%s %d", temp, fidonet.zone[i]);
+		    snprintf(temp, 81, "%s %d", temp, fidonet.zone[i]);
 	    add_webtable(wp, (char *)"Zone(s)", temp);
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");

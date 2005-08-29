@@ -4,7 +4,7 @@
  * Purpose ...............: Setup FGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -56,7 +56,7 @@ int CountFGroup(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -94,8 +94,8 @@ int OpenFGroup(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			FGrpUpdated = 0;
@@ -142,7 +142,7 @@ int OpenFGroup(void)
 				    fgroup.FileId    = TRUE;
 				    memset(&temp, 0, sizeof(temp));
 				    strcpy(temp, fgroup.Name);
-				    sprintf(fgroup.BasePath, "%s/ftp/pub/%s", getenv("MBSE_ROOT"), tl(temp));
+				    snprintf(fgroup.BasePath, 65, "%s/ftp/pub/%s", getenv("MBSE_ROOT"), tl(temp));
 				}
 				if (FGrpUpdated && !fgroup.LinkSec.level) {
 				    fgroup.LinkSec.level = 1;
@@ -170,8 +170,8 @@ void CloseFGroup(int force)
 	FILE	*fi, *fo;
 	st_list	*fgr = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 
 	if (FGrpUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -216,7 +216,7 @@ int AppendFGroup(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&fgroup, 0, sizeof(fgroup));
 		fgroup.StartDate = time(NULL);
@@ -317,7 +317,7 @@ int EditFGrpRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit FileGroup");
 
-	sprintf(mfile, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -407,7 +407,7 @@ int EditFGrpRec(int Area)
 				if (isupper(temp[i]))
 				    temp[i] = tolower(temp[i]);
 			    }
-			    sprintf(fgroup.BasePath, "%s/%s", CFG.ftp_base, temp);
+			    snprintf(fgroup.BasePath, 65, "%s/%s", CFG.ftp_base, temp);
 			}
 			if (strlen(fgroup.BbsGroup) == 0)
 			    strcpy(fgroup.BbsGroup, fgroup.Name);
@@ -515,7 +515,7 @@ void EditFGroup(void)
 	mbse_mvprintw( 5, 4, "10.1 FILE GROUPS SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
@@ -535,7 +535,7 @@ void EditFGroup(void)
 			    set_color(CYAN, BLACK);
 			else
 			    set_color(LIGHTBLUE, BLACK);
-			sprintf(temp, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
+			snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
 			temp[38] = '\0';
 			mbse_mvprintw(y, x, temp);
 			y++;
@@ -618,11 +618,11 @@ char *PickFGroup(char *shdr)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		sprintf(temp, "%s.  FILE GROUP SELECT", shdr);
+		snprintf(temp, 81, "%s.  FILE GROUP SELECT", shdr);
 		mbse_mvprintw( 5, 4, temp);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
@@ -642,7 +642,7 @@ char *PickFGroup(char *shdr)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
+						snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
 						temp[38] = '\0';
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -666,7 +666,7 @@ char *PickFGroup(char *shdr)
 				o = o - 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 			fil = fopen(temp, "r");
 			offset = fgrouphdr.hdrsize + ((atoi(pick) - 1) * fgrouphdr.recsize);
 			fseek(fil, offset, 0);
@@ -687,7 +687,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
     int	    refs, i, First = TRUE;;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return page;
@@ -714,7 +714,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "\n\n");
 	}
 
-	sprintf(temp, "filegroup_%s.html", fgroup.Name);
+	snprintf(temp, 81, "filegroup_%s.html", fgroup.Name);
 	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, fgroup.Name, fgroup.Comment, getboolean(fgroup.Active));
 
@@ -730,7 +730,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Use Aka", aka2str(fgroup.UseAka));
 	    add_webtable(wp, (char *)"Uplink Aka", aka2str(fgroup.UpLink));
 	    add_webtable(wp, (char *)"Areas file", fgroup.AreaFile);
-	    sprintf(temp, "%ld", fgroup.StartArea);
+	    snprintf(temp, 81, "%ld", fgroup.StartArea);
 	    add_webtable(wp, (char *)"Start autocreate BBS area", temp);
 	    add_webtable(wp, (char *)"Banner file", fgroup.Banner);
 	    add_webtable(wp, (char *)"Default archiver", fgroup.Convert);
@@ -756,7 +756,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 		fgroup.BbsGroup, fgroup.BbsGroup);
 	    fprintf(wp, "<TR><TH align='left'>Newfiles announce group</TH><TD><A HREF=\"newgroup.html\">%s</A></TD></TH>\n",
 		fgroup.AnnGroup);
-	    sprintf(temp, "%d", fgroup.Upload);
+	    snprintf(temp, 81, "%d", fgroup.Upload);
 	    add_webtable(wp, (char *)"Upload area", temp);
 	    add_webtable(wp, (char *)"Start date", ctime(&fgroup.StartDate));
 	    add_webtable(wp, (char *)"Last active date", ctime(&fgroup.LastDate));
@@ -765,7 +765,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>BBS File Areas Reference</H3>\n");
 	    i = refs = 0;
-	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&areahdr, sizeof(areahdr), 1, ti);
 		while ((fread(&area, areahdr.recsize, 1, ti)) == 1) {
@@ -791,7 +791,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>TIC Areas Reference</H3>\n");
 	    refs = 0;
-	    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&tichdr, sizeof(tichdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);
@@ -820,7 +820,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Nodes Reference</H3>\n");
 	    refs = 0;
-	    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);

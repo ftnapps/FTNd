@@ -4,7 +4,7 @@
  * Purpose ...............: Filefind Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,7 +53,7 @@ int CountFilefind(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -89,8 +89,8 @@ int OpenFilefind(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, fin);
@@ -117,7 +117,7 @@ int OpenFilefind(void)
 			memset(&scanmgr, 0, sizeof(scanmgr));
 			while (fread(&scanmgr, oldsize, 1, fin) == 1) {
 				if (!strlen(scanmgr.template)) {
-				    sprintf(scanmgr.template, "filefind");
+				    snprintf(scanmgr.template, 15, "filefind");
 				    FilefindUpdated = 1;
 				}
 				if (!scanmgr.keywordlen) {
@@ -145,8 +145,8 @@ void CloseFilefind(int force)
 	FILE	*fi, *fo;
 	st_list	*fff = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
 
 	if (FilefindUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -190,14 +190,14 @@ int AppendFilefind(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&scanmgr, 0, sizeof(scanmgr));
 		/*
 		 * Fill in default values
 		 */
 		scanmgr.Language = 'E';
-		sprintf(scanmgr.template, "filefind");
+		snprintf(scanmgr.template, 15, "filefind");
 		strncpy(scanmgr.Origin, CFG.origin, 50);
 		scanmgr.keywordlen = 3;
 		fwrite(&scanmgr, sizeof(scanmgr), 1, fil);
@@ -247,7 +247,7 @@ int EditFfRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Filefind");
 
-    sprintf(mfile, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -273,7 +273,7 @@ int EditFfRec(int Area)
 	show_str(  9,18,35, aka2str(scanmgr.Aka));
 	show_str( 10,18,50, scanmgr.ScanBoard);
 	show_str( 11,18,50, scanmgr.ReplBoard);
-	sprintf(temp1, "%c", scanmgr.Language);
+	snprintf(temp1, 2, "%c", scanmgr.Language);
 	show_str( 12,18,2,  temp1);
 	show_str( 13,18,14, scanmgr.template);
 	show_bool(14,18,    scanmgr.Active);
@@ -359,7 +359,7 @@ void EditFilefind(void)
 		mbse_mvprintw( 5, 4, "13. FILEFIND AREAS");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, fil);
@@ -379,7 +379,7 @@ void EditFilefind(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-32s", o + i, scanmgr.Comment);
+						snprintf(temp, 81, "%3d.  %-32s", o + i, scanmgr.Comment);
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -436,7 +436,7 @@ int ff_doc(FILE *fp, FILE *toc, int page)
     FILE    *ti, *wp, *ip, *no;
     int	    refs, nr, i = 0, j;
 
-    sprintf(temp, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -460,7 +460,7 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 
-	sprintf(temp, "filefind_%d.html", i);
+	snprintf(temp, 81, "filefind_%d.html", i);
 	fprintf(ip, " <LI><A HREF=\"%s\">%3d %s</A></LI>\n", temp, i, scanmgr.Comment);
 	if ((wp = open_webdoc(temp, (char *)"Filefind Area", scanmgr.Comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"filefind.html\">Back</A>\n");
@@ -473,7 +473,7 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Aka to use", aka2str(scanmgr.Aka));
 	    add_webtable(wp, (char *)"Scan msg board", scanmgr.ScanBoard);
 	    add_webtable(wp, (char *)"Reply msg board", scanmgr.ReplBoard);
-	    sprintf(temp, "%c", scanmgr.Language);
+	    snprintf(temp, 81, "%c", scanmgr.Language);
 	    add_webtable(wp, (char *)"Language", temp);
 	    add_webtable(wp, (char *)"Template file", scanmgr.template);
 	    add_webtable(wp, (char *)"Active", getboolean(scanmgr.Active));
@@ -486,7 +486,7 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>BBS File Areas Reference</H3>\n");
 	    nr = refs = 0;
-	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&areahdr, sizeof(areahdr), 1, ti);
 		while ((fread(&area, areahdr.recsize, 1, ti)) == 1) {
