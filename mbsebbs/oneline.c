@@ -310,7 +310,7 @@ void Oneliner_Show()
     FILE    *pOneline;
     int	    recno = 0;
     long    offset;
-    char    *sFileName, msg[11];
+    char    *sFileName, msg[81];
 
     sFileName = calloc(PATH_MAX, sizeof(char));
     snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
@@ -320,15 +320,20 @@ void Oneliner_Show()
 	return;
     }
     fread(&olhdr, sizeof(olhdr), 1, pOneline);
+    fseek(pOneline, 0, SEEK_END);
+    recno = (ftell(pOneline) - olhdr.hdrsize) / olhdr.recsize;
 
     Enter(1);
     /* Please enter number to list: */
-    pout(WHITE, BLACK, Language(347));
+    snprintf(msg, 81, "%s (1..%d) ", Language(347), recno -1);
+    pout(WHITE, BLACK, msg);
     colour(CFG.InputColourF, CFG.InputColourB);
-    scanf("%d", &recno);
+    msg[0] = '\0';
+    Getnum(msg, 10);
+    recno = atoi(msg);
 
     offset = olhdr.hdrsize + (recno * olhdr.recsize);
-    if (fseek(pOneline, offset, 0) != 0)
+    if (fseek(pOneline, offset, SEEK_SET) != 0)
 	WriteError("Can't move pointer in %s",sFileName); 
 
     fread(&ol, olhdr.recsize, 1, pOneline);

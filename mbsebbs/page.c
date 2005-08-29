@@ -247,7 +247,7 @@ void GetPageStr(char *sStr, int iMaxlen)
 	if (ch > 31 && ch < 127) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
-		snprintf(sStr, 4, "%s%c", sStr, ch);
+		snprintf(sStr + strlen(sStr), 5, "%c", ch);
 		PUTCHAR(ch);
 		fflush(stdout);
 	    } else
