@@ -4,7 +4,7 @@
  * Purpose ...............: Menu Utils
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -122,7 +122,7 @@ void addtoc(FILE *fp, FILE *toc, int chapt, int par, int page, char *title)
 	char	temp[81];
 	char	*tit;
 
-	sprintf(temp, "%s ", title);
+	snprintf(temp, 81, "%s ", title);
 	tit = xstrcpy(title);
 	tu(tit);
 
@@ -152,7 +152,7 @@ FILE *open_webdoc(char *filename, char *title, char *title2)
     time_t  now;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/share/doc/html/%s", getenv("MBSE_ROOT"), filename);
+    snprintf(temp, PATH_MAX, "%s/share/doc/html/%s", getenv("MBSE_ROOT"), filename);
     mkdirs(temp, 0755);
 
     if ((fp = fopen(temp, "w+")) == NULL) {
@@ -215,7 +215,7 @@ void add_webtable(FILE *fp, char *hstr, char *dstr)
     if (strlen(dstr))
 	html_massage(dstr, right, 1023);
     else
-	sprintf(right, "&nbsp;");
+	snprintf(right, 1024, "&nbsp;");
     fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%s</TD></TR>\n", left, right);
 }
 

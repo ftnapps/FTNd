@@ -4,7 +4,7 @@
  * Purpose ...............: String sorting for databases.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ void fill_stlist(st_list **fdp, char *stringname, long pos)
 
 	tmp = (st_list *)malloc(sizeof(st_list));
 	tmp->next = *fdp;
-	sprintf(tmp->string, "%s", stringname);
+	snprintf(tmp->string, 81, "%s", stringname);
 	tmp->pos = pos;
 	*fdp = tmp;
 }

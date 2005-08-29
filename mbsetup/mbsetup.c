@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -93,7 +93,7 @@ static void die(int onsig)
 	/*
 	 * Export ~/etc/msg.txt for MsgEd.
 	 */
-	sprintf(temp, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "w")) != NULL) {
 	    fprintf(fp, "; msg.txt -- Automatic created by mbsetup %s -- Do not edit!\n;\n", VERSION);
 	    fprintf(fp, "; Mail areas for MsgEd.\n;\n");
@@ -107,7 +107,7 @@ static void die(int onsig)
 	/*
 	 * Export ~/etc/golded.inc for GoldED
 	 */
-	sprintf(temp, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "w")) != NULL) {
 	    fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
 	    fprintf(fp, "; Basic information.\n;\n");
@@ -158,7 +158,7 @@ void soft_info(void)
 	temp = calloc(81, sizeof(char));
 	clr_index();
 	set_color(YELLOW, BLACK);
-	sprintf(temp, "MBSE BBS (%s-%s)", OsName(), OsCPU());
+	snprintf(temp, 81, "MBSE BBS (%s-%s)", OsName(), OsCPU());
 	center_addstr( 6, temp);
 	set_color(WHITE, BLACK);
 	center_addstr( 8, (char *)COPYRIGHT);
@@ -166,12 +166,12 @@ void soft_info(void)
 	center_addstr(10, (char *)"Made in the Netherlands");
 	set_color(WHITE, BLACK);
 #ifdef __GLIBC__
-	sprintf(temp, "Compiled on glibc v%d.%d", __GLIBC__, __GLIBC_MINOR__);
+	snprintf(temp, 81, "Compiled on glibc v%d.%d", __GLIBC__, __GLIBC_MINOR__);
 #else
 #ifdef __GNU_LIBRARY__
-	sprintf(temp, "Compiled on libc v%d", __GNU_LIBRARY__);
+	snprintf(temp, 81, "Compiled on libc v%d", __GNU_LIBRARY__);
 #else
-	sprintf(temp, "Compiled on unknown library");
+	snprintf(temp, 81, "Compiled on unknown library");
 #endif
 #endif
 	center_addstr(12, temp);
@@ -198,12 +198,12 @@ void site_docs(void)
     if (config_read() == -1)
 	return;
 
-    sprintf(temp, "%s/share/doc/site.doc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/share/doc/site.doc", getenv("MBSE_ROOT"));
     mkdirs(temp, 0755);
     if ((fp = fopen(temp, "w")) == NULL)
 	return;
 
-    sprintf(temp1, "%s/tmp/toc.tmp", getenv("MBSE_ROOT"));
+    snprintf(temp1, PATH_MAX, "%s/tmp/toc.tmp", getenv("MBSE_ROOT"));
     if ((toc = fopen(temp1, "w+")) == NULL) {
 	fclose(fp);
 	return;
@@ -220,7 +220,7 @@ void site_docs(void)
     mbse_mvprintw( 7,11, (char *)"Erasing directory         %s/share/doc/html", getenv("MBSE_ROOT"));
     fflush(stdout);
 
-    sprintf(temp, "-r -f %s/share/doc/html", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "-r -f %s/share/doc/html", getenv("MBSE_ROOT"));
     execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 
     if ((hp = open_webdoc((char *)"index.html", (char *)"BBS Site Documentation", NULL))) {
@@ -333,9 +333,9 @@ void site_docs(void)
     /*
      * Remove obsolete documents
      */
-    sprintf(temp, "%s/doc/xref.doc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/doc/xref.doc", getenv("MBSE_ROOT"));
     unlink(temp);
-    sprintf(temp, "%s/doc/stat.doc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/doc/stat.doc", getenv("MBSE_ROOT"));
     unlink(temp);
 
     center_addstr(LINES -4, (char *)"Press any key");
@@ -412,7 +412,7 @@ int main(int argc, char *argv[])
     config_check(getenv("MBSE_ROOT"));
     config_read();
     if (strlen(CFG.debuglog) == 0)
-	sprintf(CFG.debuglog, "debug.log");
+	snprintf(CFG.debuglog, 15, "debug.log");
     InitClient(pw->pw_name, (char *)"mbsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     /*
