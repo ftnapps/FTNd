@@ -292,7 +292,7 @@ void Check_Attach(void)
 		pout(YELLOW, BLACK, (char *)Language(245));
 		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 		alarm_on();
-		sprintf(Attach, "%s/", CFG.uxpath);
+		snprintf(Attach, PATH_MAX, "%s/", CFG.uxpath);
 		PUTSTR(Attach);
 		GetstrP(Attach, 71, strlen(Attach));
 		if (strcmp(Attach, "") == 0)
@@ -305,11 +305,11 @@ void Check_Attach(void)
 			if (strlen(CFG.dospath))
 			    strcpy(Msg.Subject, dospath);
 			else
-			    sprintf(Msg.Subject, "%s", Attach);
+			    snprintf(Msg.Subject, 101, "%s", Attach);
 			Msg.FileAttach = TRUE;
 			Enter(1);
 			/* File */ /* will be attached */
-			sprintf(msg, "%s %s %s", (char *)Language(464), Msg.Subject, Language(465));
+			snprintf(msg, 81, "%s %s %s", (char *)Language(464), Msg.Subject, Language(465));
 			pout(LIGHTCYAN, BLACK, msg);
 			Enter(1);
 			sleep(2);
@@ -317,7 +317,7 @@ void Check_Attach(void)
 		    } else {
 			Enter(1);
 			/* File not within */
-			sprintf(msg, "%s \"%s\"", Language(466), CFG.uxpath);
+			snprintf(msg, 81, "%s \"%s\"", Language(466), CFG.uxpath);
 			pout(LIGHTGREEN, BLACK, msg);
 			Enter(1);
 			Pause();
@@ -354,14 +354,14 @@ void SysopComment(char *Cmt)
      *  Make sure that the .quote file is empty.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
     if ((fp = fopen(temp, "w")) != NULL)
 	fclose(fp);
     free(temp);
 
     SetMsgArea(CFG.iSysopArea -1);
-    sprintf(Msg.From, "%s", CFG.sysop_name);
-    sprintf(Msg.Subject, "%s", Cmt);
+    snprintf(Msg.From, 101, "%s", CFG.sysop_name);
+    snprintf(Msg.Subject, 101, "%s", Cmt);
     Reply_Msg(FALSE);
 
     SetMsgArea(tmp);
@@ -411,7 +411,7 @@ void Post_Msg()
 
     Enter(1);
     /* Posting message in area: */
-    sprintf(msg, "%s\"%s\"", (char *) Language(156), sMsgAreaDesc);
+    snprintf(msg, 81, "%s\"%s\"", (char *) Language(156), sMsgAreaDesc);
     pout(LIGHTBLUE, BLACK, msg);
     Enter(1);
 
@@ -438,7 +438,7 @@ void Post_Msg()
 		strcpy(Msg.From, exitinfo.sUserName);
 		tlcap(Msg.From);
 	    } else {
-		sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
+		snprintf(Msg.From, 101, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
 	    }
 	} else {
 	    strcpy(Msg.From, exitinfo.sUserName);
@@ -514,7 +514,7 @@ void Post_Msg()
 			else
 			    PUTSTR((char *)"Node     : ");
 			Dest->point = point;
-			sprintf(msg, "%s in %s", Nlent->name, Nlent->location);
+			snprintf(msg, 81, "%s in %s", Nlent->name, Nlent->location);
 			pout(CFG.MsgInputColourF, CFG.MsgInputColourB, msg);
 			/* " Is this correct [y/N]: " */
 			pout(YELLOW, BLACK, (char *)Language(21));
@@ -523,7 +523,7 @@ void Post_Msg()
 
 			if (toupper(Readkey()) == Keystroke(21, 0)) {
 			    Enter(1);
-			    sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
+			    snprintf(Msg.ToAddress, 101, "%s", ascfnode(Dest, 0x1f));
 			    x = TRUE;
 			    switch (Crash_Option(Dest)) {
 				case 1:	Msg.Crash = TRUE;
@@ -612,10 +612,10 @@ void Post_Msg()
 		 */
 		for (i = Line; i; i--) {
 		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
-		    sprintf(Message[i + 1], Message[i]);
+		    snprintf(Message[i + 1], TEXTBUFSIZE +1, Message[i]);
 		}
 		Line++;
-		sprintf(Message[1], " +: Original message to %s", ascfnode(Dest, 0x4f));
+		snprintf(Message[1], TEXTBUFSIZE +1, " +: Original message to %s", ascfnode(Dest, 0x4f));
 		for (i = 1; i <= Line; i++) {
 		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
 		}
@@ -673,7 +673,7 @@ int Save_CC(int IsReply, char *ccline)
     if (j <= i) {
 	Syslog('+', "Could not parse %s", printable(ccline, 0));
 	/* Could not parse */
-	sprintf(msg, "%s \"%s\"", Language(22), printable(ccline, 0));
+	snprintf(msg, 81, "%s \"%s\"", Language(22), printable(ccline, 0));
 	pout(LIGHTRED, BLACK, msg);
 	Enter(1);
 	Pause();
@@ -690,7 +690,7 @@ int Save_CC(int IsReply, char *ccline)
     if (strlen(username) == 0) {
 	Syslog('+', "Could not extract username from %s", printable(ccline, 0));
 	/* Could not parse */
-	sprintf(msg, "%s \"%s\"", Language(22), printable(ccline, 0));
+	snprintf(msg, 81, "%s \"%s\"", Language(22), printable(ccline, 0));
 	pout(LIGHTRED, BLACK, msg);
 	Enter(1);
 	Pause();
@@ -700,7 +700,7 @@ int Save_CC(int IsReply, char *ccline)
     if ((Dest = parsefnode(ccline + j)) == NULL) {
 	Syslog('+', "Could not extract address from %s", printable(ccline, 0));
 	/* Could not parse */
-	sprintf(msg, "%s \"%s\"", Language(22), printable(ccline, 0));
+	snprintf(msg, 81, "%s \"%s\"", Language(22), printable(ccline, 0));
 	pout(LIGHTRED, BLACK, msg);
 	Enter(1);
 	Pause();
@@ -710,7 +710,7 @@ int Save_CC(int IsReply, char *ccline)
     Dest->name = tlcap(printable(username, 0));
     Syslog('b', "Dest %s", ascfnode(Dest, 0xff));
     Enter(1);
-    sprintf(msg, "Confirm CC to %s", ascfnode(Dest, 0xff));
+    snprintf(msg, 81, "Confirm CC to %s", ascfnode(Dest, 0xff));
     pout(LIGHTMAGENTA, BLACK, msg);
     Enter(1);
 
@@ -724,7 +724,7 @@ int Save_CC(int IsReply, char *ccline)
 	else
 	    PUTSTR((char *)"Node     : ");
 	Dest->point = point;
-	sprintf(msg, "%s in %s", Nlent->name, Nlent->location);
+	snprintf(msg, 81, "%s in %s", Nlent->name, Nlent->location);
 	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, msg);
 	/* " Is this correct [y/N]: " */
 	pout(YELLOW, BLACK, (char *)Language(21));
@@ -733,7 +733,7 @@ int Save_CC(int IsReply, char *ccline)
     
 	if (toupper(Readkey()) == Keystroke(21, 0)) {
 	    Enter(1);
-	    sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
+	    snprintf(Msg.ToAddress, 101, "%s", ascfnode(Dest, 0x1f));
 	    x = TRUE;
 	    switch (Crash_Option(Dest)) {
 		case 1: Msg.Crash = TRUE;
@@ -797,9 +797,9 @@ int Save_Msg(int IsReply, faddr *Dest)
 	 *  Send message to internet gateway.
 	 */
 	Syslog('m', "UUCP message to %s", Msg.ReplyAddr);
-	sprintf(Msg.To, "UUCP");
+	snprintf(Msg.To, 101, "UUCP");
 	Add_Headkludges(Dest, IsReply);
-	sprintf(temp, "To: %s", Msg.ReplyAddr);
+	snprintf(temp, 101, "To: %s", Msg.ReplyAddr);
 	MsgText_Add2(temp);
 	MsgText_Add2((char *)"");
     } else {
@@ -820,7 +820,7 @@ int Save_Msg(int IsReply, faddr *Dest)
     Msg_AddMsg();
     Msg_UnLock();
 
-    sprintf(temp, " (%ld)", Msg.Id);
+    snprintf(temp, 81, " (%ld)", Msg.Id);
     PUTSTR(temp);
     Enter(1);
 		
@@ -838,7 +838,7 @@ int Save_Msg(int IsReply, faddr *Dest)
     msgs.Posted.tdow[Diw]++;
     msgs.Posted.month[Miy]++;
 
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	
     if ((fp = fopen(temp, "r+")) != NULL) {
 	fseek(fp, msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize)), SEEK_SET);
@@ -847,7 +847,7 @@ int Save_Msg(int IsReply, faddr *Dest)
     }
 
     if (strlen(msgs.Group)) {
-	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r+")) != NULL) {
 	    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
 	    while ((fread(&mgroup, mgrouphdr.recsize, 1, fp)) == 1) {
@@ -874,7 +874,8 @@ int Save_Msg(int IsReply, faddr *Dest)
      */
     if (msgs.Type != LOCALMAIL) {
 	do_mailout = TRUE;
-	sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
+	snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), 
+		((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 	if ((fp = fopen(temp, "a")) != NULL) {
 	    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
 	    fclose(fp);
@@ -905,10 +906,10 @@ void ShowMsgHdr(int Conv)
     Buf3[0] = '\0';
 
     clear();
-    sprintf(msg, "   %-70s", sMsgAreaDesc);
+    snprintf(msg, 81, "   %-70s", sMsgAreaDesc);
     pout(BLUE, LIGHTGRAY, msg);
 
-    sprintf(msg, "#%-5lu", Msg.Id);
+    snprintf(msg, 81,"#%-5lu", Msg.Id);
     pout(RED, LIGHTGRAY, msg);
     Enter(1);
 
@@ -918,7 +919,7 @@ void ShowMsgHdr(int Conv)
     /* Use intermediate variable to prevent SIGBUS on Sparc's */
     now = Msg.Written;
     tm = gmtime(&now);
-    sprintf(msg, "%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
+    snprintf(msg, 81, "%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
 		tm->tm_year+1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
     PUTSTR(msg);
 
@@ -965,7 +966,7 @@ void ShowMsgHdr(int Conv)
     colour(color++, BLACK);
     PUTSTR(Msg.From);
     if (iMsgAreaType != LOCALMAIL) {
-	sprintf(msg, " (%s)", Msg.FromAddress);
+	snprintf(msg, 81, " (%s)", Msg.FromAddress);
 	pout(color, BLACK, msg);
     }
     Enter(1);
@@ -979,7 +980,7 @@ void ShowMsgHdr(int Conv)
     colour(color++, BLACK);
     PUTSTR(Msg.To);
     if (iMsgAreaType == NETMAIL) {
-	sprintf(msg, " (%s)", Msg.ToAddress);
+	snprintf(msg, 81, " (%s)", Msg.ToAddress);
 	pout(color, BLACK, msg);
     }
     Enter(1);
@@ -1003,11 +1004,11 @@ void ShowMsgHdr(int Conv)
     colour(CFG.HiliteF, CFG.HiliteB);
     colour(YELLOW, BLUE);
     if (Msg.Reply)
-	sprintf(Buf1, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
+	snprintf(Buf1, 35, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
     if (Msg.Original)
-	sprintf(Buf2, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
-    sprintf(Buf3, "%s%s ", Buf1, Buf2);
-    sprintf(msg, "%77s  ", Buf3);
+	snprintf(Buf2, 35, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
+    snprintf(Buf3, 35, "%s%s ", Buf1, Buf2);
+    snprintf(msg, 81, "%77s  ", Buf3);
     pout(YELLOW, BLUE, msg);
     Enter(1);
 }
@@ -1106,9 +1107,9 @@ int Export_a_Msg(unsigned long Num)
      */
     p = calloc(PATH_MAX, sizeof(char));
     if (homedir)
-	sprintf(p, "%s/%s/wrk/%d_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, iMsgAreaNumber + 1, Num);
+	snprintf(p, PATH_MAX, "%s/%s/wrk/%d_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, iMsgAreaNumber + 1, Num);
     else
-	sprintf(p, "%s/%s", CFG.rulesdir, msgs.Tag);
+	snprintf(p, PATH_MAX, "%s/%s", CFG.rulesdir, msgs.Tag);
 
     if ((qf = fopen(p, "w")) != NULL) {
 	free(p);
@@ -1149,7 +1150,7 @@ int Export_a_Msg(unsigned long Num)
     if (homedir) {
 	/* Message exported to your private directory as: */
 	pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(46));
-	sprintf(msg, "%d_%lu.msg", iMsgAreaNumber + 1, Num);
+	snprintf(msg, 81, "%d_%lu.msg", iMsgAreaNumber + 1, Num);
 	pout(CFG.HiliteF, CFG.HiliteB, msg);
     } else {
 	/* Message exported to rules directory as */
@@ -1224,8 +1225,8 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
      * wrapping is set lower then normal message read, to create room
      * for the Quote> strings at the start of each line.
      */
-    fn = calloc(128, sizeof(char));
-    sprintf(fn, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    fn = calloc(PATH_MAX, sizeof(char));
+    snprintf(fn, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
     if ((qf = fopen(fn, "w")) != NULL) {
 	if (Msg_Read(Num, 75)) {
 	    if ((p = (char *)MsgText_First()) != NULL)
@@ -1384,7 +1385,7 @@ void Read_Msgs()
     temp = calloc(81, sizeof(char));
     Enter(1);
 	/* Message area \"%s\" contains %lu messages. */
-    sprintf(temp, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc, 
+    snprintf(temp, 81, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc, 
 		(char *) Language(222), MsgBase.Total, (char *) Language(223));
     pout(CFG.TextColourF, CFG.TextColourB, temp);
 
@@ -1410,11 +1411,11 @@ void Read_Msgs()
 
     Enter(1);
     /* Please enter a message between */
-    sprintf(temp, "%s(%lu - %lu)", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
+    snprintf(temp, 81, "%s(%lu - %lu)", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
     pout(WHITE, BLACK, temp);
     Enter(1);
     /* Message number [ */
-    sprintf(temp, "%s%lu]: ", (char *) Language(225), Start);
+    snprintf(temp, 81, "%s%lu]: ", (char *) Language(225), Start);
     PUTSTR(temp);
 
     colour(CFG.InputColourF, CFG.InputColourB);
@@ -1568,7 +1569,7 @@ void Reply_Msg(int IsReply)
     Syslog('m', "Parsed from address %s", ascfnode(Dest, 0x1f));
 
     if (strncasecmp(Msg.Subject, "Re:", 3) && strncasecmp(Msg.Subject, "Re^2:", 5) && IsReply) {
-	sprintf(subj, "Re: ");
+	snprintf(subj, 73, "Re: ");
 	strncpy(subj+4, Msg.Subject, 68);
     } else {
 	strncpy(subj, Msg.Subject, 72);
@@ -1580,9 +1581,9 @@ void Reply_Msg(int IsReply)
     x = 0;
     WhosDoingWhat(READ_POST, NULL);
     clear();
-    sprintf(msg, "   %-71s", sMsgAreaDesc);
+    snprintf(msg, 81, "   %-71s", sMsgAreaDesc);
     pout(BLUE, LIGHTGRAY, msg);
-    sprintf(msg, "#%-5lu", MsgBase.Highest + 1);
+    snprintf(msg, 81, "#%-5lu", MsgBase.Highest + 1);
     pout(RED, LIGHTGRAY, msg);
     Enter(1);
 
@@ -1613,7 +1614,7 @@ void Reply_Msg(int IsReply)
 		strcpy(Msg.From, exitinfo.sUserName);
 		tlcap(Msg.From);
 	    } else {
-		sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
+		snprintf(Msg.From, 101, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
 	    }
 	} else {
 	    strncpy(Msg.From, exitinfo.sUserName, 100);
@@ -1681,7 +1682,7 @@ void Reply_Msg(int IsReply)
      */
     Line = 1;
     if (IsReply) {
-	sprintf(Message[1], "%s wrote to %s:", to, from);
+	snprintf(Message[1], TEXTBUFSIZE +1, "%s wrote to %s:", to, from);
 	memset(&qin, 0, sizeof(qin));
 	x = TRUE;
 	j = 0;
@@ -1701,11 +1702,11 @@ void Reply_Msg(int IsReply)
 	tmp = calloc(PATH_MAX, sizeof(char));
 	buf = calloc(129, sizeof(char));
 
-	sprintf(tmp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(tmp, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
 	if ((qf = fopen(tmp, "r")) != NULL) {
 	    while ((fgets(buf, 128, qf)) != NULL) {
 		Striplf(buf);
-		sprintf(Message[Line], "%s> %s", (char *)qin, buf);
+		snprintf(Message[Line], TEXTBUFSIZE +1, "%s> %s", (char *)qin, buf);
 		Line++;
 		if (Line == TEXTBUFSIZE)
 		    break;
@@ -1739,10 +1740,10 @@ void Reply_Msg(int IsReply)
 		 */
 		for (i = Line; i; i--) {
 		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
-		    sprintf(Message[i + 1], Message[i]);
+		    snprintf(Message[i + 1], TEXTBUFSIZE +1, Message[i]);
 		}
 		Line++;
-		sprintf(Message[1], " +: Original message to %s", ascfnode(Dest, 0x4f));
+		snprintf(Message[1], TEXTBUFSIZE +1, " +: Original message to %s", ascfnode(Dest, 0x4f));
 		for (i = 1; i <= Line; i++) {
 		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
 		}
@@ -1832,20 +1833,20 @@ void QuickScan_Msgs()
 	    if (Msg_ReadHeader(i) && ((msgs.Type != NETMAIL) || 
 				    ((msgs.Type == NETMAIL) && ((IsMe(Msg.From)) || (IsMe(Msg.To)))))) {
 				
-		sprintf(msg, "%-6lu", Msg.Id);
+		snprintf(msg, 81, "%-6lu", Msg.Id);
 		pout(WHITE, BLACK, msg);
-		sprintf(msg, "%s ", padleft(Msg.From, 20, ' '));
+		snprintf(msg, 81, "%s ", padleft(Msg.From, 20, ' '));
 		if (IsMe(Msg.From))
 		    pout(LIGHTCYAN, BLACK, msg);
 		else
 		    pout(CYAN, BLACK, msg);
 
-		sprintf(msg, "%s ", padleft(Msg.To, 20, ' '));
+		snprintf(msg, 81, "%s ", padleft(Msg.To, 20, ' '));
 		if (IsMe(Msg.To))
 		    pout(LIGHTGREEN, BLACK, msg);
 		else
 		    pout(GREEN, BLACK, msg);
-		sprintf(msg, "%s", padleft(Msg.Subject, 31, ' '));
+		snprintf(msg, 81, "%s", padleft(Msg.Subject, 31, ' '));
 		pout(MAGENTA, BLACK, msg);
 		Enter(1);
 		FoundMsg = TRUE;
@@ -1895,13 +1896,13 @@ void Delete_Msg()
     temp = calloc(81, sizeof(char));
     Enter(1);
     /* Message area \"%s\" contains %lu messages. */
-    sprintf(temp, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc,
+    snprintf(temp, 81, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc,
 	    (char *) Language(222), MsgBase.Total, (char *) Language(223));
     pout(CFG.TextColourF, CFG.TextColourB, temp);
 
     Enter(1);
     /* Please enter a message between */
-    sprintf(temp, "%s(%lu - %lu): ", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
+    snprintf(temp, 81, "%s(%lu - %lu): ", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
     pout(WHITE, BLACK, temp);
 
     colour(CFG.InputColourF, CFG.InputColourB);
@@ -1996,7 +1997,7 @@ void MsgArea_List(char *Option)
     lastread	LR;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
     /*
      * Save old area, incase he picks a invalid area
@@ -2169,7 +2170,7 @@ void MsgArea_List(char *Option)
 	if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active)) {
 	    msgs.Name[31] = '\0';
 
-	    sprintf(msg, "%5d", Recno + 1);
+	    snprintf(msg, 81, "%5d", Recno + 1);
 	    pout(WHITE, BLACK, msg);
 
 	    colour(LIGHTBLUE, BLACK);
@@ -2194,7 +2195,7 @@ void MsgArea_List(char *Option)
 		PUTSTR((char *)" . ");
 	    }
 
-	    sprintf(msg, "%-31s", msgs.Name);
+	    snprintf(msg, 81, "%-31s", msgs.Name);
 	    pout(CYAN, BLACK, msg);
 
 	    iAreaCount++;
@@ -2353,7 +2354,7 @@ int CheckUser(char *To)
     unsigned long   Crc;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((pUsrConfig = fopen(temp,"rb")) == NULL) {
 	WriteError("$Can't open file %s for reading", temp);
 	Pause();
@@ -2433,7 +2434,7 @@ void CheckMail()
 	PUTCHAR('\r');
 	PUTSTR((char *)"e-mail  Private e-mail mailbox");
 	Count = 0;
-	sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
 	SetEmailArea((char *)"mailbox");
 	if (Msg_Open(temp)) {
 	    /*
@@ -2471,7 +2472,7 @@ void CheckMail()
 	if (Count) {
 	    Enter(2);
 	    /* messages in */
-	    sprintf(temp, "%d %s private e-mail mailbox", Count, (char *)Language(213));
+	    snprintf(temp, 81, "%d %s private e-mail mailbox", Count, (char *)Language(213));
 	    pout(CFG.TextColourF, CFG.TextColourB, temp);
 	    Enter(2);
 	    Syslog('m', "  %d messages in private e-mail mailbox", Count);
@@ -2482,7 +2483,7 @@ void CheckMail()
      * Open the message base configuration
      */
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
 	WriteError("$Can't open: %s", sFileName);
 	free(temp);
@@ -2498,13 +2499,13 @@ void CheckMail()
 	fseek(pMsgArea, msgshdr.syssize, SEEK_CUR);
 	if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
 	    SetMsgArea(iMsgAreaNumber);
-	    sprintf(temp, "%d", iMsgAreaNumber + 1);
+	    snprintf(temp, 81, "%d", iMsgAreaNumber + 1);
 	    if (Color < WHITE)
 		Color++;
 	    else
 		Color = LIGHTBLUE;
 	    PUTCHAR('\r');
-	    sprintf(msg, "%6s  %-40s", temp, sMsgAreaDesc);
+	    snprintf(msg, 81, "%6s  %-40s", temp, sMsgAreaDesc);
 	    pout(Color, BLACK, msg);
 	    Count = 0;
 	    /*
@@ -2544,7 +2545,7 @@ void CheckMail()
 	    if (Count) {
 		Enter(2);
 		/* messages in */
-		sprintf(msg, "%d %s %s", Count, (char *)Language(213), sMsgAreaDesc);
+		snprintf(msg, 81, "%d %s %s", Count, (char *)Language(213), sMsgAreaDesc);
 		pout(CFG.TextColourF, CFG.TextColourB, msg);
 		Enter(2);
 		Syslog('m', "  %d messages in %s", Count, sMsgAreaDesc);
@@ -2562,7 +2563,7 @@ void CheckMail()
     if (Found) {
 	Enter(1);
 	/* You have messages, read your mail now? [Y/n]: */
-	sprintf(msg, "%s%d %s", (char *) Language(142), Found, (char *) Language(143));
+	snprintf(msg, 81, "%s%d %s", (char *) Language(142), Found, (char *) Language(143));
 	pout(YELLOW, BLACK, msg);
 	colour(CFG.InputColourF, CFG.InputColourB);
 	alarm_on();
@@ -2639,13 +2640,13 @@ void MailStatus()
     iMsgAreaNumber = 0;
     clear();
     /* Area Type Description                                   Messages Personal */
-    sprintf(msg, "%-79s", (char *)Language(226));
+    snprintf(msg, 81, "%-79s", (char *)Language(226));
     pout(YELLOW, BLUE, msg);
     Enter(1);
     iLineCount = 2;
 
     if (exitinfo.Email) {
-	sprintf(temp, "%s", sMailbox);
+	snprintf(temp, 81, "%s", sMailbox);
 	for (i = 0; i < 3; i++) {
 	    switch (i) {
 		case 0:	SetEmailArea((char *)"mailbox");
@@ -2656,17 +2657,17 @@ void MailStatus()
 			break;
 	    }
 	    pout(LIGHTRED, BLACK, (char *)"      Email");
-	    sprintf(msg, " %-40s", Language(467 + i));
+	    snprintf(msg, 81, " %-40s", Language(467 + i));
 	    pout(LIGHTCYAN, BLACK, msg);
 	    if (EmailBase.Highest)
-		sprintf(msg, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
+		snprintf(msg, 81, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
 	    else
-		sprintf(msg, "        0");
+		snprintf(msg, 81, "        0");
 	    pout(YELLOW, BLACK, msg);
 	    if (EmailBase.Highest)
-		sprintf(msg, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
+		snprintf(msg, 81, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
 	    else
-		sprintf(msg, "        0");
+		snprintf(msg, 81, "        0");
 	    pout(LIGHTBLUE, BLACK, msg);
 	    Enter(1);
 	}
@@ -2677,7 +2678,7 @@ void MailStatus()
     /*
      * Open the message base configuration
      */
-    sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
 	free(sFileName);
@@ -2692,8 +2693,8 @@ void MailStatus()
 	fseek(pMsgArea, msgshdr.syssize, SEEK_CUR);
 	if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
 	    SetMsgArea(iMsgAreaNumber);
-	    sprintf(temp, "%d", iMsgAreaNumber + 1);
-	    sprintf(msg, "%5s", temp);
+	    snprintf(temp, 81, "%d", iMsgAreaNumber + 1);
+	    snprintf(msg, 81, "%5s", temp);
 	    pout(WHITE, BLACK, msg);
 	    colour(LIGHTRED, BLACK);
 	    switch(msgs.Type) {
@@ -2707,7 +2708,7 @@ void MailStatus()
 		case NEWS:	PUTSTR((char *)" News ");
 				break;
 	    }
-	    sprintf(msg, " %-40s", sMsgAreaDesc);
+	    snprintf(msg, 81, " %-40s", sMsgAreaDesc);
 	    pout(LIGHTCYAN, BLACK, msg);
 	    Count = 0;
 
@@ -2722,11 +2723,11 @@ void MailStatus()
 	    } else
 		WriteError("Error open JAM %s", sMsgAreaBase);
 	    if (MsgBase.Highest)
-		sprintf(msg, " %8lu", MsgBase.Highest - MsgBase.Lowest + 1);
+		snprintf(msg, 81, " %8lu", MsgBase.Highest - MsgBase.Lowest + 1);
 	    else
-		sprintf(msg, "        0");
+		snprintf(msg, 81, "        0");
 	    pout(YELLOW, BLACK, msg);
-	    sprintf(msg, " %8d", Count);
+	    snprintf(msg, 81, " %8d", Count);
 	    pout(LIGHTBLUE, BLACK, msg);
 	    Enter(1);
 	    if (LC(1))
@@ -2753,7 +2754,7 @@ void SetMsgArea(unsigned long AreaNum)
     char    *sFileName;
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     memset(&msgs, 0, sizeof(msgs));
 
     if ((pMsgArea = fopen(sFileName, "r")) == NULL) {
@@ -2810,7 +2811,7 @@ int Ext_Edit()
 
     tmpname = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(tmpname, "%s/%s/data.msg", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(tmpname, PATH_MAX, "%s/%s/data.msg", CFG.bbs_usersdir, exitinfo.Name);
     if ((fd = fopen(tmpname, "w")) == NULL) {
 	Syslog('+',"EXT_EDIT: Unable to open %s for writing", tmpname);
     } else {
@@ -2827,7 +2828,7 @@ int Ext_Edit()
 	fclose(fd);
     }
 
-    sprintf(tmpname, "%s/%s/edit.msg", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(tmpname, PATH_MAX, "%s/%s/edit.msg", CFG.bbs_usersdir, exitinfo.Name);
     if ((fd = fopen(tmpname, "w")) == NULL) {
 	Syslog('+',"EXT_EDIT: Unable to open %s for writing", tmpname);
     } else {
@@ -2866,7 +2867,7 @@ int Ext_Edit()
 		    if (strncmp(l, (char *)" * Origin:", 10) == 0)
 			l[1] = '+';
 		}
-		sprintf(Message[i],"%s",l);
+		snprintf(Message[i], TEXTBUFSIZE +1, "%s",l);
 		i++;
 	    }
 	    changed=TRUE;

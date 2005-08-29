@@ -4,7 +4,7 @@
  * Purpose ...............: Make a log entry
  *
  *****************************************************************************
- * Copyright (C) 1997-2004 
+ * Copyright (C) 1997-2005 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -55,7 +55,7 @@ void LogEntry(char *Log)
 			if(*(Log + i) == '^')
 				strcat(Entry, sMsgAreaDesc);
 			else {
-				sprintf(temp, "%c", *(Log + i));
+				snprintf(temp, 1, "%c", *(Log + i));
 				strcat(Entry, temp);
 			}
 	}
