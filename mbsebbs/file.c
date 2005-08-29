@@ -134,7 +134,7 @@ void File_List()
 
 	if (fdb.Deleted) {
 	    /* D E L E T E D */ /* Uploaded by: */
-	    sprintf(temp, " -- %-12s     %s     [%4ld] %s%s\n", fdb.Name, (char *) Language(239), 
+	    snprintf(temp, 81, " -- %-12s     %s     [%4ld] %s%s\n", fdb.Name, (char *) Language(239), 
 				fdb.TimesDL, (char *) Language(238), fdb.Uploader);
 	    PUTSTR(temp);
 	}
@@ -147,7 +147,7 @@ void File_List()
 	
     Enter(1);
     /* Total Files: */
-    sprintf(temp, "%s%d / %d bytes", (char *) Language(242), FileCount, FileBytes);
+    snprintf(temp, 81, "%s%d / %d bytes", (char *) Language(242), FileCount, FileBytes);
     pout(LIGHTCYAN, BLACK, temp);
     Enter(2);
 
@@ -178,9 +178,9 @@ void Download(void)
      * Clean users tag directory.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "-rf %s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "-rf %s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
     execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
     CheckDir(temp);
 
     if ((tf = fopen("taglist", "r+")) == NULL) {
@@ -219,7 +219,7 @@ void Download(void)
 		Syslog('b', "Found file %s in area %d", fdb.LName, Tag.Area);
 		if (fdb.Deleted) {
 		    /* Sorry that file is unavailable for download */
-		    sprintf(temp, "%s (%s)", (char *) Language(248), fdb.LName);
+		    snprintf(temp, 81, "%s (%s)", (char *) Language(248), fdb.LName);
 		    poutCR(CFG.HiliteF, CFG.HiliteB, temp);
 		    Tag.Active = FALSE;
 		    Syslog('+', "File %s in area %d unavailable for download, deleted", fdb.LName, Tag.Area);
@@ -233,7 +233,7 @@ void Download(void)
 		 * can unlink it aftwerwards. We also insert CR
 		 * characters to please the poor DOS (M$oft) users.
 		 */
-		sprintf(local, "./tag/filedesc.%ld", exitinfo.Downloads % 256);
+		snprintf(local, PATH_MAX, "./tag/filedesc.%ld", exitinfo.Downloads % 256);
 		if ((fd = fopen(local, "a")) != NULL) {
 		    fprintf(fd, "%s (%s)\r\n", fdb.LName, fdb.Name);
 		    for (i = 0; i < 25; i++) {
@@ -247,7 +247,7 @@ void Download(void)
 		    WriteError("Can't add info to %s", local);
 		}
 
-		sprintf(local, "%s/%s", sAreaPath, Tag.LFile);
+		snprintf(local, PATH_MAX, "%s/%s", sAreaPath, Tag.LFile);
 		add_download(&dl, local, Tag.LFile, Tag.Area, fdb.Size, FALSE);
 
 		Home();
@@ -294,14 +294,14 @@ void Download(void)
     /*
      * Add descriptions file to the queue.
      */
-    sprintf(local, "%s/%s/tag/filedesc.%ld", CFG.bbs_usersdir, exitinfo.Name, exitinfo.Downloads % 256);
+    snprintf(local, PATH_MAX, "%s/%s/tag/filedesc.%ld", CFG.bbs_usersdir, exitinfo.Name, exitinfo.Downloads % 256);
     dsize = file_size(local);
-    sprintf(temp, "filedesc.%ld", exitinfo.Downloads % 256);
+    snprintf(temp, PATH_MAX, "filedesc.%ld", exitinfo.Downloads % 256);
     add_download(&dl, local, temp, 0, dsize, TRUE);
     free(local);
 
     /* You have */ /* files( */ /* bytes) marked for download */
-    sprintf(temp, "%s %d %s%ld %s", (char *) Language(249), Count, (char *) Language(280), Size, (char *) Language(281));
+    snprintf(temp, PATH_MAX, "%s %d %s%ld %s", (char *) Language(249), Count, (char *) Language(280), Size, (char *) Language(281));
     pout(YELLOW, BLACK, temp);
     Enter(2);
 
@@ -439,7 +439,7 @@ void File_RawDir(char *OpData)
 	fLine(78);
 
 	while ((dp = readdir( dirp )) != NULL ) {
-	    sprintf(FileName, "%s/%s", temp, dp->d_name);
+	    snprintf(FileName, PATH_MAX, "%s/%s", temp, dp->d_name);
 
 	    if (*(dp->d_name) != '.') {
 		iFileCount++;
@@ -449,13 +449,13 @@ void File_RawDir(char *OpData)
 		} else {
 		    iBytes += statfile.st_size;
 
-		    sprintf(temp2, "%-54s " , dp->d_name);
+		    snprintf(temp2, 81, "%-54s " , dp->d_name);
 		    pout(YELLOW, BLACK, temp2);
 
-		    sprintf(temp2, "%-12ld", (long)(statfile.st_size));
+		    snprintf(temp2, 81, "%-12ld", (long)(statfile.st_size));
 		    pout(LIGHTMAGENTA, BLACK, temp2);
 
-		    sprintf(temp2, "%-10s", StrDateDMY(statfile.st_mtime));
+		    snprintf(temp2, 81, "%-10s", StrDateDMY(statfile.st_mtime));
 		    pout(LIGHTGREEN, BLACK, temp2);
 		}
 		Enter(1);
@@ -471,7 +471,7 @@ void File_RawDir(char *OpData)
 	colour(CFG.HiliteF, CFG.HiliteB);
 	fLine(78);
 	/* Total Files: */ /* Bytes */
-	sprintf(temp2, "%s %d, %d %s", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
+	snprintf(temp2, 81, "%s %d, %d %s", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
 	pout(LIGHTGREEN, BLACK, temp2);
 	Enter(2);
 
@@ -520,7 +520,7 @@ int KeywordScan()
     y = strlen(tmpname);
     for (z = 0; z <  y; z++) {
 	if (tmpname[z] != '*') {
-	    sprintf(temp, "%c", tmpname[z]);
+	    snprintf(temp, 81, "%c", tmpname[z]);
 	    strcat(Name, temp);
 	}
     }
@@ -546,7 +546,7 @@ int KeywordScan()
 
 		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		    for (i = 0; i < 25; i++)
-			sprintf(BigDesc, "%s%s", BigDesc, *(fdb.Desc + i));
+			snprintf(BigDesc, 1230, "%s%s", BigDesc, *(fdb.Desc + i));
 
 		    if ((strstr(fdb.Name,Name) != NULL) || (strstr(tl(BigDesc), Name) != NULL)) {
 
@@ -932,7 +932,7 @@ int Upload()
 
     temp = calloc(PATH_MAX, sizeof(char));
     for (tmpf = up; tmpf; tmpf = tmpf->next) {
-	sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
 	chdir(temp);
 
 	Syslog('b', "Checking upload %s", tmpf->filename);
@@ -1043,7 +1043,7 @@ void List_Home()
 
     iLineCount = 2;
     clear();
-    sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
 
     if ((dirp = opendir(temp)) == NULL) {
 	WriteError("$List_Home: Can't open dir: %s", temp);
@@ -1054,15 +1054,15 @@ void List_Home()
 	Pause();
     } else {
 	/* Home directory listing for */
-	sprintf(temp, " %s", (char *) Language(291));
+	snprintf(temp, 81, " %s", (char *) Language(291));
 	pout(BLUE, LIGHTGRAY, temp);
-	sprintf(temp, "%-51s", exitinfo.sUserName);
+	snprintf(temp, 81, "%-51s", exitinfo.sUserName);
 	pout(RED, LIGHTGRAY, temp);
 	Enter(1);
 
 	while ((dp = readdir( dirp )) != NULL ) {
-	    sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
-	    sprintf(FileName, "%s/%s", temp, dp->d_name);
+	    snprintf(temp, PATH_MAX, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
+	    snprintf(FileName, PATH_MAX, "%s/%s", temp, dp->d_name);
 	    /*
 	     * Check first letter of file for a ".", do not display hidden files
 	     * This includes the current directory and parent directory . & ..
@@ -1073,13 +1073,13 @@ void List_Home()
 		    WriteError("$Can't stat file %s",FileName);
 		} else {
 		    iBytes += statfile.st_size;
-		    sprintf(temp, "%-20s", dp->d_name);
+		    snprintf(temp, 81, "%-20s", dp->d_name);
 		    pout(YELLOW, BLACK, temp);
-		    sprintf(temp, "%-12ld", (long)(statfile.st_size));
+		    snprintf(temp, 81, "%-12ld", (long)(statfile.st_size));
 		    pout(LIGHTMAGENTA, BLACK, temp);
-		    sprintf(temp, "%s  ", StrDateDMY(statfile.st_mtime));
+		    snprintf(temp, 81, "%s  ", StrDateDMY(statfile.st_mtime));
 		    pout(LIGHTGREEN, BLACK, temp);
-		    sprintf(temp, "%s", StrTimeHMS(statfile.st_mtime));
+		    snprintf(temp, 81, "%s", StrTimeHMS(statfile.st_mtime));
 		    pout(LIGHTCYAN, BLACK, temp);
 		    Enter(1);
 		}
@@ -1090,7 +1090,7 @@ void List_Home()
 
 	Enter(2);
 	/* Total Files: */ /* Bytes */
-	sprintf(temp, "%s%d / %d %s", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
+	snprintf(temp, 81, "%s%d / %d %s", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
 	pout(LIGHTCYAN, BLACK, temp);
 	Enter(1);
 	Pause();
@@ -1114,7 +1114,7 @@ void Delete_Home()
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/%s/wrk/", CFG.bbs_usersdir, exitinfo.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/wrk/", CFG.bbs_usersdir, exitinfo.Name);
 
     Enter(1);
     /* Please enter filename to delete: */
@@ -1138,7 +1138,7 @@ void Delete_Home()
 	if ((access(temp, R_OK)) == 0) {
 	    Enter(1);
 	    /* Delete file: */ /* Are you Sure? [Y/n]: */
-	    sprintf(msg, "%s %s, %s", (char *) Language(368), temp1, (char *) Language(369));
+	    snprintf(msg, 81, "%s %s, %s", (char *) Language(368), temp1, (char *) Language(369));
 	    pout(LIGHTGREEN, BLACK, msg);
 	    i = toupper(Readkey());
 
@@ -1219,7 +1219,7 @@ int Download_Home()
     /*
      * Get path for users home directory
      */
-    sprintf(temp, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
+    snprintf(temp, PATH_MAX, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
 
     if (stat(temp, &statfile) != 0) {
 	Enter(2);
@@ -1271,7 +1271,7 @@ int Upload_Home()
     Enter(2);
 
     for (tmpf = up; tmpf; tmpf = tmpf->next) {
-	sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
 	chdir(temp);
 
 	Syslog('b', "Checking upload %s", tmpf->filename);
@@ -1413,11 +1413,11 @@ void FileArea_List(char *Option)
 
 	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available)) {
 	    area.Name[31] = '\0';
-	    sprintf(temp, "%5d", Recno);
+	    snprintf(temp, 81, "%5d", Recno);
 	    pout(WHITE, BLACK, temp);
-	    sprintf(temp, " %c ", 46);
+	    snprintf(temp, 81, " %c ", 46);
 	    pout(LIGHTBLUE, BLACK, temp);
-	    sprintf(temp, "%-31s", area.Name);
+	    snprintf(temp, 81, "%-31s", area.Name);
 	    pout(CYAN, BLACK, temp);
 	    iAreaCount++;
 
@@ -1606,8 +1606,8 @@ void Copy_Home()
 		Enter(1);
 		Syslog('+', "Copy homedir, not enough quota");
 	    } else {
-		sprintf(temp1, "%s/%s", area.Path, fdb.LName); /* Use real longname here */
-		sprintf(temp2, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
+		snprintf(temp1, PATH_MAX, "%s/%s", area.Path, fdb.LName); /* Use real longname here */
+		snprintf(temp2, PATH_MAX, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
 		colour(CFG.TextColourF, CFG.TextColourB);
 		/* Start copy: */
 		pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(289));
@@ -1684,32 +1684,32 @@ void EditTaglist()
 	    else
 		Fg = LIGHTGRAY;
 
-	    sprintf(temp, "%3d ", Count);
+	    snprintf(temp, 81, "%3d ", Count);
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    sprintf(temp, "%5ld  ", Tag.Area);
+	    snprintf(temp, 81, "%5ld  ", Tag.Area);
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
 	    if (Tag.Active)
 		/* Yes */
-		sprintf(temp, "%-6s  ", (char *) Language(356));
+		snprintf(temp, 81, "%-6s  ", (char *) Language(356));
 	    else
 		/* No */
-		sprintf(temp, "%-6s  ", (char *) Language(357));
+		snprintf(temp, 81, "%-6s  ", (char *) Language(357));
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    sprintf(temp, "%-12s", Tag.SFile);
+	    snprintf(temp, 81, "%-12s", Tag.SFile);
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    sprintf(temp, " %8ld", (long)(Tag.Size));
+	    snprintf(temp, 81, " %8ld", (long)(Tag.Size));
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    sprintf(temp, " %5d", Tag.Cost);
+	    snprintf(temp, 81, " %5d", Tag.Cost);
 	    pout(Fg, BLACK, temp);
 	    Enter(1);
 	}
@@ -1725,7 +1725,7 @@ void EditTaglist()
 	if (i == Keystroke(358, 0)) {
 	    Enter(2);
 	    /* Enter file number, 1.. */
-	    sprintf(temp, "%s%d ", (char *) Language(359), Count);
+	    snprintf(temp, 81, "%s%d ", (char *) Language(359), Count);
 	    PUTSTR(temp);
 
 	    GetstrC(temp, 5);
@@ -1862,14 +1862,14 @@ void ViewFile(char *name)
 	return;
     }
 
-    sprintf(File, "%s/%s", sAreaPath, fdb.LName);
+    snprintf(File, PATH_MAX, "%s/%s", sAreaPath, fdb.LName);
     arc = GetFileType(File);
     Syslog('+', "File to view: %s, type %s", fdb.LName, printable(arc, 0));
 
     if (arc != NULL) {
 	found = FALSE;
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	
 	if ((fp = fopen(temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, fp);
@@ -1898,7 +1898,7 @@ void ViewFile(char *name)
 	 * Archiver viewer is available. Make a temp file which we will
 	 * display to the user.
 	 */
-	sprintf(temp, "%s/%s/temptxt", CFG.bbs_usersdir, exitinfo.Name);
+	snprintf(temp, PATH_MAX, "%s/%s/temptxt", CFG.bbs_usersdir, exitinfo.Name);
 	rc = execute_str(archiver.varc, File, NULL, (char *)"/dev/null", temp, (char *)"/dev/null");
 	Syslog('+', "Display temp file %s", temp);
 	DisplayTextFile(temp);

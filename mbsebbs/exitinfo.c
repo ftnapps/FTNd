@@ -4,7 +4,7 @@
  * Purpose ...............: Exitinfo functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,7 +54,7 @@ int InitExitinfo()
     long    offset;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
 
     if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
 	WriteError("$Can't open %s for writing", temp);
@@ -75,7 +75,7 @@ int InitExitinfo()
     exitinfo = usrconfig;
     fclose(pUsrConfig);
 
-    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, usrconfig.Name);
+    snprintf(temp, PATH_MAX, "%s/%s/exitinfo", CFG.bbs_usersdir, usrconfig.Name);
     if ((pExitinfo = fopen(temp, "w+b")) == NULL) {
 	WriteError("$Can't open %s for writing", temp);
 	free(temp);
@@ -102,7 +102,7 @@ void ReadExitinfo()
     char *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
+    snprintf(temp, PATH_MAX, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
     mkdirs(temp, 0770);
     if ((pExitinfo = fopen(temp,"r+b")) == NULL)
 	InitExitinfo();
@@ -127,7 +127,7 @@ void WriteExitinfo()
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
+    snprintf(temp, PATH_MAX, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
     if ((pExitinfo = fopen(temp,"w+b")) == NULL)
 	WriteError("$WriteExitinfo() failed");
     else {
