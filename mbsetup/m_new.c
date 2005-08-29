@@ -4,7 +4,7 @@
  * Purpose ...............: Newfiles Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -55,7 +55,7 @@ int CountNewfiles(void)
 	char	ffile[PATH_MAX], group[13];
 	int	count, i;
 
-	sprintf(ffile, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -65,17 +65,18 @@ int CountNewfiles(void)
 			fwrite(&newfileshdr, sizeof(newfileshdr), 1, fil);
 			memset(&newfiles, 0, sizeof(newfiles));
 
-			sprintf(newfiles.Comment, "General newfiles announce");
-			sprintf(newfiles.Area, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
-			sprintf(newfiles.Origin, "%s", CFG.origin);
-			sprintf(newfiles.From, "Sysop");
-			sprintf(newfiles.Too, "All");
-			sprintf(newfiles.Subject, "New files found");
+			snprintf(newfiles.Comment, 56, "General newfiles announce");
+			snprintf(newfiles.Area, 51, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
+			snprintf(newfiles.Origin, 51, "%s", CFG.origin);
+			snprintf(newfiles.From, 36, "Sysop");
+			snprintf(newfiles.Too, 36, "All");
+			snprintf(newfiles.Subject, 61, "New files found");
+			snprintf(newfiles.Template, 15, "newfiles");
 			newfiles.Language = 'E';
 			newfiles.Active = TRUE;
 			newfiles.HiAscii = TRUE;
 			fwrite(&newfiles, sizeof(newfiles), 1, fil);
-			sprintf(group, "LOCAL");
+			snprintf(group, 13, "LOCAL");
 			fwrite(&group, 13, 1, fil);
 			memset(&group, 0, sizeof(group));
 			for (i = 1; i < CFG.new_groups; i++)
@@ -111,8 +112,8 @@ int OpenNewfiles(void)
 	long	oldgroup;
 	char	group[13];
 
-	sprintf(fnin,  "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&newfileshdr, sizeof(newfileshdr), 1, fin);
@@ -146,7 +147,7 @@ int OpenNewfiles(void)
 			memset(&newfiles, 0, sizeof(newfiles));
 			while (fread(&newfiles, oldsize, 1, fin) == 1) {
 				if (!strlen(newfiles.Template)) {
-				    sprintf(newfiles.Template, "newfiles");
+				    snprintf(newfiles.Template, 15, "newfiles");
 				    NewUpdated = 1;
 				}
 				fwrite(&newfiles, sizeof(newfiles), 1, fout);
@@ -187,8 +188,8 @@ void CloseNewfiles(int force)
 	st_list	*new = NULL, *tmp;
 	int	i;
 
-	sprintf(fin, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
 
 	if (NewUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -239,15 +240,15 @@ int AppendNewfiles(void)
 	char	ffile[PATH_MAX], group[13];
 	int	i;
 
-	sprintf(ffile, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&newfiles, 0, sizeof(newfiles));
 		/*
 		 * Fill in default values
 		 */
-		sprintf(newfiles.From, "%s", CFG.sysop_name);
+		snprintf(newfiles.From, 36, "%s", CFG.sysop_name);
 		newfiles.Language = 'E';
-		sprintf(newfiles.Template, "newfiles");
+		snprintf(newfiles.Template, 15, "newfiles");
 		strncpy(newfiles.Origin, CFG.origin, 50);
 		fwrite(&newfiles, sizeof(newfiles), 1, fil);
 		memset(&group, 0, 13);
@@ -302,7 +303,7 @@ int EditNewRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Newfiles");
 
-	sprintf(mfile, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) != NULL) {
 		fread(&ngrouphdr, sizeof(ngrouphdr), 1, fil);
 
@@ -313,7 +314,7 @@ int EditNewRec(int Area)
 		sort_grlist(&fgr);
 	}
 
-	sprintf(mfile, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		tidy_grlist(&fgr);
@@ -353,7 +354,7 @@ int EditNewRec(int Area)
 		show_str( 10,18,35, newfiles.From);
 		show_str( 11,18,35, newfiles.Too);
 		show_str( 12,18,60, newfiles.Subject);
-		sprintf(temp1, "%c", newfiles.Language);
+		snprintf(temp1, 2, "%c", newfiles.Language);
 		show_str( 13,18,2,  temp1);
 		show_str( 14,18,14, newfiles.Template);
 		show_str( 15,18,35, aka2str(newfiles.UseAka));
@@ -386,7 +387,7 @@ int EditNewRec(int Area)
 						if (tmp->tagged) {
 							i++;
 							memset(&group, 0, 13);
-							sprintf(group, "%s", tmp->group);
+							snprintf(group, 13, "%s", tmp->group);
 							fwrite(&group, 13, 1, fil);
 						}
 
@@ -462,7 +463,7 @@ void EditNewfiles(void)
 	mbse_mvprintw( 5, 4, "12. NEWFILES REPORTS");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&newfileshdr, sizeof(newfileshdr), 1, fil);
@@ -482,7 +483,7 @@ void EditNewfiles(void)
 			    set_color(CYAN, BLACK);
 			else
 			    set_color(LIGHTBLUE, BLACK);
-			sprintf(temp, "%3d.  %-32s", o + i, newfiles.Comment);
+			snprintf(temp, 81, "%3d.  %-32s", o + i, newfiles.Comment);
 			temp[37] = 0;
 			mbse_mvprintw(y, x, temp);
 			y++;
@@ -543,7 +544,7 @@ int new_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *no;
     int	    groups, i, j, nr = 0;
 
-    sprintf(temp, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -566,7 +567,7 @@ int new_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 	nr++;
-	sprintf(temp, "newfiles_%d.html", nr);
+	snprintf(temp, 81, "newfiles_%d.html", nr);
 	fprintf(ip, " <LI><A HREF=\"%s\">Report %d</A> %s</LI>\n", temp, nr, newfiles.Comment);
 	if ((wp = open_webdoc(temp, (char *)"Newfiles report", newfiles.Comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"newfiles.html\">Back</A>\n");
@@ -580,7 +581,7 @@ int new_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"From name", newfiles.From);
 	    add_webtable(wp, (char *)"To name", newfiles.Too);
 	    add_webtable(wp, (char *)"Subject", newfiles.Subject);
-	    sprintf(temp, "%c", newfiles.Language);
+	    snprintf(temp, 81, "%c", newfiles.Language);
 	    add_webtable(wp, (char *)"Language", temp);
 	    add_webtable(wp, (char *)"Aka to use", aka2str(newfiles.UseAka));
 	    add_webtable(wp, (char *)"Active", getboolean(newfiles.Active));

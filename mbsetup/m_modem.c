@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Modem structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -52,7 +52,7 @@ int CountModem(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -64,78 +64,78 @@ int CountModem(void)
 			 *  Create some default modem types
 			 */
 			memset(&modem, 0, sizeof(modem));
-			sprintf(modem.modem,       "Dynalink 1428EXTRA");
-			sprintf(modem.init[0],     "AT Z\\r");
-			sprintf(modem.init[1],     "AT &F &C1 &D2 X4 W2 B0 M0 \\\\V1 \\\\G0 &K3 S37=0\\r");
-			sprintf(modem.ok,          "OK");
-			sprintf(modem.dial,        "ATDT\\T\\r");
-			sprintf(modem.connect[0],  "CONNECT 56000");
-			sprintf(modem.connect[1],  "CONNECT 48000");
-			sprintf(modem.connect[2],  "CONNECT 44000");
-			sprintf(modem.connect[3],  "CONNECT 41333");
-			sprintf(modem.connect[4],  "CONNECT 38000");
-			sprintf(modem.connect[5],  "CONNECT 33600");
-			sprintf(modem.connect[6],  "CONNECT 31200");
-			sprintf(modem.connect[7],  "CONNECT 28800");
-			sprintf(modem.connect[8],  "CONNECT 26400");
-			sprintf(modem.connect[9],  "CONNECT 24000");
-			sprintf(modem.connect[10], "CONNECT 21600");
-			sprintf(modem.connect[11], "CONNECT 19200");
-			sprintf(modem.connect[12], "CONNECT 16800");
-			sprintf(modem.connect[13], "CONNECT 14400");
-			sprintf(modem.connect[14], "CONNECT 12000");
-			sprintf(modem.connect[15], "CONNECT 9600");
-			sprintf(modem.connect[16], "CONNECT 7200");
-			sprintf(modem.connect[17], "CONNECT 4800");
-			sprintf(modem.connect[18], "CONNECT 2400");
-			sprintf(modem.connect[19], "CONNECT");
-			sprintf(modem.reset,       "AT&F&C1&D2X4W2B0M0&K3\\r");
-			sprintf(modem.error[0],    "BUSY");
-			sprintf(modem.error[1],    "NO CARRIER");
-			sprintf(modem.error[2],    "NO DIALTONE");
-			sprintf(modem.error[3],    "NO ANSWER");
-			sprintf(modem.error[4],    "RING\\r");
-			sprintf(modem.error[5],    "ERROR");
-			sprintf(modem.error[6],    "CONNECT VOICE");
-			sprintf(modem.speed,       "28800");
+			snprintf(modem.modem,       31, "Dynalink 1428EXTRA");
+			snprintf(modem.init[0],     61, "AT Z\\r");
+			snprintf(modem.init[1],     61, "AT &F &C1 &D2 X4 W2 B0 M0 \\\\V1 \\\\G0 &K3 S37=0\\r");
+			snprintf(modem.ok,          11, "OK");
+			snprintf(modem.dial,        41, "ATDT\\T\\r");
+			snprintf(modem.connect[0],  31, "CONNECT 56000");
+			snprintf(modem.connect[1],  31, "CONNECT 48000");
+			snprintf(modem.connect[2],  31, "CONNECT 44000");
+			snprintf(modem.connect[3],  31, "CONNECT 41333");
+			snprintf(modem.connect[4],  31, "CONNECT 38000");
+			snprintf(modem.connect[5],  31, "CONNECT 33600");
+			snprintf(modem.connect[6],  31, "CONNECT 31200");
+			snprintf(modem.connect[7],  31, "CONNECT 28800");
+			snprintf(modem.connect[8],  31, "CONNECT 26400");
+			snprintf(modem.connect[9],  31, "CONNECT 24000");
+			snprintf(modem.connect[10], 31, "CONNECT 21600");
+			snprintf(modem.connect[11], 31, "CONNECT 19200");
+			snprintf(modem.connect[12], 31, "CONNECT 16800");
+			snprintf(modem.connect[13], 31, "CONNECT 14400");
+			snprintf(modem.connect[14], 31, "CONNECT 12000");
+			snprintf(modem.connect[15], 31, "CONNECT 9600");
+			snprintf(modem.connect[16], 31, "CONNECT 7200");
+			snprintf(modem.connect[17], 31, "CONNECT 4800");
+			snprintf(modem.connect[18], 31, "CONNECT 2400");
+			snprintf(modem.connect[19], 31, "CONNECT");
+			snprintf(modem.reset,       61, "AT&F&C1&D2X4W2B0M0&K3\\r");
+			snprintf(modem.error[0],    21, "BUSY");
+			snprintf(modem.error[1],    21, "NO CARRIER");
+			snprintf(modem.error[2],    21, "NO DIALTONE");
+			snprintf(modem.error[3],    21, "NO ANSWER");
+			snprintf(modem.error[4],    21, "RING\\r");
+			snprintf(modem.error[5],    21, "ERROR");
+			snprintf(modem.error[6],    21, "CONNECT VOICE");
+			snprintf(modem.speed,       16, "28800");
 			modem.available = TRUE;
 			modem.costoffset = 6;
 			fwrite(&modem, sizeof(modem), 1, fil);
 
-			sprintf(modem.modem,       "ISDN Dynalink");
-			sprintf(modem.init[0],     "ATZ\\r");
-			sprintf(modem.init[1],     "AT&E3306018793\\r");
-			sprintf(modem.init[2],     "AT&B512\\r");
-			sprintf(modem.hangup,      "ATH0\\r");
-			sprintf(modem.speed,       "64000");
+			snprintf(modem.modem,       31, "ISDN Dynalink");
+			snprintf(modem.init[0],     61, "ATZ\\r");
+			snprintf(modem.init[1],     61, "AT&E3306018793\\r");
+			snprintf(modem.init[2],     61, "AT&B512\\r");
+			snprintf(modem.hangup,      41, "ATH0\\r");
+			snprintf(modem.speed,       16, "64000");
 			modem.costoffset = 1;
 			fwrite(&modem, sizeof(modem), 1, fil);
 
-			sprintf(modem.modem,       "Standard Hayes V34");
-                        sprintf(modem.init[0],     "ATZ\\r");
+			snprintf(modem.modem,       31, "Standard Hayes V34");
+                        snprintf(modem.init[0],     61, "ATZ\\r");
 			memset(&modem.init[1], 0, sizeof(modem.init[1]));
 			memset(&modem.init[2], 0, sizeof(modem.init[2]));
                         memset(&modem.hangup, 0, sizeof(modem.hangup));
-                        sprintf(modem.speed,       "33600");
+                        snprintf(modem.speed,       16, "33600");
                         modem.costoffset = 6;
 			fwrite(&modem, sizeof(modem), 1, fil);
 
 			memset(&modem, 0, sizeof(modem));
-                        sprintf(modem.modem,       "ISDN Linux");
-                        sprintf(modem.init[0],     "AT Z\\r");
-                        sprintf(modem.ok,          "OK");
-                        sprintf(modem.dial,        "ATDT\\T\\r");
-			sprintf(modem.info,        "ATI2\\r");
-			sprintf(modem.hangup,      "\\d\\p\\p\\p+++\\d\\p\\p\\pATH0\\r");
-                        sprintf(modem.connect[0],  "CONNECT 64000");
-                        sprintf(modem.connect[1],  "CONNECT");
-                        sprintf(modem.error[0],    "BUSY");
-                        sprintf(modem.error[1],    "NO CARRIER");
-                        sprintf(modem.error[2],    "NO DIALTONE");
-                        sprintf(modem.error[3],    "NO ANSWER");
-                        sprintf(modem.error[4],    "RING\\r");
-                        sprintf(modem.error[5],    "ERROR");
-                        sprintf(modem.speed,       "64000");
+                        snprintf(modem.modem,       31, "ISDN Linux");
+                        snprintf(modem.init[0],     61, "AT Z\\r");
+                        snprintf(modem.ok,          11, "OK");
+                        snprintf(modem.dial,        41, "ATDT\\T\\r");
+			snprintf(modem.info,        41, "ATI2\\r");
+			snprintf(modem.hangup,      41, "\\d\\p\\p\\p+++\\d\\p\\p\\pATH0\\r");
+                        snprintf(modem.connect[0],  31, "CONNECT 64000");
+                        snprintf(modem.connect[1],  31, "CONNECT");
+                        snprintf(modem.error[0],    21, "BUSY");
+                        snprintf(modem.error[1],    21, "NO CARRIER");
+                        snprintf(modem.error[2],    21, "NO DIALTONE");
+                        snprintf(modem.error[3],    21, "NO ANSWER");
+                        snprintf(modem.error[4],    21, "RING\\r");
+                        snprintf(modem.error[5],    21, "ERROR");
+                        snprintf(modem.speed,       16, "64000");
                         modem.available = TRUE;
                         modem.costoffset = 1;
                         fwrite(&modem, sizeof(modem), 1, fil);
@@ -169,8 +169,8 @@ int OpenModem(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/modem.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&modemhdr, sizeof(modemhdr), 1, fin);
@@ -218,8 +218,8 @@ void CloseModem(int force)
 	FILE	*fi, *fo;
 	st_list	*mdm = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/modem.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
 
 	if (ModemUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -263,40 +263,40 @@ int AppendModem(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&modem, 0, sizeof(modem));
-		sprintf(modem.init[0], "ATZ\\r");
-		sprintf(modem.ok, "OK");
-		sprintf(modem.dial, "ATDT\\T\\r");
-		sprintf(modem.connect[0], "CONNECT 56000");
-		sprintf(modem.connect[1], "CONNECT 48000");
-		sprintf(modem.connect[2], "CONNECT 44000");
-		sprintf(modem.connect[3], "CONNECT 41333");
-		sprintf(modem.connect[4], "CONNECT 38000");
-		sprintf(modem.connect[5], "CONNECT 33600");
-		sprintf(modem.connect[6], "CONNECT 31200");
-		sprintf(modem.connect[7], "CONNECT 28800");
-		sprintf(modem.connect[8], "CONNECT 26400");
-		sprintf(modem.connect[9], "CONNECT 24000");
-		sprintf(modem.connect[10], "CONNECT 21600");
-		sprintf(modem.connect[11], "CONNECT 19200");
-		sprintf(modem.connect[12], "CONNECT 16800");
-		sprintf(modem.connect[13], "CONNECT 14400");
-		sprintf(modem.connect[14], "CONNECT 12000");
-		sprintf(modem.connect[15], "CONNECT 9600");
-		sprintf(modem.connect[16], "CONNECT 7200");
-		sprintf(modem.connect[17], "CONNECT 4800");
-		sprintf(modem.connect[18], "CONNECT 2400");
-		sprintf(modem.connect[19], "CONNECT");
-		sprintf(modem.error[0], "BUSY");
-		sprintf(modem.error[1], "NO CARRIER");
-		sprintf(modem.error[2], "NO DIALTONE");
-		sprintf(modem.error[3], "NO ANSWER");
-		sprintf(modem.error[4], "RING\\r");
-		sprintf(modem.error[5], "ERROR");
-		sprintf(modem.speed, "28800");
-		sprintf(modem.reset, "AT\\r");
+		snprintf(modem.init[0], 61, "ATZ\\r");
+		snprintf(modem.ok, 11, "OK");
+		snprintf(modem.dial, 41, "ATDT\\T\\r");
+		snprintf(modem.connect[0], 31, "CONNECT 56000");
+		snprintf(modem.connect[1], 31, "CONNECT 48000");
+		snprintf(modem.connect[2], 31, "CONNECT 44000");
+		snprintf(modem.connect[3], 31, "CONNECT 41333");
+		snprintf(modem.connect[4], 31, "CONNECT 38000");
+		snprintf(modem.connect[5], 31, "CONNECT 33600");
+		snprintf(modem.connect[6], 31, "CONNECT 31200");
+		snprintf(modem.connect[7], 31, "CONNECT 28800");
+		snprintf(modem.connect[8], 31, "CONNECT 26400");
+		snprintf(modem.connect[9], 31, "CONNECT 24000");
+		snprintf(modem.connect[10], 31, "CONNECT 21600");
+		snprintf(modem.connect[11], 31, "CONNECT 19200");
+		snprintf(modem.connect[12], 31, "CONNECT 16800");
+		snprintf(modem.connect[13], 31, "CONNECT 14400");
+		snprintf(modem.connect[14], 31, "CONNECT 12000");
+		snprintf(modem.connect[15], 31, "CONNECT 9600");
+		snprintf(modem.connect[16], 31, "CONNECT 7200");
+		snprintf(modem.connect[17], 31, "CONNECT 4800");
+		snprintf(modem.connect[18], 31, "CONNECT 2400");
+		snprintf(modem.connect[19], 31, "CONNECT");
+		snprintf(modem.error[0], 21, "BUSY");
+		snprintf(modem.error[1], 21, "NO CARRIER");
+		snprintf(modem.error[2], 21, "NO DIALTONE");
+		snprintf(modem.error[3], 21, "NO ANSWER");
+		snprintf(modem.error[4], 21, "RING\\r");
+		snprintf(modem.error[5], 21, "ERROR");
+		snprintf(modem.speed, 16, "28800");
+		snprintf(modem.reset, 61, "AT\\r");
 		modem.available = TRUE;
 		fwrite(&modem, sizeof(modem), 1, fil);
 		fclose(fil);
@@ -409,7 +409,7 @@ int EditModemRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Modem");
 
-	sprintf(mfile, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -532,7 +532,7 @@ void EditModem(void)
 		mbse_mvprintw( 5, 4, "5.  MODEM TYPES SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&modemhdr, sizeof(modemhdr), 1, fil);
 				x = 2;
@@ -550,7 +550,7 @@ void EditModem(void)
 						set_color(CYAN, BLACK);
 					else
 						set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.  %-30s", i, modem.modem);
+					snprintf(temp, 81, "%3d.  %-30s", i, modem.modem);
 					temp[37] = 0;
 					mbse_mvprintw(y, x, temp);
 					y++;
@@ -617,11 +617,11 @@ char *PickModem(char *shdr)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		sprintf(temp, "%s.  MODEM SELECT", shdr);
+		snprintf(temp, 81, "%s.  MODEM SELECT", shdr);
 		mbse_mvprintw(5,3,temp);
 		set_color(CYAN, BLACK);
 		if (records) {
-			sprintf(temp, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&modemhdr, sizeof(modemhdr), 1, fil);
@@ -641,7 +641,7 @@ char *PickModem(char *shdr)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-31s", o + i, modem.modem);
+						snprintf(temp, 81, "%3d.  %-31s", o + i, modem.modem);
 						temp[38] = '\0';
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -664,14 +664,14 @@ char *PickModem(char *shdr)
 				o -= 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			sprintf(temp, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = modemhdr.hdrsize + ((atoi(pick) - 1) * modemhdr.recsize);
 				fseek(fil, offset, SEEK_SET);
 				fread(&modem, modemhdr.recsize, 1, fil);
 				fclose(fil);
 				if (modem.available) {
-					sprintf(buf, "%s", modem.modem);
+					snprintf(buf, 31, "%s", modem.modem);
 					return buf;
 				}
 			}
@@ -687,7 +687,7 @@ int modem_doc(FILE *fp, FILE *toc, int page)
     FILE    *ti, *wp, *ip, *mdm;
     int	    refs, nr = 0, i, j;
 
-    sprintf(temp, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
     if ((mdm = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -715,7 +715,7 @@ int modem_doc(FILE *fp, FILE *toc, int page)
 	nr++;
 	fprintf(ip, " <TR><TD><A HREF=\"modem_%d.html\">%d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		nr, nr, modem.modem, getboolean(modem.available));
-	sprintf(temp, "modem_%d.html", nr);
+	snprintf(temp, 81, "modem_%d.html", nr);
 	if ((wp = open_webdoc(temp, (char *)"Modem", modem.modem))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"modem.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
@@ -725,7 +725,7 @@ int modem_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Modem type", modem.modem);
 	    for (i = 0; i < 3; i++)
 		if (strlen(modem.init[i])) {
-		    sprintf(temp, "Init string %d", i+1);
+		    snprintf(temp, 81, "Init string %d", i+1);
 		    add_webtable(wp, temp, modem.init[i]);
 		}
 	    add_webtable(wp, (char *)"OK string", modem.ok);
@@ -748,7 +748,7 @@ int modem_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>TTY Lines Reference</H3>\n");
 	    refs = 0;
-	    sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);

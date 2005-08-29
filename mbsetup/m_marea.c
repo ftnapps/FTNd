@@ -61,7 +61,7 @@ int CountMsgarea(void)
     int			count, i;
     struct _sysconnect	syscon;
 
-    sprintf(ffile, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -74,10 +74,10 @@ int CountMsgarea(void)
 	     * Default first message area
 	     */
 	    memset(&msgs, 0, sizeof(msgs));
-	    sprintf(msgs.Name, "Local users chat");
-	    sprintf(msgs.Base, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
-	    sprintf(msgs.QWKname, "LOC_USERS");
-	    sprintf(msgs.Group, "LOCAL");
+	    snprintf(msgs.Name, 41, "Local users chat");
+	    snprintf(msgs.Base, 65, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
+	    snprintf(msgs.QWKname, 21, "LOC_USERS");
+	    snprintf(msgs.Group, 13, "LOCAL");
 	    msgs.Active = TRUE;
 	    msgs.Type = LOCALMAIL;
 	    msgs.MsgKinds = PUBLIC;
@@ -101,10 +101,10 @@ int CountMsgarea(void)
 	     * Default message area for badmail
 	     */
 	    memset(&msgs, 0, sizeof(msgs));
-	    sprintf(msgs.Name, "Bad mail");
-	    sprintf(msgs.Base, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
-	    sprintf(msgs.QWKname, "BADMAIL");
-	    sprintf(msgs.Group, "LOCAL");
+	    snprintf(msgs.Name, 41, "Bad mail");
+	    snprintf(msgs.Base, 65, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
+	    snprintf(msgs.QWKname, 21, "BADMAIL");
+	    snprintf(msgs.Group, 13, "LOCAL");
 	    msgs.Active = TRUE;
 	    msgs.Type = LOCALMAIL;
 	    msgs.MsgKinds = PUBLIC;
@@ -125,10 +125,10 @@ int CountMsgarea(void)
 	     * Default dupemail message area
 	     */
 	    memset(&msgs, 0, sizeof(msgs));
-	    sprintf(msgs.Name, "Dupe mail");
-	    sprintf(msgs.Base, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
-	    sprintf(msgs.QWKname, "DUPEMAIL");
-	    sprintf(msgs.Group, "LOCAL");
+	    snprintf(msgs.Name, 41, "Dupe mail");
+	    snprintf(msgs.Base, 65, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
+	    snprintf(msgs.QWKname, 21, "DUPEMAIL");
+	    snprintf(msgs.Group, 13, "LOCAL");
 	    msgs.Active = TRUE;
 	    msgs.Type = LOCALMAIL;
 	    msgs.MsgKinds = PUBLIC;
@@ -186,15 +186,15 @@ int OpenMsgarea(void)
      * if they don't have a creation date. All new areas will get the
      * right date.
      */
-    sprintf(fnin,  "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    snprintf(fnin, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
     if ((fin = fopen(fnin, "r"))) {
 	fread(&SYSINFO, sizeof(SYSINFO), 1, fin);
 	start = SYSINFO.StartDate;
 	fclose(fin);
     }
 
-    sprintf(fnin,  "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-    sprintf(fnout, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    MsgUpdated = 0;
@@ -244,7 +244,7 @@ int OpenMsgarea(void)
 		    msgs.Created = start;
 #ifndef	USE_NEWSGATE
 		    if ((strlen(msgs.Newsgroup) == 0) && (msgs.Type == ECHOMAIL) && strlen(msgs.Group)) {
-			sprintf(msgs.Newsgroup, "%s.%s", GetFidoDomain(msgs.Aka.zone), msgs.Tag);
+			snprintf(msgs.Newsgroup, 81, "%s.%s", GetFidoDomain(msgs.Aka.zone), msgs.Tag);
 			for (i = 0; i < strlen(msgs.Newsgroup); i++) {
 			    msgs.Newsgroup[i] = tolower(msgs.Newsgroup[i]);
 			    if (msgs.Newsgroup[i] == '_')
@@ -292,8 +292,8 @@ void CloseMsgarea(int Force)
 {
 	char	fin[PATH_MAX], fout[PATH_MAX];
 
-	sprintf(fin, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
 
 	if (MsgUpdated == 1) {
 		if (Force || (yes_no((char *)"Messages database is changed, save changes") == 1)) {
@@ -346,7 +346,7 @@ int AppendMsgarea()
 	struct	_sysconnect syscon;
 	int	i;
 
-	sprintf(ffile, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		InitMsgRec();
 		fwrite(&msgs, sizeof(msgs), 1, fil);
@@ -466,10 +466,10 @@ int EditConnections(FILE *fil)
 
 				if (System.aka.zone) {
 					set_color(CYAN,BLACK);
-					sprintf(temp, "%3d. %s %s", o+i, status, aka2str(System.aka));
+					snprintf(temp, 81, "%3d. %s %s", o+i, status, aka2str(System.aka));
 				} else {
 					set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.", o+i);
+					snprintf(temp, 81, "%3d.", o+i);
 				}
 				mbse_mvprintw(y, x, temp);
 				y++;
@@ -563,7 +563,7 @@ long LoadMsgRec(int Area, int work)
     sysconnect	System;
     int		i;
 
-    sprintf(mfile, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -609,7 +609,7 @@ int SaveMsgRec(int Area, int work)
 
 	if (work)
 		working(1, 0, 0);
-	sprintf(mfile, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r+")) == 0) {
 		working(2, 0, 0);
 		return -1;
@@ -654,21 +654,21 @@ void DeleteRules(char *filename)
 	if (de->d_name[0] != '.') {
 	    strcpy(temp, msgs.Tag);
 	    if (strcasecmp(de->d_name, temp) == 0) {
-		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.rulesdir, de->d_name);
 		Syslog('+', "unlink(%s) rc=%d", temp, unlink(temp));
 		break;
 	    }
-	    sprintf(temp, "%s.rul", msgs.Tag);
+	    snprintf(temp, PATH_MAX, "%s.rul", msgs.Tag);
 	    if (strcasecmp(de->d_name, temp) == 0) {
-		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.rulesdir, de->d_name);
 		Syslog('+', "unlink(%s) rc=%d", temp, unlink(temp));
 		break;
 	    }
 	    memset(&temp, 0, sizeof(temp));
 	    strncpy(temp, msgs.Tag, 8);
-	    sprintf(temp, "%s.rul", temp);
+	    snprintf(temp, PATH_MAX, "%s.rul", temp);
 	    if (strcasecmp(de->d_name, temp) == 0) {
-		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		snprintf(temp, PATH_MAX, "%s/%s", CFG.rulesdir, de->d_name);
 		Syslog('+', "unlink(%s) rc=%d", temp, unlink(temp));
 		break;
 	    }
@@ -716,7 +716,7 @@ void MsgGlobal(void)
      * Build the groups select array
      */
     working(1, 0, 0);
-    sprintf(mfile, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) != NULL) {
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 
@@ -740,7 +740,7 @@ void MsgGlobal(void)
     S.sendto = TRUE;
     S.receivefrom = TRUE;
     memset(&mfile, 0, sizeof(mfile));
-    sprintf(mfile, "%s", CFG.origin);
+    snprintf(mfile, 81, "%s", CFG.origin);
     daysold = CFG.defdays;
     maxmsgs = CFG.defmsgs;
     maxarticles = CFG.maxarticles;
@@ -907,7 +907,7 @@ void MsgGlobal(void)
 						    Sc.aka.point = a2.point;
 						    Sc.sendto = TRUE;
 						    Sc.receivefrom = TRUE;
-						    sprintf(Sc.aka.domain, "%s", a2.domain);
+						    snprintf(Sc.aka.domain, 13, "%s", a2.domain);
 						    fwrite(&Sc, sizeof(sysconnect), 1, tfil);
 						    if (SaveMsgRec(marea, FALSE) == 0) {
 							Done++;
@@ -925,7 +925,7 @@ void MsgGlobal(void)
 						Sc.aka.net = a2.net;
 						Sc.aka.node = a2.node;
 						Sc.aka.point = a2.point;
-						sprintf(Sc.aka.domain, "%s", a2.domain);
+						snprintf(Sc.aka.domain, 13, "%s", a2.domain);
 						fseek(tfil, - sizeof(sysconnect), SEEK_CUR);
 						fwrite(&Sc, sizeof(sysconnect), 1, tfil);
 						if (SaveMsgRec(marea, FALSE) == 0) {
@@ -1014,7 +1014,7 @@ void MsgGlobal(void)
 						msgs.Aka.net = CFG.aka[akan].net;
 						msgs.Aka.node = CFG.aka[akan].node;
 						msgs.Aka.point = CFG.aka[akan].point;
-						sprintf(msgs.Aka.domain, "%s", CFG.aka[akan].domain);
+						snprintf(msgs.Aka.domain, 13, "%s", CFG.aka[akan].domain);
 						if (SaveMsgRec(marea, FALSE) == 0) {
 						    Done++;
 						    Syslog('+', "Area %s now uses aka %s", msgs.Tag, aka2str(msgs.Aka));
@@ -1023,7 +1023,7 @@ void MsgGlobal(void)
 					}
 					break;
 				case 11:if (strcmp(msgs.Origin, mfile)) {
-					    sprintf(msgs.Origin, "%s", mfile);
+					    snprintf(msgs.Origin, 65, "%s", mfile);
 					    if (SaveMsgRec(marea, FALSE) == 0) {
 						Done++;
 						Syslog('+', "Changed origin line in area %s", msgs.Tag);
@@ -1230,7 +1230,7 @@ int EditMsgRec(int Area)
 			     */
 			    temp = calloc(PATH_MAX, sizeof(char));
 			    if (strlen(mgroup.BasePath)) {
-				sprintf(temp, "%s", msgs.Tag);
+				snprintf(temp, 81, "%s", msgs.Tag);
 				for (i = 0; i < strlen(temp); i++) {
 				    if (isupper(temp[i]))
 					temp[i] = tolower(temp[i]);
@@ -1241,9 +1241,9 @@ int EditMsgRec(int Area)
 				    if (temp[i] == '.')
 					temp[i] = '/';
 				}
-				sprintf(msgs.Base, "%s/%s", mgroup.BasePath, temp);
+				snprintf(msgs.Base, 65, "%s/%s", mgroup.BasePath, temp);
 			    } else {
-				sprintf(temp, "%s/%s", msgs.Group, msgs.Tag);
+				snprintf(temp, 81, "%s/%s", msgs.Group, msgs.Tag);
 				for (i = 0; i < strlen(temp); i++) {
 				    if (isupper(temp[i]))
 					temp[i] = tolower(temp[i]);
@@ -1254,7 +1254,7 @@ int EditMsgRec(int Area)
 				    if (temp[i] == '.')
 					temp[i] = '/';
 				}
-				sprintf(msgs.Base, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+				snprintf(msgs.Base, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 			    }
 			    free(temp);
 			    /*
@@ -1268,24 +1268,24 @@ int EditMsgRec(int Area)
 		    SetScreen(); 
 		    break;
 	    case 4: E_STR(  9,16,64,msgs.Newsgroup,  "The ^Newsgroup^ name of this area")
-	    case 5: sprintf(oldpath, "%s", msgs.Base);
+	    case 5: snprintf(oldpath, 81, "%s", msgs.Base);
 		    strcpy(msgs.Base, edit_jam(10,16,64,msgs.Base ,(char *)"The path to the ^JAM Message Base^"));
 		    if (strcmp(oldpath, msgs.Base)) {
 			i = 0;
 			temp = calloc(PATH_MAX, sizeof(char));
-			sprintf(temp, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r+")) != NULL) {
 			    fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, fil);
 			    while (fread(&scanmgr, scanmgrhdr.recsize, 1, fil) == 1) {
 				if (strcmp(oldpath, scanmgr.ScanBoard) == 0) {
 				    i++;
-				    sprintf(scanmgr.ScanBoard, "%s", msgs.Base);
+				    snprintf(scanmgr.ScanBoard, 51, "%s", msgs.Base);
 				    fseek(fil, - scanmgrhdr.recsize, SEEK_CUR);
 				    fwrite(&scanmgr, scanmgrhdr.recsize, 1, fil);
 				}
 				if (strcmp(oldpath, scanmgr.ReplBoard) == 0) {
 				    i++;
-				    sprintf(scanmgr.ReplBoard, "%s", msgs.Base);
+				    snprintf(scanmgr.ReplBoard, 51, "%s", msgs.Base);
 				    fseek(fil, - scanmgrhdr.recsize, SEEK_CUR);
 				    fwrite(&scanmgr, scanmgrhdr.recsize, 1, fil);
 				}
@@ -1296,13 +1296,13 @@ int EditMsgRec(int Area)
 			}
 
 			i = 0;
-			sprintf(temp, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r+")) != NULL) {
 			    fread(&newfileshdr, sizeof(newfileshdr), 1, fil);
 			    while (fread(&newfiles, newfileshdr.recsize, 1, fil) == 1) {
 				if (strcmp(oldpath, newfiles.Area) == 0) {
 				    i++;
-				    sprintf(newfiles.Area, "%s", msgs.Base);
+				    snprintf(newfiles.Area, 51, "%s", msgs.Base);
 				    fseek(fil, - newfileshdr.recsize, SEEK_CUR);
 				    fwrite(&newfiles, newfileshdr.recsize, 1, fil);
 				}
@@ -1340,7 +1340,7 @@ int EditMsgRec(int Area)
 			}
 			if (!Active) {
 			    temp = calloc(PATH_MAX, sizeof(char));
-			    sprintf(temp, "%s.jhr", msgs.Base);
+			    snprintf(temp, PATH_MAX, "%s.jhr", msgs.Base);
 			    if (strlen(msgs.Base) && (file_size(temp) != 1024)) {
 				if (yes_no((char *)"There are messages in this area, delete them") == 0)
 				    Active = TRUE;
@@ -1442,7 +1442,7 @@ void EditMsgarea(void)
 	mbse_mvprintw( 5, 3, "9.2 MESSAGE AREA SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, fil);
@@ -1455,10 +1455,10 @@ void EditMsgarea(void)
 			fread(&msgs, msgshdr.recsize, 1, fil);
 			if (msgs.Active) {
 			    set_color(CYAN, BLACK);
-			    sprintf(temp, "%3d. %-8s %-23s %-40s", o + i, getmsgtype(msgs.Type), msgs.Tag, msgs.Name);
+			    snprintf(temp, 81, "%3d. %-8s %-23s %-40s", o + i, getmsgtype(msgs.Type), msgs.Tag, msgs.Name);
 			} else {
 			    set_color(LIGHTBLUE, BLACK);
-			    sprintf(temp, "%3d.", o+i);
+			    snprintf(temp, 81, "%3d.", o+i);
 			}
 			mbse_mvprintw(y, 2, temp);
 			y++;
@@ -1597,12 +1597,12 @@ char *PickMsgarea(char *shdr)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		sprintf(temp, "%s.  MESSAGE AREA SELECT", shdr);
+		snprintf(temp, 81, "%s.  MESSAGE AREA SELECT", shdr);
 		mbse_mvprintw(5, 3, temp);
 		set_color(CYAN, BLACK);
 
 		if (records) {
-			sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&msgshdr, sizeof(msgshdr), 1, fil);
@@ -1622,7 +1622,7 @@ char *PickMsgarea(char *shdr)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-31s", o + i, msgs.Name);
+						snprintf(temp, 81, "%3d.  %-31s", o + i, msgs.Name);
 						temp[38] = '\0';
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -1645,7 +1645,7 @@ char *PickMsgarea(char *shdr)
 				o -= 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = msgshdr.hdrsize + ((atoi(pick) - 1) * (msgshdr.recsize + msgshdr.syssize));
 				fseek(fil, offset, SEEK_SET);
@@ -1653,7 +1653,7 @@ char *PickMsgarea(char *shdr)
 				fclose(fil);
 				if (msgs.Active) {
 					memset(&Buf, 0, sizeof(Buf));
-					sprintf(Buf, "%s", msgs.Base);
+					snprintf(Buf, 81, "%s", msgs.Base);
 					return Buf;
 				}
 			}
@@ -1669,7 +1669,7 @@ int GroupInMarea(char *Group)
 	FILE	*no;
 	char	temp[PATH_MAX];
 
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return 0;
 
@@ -1702,7 +1702,7 @@ int NodeInMarea(fidoaddr A)
 	char		temp[PATH_MAX];
 	sysconnect	S;
 
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return 0;
 
@@ -1736,7 +1736,7 @@ void msged_areas(FILE *fp)
     int     i = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
         return;
 
@@ -1788,7 +1788,7 @@ void gold_areas(FILE *fp)
 	int	i = 0;
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return;
 
@@ -1854,7 +1854,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
     else
 	LMiy = Miy - 1;
 	
-    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -1883,7 +1883,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    } else
 		fprintf(fp, "\n\n");
 
-	    sprintf(temp, "msgarea_%d.html", i);
+	    snprintf(temp, 81, "msgarea_%d.html", i);
 	    fprintf(ip, " <TR><TD><A HREF=\"%s\">%d</A></TD><TD>%s</TD><TD>%s</TD>\n", 
 		    temp, i, msgs.Name, strlen(msgs.Tag) ? msgs.Tag : "&nbsp;");
 	    if ((wp = open_webdoc(temp, (char *)"File area", msgs.Name))) {
@@ -1986,7 +1986,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 
 		    fprintf(fp, "    Link %2d          %s %s\n", j+1, status, aka2str(System.aka));
 		    if (wp != NULL) {
-			sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 			if ((ti = fopen(temp, "r"))) {
 			    fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
 			    fseek(ti, 0, SEEK_SET);

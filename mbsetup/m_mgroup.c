@@ -54,7 +54,7 @@ int CountMGroup(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -62,13 +62,13 @@ int CountMGroup(void)
 			mgrouphdr.recsize = sizeof(mgroup);
 			fwrite(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 			memset(&mgroup, 0, sizeof(mgroup));
-			sprintf(mgroup.Name, "NOGROUP");
-			sprintf(mgroup.Comment, "Dummy group for badmail, dupemail");
+			snprintf(mgroup.Name, 13, "NOGROUP");
+			snprintf(mgroup.Comment, 56, "Dummy group for badmail, dupemail");
 			mgroup.Active = TRUE;
 			fwrite(&mgroup, sizeof(mgroup), 1, fil);
 			memset(&mgroup, 0, sizeof(mgroup));
-			sprintf(mgroup.Name, "LOCAL");
-			sprintf(mgroup.Comment, "Local mail areas");
+			snprintf(mgroup.Name, 13, "LOCAL");
+			snprintf(mgroup.Comment, 56, "Local mail areas");
 			mgroup.Active = TRUE;
 			fwrite(&mgroup, sizeof(mgroup), 1, fil);
 			fclose(fil);
@@ -103,8 +103,8 @@ int OpenMGroup(void)
 	long	oldsize;
 	int	i;
 
-	sprintf(fnin,  "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			MGrpUpdated = 0;
@@ -148,7 +148,7 @@ int OpenMGroup(void)
 					if (temp[i] == '.')
 					    temp[i] = '/';
 				    }
-				    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+				    snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 				}
 				if (MGrpUpdated && !mgroup.LinkSec.level) {
 				    mgroup.LinkSec.level = 1;
@@ -179,8 +179,8 @@ void CloseMGroup(int force)
 	FILE	*fi, *fo;
 	st_list	*mgr = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
 
 	if (MGrpUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -225,7 +225,7 @@ int AppendMGroup(void)
     FILE	*fil;
     char	ffile[PATH_MAX];
 
-    sprintf(ffile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&mgroup, 0, sizeof(mgroup));
 	mgroup.StartDate = time(NULL);
@@ -309,7 +309,7 @@ int EditMGrpRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit MessageGroup");
 
-    sprintf(mfile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -389,7 +389,7 @@ int EditMGrpRec(int Area)
 			    if (isupper(temp[i]))
 			        temp[i] = tolower(temp[i]);
 			}
-		        sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+		        snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 		    }
 		    break;
 	    case 2: E_STR(  8,16,55, mgroup.Comment,    "The ^desription^ for this message group")
@@ -472,7 +472,7 @@ void EditMGroup(void)
 	mbse_mvprintw( 5, 4, "9.1 MESSAGE GROUPS SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
@@ -492,7 +492,7 @@ void EditMGroup(void)
 			    set_color(CYAN, BLACK);
 			else
 			    set_color(LIGHTBLUE, BLACK);
-			sprintf(temp, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
+			snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
 			temp[38] = '\0';
 			mbse_mvprintw(y, x, temp);
 			y++;
@@ -576,11 +576,11 @@ char *PickMGroup(char *shdr)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		sprintf(temp, "%s.  MESSAGE GROUP SELECT", shdr);
+		snprintf(temp, 81, "%s.  MESSAGE GROUP SELECT", shdr);
 		mbse_mvprintw( 5, 4, temp);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
@@ -600,7 +600,7 @@ char *PickMGroup(char *shdr)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
+						snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
 						temp[38] = '\0';
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -623,7 +623,7 @@ char *PickMGroup(char *shdr)
 				o = o - 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 			fil = fopen(temp, "r");
 			offset = sizeof(mgrouphdr) + ((atoi(pick) - 1) * mgrouphdr.recsize);
 			fseek(fil, offset, 0);
@@ -643,7 +643,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
     FILE    *ti, *wp, *ip, *no;
     int	    refs, i, j;
 
-    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -669,7 +669,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 
-	sprintf(temp, "msggroup_%s.html", mgroup.Name);
+	snprintf(temp, 81, "msggroup_%s.html", mgroup.Name);
 	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, mgroup.Name, mgroup.Comment, getboolean(mgroup.Active));
 
@@ -704,7 +704,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Message Areas Reference</H3>\n");
 	    refs = 0;
-            sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+            snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&tichdr, sizeof(tichdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);
@@ -735,7 +735,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Nodes Reference</H3>\n");
 	    refs = 0;
-	    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);

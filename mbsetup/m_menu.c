@@ -4,7 +4,7 @@
  * Purpose ...............: Edit BBS menus
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -47,13 +47,13 @@ char *select_menurec(int max)
     int		pick;
 
     if (max > 10)
-	sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove, ^P^revious, ^N^ext", max);
+	snprintf(help, 81, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove, ^P^revious, ^N^ext", max);
     else if (max > 1)
-	sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove", max);
+	snprintf(help, 81, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove", max);
     else if (max == 1)
-	sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete", max);
+	snprintf(help, 81, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete", max);
     else
-	sprintf(help, "Select ^\"-\"^ for previous level, ^A^ppend a record");
+	snprintf(help, 81, "Select ^\"-\"^ for previous level, ^A^ppend a record");
 
     showhelp(help);
 
@@ -157,7 +157,7 @@ int GetSubmenu(int Base, int Max)
     x = 2;
 
     for (i = 1; i <= Max; i++) {
-	sprintf(temp, "%2d. %s", i, getmenutype(i - 1 + Base));
+	snprintf(temp, 81, "%2d. %s", i, getmenutype(i - 1 + Base));
 	mbse_mvprintw(y, x, temp);
 	y++;
 	if ((i % 13) == 0) {
@@ -316,10 +316,10 @@ void EditMenu(char *Name)
     IsDoing("Edit Menu");
     working(1, 0, 0);
 
-    sprintf(mtemp, "%s/%s.tmp", lang.MenuPath, Name);
+    snprintf(mtemp, PATH_MAX, "%s/%s.tmp", lang.MenuPath, Name);
     tmp = fopen(mtemp, "w+");
 
-    sprintf(temp, "%s/%s.mnu", lang.MenuPath, Name);
+    snprintf(temp, PATH_MAX, "%s/%s.mnu", lang.MenuPath, Name);
     if ((fil = fopen(temp, "r")) != NULL) {
 	while (fread(&menus, sizeof(menus), 1, fil) == 1) {
 	    fwrite(&menus, sizeof(menus), 1, tmp);
@@ -332,7 +332,7 @@ void EditMenu(char *Name)
     for (;;) {
 	clr_index();
 	working(1, 0, 0);
-	sprintf(temp, "8.3 EDIT MENU \"%s\" (%s)", Name, lang.Name);
+	snprintf(temp, 81, "8.3 EDIT MENU \"%s\" (%s)", Name, lang.Name);
 	mbse_mvprintw( 5, 6, tu(temp));
 	set_color(CYAN, BLACK);
 	fseek(tmp, 0, SEEK_SET);
@@ -355,9 +355,11 @@ void EditMenu(char *Name)
 			    mbse_mvprintw(y, 10, "%1s", menus.MenuKey);
 			}
 			if (le_int(menus.MenuType) == 999 ) {
-			    sprintf(temp, "%-29s %5d %s", menus.TypeDesc, le_int(menus.MenuSecurity.level), menus.Display);
+			    snprintf(temp, 81, "%-29s %5d %s", menus.TypeDesc, 
+				    le_int(menus.MenuSecurity.level), menus.Display);
 			} else {
-			    sprintf(temp, "%-29s %5d %s", menus.TypeDesc, le_int(menus.MenuSecurity.level), menus.OptionalData);
+			    snprintf(temp, 81, "%-29s %5d %s", menus.TypeDesc, 
+				    le_int(menus.MenuSecurity.level), menus.OptionalData);
 			}
 			temp[68] = '\0';
 			mbse_mvprintw(y, 12, temp);
@@ -376,7 +378,7 @@ void EditMenu(char *Name)
 	    if (MenuUpdated) {
 		if (yes_no((char *)"Menu is changed, save changes") == 1) {
 		    working(1, 0, 0);
-		    sprintf(temp, "%s/%s.mnu", lang.MenuPath, Name);
+		    snprintf(temp, PATH_MAX, "%s/%s.mnu", lang.MenuPath, Name);
 		    if ((fil = fopen(temp, "w+")) == NULL) {
 			working(2, 0, 0);
 		    } else {
@@ -527,7 +529,7 @@ void EditMenus(void)
 	    y = 7;
 	    set_color(CYAN, BLACK);
 	    for (i = 1; i <= mcount; i++) {
-		sprintf(temp, "%2d. %s", i, menuname[i-1]);
+		snprintf(temp, 81, "%2d. %s", i, menuname[i-1]);
 		mbse_mvprintw(y, x, temp);
 		y++;
 		if ((i % 10) == 0) {
@@ -585,7 +587,7 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
     int		    j;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return page;
@@ -609,10 +611,10 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 		if (de->d_name[0] != '.') {
 		    j = 0;
 		    fprintf(ip, "<LI><A HREF=\"menu_%s_%s.html\">%s</A></LI>\n", lang.LangKey, de->d_name, de->d_name);
-		    sprintf(temp, "%s/%s", lang.MenuPath, de->d_name);
+		    snprintf(temp, PATH_MAX, "%s/%s", lang.MenuPath, de->d_name);
 		    fprintf(fp, "\n    MENU %s (%s)\n\n", de->d_name, lang.Name);
 		    if ((mn = fopen(temp, "r")) != NULL) {
-			sprintf(temp, "menu_%s_%s.html", lang.LangKey, de->d_name);
+			snprintf(temp, 81, "menu_%s_%s.html", lang.LangKey, de->d_name);
 			if ((wp = open_webdoc(temp, lang.Name, de->d_name))) {
 			    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"menus.html\">Back</A>\n");
 			    while (fread(&menus, sizeof(menus), 1, mn) == 1) {
@@ -628,7 +630,7 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 				    fprintf(fp, "    Menu select   Autoexec\n");
 				    add_webtable(wp, (char *)"Menu select", (char *)"Autoexec");
 				}
-				sprintf(temp, "%d %s", le_int(menus.MenuType), menus.TypeDesc);
+				snprintf(temp, 81, "%d %s", le_int(menus.MenuType), menus.TypeDesc);
 				add_webtable(wp, (char *)"Menu type", temp);
 				add_webtable(wp, (char *)"Optional data", menus.OptionalData);
 				add_webtable(wp, (char *)"Display", menus.Display);
