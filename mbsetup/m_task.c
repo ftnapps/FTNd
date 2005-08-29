@@ -4,7 +4,7 @@
  * Purpose ...............: Setup TaskManager.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,7 +51,7 @@ int OpenTask(void)
 	FILE	*fin;
 	char	fnin[PATH_MAX];
 
-	sprintf(fnin,  "%s/etc/task.data", getenv("MBSE_ROOT"));
+	snprintf(fnin, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		fread(&TCFG, sizeof(TCFG), 1, fin);
 		fclose(fin);
@@ -76,7 +76,7 @@ void CloseTask(void)
 	if (crc1 != crc2) {
 		if (yes_no((char *)"Configuration is changed, save changes") == 1) {
 			working(1, 0, 0);
-			sprintf(fin, "%s/etc/task.data", getenv("MBSE_ROOT"));
+			snprintf(fin, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
 			if ((fp = fopen(fin, "w+")) != NULL) {
 				fwrite(&TCFG, sizeof(TCFG), 1, fp);
 				fclose(fp);
@@ -135,7 +135,7 @@ int EditTask()
 		show_str(14, 15,40, TCFG.isp_ping1);
 		show_str(15, 15,40, TCFG.isp_ping2);
 		show_int(16, 15,    TCFG.max_tcp);
-		sprintf(temp, "%0.2f", TCFG.maxload);
+		snprintf(temp, 10, "%0.2f", TCFG.maxload);
 		show_str(17, 15,5, temp);
 
 		show_str( 16,56, 5, TCFG.zmh_start);
@@ -181,7 +181,7 @@ int task_doc(FILE *fp, FILE *toc, int page)
     char    temp[PATH_MAX];
     FILE    *wp, *no;
 
-    sprintf(temp, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
     fread(&TCFG, sizeof(TCFG), 1, no);
@@ -208,7 +208,7 @@ int task_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"ISP ping host 1", TCFG.isp_ping1);
     add_webtable(wp, (char *)"ISP ping host 2", TCFG.isp_ping2);
     fprintf(wp, "<TR><TD colspan=2>&nbsp;</TD></TR>\n");
-    sprintf(temp, "%0.2f", TCFG.maxload);
+    snprintf(temp, 10, "%0.2f", TCFG.maxload);
     add_webtable(wp, (char *)"Maximum system load", temp);
     add_webdigit(wp, (char *)"Max TCP/IP connections", TCFG.max_tcp);
     fprintf(wp, "</TBODY>\n");

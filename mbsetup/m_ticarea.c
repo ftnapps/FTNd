@@ -4,7 +4,7 @@
  * Purpose ...............: TIC Areas Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ int CountTicarea(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -100,8 +100,8 @@ int OpenTicarea(void)
 	struct	_sysconnect syscon;
 	int	i, oldsystems;
 
-	sprintf(fnin,  "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			TicUpdated = 0;
@@ -188,8 +188,8 @@ void CloseTicarea(int Force)
 	int	i;
 	struct	_sysconnect syscon;
 
-	sprintf(fin, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 
 	if (TicUpdated == 1) {
 		if (Force || (yes_no((char *)"Tic areas database is changed, save changes")) == 1) {
@@ -240,7 +240,7 @@ int AppendTicarea(void)
 	struct	_sysconnect syscon;
 	int	i;
 
-	sprintf(ffile, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&tic, 0, sizeof(tic));
 		/*
@@ -369,10 +369,10 @@ int EditTicConnections(FILE *fil)
 					status[2] = 'P';
 				if (System.aka.zone) {
 					set_color(CYAN,BLACK);
-					sprintf(temp, "%3d. %s %s", o+i, status, aka2str(System.aka));
+					snprintf(temp, 81, "%3d. %s %s", o+i, status, aka2str(System.aka));
 				} else {
 					set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.", o+i);
+					snprintf(temp, 81, "%3d.", o+i);
 				}
 				mbse_mvprintw(y, x, temp);
 				y++;
@@ -458,7 +458,7 @@ long LoadTicRec(int Area, int work)
 	if (work) 
 		working(1, 0, 0);
 
-	sprintf(mfile, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -502,7 +502,7 @@ int SaveTicRec(int Area, int work)
 
 	if (work)
 		working(1, 0, 0);
-	sprintf(mfile, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r+")) == 0) {
 		working(2, 0, 0);
 		return -1;
@@ -565,7 +565,7 @@ void TicGlobal(void)
      * Build the groups select array
      */
     working(1, 0, 0);
-    sprintf(tfile, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(tfile, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(tfile, "r")) != NULL) {
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
 
@@ -701,7 +701,7 @@ void TicGlobal(void)
 						Sc.aka.point = a2.point;
 						Sc.sendto = TRUE;
 						Sc.receivefrom = FALSE;
-						sprintf(Sc.aka.domain, "%s", a2.domain);
+						snprintf(Sc.aka.domain, 13, "%s", a2.domain);
 						fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
 						if (SaveTicRec(areanr, FALSE) == 0) {
 						    Done++;
@@ -719,7 +719,7 @@ void TicGlobal(void)
 						Sc.aka.net = a2.net;
 						Sc.aka.node = a2.node;
 						Sc.aka.point = a2.point;
-						sprintf(Sc.aka.domain, "%s", a2.domain);
+						snprintf(Sc.aka.domain, 13, "%s", a2.domain);
 						fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
 						fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
 						if (SaveTicRec(areanr, FALSE) == 0) {
@@ -759,7 +759,7 @@ void TicGlobal(void)
 						tic.Aka.net = CFG.aka[akan].net;
 						tic.Aka.node = CFG.aka[akan].node;
 						tic.Aka.point = CFG.aka[akan].point;
-						sprintf(tic.Aka.domain, "%s", CFG.aka[akan].domain);
+						snprintf(tic.Aka.domain, 13, "%s", CFG.aka[akan].domain);
 						if (SaveTicRec(areanr, FALSE) == 0) {
 						    Done++;
 						    Syslog('+', "Area %s now uses aka %s", tic.Name, aka2str(tic.Aka));
@@ -828,16 +828,16 @@ int EditTicRec(int Area)
 
     for (;;) {
 
-	sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) != NULL) {
 	    fread(&areahdr, sizeof(areahdr), 1, fp);
 	    fseek(fp, ((tic.FileArea - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 	    fread(&area, areahdr.recsize, 1, fp);
-	    sprintf(temp, "%ld: %s", tic.FileArea, area.Name);
+	    snprintf(temp, 81, "%ld: %s", tic.FileArea, area.Name);
 	    temp[24] = '\0';
 	    fclose(fp);
 	} else {
-	    sprintf(temp, "%ld", tic.FileArea);
+	    snprintf(temp, 81, "%ld", tic.FileArea);
 	}
 
 	set_color(WHITE, BLACK);
@@ -1031,7 +1031,7 @@ void EditTicarea(void)
 		mbse_mvprintw( 5, 3, "10.2 TIC AREA SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&tichdr, sizeof(tichdr), 1, fil);
@@ -1044,11 +1044,11 @@ void EditTicarea(void)
 						fread(&tic, tichdr.recsize, 1, fil);
 						if (tic.Active) {
 							set_color(CYAN, BLACK);
-							sprintf(temp, "%3d.  %-20s %-40s", o + i, tic.Name, tic.
+							snprintf(temp, 81, "%3d.  %-20s %-40s", o + i, tic.Name, tic.
 Comment);
 						} else {
 							set_color(LIGHTBLUE, BLACK);
-							sprintf(temp, "%3d.", o + i);
+							snprintf(temp, 81, "%3d.", o + i);
 						}
 						mbse_mvprintw(y, 2, temp);
 						y++;
@@ -1134,12 +1134,12 @@ char *PickTicarea(char *shdr)
 	for(;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		sprintf(temp, "%s.  TIC AREA SELECT", shdr);
+		snprintf(temp, 81, "%s.  TIC AREA SELECT", shdr);
 		mbse_mvprintw(5, 3, temp);
 		set_color(CYAN, BLACK);
 
 		if (records) {
-			sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&tichdr, sizeof(tichdr), 1, fil);
@@ -1155,7 +1155,7 @@ char *PickTicarea(char *shdr)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-20s %-40s", o + i, tic.Name, tic.Comment);
+						snprintf(temp, 81, "%3d.  %-20s %-40s", o + i, tic.Name, tic.Comment);
 						mbse_mvprintw(y, x, temp);
 						y++;
 					}
@@ -1177,7 +1177,7 @@ char *PickTicarea(char *shdr)
 				o -= 10;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = tichdr.hdrsize + ((atoi(pick) -1) * (tichdr.recsize + tichdr.syssize));
 				fseek(fil, offset, SEEK_SET);
@@ -1185,7 +1185,7 @@ char *PickTicarea(char *shdr)
 				fclose(fil);
 				if (tic.Active) {
 					memset(&Buf, 0, sizeof(Buf));
-					sprintf(Buf, "%s", tic.Name);
+					snprintf(Buf, 81, "%s", tic.Name);
 					return Buf;
 				}
 			}
@@ -1201,7 +1201,7 @@ int GroupInTic(char *Group)
         FILE            *no;
         int             systems, Area = 0, RetVal = 0;
 
-        sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+        snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
         if ((no = fopen(temp, "r")) == NULL)
                 return 0;
 
@@ -1234,7 +1234,7 @@ int NodeInTic(fidoaddr A)
 	char		temp[PATH_MAX];
 	sysconnect	S;
 
-	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return 0;
 
@@ -1268,7 +1268,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
     int		refs, i, k, nr, systems, First = TRUE;
     sysconnect	System;
 
-    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -1295,7 +1295,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	} else
 	    fprintf(fp, "\n\n");
 
-	sprintf(temp, "ticarea_%s.html", tic.Name);
+	snprintf(temp, 81, "ticarea_%s.html", tic.Name);
 	fprintf(ip, " <TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, tic.Name, tic.Comment, getboolean(tic.Active));
 	if ((wp = open_webdoc(temp, (char *)"TIC Area", tic.Comment))) {
@@ -1307,7 +1307,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Area tag", tic.Name);
 	    add_webtable(wp, (char *)"Active", getboolean(tic.Active));
 	    add_webtable(wp, (char *)"Comment", tic.Comment);
-	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&areahdr, sizeof(areahdr), 1, ti);
 		fseek(ti, areahdr.hdrsize + (areahdr.recsize * (tic.FileArea -1)), SEEK_SET);
@@ -1393,7 +1393,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 		    status[2] = 'P';
 		fprintf(fp, "    Link %2d     %s %s\n", i+1, status, aka2str(System.aka));
 		if (wp != NULL) {
-		    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 		    if ((ti = fopen(temp, "r"))) {
 			fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
 			fseek(ti, 0, SEEK_SET);
@@ -1428,7 +1428,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	    
 	    fprintf(wp, "<HR>\n");
             fprintf(wp, "<H3>Hatch References</H3>\n");
-	    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
 	    nr = refs = 0;
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&hatchhdr, sizeof(hatchhdr), 1, ti);
@@ -1441,7 +1441,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 			    fprintf(wp, "<TBODY>\n");
 			}
 			refs++;
-			sprintf(temp, "hatch_%d.html", nr);
+			snprintf(temp, 81, "hatch_%d.html", nr);
 			fprintf(wp, "<TR><TD><A HREF=\"%s\">Hatch %d</A></TD><TD>%s</TD></TR>\n",
 				temp, nr, hatch.Spec);
 		    }
@@ -1457,7 +1457,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Magic References</H3>\n");
-	    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
 	    nr = refs = 0;
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&magichdr, sizeof(magichdr), 1, ti);
@@ -1470,7 +1470,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 			    fprintf(wp, "<TBODY>\n");
 			}
 			refs++;
-			sprintf(temp, "magic_%d.html", nr);
+			snprintf(temp, 81, "magic_%d.html", nr);
 			fprintf(wp, "<TR><TD><A HREF=\"%s\">Magic %d</A></TD><TD>(%s) %s</TD></TR>\n",
 				    temp, nr, getmagictype(magic.Attrib), magic.Mask);
 		    }

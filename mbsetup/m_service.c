@@ -4,7 +4,7 @@
  * Purpose ...............: Service Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,7 +51,7 @@ int CountService(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	sprintf(ffile, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -63,25 +63,25 @@ int CountService(void)
 
 			servrec.Action = EMAIL;
 			servrec.Active = TRUE;
-			sprintf(servrec.Service, "UUCP");
+			snprintf(servrec.Service, 16, "UUCP");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 
 			servrec.Action = AREAMGR;
-			sprintf(servrec.Service, "areamgr");
+			snprintf(servrec.Service, 16, "areamgr");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
-			sprintf(servrec.Service, "gecho");
+			snprintf(servrec.Service, 16, "gecho");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
-			sprintf(servrec.Service, "fmail");
+			snprintf(servrec.Service, 16, "fmail");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 
 			servrec.Action = FILEMGR;
-			sprintf(servrec.Service, "filemgr");
+			snprintf(servrec.Service, 16, "filemgr");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
-			sprintf(servrec.Service, "allfix");
+			snprintf(servrec.Service, 16, "allfix");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
-			sprintf(servrec.Service, "mbtic");
+			snprintf(servrec.Service, 16, "mbtic");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
-			sprintf(servrec.Service, "raid");
+			snprintf(servrec.Service, 16, "raid");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
@@ -112,8 +112,8 @@ int OpenService(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
-	sprintf(fnin,  "%s/etc/service.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&servhdr, sizeof(servhdr), 1, fin);
@@ -160,8 +160,8 @@ void CloseService(int force)
 	FILE	*fi, *fo;
 	st_list	*hat = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/service.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
 
 	if (ServiceUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -205,7 +205,7 @@ int AppendService(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&servrec, 0, sizeof(servrec));
 		/*
@@ -249,7 +249,7 @@ int EditServiceRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Service");
 
-	sprintf(mfile, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -341,7 +341,7 @@ void EditService(void)
 		mbse_mvprintw( 5, 4, "16.   SERVICE MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			sprintf(temp, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&servhdr, sizeof(servhdr), 1, fil);
@@ -361,7 +361,7 @@ void EditService(void)
 							set_color(CYAN, BLACK);
 						else
 							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-15s %s", o+i, servrec.Service, getservice(servrec.Action));
+						snprintf(temp, 81, "%3d.  %-15s %s", o+i, servrec.Service, getservice(servrec.Action));
 						temp[37] = 0;
 						mbse_mvprintw(y, x, temp);
 						y++;
@@ -418,7 +418,7 @@ int service_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *no;
     int	    j;
 
-    sprintf(temp, "%s/etc/service.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 

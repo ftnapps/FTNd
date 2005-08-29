@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Protocols.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -55,7 +55,7 @@ int CountProtocol(void)
     char    ffile[PATH_MAX];
     int	    count;
 
-    sprintf(ffile, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -67,49 +67,49 @@ int CountProtocol(void)
 	     * Write default set of protocols
 	     */
 	    memset(&PROT, 0, sizeof(PROT));
-	    sprintf(PROT.ProtKey,      "A");
-	    sprintf(PROT.ProtName,     "Ymodem");
+	    snprintf(PROT.ProtKey,       2, "A");
+	    snprintf(PROT.ProtName,     21, "Ymodem");
 	    if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
-		sprintf(PROT.ProtUp,       "%s -v", _PATH_RB);
-		sprintf(PROT.ProtDn,       "%s -v -u", _PATH_SB);
+		snprintf(PROT.ProtUp,   51, "%s -v", _PATH_RB);
+		snprintf(PROT.ProtDn,   51, "%s -v -u", _PATH_SB);
 	    } else {
-		sprintf(PROT.ProtUp,       "/usr/bin/rb -v");
-		sprintf(PROT.ProtDn,       "/usr/bin/sb -v -u");
+		snprintf(PROT.ProtUp,   51, "/usr/bin/rb -v");
+		snprintf(PROT.ProtDn,   51, "/usr/bin/sb -v -u");
 	    }
 	    PROT.Available = FALSE;
-	    sprintf(PROT.Advice,       "Press Ctrl-X to abort");
+	    snprintf(PROT.Advice,       31, "Press Ctrl-X to abort");
 	    PROT.Efficiency = 75;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-	    sprintf(PROT.ProtKey,      "B");
-	    sprintf(PROT.ProtName,     "Ymodem-1K");
+	    snprintf(PROT.ProtKey,       2, "B");
+	    snprintf(PROT.ProtName,     21, "Ymodem-1K");
 	    if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
-		sprintf(PROT.ProtUp,       "%s -k -v", _PATH_RB);
-		sprintf(PROT.ProtDn,       "%s -k -v -u", _PATH_SB);
+		snprintf(PROT.ProtUp,   51, "%s -k -v", _PATH_RB);
+		snprintf(PROT.ProtDn,   51, "%s -k -v -u", _PATH_SB);
 	    } else {
-		sprintf(PROT.ProtUp,       "/usr/bin/rb -k -v");
-		sprintf(PROT.ProtDn,       "/usr/bin/sb -k -v -u");
+		snprintf(PROT.ProtUp,   51, "/usr/bin/rb -k -v");
+		snprintf(PROT.ProtDn,   51, "/usr/bin/sb -k -v -u");
 	    }
 	    PROT.Efficiency = 82;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-	    sprintf(PROT.ProtKey,      "C");
-	    sprintf(PROT.ProtName,     "Zmodem");
+	    snprintf(PROT.ProtKey,       2, "C");
+	    snprintf(PROT.ProtName,     21, "Zmodem");
 	    if (strlen(_PATH_SZ) && strlen(_PATH_RZ)) {
-		sprintf(PROT.ProtUp,       "%s -p -v", _PATH_RZ);
-		sprintf(PROT.ProtDn,       "%s -b -q -r -u", _PATH_SZ);
+		snprintf(PROT.ProtUp,   51, "%s -p -v", _PATH_RZ);
+		snprintf(PROT.ProtDn,   51, "%s -b -q -r -u", _PATH_SZ);
 	    } else {
-		sprintf(PROT.ProtUp,       "/usr/bin/rz -p -v");
-		sprintf(PROT.ProtDn,       "/usr/bin/sz -b -q -r -u");
+		snprintf(PROT.ProtUp,   51, "/usr/bin/rz -p -v");
+		snprintf(PROT.ProtDn,   51, "/usr/bin/sz -b -q -r -u");
 	    }
 	    PROT.Efficiency = 98;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-            sprintf(PROT.ProtKey,      "L");
-	    sprintf(PROT.ProtName,     "Local disk");
-	    sprintf(PROT.ProtUp,       "%s/bin/rf", getenv("MBSE_ROOT"));
-	    sprintf(PROT.ProtDn,       "%s/bin/sf", getenv("MBSE_ROOT"));
-	    sprintf(PROT.Advice,       "It goes before you know");
+            snprintf(PROT.ProtKey,       2, "L");
+	    snprintf(PROT.ProtName,     21, "Local disk");
+	    snprintf(PROT.ProtUp,       51, "%s/bin/rf", getenv("MBSE_ROOT"));
+	    snprintf(PROT.ProtDn,       51, "%s/bin/sf", getenv("MBSE_ROOT"));
+	    snprintf(PROT.Advice,       31, "It goes before you know");
 	    PROT.Level.level = 32000;
 	    PROT.Efficiency = 100;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
@@ -117,36 +117,36 @@ int CountProtocol(void)
 	    memset(&PROT, 0, sizeof(PROT));
 	    PROT.Internal = TRUE;
 	    PROT.Available = TRUE;
-	    sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-            sprintf(PROT.ProtKey,      "1");
-	    sprintf(PROT.ProtName,     "Ymodem-1K");
+	    snprintf(PROT.Advice,       31, "Press Ctrl-X to abort");
+            snprintf(PROT.ProtKey,       2, "1");
+	    snprintf(PROT.ProtName,     21, "Ymodem-1K");
 	    PROT.Efficiency = 82;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-	    sprintf(PROT.ProtKey,      "8");
-	    sprintf(PROT.ProtName,     "Zmodem-8K (ZedZap)");
+	    snprintf(PROT.ProtKey,       2, "8");
+	    snprintf(PROT.ProtName,     21, "Zmodem-8K (ZedZap)");
 	    PROT.Efficiency = 99;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-	    sprintf(PROT.ProtKey,      "G");
-	    sprintf(PROT.ProtName,     "Ymodem-G");
+	    snprintf(PROT.ProtKey,       2, "G");
+	    snprintf(PROT.ProtName,     21, "Ymodem-G");
 	    PROT.Efficiency = 90;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
 	    PROT.Available = FALSE;
-	    sprintf(PROT.ProtKey,      "X");
-	    sprintf(PROT.ProtName,     "Xmodem");
+	    snprintf(PROT.ProtKey,       2, "X");
+	    snprintf(PROT.ProtName,     21, "Xmodem");
 	    PROT.Efficiency = 75;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
 	    PROT.Available = TRUE;
-	    sprintf(PROT.ProtKey,      "Y");
-	    sprintf(PROT.ProtName,     "Ymodem");
+	    snprintf(PROT.ProtKey,       2, "Y");
+	    snprintf(PROT.ProtName,     21, "Ymodem");
 	    PROT.Efficiency = 75;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-	    sprintf(PROT.ProtKey,      "Z");
-	    sprintf(PROT.ProtName,     "Zmodem");
+	    snprintf(PROT.ProtKey,       2, "Z");
+	    snprintf(PROT.ProtName,     21, "Zmodem");
 	    PROT.Efficiency = 92;
 	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
@@ -182,8 +182,8 @@ int OpenProtocol(void)
     long    oldsize;
     int	    AddInt = TRUE;
 
-    sprintf(fnin,  "%s/etc/protocol.data", getenv("MBSE_ROOT"));
-    sprintf(fnout, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    fread(&PROThdr, sizeof(PROThdr), 1, fin);
@@ -233,7 +233,7 @@ int OpenProtocol(void)
 		     */
 		    if (strstr(usedkeys, PROT.ProtKey)) {
 			Syslog('+', "Change external protocol %s key %s to %c", PROT.ProtName, PROT.ProtKey, newkey);
-			sprintf(PROT.ProtKey, "%c", newkey);
+			snprintf(PROT.ProtKey, 2, "%c", newkey);
 			newkey++;
 			ProtUpdated = 1;
 		    }
@@ -252,36 +252,36 @@ int OpenProtocol(void)
 		memset(&PROT, 0, sizeof(PROT));
 		PROT.Internal = TRUE;
 		PROT.Available = TRUE;
-		sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-		sprintf(PROT.ProtKey,      "1");
-		sprintf(PROT.ProtName,     "Ymodem-1K");
+		snprintf(PROT.Advice,      31, "Press Ctrl-X to abort");
+		snprintf(PROT.ProtKey,      2,"1");
+		snprintf(PROT.ProtName,     21,"Ymodem-1K");
 		PROT.Efficiency = 82;
 		fwrite(&PROT, sizeof(PROT), 1, fout);
 												            
-		sprintf(PROT.ProtKey,      "8");
-		sprintf(PROT.ProtName,     "Zmodem-8K (ZedZap)");
+		snprintf(PROT.ProtKey,      2,"8");
+		snprintf(PROT.ProtName,     21,"Zmodem-8K (ZedZap)");
 		PROT.Efficiency = 99;
 		fwrite(&PROT, sizeof(PROT), 1, fout);
 
-		sprintf(PROT.ProtKey,      "G");
-		sprintf(PROT.ProtName,     "Ymodem-G");
+		snprintf(PROT.ProtKey,      2,"G");
+		snprintf(PROT.ProtName,     21,"Ymodem-G");
 		PROT.Efficiency = 90;
 		fwrite(&PROT, sizeof(PROT), 1, fout);
 
 		PROT.Available = FALSE;
-		sprintf(PROT.ProtKey,      "X");
-		sprintf(PROT.ProtName,     "Xmodem");
+		snprintf(PROT.ProtKey,      2,"X");
+		snprintf(PROT.ProtName,     21,"Xmodem");
 		PROT.Efficiency = 75;
 		fwrite(&PROT, sizeof(PROT), 1, fout);
 
 		PROT.Available = TRUE;
-		sprintf(PROT.ProtKey,      "Y");
-		sprintf(PROT.ProtName,     "Ymodem");
+		snprintf(PROT.ProtKey,      2,"Y");
+		snprintf(PROT.ProtName,     21,"Ymodem");
 		PROT.Efficiency = 75;
 		fwrite(&PROT, sizeof(PROT), 1, fout);
 
-		sprintf(PROT.ProtKey,      "Z");
-		sprintf(PROT.ProtName,     "Zmodem");
+		snprintf(PROT.ProtKey,      2,"Z");
+		snprintf(PROT.ProtName,     21,"Zmodem");
 		PROT.Efficiency = 92;
 		fwrite(&PROT, sizeof(PROT), 1, fout);
 		ProtRecords += 6;
@@ -307,8 +307,8 @@ void CloseProtocol(int force)
     FILE    *fi, *fo;
     st_list *pro = NULL, *tmp;
 
-    sprintf(fin, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
-    sprintf(fout,"%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
 
     if (ProtUpdated == 1) {
 	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -353,7 +353,7 @@ int AppendProtocol(void)
     FILE	*fil;
     char	ffile[PATH_MAX];
 
-    sprintf(ffile, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&PROT, 0, sizeof(PROT));
 	fwrite(&PROT, sizeof(PROT), 1, fil);
@@ -402,7 +402,7 @@ int EditProtRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Protocol");
 
-    sprintf(mfile, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -535,7 +535,7 @@ void EditProtocol(void)
 	mbse_mvprintw( 5, 6, "8.5 PROTOCOL SETUP");
 	set_color(CYAN, BLACK);
 	if (ProtRecords != 0) {
-	    sprintf(temp, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&PROThdr, sizeof(PROThdr), 1, fil);
@@ -552,7 +552,7 @@ void EditProtocol(void)
 			    set_color(CYAN, BLACK);
 			else
 			    set_color(LIGHTBLUE, BLACK);
-			sprintf(temp, "%3d.  %1s %-20s %s %3d %-30s %5d", i, PROT.ProtKey, PROT.ProtName, 
+			snprintf(temp, 81, "%3d.  %1s %-20s %s %3d %-30s %5d", i, PROT.ProtKey, PROT.ProtName, 
 				PROT.Internal?"Int":"Ext", PROT.Efficiency, PROT.Advice, PROT.Level.level);
 			mbse_mvprintw(y, 4, temp);
 			y++;
@@ -628,11 +628,11 @@ char *PickProtocol(int nr)
 
     clr_index();
     set_color(WHITE, BLACK);
-    sprintf(temp, "%d.  PROTOCOL SELECT", nr);
+    snprintf(temp, 81, "%d.  PROTOCOL SELECT", nr);
     mbse_mvprintw( 5, 4, temp);
     set_color(CYAN, BLACK);
     if (ProtRecords) {
-	sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
 	working(1, 0, 0);
 	if ((fil = fopen(temp, "r")) != NULL) {
 	    fread(&PROThdr, sizeof(PROThdr), 1, fil);
@@ -652,7 +652,7 @@ char *PickProtocol(int nr)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTBLUE, BLACK);
-		    sprintf(temp, "%3d.  %s %-30s", i, PROT.ProtKey, PROT.ProtName);
+		    snprintf(temp, 81, "%3d.  %s %-30s", i, PROT.ProtKey, PROT.ProtName);
 		    temp[37] = '\0';
 		    mbse_mvprintw(i + 6, x, temp);
 		    y++;
@@ -683,7 +683,7 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *no;
     int	    j;
 
-    sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -708,7 +708,7 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 	    j = 0;
 	}
 
-	sprintf(temp, "protocol_%s.html", PROT.ProtKey);
+	snprintf(temp, 81, "protocol_%s.html", PROT.ProtKey);
 	fprintf(ip, "<TR><TD><A HREF=\"%s\">%s</A></TD><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
 		temp, PROT.ProtKey, PROT.ProtName, getboolean(PROT.Available), PROT.Internal ? "Internal":"External");
 	if ((wp = open_webdoc(temp, (char *)"BBS Transfer Protocol", PROT.ProtName))) {
@@ -726,7 +726,7 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Available", getboolean(PROT.Available));
 	    add_webtable(wp, (char *)"Internal protocol", getboolean(PROT.Internal));
 	    add_webtable(wp, (char *)"User advice", PROT.Advice);
-	    sprintf(temp, "%d%%", PROT.Efficiency);
+	    snprintf(temp, 81, "%d%%", PROT.Efficiency);
 	    add_webtable(wp, (char *)"Efficiency", temp);
 	    web_secflags(wp, (char *)"Security level", PROT.Level);
 	    fprintf(wp, "</TBODY>\n");

@@ -4,7 +4,7 @@
  * Purpose ...............: Routing Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,7 +54,7 @@ int CountRoute(void)
     int	    count;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    sprintf(ffile, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -95,8 +95,8 @@ int OpenRoute(void)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    sprintf(fnin,  "%s/etc/route.data", getenv("MBSE_ROOT"));
-    sprintf(fnout, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
 
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
@@ -153,8 +153,8 @@ void CloseRoute(int force)
 
     fin  = calloc(PATH_MAX, sizeof(char));
     fout = calloc(PATH_MAX, sizeof(char));
-    sprintf(fin, "%s/etc/route.data", getenv("MBSE_ROOT"));
-    sprintf(fout,"%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
 
     if (RouteUpdated == 1) {
 	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -203,7 +203,7 @@ int AppendRoute(void)
     char    *ffile;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    sprintf(ffile, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
 
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&route, 0, sizeof(route));
@@ -319,7 +319,7 @@ int EditRouteRec(int Area)
     IsDoing("Edit Route");
 
     mfile = calloc(PATH_MAX, sizeof(char));
-    sprintf(mfile, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	free(mfile);
@@ -439,7 +439,7 @@ void EditRoute(void)
 	mbse_mvprintw( 5, 4, "19. ROUTING TABLE");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    sprintf(temp, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&routehdr, sizeof(routehdr), 1, fil);
@@ -457,7 +457,7 @@ void EditRoute(void)
 			    set_color(CYAN, BLACK);
 			else
 			    set_color(LIGHTBLUE, BLACK);
-			sprintf(temp, "%3d.  %-25s %s %s", o + i, route.mask, get_routetype(route.routetype), aka2str(route.dest));
+			snprintf(temp, 81, "%3d.  %-25s %s %s", o + i, route.mask, get_routetype(route.routetype), aka2str(route.dest));
 //			temp[37] = 0;
 			mbse_mvprintw(y, x, temp);
 			y++;
@@ -516,7 +516,7 @@ int route_doc(FILE *fp, FILE *toc, int page)
     int	    j;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return page;
