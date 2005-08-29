@@ -4,7 +4,7 @@
  * Purpose ...............: Group Listing utils
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -60,7 +60,7 @@ void fill_grlist(gr_list **fdp, char *groupname)
 
 	tmp = (gr_list *)malloc(sizeof(gr_list));
 	tmp->next = *fdp;
-	sprintf(tmp->group, "%s", groupname);
+	snprintf(tmp->group, 13, "%s", groupname);
 	tmp->tagged = FALSE;
 	*fdp = tmp;
 }

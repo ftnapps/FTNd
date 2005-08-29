@@ -75,7 +75,7 @@ void errmsg(const char *format, ...)
 	t = calloc(256, sizeof(char));
 
 	va_start(va_ptr, format);
-	vsprintf(t, format, va_ptr);
+	vsnprintf(t, 256, format, va_ptr);
 	va_end(va_ptr);
 
 	t = xstrcat(t, (char *)", Press any key ");
@@ -174,7 +174,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
     unsigned int    ch;
 
     memset((char *)s, 0, 256);
-    sprintf(s, "%s", s_);
+    snprintf(s, 256, "%s", s_);
     curpos = 0;
     first = 1;
     newinsert(1, YELLOW, BLUE);
@@ -339,12 +339,12 @@ char *select_show(int max)
 	memset((char *)s, 0, 12);
 
 	if (max == 0)
-		sprintf(help, "Select ^\"-\"^ for previous level");
+		snprintf(help, 81, "Select ^\"-\"^ for previous level");
 	else
 		if (max > 10)
-			sprintf(help, "Select ^\"-\"^ for previous level, ^\"P\" or \"N\"^ to page");
+			snprintf(help, 81, "Select ^\"-\"^ for previous level, ^\"P\" or \"N\"^ to page");
 		else
-			sprintf(help, "Select ^\"-\"^ for previous level");
+			snprintf(help, 81, "Select ^\"-\"^ for previous level");
 	showhelp(help);
 
 	/*
@@ -384,12 +384,12 @@ char *select_record(int max, int items)
 	memset((char *)s, 0, 12);
 
 	if (max == 0)
-		sprintf(help, "Select ^\"-\"^ for previous level, ^\"A\"^ to append first record");
+		snprintf(help, 81, "Select ^\"-\"^ for previous level, ^\"A\"^ to append first record");
 	else
 		if (max > items)
-			sprintf(help, "Record (1..%d), ^\"-\"^ prev. level, ^\"A\"^ Append record, ^\"P\" or \"N\"^ to page", max);
+			snprintf(help, 81, "Record (1..%d), ^\"-\"^ prev. level, ^\"A\"^ Append record, ^\"P\" or \"N\"^ to page", max);
 		else
-			sprintf(help, "Select record (1..%d), ^\"-\"^ for previous level, ^\"A\"^ to append a new record", max);
+			snprintf(help, 81, "Select record (1..%d), ^\"-\"^ for previous level, ^\"A\"^ to append a new record", max);
 	showhelp(help);
 
 	/*
@@ -436,12 +436,12 @@ char *select_area(int max, int items)
 	memset((char *)s, 0, 12);
 
 	if (max == 0)
-		sprintf(help, "^\"-\"^ back, ^A^ppend");
+		snprintf(help, 81, "^\"-\"^ back, ^A^ppend");
 	else
 		if (max > items)
-			sprintf(help, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^G^lobal, ^M^ove, ^N^ext, ^P^revious", max);
+			snprintf(help, 81, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^G^lobal, ^M^ove, ^N^ext, ^P^revious", max);
 		else
-			sprintf(help, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^G^lobal, ^M^ove", max);
+			snprintf(help, 81, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^G^lobal, ^M^ove", max);
 	showhelp(help);
 
 	/*
@@ -488,12 +488,12 @@ char *select_filearea(int max, int items)
         memset((char *)s, 0, 12);
 
         if (max == 0)
-                sprintf(help, "^\"-\"^ back, ^A^ppend");
+                snprintf(help, 81, "^\"-\"^ back, ^A^ppend");
         else
                 if (max > items)
-                        sprintf(help, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^M^ove, ^N^ext, ^P^revious", max);
+                        snprintf(help, 81, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^M^ove, ^N^ext, ^P^revious", max);
                 else
-                        sprintf(help, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^M^ove", max);
+                        snprintf(help, 81, "Record (1..%d), ^\"-\"^ back, ^A^ppend, ^M^ove", max);
         showhelp(help);
 
         /*
@@ -538,12 +538,12 @@ char *select_pick(int max, int items)
 	memset((char *)s, 0, 12);
 
 	if (max == 0)
-		sprintf(help, "Select ^\"-\"^ for previous level");
+		snprintf(help, 81, "Select ^\"-\"^ for previous level");
 	else
 		if (max > items)
-			sprintf(help, "Record (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", max);
+			snprintf(help, 81, "Record (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", max);
 		else
-			sprintf(help, "Select record (1..%d), ^\"-\"^ for previous level", max);
+			snprintf(help, 81, "Select record (1..%d), ^\"-\"^ for previous level", max);
 	showhelp(help);
 
 	/*
@@ -586,12 +586,12 @@ char *select_aka(int max, int items)
         memset((char *)s, 0, 12);
 
         if (max == 0)
-                sprintf(help, "Select ^\"-\"^ for previous level");
+                snprintf(help, 81, "Select ^\"-\"^ for previous level");
         else
                 if (max > items)
-                        sprintf(help, "Record (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page, ^\"M\"^ move aka", max);
+                        snprintf(help, 81, "Record (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page, ^\"M\"^ move aka", max);
                 else
-                        sprintf(help, "Select record (1..%d), ^\"-\"^ for previous level ^\"M\"^ move aka", max);
+                        snprintf(help, 81, "Select record (1..%d), ^\"-\"^ for previous level ^\"M\"^ move aka", max);
         showhelp(help);
 
         /*
@@ -649,18 +649,18 @@ int select_menu_sub(int max, int items, int allowall, char *hlp)
 	int		pick;
 
 	if (max == 0)
-	    sprintf(help, "Select ^\"-\"^ for previous level");
+	    snprintf(help, 81, "Select ^\"-\"^ for previous level");
 	else {
 	    if (allowall) {
 		if (max > items)
-		    sprintf(help, "%s (1..%d), ^\"-\"^ prev. level, ^\"*\"^ (de)select all, ^\"P\" or \"N\"^ to page", hlp, max);
+		    snprintf(help, 81, "%s (1..%d), ^\"-\"^ prev. level, ^\"*\"^ (de)select all, ^\"P\" or \"N\"^ to page", hlp, max);
 		else
-		    sprintf(help, "%s (1..%d), ^\"-\"^ for previous level, ^\"*\"^ (de)select all", hlp, max);
+		    snprintf(help, 81, "%s (1..%d), ^\"-\"^ for previous level, ^\"*\"^ (de)select all", hlp, max);
 	    } else {
 		if (max > items)
-		    sprintf(help, "%s (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", hlp, max);
+		    snprintf(help, 81, "%s (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", hlp, max);
 		else
-		    sprintf(help, "%s (1..%d), ^\"-\"^ for previous level", hlp, max);
+		    snprintf(help, 81, "%s (1..%d), ^\"-\"^ for previous level", hlp, max);
 	    }
 	}
 	showhelp(help);
@@ -789,27 +789,27 @@ char *edit_jam(int y, int x, int l, char *line, char *help)
 	    working(5, 0, 0);
 	    from = calloc(PATH_MAX, sizeof(char));
 	    too  = calloc(PATH_MAX, sizeof(char));
-	    sprintf(from, "%s.jhr", line);
+	    snprintf(from, PATH_MAX, "%s.jhr", line);
 	    if (access(from, R_OK | W_OK) == 0) {
 		/*
 		 * Old message base does exist, copy message base.
 		 */
 		if (mkdirs(s, 0770)) {
-		    sprintf(too, "%s.jhr", s);
+		    snprintf(too, PATH_MAX, "%s.jhr", s);
 		    rc = file_cp(from, too);
 		    if (rc == 0) {
-			sprintf(from, "%s.jdt", line);
-			sprintf(too,  "%s.jdt", s);
+			snprintf(from, PATH_MAX, "%s.jdt", line);
+			snprintf(too,  PATH_MAX, "%s.jdt", s);
 			rc = file_cp(from, too);
 		    }
 		    if (rc == 0) {
-			sprintf(from, "%s.jdx", line);
-			sprintf(too,  "%s.jdx", s);
+			snprintf(from, PATH_MAX, "%s.jdx", line);
+			snprintf(too,  PATH_MAX, "%s.jdx", s);
 			rc = file_cp(from, too);
 		    }
 		    if (rc == 0) {
-			sprintf(from, "%s.jlr", line);
-			sprintf(too,  "%s.jlr", s);
+			snprintf(from, PATH_MAX, "%s.jlr", line);
+			snprintf(too,  PATH_MAX, "%s.jlr", s);
 			rc = file_cp(from, too);
 		    }
 		    if (rc == 0) {
@@ -817,11 +817,11 @@ char *edit_jam(int y, int x, int l, char *line, char *help)
 			 * All files copied successfull
 			 */
 			file_rm(from);
-			sprintf(from, "%s.jdx", line);
+			snprintf(from, PATH_MAX, "%s.jdx", line);
 			file_rm(from);
-			sprintf(from, "%s.jdt", line);
+			snprintf(from, PATH_MAX, "%s.jdt", line);
 			file_rm(from);
-			sprintf(from, "%s.jhr", line);
+			snprintf(from, PATH_MAX, "%s.jhr", line);
 			file_rm(from);
 			Syslog('+', "JAM message base moved to %s", s);
 		    } else {
@@ -829,11 +829,11 @@ char *edit_jam(int y, int x, int l, char *line, char *help)
 			 * Copy failed
 			 */
 			file_rm(too);
-			sprintf(too, "%s.jdx", s);
+			snprintf(too, PATH_MAX, "%s.jdx", s);
 			file_rm(too);
-			sprintf(too, "%s.jdt", s);
+			snprintf(too, PATH_MAX, "%s.jdt", s);
 			file_rm(too);
-			sprintf(too, "%s.jhr", s);
+			snprintf(too, PATH_MAX, "%s.jhr", s);
 			file_rm(too);
 			errmsg((char *)"Can't move JAM message base");
 			strcpy(s, line);
@@ -1060,7 +1060,7 @@ int edit_int(int y, int x, int val, char *help)
 
     showhelp(help);
     memset((char *)s, 0, sizeof(s));
-    sprintf(line, "%d", val);
+    snprintf(line, 7, "%d", val);
     strcpy(s, edit_field(y, x, 7, '9', line));
     set_color(WHITE, BLACK);
     show_int(y, x, atoi(s));
@@ -1077,7 +1077,7 @@ int edit_int_range(int y, int x, int val, int min, int max, char *help)
     while (TRUE) {
 	showhelp(help);
 	memset((char *)s, 0, sizeof(s));
-	sprintf(line, "%d", val);
+	snprintf(line, 7, "%d", val);
 	strcpy(s, edit_field(y, x, 7, '9', line));
 	set_color(WHITE, BLACK);
 	show_int(y, x, atoi(s));
@@ -1106,7 +1106,7 @@ unsigned short edit_ushort(int y, int x, unsigned short val, char *help)
     showhelp(help);
     memset((char *)s, 0, sizeof(s));
     do {
-	sprintf(line, "%d", val);
+	snprintf(line, 7, "%d", val);
 	strcpy(s, edit_field(y, x, 5, '9', line));
 	r = atoi(s);
 	if (r >= 65535L) {
@@ -1527,7 +1527,7 @@ char *get_secstr(securityrec S)
 	static char temp[45];
 
 	memset(&temp, 0, sizeof(temp));
-	sprintf(temp, "%-5d %s", S.level, getflag(S.flags, S.notflags));
+	snprintf(temp, 45, "%-5d %s", S.level, getflag(S.flags, S.notflags));
 	return temp;
 }
 
@@ -2043,9 +2043,9 @@ void show_aka(int y, int x, fidoaddr aka)
 	char	temp[24];
 
 	if (aka.point == 0)
-		sprintf(temp, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
+		snprintf(temp, 24, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
 	else
-		sprintf(temp, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
+		snprintf(temp, 24, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
 	mbse_mvprintw(y, x, temp);
 }
 
@@ -2059,7 +2059,7 @@ void edit_color(int *fg, int *bg, char *title, char *help)
 	clr_index();
 	set_color(WHITE, BLACK);
 	mbse_mvprintw(5, 6, title);
-	sprintf(temp, "Change the ^%s^ color with arrow keys, press <Enter> whene done", help);
+	snprintf(temp, 81, "Change the ^%s^ color with arrow keys, press <Enter> whene done", help);
 	showhelp(temp);
 
 	for (f = 0; f < 16; f++)
