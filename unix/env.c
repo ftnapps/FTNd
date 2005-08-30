@@ -6,7 +6,7 @@
  * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -98,7 +98,7 @@ void addenv(const char *string, const char *value)
 
 	if (value) {
 		newstring = xmalloc(strlen(string) + strlen(value) + 2);
-		sprintf(newstring, "%s=%s", string, value);
+		snprintf(newstring, strlen(string) + strlen(value) + 2, "%s=%s", string, value);
 	} else {
 		newstring = xstrdup(string);
 	}

@@ -91,7 +91,7 @@ int execute(char **args, char *in, char *out, char *err)
     memset(&buf, 0, sizeof(buf));
     for (i = 0; i < 16; i++) {
 	if (args[i])
-	    sprintf(buf, "%s %s", buf, args[i]);
+	    snprintf(buf, PATH_MAX, "%s %s", buf, args[i]);
 	else
 	    break;
     }
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
      */
     temp = calloc(PATH_MAX, sizeof(char));
     ppid = getppid();
-    sprintf(temp, "/proc/%d/cmdline", ppid);
+    snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
     if ((fp = fopen(temp, "r")) == NULL) {
 	fprintf(stderr, "mbuseradd: can't read %s\n", temp);
 	exit(1);
@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
 #error "Don't know how to add a user on this OS"
 #endif
 
-    sprintf(shell, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
-    sprintf(homedir, "%s/%s", argv[4], argv[2]);
+    snprintf(shell, PATH_MAX, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
+    snprintf(homedir, PATH_MAX, "%s/%s", argv[4], argv[2]);
 
 #if defined(__linux__)
     args[1] = (char *)"-c";
@@ -390,17 +390,17 @@ int main(int argc, char *argv[])
     /*
      *  Create Maildir and subdirs for Qmail.
      */
-    sprintf(temp, "%s/%s/Maildir", argv[4], argv[2]);
+    snprintf(temp, PATH_MAX, "%s/%s/Maildir", argv[4], argv[2]);
     makedir(temp, 0700, pwuser->pw_uid, pwent->pw_gid);
-    sprintf(temp, "%s/%s/Maildir/cur", argv[4], argv[2]);
+    snprintf(temp, PATH_MAX, "%s/%s/Maildir/cur", argv[4], argv[2]);
     makedir(temp, 0700, pwuser->pw_uid, pwent->pw_gid);
-    sprintf(temp, "%s/%s/Maildir/new", argv[4], argv[2]);
+    snprintf(temp, PATH_MAX, "%s/%s/Maildir/new", argv[4], argv[2]);
     makedir(temp, 0700, pwuser->pw_uid, pwent->pw_gid);
-    sprintf(temp, "%s/%s/Maildir/tmp", argv[4], argv[2]);
+    snprintf(temp, PATH_MAX, "%s/%s/Maildir/tmp", argv[4], argv[2]);
     makedir(temp, 0700, pwuser->pw_uid, pwent->pw_gid);
 
 #ifdef _VPOPMAIL_PATH
-    sprintf(temp, "%s/vadduser", _VPOPMAIL_PATH);
+    snprintf(temp, PATH_MAX, "%s/vadduser", _VPOPMAIL_PATH);
     args[0] = temp;
     args[1] = argv[2];
     args[2] = argv[2];

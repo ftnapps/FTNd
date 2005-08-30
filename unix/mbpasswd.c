@@ -5,7 +5,7 @@
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek	FIDO:		2:280/2802
  * Beekmansbos 10
@@ -166,7 +166,7 @@ int execute(char **args, char *in, char *out, char *err)
 
     for (i = 0; i < 16; i++) {
         if (args[i])
-            sprintf(buf, "%s %s", buf, args[i]);
+            snprintf(buf, PATH_MAX, "%s %s", buf, args[i]);
         else
             break;
     }
@@ -611,7 +611,7 @@ static int new_password(const struct passwd *pw, char *newpasswd)
 	int HistUpdate P_((const char *, const char *));
 #endif
 
-	sprintf(pass, "%s", newpasswd);
+	snprintf(pass, 200, "%s", newpasswd);
 
 	/*
 	 * Encrypt the password, then wipe the cleartext password.
@@ -888,7 +888,7 @@ int main(int argc, char *argv[])
      * Find out the name of our parent.
      */
     ppid = getppid();
-    sprintf(temp, "/proc/%d/cmdline", ppid);
+    snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
     if ((fp = fopen(temp, "r")) == NULL) {
 	fprintf(stderr, "mbpasswd: can't read %s\n", temp);
 	syslog(LOG_ERR, "mbpasswd: can't read %s", temp);
@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[])
     fflush(stdin);
     memset(args, 0, sizeof(args));
     
-    sprintf(temp, "%s/vpasswd", (char *)_VPOPMAIL_PATH);
+    snprintf(temp, PATH_MAX, "%s/vpasswd", (char *)_VPOPMAIL_PATH);
     args[0] = temp;
     args[1] = argv[1];
     args[2] = argv[2];

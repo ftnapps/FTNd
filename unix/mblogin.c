@@ -501,7 +501,7 @@ int main(int argc, char **argv)
 	/* get the mbse environment */
 	pw = getpwnam("mbse");
 	addenv("MBSE_ROOT", pw->pw_dir);
-	sprintf(userfile, "%s/etc/users.data",  pw->pw_dir);
+	snprintf(userfile, PATH_MAX, "%s/etc/users.data",  pw->pw_dir);
 
 	check_nologin();
 

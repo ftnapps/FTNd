@@ -6,7 +6,7 @@
  * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -243,7 +243,7 @@ void def_load(void)
 		syslog(LOG_CRIT, "cannot find user `mbse' in password file");
 		return;
 	}
-	sprintf(def_fname, "%s/etc/login.defs", pw->pw_dir);
+	snprintf(def_fname, PATH_MAX, "%s/etc/login.defs", pw->pw_dir);
 
 	/*
 	 * Open the configuration definitions file.

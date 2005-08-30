@@ -6,7 +6,7 @@
  * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -151,7 +151,7 @@ void login_prompt(const char *prompt, char *name, int namesize)
 				envp[envc] = nvar;
 			} else {
 				envp[envc] = xmalloc(strlen(nvar) + 32);
-				sprintf(envp[envc], "L%d=%s", count++, nvar);
+				snprintf(envp[envc], strlen(nvar) + 32, "L%d=%s", count++, nvar);
 			}
 		}
 		set_env(envc, envp);
