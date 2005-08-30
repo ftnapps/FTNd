@@ -465,7 +465,12 @@ cat << EOF >>/etc/inetd.conf
 binkp	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ibn
 fido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ifc
 tfido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t itn
+# Example Linux telnet to the BBS
 #telnet	stream	tcp	nowait	root	/usr/sbin/tcpd	in.telnetd -L $MHOME/bin/mblogin
+# Example FreeBSD telnet to the BBS
+#telnet  stream  tcp     nowait  root   /usr/libexec/telnetd  telnetd -p $MHOME/bin/mblogin
+# Example OpenBSD telnet to the BBS
+#telnet  stream  tcp     nowait  root   /usr/libexec/tcpd     telnetd -L $MHOME/bin/mblogin
 
 EOF
 	chmod 644 /etc/inetd.conf
