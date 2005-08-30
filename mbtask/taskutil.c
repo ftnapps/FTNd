@@ -67,7 +67,7 @@ char *date(void)
 {
     struct tm   ptm;
     time_t      now;
-    static char buf[20];
+    static char buf[21];
 
     now = time(NULL);
 #if defined(__OpenBSD__)
@@ -75,7 +75,7 @@ char *date(void)
 #else
     ptm = *localtime(&now);
 #endif
-    snprintf(buf, 20, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+    snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
     return(buf);
 }
@@ -85,14 +85,14 @@ char *date(void)
 char *rfcdate(time_t now)
 {
     struct tm   ptm;
-    static char buf[20];
+    static char buf[21];
 
 #if defined(__OpenBSD__)
     localtime_r(&now, &ptm);
 #else
     ptm = *localtime(&now);
 #endif
-    snprintf(buf, 20, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+    snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 		ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
     return(buf);
 }
