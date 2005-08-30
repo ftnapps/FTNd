@@ -818,7 +818,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 {
     FILE    *id, *pPrivate;
     int	    err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
-    char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[81], msg[81]; 
+    char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[PATH_MAX], msg[81]; 
     struct  stat statfile; 
     struct _fdbarea *fdb_area = NULL;
 
