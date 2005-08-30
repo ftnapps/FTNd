@@ -274,14 +274,14 @@ void Masterlist()
     int		    AreaNr = 0, z, x = 0, New;
     unsigned long   AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
     unsigned long   AllAreaFiles, AllAreaBytes, popdown, down, NewAreaFiles, NewAreaBytes;
-    char	    *sAreas, temp[81], pop[81];
+    char	    *sAreas, temp[PATH_MAX], pop[81];
     struct _fdbarea *fdb_area = NULL;
 
     sAreas	= calloc(PATH_MAX, sizeof(char));
 
     IsDoing("Create Allfiles list");
 
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open File Areas File: %s", sAreas);
@@ -305,14 +305,14 @@ void Masterlist()
 
     TopBox(fp, TRUE);
     TopBox(np, TRUE);
-    sprintf(temp, "All available files at %s", CFG.bbs_name);
+    snprintf(temp, 81, "All available files at %s", CFG.bbs_name);
     MidLine(temp, fp, TRUE);
-    sprintf(temp, "New available files since %d days at %s", CFG.newdays, CFG.bbs_name);
+    snprintf(temp, 81, "New available files since %d days at %s", CFG.newdays, CFG.bbs_name);
     MidLine(temp, np, TRUE);
     BotBox(fp, TRUE);
     BotBox(np, TRUE);
 
-    sprintf(temp, "%s/etc/header.txt", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/header.txt", getenv("MBSE_ROOT"));
     if (( pHeader = fopen(temp, "r")) != NULL) {
 	Syslog('+', "Inserting %s", temp);
 
@@ -353,7 +353,7 @@ void Masterlist()
 			down = fdb.TimesDL;
 			if (down > popdown) {
 			    popdown = down;
-			    sprintf(pop, "%s", fdb.Name);
+			    snprintf(pop, 81, "%s", fdb.Name);
 			}
 			if (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays) {
 			    NewFiles++;
@@ -373,20 +373,20 @@ void Masterlist()
 		    TopBox(fp, TRUE);
 		    TopBox(np, NewAreaFiles);
 
-		    sprintf(temp, "Area %d - %s", AreaNr, area.Name);
+		    snprintf(temp, 81, "Area %d - %s", AreaNr, area.Name);
 		    MidLine(temp, fp, TRUE);
 		    MidLine(temp, np, NewAreaFiles);
 
-		    sprintf(temp, "File Requests allowed");
+		    snprintf(temp, 81, "File Requests allowed");
 		    MidLine(temp, fp, area.FileReq);
 		    MidLine(temp, np, area.FileReq && NewAreaFiles);
 
-		    sprintf(temp, "%ld KBytes in %ld files", AllAreaBytes / 1024, AllAreaFiles);
+		    snprintf(temp, 81, "%ld KBytes in %ld files", AllAreaBytes / 1024, AllAreaFiles);
 		    MidLine(temp, fp, TRUE);
-		    sprintf(temp, "%ld KBytes in %ld files", NewAreaBytes / 1024, NewAreaFiles);
+		    snprintf(temp, 81, "%ld KBytes in %ld files", NewAreaBytes / 1024, NewAreaFiles);
 		    MidLine(temp, np, NewAreaFiles);
 		    if (popdown) {
-			sprintf(temp, "Most popular file is %s", pop);
+			snprintf(temp, 81, "Most popular file is %s", pop);
 			MidLine(temp, fp, TRUE);
 		    }
 
@@ -397,7 +397,7 @@ void Masterlist()
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (!fdb.Deleted) {
 			    New = (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays);
-			    sprintf(temp, "%-12s%10lu K %s [%04ld] Uploader: %s",
+			    snprintf(temp, 81, "%-12s%10lu K %s [%04ld] Uploader: %s",
 				fdb.Name, (long)(fdb.Size / 1024), StrDateDMY(fdb.UploadDate), fdb.TimesDL, 
 				strlen(fdb.Uploader)?fdb.Uploader:"");
 			    fprintf(fp, "%s\r\n", temp);
@@ -434,22 +434,22 @@ void Masterlist()
 
     TopBox(fp, TRUE);
     TopBox(np, TRUE);
-    sprintf(temp, "Total %ld files, %ld KBytes", AllFiles, AllKBytes);
+    snprintf(temp, 81, "Total %ld files, %ld KBytes", AllFiles, AllKBytes);
     MidLine(temp, fp, TRUE);
-    sprintf(temp, "Total %ld files, %ld KBytes", NewFiles, NewKBytes);
+    snprintf(temp, 81, "Total %ld files, %ld KBytes", NewFiles, NewKBytes);
     MidLine(temp, np, TRUE);
 
     MidLine((char *)"", fp, TRUE);
     MidLine((char *)"", np, TRUE);
 
-    sprintf(temp, "Created by MBSE BBS v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
+    snprintf(temp, 81, "Created by MBSE BBS v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
     MidLine(temp, fp, TRUE);
     MidLine(temp, np, TRUE);
 
     BotBox(fp, TRUE);
     BotBox(np, TRUE);
 
-    sprintf(temp, "%s/etc/footer.txt", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/footer.txt", getenv("MBSE_ROOT"));
     if(( pHeader = fopen(temp, "r")) != NULL) {
 	Syslog('+', "Inserting %s", temp);
 

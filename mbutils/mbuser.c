@@ -181,8 +181,8 @@ void UserPack(int days, int level, int pack)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    sprintf(fnin,  "%s/etc/users.data", getenv("MBSE_ROOT"));
-    sprintf(fnout, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
 
     /*
      * First copy the users database, all packing will be done

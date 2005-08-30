@@ -4,7 +4,7 @@
  * Purpose ...............: Show contents of toberep.data
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	}
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/toberep.data", BBSpath);
+	snprintf(temp, PATH_MAX, "%s/etc/toberep.data", BBSpath);
 
 	if ((fp = fopen(temp, "r")) == NULL) {
 		printf("File %s not found\n", temp);

@@ -58,7 +58,7 @@ void dlcount(void)
      * Check if we have a mark when we did this the last time.
      * If not, create one and don't do anything. Run the next time.
      */
-    sprintf(temp, "%s/var/dlcount.stat", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/var/dlcount.stat", getenv("MBSE_ROOT"));
     if ((lastcheck = file_time(temp)) == -1) {
 	Syslog('+', "Checking WWW downloads never done before, creating timestamp");
 	if ((fp = fopen(temp, "a"))) {
@@ -108,7 +108,7 @@ void dlcount(void)
 		    strncpy(date, p+1, q - p - 1);
 //		    Syslog('f', "\"%s\"", date);
 		    tm.tm_mday = atoi(strtok(date, "/\0"));
-		    sprintf(month, "%s", strtok(NULL, "/\0"));
+		    snprintf(month, 20, "%s", strtok(NULL, "/\0"));
 		    for (i = 0; i < 12; i++)
 			if (strncasecmp(months[i], month, 3) == 0)
 			    break;
@@ -131,7 +131,7 @@ void dlcount(void)
 //		    Syslog('f', "\"%s\"", file);
 		    if (strncmp(file, "GET ", 4) == 0) {
 			if ((p = strstr(file, CFG.www_link2ftp))) {
-			    sprintf(base, "%s%s", CFG.ftp_base, p + strlen(CFG.www_link2ftp));
+			    snprintf(base, PATH_MAX, "%s%s", CFG.ftp_base, p + strlen(CFG.www_link2ftp));
 			    for (i = strlen(base); i; i--) {
 				if (base[i] == ' ') {
 				    base[i] = '\0';
@@ -204,7 +204,7 @@ void dlcount(void)
 	    if (p == NULL)
 		break;
 
-	    sprintf(base, "%s", p);
+	    snprintf(base, PATH_MAX, "%s", p);
 	    if (date_ok) {
                 /*
 		 * So far it seems that the file is possible downloaded from the bbs.
@@ -236,12 +236,12 @@ void count_download(char *filename, time_t filedate, off_t filesize, char *dltyp
     struct FILE_record  frec;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
     if ((dfp = fopen(temp, "r"))) {
 
 	fread(&areahdr, sizeof(areahdr), 1, dfp);
-	sprintf(temp, "%s", filename);
+	snprintf(temp, PATH_MAX, "%s", filename);
 	for (j = strlen(temp); j; j--)
 	    if (temp[j] == '/') {
 		temp[j] = '\0';
@@ -253,7 +253,7 @@ void count_download(char *filename, time_t filedate, off_t filesize, char *dltyp
 	while (fread(&area, areahdr.recsize, 1, dfp) == 1) {
 	    i++;
 	    if (area.Available && (strcmp(temp, area.Path) == 0)) {
-		sprintf(temp, "%s", basename(filename));
+		snprintf(temp, PATH_MAX, "%s", basename(filename));
 //		Syslog('f', "Download area %d %s", i, temp);
 
 		if ((fdb_area = mbsedb_OpenFDB(i, 30))) {

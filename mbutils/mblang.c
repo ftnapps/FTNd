@@ -4,7 +4,7 @@
  * Purpose ...............: Language Compiler
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -49,15 +49,15 @@ int main(int argc, char **argv)
 		exit(MBERR_COMMANDLINE);
 	}
 
-	sprintf(temp1, "%s", *(argv + 1));
+	snprintf(temp1, PATH_MAX, "%s", *(argv + 1));
 	unlink(temp1);
 
-	sprintf(temp, "%s", *(argv + 2));
+	snprintf(temp, PATH_MAX, "%s", *(argv + 2));
 	if ((fp1 = fopen(temp, "r")) == NULL) {
 		printf("\nUnable to open %s\n", temp);
 		exit(MBERR_COMMANDLINE);
 	}
-	sprintf(temp1, "%s", *(argv + 1));
+	snprintf(temp1, PATH_MAX, "%s", *(argv + 1));
 	if ((fp = fopen(temp1, "a+")) == NULL) {
 		printf("\nUnable to open %s\n", temp1);
 		exit(MBERR_COMMANDLINE);
