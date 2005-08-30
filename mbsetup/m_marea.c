@@ -466,10 +466,10 @@ int EditConnections(FILE *fil)
 
 				if (System.aka.zone) {
 					set_color(CYAN,BLACK);
-					snprintf(temp, 81, "%3d. %s %s", o+i, status, aka2str(System.aka));
+					snprintf(temp, 41, "%3d. %s %s", o+i, status, aka2str(System.aka));
 				} else {
 					set_color(LIGHTBLUE, BLACK);
-					snprintf(temp, 81, "%3d.", o+i);
+					snprintf(temp, 41, "%3d.", o+i);
 				}
 				mbse_mvprintw(y, x, temp);
 				y++;
@@ -642,7 +642,7 @@ void DeleteRules(char *filename)
 {
     DIR		    *dp;
     struct dirent   *de;
-    char	    temp[128];
+    char	    temp[PATH_MAX];
 
     if (strlen(filename) == 0)
 	return;

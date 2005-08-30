@@ -337,7 +337,7 @@ int EditTicConnections(FILE *fil)
 	char		pick[12];
 	sysconnect	System;
 	char		status[4];
-	char		temp[41];
+	char		temp[81];
 
 	systems = tichdr.syssize / sizeof(sysconnect);
 	for (;;) {
