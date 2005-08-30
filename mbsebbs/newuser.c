@@ -71,7 +71,7 @@ int		chat_with_sysop = FALSE;    /* Just for linking				*/
 /*
  * The main newuser registration function
  */
-int newuser()
+int newuser(int rows)
 {
     FILE	    *pUsrConfig;
     int		    i, x, Found, iLang, recno = 0, Count = 0, badname;
@@ -450,7 +450,10 @@ int newuser()
 
     usrconfig.iTimeLeft    = 20;  /* Set Timeleft in users file to 20 */
 
-    if (CFG.AskScreenlen) {
+    if ((rows > 18) && (rows < 100)) {
+	usrconfig.iScreenLen = rows;
+	Syslog('+', "Setting screenlength to %d according to the users termianl", rows);
+    } else if (CFG.AskScreenlen) {
 	Enter(1);
 	/* Please enter your Screen Length [24]: */
 	pout(LIGHTMAGENTA, BLACK, (char *) Language(64));

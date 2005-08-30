@@ -47,6 +47,8 @@ v0.71.5		18-Aug-2005
 
 	mbnewusr:
 		Changed syntax for calling mbpasswd.
+		If we can detect the users screenlength then we don't bother
+		asking the user.
 
 	mbsetup:
 		Added node setup switch to override node Hold or Down status.

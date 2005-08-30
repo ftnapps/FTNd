@@ -55,6 +55,7 @@ int main(int argc, char **argv)
     FILE            *pTty;
     int             i, rc = 0;
     struct passwd   *pw;
+    struct winsize  ws;
 
     pTTY = calloc(15, sizeof(char));
     tty = ttyname(1);
@@ -104,6 +105,10 @@ int main(int argc, char **argv)
 
     Syslog(' ', " ");
     Syslog(' ', "MBNEWUSR v%s", VERSION);
+
+    if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
+	Syslog('b', "columns=%d lines=%d", ws.ws_col, ws.ws_row);
+    }
 
     if ((rc = rawport()) != 0) {
 	WriteError("Unable to set raw mode");
@@ -218,7 +223,7 @@ int main(int argc, char **argv)
     alarm_on();
     Pause();
 
-    newuser();
+    newuser(ws.ws_row);
     Fast_Bye(MBERR_OK);
     return 0;
 }
