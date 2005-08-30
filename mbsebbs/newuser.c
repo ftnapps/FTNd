@@ -452,7 +452,7 @@ int newuser(int rows)
 
     if ((rows > 18) && (rows < 100)) {
 	usrconfig.iScreenLen = rows;
-	Syslog('+', "Setting screenlength to %d according to the users termianl", rows);
+	Syslog('+', "Using detected screenlength %d", rows);
     } else if (CFG.AskScreenlen) {
 	Enter(1);
 	/* Please enter your Screen Length [24]: */
