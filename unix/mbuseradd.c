@@ -221,6 +221,9 @@ int main(int argc, char *argv[])
      * Find out the name of our parent.
      */
     temp = calloc(PATH_MAX, sizeof(char));
+#if defined(__OpenBSD__)
+// FIXME: no /proc on OpenBSD
+#else
     ppid = getppid();
     snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
     if ((fp = fopen(temp, "r")) == NULL) {
@@ -237,6 +240,7 @@ int main(int argc, char *argv[])
 	free(parent);
 	exit(1);
     }
+#endif
 
     memset(args, 0, sizeof(args));
 
