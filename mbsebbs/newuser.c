@@ -695,8 +695,9 @@ char *NameGen(char *FidoName)
  */
 char *NameCreate(char *Name, char *Comment, char *Password)
 {
-    char    *progname, *args[16], *gidstr;
+    char    *progname, *args[16], *gidstr, *stdlog, *errlog, buf[256];
     int	    err;
+    FILE    *lp;
 
     progname = calloc(PATH_MAX, sizeof(char));
     gidstr = calloc(10, sizeof(char));
@@ -715,10 +716,39 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     args[4] = CFG.bbs_usersdir;
     args[5] = NULL;
     
-    if ((err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
+    stdlog = calloc(PATH_MAX, sizeof(char));
+    errlog = calloc(PATH_MAX, sizeof(char));
+    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
+
+    err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    if (file_size(stdlog)) {
+	if ((lp = fopen(stdlog, "r"))) {
+	    while (fgets(buf, sizeof(buf) -1, lp)) {
+		Striplf(buf);
+		Syslog('+', "stdout: \"%s\"", printable(buf, 0));
+	    }
+	    fclose(lp);
+	}
+    }
+    if (file_size(errlog)) {
+	if ((lp = fopen(errlog, "r"))) {
+	    while (fgets(buf, sizeof(buf) -1, lp)) {
+		Striplf(buf);
+		Syslog('+', "stderr: \"%s\"", printable(buf, 0));
+	    }
+	    fclose(lp);
+	}
+    }
+    unlink(stdlog);
+    unlink(errlog);
+
+    if (err) {
         WriteError("Failed to create unix account");
         free(progname);
 	free(gidstr);
+	free(stdlog);
+	free(errlog);
         ExitClient(MBERR_GENERAL);
     }
     free(gidstr);
@@ -730,7 +760,32 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     args[2] = Password;
     args[3] = NULL;
 
-    if ((err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
+    err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+
+    if (file_size(stdlog)) {
+	if ((lp = fopen(stdlog, "r"))) {
+	    while (fgets(buf, sizeof(buf) -1, lp)) {
+		Striplf(buf);
+		Syslog('+', "stdout: \"%s\"", printable(buf, 0));
+	    }
+	    fclose(lp);
+	}
+    }
+    if (file_size(errlog)) {
+	if ((lp = fopen(errlog, "r"))) {
+	    while (fgets(buf, sizeof(buf) -1, lp)) {
+		Striplf(buf);
+		Syslog('+', "stderr: \"%s\"", printable(buf, 0));
+	    }
+	    fclose(lp);
+	}
+    }
+    unlink(stdlog);
+    unlink(errlog);
+    free(stdlog);
+    free(errlog);
+
+    if (err) {
         WriteError("Failed to set unix password");
         free(progname);
         ExitClient(MBERR_GENERAL);
