@@ -535,8 +535,8 @@ void Getnum(char *sStr, int iMaxlen)
  */
 void GetDate(char *sStr, int iMaxlen)
 {
-    unsigned char	ch = 0; 
-    int		iPos = 0;
+    unsigned char   ch = 0; 
+    int		    iPos = 0;
 
     FLUSHIN();
     strcpy(sStr, "");
@@ -567,7 +567,7 @@ void GetDate(char *sStr, int iMaxlen)
 		PUTCHAR(ch);
 		if (iPos == 2 || iPos == 5) {
 		    PUTCHAR('-');
-		    snprintf(sStr + strlen(sStr), 1, "-");
+		    snprintf(sStr + strlen(sStr), 2, "-");
 		    iPos++;
 		}
 	    } else
