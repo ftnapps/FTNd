@@ -91,7 +91,7 @@ int execute(char **args, char *in, char *out, char *err)
     memset(&buf, 0, sizeof(buf));
     for (i = 0; i < 16; i++) {
 	if (args[i])
-	    snprintf(buf, PATH_MAX, "%s %s", buf, args[i]);
+	    snprintf(buf + strlen(buf), PATH_MAX - strlen(buf), " %s", args[i]);
 	else
 	    break;
     }

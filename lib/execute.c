@@ -35,7 +35,6 @@
 int	e_pid = 0;		/* Execute child pid	*/
 
 
-
 int _execute(char **, char *, char *, char *);
 int _execute(char **args, char *in, char *out, char *err)
 {
@@ -45,7 +44,7 @@ int _execute(char **args, char *in, char *out, char *err)
     memset(&buf, 0, sizeof(buf));
     for (i = 0; i < 16; i++) {
 	if (args[i])
-	    snprintf(buf, PATH_MAX -1, "%s %s", buf, args[i]);
+	    snprintf(buf + strlen(buf), PATH_MAX - strlen(buf), " %s", args[i]);
 	else
 	    break;
     }
