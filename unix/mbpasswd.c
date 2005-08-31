@@ -59,6 +59,10 @@
 #include <userconf.h>
 #endif
 
+#if defined(__OpenBSD__)
+#include <sys/sysctl.h>
+#endif
+
 #include "encrypt.h"
 #include "rad64.h"
 #include "myname.h"
@@ -843,7 +847,6 @@ int main(int argc, char *argv[])
 #ifdef _VPOPMAIL_PATH
     char		    *args[16];
 #endif
-    char		    temp[PATH_MAX];
     pid_t		    ppid;
     char		    *parent;
 #if defined(__OpenBSD__)
@@ -853,6 +856,7 @@ int main(int argc, char *argv[])
     char		    **p;
     int			    mib[4];
 #else
+    char                    temp[PATH_MAX];
     FILE		    *fp;
 #endif
 
