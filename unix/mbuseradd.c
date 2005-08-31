@@ -180,10 +180,10 @@ int main(int argc, char *argv[])
     pid_t	    ppid;
 #if defined(__OpenBSD__)
 #define ARG_SIZE 60
-    static char **s, buf[ARG_SIZE];
-    size_t siz = 100;
-    char **p;
-    int mib[4];
+    static char	    **s, buf[ARG_SIZE];
+    size_t	    siz = 100;
+    char	    **p;
+    int		    mib[4];
 #else
     FILE	    *fp;
 #endif

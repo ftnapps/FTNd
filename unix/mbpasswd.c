@@ -846,7 +846,15 @@ int main(int argc, char *argv[])
     char		    temp[PATH_MAX];
     pid_t		    ppid;
     char		    *parent;
+#if defined(__OpenBSD__)
+#define ARG_SIZE 60
+    static char		    **s, buf[ARG_SIZE];
+    size_t		    siz = 100;
+    char		    **p;
+    int			    mib[4];
+#else
     FILE		    *fp;
+#endif
 
     /*
      * Init $MBSE_ROOT/etc/login.defs file before the *pw gets overwritten.
@@ -889,6 +897,36 @@ int main(int argc, char *argv[])
      * Find out the name of our parent.
      */
     ppid = getppid();
+
+#if defined(__OpenBSD__)
+    /*
+     * Systems that use sysctl to get process information
+     */
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC_ARGS;
+    mib[2] = ppid;
+    mib[3] = KERN_PROC_ARGV; 
+    if ((s = realloc(s, siz)) == NULL) { 
+	fprintf(stderr, "mbuseradd: no memory\n");
+	exit(1);
+    }
+    if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
+	perror("");
+	fprintf(stderr, "mbuseradd: sysctl call failed\n");
+	exit(1);
+    }
+    buf[0] = '\0';
+    for (p = s; *p != NULL; p++) {
+	if (p != s)
+	    strlcat(buf, " ", sizeof(buf));
+	strlcat(buf, *p, sizeof(buf));
+    }
+    printf("%s\n", buf);
+    parent = xstrcpy(buf);
+#else
+    /*
+     *  Systems with /proc filesystem like Linux, FreeBSD
+     */
     snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
     if ((fp = fopen(temp, "r")) == NULL) {
 	fprintf(stderr, "mbpasswd: can't read %s\n", temp);
@@ -899,6 +937,7 @@ int main(int argc, char *argv[])
     fgets(temp, PATH_MAX-1, fp);
     fclose(fp);
     parent = xstrcpy(Basename(temp));
+#endif
 
     if (strcmp((char *)"mbsetup", parent) && strcmp((char *)"-mbsebbs", parent) && strcmp((char *)"-mbnewusr", parent)) {
 	fprintf(stderr, "mbpasswd: illegal parent\n");
