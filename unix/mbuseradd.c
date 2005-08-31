@@ -45,7 +45,7 @@
 #include <syslog.h>
 #include <time.h>
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
 #include <sys/sysctl.h>
 #endif
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     struct passwd   *pwent, *pwuser;
     struct group    *gr;
     pid_t	    ppid;
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
 #define ARG_SIZE 60
     static char	    **s, buf[ARG_SIZE];
     size_t	    siz = 100;
@@ -230,19 +230,12 @@ int main(int argc, char *argv[])
     }
 
     /*
-     * We don't log into MBSE BBS logfiles but to the system logfiles,
-     * because we are modifying system files not belonging to MBSE BBS.
-     */
-    openlog("mbuseradd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
-    syslog(LOG_WARNING, "mbuseradd %s %s %s %s", argv[1], argv[2], argv[3], argv[4]);
-
-    /*
      * Find out the name of our parent.
      */
     temp = calloc(PATH_MAX, sizeof(char));
     ppid = getppid();
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
     /*
      * Systems that use sysctl to get process information
      */
@@ -257,7 +250,6 @@ int main(int argc, char *argv[])
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
 	perror("");
 	fprintf(stderr, "mbuseradd: sysctl call failed\n");
-	syslog(LOG_WARNING, "sysctl call failed");
 	exit(1);
     }
     buf[0] = '\0';
@@ -266,8 +258,6 @@ int main(int argc, char *argv[])
 	    strlcat(buf, " ", sizeof(buf));
 	strlcat(buf, *p, sizeof(buf));
     }
-syslog(LOG_WARNING, "\"%s\"", buf);
-    printf("%s\n", buf);
     parent = xstrcpy(buf);
 #else
     /*

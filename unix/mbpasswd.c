@@ -59,7 +59,7 @@
 #include <userconf.h>
 #endif
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
 #include <sys/sysctl.h>
 #endif
 
@@ -849,7 +849,7 @@ int main(int argc, char *argv[])
 #endif
     pid_t		    ppid;
     char		    *parent;
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
 #define ARG_SIZE 60
     static char		    **s, buf[ARG_SIZE];
     size_t		    siz = 100;
@@ -902,7 +902,7 @@ int main(int argc, char *argv[])
      */
     ppid = getppid();
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__NetBSD__)
     /*
      * Systems that use sysctl to get process information
      */
@@ -911,12 +911,12 @@ int main(int argc, char *argv[])
     mib[2] = ppid;
     mib[3] = KERN_PROC_ARGV; 
     if ((s = realloc(s, siz)) == NULL) { 
-	fprintf(stderr, "mbuseradd: no memory\n");
+	fprintf(stderr, "mbpasswd: no memory\n");
 	exit(1);
     }
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
 	perror("");
-	fprintf(stderr, "mbuseradd: sysctl call failed\n");
+	fprintf(stderr, "mbpasswd: sysctl call failed\n");
 	exit(1);
     }
     buf[0] = '\0';
