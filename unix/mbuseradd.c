@@ -222,7 +222,26 @@ int main(int argc, char *argv[])
      */
     temp = calloc(PATH_MAX, sizeof(char));
 #if defined(__OpenBSD__)
-// FIXME: no /proc on OpenBSD
+#define ARG_SIZE 60
+    static char **s, buf[ARG_SIZE];
+    size_t siz = 100;
+    char **p;
+    int mib[4];
+
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC_ARGS;
+    mib[2] = ppid;
+    mib[3] = KERN_PROC_ARGV;
+    if (sysctl(mib, 4, s, &siz, NULL, 0) == 0)
+	break;
+    buf[0] = '\0';
+    s = malloc(size, sizeof(char *));
+    for (p = s; *p != NULL; p++) {
+	if (p != s)
+	    strlcat(buf, " ", sizeof(buf));
+	strlcat(buf, *p, sizeof(buf));
+    }
+    fprintf("%s\n", buf);
 #else
     ppid = getppid();
     snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
