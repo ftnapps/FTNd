@@ -2276,7 +2276,7 @@ int binkp_process_messages(void)
 	    lsize = atoi(strtok(NULL, " \n\r"));
 	    ltime = atoi(strtok(NULL, " \n\r"));
 	    loffs = atoi(strtok(NULL, " \n\r"));
-	    snprintf(ropts, 512, "%s", strtok(NULL, " \n\r"));
+	    snprintf(ropts, 512, "%s", printable(strtok(NULL, " \n\r\0"), 0));
 	    Syslog('b', "Binkp: m_file options \"%s\"", ropts);
 	    if (strcmp((char *)"GZ", ropts) == 0)
     		rmode = CompGZ;

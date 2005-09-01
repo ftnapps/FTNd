@@ -10,6 +10,7 @@ v0.71.5		18-Aug-2005
 	mbcico:
 		Only disallow GZ/BZ2 compression by default if both zlib and
 		bzlib are not present.
+		Fixed crash on received m_get command.
 
 	mbfido:
 		Removed debug logging for solved crash.
