@@ -54,6 +54,10 @@ v0.71.5		18-Aug-2005
 		asking the user.
 		Added logging during execute of mbuseradd.
 
+	mbtask:
+		Added check to some chat commands to check if the chat thread
+		is running.
+
 	mbsetup:
 		Added node setup switch to override node Hold or Down status.
 		Changed syntax for calling mbpasswd.

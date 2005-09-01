@@ -45,6 +45,7 @@ extern struct sockaddr_un	from;		/* From socket address	*/
 extern int			fromlen;	/* From address length	*/
 extern int			logtrans;	/* Log transactions	*/
 extern int			T_Shutdown;	/* Program shutdown     */
+extern int			ibc_run;	/* Chatserver running	*/
 int				cmd_run = FALSE;/* cmd running		*/
 
 
@@ -280,10 +281,14 @@ char *exe_cmd(char *in)
      * 100:0;		    Ok
      */
     if (strncmp(cmd, "CPAG", 4) == 0) {
-	if ((result = reg_page(token))) {
-	    snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
-	    Syslog('+', "%s", obuf);
+	if (ibc_run) {
+	    if ((result = reg_page(token))) {
+		snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
+	    }
+	} else {
+	    snprintf(obuf, SS_BUFSIZE, "100:1,3;");
 	}
+	Syslog('+', "%s", obuf);
 	return obuf;
     }
 
@@ -327,7 +332,10 @@ char *exe_cmd(char *in)
      * 100:0;			Ok
      */
     if (strncmp(cmd, "CCON", 4) == 0) {
-	return chat_connect(token);
+	if (ibc_run)
+	    return chat_connect(token);
+	else
+	    return ebuf;
     }
     
     /*
