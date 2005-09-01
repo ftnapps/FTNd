@@ -46,6 +46,7 @@ v0.71.5		18-Aug-2005
 		Code cleanup.
 		Changed syntax for calling mbpasswd.
 		Blocked sysop to chat and page the sysop. Sysops use mbmon.
+		Fixed errormessage if chatserver is not available.
 
 	mbnewusr:
 		Changed syntax for calling mbpasswd.
@@ -60,6 +61,9 @@ v0.71.5		18-Aug-2005
 	mbsetup:
 		Added node setup switch to override node Hold or Down status.
 		Changed syntax for calling mbpasswd.
+
+	mbmon:
+		Fixed error if chatserver is not available.
 
 	script:
 		Added mbfile check to monthly maintenance script.

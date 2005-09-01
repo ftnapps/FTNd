@@ -542,7 +542,7 @@ void Chat(int sysop)
 {
     int		    curpos = 0, stop = FALSE, data, rc;
     unsigned char   ch = 0;
-    char	    sbuf[81], resp[128], *cnt, *msg;
+    char	    sbuf[81], resp[128];
     static char	    buf[200];
 
     clr_index();
@@ -554,12 +554,9 @@ void Chat(int sysop)
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
 	Syslog('-', "< %s", buf);
-	if (strncmp(buf, "100:1,", 6) == 0) {
-	    cnt = strtok(buf, ",");
-	    msg = strtok(NULL, "\0");
-	    msg[strlen(msg)-1] = '\0';
+	if (strncmp(buf, "200:1,", 6) == 0) {
 	    set_color(LIGHTRED, BLACK);
-	    mbse_mvprintw(4, 1, msg);
+	    mbse_mvprintw(4, 1, (char *)"The chatserver is not configured in /etc/services");
 	    working(2, 0, 0);
 	    working(0, 0, 0);
 	    center_addstr(lines -4, (char *)"Press any key");

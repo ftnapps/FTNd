@@ -162,7 +162,7 @@ void Chat(char *username, char *channel)
 {
     int		    curpos = 0, stop = FALSE, data, rc;
     unsigned char   ch;
-    char	    sbuf[81], resp[128], *cnt, *msg;
+    char	    sbuf[81], resp[128];
     static char	    buf[200];
 
     WhosDoingWhat(SYSOPCHAT, NULL);
@@ -213,13 +213,11 @@ void Chat(char *username, char *channel)
     if (socket_send(buf) == 0) {
 	strncpy(buf, socket_receive(), sizeof(buf)-1);
 	Syslog('c', "< %s", buf);
-	if (strncmp(buf, "100:1,", 6) == 0) {
-	    cnt = strtok(buf, ",");
-	    msg = strtok(NULL, "\0");
-	    msg[strlen(msg)-1] = '\0';
+	if (strncmp(buf, "200:1,", 6) == 0) {
+	    Syslog('!', "Chatsever is not available");
 	    colour(LIGHTRED, BLACK);
-	    mvprintw(4, 1, msg);
-	    sleep(2);
+	    mvprintw(4, 1, (char *)"Sorry, the chatserver is not available");
+	    Enter(2);
 	    Pause();
 	    chat_with_sysop = FALSE;
 	    return;
