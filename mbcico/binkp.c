@@ -83,12 +83,18 @@ typedef enum {Ok, Failure, Continue} TrType;
 typedef enum {No, WeCan, WeWant, TheyWant, Active} OptionState;
 typedef enum {NoState, Sending, IsSent, Got, Skipped, Get} FileState;
 typedef enum {InitTransfer, Switch, Receive, Transmit, DeinitTransfer} FtType;
+#ifdef	USE_EXPERIMENT
 typedef enum {CompNone, CompGZ, CompBZ2, CompPLZ} CompType;
+#else
+typedef enum {CompNone, CompPLZ} CompType;
+#endif
 
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
 static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (char *)"TheyWant", (char *)"Active" };
+#ifdef	USE_EXPERIMENT
 static char *cpstate[] = { (char *)"No", (char *)"GZ", (char *)"BZ2", (char *)"PLZ" };
+#endif
 
 
 static time_t	Timer;
@@ -106,6 +112,7 @@ struct timeval      rxtvstart;			/* Receiver start time              */
 struct timeval      rxtvend;			/* Receiver end time                */
 
 
+#ifdef	USE_EXPERIMENT
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
 
 int compress_init(int type);
@@ -119,6 +126,7 @@ int decompress_abort(int type, void *data);
 
 #define ZBLKSIZE        1024    /* read/write file buffer size */
 	
+#endif
 #endif
 
 
@@ -155,7 +163,9 @@ struct binkprec {
     int			rxpos;			/* Receiver position		    */
     int			rxcompressed;		/* Receiver compressed bytes	    */
     char                *ropts;                 /* Receiver M_FILE optional args    */
+#ifdef	USE_EXPERIMENT
     int			rmode;			/* Receiver compression mode	    */
+#endif
 
     struct timezone	tz;			/* Timezone			    */
     int			DidSendGET;		/* Receiver send GET status	    */
@@ -166,7 +176,9 @@ struct binkprec {
     int			txpos;			/* Transmitter position		    */
     int			stxpos;			/* Transmitter start position	    */
     int			txcompressed;		/* Transmitter compressed bytes	    */
+#ifdef	USE_EXPERIMENT
     int			tmode;			/* Transmitter compression mode	    */
+#endif
     long    		tfsize;			/* Transmitter filesize		    */
 
     int			local_EOB;		/* Local EOB sent		    */
@@ -181,6 +193,7 @@ struct binkprec {
     int			buggyIrex;		/* Buggy Irex detected		    */
 
     int			txcpos;			/* Transmitter compressed position  */
+#ifdef	USE_EXPERIMENT
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB2_H)
     int			extcmd;			/* EXTCMD flag			    */
 #endif
@@ -190,12 +203,15 @@ struct binkprec {
 #ifdef	HAVE_BZLIB_H
     int			BZ2flag;		/* BZ2 compression flag		    */
 #endif
+#endif
 };
 
 
+#ifdef	USE_EXPERIMENT
 void	*z_idata = NULL;			/* Data for zstream                 */
 void	*z_odata = NULL;			/* Data for zstream                 */
 char	*z_obuf;				/* Compression buffer               */
+#endif
 
 struct binkprec	bp;				/* Global structure		    */
 
@@ -260,19 +276,23 @@ int binkp(int role)
 	bp.PLZflag = No;
     else
 	bp.PLZflag = WeCan;
+#ifdef	USE_EXPERIMENT
     z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     if (localoptions & NOGZBZ2)
 	bp.GZflag = No;
     else
 	bp.GZflag = WeCan;
+#endif
 #else
     bp.PLZflag = No;
 #endif
+#ifdef	USE_EXPERIMENT
 #ifdef	HAVE_BZLIB_H
     if (localoptions & NOGZBZ2)
 	bp.BZ2flag = No;
     else
 	bp.BZ2flag = WeCan;
+#endif
 #endif
     bp.buggyIrex = FALSE;
 
@@ -319,6 +339,7 @@ binkpend:
 	free(bp.txbuf);
     if (bp.ropts)
 	free(bp.ropts);
+#ifdef	USE_EXPERIMENT
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     if ((bp.rmode != CompNone) && z_idata)
 	decompress_deinit(bp.rmode, z_idata);
@@ -326,6 +347,7 @@ binkpend:
 	compress_deinit(bp.tmode, z_odata);
     if (z_obuf)
 	free(z_obuf);
+#endif
 #endif
     rc = abs(rc);
 
@@ -599,6 +621,7 @@ SM_STATE(WaitOk)
 SM_STATE(Opts)
 
     IsDoing("Binkp to %s", ascfnode(remote->addr, 0xf));
+#ifdef	USE_EXPERIMENT
     Syslog('b', "Binkp: check for extcmd, current %d", bp.extcmd);
     if (bp.extcmd) {
 #ifdef  HAVE_BZLIB_H
@@ -614,6 +637,7 @@ SM_STATE(Opts)
 	}
 #endif
     }
+#endif
 #ifdef	HAVE_ZLIB_H
     if (bp.PLZflag == TheyWant) {
         bp.PLZflag = Active;
@@ -891,6 +915,8 @@ SM_STATE(PwdAck)
 SM_STATE(Opts)
 
     IsDoing("Binkp from %s", ascfnode(remote->addr, 0xf));
+
+#ifdef	USE_EXPERIMENT
     Syslog('b', "Binkp: check for extcmd, current %d", bp.extcmd);
     if (bp.extcmd) {
 
@@ -914,6 +940,8 @@ SM_STATE(Opts)
 	bp.BZ2flag = No;
 #endif
     }
+#endif
+
 #ifdef	HAVE_ZLIB_H
     if (bp.PLZflag == TheyWant) {
 	bp.PLZflag = Active;
@@ -1032,13 +1060,15 @@ int file_transfer(void)
 
 TrType binkp_receiver(void)
 {
-    int		    bcmd, rc = 0;
     struct statfs   sfs;
     long	    written;
     off_t	    rxbytes;
-            int rc1 = 0, nget = bp.blklen, zavail, nput;
-            char zbuf[ZBLKSIZE];
-            char *buf = bp.rxbuf;
+    int		    bcmd, rc = 0;
+#ifdef	USE_EXPERIMENT
+    int		    rc1 = 0, nget = bp.blklen, zavail, nput;
+    char	    zbuf[ZBLKSIZE];
+    char	    *buf = bp.rxbuf;
+#endif
 
     if (bp.RxState == RxWaitF) {
 
@@ -1106,22 +1136,26 @@ TrType binkp_receiver(void)
         }
     } else if (bp.RxState == RxAccF) {
 	
+#ifdef	USE_EXPERIMENT
 	if (((bp.rmode == CompGZ) || (bp.rmode == CompBZ2)) && z_idata) {
 	    decompress_deinit(bp.rmode, z_idata);
 	    z_idata = NULL;
 	}
 
 	bp.rmode = CompNone;
+#endif
 	if (strlen(bp.rxbuf) < 512) {
 	    snprintf(bp.rname, 512, "%s", strtok(bp.rxbuf+1, " \n\r"));
 	    bp.rsize = atoi(strtok(NULL, " \n\r"));
 	    bp.rtime = atoi(strtok(NULL, " \n\r"));
 	    bp.roffs = atoi(strtok(NULL, " \n\r"));
 	    snprintf(bp.ropts, 512, "%s", printable(strtok(NULL, " \n\r\0"), 0));
+#ifdef	USE_EXPERIMENT
 	    if (strcmp((char *)"GZ", bp.ropts) == 0)
 		bp.rmode = CompGZ;
 	    else if (strcmp((char *)"BZ2", bp.ropts) == 0)
 		bp.rmode = CompBZ2;
+#endif
 	} else {
 	    /*
 	     * Corrupted command, in case this was serious, send the M_GOT back so it's
@@ -1135,8 +1169,13 @@ TrType binkp_receiver(void)
 	    else
 		return Ok;
 	}
+#ifdef	USE_EXPERIMENT
 	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld comp %s", 
 		bp.rname, date(bp.rtime), bp.rsize, bp.roffs, cpstate[bp.rmode]);
+#else
+	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld",
+		bp.rname, date(bp.rtime), bp.rsize, bp.roffs);
+#endif
 	(void)binkp2unix(bp.rname);
 	rxbytes = bp.rxbytes;
 	bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, binkp_resync);
@@ -1261,6 +1300,7 @@ TrType binkp_receiver(void)
 	}
 
 	written = 0;
+#ifdef	USE_EXPERIMENT
         if ((bp.rmode == CompBZ2) || (bp.rmode == CompGZ)) {
 	    /*
 	     * Receive stream compressed data
@@ -1304,8 +1344,11 @@ TrType binkp_receiver(void)
 		z_idata = NULL;
 	    }
 	} else {
+#endif
 	    written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
+#ifdef	USE_EXPERIMENT
 	}
+#endif
 
 	bp.GotFrame = FALSE;
 	bp.rxlen = 0;
@@ -1394,8 +1437,12 @@ TrType binkp_receiver(void)
 
 TrType binkp_transmitter(void)
 {
-    int		rc = 0, eof = FALSE, sz, rc1 = 0;
-    char	*nonhold_mail, *extra;
+    int		rc = 0, eof = FALSE;
+#ifdef	USE_EXPERIMENT
+    int		sz, rc1 = 0;
+    char	*extra;
+#endif
+    char	*nonhold_mail;
     fa_list	*eff_remote;
     file_list	*tsl;
     static binkp_list	*tmp;
@@ -1473,9 +1520,10 @@ TrType binkp_transmitter(void)
     		    break;
 		}
 
+#ifdef	USE_EXPERIMENT
 		bp.tmode = CompNone;
 		extra = (char *)"";
-		
+
 		if ((tmp->compress == CompGZ) || (tmp->compress == CompBZ2)) {
 		    bp.tmode = tmp->compress;
 		    Syslog('b', "Binkp: compress_init start");
@@ -1491,15 +1539,23 @@ TrType binkp_transmitter(void)
 			Syslog('b', "Binkp: compress_init ok, extra=%s", extra);
 		    }
 		}
+#endif
 
 		bp.txpos = bp.txcpos = bp.stxpos = tmp->offset;
 		bp.txcompressed = 0;
 		bp.tfsize = tmp->size;
 		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
+#ifdef	USE_EXPERIMENT
 		Syslog('+', "Binkp: size %lu bytes, dated %s, comp %s", 
 			(unsigned long)tmp->size, date(tmp->date), cpstate[bp.tmode]);
 		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld%s", MBSE_SS(tmp->remote), 
 			(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, extra);
+#else
+		Syslog('+', "Binkp: size %lu bytes, dated %s",
+			(unsigned long)tmp->size, date(tmp->date));
+		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote),
+			(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset);
+#endif
 		if (rc) {
 		    bp.TxState = TxDone;
 		    return Failure;
@@ -1541,7 +1597,7 @@ TrType binkp_transmitter(void)
     } else if (bp.TxState == TxReadS) {
 
 	bp.TxState = TxTryR;
-
+#ifdef	USE_EXPERIMENT
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
 	if ((bp.tmode == CompBZ2) || (bp.tmode == CompGZ)) {
 	    int nput = 0;  /* number of compressed bytes */
@@ -1595,6 +1651,7 @@ TrType binkp_transmitter(void)
 
 	} else {
 #endif
+#endif
 	    /*
 	     * Send uncompressed block
 	     */
@@ -1615,8 +1672,10 @@ TrType binkp_transmitter(void)
 		    return Failure;
 	    }
 
+#ifdef	USE_EXPERIMENT
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
 	}
+#endif
 #endif
 
 	if ((bp.txlen == 0) || eof) {
@@ -1643,13 +1702,15 @@ TrType binkp_transmitter(void)
 		Syslog('+', "Binkp: transmitter skipped file after %ld seconds", txtvend.tv_sec - txtvstart.tv_sec);
 	    }
 
+#ifdef	USE_EXPERIMENT
 	    if ((bp.tmode == CompBZ2) || (bp.tmode == CompGZ)) {
 		compress_deinit(bp.tmode, z_odata);
 		z_odata = NULL;
 		bp.tmode = CompNone;
 		Syslog('b', "Binkp: compress_deinit done");
 	    }
-	    
+#endif
+
 	    cursend->state = IsSent;
 	    cursend = NULL;
 	    bp.TxState = TxGNF;
@@ -1781,7 +1842,11 @@ int binkp_send_frame(int cmd, char *buf, int len)
      * might send some blocks compressed. The receiver needs to deal
      * with this if it showed PLZ, GZ and BZ2 options.
      */
+#ifdef	USE_EXPERIMENT
     if ((bp.PLZflag == Active) && (len > 20) && (!cmd) && (bp.tmode != CompGZ) && (bp.tmode != CompBZ2)) {
+#else
+    if ((bp.PLZflag == Active) && (len > 20) && (!cmd)) {
+#endif
 	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 	zlen = BINKP_PLZ_BLOCK -1;
 	rcz = compress2(zbuf, &zlen, buf, len, 9);
@@ -2080,6 +2145,7 @@ void parse_m_nul(char *msg)
 			free(bp.MD_Challenge);
 		    bp.MD_Challenge = MD_getChallenge(q, NULL);
 		}
+#ifdef	USE_EXPERIMENT
 	    } else if (strncmp(q, (char *)"EXTCMD", 6) == 0) {
 		bp.extcmd = TRUE;
 		Syslog('b', "Binkp: remote supports EXTCMD mode");
@@ -2101,6 +2167,7 @@ void parse_m_nul(char *msg)
 		} else {
 		    Syslog('b', "GZflag is %s and received GZ option", opstate[bp.GZflag]);
 		}
+#endif
 #endif
 #ifdef	HAVE_ZLIB_H
 	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
@@ -2168,7 +2235,11 @@ int binkp_poll_frame(void)
 		if (bp.rxlen == 1) {
 		    bp.cmd = bp.header & BINKP_CONTROL_BLOCK;
 #ifdef HAVE_ZLIB_H
+#ifdef	USE_EXPERIMENT
 		    if ((bp.PLZflag == Active) && (bp.rmode == CompNone)) {
+#else
+		    if (bp.PLZflag == Active) {
+#endif
 			bp.blklen = bp.header & 0x3fff;
 		    } else {
 			bp.blklen = bp.header & 0x7fff;
@@ -2183,7 +2254,11 @@ int binkp_poll_frame(void)
 		    /*
 		     * Got a PLZ compressed block
 		     */
+#ifdef	USE_EXPERIMENT
 		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK) && (bp.rmode == CompNone) && bp.blklen) {
+#else
+		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK) && bp.blklen) {
+#endif
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 			zlen = BINKP_PLZ_BLOCK -1;
 			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
@@ -2278,17 +2353,22 @@ int binkp_process_messages(void)
 	    loffs = atoi(strtok(NULL, " \n\r"));
 	    snprintf(ropts, 512, "%s", printable(strtok(NULL, " \n\r\0"), 0));
 	    Syslog('b', "Binkp: m_file options \"%s\"", ropts);
+#ifdef	USE_EXPERIMENT
 	    if (strcmp((char *)"GZ", ropts) == 0)
     		rmode = CompGZ;
 	    else if (strcmp((char *)"BZ2", ropts) == 0)
 		rmode = CompBZ2;
-	    else if (strcmp((char *)"NZ", ropts) == 0) {
+	    else
+#endif
+		 if (strcmp((char *)"NZ", ropts) == 0) {
 		rmode = CompNone;
+#ifdef	USE_EXPERIMENT
 #ifdef	HAVE_ZLIB_H
 		bp.GZflag = No;
 #endif
 #ifdef	HAVE_BZLIB_H
 		bp.BZ2flag = No;
+#endif
 #endif
 		Syslog('+', "Binkp: received NZ on M_GET command, compression turned off");
 	    }
@@ -2584,8 +2664,10 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     binkp_list  **tmpl;
     FILE	*fp;
     struct stat tstat;
+#ifdef	USE_EXPERIMENT
     int		comp;
     char	*unp;
+#endif
 
     for (tmpl = bkll; *tmpl; tmpl = &((*tmpl)->next));
     *tmpl = (binkp_list *)malloc(sizeof(binkp_list));
@@ -2614,6 +2696,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     (*tmpl)->date     = tstat.st_mtime;
     (*tmpl)->compress = CompNone;
 
+#ifdef	USE_EXPERIMENT
     /*
      * Search compression method, but only if GZ or BZ2 compression is active.
      */
@@ -2662,6 +2745,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     }
 #endif
     Syslog('+', "Binkp: compressor select internal error");
+#endif
 }
 
 
@@ -2711,6 +2795,7 @@ void binkp_clear_filelist(int rc)
  *
  */
 
+#ifdef	USE_EXPERIMENT
 
 int compress_init(int type)
 {
@@ -2957,4 +3042,5 @@ int decompress_abort(int type, void *data)
     return 0;
 }
 
+#endif
 

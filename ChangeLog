@@ -11,6 +11,8 @@ v0.71.5		18-Aug-2005
 		Only disallow GZ/BZ2 compression by default if both zlib and
 		bzlib are not present.
 		Fixed crash on received m_get command.
+		The binkp compression methods FZ and BZ2 are only compiled in
+		if configured with --enable-experiment.
 
 	mbfido:
 		Removed debug logging for solved crash.
