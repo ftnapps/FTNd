@@ -128,4 +128,7 @@ configure:
 	   defines KERN_PROC_ARGS and KERN_PROC_ARGV. If not, fallback to
 	   /proc tests. Try adding a check for a mounted /proc filesystem.
 	   We need these tests to secure mbpasswd and mbuseradd.
+	   According to Google, FreeBSD switched to sysctl from 5.0. The
+	   KERN_PROC_ARGV seems still not present so this is not compatible
+	   with OpenBSD and NetBSD.
 
