@@ -176,7 +176,7 @@ void Chat(char *username, char *channel)
 	 * Forbid the sysop to chat, the sysop MUST use mbmon.
 	 */
 	Syslog('+', "The Sysop attempted to chat");
-	pout(LIGHTRED, BLACK, (char *)"The Sysop cannot use the bbs to chat! Use mbmon to chat.");
+	pout(LIGHTRED, BLACK, (char *) Language(29));
 	Enter(1);
 	Pause();
 	return;
@@ -216,7 +216,7 @@ void Chat(char *username, char *channel)
 	if (strncmp(buf, "200:1,", 6) == 0) {
 	    Syslog('!', "Chatsever is not available");
 	    colour(LIGHTRED, BLACK);
-	    mvprintw(4, 1, (char *)"Sorry, the chatserver is not available");
+	    mvprintw(4, 1, (char *) Language(30));
 	    Enter(2);
 	    Pause();
 	    chat_with_sysop = FALSE;

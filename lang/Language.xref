@@ -27,8 +27,8 @@
 26	newuser.c			YN|Check for new mail at login [Y/n]: 
 27	newuser.c			YN|Check for new files at login [Y/n]: 
 28	page.c				|Enter a short reason for chat
-29	.c				|
-30	.c				|
+29	chat.c				|The Sysop cannot use the bbs to chat! Use mbmon to chat
+30	chat.c				|Sorry, the chatserver is not available
 31	.c				|
 32	.c				|
 33	.c				|

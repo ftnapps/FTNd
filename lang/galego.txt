@@ -27,8 +27,8 @@ SN| ‚ correcto [s/N]:
 YN|Check for new mail at login [Y/n]: 
 YN|Check for new files at login [Y/n]: 
 |Enter a short reason for chat
-|
-|
+|The Sysop cannot use the bbs to chat! Use mbmon to chat
+|Sorry, the chatserver is not available
 |
 |
 |

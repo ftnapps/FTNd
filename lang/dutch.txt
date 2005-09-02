@@ -27,8 +27,8 @@ JN| Is dit juist [j/N]:
 JN|Kijk voor nieuwe post tijdens login [J/n]: 
 JN|Kijk voor nieuwe bestanden tijdens login [J/n]: 
 |Geef een korte reden om te kletsen
-|
-|
+|De sysop kan niet kletsen via het bbs! Gebruik mbmon
+|Sorry, de chatserver is niet beschikbaar
 |
 |
 |
