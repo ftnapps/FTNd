@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.71.5 TODO list.
+			MBSE BBS V0.71.6 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -130,5 +130,7 @@ configure:
 	   We need these tests to secure mbpasswd and mbuseradd.
 	   According to Google, FreeBSD switched to sysctl from 5.0. The
 	   KERN_PROC_ARGV seems still not present so this is not compatible
-	   with OpenBSD and NetBSD.
+	   with OpenBSD and NetBSD. OpenBSD and NetBSD are different too.
+	   Check Linux 2.6, the /proc filesystem seems to be different. What
+	   a mess.
 

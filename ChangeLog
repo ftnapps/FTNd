@@ -1,14 +1,14 @@
 $Id$
 
 
-v0.71.5		18-Aug-2005
+v0.71.6		02-Sep-2005
+
+v0.71.5		18-Aug-2005 - 02-Sep-2005
 
 	nodelist.a:
 		Clear node Hold or Down status if set in nodes setup.
 
 	mbcico:
-		Only disallow GZ/BZ2 compression by default if both zlib and
-		bzlib are not present.
 		Fixed crash on received m_get command.
 		The binkp compression methods FZ and BZ2 are only compiled in
 		if configured with --enable-experiment.
@@ -50,17 +50,18 @@ v0.71.5		18-Aug-2005
 		Changed syntax for calling mbpasswd.
 		Blocked sysop to chat and page the sysop. Sysops use mbmon.
 		Fixed errormessage if chatserver is not available.
+		Added language prompts 29 and 30.
 
 	mbnewusr:
 		Changed syntax for calling mbpasswd.
 		If we can detect the users screenlength then we don't bother
 		asking the user.
 		Added logging during execute of mbuseradd.
-		Corrected wrong ansi setting for new users.
+		Corrected wrong ANSI setting for new users.
 
 	mbtask:
 		Added check to some chat commands to check if the chat thread
-		is running.
+		is running so that clients can give a proper message.
 
 	mbsetup:
 		Added node setup switch to override node Hold or Down status.
@@ -78,6 +79,9 @@ v0.71.5		18-Aug-2005
 
 	mbuseradd:
 		Added security checks to see if this program is legally called.
+
+	lang:
+		New prompts 29 and 30.
 
 
 v0.71.4		12-Aug-2005 - 18-Aug-2005
