@@ -244,7 +244,6 @@ int main(int argc, char *argv[])
     /*
      * Systems that use sysctl to get process information
      */
-printf("using sysctl\n");
     mib[0] = CTL_KERN;
     mib[1] = KERN_PROC_ARGS;
     mib[2] = ppid;
@@ -253,28 +252,22 @@ printf("using sysctl\n");
 	fprintf(stderr, "mbuseradd: no memory\n");
 	exit(1);
     }
-printf("will call\n");
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
 	perror("");
 	fprintf(stderr, "mbuseradd: sysctl call failed\n");
 	exit(1);
     }
-printf("done\n");
     buf[0] = '\0';
     for (p = s; *p != NULL; p++) {
 	if (p != s)
 	    strlcat(buf, " ", sizeof(buf));
 	strlcat(buf, *p, sizeof(buf));
     }
-	parent = xstrcpy((char *)s);
-printf("almost done\n");
     parent = xstrcpy(buf);
-printf("%s\n", parent);
 #elif defined(__NetBSD__)
     /*
      * Systems that use sysctl to get process information
      */
-printf("using sysctl\n");
     mib[0] = CTL_KERN;
     mib[1] = KERN_PROC_ARGS;
     mib[2] = ppid;
@@ -283,24 +276,12 @@ printf("using sysctl\n");
         fprintf(stderr, "mbuseradd: no memory\n");
         exit(1);
     }
-printf("will call\n");
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
         perror("");
         fprintf(stderr, "mbuseradd: sysctl call failed\n");
         exit(1);
     }
-printf("done\n");
-//    buf[0] = '\0';
-printf("%s\n", (char *)s);
-//    for (p = s; *p != NULL; p++) {
-//      if (p != s)
-//          strlcat(buf, " ", sizeof(buf));
-//      strlcat(buf, *p, sizeof(buf));
- //   }
-        parent = xstrcpy((char *)s);
-printf("almost done\n");
-//    parent = xstrcpy(buf);
-printf("%s\n", parent);
+    parent = xstrcpy((char *)s);
 #else
     /*
      *  Systems with /proc filesystem like Linux, FreeBSD
@@ -316,7 +297,7 @@ printf("%s\n", parent);
 #endif
 
     if (strcmp((char *)"-mbnewusr", parent)) {
-	fprintf(stderr, "mbuseradd: illegal parent\n");
+	fprintf(stderr, "mbuseradd: illegal parent \"%s\"\n", parent);
 	free(temp);
 	free(parent);
 	exit(1);

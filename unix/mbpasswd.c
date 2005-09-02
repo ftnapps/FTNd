@@ -849,12 +849,17 @@ int main(int argc, char *argv[])
 #endif
     pid_t		    ppid;
     char		    *parent;
-#if defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined(__OpenBSD__)
 #define ARG_SIZE 60
     static char		    **s, buf[ARG_SIZE];
     size_t		    siz = 100;
     char		    **p;
     int			    mib[4];
+#elif defined(__NetBSD__)
+#define ARG_SIZE 60
+    static char             **s;
+    size_t                  siz = 100;
+    int                     mib[4];
 #else
     char                    temp[PATH_MAX];
     FILE		    *fp;
@@ -902,7 +907,7 @@ int main(int argc, char *argv[])
      */
     ppid = getppid();
 
-#if defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined(__OpenBSD__)
     /*
      * Systems that use sysctl to get process information
      */
@@ -925,8 +930,25 @@ int main(int argc, char *argv[])
 	    strlcat(buf, " ", sizeof(buf));
 	strlcat(buf, *p, sizeof(buf));
     }
-    printf("%s\n", buf);
     parent = xstrcpy(buf);
+#elif defined(__NetBSD__)
+    /*
+     * Systems that use sysctl to get process information
+     */
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC_ARGS;
+    mib[2] = ppid;
+    mib[3] = KERN_PROC_ARGV;
+    if ((s = realloc(s, siz)) == NULL) {
+        fprintf(stderr, "mbpasswd: no memory\n");
+        exit(1);
+    }
+    if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
+        perror("");
+        fprintf(stderr, "mbpasswd: sysctl call failed\n");
+        exit(1);
+    }
+    parent = xstrcpy((char *)s);
 #else
     /*
      *  Systems with /proc filesystem like Linux, FreeBSD
@@ -944,7 +966,7 @@ int main(int argc, char *argv[])
 #endif
 
     if (strcmp((char *)"mbsetup", parent) && strcmp((char *)"-mbsebbs", parent) && strcmp((char *)"-mbnewusr", parent)) {
-	fprintf(stderr, "mbpasswd: illegal parent\n");
+	fprintf(stderr, "mbpasswd: illegal parent \"%s\"\n", parent);
 	syslog(LOG_ERR, "mbpasswd: illegal parent \"%s\"", parent);
 	free(myname);
 	exit(E_FAILURE);
