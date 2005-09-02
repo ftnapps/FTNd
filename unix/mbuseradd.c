@@ -239,6 +239,7 @@ int main(int argc, char *argv[])
     /*
      * Systems that use sysctl to get process information
      */
+printf("using sysctl\n");
     mib[0] = CTL_KERN;
     mib[1] = KERN_PROC_ARGS;
     mib[2] = ppid;
@@ -247,18 +248,24 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "mbuseradd: no memory\n");
 	exit(1);
     }
+printf("will call\n");
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
 	perror("");
 	fprintf(stderr, "mbuseradd: sysctl call failed\n");
 	exit(1);
     }
+printf("done\n");
     buf[0] = '\0';
-    for (p = s; *p != NULL; p++) {
-	if (p != s)
-	    strlcat(buf, " ", sizeof(buf));
-	strlcat(buf, *p, sizeof(buf));
-    }
-    parent = xstrcpy(buf);
+printf("%s\n", (char *)s);
+//    for (p = s; *p != NULL; p++) {
+//	if (p != s)
+//	    strlcat(buf, " ", sizeof(buf));
+//	strlcat(buf, *p, sizeof(buf));
+ //   }
+	parent = xstrcpy((char *)s);
+printf("almost done\n");
+//    parent = xstrcpy(buf);
+printf("%s\n", parent);
 #else
     /*
      *  Systems with /proc filesystem like Linux, FreeBSD
