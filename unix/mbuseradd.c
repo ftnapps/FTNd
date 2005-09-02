@@ -178,12 +178,17 @@ int main(int argc, char *argv[])
     struct passwd   *pwent, *pwuser;
     struct group    *gr;
     pid_t	    ppid;
-#if defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined(__OpenBSD__)
 #define ARG_SIZE 60
     static char	    **s, buf[ARG_SIZE];
     size_t	    siz = 100;
     char	    **p;
     int		    mib[4];
+#elif defined(__NetBSD__)
+#define ARG_SIZE 60
+    static char     **s;
+    size_t          siz = 100;
+    int             mib[4];
 #else
     FILE	    *fp;
 #endif
@@ -235,7 +240,7 @@ int main(int argc, char *argv[])
     temp = calloc(PATH_MAX, sizeof(char));
     ppid = getppid();
 
-#if defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined(__OpenBSD__)
     /*
      * Systems that use sysctl to get process information
      */
@@ -256,13 +261,43 @@ printf("will call\n");
     }
 printf("done\n");
     buf[0] = '\0';
+    for (p = s; *p != NULL; p++) {
+	if (p != s)
+	    strlcat(buf, " ", sizeof(buf));
+	strlcat(buf, *p, sizeof(buf));
+    }
+	parent = xstrcpy((char *)s);
+printf("almost done\n");
+    parent = xstrcpy(buf);
+printf("%s\n", parent);
+#elif defined(__NetBSD__)
+    /*
+     * Systems that use sysctl to get process information
+     */
+printf("using sysctl\n");
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC_ARGS;
+    mib[2] = ppid;
+    mib[3] = KERN_PROC_ARGV;
+    if ((s = realloc(s, siz)) == NULL) {
+        fprintf(stderr, "mbuseradd: no memory\n");
+        exit(1);
+    }
+printf("will call\n");
+    if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
+        perror("");
+        fprintf(stderr, "mbuseradd: sysctl call failed\n");
+        exit(1);
+    }
+printf("done\n");
+//    buf[0] = '\0';
 printf("%s\n", (char *)s);
 //    for (p = s; *p != NULL; p++) {
-//	if (p != s)
-//	    strlcat(buf, " ", sizeof(buf));
-//	strlcat(buf, *p, sizeof(buf));
+//      if (p != s)
+//          strlcat(buf, " ", sizeof(buf));
+//      strlcat(buf, *p, sizeof(buf));
  //   }
-	parent = xstrcpy((char *)s);
+        parent = xstrcpy((char *)s);
 printf("almost done\n");
 //    parent = xstrcpy(buf);
 printf("%s\n", parent);
