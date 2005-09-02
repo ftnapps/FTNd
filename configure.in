@@ -255,6 +255,7 @@ AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(gettimeofday re_comp select)
 AC_CHECK_FUNCS(getspnam initgroups updwtmp updwtmpx)
+AC_CHECK_FUNCS(sysctl)
 
 dnl
 dnl Check for usefull external programs

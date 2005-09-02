@@ -196,6 +196,7 @@ int newuser(int rows)
     l_date = localtime(&Time_Now);
     ltime = time(NULL);
 
+    usrconfig.GraphMode = TRUE; /* Default set it to ANSI */
     if (CFG.iAnsi) {
 	Enter(2);
 	/* Do you want ANSI and graphics mode [Y/n]: */
@@ -204,13 +205,8 @@ int newuser(int rows)
 	alarm_on();
  	i = toupper(getchar());
 
-	if (i == Keystroke(44, 0) || i == '\n')
-	    usrconfig.GraphMode = TRUE;
-	else
+	if (i == Keystroke(44, 1))
 	    usrconfig.GraphMode = FALSE;
-    } else {
-	usrconfig.GraphMode = TRUE; /* Default set it to ANSI */
-	Enter(1);
     }
     exitinfo.GraphMode = usrconfig.GraphMode;
     TermInit(exitinfo.GraphMode, 80, 24);

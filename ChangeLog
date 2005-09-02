@@ -56,6 +56,7 @@ v0.71.5		18-Aug-2005
 		If we can detect the users screenlength then we don't bother
 		asking the user.
 		Added logging during execute of mbuseradd.
+		Corrected wrong ansi setting for new users.
 
 	mbtask:
 		Added check to some chat commands to check if the chat thread
