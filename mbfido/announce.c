@@ -300,9 +300,11 @@ long Report(gr_list *ta, long filepos)
 	     * Extra description lines follow
 	     */
 	    for (i = 1; i < 24; i++) {
-		MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
+//		if (strlen(T_File.LDesc[i]))
+//		    MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
 		fseek(fi, filepos2, SEEK_SET);
 		if (strlen(T_File.LDesc[i])) {
+		    MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
 		    Msg_Macro(fi);
 		} else {
 		    line = calloc(MAXSTR, sizeof(char));

@@ -18,6 +18,9 @@ v0.71.5		18-Aug-2005
 		Code cleanup.
 		Added debug logging in rfc2ftn to track a rare problem.
 
+	mbaff:
+		Fixed a crash when announce a empty description line.
+
 	mbdiff:
 		Code cleanup.
 
