@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 26-Aug-2005</h5></div>
+<div align="right"><h5>Last update 03-Sep-2005</h5></div>
 <div align="center"><H1>mbsebbs - The main BBS program</H1></div>
 
 <H3>Synopsis.</H3>
@@ -62,36 +62,33 @@ screens are searched for in the following order;<br>
   <li>filename.asc in the default language directory.
   <li>If nothing is found, nothing is displayed.
 </ol>
-<strong>mainlogo</strong>. Here you can put a logo or something.
-<strong>welcome</strong>. This screen can contain information about the session
+Here is the list of displayed screens:
+<ol>
+  <li><strong>mainlogo</strong>. Here you can put a logo or something.
+  <li><strong>welcome</strong>. This screen can contain information about the session
 the user has, his download limits, time left etc.
-<P>
-<strong>welcome1</strong> is shown if the user has show bulletins set to true.
-<strong>welcome2</strong> is shown if the user has show bulletins set to true.
-<strong>welcome3</strong> is shown if the user has show bulletins set to true.
-<strong>welcome4</strong> is shown if the user has show bulletins set to true.
-<strong>welcome5</strong> is shown if the user has show bulletins set to true.
-<strong>welcome6</strong> is shown if the user has show bulletins set to true.
-<strong>welcome7</strong> is shown if the user has show bulletins set to true.
-<strong>welcome8</strong> is shown if the user has show bulletins set to true.
-<strong>welcome9</strong> is shown if the user has show bulletins set to true.
-<P>
-<strong>birthday</strong> is shown if the user logs in at his birthday and if he
+  <li><strong>welcome1</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome2</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome3</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome4</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome5</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome6</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome7</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome8</strong> is shown if the user has show bulletins set to true.
+  <li><strong>welcome9</strong> is shown if the user has show bulletins set to true.
+  <li><strong>birthday</strong> is shown if the user logs in at his birthday and if he
 has show bullentins set to true.
-<P>
-<strong>dd-mm</strong> is shown if <strong>dd</strong> is the date of today and
+  <li><strong>dd-mm</strong> is shown if <strong>dd</strong> is the date of today and
 <strong>mm</strong> is the current month and if the user has show bulletins
 set to true.
-<P>
-<strong>sec20</strong> is shown if the user has the security level in the
+  <li><strong>sec20</strong> is shown if the user has the security level in the
 filename, level 20 in this example. Als the display bulletins must be set to
 true.
-<P>
-<strong>news</strong> is shown if the user has the display bulletins set to 
+  <li><strong>news</strong> is shown if the user has the display bulletins set to 
 true.
-<P>
-<strong>onceonly</strong> is shown only if the user has never seen this screen,
+  <li><strong>onceonly</strong> is shown only if the user has never seen this screen,
 the test is to compare the users last login date against the date of this file.
+</ol>
 <P>
 After all these screens the users Offline Reader areas are checked to see if
 you as sysop didn't change the message areas. If you made changes, the users

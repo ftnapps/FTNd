@@ -13,7 +13,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 09-Feb-2002</h5></div>
+<div align='right'><h5>Last update 03-Sep-2005</h5></div>
 <div align='center'><H1>How to setup an webserver to work with MBSE BBS.</H1></div>
 
 <H3>Introduction</H3>
@@ -99,6 +99,19 @@ This are some snapshots of how this will look like, click to enlarge:
   <TD><A HREF="../images/dream3.png"><IMG SRC="../images/tdream3.png" Border="0" ALT='dreamlandbbs'></A></TD>
  </TR>
 </TABLE>
+<P>&nbsp;<P>
+
+<H3>Counting downloads</H3>
+<P>
+If you want to increase the download counters when files are downloaded via www
+you must make sure that the web logs the downloads to a <b>access_log</b>
+file, for example /var/log/apache/access_log. 
+This logfile must be readable by user mbse and must be in <b>combined</b>
+format. You can set this in your apache configuration file.
+Then in <b>mbsetup</b> menu 1.13.4 enter full filename and path to this logfile.
+The <b>mball</b> program will parse this file and increase the download counters
+for the files that are downloaded from the webserver.
+<P>
 
 <P>
 <A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>

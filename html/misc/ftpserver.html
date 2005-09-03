@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 09-Feb-2002</h5></div>
+<div align='right'><h5>Last update 03-Sep-2005</h5></div>
 <div align='center'><H1>How to setup an FTP server to work with MBSE BBS.</H1></div>
 
 In order to let MBSE BBS and your FTP server to both function together you must
@@ -91,6 +91,14 @@ automatic and must have the rights to do so.
 <P>
 In the /opt/mbse/ftp/etc/group file, add the group bbs so that your directory
 listings give the proper groupname instead of a number.
+<P>
+
+If you want to increase the download counters when files are downloaded via ftp
+you must make sure that the ftp daemon logs the downloads to a <b>xferlog</b>
+file, for example /var/log/xferlog. This logfile must be readable by user mbse.
+Then in <b>mbsetup</b> menu 1.13.5 enter full filename and path to this logfile.
+The <b>mball</b> program will parse this file and increase the download counters
+for the files that are downloaded from the bbs.
 <P>
 
 <A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
