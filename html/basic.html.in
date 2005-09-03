@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 19-Jun-2005</h5></div>
+<div align="right"><h5>Last update 03-Seo-2005</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -116,7 +116,11 @@ this error.
 <h3>Step 2: Running the installation script.</h3>
 <p>
 First, if you use FreeBSD, install the psmisc package. This will make sure
-that MBSE BBS is stopped properly if you shutdown your computer.<br>
+that MBSE BBS is stopped properly if you shutdown your computer. Also if you 
+use FreeBSD 5.0 or later make sure that you mount procfs, see <b>man procfs</b>
+for details. If you don't mount procfs, you cannot add new users to the bbs and
+existing bbs users cannot change their passwords. As sysop, you can't change
+passwords too.<br>
 If you are upgrading, proceed with step 4. If not, follow the next steps
 very carefully!<br>
 The installation script must be run by root. It checks if there is a
@@ -203,7 +207,8 @@ for your bbs users. Only use --enable-newsgate if you really need to gate echoma
 to the internet.
 <p>
 To support Chinese the DELete key needs to be changed because it conflicts with one
-of the characters. If you want to use Chinese, use --enable-gbkdel to configure.
+of the characters. If you want to use Chinese, use <code>--enable-gbkdel</code>
+to configure.
 <p>
 The last part of the installation procedure shows you the location of the bbs
 startup script that is added to your system. Remember this one for a moment.
