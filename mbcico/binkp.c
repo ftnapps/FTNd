@@ -91,7 +91,7 @@ typedef enum {CompNone, CompPLZ} CompType;
 
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
-// static char *opstate[] = { (char *)"No", (char *)"Can", (char *)"Want", (char *)"Active" };
+static char *opstate[] = { (char *)"No", (char *)"Can", (char *)"Want", (char *)"Active" };
 #ifdef	USE_EXPERIMENT
 static char *cpstate[] = { (char *)"No", (char *)"GZ", (char *)"BZ2", (char *)"PLZ" };
 #endif
@@ -196,7 +196,8 @@ struct binkprec {
     int			txcpos;			/* Transmitter compressed position  */
 #ifdef	USE_EXPERIMENT
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB2_H)
-    int			extcmd;			/* EXTCMD flag			    */
+    int			EXTCMDwe;		/* EXTCMD flag			    */
+    int			EXTCMDthey;
 #endif
 #ifdef	HAVE_ZLIB_H
     int			GZwe;			/* GZ compression flag		    */
@@ -276,6 +277,7 @@ int binkp(int role)
     bp.remote_EOB = FALSE;
     bp.msgs_on_queue = 0;
     bp.cmpblksize = SND_BLKSIZE;
+    bp.EXTCMDwe = bp.EXTCMDthey = No;	    /* Default	*/
 #ifdef	HAVE_ZLIB_H
     if (localoptions & NOPLZ)
 	bp.PLZthey = bp.PLZwe = No;
@@ -285,8 +287,10 @@ int binkp(int role)
     z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     if (localoptions & NOGZBZ2)
 	bp.GZthey = bp.GZwe = No;
-    else
+    else {
 	bp.GZthey = bp.GZwe = Can;
+	bp.EXTCMDwe = bp.EXTCMDthey = Can;
+    }
 #endif
 #else
     bp.PLZthey = bp.PLZwe = No;
@@ -295,8 +299,10 @@ int binkp(int role)
 #ifdef	HAVE_BZLIB_H
     if (localoptions & NOGZBZ2)
 	bp.BZ2they = bp.BZ2we = No;
-    else
+    else {
 	bp.BZ2they = bp.BZ2we = Can;
+	bp.EXTCMDwe = bp.EXTCMDthey = Can;
+    }
 #endif
 #endif
     bp.buggyIrex = FALSE;
@@ -2026,8 +2032,10 @@ int binkp_send_comp_opts(void)
 
     if (plz || gz || bz2) {
 	p = xstrcpy((char *)"OPT");
-	if (bz2 || gz)
+	if (bz2 || gz) {
+	    bp.EXTCMDwe = Want;
 	    p = xstrcat(p, (char *)" EXTCMD");
+	}
 	if (gz)
 	    p = xstrcat(p, (char *)" GZ");
 	if (bz2)
@@ -2045,32 +2053,40 @@ int binkp_send_comp_opts(void)
 
 void binkp_set_comp_state(void)
 {
+    Syslog('b', "Binkp: EXTCMD they=%s we=%s", opstate[bp.EXTCMDthey], opstate[bp.EXTCMDwe]);
 #ifdef  USE_EXPERIMENT
-    if (bp.extcmd) {
+    if ((bp.EXTCMDthey == Want) && (bp.EXTCMDwe == Want)) {
+	Syslog('+', "Binkp: EXTCMD is active");
+	bp.EXTCMDthey = bp.EXTCMDwe = Active;
+    }
 
 #ifdef  HAVE_BZLIB_H
-	if ((bp.BZ2they == Want) && (bp.BZ2we == Want)) {
+    Syslog('b', "Binkp: BZ2    they=%s we=%s", opstate[bp.BZ2they], opstate[bp.BZ2we]);
+    if ((bp.BZ2they == Want) && (bp.BZ2we == Want)) {
+	if (bp.EXTCMDwe == Active) {
 	    Syslog('+', "Binkp: BZ2 compression active");
 	    bp.BZ2we = bp.BZ2they = Active;
+	} else {
+	    Syslog('!', "Binkp: received BZ2 option without EXTCMD option");
 	}
+    }
 #endif
 #ifdef  HAVE_ZLIB_H
-	if ((bp.GZthey == Want) && (bp.GZwe == Want)) {
+    Syslog('b', "Binkp: GZ     they=%s we=%s", opstate[bp.GZthey], opstate[bp.GZwe]);
+    if ((bp.GZthey == Want) && (bp.GZwe == Want)) {
+	if (bp.EXTCMDwe == Active) {
 	    bp.GZwe = bp.GZthey = Active;
 	    Syslog('+', "Binkp: GZ compression active");
+	} else {
+	    Syslog('!', "Binkp: received GZ option without EXTCMD option");
 	}
-#endif
-    } else {
-#ifdef  HAVE_ZLIB_H
-	bp.GZwe = bp.GZthey = No;
-#endif
-#ifdef  HAVE_BZLIB_H
-	bp.BZ2we = bp.BZ2they = No;
-#endif
     }
 #endif
 
+#endif
+
 #ifdef  HAVE_ZLIB_H
+    Syslog('b', "Binkp: PLZ    they=%s we=%s", opstate[bp.PLZthey], opstate[bp.PLZwe]);
     if ((bp.PLZthey == Want) && (bp.PLZwe == Want)) {
 	bp.PLZwe = bp.PLZthey = Active;
 	Syslog('+', "Binkp: PLZ compression active");
@@ -2190,8 +2206,11 @@ void parse_m_nul(char *msg)
 		}
 #ifdef	USE_EXPERIMENT
 	    } else if (strncmp(q, (char *)"EXTCMD", 6) == 0) {
-		bp.extcmd = TRUE;
-		Syslog('b', "Binkp: remote supports EXTCMD mode");
+		Syslog('b', "Binkp: remote wants EXTCMD mode");
+		if (bp.EXTCMDthey == Can) {
+		    bp.EXTCMDthey = Want;
+		    binkp_set_comp_state();
+		}
 
 #ifdef	HAVE_BZLIB_H
 	    } else if (strncmp(q, (char *)"BZ2", 3) == 0) {
