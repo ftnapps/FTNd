@@ -3,6 +3,10 @@ $Id$
 
 v0.71.6		02-Sep-2005
 
+	mbcico:
+		Changed compression state logic.
+
+
 v0.71.5		18-Aug-2005 - 02-Sep-2005
 
 	nodelist.a:

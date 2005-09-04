@@ -80,7 +80,7 @@ extern unsigned long	rcvdbytes;
 typedef enum {RxWaitF, RxAccF, RxReceD, RxWriteD, RxEOB, RxDone} RxType;
 typedef enum {TxGNF, TxTryR, TxReadS, TxWLA, TxDone} TxType;
 typedef enum {Ok, Failure, Continue} TrType;
-typedef enum {No, WeCan, WeWant, TheyWant, Active} OptionState;
+typedef enum {No, Can, Want, Active} OptionState;
 typedef enum {NoState, Sending, IsSent, Got, Skipped, Get} FileState;
 typedef enum {InitTransfer, Switch, Receive, Transmit, DeinitTransfer} FtType;
 #ifdef	USE_EXPERIMENT
@@ -91,7 +91,7 @@ typedef enum {CompNone, CompPLZ} CompType;
 
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
-static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (char *)"TheyWant", (char *)"Active" };
+// static char *opstate[] = { (char *)"No", (char *)"Can", (char *)"Want", (char *)"Active" };
 #ifdef	USE_EXPERIMENT
 static char *cpstate[] = { (char *)"No", (char *)"GZ", (char *)"BZ2", (char *)"PLZ" };
 #endif
@@ -142,7 +142,8 @@ struct binkprec {
     int			Major;			/* Major protocol version	    */
     int			Minor;			/* Minor protocol version	    */
     unsigned char	*MD_Challenge;		/* Received challenge data	    */
-    int			PLZflag;		/* Zlib packet compression	    */
+    int			PLZwe;			/* Zlib packet compression	    */
+    int			PLZthey;		/* Zlib packet compression	    */
     int			cmpblksize;		/* Ideal next blocksize		    */
 
 						/* Receiver buffer		    */
@@ -198,10 +199,12 @@ struct binkprec {
     int			extcmd;			/* EXTCMD flag			    */
 #endif
 #ifdef	HAVE_ZLIB_H
-    int			GZflag;			/* GZ compression flag		    */
+    int			GZwe;			/* GZ compression flag		    */
+    int			GZthey;
 #endif
 #ifdef	HAVE_BZLIB_H
-    int			BZ2flag;		/* BZ2 compression flag		    */
+    int			BZ2we;			/* BZ2 compression flag		    */
+    int			BZ2they;
 #endif
 #endif
 };
@@ -225,7 +228,9 @@ int	binkp_send_frame(int, char *, int);	    /* Send cmd/data frame	    */
 int	binkp_send_command(int, ...);		    /* Send command frame	    */
 void	binkp_settimer(int);			    /* Set timeout timer	    */
 int	binkp_expired(void);			    /* Timer expired?		    */
-int	binkp_banner(void);			    /* Send system banner	    */
+int	binkp_banner(int);			    /* Send system banner	    */
+int	binkp_send_comp_opts(void);		    /* Send compression options	    */
+void	binkp_set_comp_state(void);		    /* Set compression state	    */
 int	binkp_recv_command(char *, unsigned long *, int *);   /* Receive command frame	    */
 void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
 int	binkp_poll_frame(void);			    /* Poll for a frame		    */
@@ -273,25 +278,25 @@ int binkp(int role)
     bp.cmpblksize = SND_BLKSIZE;
 #ifdef	HAVE_ZLIB_H
     if (localoptions & NOPLZ)
-	bp.PLZflag = No;
+	bp.PLZthey = bp.PLZwe = No;
     else
-	bp.PLZflag = WeCan;
+	bp.PLZthey = bp.PLZwe = Can;
 #ifdef	USE_EXPERIMENT
     z_obuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     if (localoptions & NOGZBZ2)
-	bp.GZflag = No;
+	bp.GZthey = bp.GZwe = No;
     else
-	bp.GZflag = WeCan;
+	bp.GZthey = bp.GZwe = Can;
 #endif
 #else
-    bp.PLZflag = No;
+    bp.PLZthey = bp.PLZwe = No;
 #endif
 #ifdef	USE_EXPERIMENT
 #ifdef	HAVE_BZLIB_H
     if (localoptions & NOGZBZ2)
-	bp.BZ2flag = No;
+	bp.BZ2they = bp.BZ2we = No;
     else
-	bp.BZ2flag = WeCan;
+	bp.BZ2they = bp.BZ2we = Can;
 #endif
 #endif
     bp.buggyIrex = FALSE;
@@ -400,7 +405,7 @@ SM_STATE(WaitConn)
     Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
 
-    rc = binkp_banner();
+    rc = binkp_banner(TRUE);
     if (rc) {
 	SM_ERROR;
     }
@@ -621,29 +626,7 @@ SM_STATE(WaitOk)
 SM_STATE(Opts)
 
     IsDoing("Binkp to %s", ascfnode(remote->addr, 0xf));
-#ifdef	USE_EXPERIMENT
-    Syslog('b', "Binkp: check for extcmd, current %d", bp.extcmd);
-    if (bp.extcmd) {
-#ifdef  HAVE_BZLIB_H
-	if (bp.BZ2flag == TheyWant) {
-	    Syslog('+', "Binkp: BZ2 compression active");
-	    bp.BZ2flag = Active;
-	}
-#endif
-#ifdef  HAVE_ZLIB_H
-	if (bp.GZflag == TheyWant) {
-	    bp.GZflag = Active;
-	    Syslog('+', "Binkp: GZ compression active");
-	}
-#endif
-    }
-#endif
-#ifdef	HAVE_ZLIB_H
-    if (bp.PLZflag == TheyWant) {
-        bp.PLZflag = Active;
-        Syslog('+', "Binkp: PLZ compression active");
-    }
-#endif
+    binkp_set_comp_state();
     SM_SUCCESS;
 
 SM_END
@@ -709,7 +692,7 @@ SM_STATE(WaitConn)
 	}
     }
 
-    if ((rc = binkp_banner())) {
+    if ((rc = binkp_banner(FALSE))) {
 	SM_ERROR;
     }
 
@@ -915,39 +898,28 @@ SM_STATE(PwdAck)
 SM_STATE(Opts)
 
     IsDoing("Binkp from %s", ascfnode(remote->addr, 0xf));
-
 #ifdef	USE_EXPERIMENT
-    Syslog('b', "Binkp: check for extcmd, current %d", bp.extcmd);
-    if (bp.extcmd) {
-
-#ifdef  HAVE_BZLIB_H
-	if (bp.BZ2flag == TheyWant) {
-	    Syslog('+', "Binkp: BZ2 compression active");
-	    bp.BZ2flag = Active;
-	}
-#endif
+    if (localoptions & NOGZBZ2) {
 #ifdef	HAVE_ZLIB_H
-	if (bp.GZflag == TheyWant) {
-	    bp.GZflag = Active;
-	    Syslog('+', "Binkp: GZ compression active");
-	}
-#endif
-    } else {
-#ifdef	HAVE_ZLIB_H
-	bp.GZflag = No;
+	bp.GZwe = bp.GZthey = No;
+	Syslog('b', "Binkp: no GZ compression for this node");
 #endif
 #ifdef	HAVE_BZLIB_H
-	bp.BZ2flag = No;
+	bp.BZ2we = bp.BZ2they = No;
+	Syslog('b', "Binkp: no BZ2 compression for this node");
 #endif
+    }
+#endif
+#ifdef	HAVE_ZLIB_H
+    if (localoptions & NOPLZ) {
+	bp.PLZwe = bp.PLZthey = No;
+	Syslog('b', "Binkp: no PLZ compression for this node");
     }
 #endif
 
-#ifdef	HAVE_ZLIB_H
-    if (bp.PLZflag == TheyWant) {
-	bp.PLZflag = Active;
-	Syslog('+', "Binkp: PLZ compression active");
-    }
-#endif
+    binkp_send_comp_opts();
+    binkp_set_comp_state();
+
     SM_SUCCESS;
 
 SM_END
@@ -1811,7 +1783,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     unsigned long   zlen;
     char	    *zbuf;
 
-    if ((len >= BINKP_PLZ_BLOCK) && (bp.PLZflag == Active)) {
+    if ((len >= BINKP_PLZ_BLOCK) && (bp.PLZwe == Active)) {
 	WriteError("Can't send block of %d bytes in PLZ mode", len);
 	return 1;
     }
@@ -1843,9 +1815,9 @@ int binkp_send_frame(int cmd, char *buf, int len)
      * with this if it showed PLZ, GZ and BZ2 options.
      */
 #ifdef	USE_EXPERIMENT
-    if ((bp.PLZflag == Active) && (len > 20) && (!cmd) && (bp.tmode != CompGZ) && (bp.tmode != CompBZ2)) {
+    if ((bp.PLZwe == Active) && (len > 20) && (!cmd) && (bp.tmode != CompGZ) && (bp.tmode != CompBZ2)) {
 #else
-    if ((bp.PLZflag == Active) && (len > 20) && (!cmd)) {
+    if ((bp.PLZwe == Active) && (len > 20) && (!cmd)) {
 #endif
 	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 	zlen = BINKP_PLZ_BLOCK -1;
@@ -1982,11 +1954,10 @@ int binkp_expired(void)
 /*
  * Send system info to remote
  */
-int binkp_banner(void)
+int binkp_banner(int originate)
 {
     time_t  t;
     int	    rc;
-    char    *p;
 
     rc = binkp_send_command(MM_NUL,"SYS %s", CFG.bbs_name);
     if (!rc)
@@ -2010,29 +1981,101 @@ int binkp_banner(void)
 	rc = binkp_send_command(MM_NUL,"OPM %s", CFG.comment);
 
     /*
-     * Send extra options
+     * Send compression options
      */
-    if (!rc) {
-	if (localoptions & NOGZBZ2)
-	    p = xstrcpy((char *)"OPT");
-	else
-	    p = xstrcpy((char *)"OPT EXTCMD");
-#ifdef  HAVE_BZLIB_H
-	if (! (localoptions & NOGZBZ2))
-	    p = xstrcat(p, (char *)" BZ2");
-#endif
-#ifdef	HAVE_ZLIB_H
-	if (! (localoptions & NOPLZ))
-	    p = xstrcat(p, (char *)" PLZ");
-	if (! (localoptions & NOGZBZ2))
-	    p = xstrcat(p, (char *)" GZ");
-#endif
-	if (strcmp(p, "OPT"))
-	    rc = binkp_send_command(MM_NUL,"%s", p);
-	free(p);
+    if (originate) {
+	if (!rc) {
+	    rc = binkp_send_comp_opts();
+	}
     }
 
     return rc;
+}
+
+
+
+/*
+ * Send compression options
+ */
+int binkp_send_comp_opts(void)
+{
+    int	    rc = 0, plz = FALSE, gz = FALSE, bz2 = FALSE;
+    char    *p = NULL;
+
+#ifdef	USE_EXPERIMENT
+#ifdef	HAVE_ZLIB_H
+    if ((bp.GZwe == Can) || (bp.GZthey == Can) || (bp.GZthey == Want)) {
+	gz = TRUE;
+	bp.GZwe = Want;
+    }
+#endif
+#ifdef	HAVE_BZLIB_H
+    if ((bp.BZ2we == Can) || (bp.BZ2they == Can) || (bp.BZ2they == Want)) {
+	bz2 = TRUE;
+	bp.BZ2we = Want;
+    }
+#endif
+#endif
+
+#ifdef	HAVE_ZLIB_H
+    if ((bp.PLZwe == Can) || (bp.PLZthey == Can) || (bp.PLZthey == Want)) {
+	plz = TRUE;
+	bp.PLZwe = Want;
+    }
+#endif
+
+    if (plz || gz || bz2) {
+	p = xstrcpy((char *)"OPT");
+	if (bz2 || gz)
+	    p = xstrcat(p, (char *)" EXTCMD");
+	if (gz)
+	    p = xstrcat(p, (char *)" GZ");
+	if (bz2)
+	    p = xstrcat(p, (char *)" BZ2");
+	if (plz)
+	    p = xstrcat(p, (char *)" PLZ");
+	rc = binkp_send_command(MM_NUL,"%s", p);
+	free(p);
+    }
+
+    return rc;    
+}
+
+
+
+void binkp_set_comp_state(void)
+{
+#ifdef  USE_EXPERIMENT
+    if (bp.extcmd) {
+
+#ifdef  HAVE_BZLIB_H
+	if ((bp.BZ2they == Want) && (bp.BZ2we == Want)) {
+	    Syslog('+', "Binkp: BZ2 compression active");
+	    bp.BZ2we = bp.BZ2they = Active;
+	}
+#endif
+#ifdef  HAVE_ZLIB_H
+	if ((bp.GZthey == Want) && (bp.GZwe == Want)) {
+	    bp.GZwe = bp.GZthey = Active;
+	    Syslog('+', "Binkp: GZ compression active");
+	}
+#endif
+    } else {
+#ifdef  HAVE_ZLIB_H
+	bp.GZwe = bp.GZthey = No;
+#endif
+#ifdef  HAVE_BZLIB_H
+	bp.BZ2we = bp.BZ2they = No;
+#endif
+    }
+#endif
+
+#ifdef  HAVE_ZLIB_H
+    if ((bp.PLZthey == Want) && (bp.PLZwe == Want)) {
+	bp.PLZwe = bp.PLZthey = Active;
+	Syslog('+', "Binkp: PLZ compression active");
+    }
+#endif
 }
 
 
@@ -2152,30 +2195,27 @@ void parse_m_nul(char *msg)
 
 #ifdef	HAVE_BZLIB_H
 	    } else if (strncmp(q, (char *)"BZ2", 3) == 0) {
-		if (bp.BZ2flag == WeCan) {
-		    bp.BZ2flag = TheyWant;
-		    Syslog('b', "Binkp: remote supports BZ2 mode");
-		} else {
-		    Syslog('b', "BZ2flag is %s and received BZ2 option", opstate[bp.BZ2flag]);
+		Syslog('b', "Binkp: remote wants BZ2 mode");
+		if (bp.BZ2they == Can) {
+		    bp.BZ2they = Want;
+		    binkp_set_comp_state();
 		}
 #endif
 #ifdef	HAVE_ZLIB_H
 	    } else if (strncmp(q, (char *)"GZ", 2) == 0) {
-		if (bp.GZflag == WeCan) {
-		    bp.GZflag = TheyWant;
-		    Syslog('b', "Binkp: remote supports GZ mode");
-		} else {
-		    Syslog('b', "GZflag is %s and received GZ option", opstate[bp.GZflag]);
+		Syslog('b', "Binkp: remote wants GZ mode");
+		if (bp.GZthey == Can) {
+		    bp.GZthey = Want;
+		    binkp_set_comp_state();
 		}
 #endif
 #endif
 #ifdef	HAVE_ZLIB_H
 	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
-		if (bp.PLZflag == WeCan) {
-		    bp.PLZflag = TheyWant;
-		    Syslog('b', "Binkp: remote supports PLZ mode");
-		} else {
-		    Syslog('b', "PLZflag is %s and received PLZ option", opstate[bp.PLZflag]);
+		Syslog('b', "Binkp: remote wants PLZ mode");
+		if (bp.PLZthey == Can) {
+		    bp.PLZthey = Want;
+		    binkp_set_comp_state();
 		}
 #endif
 	    }
@@ -2236,9 +2276,9 @@ int binkp_poll_frame(void)
 		    bp.cmd = bp.header & BINKP_CONTROL_BLOCK;
 #ifdef HAVE_ZLIB_H
 #ifdef	USE_EXPERIMENT
-		    if ((bp.PLZflag == Active) && (bp.rmode == CompNone)) {
+		    if ((bp.PLZthey == Active) && (bp.rmode == CompNone)) {
 #else
-		    if (bp.PLZflag == Active) {
+		    if (bp.PLZthey == Active) {
 #endif
 			bp.blklen = bp.header & 0x3fff;
 		    } else {
@@ -2255,9 +2295,9 @@ int binkp_poll_frame(void)
 		     * Got a PLZ compressed block
 		     */
 #ifdef	USE_EXPERIMENT
-		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK) && (bp.rmode == CompNone) && bp.blklen) {
+		    if ((bp.PLZthey == Active) && (bp.header & BINKP_PLZ_BLOCK) && (bp.rmode == CompNone) && bp.blklen) {
 #else
-		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK) && bp.blklen) {
+		    if ((bp.PLZthey == Active) && (bp.header & BINKP_PLZ_BLOCK) && bp.blklen) {
 #endif
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 			zlen = BINKP_PLZ_BLOCK -1;
@@ -2364,10 +2404,10 @@ int binkp_process_messages(void)
 		rmode = CompNone;
 #ifdef	USE_EXPERIMENT
 #ifdef	HAVE_ZLIB_H
-		bp.GZflag = No;
+		bp.GZwe = bp.GZthey = No;
 #endif
 #ifdef	HAVE_BZLIB_H
-		bp.BZ2flag = No;
+		bp.BZ2we = bp.BZ2they = No;
 #endif
 #endif
 		Syslog('+', "Binkp: received NZ on M_GET command, compression turned off");
@@ -2702,11 +2742,11 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
      */
     comp = FALSE;
 #ifdef	HAVE_ZLIB_H
-    if (bp.GZflag == Active)
+    if ((bp.GZwe == Active) && (bp.GZthey == Active))
 	comp = TRUE;
 #endif
 #ifdef	HAVE_BZLIB_H
-    if (bp.BZ2flag == Active)
+    if ((bp.BZ2we == Active) && (bp.BZ2they == Active))
 	comp = TRUE;
 #endif
     if (!comp)
@@ -2731,14 +2771,14 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     /*
      * Use BZ2 for files > 200K
      */
-    if ((bp.BZ2flag == Active) && (tstat.st_size > 202400)) {
+    if ((bp.BZ2we == Active) && (bp.BZ2they == Active) && (tstat.st_size > 202400)) {
 	(*tmpl)->compress = CompBZ2;
 	Syslog('b', "Binkp: %s compressor BZ2", fal->local);
 	return;
     }
 #endif
 #ifdef	HAVE_ZLIB_H
-    if (bp.GZflag == Active) {
+    if ((bp.GZwe == Active) && (bp.GZthey == Active)) {
 	(*tmpl)->compress = CompGZ;
 	Syslog('b', "Binkp: %s compressor GZ", fal->local);
 	return;

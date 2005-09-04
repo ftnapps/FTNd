@@ -95,6 +95,10 @@ mbfido:
 mbcico:
 	L: Implement binkp option ND.
 
+	N: When answering a binkp session, do not send m_opt for compression
+	   until we know who is on the other side so we can really block single
+	   nodes.
+
 mbnntp:
 	U: fetched mail doesn't get the status Rcvd if it was for the user.
 

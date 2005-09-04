@@ -627,9 +627,6 @@ void HtmlIndex(char *Lang)
 	    snprintf(temp, PATH_MAX, "%s/index.html", area.Path);
 	    obj_time = (int) file_time(temp);
 
-	    if (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)
-		Syslog('f', "Area %d index.html is %s", i, (obj_time < db_time) ? "outdated" : "up todate");
-    
 	    /*
 	     * Create index.html pages in each available download area when not up to date.
 	     */
