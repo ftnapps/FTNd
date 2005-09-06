@@ -92,10 +92,6 @@ mbfido:
 
 	N: Someday make retoss from bad possible (volonteers?).
 
-	N: When posting news better check which articles are posted ok, and
-	   what are fatal errors from the newsserver to prevent repost of good
-	   posts.
-
 mbcico:
 	L: Implement binkp option ND.
 

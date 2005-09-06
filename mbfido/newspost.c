@@ -43,7 +43,7 @@ extern	int	news_bad;
 
 int newspost(void)
 {
-    int		    start = TRUE;
+    int		    start = TRUE, fatal = FALSE;
     char	    *buf, *p;
     long	    curpos, count, seqnr;
     FILE	    *ofp = NULL, *nb;
@@ -219,9 +219,11 @@ int newspost(void)
         unlink(buf);
     }
 
-    if (! news_bad) {
-	snprintf(buf, 10240, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+    snprintf(buf, 10240, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+    if (! fatal) {
 	unlink(buf);
+    } else {
+	Syslog('+', "Fatal errors posting news, %s not removed", buf);
     }
 
     free(buf);
