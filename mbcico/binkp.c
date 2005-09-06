@@ -277,7 +277,9 @@ int binkp(int role)
     bp.remote_EOB = FALSE;
     bp.msgs_on_queue = 0;
     bp.cmpblksize = SND_BLKSIZE;
+#ifdef	USE_EXPERIMENT
     bp.EXTCMDwe = bp.EXTCMDthey = No;	    /* Default	*/
+#endif
 #ifdef	HAVE_ZLIB_H
     if (localoptions & NOPLZ)
 	bp.PLZthey = bp.PLZwe = No;
@@ -2032,10 +2034,12 @@ int binkp_send_comp_opts(void)
 
     if (plz || gz || bz2) {
 	p = xstrcpy((char *)"OPT");
+#ifdef	USE_EXPERIMENT
 	if (bz2 || gz) {
 	    bp.EXTCMDwe = Want;
 	    p = xstrcat(p, (char *)" EXTCMD");
 	}
+#endif
 	if (gz)
 	    p = xstrcat(p, (char *)" GZ");
 	if (bz2)
@@ -2053,8 +2057,8 @@ int binkp_send_comp_opts(void)
 
 void binkp_set_comp_state(void)
 {
-    Syslog('b', "Binkp: EXTCMD they=%s we=%s", opstate[bp.EXTCMDthey], opstate[bp.EXTCMDwe]);
 #ifdef  USE_EXPERIMENT
+    Syslog('b', "Binkp: EXTCMD they=%s we=%s", opstate[bp.EXTCMDthey], opstate[bp.EXTCMDwe]);
     if ((bp.EXTCMDthey == Want) && (bp.EXTCMDwe == Want)) {
 	Syslog('+', "Binkp: EXTCMD is active");
 	bp.EXTCMDthey = bp.EXTCMDwe = Active;
