@@ -4,7 +4,7 @@
  * File ..................: mbnntp/openport.c
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -62,9 +62,7 @@ void sigpipe(int sig)
 int rawport(void)
 {
     tty_status = 0;
-    Syslog('t', "SIGHUP => linedrop()");
     signal(SIGHUP, linedrop);
-    Syslog('t', "SIGPIPE => sigpipe()");
     signal(SIGPIPE, sigpipe);
     return 0;
 }
@@ -74,9 +72,7 @@ int rawport(void)
 int cookedport(void)
 {
     Syslog('t', "SIGHUP => SIG_IGN");
-    signal(SIGHUP, SIG_IGN);
     Syslog('t', "SIGPIPE => SIG_IGN");
-    signal(SIGPIPE, SIG_IGN);
     return 0;
 }
 

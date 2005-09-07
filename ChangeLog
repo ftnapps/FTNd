@@ -10,6 +10,9 @@ v0.71.6		02-Sep-2005
 		If some newsarticles are not accepted for post, don't treat
 		this as fatal and clear the sendqueue.
 
+	mbnntp:
+		Removed some debug logging.
+
 
 v0.71.5		18-Aug-2005 - 02-Sep-2005
 

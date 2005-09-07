@@ -71,7 +71,6 @@ void auth_user(char *cmd)
     }
     memset(&username, 0, sizeof(username));
     strncpy(username, p, 8);
-    Syslog('n', "Cache username \"%s\"", printable(username, 0));
     send_nntp("381 More authentication information required");
     got_username = TRUE;
 }

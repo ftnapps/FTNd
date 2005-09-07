@@ -3,7 +3,7 @@
  * $Id$
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -83,7 +83,7 @@ static int tty_read(char *buf, int size, int tot)
 	    tty_status=STAT_HANGUP;
 	    WriteError("tty_read: hanged_up flag");
 	} else {
-	    WriteError("$tty_read: select for read failed");
+	    WriteError("tty_read: select for read failed");
 	    tty_status = STAT_ERROR;
 	}
     } else if (rc == 0) {
