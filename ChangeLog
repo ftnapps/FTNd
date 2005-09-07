@@ -12,6 +12,7 @@ v0.71.6		02-Sep-2005
 
 	mbnntp:
 		Removed some debug logging.
+		Added leading zeros for generated msgid's.
 
 
 v0.71.5		18-Aug-2005 - 02-Sep-2005

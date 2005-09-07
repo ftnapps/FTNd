@@ -100,7 +100,7 @@ char *make_msgid(char *msgid)
 {
     static char	buf[100];
 
-    snprintf(buf, 100, "<%8lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
+    snprintf(buf, 100, "<%08lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
     return buf;
 }
 
