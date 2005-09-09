@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 03-Seo-2005</h5></div>
+<div align="right"><h5>Last update 09-Seo-2005</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -60,9 +60,6 @@ layout looks like this:<br>
 /opt/mbse/home                 0770  Users homedirectories
 /opt/mbse/home/bbs             0770  Newuser account
 /opt/mbse/html                 0755  HTML documentation
-/opt/mbse/italian/macro        0750  Italian macro files
-/opt/mbse/italian/menus        0750  Italian menu files
-/opt/mbse/italian/txtfiles     0770  Italian ANSI files
 /opt/mbse/log                  0770  MBSE BBS logfiles
 /opt/mbse/share/doc            0750  Generated sitedocs
 /opt/mbse/share/doc/html       0750  Generated html sitedocs
@@ -73,7 +70,6 @@ layout looks like this:<br>
 /opt/mbse/share/int/es         0750  Spanish
 /opt/mbse/share/int/fr         0750  French
 /opt/mbse/share/int/gl         0750  Galacian
-/opt/mbse/share/int/it         0750  Italian
 /opt/mbse/share/int/nl         0750  Dutch
 /opt/mbse/spanish/macro        0750  Spanish macro files
 /opt/mbse/spanish/menus        0750  Spanish menu files

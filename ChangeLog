@@ -3,6 +3,13 @@ $Id$
 
 v0.71.6		02-Sep-2005
 
+	upgrade:
+		In mbsetup menu 8.2 remove the Italian language.
+		In /opt/mbse "rm -rf italian".
+		In /opt/mbse/etc "rm italian.lang".
+		Or keep it, but you need to take care of updating this language
+		yourself.
+
 	general:
 		Due to lack of maintainers italian language support is dropped.
 
@@ -16,6 +23,10 @@ v0.71.6		02-Sep-2005
 	mbnntp:
 		Removed some debug logging.
 		Added leading zeros for generated msgid's.
+
+	mbsetup:
+		Removed Italian default record. Rewrote code to create default
+		language records.
 
 
 v0.71.5		18-Aug-2005 - 02-Sep-2005

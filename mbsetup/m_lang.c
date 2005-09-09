@@ -42,110 +42,64 @@
 int	LangUpdated = 0;
 
 
+void AddLang(char *, char *, char *, FILE *);
+void AddLang(char *Name, char *Key, char *Path, FILE *fil)
+{
+    memset(&lang, 0, sizeof(lang));
+    snprintf(lang.Name,      30, "%s", Name);
+    snprintf(lang.LangKey,    2, "%s", Key);
+    snprintf(lang.MenuPath,  81, "%s/%s/menus", getenv("MBSE_ROOT"), Path);
+    snprintf(lang.TextPath,  81, "%s/%s/txtfiles", getenv("MBSE_ROOT"), Path);
+    snprintf(lang.MacroPath, 81, "%s/%s/macro", getenv("MBSE_ROOT"), Path);
+    snprintf(lang.Filename,  81, "%s.lang", Path);
+    lang.Available = TRUE;
+    fwrite(&lang, sizeof(lang), 1, fil);
+}
+
+
+
 /*
  * Count nr of lang records in the database.
  * Creates the database if it doesn't exist.
  */
 int CountLanguage(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count;
+    FILE    *fil;
+    char    ffile[PATH_MAX];
+    int	    count = 0;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "r")) == NULL) {
-		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created new %s", ffile);
-			langhdr.hdrsize = sizeof(langhdr);
-			langhdr.recsize = sizeof(lang);
-			fwrite(&langhdr, sizeof(langhdr), 1, fil);
+    snprintf(ffile, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "r")) == NULL) {
+	if ((fil = fopen(ffile, "a+")) != NULL) {
+	    Syslog('+', "Created new %s", ffile);
+	    langhdr.hdrsize = sizeof(langhdr);
+	    langhdr.recsize = sizeof(lang);
+	    fwrite(&langhdr, sizeof(langhdr), 1, fil);
 
-			/*
-			 *  Setup default records
-			 */
-			memset(&lang, 0, sizeof(lang));
-			snprintf(lang.Name,      30, "English");
-			snprintf(lang.LangKey,    2, "E");
-			snprintf(lang.MenuPath,  81, "%s/english/menus", getenv("MBSE_ROOT"));
-			snprintf(lang.TextPath,  81, "%s/english/txtfiles", getenv("MBSE_ROOT"));
-			snprintf(lang.MacroPath, 81, "%s/english/macro", getenv("MBSE_ROOT"));
-			snprintf(lang.Filename,  81, "english.lang");
-			lang.Available = TRUE;
-			fwrite(&lang, sizeof(lang), 1, fil);
+	    /*
+	     *  Setup default records
+	     */
+	    AddLang((char *)"English",    (char *)"E", (char *)"english", fil);	count++;
+	    AddLang((char *)"Nederlands", (char *)"N", (char *)"dutch",   fil);	count++;
+	    AddLang((char *)"Spanish",    (char *)"S", (char *)"spanish", fil);	count++;
+	    AddLang((char *)"Galego",     (char *)"G", (char *)"galego",  fil); count++;
+	    AddLang((char *)"Deutsch",    (char *)"D", (char *)"german",  fil); count++;
+	    AddLang((char *)"French",     (char *)"F", (char *)"french",  fil); count++;
+	    AddLang((char *)"Chinese",    (char *)"C", (char *)"chinese", fil); count++;
+	    
+	    fclose(fil);
+	    chmod(ffile, 0640);
+	    return count;
+	} else
+	    return -1;
+    }
 
-                        memset(&lang, 0, sizeof(lang));
-                        snprintf(lang.Name,      30, "Nederlands");
-                        snprintf(lang.LangKey,    2, "N");
-                        snprintf(lang.MenuPath,  81, "%s/dutch/menus", getenv("MBSE_ROOT"));
-                        snprintf(lang.TextPath,  81, "%s/dutch/txtfiles", getenv("MBSE_ROOT"));
-                        snprintf(lang.MacroPath, 81, "%s/dutch/macro", getenv("MBSE_ROOT"));
-                        snprintf(lang.Filename,  81, "dutch.lang");
-                        lang.Available = TRUE;
-                        fwrite(&lang, sizeof(lang), 1, fil);
+    fread(&langhdr, sizeof(langhdr), 1, fil);
+    fseek(fil, 0, SEEK_END);
+    count = (ftell(fil) - langhdr.hdrsize) / langhdr.recsize;
+    fclose(fil);
 
-                        memset(&lang, 0, sizeof(lang));
-                        snprintf(lang.Name,      30, "Spanish");
-                        snprintf(lang.LangKey,    2, "S");
-                        snprintf(lang.MenuPath,  81, "%s/spanish/menus", getenv("MBSE_ROOT"));
-                        snprintf(lang.TextPath,  81, "%s/spanish/txtfiles", getenv("MBSE_ROOT"));
-                        snprintf(lang.MacroPath, 81, "%s/spanish/macro", getenv("MBSE_ROOT"));
-                        snprintf(lang.Filename,  81, "spanish.lang");
-                        lang.Available = TRUE;
-                        fwrite(&lang, sizeof(lang), 1, fil);
-
-			memset(&lang, 0, sizeof(lang));
-                        snprintf(lang.Name,      30, "Galego");
-			snprintf(lang.LangKey,    2, "G");
-			snprintf(lang.MenuPath,  81, "%s/galego/menus", getenv("MBSE_ROOT"));
-			snprintf(lang.TextPath,  81, "%s/galego/txtfiles", getenv("MBSE_ROOT"));
-			snprintf(lang.MacroPath, 81, "%s/galego/macro", getenv("MBSE_ROOT"));
-			snprintf(lang.Filename,  81, "galego.lang");
-			lang.Available = TRUE;
-			fwrite(&lang, sizeof(lang), 1, fil);
-
-			memset(&lang, 0, sizeof(lang));
-			snprintf(lang.Name,      30, "Deutsch");
-			snprintf(lang.LangKey,    2, "D");
-			snprintf(lang.MenuPath,  81, "%s/german/menus", getenv("MBSE_ROOT"));
-			snprintf(lang.TextPath,  81, "%s/german/txtfiles", getenv("MBSE_ROOT"));
-			snprintf(lang.MacroPath, 81, "%s/german/macro", getenv("MBSE_ROOT"));
-			snprintf(lang.Filename,  81, "german.lang");
-			lang.Available = TRUE;
-			fwrite(&lang, sizeof(lang), 1, fil);
-
-			memset(&lang, 0, sizeof(lang));
-			snprintf(lang.Name,      30, "French");
-			snprintf(lang.LangKey,    2, "F");
-			snprintf(lang.MenuPath,  81, "%s/french/menus", getenv("MBSE_ROOT"));
-			snprintf(lang.TextPath,  81, "%s/french/txtfiles", getenv("MBSE_ROOT"));
-			snprintf(lang.MacroPath, 81, "%s/french/macro", getenv("MBSE_ROOT"));
-			snprintf(lang.Filename,  81, "french.lang");
-			lang.Available = TRUE;  
-			fwrite(&lang, sizeof(lang), 1, fil);
-
-                        memset(&lang, 0, sizeof(lang));
-			snprintf(lang.Name,      30, "Chinese");
-			snprintf(lang.LangKey,    2, "C");
-			snprintf(lang.MenuPath,  81, "%s/chinese/menus", getenv("MBSE_ROOT"));
-			snprintf(lang.TextPath,  81, "%s/chinese/txtfiles", getenv("MBSE_ROOT"));
-			snprintf(lang.MacroPath, 81, "%s/chinese/macro", getenv("MBSE_ROOT"));
-			snprintf(lang.Filename,  81, "chinese.lang");
-			lang.Available = TRUE;  
-			fwrite(&lang, sizeof(lang), 1, fil);
-
-			fclose(fil);
-			chmod(ffile, 0640);
-			return 5;
-		} else
-			return -1;
-	}
-
-	fread(&langhdr, sizeof(langhdr), 1, fil);
-	fseek(fil, 0, SEEK_END);
-	count = (ftell(fil) - langhdr.hdrsize) / langhdr.recsize;
-	fclose(fil);
-
-	return count;
+    return count;
 }
 
 
