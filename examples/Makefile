@@ -29,7 +29,7 @@ help:
 		@echo ""
 		@echo "make macros                Force (re)installation of all macro templates"
 		@echo ""
-		@echo "You may replace the word english above with spanish galego german dutch italian"
+		@echo "You may replace the word english above with spanish galego german dutch"
 
 english-menus:
 		@tar xfC menus-en.tar ${PREFIX}/english/menus
@@ -76,10 +76,8 @@ dutch:		dutch-macros
 
 galego:
 
-italian:
 
-
-install-force:	english spanish dutch german italian galego
+install-force:	english spanish dutch german galego
 
 macros:		english-macros spanish-macros german-macros dutch-macros
 
