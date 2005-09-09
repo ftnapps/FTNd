@@ -3,6 +3,9 @@ $Id$
 
 v0.71.6		02-Sep-2005
 
+	general:
+		Due to lack of maintainers italian language support is dropped.
+
 	mbcico:
 		Changed compression state logic.
 

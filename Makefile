@@ -66,10 +66,6 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/english/txtfiles
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/english/menus
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/english/macro
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/italian
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/italian/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/italian/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/italian/macro
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}/share
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}/share/doc
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}/share/doc/html

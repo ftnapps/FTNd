@@ -84,16 +84,6 @@ int CountLanguage(void)
                         fwrite(&lang, sizeof(lang), 1, fil);
 
                         memset(&lang, 0, sizeof(lang));
-                        snprintf(lang.Name,      30, "Italian");
-                        snprintf(lang.LangKey,    2, "I");
-                        snprintf(lang.MenuPath,  81, "%s/italian/menus", getenv("MBSE_ROOT"));
-                        snprintf(lang.TextPath,  81, "%s/italian/txtfiles", getenv("MBSE_ROOT"));
-                        snprintf(lang.MacroPath, 81, "%s/italian/macro", getenv("MBSE_ROOT"));
-                        snprintf(lang.Filename,  81, "italian.lang");
-                        lang.Available = TRUE;
-                        fwrite(&lang, sizeof(lang), 1, fil);
-
-                        memset(&lang, 0, sizeof(lang));
                         snprintf(lang.Name,      30, "Spanish");
                         snprintf(lang.LangKey,    2, "S");
                         snprintf(lang.MenuPath,  81, "%s/spanish/menus", getenv("MBSE_ROOT"));
@@ -145,7 +135,7 @@ int CountLanguage(void)
 
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 6;
+			return 5;
 		} else
 			return -1;
 	}
