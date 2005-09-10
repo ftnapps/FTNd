@@ -109,10 +109,6 @@ char *aread(char *s, int count, FILE *fp)
 			next=0;
 			break;
 
-	    case 0x8d:	s[i]=' ';
-			i++;
-			break;
-
 	    case '\0':	at_zero=1;
 			next=0;
 			break;
