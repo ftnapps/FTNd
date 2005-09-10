@@ -52,6 +52,7 @@
 #include "dietifna.h"
 #include "yoohoo.h"
 #include "inbound.h"
+#include "callstat.h"
 
 
 /*------------------------------------------------------------------------*/
@@ -113,6 +114,7 @@ typedef struct   _Hello {
 
 extern int	Loaded;
 extern pid_t	mypid;
+extern int	laststat;
 
 Hello hello2;
 Hello gethello2(unsigned char[]);
@@ -124,6 +126,7 @@ int rx_yoohoo(void)
     int		    rc, protect = FALSE;
     unsigned short  capabilities,localcaps;
     char	    *pwd = NULL;
+    callstat	    *cst;
 
     pwd = NULL;
     y_akas = 0;
@@ -169,6 +172,11 @@ int rx_yoohoo(void)
 	    strncpy(history.location, nlent->location, 35);
 	    UserCity(mypid, nlent->sysop, nlent->location);
 	}
+	cst = getstatus(remote->addr);
+	if (cst->trystat)
+	    laststat = cst->trystat;
+	Syslog('s', "Last session status %d", laststat);
+
 	if (nlent) 
 	    rdoptions(Loaded);
 

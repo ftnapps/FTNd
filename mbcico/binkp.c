@@ -49,6 +49,7 @@
 #include "config.h"
 #include "md5b.h"
 #include "inbound.h"
+#include "callstat.h"
 
 
 /*
@@ -72,6 +73,7 @@ extern int	Loaded;
 extern pid_t	mypid;
 extern struct sockaddr_in   peeraddr;
 extern int	most_debug;
+extern int	laststat;
 
 
 extern unsigned long	sentbytes;
@@ -211,6 +213,7 @@ struct binkprec {
 };
 
 
+
 #ifdef	USE_EXPERIMENT
 void	*z_idata = NULL;			/* Data for zstream                 */
 void	*z_odata = NULL;			/* Data for zstream                 */
@@ -257,8 +260,8 @@ static int  file_transfer(void);		    /* File transfer state	    */
 
 int binkp(int role)
 {
-    int	    rc = 0;
-
+    int		rc = 0;
+    
     Syslog('+', "Binkp: start session");
     memset(&bp, 0, sizeof(bp));
     bp.Role = role;
@@ -308,6 +311,7 @@ int binkp(int role)
 #endif
 #endif
     bp.buggyIrex = FALSE;
+    laststat = 0;
 
     if (role == 1) {
 	if (orgbinkp()) {
@@ -400,6 +404,7 @@ SM_EDECL
     unsigned long   bufl;
     fa_list	    **tmp, *tmpa;
     faddr	    *fa, ra;
+    callstat	    *cst;
 
 SM_START(ConnInit)
 
@@ -476,6 +481,9 @@ SM_STATE(WaitAddr)
 			    }
 			}
 			if (!dupe) {
+			    cst = getstatus(fa);
+			    if (cst->trystat)
+				laststat = cst->trystat;
 			    *tmp = (fa_list*)malloc(sizeof(fa_list));
 			    (*tmp)->next = NULL;
 			    (*tmp)->addr = fa;
@@ -633,6 +641,7 @@ SM_STATE(WaitOk)
 
 SM_STATE(Opts)
 
+    Syslog('b', "Binkp: last session was %d", laststat);
     IsDoing("Binkp to %s", ascfnode(remote->addr, 0xf));
     binkp_set_comp_state();
     SM_SUCCESS;
@@ -670,6 +679,7 @@ SM_EDECL
     unsigned long   bufl;
     fa_list	    **tmp, *tmpa;
     faddr	    *fa;
+    callstat	    *cst;
 
 SM_START(ConnInit)
 
@@ -748,6 +758,9 @@ SM_STATE(WaitAddr)
 			    }
 			}
 			if (!dupe) {
+			    cst = getstatus(fa);
+			    if (cst->trystat)
+				laststat = cst->trystat;
 			    *tmp = (fa_list*)malloc(sizeof(fa_list));
 			    (*tmp)->next = NULL;
 			    (*tmp)->addr = fa;
@@ -927,7 +940,8 @@ SM_STATE(Opts)
 
     binkp_send_comp_opts();
     binkp_set_comp_state();
-
+    Syslog('b', "Binkp: last session status %d", laststat);
+    
     SM_SUCCESS;
 
 SM_END

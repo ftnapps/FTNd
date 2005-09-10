@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,6 +53,7 @@ node	*nlent = NULL;
 fa_list *remote = NULL;
 int	session_flags;
 int	remote_flags;
+int	laststat = 0;		    /* Last session status with remote	*/
 
 int	tx_define_type(void);
 int	rx_define_type(void);

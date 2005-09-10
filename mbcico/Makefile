@@ -90,7 +90,7 @@ zmmisc.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h zmode
 zmrle.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h zmodem.h
 zmrecv.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h lutil.h ttyio.h session.h zmodem.h config.h emsi.h openfile.h filelist.h openport.h
 zmsend.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h zmodem.h lutil.h emsi.h filelist.h
-binkp.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h ttyio.h session.h statetbl.h config.h emsi.h openfile.h respfreq.h filelist.h opentcp.h rdoptions.h lutil.h binkp.h config.h md5b.h inbound.h
+binkp.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h ttyio.h session.h statetbl.h config.h emsi.h openfile.h respfreq.h filelist.h opentcp.h rdoptions.h lutil.h binkp.h config.h md5b.h inbound.h callstat.h
 md5b.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h lutil.h md5b.h
 xmsend.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h session.h ttyio.h statetbl.h xmsend.h m7send.h filelist.h filetime.h
 xmrecv.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h session.h ttyio.h statetbl.h config.h lutil.h openfile.h m7recv.h xmrecv.h filelist.h filetime.h
@@ -108,7 +108,7 @@ openfile.o: ../config.h ../lib/mbselib.h config.h lutil.h openfile.h
 openport.o: ../config.h ../lib/mbselib.h ulock.h ttyio.h mbcico.h openport.h
 opentcp.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h session.h ttyio.h openport.h opentcp.h
 rdoptions.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h session.h config.h
-yoohoo.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h statetbl.h ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h dietifna.h yoohoo.h inbound.h
+yoohoo.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h statetbl.h ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h dietifna.h yoohoo.h inbound.h callstat.h
 recvbark.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h statetbl.h recvbark.h respfreq.h filelist.h
 respfreq.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/msg.h ../lib/users.h ../lib/mbsedb.h session.h lutil.h config.h atoul.h respfreq.h filelist.h
 sendbark.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h statetbl.h sendbark.h xmrecv.h
@@ -123,7 +123,7 @@ telnet.o: ../config.h ../lib/mbselib.h telnet.h
 ttyio.o: ../config.h ../lib/mbselib.h ttyio.h lutil.h
 lutil.o: ../config.h ../lib/mbselib.h lutil.h
 scanout.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h config.h scanout.h lutil.h
-emsi.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h ttyio.h session.h statetbl.h config.h emsi.h emsidat.h hydra.h rdoptions.h tcp.h wazoo.h inbound.h
+emsi.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h ttyio.h session.h statetbl.h config.h emsi.h emsidat.h hydra.h rdoptions.h tcp.h wazoo.h inbound.h callstat.h
 ulock.o: ../config.h ../lib/mbselib.h
 callstat.o: ../config.h ../lib/mbselib.h callstat.h
 session.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h statetbl.h emsi.h ftsc.h session.h yoohoo.h mbcico.h binkp.h callstat.h inbound.h opentcp.h telnet.h

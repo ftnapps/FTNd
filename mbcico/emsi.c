@@ -44,6 +44,7 @@
 #include "tcp.h"
 #include "wazoo.h"
 #include "inbound.h"
+#include "callstat.h"
 
 
 #define LOCAL_PROTOS (PROT_ZMO | PROT_ZAP | PROT_HYD | PROT_TCP)
@@ -53,6 +54,7 @@ static int txemsi(void);
 static char *intro;
 static int caller;
 
+extern int	laststat;
 extern int	most_debug;
 extern pid_t	mypid;
 
@@ -70,10 +72,11 @@ int	emsi_akas = 0;
 
 int rx_emsi(char *data)
 {
-    int	    rc, protect = FALSE;
-    fa_list *tmr;
-    int	    denypw=0;
-
+    int		rc, protect = FALSE;
+    fa_list	*tmr;
+    int		denypw=0;
+    callstat	*cst;
+    
     emsi_local_lcodes = LCODE_RH1;
     emsi_remote_lcodes=0;
 
@@ -126,12 +129,18 @@ int rx_emsi(char *data)
 
     emsi_local_password = NULL;
 
-    for (tmr = remote; tmr; tmr = tmr->next)
+    for (tmr = remote; tmr; tmr = tmr->next) {
 	if (((nlent = getnlent(tmr->addr))) && (nlent->pflag != NL_DUMMY)) {
 	    Syslog('+', "Remote is a listed system");
 	    UserCity(mypid, nlent->sysop, nlent->location);
 	    break;
 	}
+	cst = getstatus(tmr->addr);
+	if (cst->trystat)
+	    laststat = cst->trystat;
+    }
+    Syslog('s', "Last connection status %d", laststat);
+
     if (nlent) 
 	rdoptions(TRUE);
 
@@ -188,8 +197,6 @@ int rx_emsi(char *data)
 	return rxtcp();
     else if (emsi_local_protos & PROT_HYD)
 	return hydra(0);
-//  else if (emsi_local_protos & PROT_JAN)
-//	return janus();
     else 
 	return rxwazoo();
 }
@@ -198,8 +205,8 @@ int rx_emsi(char *data)
 
 int tx_emsi(char *data)
 {
-    int	rc;
-
+    int	    rc;
+    
     emsi_local_lcodes = LCODE_PUA | LCODE_RH1;
     emsi_remote_lcodes = 0;
 

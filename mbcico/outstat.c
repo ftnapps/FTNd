@@ -528,7 +528,7 @@ int pollnode(faddr *addr, int stop)
 		(cst->trystat == MBERR_UNKNOWN_SESSION) ||
 		(cst->trystat == MBERR_NO_PORT_AVAILABLE) ||
 		(cst->trystat == MBERR_MODEM_ERROR)) {
-		putstatus(addr, 0, 0);
+		putstatus(addr, 0, -1);
 	    }
 	    CreateSema((char *)"scanout");
 	}
@@ -547,7 +547,7 @@ int reset(faddr *addr)
     if (addr == NULL)
 	return 0;
 
-    putstatus(addr, 0, 0);
+    putstatus(addr, 0, -1);
     Syslog('+', "Reset try-counter for %s", ascfnode(addr, 0x1f));
     if (!do_quiet)
 	printf("Reset try-counter for %s\n", ascfnode(addr, 0x1f));

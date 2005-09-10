@@ -53,6 +53,11 @@ callstat *getstatus(faddr *addr)
 
 
 
+/*
+ * If sts == 0, set last status Ok.
+ * if sts == -1, leave last status as it is.
+ * else, store status and set random next call time.
+ */
 void putstatus(faddr *addr, int incr, int sts)
 {
     FILE	    *fp;
@@ -61,7 +66,7 @@ void putstatus(faddr *addr, int incr, int sts)
 
     cst = getstatus(addr);
     if ((fp = fopen(stsname(addr), "w"))) {
-	if (sts == 0) {
+	if ((sts == 0) || (sts == -1)) {
 	    j = cst->tryno = 0;
 	} else {
 	    cst->tryno += incr;
@@ -75,7 +80,8 @@ void putstatus(faddr *addr, int incr, int sts)
 	    Syslog('d', "Next call allowed over %d seconds", j);
 	}
 
-	cst->trystat = sts;
+	if (sts != -1)
+	    cst->trystat = sts;
 	cst->trytime = time(NULL) + j;
 
 	fwrite(cst, sizeof(callstat), 1, fp);
