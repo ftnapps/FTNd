@@ -15,13 +15,14 @@ v0.71.6		02-Sep-2005
 
 	mbcico:
 		Changed compression state logic.
-		Removed soft-cr filter during message import.
 		Record previous session state so we can better react on failed
 		sessions.
+		Added detection of remote options NR, ND and NDA.
 
 	mbfido:
 		If some newsarticles are not accepted for post, don't treat
 		this as fatal and clear the sendqueue.
+		Removed soft-cr filter during message import.
 
 	mbnntp:
 		Removed some debug logging.

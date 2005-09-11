@@ -210,6 +210,12 @@ struct binkprec {
     int			BZ2they;
 #endif
 #endif
+    int			NRwe;			/* NR mode			    */
+    int			NRthey;
+    int			NDwe;			/* ND mode			    */
+    int			NDthey;
+    int			NDAwe;			/* NDA mode			    */
+    int			NDAthey;
 };
 
 
@@ -312,6 +318,12 @@ int binkp(int role)
 #endif
     bp.buggyIrex = FALSE;
     laststat = 0;
+    bp.NRwe = No;
+    bp.NRthey = No;
+    bp.NDwe = No;
+    bp.NDthey = No;
+    bp.NDAwe = No;
+    bp.NDAthey = No;
 
     if (role == 1) {
 	if (orgbinkp()) {
@@ -2223,7 +2235,7 @@ void parse_m_nul(char *msg)
 		    bp.MD_Challenge = MD_getChallenge(q, NULL);
 		}
 #ifdef	USE_EXPERIMENT
-	    } else if (strncmp(q, (char *)"EXTCMD", 6) == 0) {
+	    } else if (strcmp(q, (char *)"EXTCMD") == 0) {
 		Syslog('b', "Binkp: remote wants EXTCMD mode");
 		if (bp.EXTCMDthey == Can) {
 		    bp.EXTCMDthey = Want;
@@ -2231,7 +2243,7 @@ void parse_m_nul(char *msg)
 		}
 
 #ifdef	HAVE_BZLIB_H
-	    } else if (strncmp(q, (char *)"BZ2", 3) == 0) {
+	    } else if (strcmp(q, (char *)"BZ2") == 0) {
 		Syslog('b', "Binkp: remote wants BZ2 mode");
 		if (bp.BZ2they == Can) {
 		    bp.BZ2they = Want;
@@ -2239,7 +2251,7 @@ void parse_m_nul(char *msg)
 		}
 #endif
 #ifdef	HAVE_ZLIB_H
-	    } else if (strncmp(q, (char *)"GZ", 2) == 0) {
+	    } else if (strcmp(q, (char *)"GZ") == 0) {
 		Syslog('b', "Binkp: remote wants GZ mode");
 		if (bp.GZthey == Can) {
 		    bp.GZthey = Want;
@@ -2248,13 +2260,22 @@ void parse_m_nul(char *msg)
 #endif
 #endif
 #ifdef	HAVE_ZLIB_H
-	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
+	    } else if (strcmp(q, (char *)"PLZ") == 0) {
 		Syslog('b', "Binkp: remote wants PLZ mode");
 		if (bp.PLZthey == Can) {
 		    bp.PLZthey = Want;
 		    binkp_set_comp_state();
 		}
 #endif
+	    } else if (strcmp(q, (char *)"NR") == 0) {
+		Syslog('b', "Binkp: remote wants NR mode, NOT SUPPORTED HERE YET");
+		bp.NRthey = Want;
+	    } else if (strcmp(q, (char *)"NDA") == 0) {
+		Syslog('b', "Binkp: remote wants NDA mode, NOT SUPPORTED HERE YET");
+		bp.NDAthey = Want;
+	    } else if (strcmp(q, (char *)"ND") == 0) {
+		Syslog('b', "Binkp: remote wants ND mode, NOT SUPPORTED HERE YET");
+		bp.NDthey = Want;
 	    }
 	}
 
