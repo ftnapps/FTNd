@@ -32,6 +32,9 @@ v0.71.6		02-Sep-2005
 		Removed Italian default record. Rewrote code to create default
 		language records.
 
+	mbtask:
+		Code cleanup and memory optimisation.
+
 
 v0.71.5		18-Aug-2005 - 02-Sep-2005
 

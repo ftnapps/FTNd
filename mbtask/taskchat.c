@@ -131,10 +131,11 @@ void system_msg(pid_t pid, char *msg)
  */
 void system_shout(const char *format, ...)
 {
-    char        buf[512];
+    char        *buf;
     va_list     va_ptr;
     usr_list	*tmpu;
 
+    buf = calloc(512, sizeof(char));
     va_start(va_ptr, format);
     vsnprintf(buf, 512, format, va_ptr);
     va_end(va_ptr);
@@ -143,6 +144,8 @@ void system_shout(const char *format, ...)
 	if (tmpu->pid) {
 	    system_msg(tmpu->pid, buf);
 	}
+
+    free(buf);
 }
 
 
@@ -350,13 +353,13 @@ void chat_cleanuser(pid_t pid)
  */
 void chat_msg(char *channel, char *nick, char *msg)
 {
-    char	buf[128], *logm;
+    char	buf[79], *logm;
     usr_list	*tmpu;
 
     if (nick == NULL)
-	snprintf(buf, 128, "%s", msg);
+	snprintf(buf, 79, "%s", msg);
     else
-	snprintf(buf, 128, "<%s> %s", nick, msg);
+	snprintf(buf, 79, "<%s> %s", nick, msg);
 
     if (CFG.iAutoLog && strlen(CFG.chat_log)) {
 	logm = calloc(PATH_MAX, sizeof(char));
@@ -364,7 +367,6 @@ void chat_msg(char *channel, char *nick, char *msg)
 	ulog(logm, (char *)"+", channel, (char *)"-1", buf);
 	free(logm);
     }
-    buf[79] = '\0';
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	if (strlen(tmpu->channel) && (strcmp(tmpu->channel, channel) == 0)) {
@@ -457,7 +459,7 @@ char *chat_connect(char *data)
 
 char *chat_close(char *data)
 {
-    static char buf[200];
+    static char buf[81];
     char	*pid;
     usr_list	*tmpu;
 
@@ -474,12 +476,12 @@ char *chat_close(char *data)
 	    send_all("QUIT %s@%s Leaving chat\r\n", tmpu->name, CFG.myfqdn);
 	    del_user(&users, CFG.myfqdn, tmpu->name);
 	    Syslog('-', "Closing chat for pid %s", pid);
-	    snprintf(buf, 200, "100:0;");
+	    snprintf(buf, 81, "100:0;");
 	    return buf;
 	}
     }
     Syslog('-', "Pid %s was not connected to chatserver");
-    snprintf(buf, 200, "100:1,*** ERROR - Not connected to server;");
+    snprintf(buf, 81, "100:1,*** ERROR - Not connected to server;");
     return buf;
 }
 

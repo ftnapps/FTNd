@@ -54,13 +54,14 @@ extern struct _fidonet          fidonet;
 static int scan_dir(int (*)(faddr*, char, int, char *), char *, int);
 static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispoint)
 {
-    char	    fname[PATH_MAX], flavor = '?';
+    char	    *fname, flavor = '?';
     DIR		    *dp = NULL;
     struct dirent   *de;
     int		    rc = 0, isflo, fage;
     time_t	    t_start;
 
     t_start = time(NULL);
+    fname = calloc(PATH_MAX, sizeof(char));
 
     if ((dp = opendir(dname)) == NULL) {
 	Syslog('-', "Creating directory %s", dname);
@@ -71,6 +72,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 	(void)mkdirs(fname, 0770);
 	if ((dp = opendir(dname)) == NULL) {
 	    Syslog('o' ,"\"%s\" cannot be opened, proceed",MBSE_SS(dname));
+	    free(fname);
 	    return 0;
 	}
     }
@@ -164,6 +166,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 
 exout:
     closedir(dp);
+    free(fname);
     return rc;
 }
 

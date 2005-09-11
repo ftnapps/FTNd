@@ -1397,7 +1397,8 @@ void *scheduler(void)
 				    calllist[call_entry].addr.node, calllist[call_entry].addr.net, 
 				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			} else {
-			    snprintf(opts, 41, "%sf%u.n%u.z%u.%s", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
+			    snprintf(opts, 41, "%sf%u.n%u.z%u.%s", port, calllist[call_entry].addr.node, 
+				    calllist[call_entry].addr.net,
 				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			}
 			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
@@ -1446,8 +1447,6 @@ int main(int argc, char **argv)
 	    signal(i, (void (*))start_shutdown);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);
-//        else if ((i != SIGKILL) && (i != SIGSTOP))
-//            signal(i, SIG_IGN);
     }
 
     /*

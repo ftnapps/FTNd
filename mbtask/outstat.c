@@ -74,7 +74,8 @@ int load_node(fidoaddr n)
 	memset(&nodes, 0, sizeof(nodes));
 	return FALSE;
     }
- 
+    free(temp);
+
     fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
     while (fread(&nodes, nodeshdr.recsize, 1, fp) == 1) {
 	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
@@ -83,7 +84,6 @@ int load_node(fidoaddr n)
 	    if ((n.zone == nodes.Aka[i].zone) && (n.net == nodes.Aka[i].net) &&
 		(n.node == nodes.Aka[i].node) && (n.point == nodes.Aka[i].point)) {
 		fclose(fp);
-		free(temp);
 		return TRUE;
 	    }
 	}
@@ -91,7 +91,6 @@ int load_node(fidoaddr n)
 
     fclose(fp);
     memset(&nodes, 0, sizeof(nodes));
-    free(temp);
     return FALSE;    
 }
 
@@ -457,8 +456,6 @@ int outstat()
 	}
 
 	rc = load_node(tmp->addr);
-//	Syslog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", fido2str(tmp->addr, 0x0f), rc?"true":"false",
-//		    nodes.NoCall?"True":"False", (itnmask + ibnmask + ifcmask)?"False":"True");
 
 	/*
 	 * Zone Mail Hours, only use Fidonet Hours.
@@ -533,7 +530,6 @@ int outstat()
 		    T_window = TRUE;
 	    }
 	}
-//	Syslog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
 	strcpy(flstr,"...... .... ..");
 
 	/*

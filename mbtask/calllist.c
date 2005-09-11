@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - calllist
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -125,7 +125,6 @@ int check_calllist(void)
 		}
 	    }
 	}
-	Syslog('o', "%d system%s to call", call_work, (call_work == 1)?"":"s");
     } else {
 	if (s_scanout)
 	    sem_set((char *)"scanout", FALSE);

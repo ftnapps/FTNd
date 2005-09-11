@@ -262,7 +262,6 @@ int ping_receive(struct in_addr addr)
 	    Syslog('?', "$poll/select failed");
 	return -3; 
     }
-//    Syslog('p', "poll_thread: poll interrupted rc=%d events=%04x", rc, pfd.revents);
 
     if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
 	sl = sizeof(ffrom);
@@ -336,8 +335,6 @@ void *ping_thread(void *dummy)
     static char     pingaddress[41];
     static time_t   pingsend;
     time_t	    now;
-
-printf("Start ping thread\n");
 
     Syslog('+', "Starting ping thread");
     pingresult[1] = pingresult[2] = FALSE;
@@ -455,7 +452,6 @@ printf("Start ping thread\n");
 	}
     }
 
-    Syslog('p', "Ping thread closing socket %d", ping_isocket);
     if ((rc = close(ping_isocket))) {
 	WriteError("$ping thread error socket close");
     }

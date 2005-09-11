@@ -483,7 +483,7 @@ void add_path(char *lpath)
 void *disk_thread(void)
 {
     FILE	*fp;
-    char	*temp;
+    char	*temp = NULL;
     mfs_list	*tmp;
     int		rc;
 
@@ -592,7 +592,7 @@ void *disk_thread(void)
 
 	    if (T_Shutdown)
 		break;
-	    
+
 	    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
@@ -654,6 +654,7 @@ void *disk_thread(void)
 		fclose(fp);
 	    }
 	    free(temp);
+	    temp = NULL;
 	    Syslog('d', "All directories added");
 
 	    /*
@@ -682,6 +683,9 @@ void *disk_thread(void)
     }
 
     tidy_mfslist(&mfs);
+    if (temp)
+	free(temp);
+    temp = NULL;
     disk_run = FALSE;
     Syslog('+', "Disk thread stopped");
     pthread_exit(NULL);

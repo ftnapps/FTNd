@@ -183,15 +183,16 @@ void load_ports()
 void check_ports(void)
 {
     pp_list	*tpl;
-    char	lckname[256];
+    char	*lckname;
     FILE	*lf;
     int		tmppid, changed = FALSE;
     pid_t	rempid = 0;
 
     pots_free = isdn_free = 0;
+    lckname = calloc(PATH_MAX, sizeof(char));
 
     for (tpl = pl; tpl; tpl = tpl->next) {
-	snprintf(lckname, 256, "%s%s", LCKPREFIX, tpl->tty);
+	snprintf(lckname, PATH_MAX, "%s%s", LCKPREFIX, tpl->tty);
 	if ((lf = fopen(lckname, "r")) == NULL) {
 	    if (tpl->locked) {
 		tpl->locked = 0;
@@ -241,6 +242,7 @@ void check_ports(void)
 	    Syslog('p', "Free ports: pots=%d isdn=%d", pots_free, isdn_free);
 	}
     }
+    free(lckname);
 }
 
 

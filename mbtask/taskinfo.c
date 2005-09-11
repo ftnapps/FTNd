@@ -70,23 +70,24 @@ char *get_sysinfo(void)
 
 char *get_lastcallercount(void)
 {
-	static char		buf[SS_BUFSIZE];
-	char			*temp;
-	FILE			*fp;
+    static char	buf[41];
+    char	*temp;
+    FILE	*fp;
 
-	snprintf(buf, SS_BUFSIZE, "201:1,16;");
-	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "r")) == NULL) {
-		free(temp);
-		return buf;
-	}
-	fread(&LCALLhdr, sizeof(LCALLhdr), 1, fp);
-	fseek(fp, 0, SEEK_END);
-	snprintf(buf, SS_BUFSIZE, "100:1,%ld;", ((ftell(fp) - LCALLhdr.hdrsize) / LCALLhdr.recsize));
-	fclose(fp);
+    snprintf(buf, 41, "100:1,0;");
+    temp = calloc(PATH_MAX, sizeof(char));
+    snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return buf;
+    }
+    
+    fread(&LCALLhdr, sizeof(LCALLhdr), 1, fp);
+    fseek(fp, 0, SEEK_END);
+    snprintf(buf, 41, "100:1,%ld;", ((ftell(fp) - LCALLhdr.hdrsize) / LCALLhdr.recsize));
+    fclose(fp);
+    free(temp);
+    return buf;
 }
 
 

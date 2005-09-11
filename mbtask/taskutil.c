@@ -283,18 +283,22 @@ char *xstrcat(char *src, char *add)
 
 void CreateSema(char *sem)
 {
-    char    temp[PATH_MAX];
+    char    *temp;
     FILE    *fp;
     int	    oldmask;
 
+    temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
-    if (access(temp, F_OK) == 0)
+    if (access(temp, F_OK) == 0) {
+	free(temp);
 	return;
+    }
     oldmask = umask(002);
     if ((fp = fopen(temp, "w")))
 	fclose(fp);
     else
         Syslog('?', "Can't create semafore %s", temp);
+    free(temp);
     umask(oldmask);
 }
 
@@ -302,16 +306,18 @@ void CreateSema(char *sem)
 
 void TouchSema(char *sem)
 {
-    char    temp[PATH_MAX];
+    char    *temp;
     FILE    *fp;
     int	    oldmask;
 
+    temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     oldmask = umask(002);
-    if ((fp = fopen(temp, "w")))
+    if ((fp = fopen(temp, "w"))) {
 	fclose(fp);
-    else
+    } else
         Syslog('?', "Can't touch semafore %s", temp);
+    free(temp);
     umask(oldmask);
 }
 
@@ -319,23 +325,31 @@ void TouchSema(char *sem)
 
 void RemoveSema(char *sem)
 {
-    char    temp[PATH_MAX];
+    char    *temp;
 
+    temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
-    if (access(temp, F_OK))
+    if (access(temp, F_OK)) {
+	free(temp);
 	return;
+    }
     if (unlink(temp) == -1)
         Syslog('?', "Can't remove semafore %s", temp);
+    free(temp);
 }
 
 
 
 int IsSema(char *sem)
 {
-    char    temp[PATH_MAX];
+    char    *temp;
+    int	    rc;
 
+    temp = calloc(PATH_MAX, sizeof(temp));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
-    return (access(temp, F_OK) == 0);
+    rc = (access(temp, F_OK) == 0);
+    free(temp);
+    return rc;
 }
 
 
