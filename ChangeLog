@@ -40,7 +40,7 @@ v0.71.5		18-Aug-2005 - 02-Sep-2005
 
 	mbcico:
 		Fixed crash on received m_get command.
-		The binkp compression methods FZ and BZ2 are only compiled in
+		The binkp compression methods GZ and BZ2 are only compiled in
 		if configured with --enable-experiment.
 
 	mbfido:
