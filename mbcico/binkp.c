@@ -39,7 +39,7 @@
 #include "statetbl.h"
 #include "config.h"
 #include "emsi.h"
-#include "openfile.h"
+#include "bopenfile.h"
 #include "respfreq.h"
 #include "filelist.h"
 #include "opentcp.h"
@@ -50,6 +50,7 @@
 #include "md5b.h"
 #include "inbound.h"
 #include "callstat.h"
+#include "mbcico.h"
 
 
 /*
@@ -74,6 +75,9 @@ extern pid_t	mypid;
 extern struct sockaddr_in   peeraddr;
 extern int	most_debug;
 extern int	laststat;
+extern int	crashme;
+
+int		gotblock = 0;
 
 
 extern unsigned long	sentbytes;
@@ -171,7 +175,6 @@ struct binkprec {
 #endif
 
     struct timezone	tz;			/* Timezone			    */
-    int			DidSendGET;		/* Receiver send GET status	    */
 
     char		*txbuf;			/* Transmitter buffer		    */
     int			txlen;			/* Transmitter file length	    */
@@ -246,7 +249,6 @@ void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
 int	binkp_poll_frame(void);			    /* Poll for a frame		    */
 void	binkp_add_message(char *frame);		    /* Add cmd frame to queue	    */
 int	binkp_process_messages(void);		    /* Process the queue	    */
-int	binkp_resync(off_t);			    /* File resync		    */
 char	*unix2binkp(char *);			    /* Binkp -> Unix escape	    */
 char	*binkp2unix(char *);			    /* Unix -> Binkp escape	    */
 void	fill_binkp_list(binkp_list **, file_list *, off_t); /* Build pending files  */
@@ -281,7 +283,6 @@ int binkp(int role)
     bp.rname = calloc(512, sizeof(char));
     bp.ropts = calloc(512, sizeof(char));
     bp.rxfp = NULL;
-    bp.DidSendGET = FALSE;
     bp.local_EOB = FALSE;
     bp.remote_EOB = FALSE;
     bp.msgs_on_queue = 0;
@@ -317,7 +318,6 @@ int binkp(int role)
 #endif
 #endif
     bp.buggyIrex = FALSE;
-    laststat = 0;
     bp.NRwe = No;
     bp.NRthey = No;
     bp.NDwe = No;
@@ -653,7 +653,6 @@ SM_STATE(WaitOk)
 
 SM_STATE(Opts)
 
-    Syslog('b', "Binkp: last session was %d", laststat);
     IsDoing("Binkp to %s", ascfnode(remote->addr, 0xf));
     binkp_set_comp_state();
     SM_SUCCESS;
@@ -924,7 +923,7 @@ SM_STATE(PwdAck)
     }
     free(pw);
     Syslog('+', "Binkp: %s%sprotected session", bp.CRAMflag ? "MD5 ":"", bp.Secure ? "":"un");
-    inbound_open(remote->addr, bp.Secure);
+    inbound_open(remote->addr, bp.Secure, TRUE);
     binkp_send_command(MM_OK, "%ssecure", bp.Secure ? "":"non-");
     SM_PROCEED(Opts)
 
@@ -952,7 +951,6 @@ SM_STATE(Opts)
 
     binkp_send_comp_opts();
     binkp_set_comp_state();
-    Syslog('b', "Binkp: last session status %d", laststat);
     
     SM_SUCCESS;
 
@@ -982,6 +980,7 @@ int file_transfer(void)
 				bp.TxState = TxGNF;
 				bp.FtState = Switch;
 				bp.messages = 0;
+				Syslog('b', "Binkp: last session was %d", laststat);
 				break;
 
 	    case Switch:	if ((bp.RxState == RxDone) && (bp.TxState == TxDone)) {
@@ -1184,20 +1183,23 @@ TrType binkp_receiver(void)
 #endif
 	(void)binkp2unix(bp.rname);
 	rxbytes = bp.rxbytes;
-	bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, binkp_resync);
+
+	/*
+	 * Open file if M_FILE frame has offset 0
+	 * Else the file is already open.
+	 */
+	if (bp.roffs && (bp.roffs == rxbytes)) {
+	    Syslog('b', "Binkp: offset == rxbytes, don't open file again");
+	    if (fseek(bp.rxfp, bp.roffs, SEEK_SET) == 0)
+		Syslog('b', "Binkp: file position set to %ld", bp.roffs);
+	    else
+		WriteError("$Binkp: can't fseek to %ld", bp.roffs);
+	} else {
+	    bp.rxfp = bopenfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes);
+	}
+
 	bp.rxbytes = rxbytes;
 	bp.rxcompressed = 0;
-
-	if (bp.DidSendGET) {
-	    Syslog('b', "Binkp: DidSendGET is set");
-	    /*
-	     * The file was partly received, via the openfile the resync function
-	     * has send a GET command to start this file with a offset. This means
-	     * we will get a new FILE command to open this file with a offset.
-	     */
-	    bp.RxState = RxWaitF;
-	    return Ok;
-	}
 
 	gettimeofday(&rxtvstart, &bp.tz);
 	bp.rxpos = bp.roffs;
@@ -1215,7 +1217,7 @@ TrType binkp_receiver(void)
 	    if ((bp.rsize / (sfs.f_bsize + 1)) >= sfs.f_bfree) {
 		Syslog('!', "Binkp: only %lu blocks free (need %lu) in %s for this file", sfs.f_bfree, 
 			    (unsigned long)(bp.rsize / (sfs.f_bsize + 1)), tempinbound);
-		closefile();
+		bclosefile(FALSE);
 		bp.rxfp = NULL; /* Force SKIP command       */
 	    }
 	}
@@ -1233,6 +1235,14 @@ TrType binkp_receiver(void)
 		return Failure;
 	    else
 		return Ok;
+	} else if ((bp.rxbytes < bp.rsize) && (bp.roffs == 0) && bp.rxbytes) {
+	    Syslog('+', "Binkp: partial file present, resync");
+	    rc = binkp_send_command(MM_GET, "%s %ld %ld %ld", bp.rname, bp.rsize, bp.rtime, bp.rxbytes);
+	    bp.RxState = RxWaitF;
+	    if (rc)
+		return Failure;
+	    else
+		return Ok;
 	} else if (!bp.rxfp) {
 	    /*
 	     * Some error, request to skip it
@@ -1245,7 +1255,7 @@ TrType binkp_receiver(void)
 	    else
 		return Ok;
 	} else {
-	    Syslog('b', "rsize=%d, rxbytes=%d, roffs=%d", bp.rsize, bp.rxbytes, bp.roffs);
+	    Syslog('b', "Binkp: rsize=%d, rxbytes=%d, roffs=%d, goto RxReceD", bp.rsize, bp.rxbytes, bp.roffs);
 	    bp.RxState = RxReceD;
 	    return Ok;
 	}
@@ -1278,7 +1288,7 @@ TrType binkp_receiver(void)
 	    return Ok;
 	} else if (bcmd == MM_FILE) {
 	    Syslog('+', "Binkp: partial received file, saving");
-	    closefile();
+	    bclosefile(FALSE);
 	    bp.rxfp = NULL;
 	    bp.RxState = RxAccF;
 	    return Continue;
@@ -1371,7 +1381,7 @@ TrType binkp_receiver(void)
 
 	if (bp.rxpos == bp.rsize) {
 	    rc = binkp_send_command(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
-	    closefile();
+	    bclosefile(TRUE);
 	    bp.rxpos = bp.rxpos - bp.rxbytes;
 	    gettimeofday(&rxtvend, &bp.tz);
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
@@ -2383,6 +2393,11 @@ int binkp_poll_frame(void)
 			}
 		    } else {
 			Syslog('b', "Binkp: rcvd data (%d)", bp.rxlen -1);
+			gotblock++;
+			if (crashme && (gotblock > 10)) {
+			    Syslog('b', "Binkp: will crash now");
+			    die(SIGHUP);
+			}
 		    }
 		    binkp_settimer(BINKP_TIMEOUT);
 		    Nopper();
@@ -2644,26 +2659,6 @@ int binkp_pendingfiles(void)
     if (count)
 	Syslog('b', "Binkp: %d pending files on queue", count);
     return count;
-}
-
-
-
-/*
- * This function is called two times if a partial file exists from openfile.
- *  1. A partial file is detected, send a GET to the remote, set DidSendGET flag.
- *  2. DidSendGET is set, return 0 and let openfile open the file in append mode.
- */
-int binkp_resync(off_t off)
-{
-    Syslog('b', "Binkp: resync(%d) DidSendGET=%s", off, bp.DidSendGET ?"TRUE":"FALSE");
-    if (!bp.DidSendGET) {
-	binkp_send_command(MM_GET, "%s %ld %ld %ld", bp.rname, bp.rsize, bp.rtime, off);
-	bp.DidSendGET = TRUE;
-	Syslog('+', "Binkp: already %lu bytes received, requested restart with offset", (unsigned long)off);
-	return -1;  /* Signal openfile not to open the file */
-    }
-    bp.DidSendGET = FALSE;
-    return 0;       /* Signal openfile to open the file in append mode  */
 }
 
 
@@ -3141,4 +3136,22 @@ int decompress_abort(int type, void *data)
 }
 
 #endif
+
+
+
+/*
+ * Abort, called from die in case there were errors.
+ * This will reconstruct file data that is still in
+ * compressed state in memory so that resync works.
+ */
+void binkp_abort(void)
+{
+    Syslog('b', "Binkp: abort");
+#ifdef	USE_EXPERIMENT
+    if ((bp.rmode != CompNone) && z_idata)
+	decompress_abort(bp.rmode, z_idata);
+    if ((bp.tmode != CompNone) && z_odata)
+	compress_abort(bp.tmode, z_odata);
+#endif
+}
 

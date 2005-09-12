@@ -196,7 +196,7 @@ int rx_yoohoo(void)
 	} else
 	    Syslog('s', "No YooHoo password check");
 	
-	inbound_open(remote->addr, protect);
+	inbound_open(remote->addr, protect, FALSE);
 
 	fillhello(localcaps,pwd);
 	

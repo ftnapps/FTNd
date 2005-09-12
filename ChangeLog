@@ -14,10 +14,12 @@ v0.71.6		02-Sep-2005
 		Due to lack of maintainers italian language support is dropped.
 
 	mbcico:
-		Changed compression state logic.
+		Changed binkp compression state logic.
 		Record previous session state so we can better react on failed
 		sessions.
 		Added detection of remote options NR, ND and NDA.
+		Rewrote inbound handling for binkp sessions so that recovery
+		from failed sessions works, even with compressed transfers.
 
 	mbfido:
 		If some newsarticles are not accepted for post, don't treat

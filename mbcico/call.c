@@ -207,7 +207,7 @@ int call(faddr *addr)
 	Syslog('?', "Warning: calling non-CM system outside ZMH");
     }
 
-    inbound_open(addr, TRUE);	/* master sessions are secure */
+    inbound_open(addr, TRUE, (tcp_mode == TCPMODE_IBN));	/* master sessions are secure */
 
     /*
      * Call when:

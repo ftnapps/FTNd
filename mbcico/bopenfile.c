@@ -163,7 +163,7 @@ int bclosefile(int success)
      * Remove state file.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s.state", infpath, basename(infpath));
+    snprintf(temp, PATH_MAX, "%s.state", infpath);
     if (unlink(temp))
 	WriteError("$Binkp: can't unlink %s", temp);
     else

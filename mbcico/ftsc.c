@@ -461,10 +461,10 @@ SM_STATE(scan_packet)
 
 		if (ghc == 0) {
 		    Syslog('+', "Password correct, protected FTS-0001 session");
-		    inbound_open(remote->addr, TRUE);
+		    inbound_open(remote->addr, TRUE, FALSE);
 		} else {
 		    Syslog('+', "Unsecure FTS-0001 session");
-		    inbound_open(remote->addr, FALSE);
+		    inbound_open(remote->addr, FALSE, FALSE);
 		}
 		/*
 		 * Move the packet to the temp inbound so the we can later

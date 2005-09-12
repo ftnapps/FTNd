@@ -96,6 +96,7 @@ typedef struct _the_queue {
 
 
 
-int binkp(int);
+int  binkp(int);
+void binkp_abort(void);
 
 #endif

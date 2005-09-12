@@ -39,6 +39,8 @@
 #include "lutil.h"
 #include "mbcico.h"
 #include "session.h"
+#include "binkp.h"
+
 
 #define	IEMSI 1
 
@@ -59,6 +61,7 @@ unsigned long	rcvdbytes = 0;
 int		tcp_mode = TCPMODE_NONE;
 int		Loaded = FALSE;
 int		telnet = FALSE;
+int		crashme = FALSE;
 
 
 extern char	*myname;
@@ -116,6 +119,7 @@ void die(int onsig)
 	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
 	else
 	    Syslog('+', "Terminated with error %d", onsig);
+	binkp_abort();
     }
 
     if (sentbytes || rcvdbytes) {
@@ -232,7 +236,7 @@ int main(int argc, char *argv[])
 
     setmyname(argv[0]);
 
-    while ((c = getopt(argc,argv,"r:n:l:t:a:I:h")) != -1) {
+    while ((c = getopt(argc,argv,"r:n:l:t:a:ch")) != -1) {
 	switch (c) {
 	    case 'r':	WriteError("commandline option -r is obsolete");
 			break;
@@ -263,6 +267,10 @@ int main(int argc, char *argv[])
 			break;
 
 	    case 'n':	forcedphone = optarg; 
+			break;
+
+	    case 'c':	crashme = TRUE;
+			Syslog('+', "crashme is set");
 			break;
 
 	    default:	usage(); 

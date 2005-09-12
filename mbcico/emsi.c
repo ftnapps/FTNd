@@ -175,7 +175,7 @@ int rx_emsi(char *data)
 	Syslog('?', "Unexpected remote password \"%s\"", MBSE_SS(emsi_local_password));
     }
 
-    inbound_open(remote->addr, protect);
+    inbound_open(remote->addr, protect, FALSE);
     Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
     if ((rc=txemsi())) 

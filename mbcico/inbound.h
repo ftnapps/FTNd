@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
  * $Id$
- * File ..................: mbcico/inbound.h
  * Purpose ...............: Fidonet mailer, inbound functions 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -33,8 +32,8 @@
 #define	_INBOUND_H
 
 
-int	inbound_open(faddr *, int);	/* Open temp inbound	    */
-int	inbound_close(int);		/* Close temp inbound	    */
-long	inbound_space(void);		/* Get free inbound space   */
+int	inbound_open(faddr *, int, int);    /* Open temp inbound	*/
+int	inbound_close(int);		    /* Close temp inbound	*/
+long	inbound_space(void);		    /* Get free inbound space   */
 
 #endif
