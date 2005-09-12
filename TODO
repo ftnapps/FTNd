@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.71.6 TODO list.
+			MBSE BBS V0.71.7 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -93,11 +93,9 @@ mbfido:
 	N: Someday make retoss from bad possible (volonteers?).
 
 mbcico:
-	L: Implement binkp option ND.
+	N: Implement binkp option NR.
 
-	N: When answering a binkp session, do not send m_opt for compression
-	   until we know who is on the other side so we can really block single
-	   nodes.
+	L: Implement binkp option ND and NDA.
 
 mbnntp:
 	U: fetched mail doesn't get the status Rcvd if it was for the user.

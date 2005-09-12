@@ -1,7 +1,10 @@
 $Id$
 
 
-v0.71.6		02-Sep-2005
+v0.71.7		12-Sep-2005
+
+
+v0.71.6		02-Sep-2005 - 12-Sep-2005
 
 	upgrade:
 		In mbsetup menu 8.2 remove the Italian language.

@@ -1235,7 +1235,7 @@ TrType binkp_receiver(void)
 		return Failure;
 	    else
 		return Ok;
-	} else if ((bp.rxbytes < bp.rsize) && (bp.roffs == 0) && bp.rxbytes) {
+	} else if ((bp.rxbytes < bp.rsize) && ((bp.roffs == 0) || (bp.roffs == -1)) && bp.rxbytes) {
 	    Syslog('+', "Binkp: partial file present, resync");
 	    rc = binkp_send_command(MM_GET, "%s %ld %ld %ld", bp.rname, bp.rsize, bp.rtime, bp.rxbytes);
 	    bp.RxState = RxWaitF;
