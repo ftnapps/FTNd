@@ -95,6 +95,7 @@ typedef enum {CompNone, CompGZ, CompBZ2, CompPLZ} CompType;
 typedef enum {CompNone, CompPLZ} CompType;
 #endif
 
+static char *txstate[] = { (char *)"TxGNF", (char *)"TxTryR", (char *)"TxReadS", (char *)"TxWLA", (char *)"TxDone" };
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
 static char *opstate[] = { (char *)"No", (char *)"Can", (char *)"Want", (char *)"Active" };
@@ -1075,6 +1076,8 @@ TrType binkp_receiver(void)
     char	    *buf = bp.rxbuf;
 #endif
 
+    Syslog('b', "Binkp: receiver %s", rxstate[bp.RxState]);
+
     if (bp.RxState == RxWaitF) {
 
 	if (! bp.GotFrame)
@@ -1462,6 +1465,8 @@ TrType binkp_transmitter(void)
     fa_list	*eff_remote;
     file_list	*tsl;
     static binkp_list	*tmp;
+
+    Syslog('b', "Binkd: transmitter %s", txstate[bp.TxState]);
 
     if (bp.TxState == TxGNF) {
 	/*
