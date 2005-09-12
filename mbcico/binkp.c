@@ -95,7 +95,7 @@ typedef enum {CompNone, CompGZ, CompBZ2, CompPLZ} CompType;
 typedef enum {CompNone, CompPLZ} CompType;
 #endif
 
-static char *txstate[] = { (char *)"TxGNF", (char *)"TxTryR", (char *)"TxReadS", (char *)"TxWLA", (char *)"TxDone" };
+// static char *txstate[] = { (char *)"TxGNF", (char *)"TxTryR", (char *)"TxReadS", (char *)"TxWLA", (char *)"TxDone" };
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
 static char *opstate[] = { (char *)"No", (char *)"Can", (char *)"Want", (char *)"Active" };
@@ -1076,7 +1076,7 @@ TrType binkp_receiver(void)
     char	    *buf = bp.rxbuf;
 #endif
 
-    Syslog('b', "Binkp: receiver %s", rxstate[bp.RxState]);
+//    Syslog('b', "Binkp: receiver %s", rxstate[bp.RxState]);
 
     if (bp.RxState == RxWaitF) {
 
@@ -1466,7 +1466,7 @@ TrType binkp_transmitter(void)
     file_list	*tsl;
     static binkp_list	*tmp;
 
-    Syslog('b', "Binkd: transmitter %s", txstate[bp.TxState]);
+//    Syslog('b', "Binkd: transmitter %s", txstate[bp.TxState]);
 
     if (bp.TxState == TxGNF) {
 	/*
@@ -2336,12 +2336,15 @@ int binkp_poll_frame(void)
 		rc = -1;
 		break;
 	    } else {
+//		Syslog('b', "c=%02x %c rxlen=%d", c, isprint(c) ? c : '.', bp.rxlen);
 		switch (bp.rxlen) {
 		    case 0: bp.header = c << 8;
 			    rc = 0;
+//			    Syslog('b', "Binkp: 1st %02x", c);
 			    break;
 		    case 1: bp.header += c;
 			    rc = 0;
+//			    Syslog('b', "Binkp: 2nd %02x", c);
 			    break;
 		    default:bp.rxbuf[bp.rxlen-2] = c;
 		}
