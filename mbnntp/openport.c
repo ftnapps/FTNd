@@ -71,8 +71,8 @@ int rawport(void)
 
 int cookedport(void)
 {
-    Syslog('t', "SIGHUP => SIG_IGN");
-    Syslog('t', "SIGPIPE => SIG_IGN");
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
     return 0;
 }
 
