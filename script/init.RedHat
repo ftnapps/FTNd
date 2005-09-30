@@ -3,7 +3,7 @@
 # chkconfig: 345 95 05
 # description: Starts and stops MBSE BBS.
 #
-# For RedHat, E-Smith and Mandrake SYSV init style.
+# For RedHat, Fedora Core, E-Smith and Mandrake SYSV init style.
 # $Id$
 #
 # Source function library.

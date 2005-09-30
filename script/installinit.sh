@@ -72,7 +72,12 @@ if [ "$OSTYPE" = "Linux" ]; then
 		    if [ -f /etc/redhat-release ]; then
 			DISTNAME="RedHat"
 			if [ -z "`grep e-smith /etc/redhat-release`" ]; then
-			    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+			    if [ -z "`grep Fedora /etc/redhat-release`" ]; then
+				DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+			    else
+				DISTVERS=`cat /etc/redhat-release | awk '{ print $4 }'`
+				DISTNAME="Fedora Core"
+			    fi
 			else
 			    DISTVERS=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d \)`
 			fi
@@ -195,11 +200,11 @@ fi
 
 #--------------------------------------------------------------------------
 #
-#  Adding scripts for RedHat, e-smith and Mandrake
+#  Adding scripts for RedHat, Fedora Core, e-smith and Mandrake
 #
-if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ]; then
+if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ] || [ "$DISTNAME" = "Fedora Core" ]; then
 
-    log "+" "Adding RedHat/E-Smith/Mandrake SystemV init scripts"
+    log "+" "Adding RedHat/Fedora/E-Smith/Mandrake SystemV init scripts"
     DISTINIT="/etc/rc.d/init.d/mbsed"
     #
     # Extra tests are added for the RedHat e-smith server distribution,
