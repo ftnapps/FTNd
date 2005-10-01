@@ -6,6 +6,9 @@ v0.71.7		12-Sep-2005
 	script:
 		The installinit script now recognizes Fedora Core.
 
+	mbcico:
+		Added a debug message in execute_disposition
+
 
 v0.71.6		02-Sep-2005 - 12-Sep-2005
 

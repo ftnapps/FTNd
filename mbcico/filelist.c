@@ -613,6 +613,8 @@ void execute_disposition(file_list *fl)
 	    if (fseek(fl->flofp, fl->floff, 0) == 0) {
 		if (fwrite(&tpl,1,1,fl->flofp) != 1) {
 		    WriteError("$Error writing '~' to .flo at %lu", (unsigned long)fl->floff);
+		} else {
+		    Syslog('o', "Marked file \"%s\" as sent", MBSE_SS(nm));
 		}
 		fflush(fl->flofp);
 #ifdef HAVE_FDATASYNC
