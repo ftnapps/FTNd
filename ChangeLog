@@ -1,7 +1,7 @@
 $Id$
 
 
-v0.71.7		12-Sep-2005
+v0.71.7		12-Sep-2005 - 06-Oct-2005
 
 	script:
 		The installinit script now recognizes Fedora Core.
