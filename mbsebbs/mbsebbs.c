@@ -103,7 +103,6 @@ int main(int argc, char **argv)
     Syslog(' ', "MBSEBBS v%s", VERSION);
 
     if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
-	Syslog('b', "columns=%d lines=%d", ws.ws_col, ws.ws_row);
 	cols = ws.ws_col;
 	rows = ws.ws_row;
     }
@@ -124,7 +123,9 @@ int main(int argc, char **argv)
     if ((p = getenv("REMOTEHOST")) != NULL)
 	Syslog('+', "REMOTEHOST %s", p);
     if ((p = getenv("TERM")) != NULL)
-	Syslog('+', "TERM=%s", p);
+	Syslog('+', "TERM=%s %dx%d", p, cols, rows);
+    else
+	Syslog('+', "TERM=invalid %dx%d", cols, rows);
     if ((p = getenv("LANG")) != NULL)
 	Syslog('+', "LANG=%s", p);
     if ((p = getenv("LC_ALL")) != NULL)
@@ -169,7 +170,7 @@ int main(int argc, char **argv)
      * Default set the terminal to ANSI mode. If your logo
      * is in color, the user will see color no mather what.
      */
-    TermInit(1, ws.ws_col, ws.ws_row);
+    TermInit(1);
 
     /*
      * Now it's time to check if the bbs is open. If not, we 

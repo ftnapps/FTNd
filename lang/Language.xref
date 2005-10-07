@@ -62,7 +62,7 @@
 61	mail.c misc.c file.c		YN=|More (Y/n/=) 
 62	newuser.c			YN|Would you like Hot-Keyed menus? [Y/n]: 
 63	newuser.c			|Please answer Y or N
-64	change.c			|Please enter your Screen Length? [24]: 
+64					|
 65	newuser.c			|None
 66	offline.c			|Tag Offline Reader message areas
 67	newuser.c			|Your user account has been created:
@@ -78,8 +78,8 @@
 77 	mail.c				|Message doesn't exist
 78	change.c			|News bulletins turned ON
 79	change.c			|News bulletins turned OFF
-80	change.c			|Screen length is 24
-81	change.c			|Screen length is now set to: 
+80					|
+81					|
 82	mail.c				|Private message, not owner
 83	change.c			|Please enter the correct date format
 84	misc.c				|Todays Callers to 

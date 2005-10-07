@@ -62,7 +62,7 @@ HF|(H)omme ou (F)emme ? :
 ON=|Plus (O/n/=) 
 ON|Voulez vous les menus Hot-Keyed ? [O/n]: 
 |Veuillez répondre O ou N
-|Entrer la longueur de votre écran  [24]: 
+|
 |Aucun
 |Tag Offline Reader message areas
 |Votre compte utilisateur a été créé:
@@ -78,8 +78,8 @@ ON|Voulez vous les menus Hot-Keyed ? [O/n]:
 |Message n'existe pas
 |News bulletins est ON
 |News bulletins est OFF
-|Longueur de l'écran : 24
-|Nouvelle longueur d'écran: 
+|
+|
 |Message privé, pas le propriétaire
 |Veuillez entrer la date au format correct
 |Appels d'aujourd'hui pour

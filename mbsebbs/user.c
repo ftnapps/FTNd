@@ -259,7 +259,7 @@ void user(void)
 	UserCity(mypid, usrconfig.Name, usrconfig.sLocation);
     else
 	UserCity(mypid, usrconfig.Name, (char *)"N/A");
-    TermInit(usrconfig.GraphMode, cols, rows);
+    TermInit(usrconfig.GraphMode);
 
     /*
      * Count simultaneous logins

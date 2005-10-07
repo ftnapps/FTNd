@@ -44,6 +44,12 @@
 #include "term.h"
 #include "ttyio.h"
 
+
+extern int  cols;
+extern int  rows;
+
+
+
 int Chg_Language(int NewMode)
 {
     FILE    *pLang;
@@ -616,7 +622,7 @@ void Chg_Graphics()
 
     Syslog('+', "Graphics mode now %s", exitinfo.GraphMode?"On":"Off");
     Enter(2);
-    TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
+    TermInit(exitinfo.GraphMode);
     WriteExitinfo();
     sleep(2);
 }
@@ -708,38 +714,6 @@ void Chg_News()
     Syslog('+', "News bullentins now %s", exitinfo.ieNEWS?"True":"False");
     sleep(2);
     WriteExitinfo();
-}
-
-
-
-void Chg_ScreenLen()
-{
-    char	*temp;
-
-    ReadExitinfo();
-    temp = calloc(81, sizeof(char));
-    Syslog('+', "Old screenlen %d", exitinfo.iScreenLen);
-
-    Enter(1);
-    /* Please enter your Screen Length? [24]: */
-    pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
-    colour(CFG.InputColourF, CFG.InputColourB);
-    Getnum(temp, 2);
-
-    if((strcmp(temp, "")) == 0) {
-	exitinfo.iScreenLen = 24;
-	snprintf(temp, 81, "\r\n%s\r\n\r\n", (char *) Language(80));
-    } else {
-	exitinfo.iScreenLen = atoi(temp);
-	snprintf(temp, 81, "\r\n%s%d\r\n\r\n", (char *) Language(81), exitinfo.iScreenLen);
-    }
-    PUTSTR(temp);
-
-    TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
-    Syslog('+', "New screenlen %d", exitinfo.iScreenLen);
-    WriteExitinfo();
-    Pause();
-    free(temp);
 }
 
 

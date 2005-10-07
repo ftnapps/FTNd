@@ -2201,7 +2201,6 @@ char *getmenutype(int val)
 		case 305:	return (char *)"Change voice phone";
 		case 306:	return (char *)"Change data phone";
 		case 307:	return (char *)"Change show news bulletins";
-		case 308:	return (char *)"Change screen length";
 		case 309:	return (char *)"Change date of birth";
 		case 310:	return (char *)"Change language";
 		case 311:	return (char *)"Change hot-keys";

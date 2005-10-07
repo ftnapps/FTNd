@@ -36,16 +36,14 @@
 #include "ttyio.h"
 
 
-int termmode;			/* 0 = tty, 1 = ANSI			   */
-int termx = 80;
-int termy = 24;
+int	    termmode;			/* 0 = tty, 1 = ANSI			   */
+extern int  cols;
+extern int  rows;
 
 
-void TermInit(int mode, int x, int y)
+void TermInit(int mode)
 {
     termmode = mode;
-    termx = x;
-    termy = y;
 }
 
 
@@ -147,7 +145,7 @@ void colour(int fg, int bg)
 void Center(char *string)
 {
     int	    Strlen;
-    int	    Maxlen = termx;
+    int	    Maxlen = cols;
     int	    i, x, z;
     char    *Str;
 
@@ -191,7 +189,7 @@ void locate(int y, int x)
     char    temp[61];
 
     if (termmode > 0) {
-	if (y > termy || x > termx) {
+	if (y > rows || x > cols) {
 	    snprintf(temp, 61, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
 	} else {
 	    snprintf(temp, 61, "\x1B[%i;%iH", y, x);
@@ -222,7 +220,7 @@ void fLine(int	Len)
 
 void  sLine()
 {
-    fLine(termx -1);
+    fLine(cols -1);
 }
 
 

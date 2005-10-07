@@ -62,7 +62,7 @@ MV|Wat is Uw geslacht? (M)an of (V)rouw:
 JN=|Meer (J/n/=) 
 JN|Wilt U sneltoets menus? [J/n]: 
 |Antwoord met J of N
-|Wat is Uw scherm lengte? [24]: 
+|
 |Geen
 |Selecteer Offline Reader berichten gebieden
 |Uw gebruikers account is gemaakt:
@@ -78,8 +78,8 @@ JN|Wilt U sneltoets menus? [J/n]:
 |Bericht bestaat niet
 |News berichten staan nu AAN
 |News berichten staan nu UIT
-|Scherm lengte is 24
-|De scherm lengte staat nu op: 
+|
+|
 |Prive bericht, niet van U
 |Geef het juiste datum formaat
 |Bellers vandaag bij 

@@ -3,7 +3,7 @@
 
 /* $Id$ */
 
-void            TermInit(int, int, int);
+void            TermInit(int);
 void            Enter(int);
 void            pout(int, int, char *);
 void            poutCR(int, int, char *);

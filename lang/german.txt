@@ -62,7 +62,7 @@ MW|Sind Sie (m)aennlich oder (w)eiblich ? :
 JN=|Weiter (J/n/=) 
 JN|Moechten Sie Menues mit "Hot-Keys" verwenden? [J/n]: 
 |Bitte druecken Sie J oder N
-|Geben Sie bitte die Zeilenanzahl Ihres Bildschirms an [24]: 
+|
 |Keine(r)
 |Mitteilungsbereiche fuer den Offline Reader markieren
 |Ihr Benutzeraccount wurde wie folgt eingerichtet:
@@ -78,8 +78,8 @@ JN|Moechten Sie Menues mit "Hot-Keys" verwenden? [J/n]:
 |Die Mitteilung existiert nicht
 |System-Mitteilungen sind jetzt EIN
 |System-Mitteilungen sind jetzt AUS
-|Die Zeilenanzahl ist 24
-|Die Zeilenanzahl ist jetzt gesetzt auf: 
+|
+|
 |Private Mitteilung - Sie sind weder Absender noch Empfaenger
 |Bitte verwenden Sie das vorgegebene Datumsformat
 |Logins heute bis 

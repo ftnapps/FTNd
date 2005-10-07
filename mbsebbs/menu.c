@@ -607,10 +607,6 @@ void DoMenu(int Type)
 		Chg_News();
 		break;
 
-	case 308:
-		Chg_ScreenLen();
-		break;
-
 	case 309:
 		Chg_DOB();
 		break;

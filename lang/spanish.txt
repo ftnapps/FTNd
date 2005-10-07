@@ -62,7 +62,7 @@ HM|¨Tu que eres (H)ombre o (M)ujer:
 SN=|M s (S/n/=) 
 SN|¨Quieres men£s r pidos? [S/n]: 
 |Por favor contesta S ¢ N
-|Longitud en l¡neas de tu pantalla [24]: 
+|
 |Nada
 |Marcar  reas para lectura Off-Line
 |Tu cuenta de usuario ha sido creada:
@@ -78,8 +78,8 @@ SN|¨Quieres men£s r pidos? [S/n]:
 |No existe el mensaje
 |Noticias activadas
 |Noticias desactivadas
-|Lineas de pantalla 24
-|Lineas de pantalla : 
+|
+|
 |Mensaje privado, y no es tuyo
 |Teclee el formato de fecha correcto
 |Hoy llamaron a 

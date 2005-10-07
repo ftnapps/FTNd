@@ -18,7 +18,6 @@ void Chg_Graphics(void);	/* Toggle graphics			*/
 void Chg_VoicePhone(void);	/* Change voicephone			*/
 void Chg_DataPhone(void);	/* Change dataphone			*/
 void Chg_News(void);		/* Toggle News Bulletins		*/
-void Chg_ScreenLen(void);	/* Change screen len			*/
 int  Test_DOB(char *);		/* Test of Date of Birth is valid	*/
 void Chg_DOB(void);		/* Change Date of Birth			*/
 void Chg_Protocol(void);	/* Change default transfer protocol.	*/

@@ -453,9 +453,8 @@ void s_newuser(void)
 	mbse_mvprintw( 9,46, "12.   One word names");
 	mbse_mvprintw(10,46, "13.   Ask Address");
 	mbse_mvprintw(11,46, "14.   Give email");
-	mbse_mvprintw(12,46, "15.   Ask screenlen");
-	mbse_mvprintw(13,46, "16.   Do Newmail");
-	mbse_mvprintw(14,46, "17.   Do newfiles");
+	mbse_mvprintw(12,46, "15.   Do Newmail");
+	mbse_mvprintw(13,46, "16.   Do newfiles");
 }
 
 
@@ -480,11 +479,10 @@ void e_newuser(void)
 		show_bool( 9,68, CFG.iOneName);
 		show_bool(10,68, CFG.AskAddress);
 		show_bool(11,68, CFG.GiveEmail);
-		show_bool(12,68, CFG.AskScreenlen);
-		show_asktype(13,68, CFG.AskNewmail);
-		show_asktype(14,68, CFG.AskNewfiles);
+		show_asktype(12,68, CFG.AskNewmail);
+		show_asktype(13,68, CFG.AskNewfiles);
 
-		switch(select_menu(17)) {
+		switch(select_menu(16)) {
 		case 0:	return;
 		case 1: E_SEC(  7,28, CFG.newuser_access, "1.7.1 NEWUSER SECURITY", s_newuser)
 		case 2:	E_BOOL( 8,28, CFG.iCapUserName, "^Capitalize^ username")
@@ -501,11 +499,10 @@ void e_newuser(void)
 		case 12:E_BOOL( 9,68, CFG.iOneName, "Allow ^one word^ (not in Unixmode) usernames")
 		case 13:E_BOOL(10,68, CFG.AskAddress, "Ask users ^home address^ in 3 lines")
 		case 14:E_BOOL(11,68, CFG.GiveEmail, "Give new users an ^private email^ box")
-		case 15:E_BOOL(12,68, CFG.AskScreenlen, "Ask new user to set the ^screen length^")
-		case 16:CFG.AskNewmail = edit_asktype(13,68,CFG.AskNewmail, 
+		case 15:CFG.AskNewmail = edit_asktype(12,68,CFG.AskNewmail, 
 				(char *)"Set ^new mail^ check at login, toggle wit space, Enter when done");
 			break;
-		case 17:CFG.AskNewfiles = edit_asktype(14,68,CFG.AskNewfiles, 
+		case 16:CFG.AskNewfiles = edit_asktype(13,68,CFG.AskNewfiles, 
 				(char *)"Set ^new files^ check at login, toggle wit space, Enter when done");
 			break;
 		}
@@ -1996,7 +1993,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"Allow one word names", getboolean(CFG.iOneName));
     add_webtable(wp, (char *)"Ask Address", getboolean(CFG.AskAddress));
     add_webtable(wp, (char *)"Give email box", getboolean(CFG.GiveEmail));
-    add_webtable(wp, (char *)"Ask Screenlen", getboolean(CFG.AskScreenlen));
     add_webtable(wp, (char *)"Do newmail check", get_asktype(CFG.AskNewmail));
     add_webtable(wp, (char *)"Do newfiles check", get_asktype(CFG.AskNewfiles));
     fprintf(wp, "</TBODY>\n");
@@ -2019,7 +2015,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "      One word names    %s\n", getboolean(CFG.iOneName));
     fprintf(fp, "      Ask address       %s\n", getboolean(CFG.AskAddress));
     fprintf(fp, "      Give email box    %s\n", getboolean(CFG.GiveEmail));
-    fprintf(fp, "      Ask Screenlen     %s\n", getboolean(CFG.AskScreenlen));
     fprintf(fp, "      Do newmail check  %s\n", get_asktype(CFG.AskNewmail));
     fprintf(fp, "      Do newfiles check %s\n", get_asktype(CFG.AskNewfiles));
 

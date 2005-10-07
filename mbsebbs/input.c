@@ -40,15 +40,35 @@
 
 
 
+extern int  cols;
+extern int  rows;
+
+
+
+void CheckScreen(void)
+{
+    struct winsize  ws;
+
+    if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
+	if ((ws.ws_col != cols) || (ws.ws_row != rows)) {
+	    cols = ws.ws_col;
+	    rows = ws.ws_row;
+	    Syslog('+', "User screensize changed to %dx%d", cols, rows);
+	}
+    }
+}
+
+
 
 /*
  *  Wait for a character for a maximum of wtime * 10 mSec.
  */
 int Waitchar(unsigned char *ch, int wtime)
 {
-    int	i, rc = TIMEOUT;
+    int	    i, rc = TIMEOUT;
 
     for (i = 0; i < wtime; i++) {
+	CheckScreen();
 	rc = GETCHAR(0);
 	if (tty_status == STAT_SUCCESS) {
 	    *ch = (unsigned char)rc;

@@ -3,8 +3,24 @@ $Id$
 
 v0.81.0		07-Oct-2005
 
+	upgrade:
+		The bbs menu Change Screenlength is obsolete. Remove this from
+		the menus (setup.mnu) and ascii/ansi screens (setup.a??).
+
 	mbcico:
 		Made binkp GZ and BZ2 compression final.
+
+	mbsebbs:
+		Automatic dynamic detection of the users screensize.
+
+	mbsetup:
+		Removed settings for users screenlength.
+
+	lang:	Removed prompts 64, 80 and 81.
+
+	examples:
+		removed Change Screenlength from the English menus and 
+		txtfiles.
 
 
 v0.80.0		27-Oct-2004 - 06-Oct-2005

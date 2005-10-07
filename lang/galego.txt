@@ -62,7 +62,7 @@ HM|¨Tu que eres (H)ome ou (M)uller:
 SN=|M is (S/n/=) 
 SN|¨Queres men£s r pidos? [S/n]: 
 |Por favor contesta S ou N
-|Lonxitude en li¤as da tua pantalla [24]: 
+|
 |Nada
 |Marcar  reas para lectura Off-Line
 |Creouse a t£a conta de usuario:
@@ -78,8 +78,8 @@ SN|¨Queres men£s r pidos? [S/n]:
 |Non existe a mensaxe
 |Novas activadas
 |Novas desactivadas
-|Li¤as de pantalla 24
-|Li¤as de pantalla : 
+|
+|
 |Mensaxe privada, e non ‚ tua
 |Teclea o formato de data correcto
 |Hoxe chamaron a 

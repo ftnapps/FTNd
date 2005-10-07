@@ -62,7 +62,7 @@ MF|What is your sex? (M)ale or (F)emale:
 YN=|More (Y/n/=) 
 YN|Would you like Hot-Keyed menus? [Y/n]: 
 |Please answer Y or N
-|Please enter your Screen Length? [24]: 
+|
 |None
 |Tag Offline Reader message areas
 |Your user account has been created:
@@ -78,8 +78,8 @@ YN|Would you like Hot-Keyed menus? [Y/n]:
 |Message doesn't exist
 |News bulletins turned ON
 |News bulletins turned OFF
-|Screen length is 24
-|Screen length is now set to: 
+|
+|
 |Private message, not owner
 |Please enter the correct date format
 |Todays Callers to 

@@ -211,7 +211,7 @@ int newuser(void)
 	    usrconfig.GraphMode = FALSE;
     }
     exitinfo.GraphMode = usrconfig.GraphMode;
-    TermInit(exitinfo.GraphMode, 80, 24);
+    TermInit(exitinfo.GraphMode);
 
     if (CFG.iVoicePhone) {
 	while (1) {
@@ -447,27 +447,6 @@ int newuser(void)
 	usrconfig.HotKeys = TRUE; /* Default set it to Hotkeys */
 
     usrconfig.iTimeLeft    = 20;  /* Set Timeleft in users file to 20 */
-
-    if ((rows > 18) && (rows < 100)) {
-	usrconfig.iScreenLen = rows;
-	Syslog('+', "Using detected screenlength %d", rows);
-    } else if (CFG.AskScreenlen) {
-	Enter(1);
-	/* Please enter your Screen Length [24]: */
-	pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
-	colour(CFG.InputColourF, CFG.InputColourB);
-	alarm_on();
-	Getnum(temp, 3);
-
-	if(strlen(temp) == 0)
-	    usrconfig.iScreenLen = 24;
-	else
-	    usrconfig.iScreenLen = atoi(temp);
-    } else {
-	usrconfig.iScreenLen = 24;
-    }
-    rows = usrconfig.iScreenLen;
-    TermInit(usrconfig.GraphMode, cols, rows);
     alarm_on();
 
     usrconfig.tLastPwdChange  = ltime; /* Days Since Last Password Change */
