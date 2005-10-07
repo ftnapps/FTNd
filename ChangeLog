@@ -1,6 +1,12 @@
 $Id$
 
 
+v0.81.0		07-Oct-2005
+
+	mbcico:
+		Made binkp GZ and BZ2 compression final.
+
+
 v0.80.0		27-Oct-2004 - 06-Oct-2005
 
 
