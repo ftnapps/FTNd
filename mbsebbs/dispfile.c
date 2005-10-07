@@ -50,6 +50,10 @@
 #include "ttyio.h"
 
 
+extern int  rows;
+
+
+
 /*
  * Function returns total number of bbs users
  */
@@ -184,7 +188,7 @@ int DisplayTextFile(char *filename)
 	Enter(1);
 	lc++;
 
-	if ((lc >= exitinfo.iScreenLen) && (lc < 1000)) {
+	if ((lc >= rows) && (lc < 1000)) {
 	    lc = 0;
 	    /* More (Y/n/=) */
 	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
@@ -467,7 +471,7 @@ void ControlCodeU(int ch)
 		break;
 
 	case 'M':
-		snprintf(temp, 81, "%d", exitinfo.iScreenLen);
+		snprintf(temp, 81, "%d", rows);
 		break;
 
 	case 'N':

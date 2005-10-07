@@ -1027,7 +1027,7 @@ struct	sysconfig {
 	unsigned	GiveEmail	: 1;	/* Give user email	    */
 	unsigned	AskAddress      : 1;	/* Ask Home Address	    */
 	unsigned	iOneName        : 1;	/* Allow one user name      */
-	unsigned	AskScreenlen	: 1;	/* Ask screenlength	    */
+	unsigned	xAskScreenlen	: 1;
 	unsigned	iCrashLevel;		/* User level for crash mail*/
 	unsigned	iAttachLevel;		/* User level for fileattach*/
 

@@ -74,6 +74,7 @@ char		*Message[TEXTBUFSIZE +1];/* Message compose text buffer	    */
 FILE		*qf;			/* Quote file			    */
 extern int	do_mailout;
 extern int	LC_Wrote;		/* Lastcaller info write message    */
+extern int	rows;
 
 
 /*
@@ -103,7 +104,7 @@ int LC(int Lines)
 
     iLineCount += Lines;
  
-    if (iLineCount >= exitinfo.iScreenLen && iLineCount < 1000) {
+    if (iLineCount >= rows && iLineCount < 1000) {
 	iLineCount = 1;
 
 	pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
@@ -1955,7 +1956,7 @@ int CheckLine(int FG, int BG, int Email, int Conv)
     x = strlen(Language(61));
     iLineCount++;
 
-    if ((iLineCount >= (exitinfo.iScreenLen -1)) && (iLineCount < 1000)) {
+    if ((iLineCount >= (rows -1)) && (iLineCount < 1000)) {
 	iLineCount = 7;
 
 	DoNop();
@@ -2208,7 +2209,7 @@ void MsgArea_List(char *Option)
 
 	Recno++;
 
-	if ((iAreaCount / 2) == exitinfo.iScreenLen) {
+	if ((iAreaCount / 2) == rows) {
 	    /* More (Y/n/=/Area #): */
 	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(207));
 	    /*

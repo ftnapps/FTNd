@@ -40,13 +40,16 @@
 #include "ttyio.h"
 
 
+extern int  rows;
+
+
 int MoreFile(char *filename)
 {
     char	Buf[81];
     static FILE	*fptr;
     int		lines, input, ignore = FALSE, maxlines;
 
-    maxlines = lines = exitinfo.iScreenLen - 2;
+    maxlines = lines = rows - 2;
 
     if ((fptr =  fopen(filename,"r")) == NULL) {
 	snprintf(Buf, 81, "%s%s", (char *) Language(72), filename);

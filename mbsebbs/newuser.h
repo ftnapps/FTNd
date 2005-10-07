@@ -4,7 +4,7 @@
 #define _NEWUSER_H
 
 
-int	newuser(int);
+int	newuser(void);
 void	Fast_Bye(int);
 
 #endif

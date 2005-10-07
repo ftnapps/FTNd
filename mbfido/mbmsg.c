@@ -203,7 +203,10 @@ void Help()
 
 void die(int onsig)
 {
-    signal(onsig, SIG_IGN);
+    if (onsig && (onsig <= NSIG)) {
+	signal(onsig, SIG_IGN);
+    }
+
     if (!do_quiet) {
 	printf("\r");
 	mbse_colour(CYAN, BLACK);
@@ -220,9 +223,6 @@ void die(int onsig)
 	else
 	    WriteError("Terminated with error %d", onsig);
     }
-
-    if (onsig == SIGSEGV)
-	Syslog('+', "Last msg area %s", msgs.Name);
 
     if (are_tot || are_proc || msg_link)
     	Syslog('+', "Areas  [%6d] Processed [%6d] Linked [%6d]", are_tot, are_proc, msg_link);

@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Users Database structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -112,7 +112,7 @@ struct	userrec {
 	int		iTimeLeft;              /* Time left today          */
 	int		iConnectTime;           /* Connect time this call   */
 	int		iTimeUsed;              /* Time used today          */
-	int		iScreenLen;             /* User Screen Length       */
+	int		xScreenLen;
 	time_t		tLastPwdChange;         /* Date last password chg   */
 	unsigned	xHangUps;
 	long		Credit;			/* Users credit		    */

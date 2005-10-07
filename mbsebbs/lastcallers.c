@@ -49,6 +49,8 @@ extern int	LC_Wrote;
 extern int	LC_Chat;
 extern int	LC_Olr;
 extern int	LC_Door;
+extern int	rows;
+extern int	cols;
 
 
 
@@ -81,7 +83,7 @@ void LastCallers(char *OpData)
 
 	x = strlen(Heading);
 
-	for(i = 0; i < x; i++)
+	for (i = 0; i < x; i++)
 	    snprintf(Underline, 81, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
 
 	colour(LIGHTRED, BLACK);
@@ -94,7 +96,7 @@ void LastCallers(char *OpData)
 	Enter(1);
 
 	colour(GREEN, BLACK);
-	fLine(79);
+	fLine(cols -1);
 		
 	while (fread(&lcall, lcallhdr.recsize, 1, pLC) == 1) {
 	    if (!lcall.Hidden) {
@@ -131,7 +133,7 @@ void LastCallers(char *OpData)
 		Enter(1);
 
 		LineCount++;
-		if (LineCount == exitinfo.iScreenLen) {
+		if (LineCount == rows) {
 		    Pause();
 		    LineCount = 0;
 		}
@@ -139,7 +141,7 @@ void LastCallers(char *OpData)
 	}
 
 	colour(GREEN, BLACK);
-	fLine(79);
+	fLine(cols -1);
 
 	fclose(pLC);
 	Enter(1);

@@ -55,6 +55,8 @@
 
 
 extern int	sock;
+extern int	cols;
+extern int	rows;
 extern pid_t	mypid;
 char		*StartTime = NULL;
 
@@ -168,7 +170,7 @@ void SwapDate(char *Date3, char *Date4)
 
 
 
-void user()
+void user(void)
 {
     FILE	*pUsrConfig, *pLimits;
     int		i, x, FoundName = FALSE, iFoundLimit = FALSE, IsNew = FALSE, logins = 0, Start;
@@ -257,7 +259,7 @@ void user()
 	UserCity(mypid, usrconfig.Name, usrconfig.sLocation);
     else
 	UserCity(mypid, usrconfig.Name, (char *)"N/A");
-    TermInit(usrconfig.GraphMode, 80, usrconfig.iScreenLen);
+    TermInit(usrconfig.GraphMode, cols, rows);
 
     /*
      * Count simultaneous logins

@@ -48,6 +48,7 @@
 extern pid_t	    mypid;
 long		    arecno = 1;	/* Area record number			     */
 int		    Hcolor = 9;	/* Color of area line in xxxScan() functions */
+extern int	    rows;
 
 
 /*
@@ -309,7 +310,7 @@ int iLC(int Lines)
     x = strlen(Language(131));
     iLineCount += Lines;
  
-    if ((iLineCount >= exitinfo.iScreenLen) && (iLineCount < 1000)) {
+    if ((iLineCount >= rows) && (iLineCount < 1000)) {
 	iLineCount = 0;
 
 	while (TRUE) {

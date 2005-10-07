@@ -40,6 +40,9 @@
 #include "ttyio.h"
 
 
+extern int  rows;
+
+
 void UserList(char *OpData)
 {                                                                        
     FILE	    *pUsrConfig;
@@ -133,7 +136,7 @@ void UserList(char *OpData)
 	    Enter(1);
 	}
 
-	if (LineCount >= exitinfo.iScreenLen - 2) {
+	if (LineCount >= rows - 2) {
 	    LineCount = 0;
 	    Pause();
 	    colour(CYAN, BLACK);

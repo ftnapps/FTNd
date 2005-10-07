@@ -45,7 +45,7 @@ extern	pid_t mypid;		/* Original pid				   */
 
 void UserSilent(int flag)
 {
-	SockS("ADIS:2,%d,%d;", mypid, flag);
+    SockS("ADIS:2,%d,%d;", mypid, flag);
 }
 
 
@@ -60,7 +60,7 @@ int CheckStatus()
 
     snprintf(buf, 81, "SBBS:0;");
     if (socket_send(buf) == 0) {
-	strcpy(buf, socket_receive());
+	strncpy(buf, socket_receive(), 80);
 	if (strncmp(buf, "100:2,0", 7) == 0)
 	    return TRUE;
 	if ((strncmp(buf, "100:2,2", 7) == 0) && (!ttyinfo.honor_zmh))
@@ -179,112 +179,112 @@ int CheckUnixNames(char *name)
  */
 char *ChangeHomeDir(char *Name, int Mailboxes)
 {
-	char		*temp;
-	static char	temp1[PATH_MAX];
-	FILE		*fp;
+    char	*temp;
+    static char	temp1[PATH_MAX];
+    FILE	*fp;
 
-	temp  = calloc(PATH_MAX, sizeof(char));
+    temp  = calloc(PATH_MAX, sizeof(char));
 
-	/*
-	 * set umask bits to zero's then reset with mkdir
-	 */
-	umask(000);
+    /*
+     * set umask bits to zero's then reset with mkdir
+     */
+    umask(000);
 	
-	/*
-	 * First check to see if users home directory exists
-	 * else try create directory, as set in CFG.bbs_usersdir
-	 */
-	if ((access(CFG.bbs_usersdir, R_OK)) != 0) {
-		WriteError("$FATAL: Access to %s failed", CFG.bbs_usersdir);
-		free(temp);
-		ExitClient(MBERR_INIT_ERROR);
-	}
-
-	snprintf(temp1, PATH_MAX, "%s/%s", CFG.bbs_usersdir, Name);
-
-	/*
-	 * Then check to see if users directory exists in the home dir
-	 */
-	if ((access(temp1, R_OK)) != 0) {
-		WriteError("$FATAL: Users homedir %s doesn't exist", temp1);
-		free(temp);
-		ExitClient(MBERR_INIT_ERROR);
-	}
-
-	/*
-	 * Change to users home directory
-	 */
-	if (chdir(temp1) != 0) {
-		WriteError("$FATAL: Can't change to users home dir, aborting: %s", temp1);
-		free(temp);
-		ExitClient(MBERR_INIT_ERROR);
-	}
-	setenv("HOME", temp1, 1);
-
-	/*
-	 * Check if user has a .signature file.
-	 * If not, create a simple one.
-	 */
-	snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, Name);
-	if (access(temp, R_OK)) {
-	    Syslog('+', "Creating users .signature file");
-	    if ((fp = fopen(temp, "w")) == NULL) {
-		WriteError("$Can't create %s", temp);
-	    } else {
-		fprintf(fp,     "    Greetings, %s\n", exitinfo.sUserName);
-		if ((CFG.EmailMode == E_PRMISP) && exitinfo.Email && CFG.GiveEmail)
-		    fprintf(fp, "    email: %s@%s\n", exitinfo.Name, CFG.sysdomain);
-		fclose(fp);
-	    }
-	}
-
-	/*
-	 * Check subdirectories, create them if they don't exist.
-	 */
-	snprintf(temp, PATH_MAX, "%s/wrk", temp1);
-	CheckDir(temp);
-	snprintf(temp, PATH_MAX, "%s/tag", temp1);
-	CheckDir(temp);
-	snprintf(temp, PATH_MAX, "%s/upl", temp1);
-	CheckDir(temp);
-	snprintf(temp, PATH_MAX, "%s/tmp", temp1);
-	CheckDir(temp);
-	snprintf(temp, PATH_MAX, "%s/.dosemu", temp1);
-	CheckDir(temp);
-	snprintf(temp, PATH_MAX, "%s/.dosemu/run", temp1);
-	CheckDir(temp);
-	snprintf(temp, PATH_MAX, "%s/.dosemu/tmp", temp1);
-	CheckDir(temp);
-	umask(007);
-
-	/*
-	 * Check users private emailboxes
-	 */
-	if (Mailboxes) {
-		snprintf(temp, PATH_MAX, "%s/mailbox", temp1);
-		if (Msg_Open(temp))
-			Msg_Close();
-		snprintf(temp, PATH_MAX, "%s/archive", temp1);
-		if (Msg_Open(temp))
-			Msg_Close();
-		snprintf(temp, PATH_MAX, "%s/trash", temp1);
-		if (Msg_Open(temp))
-			Msg_Close();
-	}
-	
+    /*
+     * First check to see if users home directory exists
+     * else try create directory, as set in CFG.bbs_usersdir
+     */
+    if ((access(CFG.bbs_usersdir, R_OK)) != 0) {
+	WriteError("$FATAL: Access to %s failed", CFG.bbs_usersdir);
 	free(temp);
-	return temp1;
+	ExitClient(MBERR_INIT_ERROR);
+    }
+
+    snprintf(temp1, PATH_MAX, "%s/%s", CFG.bbs_usersdir, Name);
+
+    /*
+     * Then check to see if users directory exists in the home dir
+     */
+    if ((access(temp1, R_OK)) != 0) {
+	WriteError("$FATAL: Users homedir %s doesn't exist", temp1);
+	free(temp);
+	ExitClient(MBERR_INIT_ERROR);
+    }
+
+    /*
+     * Change to users home directory
+     */
+    if (chdir(temp1) != 0) {
+	WriteError("$FATAL: Can't change to users home dir, aborting: %s", temp1);
+	free(temp);
+	ExitClient(MBERR_INIT_ERROR);
+    }
+    setenv("HOME", temp1, 1);
+
+    /*
+     * Check if user has a .signature file.
+     * If not, create a simple one.
+     */
+    snprintf(temp, PATH_MAX, "%s/%s/.signature", CFG.bbs_usersdir, Name);
+    if (access(temp, R_OK)) {
+	Syslog('+', "Creating users .signature file");
+        if ((fp = fopen(temp, "w")) == NULL) {
+	    WriteError("$Can't create %s", temp);
+	} else {
+	    fprintf(fp,     "    Greetings, %s\n", exitinfo.sUserName);
+	    if ((CFG.EmailMode == E_PRMISP) && exitinfo.Email && CFG.GiveEmail)
+	        fprintf(fp, "    email: %s@%s\n", exitinfo.Name, CFG.sysdomain);
+	    fclose(fp);
+	}
+    }
+
+    /*
+     * Check subdirectories, create them if they don't exist.
+     */
+    snprintf(temp, PATH_MAX, "%s/wrk", temp1);
+    CheckDir(temp);
+    snprintf(temp, PATH_MAX, "%s/tag", temp1);
+    CheckDir(temp);
+    snprintf(temp, PATH_MAX, "%s/upl", temp1);
+    CheckDir(temp);
+    snprintf(temp, PATH_MAX, "%s/tmp", temp1);
+    CheckDir(temp);
+    snprintf(temp, PATH_MAX, "%s/.dosemu", temp1);
+    CheckDir(temp);
+    snprintf(temp, PATH_MAX, "%s/.dosemu/run", temp1);
+    CheckDir(temp);
+    snprintf(temp, PATH_MAX, "%s/.dosemu/tmp", temp1);
+    CheckDir(temp);
+    umask(007);
+
+    /*
+     * Check users private emailboxes
+     */
+    if (Mailboxes) {
+	snprintf(temp, PATH_MAX, "%s/mailbox", temp1);
+	if (Msg_Open(temp))
+	    Msg_Close();
+	snprintf(temp, PATH_MAX, "%s/archive", temp1);
+	if (Msg_Open(temp))
+	    Msg_Close();
+	snprintf(temp, PATH_MAX, "%s/trash", temp1);
+	if (Msg_Open(temp))
+	    Msg_Close();
+    }
+	
+    free(temp);
+    return temp1;
 }
 
 
 
 void CheckDir(char *dir)
 {
-	if ((access(dir, R_OK) != 0)) {
-		Syslog('+', "Creating %s", dir);
-		if (mkdir(dir, 0770))
-			WriteError("$Can't create %s", dir);
-	}
+    if ((access(dir, R_OK) != 0)) {
+	Syslog('+', "Creating %s", dir);
+	if (mkdir(dir, 0770))
+	    WriteError("$Can't create %s", dir);
+    }
 }
 
 
@@ -295,42 +295,42 @@ void CheckDir(char *dir)
  */
 void FindMBSE()
 {
-	FILE		*pDataFile;
-	static char	p[81];
-	char		*FileName;
-	struct passwd	*pw;
+    FILE	    *pDataFile;
+    static char	    p[81];
+    char	    *FileName;
+    struct passwd   *pw;
 
-        FileName = calloc(PATH_MAX, sizeof(char));
+    FileName = calloc(PATH_MAX, sizeof(char));
 
-	/*
-	 * Check if the environment is set, if not, then we create the
-	 * environment from the passwd file.
-	 */
-	if (getenv("MBSE_ROOT") == NULL) {
-		pw = getpwnam("mbse");
-		memset(&p, 0, sizeof(p));
-		snprintf(p, 81, "MBSE_ROOT=%s", pw->pw_dir);
-		putenv(p);
-	}
+    /*
+     * Check if the environment is set, if not, then we create the
+     * environment from the passwd file.
+     */
+    if (getenv("MBSE_ROOT") == NULL) {
+	pw = getpwnam("mbse");
+	memset(&p, 0, sizeof(p));
+	snprintf(p, 81, "MBSE_ROOT=%s", pw->pw_dir);
+	putenv(p);
+    }
 
-	if (getenv("MBSE_ROOT") == NULL) {
-		printf("FATAL ERROR: Environment variable MBSE_ROOT not set\n");
-		free(FileName);
-		exit(MBERR_INIT_ERROR);
-	}
-	snprintf(FileName, PATH_MAX, "%s/etc/config.data", getenv("MBSE_ROOT"));
-
-	if(( pDataFile = fopen(FileName, "rb")) == NULL) {
-		printf("FATAL ERROR: Can't open %s for reading!\n", FileName);
-		printf("Please run mbsetup to create configuration file.\n");
-		printf("Or check that your environment variable MBSE_ROOT is set to the BBS Path!\n");
-		free(FileName);
-		exit(MBERR_CONFIG_ERROR);
-	}
-
-	fread(&CFG, sizeof(CFG), 1, pDataFile);
+    if (getenv("MBSE_ROOT") == NULL) {
+	printf("FATAL ERROR: Environment variable MBSE_ROOT not set\n");
 	free(FileName);
-	fclose(pDataFile);
+	exit(MBERR_INIT_ERROR);
+    }
+    snprintf(FileName, PATH_MAX, "%s/etc/config.data", getenv("MBSE_ROOT"));
+
+    if (( pDataFile = fopen(FileName, "rb")) == NULL) {
+	printf("FATAL ERROR: Can't open %s for reading!\n", FileName);
+	printf("Please run mbsetup to create configuration file.\n");
+	printf("Or check that your environment variable MBSE_ROOT is set to the BBS Path!\n");
+	free(FileName);
+	exit(MBERR_CONFIG_ERROR);
+    }
+
+    fread(&CFG, sizeof(CFG), 1, pDataFile);
+    free(FileName);
+    fclose(pDataFile);
 }
 
 
@@ -340,50 +340,25 @@ void FindMBSE()
  */
 char *GetMonth(int Month)
 {
-	static char	month[10];
+    static char	month[10];
 
-	switch (Month) {
-		case 1:
-			strcpy(month, *(mLanguage + 398));
-			break;
-		case 2:                    
-			strcpy(month, *(mLanguage + 399));      
-			break;                    
-		case 3:                    
-			strcpy(month, *(mLanguage + 400));      
-			break;                    
-		case 4:                    
-			strcpy(month, *(mLanguage + 401));      
-			break;                    
-		case 5:                    
-			strcpy(month, *(mLanguage + 402));      
-			break;                    
-		case 6:                    
-			strcpy(month, *(mLanguage + 403));      
-			break;                    
-		case 7:                    
-			strcpy(month, *(mLanguage + 404));      
-			break;                    
-		case 8:                    
-			strcpy(month, *(mLanguage + 405));      
-			break;                    
-		case 9:                    
-			strcpy(month, *(mLanguage + 406));      
-			break;                    
-		case 10:                    
-			strcpy(month, *(mLanguage + 407));      
-			break;                    
-		case 11:                    
-			strcpy(month, *(mLanguage + 408));      
-			break;                    
-		case 12:
-			strcpy(month, *(mLanguage + 409));
-			break;
-		default:                        
-			strcpy(month, "Unknown");      
-	}                                              
+    switch (Month) {
+	case 1:	    strcpy(month, *(mLanguage + 398)); break;
+	case 2:	    strcpy(month, *(mLanguage + 399)); break;                    
+	case 3:	    strcpy(month, *(mLanguage + 400)); break;                    
+	case 4:	    strcpy(month, *(mLanguage + 401)); break;                    
+	case 5:	    strcpy(month, *(mLanguage + 402)); break;                    
+	case 6:	    strcpy(month, *(mLanguage + 403)); break;                    
+	case 7:	    strcpy(month, *(mLanguage + 404)); break;                    
+	case 8:	    strcpy(month, *(mLanguage + 405)); break;                    
+	case 9:	    strcpy(month, *(mLanguage + 406)); break;                    
+	case 10:    strcpy(month, *(mLanguage + 407)); break;                    
+	case 11:    strcpy(month, *(mLanguage + 408)); break;                    
+	case 12:    strcpy(month, *(mLanguage + 409)); break;
+	default:    strcpy(month, "Unknown");      
+    }                                              
 
-	return(month);
+    return(month);
 }
 
 
@@ -391,19 +366,19 @@ char *GetMonth(int Month)
 /* Returns DD-Mmm-YYYY */
 char *GLCdateyy()
 {
-	static	char	GLcdateyy[15];
-	char	ntime[15];
+    static char	GLcdateyy[15];
+    char	ntime[15];
 
-	Time_Now = time(NULL);
-	l_date = localtime(&Time_Now);
+    Time_Now = time(NULL);
+    l_date = localtime(&Time_Now);
 
-	snprintf(GLcdateyy, 15, "%02d-", l_date->tm_mday);
+    snprintf(GLcdateyy, 15, "%02d-", l_date->tm_mday);
 
-	snprintf(ntime, 15, "-%02d", l_date->tm_year+1900);
-	strcat(GLcdateyy, GetMonth(l_date->tm_mon+1));
-	strcat(GLcdateyy,ntime);
+    snprintf(ntime, 15, "-%02d", l_date->tm_year+1900);
+    strcat(GLcdateyy, GetMonth(l_date->tm_mon+1));
+    strcat(GLcdateyy,ntime);
 
-	return(GLcdateyy);
+    return (GLcdateyy);
 }
 
 

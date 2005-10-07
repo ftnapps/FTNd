@@ -49,6 +49,9 @@ char		rbuf[50][81];		    /* Chat receive buffer	*/ /* FIXME: must be a dynamic b
 int		rpointer = 0;		    /* Chat receive pointer	*/
 int		rsize = 5;		    /* Chat receive size	*/
 extern pid_t	mypid;
+extern int	cols;
+extern int	rows;
+
 
 
 void Showline(int, int, char *);
@@ -168,7 +171,7 @@ void Chat(char *username, char *channel)
     WhosDoingWhat(SYSOPCHAT, NULL);
     clear();
 
-    rsize = exitinfo.iScreenLen - 5;
+    rsize = rows - 5;
     rpointer = 0;
 
     if (SYSOP == TRUE) {
@@ -205,7 +208,7 @@ void Chat(char *username, char *channel)
     locate(1, 1);
     colour(WHITE, BLUE);
     clrtoeol();
-    snprintf(buf, 200, "%-*s", 79, " MBSE BBS Chat Server");
+    snprintf(buf, 200, "%-*s", cols -1, " MBSE BBS Chat Server");
     mvprintw(1, 1, buf);
 
     snprintf(buf, 200, "CCON,4,%d,%s,%s,0;", mypid, exitinfo.sUserName, exitinfo.Name);
@@ -224,14 +227,14 @@ void Chat(char *username, char *channel)
 	}
     }
 
-    locate(exitinfo.iScreenLen - 2, 1);
+    locate(rows - 2, 1);
     colour(WHITE, BLUE);
     clrtoeol();
-    snprintf(buf, 200, "%-*s", 79, " Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
-    mvprintw(exitinfo.iScreenLen - 2, 1, buf);
+    snprintf(buf, 200, "%-*s", cols -1, " Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
+    mvprintw(rows - 2, 1, buf);
 
     colour(LIGHTGRAY, BLACK);
-    mvprintw(exitinfo.iScreenLen - 1, 1, ">");
+    mvprintw(rows - 1, 1, ">");
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
 
@@ -290,7 +293,7 @@ void Chat(char *username, char *channel)
 	 * Check for a pressed key, if so then process it.
 	 * Allow hi-ascii for multi-language.
 	 */
-	ch = testkey(exitinfo.iScreenLen -1, curpos + 2);
+	ch = testkey(rows -1, curpos + 2);
 	if ((ch == KEY_BACKSPACE) || (ch == KEY_RUBOUT) || (ch == KEY_DEL)) {
 	    alarm_on();
 	    if (curpos) {
@@ -333,9 +336,9 @@ void Chat(char *username, char *channel)
 	    }
 	    curpos = 0;
 	    memset(&sbuf, 0, sizeof(sbuf));
-	    locate(exitinfo.iScreenLen - 1, 2);
+	    locate(rows - 1, 2);
 	    clrtoeol();
-	    mvprintw(exitinfo.iScreenLen - 1, 1, ">");
+	    mvprintw(rows - 1, 1, ">");
 	}
     }
     chatting = FALSE;

@@ -46,7 +46,8 @@
 extern time_t	t_start;
 extern int	e_pid;
 extern char	**environ;
-
+extern int	cols;
+extern int	rows;
 
 
 char *Gdate(time_t, int);
@@ -220,7 +221,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft * 60);	/* Seconds	*/
 	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	/* Minutes	*/
 	    fprintf(fp, "%s\r\n", exitinfo.GraphMode?"GR":"NG");	/* Graphics GR,RIP,NG */
-	    fprintf(fp, "%d\r\n", exitinfo.iScreenLen);
+	    fprintf(fp, "%d\r\n", rows);
 	    fprintf(fp, "N\r\n");		/* User mode, always N	*/
 	    fprintf(fp, "\r\n");		/* Always blank		*/
 	    fprintf(fp, "\r\n");		/* Always blank		*/

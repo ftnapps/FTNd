@@ -51,10 +51,10 @@
 
 
 
-extern	long	arecno;		/* File area number in xxxScan() functions   */
-int	Strlen = 0;
-int	FileRecno = 0;
-
+extern long	arecno;		/* File area number in xxxScan() functions   */
+int		Strlen = 0;
+int		FileRecno = 0;
+extern int	rows;
 
 
 int CheckFile(char *, int);
@@ -461,7 +461,7 @@ void File_RawDir(char *OpData)
 		Enter(1);
 
 		LineCount++;
-		if (LineCount == exitinfo.iScreenLen) {
+		if (LineCount == rows) {
 		    Pause();
 		    LineCount = 0;
 		}
@@ -1430,7 +1430,7 @@ void FileArea_List(char *Option)
 
 	Recno++; 
 
-	if ((iAreaCount / 2) == exitinfo.iScreenLen) {
+	if ((iAreaCount / 2) == rows) {
 	    /* More (Y/n/=/Area #): */
 	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(207)); 
 	    /*

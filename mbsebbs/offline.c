@@ -60,6 +60,8 @@ unsigned short	BarWidth;
 lastread	LR;
 static char	TempStr[128];
 extern int	do_mailout;
+extern int	cols;
+extern int	rows;
 char		*newtear = NULL;
 
 
@@ -250,7 +252,7 @@ void OLR_TagArea()
 	GetstrC(buf, 20);
 
 	if (buf[0] == '?') {
-	    maxlines = lines = exitinfo.iScreenLen - 1;
+	    maxlines = lines = rows - 1;
 	    /*      Conference           Area  Msgs   Description */
 	    poutCR(LIGHTCYAN, BLACK, (char *)Language(229));
 	    if ((ma = fopen(Msgname, "r")) != NULL) {
@@ -390,7 +392,7 @@ void OLR_UntagArea()
 	GetstrC(buf, 20);
 
 	if (buf[0] == '?') {
-	    maxlines = lines = exitinfo.iScreenLen - 1;
+	    maxlines = lines = rows - 1;
 	    /*      Conference           Area  Msgs   Description */
 	    poutCR(LIGHTCYAN, BLACK, (char *)Language(229));
 	    if ((ma = fopen(Msgname, "r")) != NULL) {
@@ -747,7 +749,7 @@ void OLR_ViewTags()
     /*         Conference           Area  Msgs   Description */
     poutCR(LIGHTCYAN, BLACK, (char *)Language(229));
     colour(CYAN, BLACK);
-    maxlines = lines = exitinfo.iScreenLen - 1;
+    maxlines = lines = rows - 1;
 
     while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
 	fseek(ma, msgshdr.syssize, SEEK_CUR);

@@ -65,13 +65,15 @@ extern	char	*ieHandle;		    /* Users Handle				*/
 extern  time_t  t_start;		    /* Program starttime			*/
 int		do_mailout = FALSE;	    /* Just for linking				*/
 int		chat_with_sysop = FALSE;    /* Just for linking				*/
+extern int	rows;
+extern int	cols;
 
 
 
 /*
  * The main newuser registration function
  */
-int newuser(int rows)
+int newuser(void)
 {
     FILE	    *pUsrConfig;
     int		    i, x, Found, iLang, recno = 0, Count = 0, badname;
@@ -464,7 +466,8 @@ int newuser(int rows)
     } else {
 	usrconfig.iScreenLen = 24;
     }
-    TermInit(usrconfig.GraphMode, 80, usrconfig.iScreenLen);
+    rows = usrconfig.iScreenLen;
+    TermInit(usrconfig.GraphMode, cols, rows);
     alarm_on();
 
     usrconfig.tLastPwdChange  = ltime; /* Days Since Last Password Change */

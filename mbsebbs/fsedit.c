@@ -42,6 +42,10 @@
 #include "ttyio.h"
 
 
+extern int  cols;
+extern int  rows;
+
+
 void Show_Ins(void)
 {
     locate(1, 70);
@@ -180,7 +184,7 @@ void Refresh(void)
     colour(CFG.TextColourF, CFG.TextColourB);
 
     for (i = 1; i <= Line; i++) {
-	if ((i >= TopVisible) && (i < (TopVisible + exitinfo.iScreenLen -1))) {
+	if ((i >= TopVisible) && (i < (TopVisible + rows -1))) {
 	    locate(j, 1);
 	    j++;
 	    PUTSTR(Message[i]);
@@ -259,13 +263,13 @@ void FsMove(unsigned char Direction)
 			 * Handle long lines better.
 			 * For now, we will just refuse to go past col 80
 			 */
-			if ((Col <= strlen(Message[CurRow])) && (Col < 80)){
+			if ((Col <= strlen(Message[CurRow])) && (Col < cols)){
 			    Col++;
 			    Setcursor();
 			} else if (Row < (Line - TopVisible +1)) {
 			    Row++;
 			    Col = 1;
-			    if (Row > (exitinfo.iScreenLen -1)) ScrollDown();
+			    if (Row > (rows -1)) ScrollDown();
 				Refresh();
 			} else
 			    Beep();
@@ -282,8 +286,8 @@ void FsMove(unsigned char Direction)
 			     * Handle long lines better.
 			     * For now, we will just refuse to go past col 80
 			     */
-			    if (Col > 80) 
-				Col = 80;
+			    if (Col > cols) 
+				Col = cols;
 			    if (Row == 1) 
 				ScrollUp();
 			    Row--;
@@ -310,7 +314,7 @@ void FsMove(unsigned char Direction)
 			    Row++;
 			    if (Col > strlen(Message[CurRow+1]) + 1)
 				Col = strlen(Message[CurRow+1]) + 1;
-			    if (Row <= (exitinfo.iScreenLen -1))
+			    if (Row <= (rows -1))
 				Setcursor();
 			    else
 				ScrollDown();
@@ -339,10 +343,10 @@ int FsWordWrap()
     WCol = 79;
     while (Message[CurRow][WCol] != ' ' && WCol > 0)
 	WCol--;
-    if ((WCol > 0) && (WCol < 80)) 
+    if ((WCol > 0) && (WCol < cols)) 
 	WCol++; 
     else 
-	WCol=80;
+	WCol=cols;
     if (WCol <= strlen(Message[CurRow])) {
 	/*
 	 * If WCol = 80 (no spaces in line) be sure to grab
@@ -445,7 +449,7 @@ int Fs_Edit()
 			    Line++;
 			    Row++;
 			    Col = 1;
-			    if (Row >= (exitinfo.iScreenLen -1)) 
+			    if (Row >= (rows -1)) 
 				ScrollDown();
 			    Refresh();
 			    Changed = TRUE;
@@ -756,7 +760,7 @@ int Fs_Edit()
 						    Col--;
 						Row++;
 					    }
-					    if (Row > (exitinfo.iScreenLen -1))
+					    if (Row > (rows -1))
 						ScrollDown();
 					    else
 						Refresh();

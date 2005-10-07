@@ -48,9 +48,10 @@
 
 
 
-extern	int	do_quiet;	/* Logging quiet flag */
+extern	int	do_quiet;	/* Logging quiet flag	*/
 time_t		t_start;
-
+int		cols = 80;	/* Screen columns	*/
+int		rows = 24;	/* Screen rows		*/
 
 
 int main(int argc, char **argv)
@@ -101,8 +102,10 @@ int main(int argc, char **argv)
     Syslog(' ', " ");
     Syslog(' ', "MBSEBBS v%s", VERSION);
 
-    if(ioctl(1, TIOCGWINSZ, &ws) != -1 && ws.ws_col>0 && ws.ws_row>0){
+    if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
 	Syslog('b', "columns=%d lines=%d", ws.ws_col, ws.ws_row);
+	cols = ws.ws_col;
+	rows = ws.ws_row;
     }
 
     if ((rc = rawport()) != 0) {
@@ -166,7 +169,7 @@ int main(int argc, char **argv)
      * Default set the terminal to ANSI mode. If your logo
      * is in color, the user will see color no mather what.
      */
-    TermInit(1, 80, 24);
+    TermInit(1, ws.ws_col, ws.ws_row);
 
     /*
      * Now it's time to check if the bbs is open. If not, we 
