@@ -1040,22 +1040,29 @@ void Choose_Mailbox(char *Option)
 
 void SetEmailArea(char *box)
 {
-	if (!exitinfo.Email)
-		return;
+    char    *p;
 
-	snprintf(sMailpath, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, box);
-	snprintf(sMailbox, 21, "%s", box);
+    if (!exitinfo.Email)
+	return;
 
-	/*
-	 * Get information from the message base
-	 */
-	if (Msg_Open(sMailpath)) {
-		EmailBase.Lowest  = Msg_Lowest();
-		EmailBase.Highest = Msg_Highest();
-		EmailBase.Total   = Msg_Number();
-		Msg_Close();
-	} else
-		WriteError("Error open JAM %s", sMailpath);
+    /*
+     * Use a temp variable because this function can be called line SetEmailArea(sMailbox)
+     */
+    p = xstrcpy(box);
+    snprintf(sMailpath, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, p);
+    snprintf(sMailbox, 21, "%s", p);
+    free(p);
+
+    /*
+     * Get information from the message base
+     */
+    if (Msg_Open(sMailpath)) {
+	EmailBase.Lowest  = Msg_Lowest();
+	EmailBase.Highest = Msg_Highest();
+	EmailBase.Total   = Msg_Number();
+	Msg_Close();
+    } else
+	WriteError("Error open JAM %s", sMailpath);
 }
 
 

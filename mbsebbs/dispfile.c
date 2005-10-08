@@ -654,9 +654,9 @@ void ControlCodeK(int ch)
 		break;
 
 	case 'P':
-		snprintf(sDataFile, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, sMailbox);
+		SetEmailArea(sMailbox);
 		LR.UserID = grecno;
-		if (Msg_Open(sDataFile)) {
+		if (Msg_Open(sMailpath)) {
 		    if (Msg_GetLastRead(&LR) == TRUE) {
 			if (LR.HighReadMsg > EmailBase.Highest)
 			    LR.HighReadMsg = EmailBase.Highest;
