@@ -1673,45 +1673,51 @@ int edit_msgkinds(int y, int x, int val)
 
 char *getlinetype(int val)
 {
-	switch (val) {
-		case POTS:    return (char *)"POTS   ";
-		case ISDN:    return (char *)"ISDN   ";
-		case NETWORK: return (char *)"Network";
-		case LOCAL:   return (char *)"Local  ";
-		default:      return NULL;
-	}
+    switch (val) {
+	case POTS:    return (char *)"POTS   ";
+	case ISDN:    return (char *)"ISDN   ";
+	case NETWORK: return (char *)"Network";
+	case LOCAL:   return (char *)"Local  ";
+	default:      return NULL;
+    }
 }
 
 
 
 void show_linetype(int y, int x, int val)
 {
-	mbse_mvprintw(y, x, getlinetype(val));
+    mbse_mvprintw(y, x, getlinetype(val));
 }
 
 
 
 int edit_linetype(int y, int x, int val)
 {
-	int ch;
+    int ch;
 
-	showhelp((char *)"Toggle ^Line Type^ with spacebar, press <Enter> whene done.");
-	do {
-		set_color(YELLOW, BLUE);
-		show_linetype(y, x, val);
-
-		ch = readkey(y, x, YELLOW, BLUE);
-
-		if (ch == ' ') {
-			if (val < LOCAL)
-				val++;
-			else
-				val = POTS;
-		} 
-	} while (ch != KEY_ENTER && ch != '\012');
-	set_color(WHITE, BLACK);
+    showhelp((char *)"Toggle ^Line Type^ with spacebar, press <Enter> whene done.");
+    do {
+	set_color(YELLOW, BLUE);
 	show_linetype(y, x, val);
-	return val;
+
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    if (val < LOCAL) {
+		val++;
+		/*
+		 * Network is for buildin linetypes only and cannot be selected.
+		 */
+		if (val == NETWORK) 
+		    val++;
+	    } else {
+		val = POTS;
+	    }
+	} 
+    } while (ch != KEY_ENTER && ch != '\012');
+    set_color(WHITE, BLACK);
+    show_linetype(y, x, val);
+    return val;
 }
 
 

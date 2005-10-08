@@ -25,7 +25,7 @@ H_IMAGES	= images/b_arrow.png  images/magic.png        images/nodes1.png \
 		  images/filefind.png images/nodelist1.png    images/tty.png \
 		  images/files.png    images/nodelist2.png    images/tty1.png \
 		  images/go_to.png    images/nodelist3.png    images/tty2.png \
-		  images/hatch.png    images/nodelist4.png    images/tty3.png \
+		  images/hatch.png    images/nodelist4.png \
 		  images/language.png images/nodelist5.png    images/uarrow.png \
 		  images/larrow.png   images/users.png        images/doors2.png \
 		  images/mbse.png     images/taskmgr.png      images/mbsebbs-s.png \

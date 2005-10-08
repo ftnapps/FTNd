@@ -23,6 +23,8 @@ v0.81.0		07-Oct-2005
 
 	mbsetup:
 		Removed settings for users screenlength.
+		In tty setup the network records are automatic removed. The
+		setting for auth log is removed (was never used).
 
 	lang:	Removed prompts 64, 80 and 81.
 		Changed prompt 348.

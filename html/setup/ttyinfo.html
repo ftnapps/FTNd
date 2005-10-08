@@ -14,22 +14,20 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 29-Dec-2001</h5></div>
+<div align='right'><h5>Last update 08-Oct-2005</h5></div>
 <div align='center'><H1>MBSE BBS Setup - TTY Lines.</H1></div>
 
 <h3>Introduction.</H3>
 <P>
-For each line your bbs has you must setup a tty line. This also includes 
-console lines (for local login), network lines for internet and lan connections
-and X-terminal connections, ISDN lines, and Analogue modem lines. If a call
-comes in over a tty you didn't define, that call is refused. So if you are
-directly connected to the internet, and have only 5 network tty's defined,
-then maximum 5 users are allowed to telnet to your bbs via the internet.
+For each modem or ISDN line your bbs has you must setup a tty line. 
+This also includes console lines (for local login). Since version 0.81.0
+you don't need to setup network lines anymore, these are now buildin.
+If a call comes in over a (modem or ISDN) tty you didn't define, that call is refused. 
 <p>
 One thing about the portspeed, this is only needed for devices connected to
-serial ports such as modems and external ISDN adapters. For network tty's and
-internal ISDN cards this should be set to zero. If you set it to some other value, 
-things still word but you will get error messages in the logs.
+serial ports such as modems and external ISDN adapters. 
+For internal ISDN cards this should be set to zero. If you set it to some other value, 
+things still work but you will get error messages in the logs.
 <p>
 A note about the EMSI flags, this <u>must</u> match your modem capabilities, if
 not dialout will not work correct. It is used to see which line to use to call
@@ -48,7 +46,6 @@ may represent combined ISDN and analogue flags but the flags that belong to a mo
 <strong>Fido Flags   </strong>The EMSI flags for this line, include your modem flags here!
 <strong>Line Type    </strong>Can be POTS, ISDN, Network and Local.
 <strong>Available    </strong>Is this line available for use.
-<strong>Auth. log    </strong>Not in use yet.
 <strong>Honor ZMH    </strong>Deny users during ZMH on this line.
 <strong>Deleted      </strong>If this line must be deleted.
 <strong>Callout      </strong>Allow calling other systems from this line.
@@ -63,7 +60,6 @@ may represent combined ISDN and analogue flags but the flags that belong to a mo
 <IMG SRC="../images/tty.png" ALT="Overview of tty ports"><P>
 <IMG SRC="../images/tty1.png" ALT="A analogue modem port at COM1"><P>
 <IMG SRC="../images/tty2.png" ALT="A ISDN channel"><P>
-<IMG SRC="../images/tty3.png" ALT="A network (internet telnet) port"><P>
 
 <A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
 <A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>

@@ -1517,7 +1517,7 @@ struct	_ttyinfo {
 	char		flags[31];		/* Fidonet capabilty flags */
 	int		type;			/* Pots/ISDN/Netw/Local	   */
 	unsigned	available	: 1;	/* Available flag	   */
-	unsigned	authlog		: 1;	/* Is speed logged	   */
+	unsigned	xauthlog	: 1;
 	unsigned	honor_zmh	: 1;	/* Honor ZMH on this line  */
 	unsigned	deleted		: 1;	/* Is deleted		   */
 	unsigned	callout		: 1;	/* Callout allowed	   */
