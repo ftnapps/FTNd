@@ -29,7 +29,7 @@
 28	page.c				|Enter a short reason for chat
 29	chat.c				|The Sysop cannot use the bbs to chat! Use mbmon to chat
 30	chat.c				|Sorry, the chatserver is not available
-31	.c				|
+31	mbsebbs.c			|line 
 32	.c				|
 33	.c				|
 34	.c				|
@@ -346,7 +346,7 @@
 345	oneline.c			| # A Date       User            Description
 346	oneline.c			| # Description 
 347	oneline.c			|Please enter number to list:  
-348	mbsebbs.c			|Connected on port 
+348	mbsebbs.c			|Connected from 
 349	file.c				|File(s)    : 
 350	file.c				|Size       : 
 351	file.c				|Protocol   : 

@@ -12,11 +12,21 @@ v0.81.0		07-Oct-2005
 
 	mbsebbs:
 		Automatic dynamic detection of the users screensize.
+		There is no check anymore for a valid tty with network calls,
+		instead a fake ttyinfo record is created. Modem/ISDN and
+		console still need a valid configured tty.
+
+	mbnewusr:
+                There is no check anymore for a valid tty with network calls,
+                instead a fake ttyinfo record is created. Modem/ISDN and
+                console still need a valid configured tty.
 
 	mbsetup:
 		Removed settings for users screenlength.
 
 	lang:	Removed prompts 64, 80 and 81.
+		Changed prompt 348.
+		Added prompt 31.
 
 	examples:
 		removed Change Screenlength from the English menus and 

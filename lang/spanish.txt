@@ -29,7 +29,7 @@ YN|Check for new files at login [Y/n]:
 |Enter a short reason for chat
 |The Sysop cannot use the bbs to chat! Use mbmon to chat
 |Sorry, the chatserver is not available
-|
+|line 
 |
 |
 |
@@ -346,7 +346,7 @@ SN|¨Ver esta BBS? [S/n]:
 |n§ A Fecha      Usuario         Descripci¢n
 | # Descripci¢n 
 |Teclee n£mero a listar:  
-|Conectado en puerto 
+|Connected from 
 |Ficheros  : 
 |Tama¤o    : 
 |Protocolo : 

@@ -43,9 +43,11 @@
 #include "timeout.h"
 
 
+#define	RBUFLEN	    81
+
 int		chat_with_sysop = FALSE;    /* Global sysop chat flag	*/
 int		chatting = FALSE;	    /* Global chatting flag	*/
-char		rbuf[50][81];		    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
+char		rbuf[50][RBUFLEN];	    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
 int		rpointer = 0;		    /* Chat receive pointer	*/
 int		rsize = 5;		    /* Chat receive size	*/
 extern pid_t	mypid;
@@ -126,7 +128,7 @@ void DispMsg(char *msg)
 {
     int     i;
 
-    strncpy(rbuf[rpointer], msg, 81);
+    strncpy(rbuf[rpointer], msg, RBUFLEN);
     Showline(2 + rpointer, 1, rbuf[rpointer]);
     if (rpointer == rsize) {
 	/*
@@ -135,7 +137,7 @@ void DispMsg(char *msg)
 	for (i = 0; i <= rsize; i++) {
 	    locate(i + 2, 1);
 	    clrtoeol();
-	    snprintf(rbuf[i], 81, "%s", rbuf[i+1]);
+	    snprintf(rbuf[i], RBUFLEN, "%s", rbuf[i+1]);
 	    Showline(i + 2, 1, rbuf[i]);
 	}
     } else {

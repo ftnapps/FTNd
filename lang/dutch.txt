@@ -29,7 +29,7 @@ JN|Kijk voor nieuwe bestanden tijdens login [J/n]:
 |Geef een korte reden om te kletsen
 |De sysop kan niet kletsen via het bbs! Gebruik mbmon
 |Sorry, de chatserver is niet beschikbaar
-|
+|lijn 
 |
 |
 |
@@ -346,7 +346,7 @@ JN|Bekijk dit BBS? [J/n]:
 | # A Datum      Gebruiker       Omschrijving
 | # Omschrijving 
 |Geef nummer om te bekijken: 
-|Verbonden via poort 
+|Verbonden vanaf 
 |Bestand(en): 
 |Grootte    : 
 |Protocol   : 

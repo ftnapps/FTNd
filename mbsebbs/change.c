@@ -45,10 +45,6 @@
 #include "ttyio.h"
 
 
-extern int  cols;
-extern int  rows;
-
-
 
 int Chg_Language(int NewMode)
 {

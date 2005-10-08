@@ -120,8 +120,6 @@ int main(int argc, char **argv)
     if ((p = getenv("CALLER_ID")) != NULL)
 	if (strncmp(p, "none", 4))
 	    Syslog('+', "CALLER_ID  %s", p);
-    if ((p = getenv("REMOTEHOST")) != NULL)
-	Syslog('+', "REMOTEHOST %s", p);
     if ((p = getenv("TERM")) != NULL)
 	Syslog('+', "TERM=%s %dx%d", p, cols, rows);
     else
@@ -137,7 +135,7 @@ int main(int argc, char **argv)
     InitLanguage();
     InitMenu();
     memset(&MsgBase, 0, sizeof(MsgBase));
-		
+
     i = getpid();
 
     if ((tty = ttyname(0)) == NULL) {
@@ -188,7 +186,19 @@ int main(int argc, char **argv)
     snprintf(temp, 81, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
     poutCR(YELLOW, BLACK, temp);
     pout(WHITE, BLACK, (char *)COPYRIGHT);
-    Enter(2);
+
+    /*
+     * Check and report screens that are too small
+     */
+    if ((cols < 80) || (rows < 24)) {
+	snprintf(temp, 81, "Your screen is set to %dx%d, we use 80x24 at least", cols, rows);
+	poutCR(LIGHTRED, BLACK, temp);
+	Enter(1);
+	cols = 80;
+	rows = 24;
+    } else {
+	Enter(2);
+    }
  
     /*
      * Check users homedirectory, some *nix systems let users in if no
@@ -202,50 +212,65 @@ int main(int argc, char **argv)
 	Quick_Bye(MBERR_OK);
     }
     
-    /*
-     * Check if this port is available. In iNode we set a fake
-     * line number, this will be used by doors.
-     */
-    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-    if ((pTty = fopen(temp, "r")) == NULL) {
-	WriteError("Can't read %s", temp);	
-    } else {
-	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
 
-	while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
-	    if (strcmp(ttyinfo.tty, pTTY) == 0) 
-		break;
-	}
-	fclose(pTty);
-
-	if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
-	    Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
-	    snprintf(temp, 81, "No BBS on this port allowed!\r\n\r\n");
-	    PUTSTR(temp);
-	    Free_Language();
-	    Quick_Bye(MBERR_OK);
-	}
-
-	/* 
-	 * Display Connect String if turned on.
+    if ((p = getenv("REMOTEHOST")) != NULL) {
+	/*
+	 * Network connection, no tty checking but fill a ttyinfo record.
 	 */
-	if (CFG.iConnectString) {
-	    /* Connected on port */
-	    snprintf(temp, 81, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
-	    pout(CYAN, BLACK, temp);
-	    /* on */
-	    snprintf(temp, 81, "%s %s", (char *) Language(135), ctime(&ltime));
-	    PUTSTR(temp);
-	    Enter(1);
+	memset(&ttyinfo, 0, sizeof(ttyinfo));
+	snprintf(ttyinfo.comment, 41, "%s", p);
+	snprintf(ttyinfo.tty,      7, "%s", pTTY);
+	snprintf(ttyinfo.speed,   21, "10 mbit");
+	snprintf(ttyinfo.flags,   31, "IBN,IFC,XX");
+	ttyinfo.type = NETWORK;
+	ttyinfo.available = TRUE;
+	snprintf(ttyinfo.name,    36, "Network port #%d", iNode);
+    } else {
+	/*
+	 * Check if this port is available.
+	 */
+	snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	if ((pTty = fopen(temp, "r")) == NULL) {
+	    WriteError("Can't read %s", temp);	
+	} else {
+	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
+
+	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
+		if (strcmp(ttyinfo.tty, pTTY) == 0) 
+		    break;
+	    }
+	    fclose(pTty);
+
+	    if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
+		Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
+		snprintf(temp, 81, "No BBS on this port allowed!\r\n\r\n");
+		PUTSTR(temp);
+		Free_Language();
+		Quick_Bye(MBERR_OK);
+	    }
 	}
+    }
+
+    /* 
+     * Display Connect String if turned on.
+     */
+    if (CFG.iConnectString) {
+	/* Connected from */
+	snprintf(temp, 81, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	pout(CYAN, BLACK, temp);
+	/* line */
+	snprintf(temp, 81, "%s%d ", (char *) Language(31), iNode);
+	pout(CYAN, BLACK, temp);
+	/* on */
+	snprintf(temp, 81, "%s %s", (char *) Language(135), ctime(&ltime));
+	PUTSTR(temp);
+	Enter(1);
     }
 
     /*
      * Some debugging for me
      */
     Syslog('b', "setlocale(LC_ALL, NULL) returns \"%s\"", printable(setlocale(LC_ALL, NULL), 0));
-    /* Next is not usefull */
-    Syslog('b', "nl_langinfo(LC_CTYPE) returns \"%s\"", printable(nl_langinfo(LC_CTYPE), 0));
 
     snprintf(sMailbox, 21, "mailbox");
     colour(LIGHTGRAY, BLACK);

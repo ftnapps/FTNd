@@ -127,8 +127,6 @@ int main(int argc, char **argv)
     if ((p = getenv("CALLER_ID")) != NULL)
 	if (strncmp(p, "none", 4))
 	    Syslog('+', "CALLER  %s", p);
-    if ((p = getenv("REMOTEHOST")) != NULL)
-	Syslog('+', "REMOTEHOST %s", p);
     if ((p = getenv("TERM")) != NULL)
 	Syslog('+', "TERM=%s %dx%d", p, cols, rows);
     else
@@ -188,41 +186,58 @@ int main(int argc, char **argv)
     pout(WHITE, BLACK, (char *)COPYRIGHT);
     Enter(2);
  
-    /*
-     * Check if this port is available.
-     */
-    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-
-    if ((pTty = fopen(temp, "r")) == NULL) {
-	WriteError("Can't read %s", temp);	
-    } else {
-	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
-
-	while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
-	    if (strcmp(ttyinfo.tty, pTTY) == 0) 
-		break;
-	}
-	fclose(pTty);
-
-	if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
-	    Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
-	    PUTSTR((char *)"No BBS on this port allowed!");
-	    Enter(2);
-	    Fast_Bye(MBERR_OK);
-	}
-
-	/* 
-	 * Ask whether to display Connect String 
+    if ((p = getenv("REMOTEHOST")) != NULL) {
+	/*
+    	 * Network connection, no tty checking but fill a ttyinfo record.
 	 */
-	if (CFG.iConnectString) {
-	    /* Connected on port */
-	    snprintf(temp, 81, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
-	    pout(CYAN, BLACK, temp);
-	    /* on */
-	    snprintf(temp, 81, "%s %s", (char *) Language(135), ctime(&ltime));
-	    PUTSTR(temp);
-	    Enter(1);
+	memset(&ttyinfo, 0, sizeof(ttyinfo));
+	snprintf(ttyinfo.comment, 41, "%s", p);
+	snprintf(ttyinfo.tty,      7, "%s", pTTY);
+	snprintf(ttyinfo.speed,   21, "10 mbit");
+	snprintf(ttyinfo.flags,   31, "IBN,IFC,XX");
+	ttyinfo.type = NETWORK;
+	ttyinfo.available = TRUE;
+	snprintf(ttyinfo.name,    36, "Network port #%d", iNode);
+    } else {
+	/*
+	 * Check if this port is available.
+	 */
+	snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+
+	if ((pTty = fopen(temp, "r")) == NULL) {
+	    WriteError("Can't read %s", temp);	
+	} else {
+	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
+
+	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
+		if (strcmp(ttyinfo.tty, pTTY) == 0) 
+		    break;
+	    }
+	    fclose(pTty);
+
+	    if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
+		Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
+		PUTSTR((char *)"No BBS on this port allowed!");
+		Enter(2);
+		Fast_Bye(MBERR_OK);
+	    }
 	}
+    }
+
+    /* 
+     * Ask whether to display Connect String 
+     */
+    if (CFG.iConnectString) {
+	/* Connected from */
+	snprintf(temp, 81, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	pout(CYAN, BLACK, temp);
+	/* line */
+	snprintf(temp, 81, "%s%d ", (char *) Language(31), iNode);
+	pout(CYAN, BLACK, temp);
+	/* on */
+	snprintf(temp, 81, "%s %s", (char *) Language(135), ctime(&ltime));
+	PUTSTR(temp);
+	Enter(1);
     }
 
     alarm_on();
