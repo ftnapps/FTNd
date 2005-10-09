@@ -1,7 +1,9 @@
 $Id$
 
 
-v0.81.0		07-Oct-2005
+v0.81.1		09-Oct-2005
+
+v0.81.0		07-Oct-2005 - 09-Oct-2005
 
 	upgrade:
 		The bbs menu Change Screenlength is obsolete. Remove this from
