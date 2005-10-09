@@ -7,6 +7,9 @@ v0.81.0		07-Oct-2005
 		The bbs menu Change Screenlength is obsolete. Remove this from
 		the menus (setup.mnu) and ascii/ansi screens (setup.a??).
 
+	libmbse.a:
+		In nodelock show program name if node is already locked.
+
 	mbcico:
 		Made binkp GZ and BZ2 compression final.
 

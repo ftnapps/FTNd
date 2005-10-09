@@ -35,7 +35,7 @@
 
 int nodelock(faddr *addr, pid_t mypid)
 {
-    char    *fn, *tfn, *p, tmp[16];
+    char    *fn, *tfn, *p, tmp[16], *progname;
     FILE    *fp;
     pid_t   pid;
     int	    tmppid, sverr, rc;
@@ -119,7 +119,12 @@ int nodelock(faddr *addr, pid_t mypid)
 	Syslog('+', "Found lock older then 6 hours for %s, unlink", ascfnode(addr,0x1f));
 	unlink(fn);
     } else {
-	Syslog('+', "Node %s is locked by pid %d", ascfnode(addr, 0x1f), pid);
+	progname = calloc(PATH_MAX, sizeof(char));
+	if (pid2prog(pid, progname, PATH_MAX) == 0)
+	    Syslog('+', "Node %s is locked by pid %d (%s)", ascfnode(addr, 0x1f), pid, progname);
+	else
+	    Syslog('+', "Node %s is locked by pid %d", ascfnode(addr, 0x1f), pid);
+	free(progname);
 	unlink(tfn);
 	free(tfn);
 	return 1;
