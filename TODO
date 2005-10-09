@@ -22,11 +22,11 @@ everything:
 	N: Increase size of Unix usernames > 8. The limit on Slackware is 32
 	   characters, defined in utmp.h in UT_NAMESIZE
 
-	N: Add personal message area.
+	L: Add personal message area.
 
 install:
-	N: On some (unsupported) distro's with xinetd the installation script
-	   also adds entries to inetd.conf.
+	L: On some (unsupported) distro's with xinetd the installation script
+	   also adds entries to inetd.conf. Is this still a problem?
 
 libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
@@ -36,8 +36,6 @@ mbsebbs:
 	N: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
-
-	L: ChangeHandle, allow own unix name as handle.
 
 	X: OLR: include private email area in download packets. See also global
            wish for private mail areas.
@@ -115,8 +113,6 @@ mbsetup:
 	   too high outbound stats and the outbound is scanned multiple times.
 
 	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
-
-	N: Add switch for file area to skip checking and indexing.
 
 	N: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.
