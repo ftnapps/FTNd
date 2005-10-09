@@ -6,13 +6,13 @@ include ../Makefile.global
 
 SRCS		= callstat.c scanout.c taskcomm.c taskinfo.c taskstat.c taskibc.c \
 		  mbtask.c outstat.c signame.c taskdisk.c taskregs.c taskutil.c \
-		  ports.c calllist.c ping.c taskchat.c crc.c
+		  ports.c calllist.c ping.c taskchat.c crc.c pidinfo.c
 HDRS		= callstat.h mbtask.h outstat.h signame.h taskdisk.h taskregs.h  taskutil.h \
 		  scanout.h taskcomm.h taskinfo.h taskstat.h taskibc.h \
 		  ports.h calllist.h ping.h taskchat.h
 OBJS		= callstat.o scanout.o taskcomm.o taskinfo.o taskstat.o taskibc.o \
 		  mbtask.o outstat.o signame.o taskdisk.o taskregs.o taskutil.o \
-		  ports.o calllist.o ping.o taskchat.o crc.o
+		  ports.o calllist.o ping.o taskchat.o crc.o pidinfo.o
 SLIBS		= ../lib/libnodelist.a
 OTHER		= Makefile issue issue.netbsd
 

@@ -183,7 +183,7 @@ void load_ports()
 void check_ports(void)
 {
     pp_list	*tpl;
-    char	*lckname;
+    char	*lckname, *progname;
     FILE	*lf;
     int		tmppid, changed = FALSE;
     pid_t	rempid = 0;
@@ -215,7 +215,12 @@ void check_ports(void)
 		if (!tpl->locked) {
 		    tpl->locked = rempid;
 		    tpl->locktime = 0;
-		    Syslog('+', "Port %s locked, pid %d", tpl->tty, rempid);
+		    progname = calloc(PATH_MAX, sizeof(char));
+		    if (pid2prog(rempid, progname, PATH_MAX) == 0)
+			Syslog('+', "Port %s locked, pid %d (%s)", tpl->tty, rempid, progname);
+		    else
+			Syslog('+', "Port %s locked, pid %d", tpl->tty, rempid);
+		    free(progname);
 		} else {
 		    /*
 		     * Count locktime

@@ -2549,7 +2549,13 @@ int  magic_check(char *, char *);   /* Check if magic alias exists	*/
 
 
 
-/************************************************************************
+/*
+ * pidinfo.c
+ */
+int pid2prog(pid_t, char *, size_t);	/* Find progrname for a pid	*/
+
+
+/*************************************************************************
  *
  *  Charset mapping
  */
