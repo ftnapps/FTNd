@@ -353,12 +353,12 @@ int FsWordWrap()
 	 * character 79.  Otherwise, drop it, because it's a space.
 	 */
 	if ((WCol == 80) || (WCol-1 == Col))
-	    snprintf(tmpLine, 81, "%s%c", tmpLine, Message[CurRow][79]);
+	    snprintf(tmpLine + strlen(tmpLine), 5, "%c", Message[CurRow][79]);
 	/*
 	 * Grab all characters from WCol to end of line.
 	 */
 	for (i = WCol; i < strlen(Message[CurRow]); i++) {
-	    snprintf(tmpLine, 81, "%s%c", tmpLine, Message[CurRow][i]);
+	    snprintf(tmpLine + strlen(tmpLine), 5, "%c", Message[CurRow][i]);
 	}
 	/*
 	 * Truncate current row.
@@ -391,7 +391,7 @@ int FsWordWrap()
 		WCol = strlen(tmpLine)+1; 
 	    else {
 		if (tmpLine[strlen(tmpLine)] != ' ')
-		    snprintf(tmpLine, 81, "%s ", tmpLine);
+		    snprintf(tmpLine + strlen(tmpLine), 1, " ");
 		WCol = strlen(tmpLine);
 	    }
 	    snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s", strcat(tmpLine, Message[CurRow+1]));
@@ -440,7 +440,7 @@ int Fs_Edit()
 				if (Col <= strlen(Message[CurRow])) {
 				    /* Enter in middle of line */
 				    for (i = Col-1; i <= strlen(Message[CurRow]); i++) {
-					snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s%c", Message[CurRow+1], Message[CurRow][i]);
+					snprintf(Message[CurRow+1] + strlen(Message[CurRow+1]), 5, "%c", Message[CurRow][i]);
 				    }
 				    Message[CurRow][Col-1] = '\0';
 				}
@@ -533,7 +533,7 @@ int Fs_Edit()
 			    } else if (((strlen(Message[CurRow]) + strlen(Message[CurRow+1]) < 75) 
 				    || (strlen(Message[CurRow]) == 0)) && (CurRow < Line)) {
 				for (i = 0; i < strlen(Message[CurRow+1]); i++)
-				    snprintf(Message[CurRow], TEXTBUFSIZE +1, "%s%c", Message[CurRow], Message[CurRow+1][i]);
+				    snprintf(Message[CurRow] + strlen(Message[CurRow]), 5, "%c", Message[CurRow+1][i]);
 				for (i = CurRow+1; i < Line; i++)
 				    snprintf(Message[i], TEXTBUFSIZE +1, "%s", Message[i+1]);
 				Message[Line][0] = '\0';
@@ -729,7 +729,7 @@ int Fs_Edit()
 				    /*
 				     *  Append to line
 				     */
-				    snprintf(Message[CurRow], TEXTBUFSIZE +1, "%s%c", Message[CurRow], ch);
+				    snprintf(Message[CurRow] + strlen(Message[CurRow]), 5, "%c", ch);
 				    if (strlen(Message[CurRow]) > 79){
 					Col = FsWordWrap();
 					Row++;
