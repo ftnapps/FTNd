@@ -4,7 +4,7 @@
 /* $Id$ */
 
 void ShowEmailHdr(void);
-int  Read_a_Email(unsigned long);
+int  Read_a_Email(unsigned int);
 void Read_Email(void);
 void Write_Email(void);
 void Reply_Email(int);

@@ -88,7 +88,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 {
     char        *temp, *buf, *tag = NULL, *desc = NULL, *p, *raid = NULL, *flow = NULL;
     FILE        *ap, *mp, *fp;
-    long        offset, AreaNr;
+    int		offset, AreaNr;
     int         i, rc = 0, Found = FALSE;
     sysconnect  System;
     faddr	*From, *To;

@@ -257,7 +257,7 @@ char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 		 * Generate ARCfile name from the CRC of the ASCII string
 		 * of the node address.
 		 */
-		snprintf(p, PATH_MAX -1, "/%08lx.%s0", StringCRC32(ascfnode(addr, 0x1f)), ext);
+		snprintf(p, PATH_MAX -1, "/%08x.%s0", StringCRC32(ascfnode(addr, 0x1f)), ext);
 	} else {
 		if (addr->point) {
 			snprintf(p, PATH_MAX -1, "/%04x%04x.%s0",

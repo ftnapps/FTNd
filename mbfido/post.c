@@ -41,12 +41,12 @@ extern int		do_quiet;		/* Suppress screen output    */
 
 
 
-int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
+int Post(char *To, int Area, char *Subj, char *File, char *Flavor)
 {
     int		    i, rc = FALSE, has_tear = FALSE, has_origin = FALSE;
     char	    *aka, *temp, *sAreas;
     FILE	    *fp, *tp;
-    unsigned long   crc = -1;
+    unsigned int    crc = -1;
     time_t	    tt;
     struct tm	    *t;
 
@@ -54,11 +54,11 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 
     if (!do_quiet) {
 	mbse_colour(CYAN, BLACK);
-	printf("Post \"%s\" to \"%s\" in area %ld\n", File, To, Area);
+	printf("Post \"%s\" to \"%s\" in area %d\n", File, To, Area);
     }
 
     IsDoing("Posting");
-    Syslog('+', "Post \"%s\" area %ld to \"%s\" flavor %s", File, Area, To, Flavor);
+    Syslog('+', "Post \"%s\" area %d to \"%s\" flavor %s", File, Area, To, Flavor);
     Syslog('+', "Subject: \"%s\"", Subj);
 
     if ((tp = fopen(File, "r")) == NULL) {
@@ -213,7 +213,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     }
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
+    snprintf(temp, PATH_MAX, "\001MSGID: %s %08x", aka2str(msgs.Aka), sequencer());
     MsgText_Add2(temp);
     Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
     Msg.ReplyCRC = 0xffffffff;
@@ -275,7 +275,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     if (msgs.Type != LOCALMAIL) {
 	snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), (msgs.Type == ECHOMAIL) ? "echo" : "net");
 	if ((fp = fopen(temp, "a")) != NULL) {
-	    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
+	    fprintf(fp, "%s %u\n", msgs.Base, Msg.Id);
 	    fclose(fp);
 	}
 	CreateSema((char *)"mailout");

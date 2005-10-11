@@ -38,40 +38,40 @@
  * Returns the offset from your location to UTC. So in the MET timezone
  * this returns -60 (wintertime). People in the USA get positive results.
  */
-long gmt_offset(time_t now)
+int gmt_offset(time_t now)
 {
-	struct tm	ptm;
-	struct tm	gtm;
-	long		offset;
+    struct tm	ptm;
+    struct tm	gtm;
+    int		offset;
 
-	if (!now) 
-		now = time(NULL);
-	ptm = *localtime(&now);
+    if (!now) 
+	now = time(NULL);
+    ptm = *localtime(&now);
 
-	/* 
-	 * To get the timezone, compare localtime with GMT.
-	 */
-	gtm = *gmtime(&now);
+    /* 
+     * To get the timezone, compare localtime with GMT.
+     */
+    gtm = *gmtime(&now);
 
-	/* 
-	 * Assume we are never more than 24 hours away.
-	 */
-	offset = gtm.tm_yday - ptm.tm_yday;
-	if (offset > 1)
-	    offset = -24;
-	else if (offset < -1)
-	    offset = 24;
-	else
-	    offset *= 24;
+    /* 
+     * Assume we are never more than 24 hours away.
+     */
+    offset = gtm.tm_yday - ptm.tm_yday;
+    if (offset > 1)
+	offset = -24;
+    else if (offset < -1)
+        offset = 24;
+    else
+        offset *= 24;
 
-	/* 
-	 * Scale in the hours and minutes; ignore seconds.
-	 */
-	offset += gtm.tm_hour - ptm.tm_hour;
-	offset *= 60;
-	offset += gtm.tm_min - ptm.tm_min;
+    /* 
+     * Scale in the hours and minutes; ignore seconds.
+     */
+    offset += gtm.tm_hour - ptm.tm_hour;
+    offset *= 60;
+    offset += gtm.tm_min - ptm.tm_min;
 
-	return offset;
+    return offset;
 }
 
 
@@ -85,7 +85,7 @@ char *gmtoffset(time_t now)
 	static char	buf[6]="+0000";
 	char		sign;
 	int		hr, min;
-	long		offset;
+	int		offset;
 
 	offset = gmt_offset(now);
 

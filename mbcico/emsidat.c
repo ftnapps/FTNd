@@ -220,7 +220,7 @@ char *mkemsidat(int caller)
     p=xstrcat(p,phone?emsiencode(phone):(char *)"-Unpublished-");
     p=xstrcat(p,(char *)"][");
     if ((CFG.IP_Speed) && (emsi_local_protos & PROT_TCP))
-	snprintf(cbuf,16,"%ld",CFG.IP_Speed);
+	snprintf(cbuf,16,"%d",CFG.IP_Speed);
     else 
 	strcpy(cbuf,"9600");
     p=xstrcat(p,cbuf);
@@ -228,7 +228,7 @@ char *mkemsidat(int caller)
     p=xstrcat(p,flags?emsiencode(flags):(char *)"");
     p=xstrcat(p,(char *)"]}{TRX#}{[");
     tt = time(NULL);
-    snprintf(cbuf,16,"%08lX", (unsigned long)mtime2sl(tt));
+    snprintf(cbuf,16,"%08X", (unsigned int)mtime2sl(tt));
     p=xstrcat(p,cbuf);
     p=xstrcat(p,(char *)"]}{TZUTC}{[");
     p=xstrcat(p,gmtoffset(tt));
@@ -489,21 +489,21 @@ int scanemsidat(char *buf)
 	    } else
 		Syslog('+', "remote     TRX#: %s",p);
 	} else if (strcasecmp(p, "TRAF") == 0) {
-	    unsigned long tt, tt1;
+	    unsigned int tt, tt1;
 
 	    p = sel_brace(NULL);
-	    if (sscanf(p, "%08lx %08lx", &tt, &tt1) == 2) {
+	    if (sscanf(p, "%08x %08x", &tt, &tt1) == 2) {
 		Syslog('+', "netmail : %u byte(s)", tt);
 		Syslog('+', "echomail: %u byte(s)", tt1);
 	    } else {
 		Syslog('+', "TRAF    : %s", p);
 	    }
 	} else if (strcasecmp(p, "MOH#") == 0) {
-	    unsigned long tt;
+	    unsigned int tt;
 
 	    p = sel_brace(NULL);
 	    p = sel_bracket(p);
-	    if (sscanf(p, "%08lx", &tt) == 1)
+	    if (sscanf(p, "%08x", &tt) == 1)
 		Syslog('+', "on hold : %u byte(s)", tt);
 	    else
 		Syslog('+', "MOH#    : %s", p);

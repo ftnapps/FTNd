@@ -188,7 +188,7 @@ char *Oneliner_Get()
 {
     FILE	*pOneline;
     int		i, j, in, id, recno = 0;
-    long	offset;
+    int		offset;
     int		nrecno;
     char	*sFileName;
     static char	temp[81];
@@ -309,7 +309,7 @@ void Oneliner_Show()
 {
     FILE    *pOneline;
     int	    recno = 0;
-    long    offset;
+    int	    offset;
     char    *sFileName, msg[81];
 
     sFileName = calloc(PATH_MAX, sizeof(char));
@@ -355,7 +355,7 @@ void Oneliner_Delete()
 {
     FILE    *pOneline;
     int	    recno = 0, nrecno = 0;
-    long    offset;
+    int	    offset;
     char    srecno[7], *sFileName, stemp[50], sUser[36], msg[81];
 
     sFileName = calloc(PATH_MAX, sizeof(char));

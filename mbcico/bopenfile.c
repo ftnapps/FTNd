@@ -55,7 +55,7 @@ FILE *bopenfile(char *fname, time_t remtime, off_t remsize, off_t *resofs)
 
     strcpy(ctt,date(remtime));
 
-    Syslog('b', "Binkp: bopenfile(\"%s\",%s,%lu)", MBSE_SS(fname), MBSE_SS(ctt), (unsigned long)remsize);
+    Syslog('b', "Binkp: bopenfile(\"%s\",%s,%u)", MBSE_SS(fname), MBSE_SS(ctt), (unsigned int)remsize);
 
     if ((fname == NULL) || (fname[0] == '\0')) {
 	Syslog('+', "Binkp: bopenfile fname=NULL");
@@ -100,8 +100,8 @@ FILE *bopenfile(char *fname, time_t remtime, off_t remsize, off_t *resofs)
     temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s.state", infpath);
     if ((fp = fopen(temp, "w"))) {
-	fprintf(fp, "%lu\n", (unsigned long)remtime);
-	fprintf(fp, "%lu\n", (unsigned long)remsize);
+	fprintf(fp, "%u\n", (unsigned int)remtime);
+	fprintf(fp, "%u\n", (unsigned int)remsize);
 	fclose(fp);
     }
     free(temp);
@@ -116,7 +116,7 @@ FILE *bopenfile(char *fname, time_t remtime, off_t remsize, off_t *resofs)
 	freqname = xstrcat(freqname, fname);
     }
 
-    Syslog('b', "Binkp: opened file \"%s\", restart at %lu", infpath, (unsigned long)*resofs);
+    Syslog('b', "Binkp: opened file \"%s\", restart at %u", infpath, (unsigned int)*resofs);
     return infp;
 }
 

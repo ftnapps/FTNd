@@ -4,7 +4,7 @@
  * Purpose ...............: Raw I/O routines.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -117,7 +117,7 @@ unsigned char mbse_Getone()
 /*
  * Read the (locked) speed from the tty
  */
-long mbse_Speed(void)
+int mbse_Speed(void)
 {
 	speed_t		mspeed;
 

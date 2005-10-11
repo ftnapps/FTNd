@@ -49,8 +49,8 @@ char		Crcflg;
 char		Lastrx;
 int		Fullname = 0;		/* transmit full pathname */
 int		Filesleft;
-long		Totalleft;
-long		bytes_sent;
+int		Totalleft;
+int		bytes_sent;
 int		firstsec;
 int		Optiong;		/* Let it rip no wait for sector ACK's */
 int		Totsecs;		/* total number of sectors this file */
@@ -60,7 +60,7 @@ int		zmodem_requested = FALSE;
 static int	no_unixmode;
 struct timeval  starttime, endtime;
 struct timezone	tz;
-long		skipsize;
+int		skipsize;
 
 
 extern int  Rxtimeout;
@@ -68,7 +68,7 @@ extern int  Rxtimeout;
 
 static int wctxpn(char *);
 static int getnak(void);
-static int wctx(long);
+static int wctx(int);
 static int wcputsec(char *, int, size_t);
 static size_t filbuf(char *, size_t);
 
@@ -127,7 +127,7 @@ int ymsndfiles(down_list *lst, int use1k)
 				    tmpf->sent = TRUE;
 				    gettimeofday(&endtime, &tz);
 				    Syslog('+', "%s: OK %s", protname(), 
-					    transfertime(starttime, endtime, (unsigned long)tmpf->size - skipsize, TRUE));
+					    transfertime(starttime, endtime, (unsigned int)tmpf->size - skipsize, TRUE));
 				}
 	    }
 
@@ -180,11 +180,11 @@ static int wctxpn(char *fname)
 	fstat(fileno(input_f), &f);
 
 	Syslog('+', "%s: send \"%s\"", protname(), MBSE_SS(fname));
-	Syslog('+', "%s: size %lu bytes, dated %s", protname(), (unsigned long)f.st_size, rfcdate(f.st_mtime));
+	Syslog('+', "%s: size %lu bytes, dated %s", protname(), (unsigned int)f.st_size, rfcdate(f.st_mtime));
 	    
 	if (protocol == ZM_XMODEM) {
 	    if (*fname) {
-		snprintf(name2, PATH_MAX +1, "Sending %s, %ld blocks: ", fname, (long) (f.st_size >> 7));
+		snprintf(name2, PATH_MAX +1, "Sending %s, %d blocks: ", fname, (int) (f.st_size >> 7));
 		PUTSTR(name2);
 		Enter(1);
 	    }
@@ -222,7 +222,7 @@ static int wctxpn(char *fname)
      * int. But i believe sending %lo instead of %o _could_ break compatability
      */
     if ((input_f != stdin) && *fname)
-	snprintf(p, MAXBLOCK + 1024, "%lu %lo %o 0 %d %ld", (long) f.st_size, (long) f.st_mtime,
+	snprintf(p, MAXBLOCK + 1024, "%u %o %o 0 %d %d", (int) f.st_size, (int) f.st_mtime,
 	    (unsigned int)((no_unixmode) ? 0 : f.st_mode), Filesleft, Totalleft);
 
     Totalleft -= f.st_size;
@@ -296,7 +296,7 @@ static int getnak(void)
 
 
 
-static int wctx(long bytes_total)
+static int wctx(int bytes_total)
 {
     register size_t thisblklen;
     register int    sectnum, attempts, firstch;

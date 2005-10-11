@@ -21,10 +21,10 @@ typedef struct _alist
     time_t          time;       /* Date/time of mail/files      */
     off_t           size;       /* Total size of mail/files     */
     callstat        cst;        /* Last call status             */
-    unsigned long   olflags;    /* Nodelist online flags        */
-    unsigned long   moflags;    /* Nodelist modem flags         */
-    unsigned long   diflags;    /* Nodelist ISDN flags          */
-    unsigned long   ipflags;    /* Nodelist TCP/IP flags        */
+    unsigned int    olflags;    /* Nodelist online flags        */
+    unsigned int    moflags;    /* Nodelist modem flags         */
+    unsigned int    diflags;    /* Nodelist ISDN flags          */
+    unsigned int    ipflags;    /* Nodelist TCP/IP flags        */
     int             t1;         /* First Txx flag               */
     int             t2;         /* Second Txx flag              */
     int             callmode;   /* Call method                  */

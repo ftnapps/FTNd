@@ -36,11 +36,11 @@
 
 char		msgs_fil[PATH_MAX];	/* Database filename		   */
 char		mgrp_fil[PATH_MAX];	/* Group database filename	   */
-long		msgs_pos = -1;		/* Current record position	   */
-long		mgrp_pos = -1;		/* Current group position	   */
-unsigned long	msgs_crc = -1;		/* CRC value of current record     */
-unsigned long	mgrp_crc = -1;		/* CRC value of group record	   */
-static long	sysstart, sysrecord;
+int		msgs_pos = -1;		/* Current record position	   */
+int		mgrp_pos = -1;		/* Current group position	   */
+unsigned int	msgs_crc = -1;		/* CRC value of current record     */
+unsigned int	mgrp_crc = -1;		/* CRC value of group record	   */
+static int	sysstart, sysrecord;
 
 
 
@@ -324,7 +324,7 @@ int SearchNetBoard(unsigned short zone, unsigned short net)
 
 void UpdateMsgs()
 {
-	unsigned long	crc = 0xffffffff;
+	unsigned int	crc = 0xffffffff;
 	FILE		*fil;
 
 	if (msgs_pos == -1)

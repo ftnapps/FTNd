@@ -90,7 +90,7 @@ int Bounce(faddr *f, faddr *t, FILE *fp, char *reason)
     /*
      * Add MSGID, REPLY and PID
      */
-    fprintf(np, "\001MSGID: %s %08lx\r", ascfnode(from, 0x1f), sequencer());
+    fprintf(np, "\001MSGID: %s %08x\r", ascfnode(from, 0x1f), sequencer());
     while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(Buf);
 	if (strncmp(Buf, "\001MSGID:", 7) == 0) {

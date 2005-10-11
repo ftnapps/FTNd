@@ -7,7 +7,7 @@
 void	Msg_Id(fidoaddr);
 void	Msg_Pid(void);
 void	Msg_Macro(FILE *);
-long	Msg_Top(char *, int, fidoaddr);
+int	Msg_Top(char *, int, fidoaddr);
 void	Msg_Bot(fidoaddr, char *, char *);
 void	CountPosted(char *);
 char	*To_Low(char *, int);

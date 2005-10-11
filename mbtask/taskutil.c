@@ -42,7 +42,7 @@ extern struct sysconfig     CFG;
 extern struct _fidonethdr   fidonethdr;
 extern struct _fidonet	    fidonet;
 extern struct taskrec	    TCFG;
-unsigned long		    lcrc = 0, tcrc = 1;
+unsigned int		    lcrc = 0, tcrc = 1;
 int			    lcnt = 0, lchr;
 static char		    *pbuff = NULL;
 
@@ -409,7 +409,7 @@ int mkdirs(char *name, mode_t mode)
 /*
  * Return size of file, or -1 if file doesn't exist
  */
-long file_size(char *path)
+int file_size(char *path)
 {
     static struct   stat sb;
 

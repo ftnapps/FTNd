@@ -45,8 +45,8 @@ extern time_t	c_end;
 extern int	online;
 extern int	master;
 int		carrier;
-extern long	sentbytes;
-extern long	rcvdbytes;
+extern int	sentbytes;
+extern int	rcvdbytes;
 extern int	Loaded;
 
 

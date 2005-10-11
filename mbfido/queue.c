@@ -71,7 +71,7 @@ void flush_dir(char *ndir)
     faddr	    noden, *bestaka;
     fidoaddr	    nodenr;
     int		    flavor, mode, Attach, fage, first, bread, rc;
-    long	    fsize;
+    int		    fsize;
     char	    *p, *temp, *fname, *arcfile, *pktfile, *ext, maxnr, nr, oldnr, *buf;
     time_t	    Now;
     struct tm	    *ptm;
@@ -185,7 +185,7 @@ void flush_dir(char *ndir)
 	    /*
 	     * Generate ARCfile name from the CRC of the ASCII string of the node address.
 	     */
-	    snprintf(arcfile, PATH_MAX, "%s/%08lx.%s0", nodes.Dir_out_path, StringCRC32(ascfnode(&noden, 0x1f)), ext);
+	    snprintf(arcfile, PATH_MAX, "%s/%08x.%s0", nodes.Dir_out_path, StringCRC32(ascfnode(&noden, 0x1f)), ext);
 	} else {
 	    bestaka = bestaka_s(&noden);
 
@@ -216,7 +216,7 @@ void flush_dir(char *ndir)
     fname   = calloc(PATH_MAX, sizeof(char));
     snprintf(fname, PATH_MAX, "%s/mailpkt.qqq", temp);
     if (access(fname, W_OK) == 0) {
-	snprintf(pktfile, PATH_MAX, "%s/%08lx.pkt", temp, sequencer());
+	snprintf(pktfile, PATH_MAX, "%s/%08x.pkt", temp, sequencer());
 	if (rename(fname, pktfile)) {
 	    WriteError("$Can't rename %s to %s", fname, pktfile);
 	} else {
@@ -464,7 +464,7 @@ void flush_dir(char *ndir)
 	    flavor = 'o';
 
 	if (nodes.Session_out == S_DIR) {
-	    snprintf(arcfile, PATH_MAX, "%s/%08lx.pkt", nodes.Dir_out_path, sequencer());
+	    snprintf(arcfile, PATH_MAX, "%s/%08x.pkt", nodes.Dir_out_path, sequencer());
 	} else {
 	    snprintf(arcfile, PATH_MAX, "%s", pktname(&noden, flavor));
 	}

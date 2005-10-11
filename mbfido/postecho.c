@@ -136,7 +136,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     char	    *buf, *msgid = NULL, *reply = NULL, *p, *q, sbe[16];
     int		    First = TRUE, rc = 0, i, kludges = TRUE, dupe = FALSE, bad = TRUE, seenlen, oldnet;
     faddr	    *Faddr;
-    unsigned long   crc;
+    unsigned int    crc;
     sysconnect	    Link;
     fa_list	    *sbl = NULL, *ptl = NULL, *tmpl;
     qualify	    *qal = NULL, *tmpq;

@@ -93,7 +93,7 @@ int OpenNoderec(void)
     FILE    *fin, *fout;
     char    *fnin, *fnout, group[13];
     int	    i, old_fgroups, old_mgroups; 
-    long    oldsize, oldfilegrp, oldmailgrp;
+    int	    oldsize, oldfilegrp, oldmailgrp;
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
@@ -211,7 +211,7 @@ void CloseNoderec(int Force)
     FILE	    *fi, *fo;
     int		    i;
     st_list	    *nod = NULL, *tmp;
-    unsigned long   crc1, crc2;
+    unsigned int    crc1, crc2;
 
     fin  = calloc(PATH_MAX, sizeof(char));
     fout = calloc(PATH_MAX, sizeof(char));
@@ -1025,8 +1025,8 @@ int EditNodeRec(int Area)
 {
     FILE	    *fil;
     char	    mfile[PATH_MAX];
-    long	    offset;
-    unsigned long   crc, crc1;
+    int		    offset;
+    unsigned int    crc, crc1;
     gr_list	    *fgr = NULL, *egr = NULL, *tmp;
     char	    group[13];
     int		    groups, i, j, GrpChanged = FALSE;
@@ -1204,7 +1204,7 @@ void EditNodes(void)
     int	    records, i, o, x, y;
     char    pick[12], temp[PATH_MAX];
     FILE    *fil;
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);
@@ -1321,7 +1321,7 @@ fidoaddr PullUplink(char *Hdr)
 	char		pick[12];
 	FILE		*fil;
 	char		temp[PATH_MAX];
-	long		offset;
+	int		offset;
 
 	memset(&uplink, 0, sizeof(uplink));
 	clr_index();
@@ -1441,6 +1441,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
     int		systems, groups, nr, refs, i, j, k, First = TRUE;
     char	group[13];
     sysconnect	System;
+    time_t	tt;
 
     snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
@@ -1485,10 +1486,12 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Outbox dir       %s\n", nodes.OutBox);
 		add_webtable(wp, (char *)"Outbox directory", nodes.OutBox);
 	    }
-	    fprintf(fp, "     First date       %s", ctime(&nodes.StartDate));
-	    add_webtable(wp, (char *)"First date", ctime(&nodes.StartDate));
-	    fprintf(fp, "     Last date        %s", ctime(&nodes.LastDate));
-	    add_webtable(wp, (char *)"Last date", ctime(&nodes.LastDate));
+	    tt = (time_t)nodes.StartDate;
+	    fprintf(fp, "     First date       %s", ctime(&tt));
+	    add_webtable(wp, (char *)"First date", ctime(&tt));
+	    tt = (time_t)nodes.LastDate;
+	    fprintf(fp, "     Last date        %s", ctime(&tt));
+	    add_webtable(wp, (char *)"Last date", ctime(&tt));
 	    for (i = 0; i < 20; i++)
 		if (nodes.Aka[i].zone) {
 		    fprintf(fp, "     Aka %2d           %s\n", i+1, aka2str(nodes.Aka[i]));
@@ -1656,9 +1659,9 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    add_statcnt(wp, (char *)"sent messages", nodes.MailSent);
 	    fprintf(fp, "     Statistics     Send     KBytes   Received KBytes\n");
 	    fprintf(fp, "     ------------   -------- -------- -------- --------\n");
-	    fprintf(fp, "     Total files    %-8lu %-8lu %-8lu %-8lu\n", nodes.FilesSent.total, nodes.F_KbSent.total, 
+	    fprintf(fp, "     Total files    %-8u %-8u %-8u %-8u\n", nodes.FilesSent.total, nodes.F_KbSent.total, 
 		    nodes.FilesRcvd.total, nodes.F_KbSent.total);
-	    fprintf(fp, "     Total mail     %-8lu          %-8lu\n\n", nodes.MailSent.total, nodes.MailRcvd.total);
+	    fprintf(fp, "     Total mail     %-8u          %-8u\n\n", nodes.MailSent.total, nodes.MailRcvd.total);
 
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Private data</H3>\n");

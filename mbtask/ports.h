@@ -11,10 +11,10 @@
 typedef struct _pp_list {
     struct _pp_list *next;
     char	    tty[7];	/* tty name of the port		*/
-    unsigned long   mflags;	/* Analogue modem flags		*/
-    unsigned long   dflags;	/* ISDN flags			*/
+    unsigned int    mflags;	/* Analogue modem flags		*/
+    unsigned int    dflags;	/* ISDN flags			*/
     int		    locked;	/* If port is locked		*/
-    long	    locktime;	/* Time it is locked		*/
+    int		    locktime;	/* Time it is locked		*/
 } pp_list;
 
 

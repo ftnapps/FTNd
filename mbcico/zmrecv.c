@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -48,13 +48,13 @@ static int Usevhdrs;
 static off_t rxbytes;
 static int Eofseen;		/* indicates cpm eof (^Z) has been received */
 static int errors;
-static long sbytes;
+static int sbytes;
 struct timeval starttime, endtime;
 struct timezone tz;
 
 #define DEFBYTL 2000000000L	/* default rx file size */
-static long Bytesleft;		/* number of bytes of incoming file left */
-static long Modtime;		/* Unix style mod time for incoming file */
+static int Bytesleft;		/* number of bytes of incoming file left */
+static int Modtime;		/* Unix style mod time for incoming file */
 static int Filemode;		/* Unix style mode for incoming file */
 
 static int Thisbinary;		/* current file is to be received in bin mode */
@@ -77,13 +77,13 @@ int closeit(int);
 static int putsec(char*,int);
 static int procheader(char*);
 static int ackbibi(void);
-static long getfree(void);
+static int getfree(void);
 
 
 void get_frame_buffer(void);
 void free_frame_buffer(void);
 
-extern unsigned long	rcvdbytes;
+extern unsigned int rcvdbytes;
 
 
 
@@ -503,9 +503,9 @@ int procheader(char *Name)
 	Modtime = 0L;
 
 	p = Name + 1 + strlen(Name);
-	sscanf(p, "%ld%lo%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
+	sscanf(p, "%d%o%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
 	strcpy(ctt,date(Modtime));
-	Syslog('+', "Zmodem: \"%s\" %ld bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
+	Syslog('+', "Zmodem: \"%s\" %d bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
 
 	fout = openfile(Name,Modtime,Bytesleft,&rxbytes,resync);
 	gettimeofday(&starttime, &tz);
@@ -556,7 +556,7 @@ int putsec(char *buf, int n)
 
 
 
-long getfree(void)
+int getfree(void)
 {
 	struct	statfs sfs;
 

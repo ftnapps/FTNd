@@ -51,7 +51,7 @@
 
 
 
-extern long	arecno;		/* File area number in xxxScan() functions   */
+extern int	arecno;		/* File area number in xxxScan() functions   */
 int		Strlen = 0;
 int		FileRecno = 0;
 extern int	rows;
@@ -134,7 +134,7 @@ void File_List()
 
 	if (fdb.Deleted) {
 	    /* D E L E T E D */ /* Uploaded by: */
-	    snprintf(temp, 81, " -- %-12s     %s     [%4ld] %s%s\n", fdb.Name, (char *) Language(239), 
+	    snprintf(temp, 81, " -- %-12s     %s     [%4d] %s%s\n", fdb.Name, (char *) Language(239), 
 				fdb.TimesDL, (char *) Language(238), fdb.Uploader);
 	    PUTSTR(temp);
 	}
@@ -166,7 +166,7 @@ void Download(void)
     FILE	    *tf, *fd;
     int		    rc = 0, i, Count = 0, OldArea;
     char	    *local, *temp;
-    long	    Size = 0, CostSize = 0, dsize;
+    int		    Size = 0, CostSize = 0, dsize;
     struct _fdbarea *fdb_area = NULL;
     down_list	    *dl = NULL, *tmpf;
 
@@ -233,7 +233,7 @@ void Download(void)
 		 * can unlink it aftwerwards. We also insert CR
 		 * characters to please the poor DOS (M$oft) users.
 		 */
-		snprintf(local, PATH_MAX, "./tag/filedesc.%ld", exitinfo.Downloads % 256);
+		snprintf(local, PATH_MAX, "./tag/filedesc.%d", exitinfo.Downloads % 256);
 		if ((fd = fopen(local, "a")) != NULL) {
 		    fprintf(fd, "%s (%s)\r\n", fdb.LName, fdb.Name);
 		    for (i = 0; i < 25; i++) {
@@ -294,14 +294,14 @@ void Download(void)
     /*
      * Add descriptions file to the queue.
      */
-    snprintf(local, PATH_MAX, "%s/%s/tag/filedesc.%ld", CFG.bbs_usersdir, exitinfo.Name, exitinfo.Downloads % 256);
+    snprintf(local, PATH_MAX, "%s/%s/tag/filedesc.%d", CFG.bbs_usersdir, exitinfo.Name, exitinfo.Downloads % 256);
     dsize = file_size(local);
-    snprintf(temp, PATH_MAX, "filedesc.%ld", exitinfo.Downloads % 256);
+    snprintf(temp, PATH_MAX, "filedesc.%d", exitinfo.Downloads % 256);
     add_download(&dl, local, temp, 0, dsize, TRUE);
     free(local);
 
     /* You have */ /* files( */ /* bytes) marked for download */
-    snprintf(temp, PATH_MAX, "%s %d %s%ld %s", (char *) Language(249), Count, (char *) Language(280), Size, (char *) Language(281));
+    snprintf(temp, PATH_MAX, "%s %d %s%d %s", (char *) Language(249), Count, (char *) Language(280), Size, (char *) Language(281));
     pout(YELLOW, BLACK, temp);
     Enter(2);
 
@@ -452,7 +452,7 @@ void File_RawDir(char *OpData)
 		    snprintf(temp2, 81, "%-54s " , dp->d_name);
 		    pout(YELLOW, BLACK, temp2);
 
-		    snprintf(temp2, 81, "%-12ld", (long)(statfile.st_size));
+		    snprintf(temp2, 81, "%-12d", (int)(statfile.st_size));
 		    pout(LIGHTMAGENTA, BLACK, temp2);
 
 		    snprintf(temp2, 81, "%-10s", StrDateDMY(statfile.st_mtime));
@@ -494,7 +494,7 @@ int KeywordScan()
     int		    i, z, y, Found, Count = 0;
     char	    *Name, *tmpname, *BigDesc, temp[81];
     _Tag	    T;
-    unsigned long   OldArea;
+    unsigned int    OldArea;
     struct _fdbarea *fdb_area = NULL;
 
     Name     = calloc(81, sizeof(char));
@@ -625,7 +625,7 @@ int FilenameScan()
     char	    mask[256];
     char	    *Name;
     _Tag	    T;
-    unsigned long   OldArea;
+    unsigned int    OldArea;
     struct _fdbarea *fdb_area = NULL;
 
     Name     = calloc(81, sizeof(char));
@@ -733,7 +733,7 @@ int FilenameScan()
 int NewfileScan(int AskStart) 
 { 
     FILE    *pAreas;
-    long    ifDate, itDate;
+    int	    ifDate, itDate;
     char    *temp, *Date;
     int	    Found, Count = 0;
     _Tag    T;
@@ -884,7 +884,7 @@ int NewfileScan(int AskStart)
 int Upload()
 {
     int		    Area, rc;
-    unsigned long   OldArea;
+    unsigned int    OldArea;
     char	    *arc, *temp;
     up_list	    *up = NULL, *tmpf;
 
@@ -990,7 +990,7 @@ int Upload()
 int DownloadDirect(char *Name, int Wait)
 {
     int		rc = 0;
-    long	Size;
+    int		Size;
     down_list	*dl = NULL;
 
     if ((Size = file_size(Name)) == -1) {
@@ -1075,7 +1075,7 @@ void List_Home()
 		    iBytes += statfile.st_size;
 		    snprintf(temp, 81, "%-20s", dp->d_name);
 		    pout(YELLOW, BLACK, temp);
-		    snprintf(temp, 81, "%-12ld", (long)(statfile.st_size));
+		    snprintf(temp, 81, "%-12d", (int)(statfile.st_size));
 		    pout(LIGHTMAGENTA, BLACK, temp);
 		    snprintf(temp, 81, "%s  ", StrDateDMY(statfile.st_mtime));
 		    pout(LIGHTGREEN, BLACK, temp);
@@ -1336,7 +1336,7 @@ void FileArea_List(char *Option)
     FILE    *pAreas;
     int	    iAreaCount = 6, Recno = 1, iOldArea, iAreaNum = 0;
     int	    iGotArea = FALSE; /* Flag to check if user typed in area */
-    long    offset;
+    int	    offset;
     char    *temp;
 
     /*
@@ -1688,7 +1688,7 @@ void EditTaglist()
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    snprintf(temp, 81, "%5ld  ", Tag.Area);
+	    snprintf(temp, 81, "%5d  ", Tag.Area);
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
@@ -1705,7 +1705,7 @@ void EditTaglist()
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    snprintf(temp, 81, " %8ld", (long)(Tag.Size));
+	    snprintf(temp, 81, " %8d", (int)(Tag.Size));
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;

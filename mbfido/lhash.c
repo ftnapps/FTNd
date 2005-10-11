@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -127,7 +127,7 @@ char *lh_version=(char *)"lhash part of SSLeay 0.6.4 30-Aug-1996";
 #define P_CPP	char *,char *
 static void expand(LHASH *lh);
 static void contract(LHASH *lh);
-static LHASH_NODE **getrn(LHASH *lh, char *data, unsigned long *rhash);
+static LHASH_NODE **getrn(LHASH *lh, char *data, unsigned int *rhash);
 
 #else
 
@@ -139,7 +139,7 @@ static LHASH_NODE **getrn();
 
 #endif
 
-LHASH *lh_new(unsigned long (*h)(char *), int (*c)(char *, char *))
+LHASH *lh_new(unsigned int (*h)(char *), int (*c)(char *, char *))
 {
 	LHASH *ret;
 	int i;
@@ -151,7 +151,7 @@ LHASH *lh_new(unsigned long (*h)(char *), int (*c)(char *, char *))
 	for (i=0; i<MIN_NODES; i++)
 		ret->b[i]=NULL;
 	ret->comp=((c == NULL)?(int (*)(char *, char *))strcmp:c);
-	ret->hash=((h == NULL)?(unsigned long (*)(char *))lh_strhash:h);
+	ret->hash=((h == NULL)?(unsigned int (*)(char *))lh_strhash:h);
 	ret->num_nodes=MIN_NODES/2;
 	ret->num_alloc_nodes=MIN_NODES;
 	ret->p=0;
@@ -206,7 +206,7 @@ void lh_free(LHASH *lh)
 
 char *lh_insert(LHASH *lh, char *data)
 {
-	unsigned long hash;
+	unsigned int hash;
 	LHASH_NODE *nn,**rn;
 	char *ret;
 
@@ -240,7 +240,7 @@ char *lh_insert(LHASH *lh, char *data)
 
 char *lh_delete(LHASH *lh, char *data)
 {
-	unsigned long hash;
+	unsigned int hash;
 	LHASH_NODE *nn,**rn;
 	char *ret;
 
@@ -272,7 +272,7 @@ char *lh_delete(LHASH *lh, char *data)
 
 char *lh_retrieve(LHASH *lh, char *data)
 {
-	unsigned long hash;
+	unsigned int hash;
 	LHASH_NODE **rn;
 	char *ret;
 
@@ -327,7 +327,7 @@ static void expand(LHASH *lh)
 {
 	LHASH_NODE **n,**n1,**n2,*np;
 	unsigned int p,i,j;
-	unsigned long hash,nni;
+	unsigned int hash,nni;
 
 	lh->num_nodes++;
 	lh->num_expands++;
@@ -415,10 +415,10 @@ static void contract(LHASH *lh)
 
 
 
-static LHASH_NODE **getrn(LHASH *lh, char *data, unsigned long *rhash)
+static LHASH_NODE **getrn(LHASH *lh, char *data, unsigned int *rhash)
 {
 	LHASH_NODE **ret,*n1;
-	unsigned long hash,nn;
+	unsigned int hash,nn;
 	int (*cf)(char *, char *);
 
 	hash=(*(lh->hash))(data);
@@ -469,11 +469,11 @@ char *str;
  * no collisions on /usr/dict/words and it distributes on %2^n quite
  * well, not as good as MD5, but still good.
  */
-unsigned long lh_strhash(char *c)
+unsigned int lh_strhash(char *c)
 {
-	unsigned long ret=0;
-	long n;
-	unsigned long v;
+	unsigned int ret=0;
+	int n;
+	unsigned int v;
 	int r;
 
 	if ((c == NULL) || (*c == '\0'))

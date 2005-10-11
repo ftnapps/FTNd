@@ -1408,8 +1408,8 @@ date_error(s)
 
 int GetTimeInfo(TIMEINFO *Now)
 {
-    static time_t	NextHour;
-    static long		LastTzone;
+    static int32_t	NextHour;
+    static int		LastTzone;
     struct tm		*tm;
     int			secondsUntilNextHour;
 #if	defined(HAVE_GETTIMEOFDAY)

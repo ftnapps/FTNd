@@ -80,8 +80,8 @@ extern int	crashme;
 int		gotblock = 0;
 
 
-extern unsigned long	sentbytes;
-extern unsigned long	rcvdbytes;
+extern unsigned int	sentbytes;
+extern unsigned int	rcvdbytes;
 
 typedef enum {RxWaitF, RxAccF, RxReceD, RxWriteD, RxEOB, RxDone} RxType;
 typedef enum {TxGNF, TxTryR, TxReadS, TxWLA, TxDone} TxType;
@@ -154,8 +154,8 @@ struct binkprec {
     unsigned short	header;			/* Frame header			    */
     int			rc;			/* General return code		    */
     
-    long		rsize;			/* Receiver filesize		    */
-    long		roffs;			/* Receiver offset		    */
+    int			rsize;			/* Receiver filesize		    */
+    int			roffs;			/* Receiver offset		    */
     char		*rname;			/* Receiver filename		    */
     time_t		rtime;			/* Receiver filetime		    */
     FILE		*rxfp;			/* Receiver file		    */
@@ -174,13 +174,13 @@ struct binkprec {
     int			stxpos;			/* Transmitter start position	    */
     int			txcompressed;		/* Transmitter compressed bytes	    */
     int			tmode;			/* Transmitter compression mode	    */
-    long    		tfsize;			/* Transmitter filesize		    */
+    int			tfsize;			/* Transmitter filesize		    */
 
     int			local_EOB;		/* Local EOB sent		    */
     int			remote_EOB;		/* Got EOB from remote		    */
     int			messages;		/* Messages sent + rcvd		    */
-    unsigned long	nethold;		/* Netmail on hold		    */
-    unsigned long	mailhold;		/* Packed mail on hold		    */
+    unsigned int	nethold;		/* Netmail on hold		    */
+    unsigned int	mailhold;		/* Packed mail on hold		    */
 
     int			batchnr;
     int			msgs_on_queue;		/* Messages on the queue	    */
@@ -229,7 +229,7 @@ int	binkp_expired(void);			    /* Timer expired?		    */
 int	binkp_banner(int);			    /* Send system banner	    */
 int	binkp_send_comp_opts(void);		    /* Send compression options	    */
 void	binkp_set_comp_state(void);		    /* Set compression state	    */
-int	binkp_recv_command(char *, unsigned long *, int *);   /* Receive command frame	    */
+int	binkp_recv_command(char *, unsigned int *, int *);   /* Receive command frame	    */
 void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
 int	binkp_poll_frame(void);			    /* Poll for a frame		    */
 void	binkp_add_message(char *frame);		    /* Add cmd frame to queue	    */
@@ -390,7 +390,7 @@ SM_EDECL
     faddr	    *primary;
     char	    *p, *q, *pwd;
     int		    i, rc = 0, cmd, dupe, SendPass = FALSE, akas = 0;
-    unsigned long   bufl;
+    unsigned int    bufl;
     fa_list	    **tmp, *tmpa;
     faddr	    *fa, ra;
     callstat	    *cst;
@@ -664,7 +664,7 @@ SM_NAMES
 SM_EDECL
     char	    *p, *q, *pw;
     int		    i, rc, cmd, dupe, we_have_pwd = FALSE, akas = 0;
-    unsigned long   bufl;
+    unsigned int    bufl;
     fa_list	    **tmp, *tmpa;
     faddr	    *fa;
     callstat	    *cst;
@@ -1041,7 +1041,7 @@ int file_transfer(void)
 TrType binkp_receiver(void)
 {
     struct statfs   sfs;
-    long	    written;
+    int		    written;
     off_t	    rxbytes;
     int		    bcmd, rc = 0;
     int		    rc1 = 0, nget = bp.blklen, zavail, nput;
@@ -1181,8 +1181,8 @@ TrType binkp_receiver(void)
 
 	if (statfs(tempinbound, &sfs) == 0) {
 	    if ((bp.rsize / (sfs.f_bsize + 1)) >= sfs.f_bfree) {
-		Syslog('!', "Binkp: only %lu blocks free (need %lu) in %s for this file", sfs.f_bfree, 
-			    (unsigned long)(bp.rsize / (sfs.f_bsize + 1)), tempinbound);
+		Syslog('!', "Binkp: only %u blocks free (need %u) in %s for this file", sfs.f_bfree, 
+			    (unsigned int)(bp.rsize / (sfs.f_bsize + 1)), tempinbound);
 		bclosefile(FALSE);
 		bp.rxfp = NULL; /* Force SKIP command       */
 	    }
@@ -1521,10 +1521,10 @@ TrType binkp_transmitter(void)
 		bp.txcompressed = 0;
 		bp.tfsize = tmp->size;
 		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
-		Syslog('+', "Binkp: size %lu bytes, dated %s, comp %s", 
-			(unsigned long)tmp->size, date(tmp->date), cpstate[bp.tmode]);
-		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld%s", MBSE_SS(tmp->remote), 
-			(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, extra);
+		Syslog('+', "Binkp: size %u bytes, dated %s, comp %s", 
+			(unsigned int)tmp->size, date(tmp->date), cpstate[bp.tmode]);
+		rc = binkp_send_command(MM_FILE, "%s %u %d %d%s", MBSE_SS(tmp->remote), 
+			(unsigned int)tmp->size, (int)tmp->date, (unsigned int)tmp->offset, extra);
 		if (rc) {
 		    bp.TxState = TxDone;
 		    return Failure;
@@ -1772,7 +1772,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     int		    rc, id;
 #ifdef HAVE_ZLIB_H
     int		    rcz, last;
-    unsigned long   zlen;
+    uLongf	    zlen;
     char	    *zbuf;
 
     if ((len >= BINKP_PLZ_BLOCK) && (bp.PLZwe == Active)) {
@@ -2077,7 +2077,7 @@ void binkp_set_comp_state(void)
 /*
  *  Receive command frame
  */
-int binkp_recv_command(char *buf, unsigned long *len, int *cmd)
+int binkp_recv_command(char *buf, unsigned int *len, int *cmd)
 {
     int	    b0, b1;
 
@@ -2244,7 +2244,7 @@ int binkp_poll_frame(void)
 {
     int		    c, rc = 0, bcmd;
 #ifdef HAVE_ZLIB_H
-    unsigned long   zlen;
+    uLongf	    zlen;
     char	    *zbuf;
 #endif
 
@@ -2380,7 +2380,7 @@ int binkp_process_messages(void)
     int		Found, rmode;
     char	*lname, *ropts;
     time_t	ltime;
-    long	lsize, loffs;
+    int		lsize, loffs;
 
     Syslog('b', "Binkp: Process The Messages Queue Start");
 

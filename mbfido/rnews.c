@@ -479,7 +479,7 @@ static int UnpackOne(int *fdp, int *countp)
 			cargv[0] = (char *)"gzip";
 			cargv[1] = (char *)"-d";
 			cargv[2] = NULL;
-			lseek(*fdp, (long) 0, 0); /* Back to the beginning */
+			lseek(*fdp, (int) 0, 0); /* Back to the beginning */
 			*fdp = StartChild(*fdp, (char*)_PATH_GZIP, cargv);
 			if (*fdp < 0)
 				return FALSE;
@@ -565,7 +565,7 @@ void ProcessOne(FILE *fp)
 {
 	char		*p, *fn, *buf, *gbuf, *mbuf, *group, *groups[25];
 	int		i, nrofgroups;
-	unsigned long	crc;
+	unsigned int	crc;
 
 	buf    = calloc(UUCPBUF, sizeof(char));
 	fn     = calloc(PATH_MAX, sizeof(char));

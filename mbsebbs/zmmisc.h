@@ -124,8 +124,8 @@
 int  Rxframeind;        /* ZBIN ZBIN32, or ZHEX type of frame */
 int  Rxtype;            /* Type of header received */
 int  Rxcount;           /* Count of data bytes received */
-int  long Rxpos;        /* Received file position */
-int  long Txpos;        /* Transmitted file position */
+int  Rxpos;		/* Received file position */
+int  Txpos;		/* Transmitted file position */
 int  Txfcs32;           /* TURE means send binary frames with 32 bit FCS */
 int  Crc32t;            /* Display flag indicating 32 bit CRC being sent */
 int  Crc32r;            /* Display flag indicating 32 bit CRC being received */
@@ -155,8 +155,8 @@ int	zgethdr(char *);
 int	zrbhdr(register char *);
 void	zsendline(int);
 int	zdlread(void);
-void	stohdr(long);
-long	rclhdr(register char *);
+void	stohdr(int);
+int	rclhdr(register char *);
 void	zsendline_init(void);
 char	*protname(void);
 void	purgeline(int);
@@ -165,7 +165,7 @@ void	canit(int);
 #define FTOFFSET 16
 
 extern unsigned short crc16xmodemtab[];
-extern unsigned long crc32tab[];
+extern unsigned int crc32tab[];
 #define updcrc16(cp,crc) (crc16xmodemtab[(((int)crc >> 8) & 0xff)] ^ (crc << 8) ^ cp)
 #define updcrc32(cp,crc) (crc32tab[((int)crc ^ cp) & 0xff] ^ ((crc >> 8) & 0x00ffffff))
 

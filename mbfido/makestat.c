@@ -4,7 +4,7 @@
  * Purpose ...............: Make Web statistics
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -113,7 +113,7 @@ void MakeStat(void)
     char	    *name, *p, *q;
     int		    i, Total, Lm, Area;
     struct _history hist;
-    long	    fileptr = 0;
+    int		    fileptr = 0;
 
     if (!strlen(CFG.www_root)) {
 	Syslog('!', "Warning, WWW root not defined, skip statistical html creation");

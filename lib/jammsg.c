@@ -55,15 +55,15 @@ char		szBuff[MAX_LINE_LENGTH + 1];
 char		szLine[MAX_LINE_LENGTH + 1];
 JAMHDRINFO	jamHdrInfo;
 JAMHDR		jamHdr;
-unsigned long	LastReadRec;
+unsigned int	LastReadRec;
 
 
 
-unsigned long AddSubfield(unsigned int, char *);
-unsigned long AddSubfield(unsigned int JamSFld, char *SubStr)
+unsigned int AddSubfield(unsigned int, char *);
+unsigned int AddSubfield(unsigned int JamSFld, char *SubStr)
 {
 	JAMSUBFIELD	jamSubfield;
-	unsigned long	Len;
+	unsigned int	Len;
 
 	jamSubfield.HiID = 0;
 	jamSubfield.LoID = JamSFld;
@@ -127,7 +127,7 @@ void JAMset_flags()
 int JAM_AddMsg()
 {
 	int		i, RetVal = TRUE;
-	unsigned long	ulMsg = JAM_Highest() + 1L;
+	unsigned int	ulMsg = JAM_Highest() + 1L;
 	char		*pszText, *Sign= (char *)HEADERSIGNATURE;
 	JAMIDXREC	jamIdx;
 	int		Oke;
@@ -286,7 +286,7 @@ void JAM_Close(void)
 /*
  * Delete message number
  */
-int JAM_Delete(unsigned long ulMsg)
+int JAM_Delete(unsigned int ulMsg)
 {
 	int		RetVal = FALSE;
 	JAMIDXREC	jamIdx;
@@ -362,9 +362,9 @@ int JAM_GetLastRead(lastread *LR)
 /*
  * Get highest message number
  */
-unsigned long JAM_Highest(void)
+unsigned int JAM_Highest(void)
 {
-	unsigned long	RetVal = 0L;
+	unsigned int	RetVal = 0L;
 	JAMIDXREC	jamIdx;
 
 	if (jamHdrInfo.ActiveMsgs > 0L) {
@@ -383,7 +383,7 @@ unsigned long JAM_Highest(void)
 
 
 
-int JAM_Lock(unsigned long ulTimeout)
+int JAM_Lock(unsigned int ulTimeout)
 {
 	int		rc, Tries = 0;
 	struct flock	fl;
@@ -416,9 +416,9 @@ int JAM_Lock(unsigned long ulTimeout)
 /*
  * Get lowest message number 
  */
-unsigned long JAM_Lowest(void)
+unsigned int JAM_Lowest(void)
 {
-	unsigned long	RetVal = 0L;
+	unsigned int	RetVal = 0L;
 	JAMIDXREC	jamIdx;
 
 	if (jamHdrInfo.ActiveMsgs > 0L) {
@@ -453,11 +453,11 @@ int JAM_NewLastRead(lastread LR)
 
 
 
-int JAM_Next(unsigned long * ulMsg)
+int JAM_Next(unsigned int * ulMsg)
 {
 	int		RetVal = FALSE, MayBeNext = FALSE;
 	JAMIDXREC	jamIdx;
-	unsigned long	_Msg;
+	unsigned int	_Msg;
 
 	_Msg = *ulMsg;
 
@@ -509,7 +509,7 @@ int JAM_Next(unsigned long * ulMsg)
 			Msg.Id = _Msg;
 	}
 
-	memcpy(ulMsg, &_Msg, sizeof(unsigned long));
+	memcpy(ulMsg, &_Msg, sizeof(unsigned int));
 	return RetVal;
 }
 
@@ -518,7 +518,7 @@ int JAM_Next(unsigned long * ulMsg)
 /*
  * Return number of messages
  */
-unsigned long JAM_Number(void)
+unsigned int JAM_Number(void)
 {
 	return jamHdrInfo.ActiveMsgs;
 }
@@ -595,7 +595,7 @@ void JAM_Pack(void)
     int		    ToRead, Readed, i, count;
     char	    *File, *New, *Subfield, *Temp;
     JAMIDXREC	    jamIdx;
-    unsigned long   NewNumber = 0, RefNumber = 0, Written = 0;
+    unsigned int    NewNumber = 0, RefNumber = 0, Written = 0;
     lastread	    LR;
 
     File = calloc(PATH_MAX, sizeof(char));
@@ -784,12 +784,12 @@ void JAM_Pack(void)
 
 
 
-int JAM_Previous (unsigned long *ulMsg)
+int JAM_Previous (unsigned int *ulMsg)
 {
 	int		RetVal = FALSE, MayBeNext = FALSE;
-	long		Pos;
+	int		Pos;
 	JAMIDXREC	jamIdx;
-	unsigned long	_Msg;
+	unsigned int	_Msg;
 
 	_Msg = *ulMsg;
 
@@ -846,17 +846,17 @@ int JAM_Previous (unsigned long *ulMsg)
 			Msg.Id = _Msg;
 	}
 
-	memcpy(ulMsg, &_Msg, sizeof(unsigned long));
+	memcpy(ulMsg, &_Msg, sizeof(unsigned int));
 	return (RetVal);
 }
 
 
 
-int JAM_ReadHeader (unsigned long ulMsg)
+int JAM_ReadHeader (unsigned int ulMsg)
 {
     int		    i, RetVal = FALSE;
     unsigned char   *pPos;
-    unsigned long   ulSubfieldLen, tmp;
+    unsigned int    ulSubfieldLen, tmp;
     JAMIDXREC	    jamIdx;
     JAMBINSUBFIELD  *jamSubField;
 
@@ -1065,12 +1065,12 @@ int JAM_ReadHeader (unsigned long ulMsg)
 /*
  * Read message
  */
-int JAM_Read(unsigned long ulMsg, int nWidth)
+int JAM_Read(unsigned int ulMsg, int nWidth)
 {
 	int		RetVal = FALSE, SkipNext;
 	int		i, nReaded, nCol, nRead;
 	unsigned char	*pPos;
-	unsigned long	ulTxtLen, ulSubfieldLen;
+	unsigned int	ulTxtLen, ulSubfieldLen;
 	JAMIDXREC	jamIdx;
 	JAMBINSUBFIELD	*jamSubField;
 	LDATA		*Bottom = NULL, *New;
@@ -1230,7 +1230,7 @@ int JAM_Read(unsigned long ulMsg, int nWidth)
 		SkipNext = FALSE;
 
 		do {
-			if ((unsigned long)(nRead = sizeof (szBuff)) > ulTxtLen)
+			if ((unsigned int)(nRead = sizeof (szBuff)) > ulTxtLen)
 				nRead = (int)ulTxtLen;
 
 			nReaded = (int)read (fdJdt, szBuff, nRead);
@@ -1346,7 +1346,7 @@ void JAM_UnLock(void)
 /*
  * Write message header
  */
-int JAM_WriteHeader (unsigned long ulMsg)
+int JAM_WriteHeader (unsigned int ulMsg)
 {
 	int		RetVal = FALSE;
 	JAMIDXREC	jamIdx;

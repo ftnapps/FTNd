@@ -57,7 +57,7 @@ extern	int	do_quiet;		/* Quiet flag			*/
 int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msgid, char *reply, int bad, int dupe, FILE *fp)
 {
     int             result;
-    unsigned long   crc2;
+    unsigned int    crc2;
     char            *buf;
 
     mbse_CleanSubject(subj);

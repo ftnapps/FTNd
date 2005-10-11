@@ -44,7 +44,7 @@
 
 
 int		TicUpdated = 0;
-unsigned long	TicCrc;
+unsigned int	TicCrc;
 FILE		*ttfil = NULL;
 
 
@@ -96,7 +96,7 @@ int OpenTicarea(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize, oldsys;
+	int	oldsize, oldsys;
 	struct	_sysconnect syscon;
 	int	i, oldsystems;
 
@@ -333,7 +333,7 @@ int EditTicConnections(FILE *);
 int EditTicConnections(FILE *fil)
 {
 	int		systems, o = 0, i, y, x;
-	long		offset;
+	int		offset;
 	char		pick[12];
 	sysconnect	System;
 	char		status[4];
@@ -446,12 +446,12 @@ void SetTicScreen(void)
 
 
 
-long LoadTicRec(int, int);
-long LoadTicRec(int Area, int work)
+int LoadTicRec(int, int);
+int LoadTicRec(int Area, int work)
 {
 	FILE            *fil;
 	char            mfile[PATH_MAX];
-	long            offset;
+	int		offset;
 	sysconnect      System;
 	int		i;
 
@@ -496,7 +496,7 @@ int SaveTicRec(int Area, int work)
 {
 	int             i;
 	FILE            *fil;
-	long            offset;
+	int		offset;
 	char            mfile[PATH_MAX];
 	sysconnect      System;
 
@@ -557,7 +557,7 @@ void TicGlobal(void)
     fidoaddr	a1, a2;
     int		menu = 0, areanr, Areas, akan = 0, Found;
     int		Total, Done;
-    long	offset;
+    int		offset;
     sysconnect	S, Sc;
     securityrec	as;
 
@@ -811,7 +811,7 @@ void TicGlobal(void)
 int EditTicRec(int);
 int EditTicRec(int Area)
 {
-    unsigned long   crc1;
+    unsigned int    crc1;
     int		    tmp, i, connections = 0, changed = FALSE;
     sysconnect	    System;
     char	    *temp;
@@ -833,11 +833,11 @@ int EditTicRec(int Area)
 	    fread(&areahdr, sizeof(areahdr), 1, fp);
 	    fseek(fp, ((tic.FileArea - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 	    fread(&area, areahdr.recsize, 1, fp);
-	    snprintf(temp, 81, "%ld: %s", tic.FileArea, area.Name);
+	    snprintf(temp, 81, "%d: %s", tic.FileArea, area.Name);
 	    temp[24] = '\0';
 	    fclose(fp);
 	} else {
-	    snprintf(temp, 81, "%ld", tic.FileArea);
+	    snprintf(temp, 81, "%d", tic.FileArea);
 	}
 
 	set_color(WHITE, BLACK);
@@ -1001,7 +1001,7 @@ void EditTicarea(void)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);
@@ -1113,7 +1113,7 @@ char *PickTicarea(char *shdr)
 	char		pick[12];
 	FILE		*fil;
 	char		temp[PATH_MAX];
-	long		offset;
+	int		offset;
 	static char	Buf[81];
 
 	clr_index();
@@ -1312,7 +1312,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 		fread(&areahdr, sizeof(areahdr), 1, ti);
 		fseek(ti, areahdr.hdrsize + (areahdr.recsize * (tic.FileArea -1)), SEEK_SET);
 		if (fread(&area, areahdr.recsize, 1, ti) == 1) {
-		    fprintf(wp, "<TR><TH align='left'>BBS area</TH><TD>%ld <A HREF=\"filearea_%ld.html\">%s</A></TD></TR>\n",
+		    fprintf(wp, "<TR><TH align='left'>BBS area</TH><TD>%d <A HREF=\"filearea_%d.html\">%s</A></TD></TR>\n",
 			tic.FileArea, tic.FileArea, area.Name);
 		}
 		fclose(ti);
@@ -1351,7 +1351,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Area tag    %s\n", tic.Name);
 	fprintf(fp, "    Active      %s\n", getboolean(tic.Active));
 	fprintf(fp, "    Comment     %s\n", tic.Comment);
-	fprintf(fp, "    BBS area    %ld\n", tic.FileArea);
+	fprintf(fp, "    BBS area    %d\n", tic.FileArea);
 	fprintf(fp, "    Message     %s\n", tic.Message);
 	fprintf(fp, "    Group       %s\n", tic.Group);
 	fprintf(fp, "    Keep Numbe  %d\n", tic.KeepLatest);

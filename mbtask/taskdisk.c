@@ -38,8 +38,8 @@ typedef struct _mfs_list {
     struct _mfs_list	*next;			/* Linked list		*/
     char		*mountpoint;		/* Mountpoint		*/
     char		*fstype;		/* FS type		*/
-    unsigned long	size;			/* Size in MB		*/
-    unsigned long	avail;			/* Available in MB	*/
+    unsigned int	size;			/* Size in MB		*/
+    unsigned int	avail;			/* Available in MB	*/
     unsigned		ro		: 1;	/* Read-Only fs.	*/
 } mfs_list;
 
@@ -253,7 +253,7 @@ char *disk_check(char *token)
 {
     static char	    buf[SS_BUFSIZE];
     mfs_list	    *tmp;
-    unsigned long   needed, lowest = 0xffffffff;
+    unsigned int    needed, lowest = 0xffffffff;
     int		    rc;
 
     strtok(token, ",");
@@ -279,9 +279,9 @@ char *disk_check(char *token)
 	Syslog('!', "disk_check() mutex_unlock failed rc=%d", rc);
 
     if (lowest < needed) {
-	snprintf(buf, SS_BUFSIZE, "100:2,0,%ld;", lowest);
+	snprintf(buf, SS_BUFSIZE, "100:2,0,%d;", lowest);
     } else {
-	snprintf(buf, SS_BUFSIZE, "100:2,1,%ld;", lowest);
+	snprintf(buf, SS_BUFSIZE, "100:2,1,%d;", lowest);
     }
     return buf;
 }
@@ -315,7 +315,7 @@ char *disk_getfs()
 	else
 	    ans = xstrcat(ans, (char *)",");
 	tt[0] = '\0';
-	snprintf(tt, 80, "%lu %lu %s %s %d", tmp->size, tmp->avail, tmp->mountpoint, tmp->fstype, tmp->ro);
+	snprintf(tt, 80, "%u %u %s %s %d", tmp->size, tmp->avail, tmp->mountpoint, tmp->fstype, tmp->ro);
 	ans = xstrcat(ans, tt);
 	if (i == 10) /* No more then 10 filesystems */
 	    break;
@@ -343,14 +343,14 @@ char *disk_getfs()
 void update_diskstat(void)
 {
     struct statfs   sfs;
-    unsigned long   temp;
+    unsigned int    temp;
     mfs_list        *tmp;
 
     for (tmp = mfs; tmp; tmp = tmp->next) {
         if (statfs(tmp->mountpoint, &sfs) == 0) {
-            temp = (unsigned long)(sfs.f_bsize / 512L);
-	    tmp->size  = (unsigned long)(sfs.f_blocks * temp) / 2048L;
-	    tmp->avail = (unsigned long)(sfs.f_bavail * temp) / 2048L;
+            temp = (unsigned int)(sfs.f_bsize / 512L);
+	    tmp->size  = (unsigned int)(sfs.f_blocks * temp) / 2048L;
+	    tmp->avail = (unsigned int)(sfs.f_bavail * temp) / 2048L;
 #if defined(__linux__)
 	    /*
 	     * The struct statfs (or statvfs) seems to have no information
@@ -385,7 +385,7 @@ void add_path(char *lpath)
     FILE	    *fp;
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     struct statfs   *mntbuf;
-    long	    mntsize;
+    int		    mntsize;
     int		    i;
 #else
 #error "Don't know how to get mount paths"

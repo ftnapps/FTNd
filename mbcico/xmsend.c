@@ -48,7 +48,7 @@ static char	*ln,*rn;
 static int	flg;
 static int	xm_send(void);
 
-extern unsigned long	sentbytes;
+extern unsigned int	sentbytes;
 
 
 int xmsend(char *local, char *Remote, int fl)
@@ -109,11 +109,11 @@ SM_EDECL
 	int		count=0;
 	int		cancount=0;
 	int		window;
-	long		last_blk;
-	long		send_blk;
-	long		next_blk;
-	long		ackd_blk;
-	long		tmp;
+	int		last_blk;
+	int		send_blk;
+	int		next_blk;
+	int		ackd_blk;
+	int		tmp;
 	char		resynbuf[16];
 
 	fl.l_type=F_RDLCK;

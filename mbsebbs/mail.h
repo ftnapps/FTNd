@@ -18,7 +18,7 @@ void Delete_Msg(void);			/* Delete a specified message	    */
 void MsgArea_List(char *);		/* Select message area		    */
 void CheckMail(void);			/* Check for new mail		    */
 void MailStatus(void);			/* Mail status in areas		    */
-void SetMsgArea(unsigned long);		/* Set message area and variables   */
+void SetMsgArea(unsigned int);		/* Set message area and variables   */
 
 
 #endif

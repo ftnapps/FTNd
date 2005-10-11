@@ -69,10 +69,10 @@ char lotab[] = {
 void Msg_Id(fidoaddr aka)
 {
 	char		*temp;
-	unsigned long	crc = -1;
+	unsigned int	crc = -1;
 
 	temp = calloc(81, sizeof(char));
-	snprintf(temp, 81, "\001MSGID: %s %08lx", aka2str(aka), sequencer());
+	snprintf(temp, 81, "\001MSGID: %s %08x", aka2str(aka), sequencer());
 	MsgText_Add2(temp);
 	Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
 	Msg.ReplyCRC = 0xffffffff;
@@ -143,11 +143,11 @@ void Msg_Macro(FILE *fi)
 
 
 
-long Msg_Top(char *template, int language, fidoaddr aka)
+int Msg_Top(char *template, int language, fidoaddr aka)
 {
     char    *temp, *line;
     FILE    *fp, *fi;
-    long    fileptr, fileptr1 = -1L;
+    int	    fileptr, fileptr1 = -1L;
     int	    hasmodems = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));

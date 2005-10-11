@@ -7,9 +7,9 @@ void	ProgName(void);
 void	Help(void);
 void	die(int);
 void	DoMsgBase(void);
-void	PackArea(char *, long);
-void	LinkArea(char *, long);
-void	KillArea(char *, char *, int, int, long);
+void	PackArea(char *, int);
+void	LinkArea(char *, int);
+void	KillArea(char *, char *, int, int, int);
 
 #endif
 

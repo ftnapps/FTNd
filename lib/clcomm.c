@@ -4,7 +4,7 @@
  * Purpose ...............: Client/Server communications
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -41,9 +41,9 @@ char		logdebug[PATH_MAX];	/* Debug logfile		    */
 char		logfile[PATH_MAX];	/* Normal logfile		    */
 char		errfile[PATH_MAX];	/* Error logfile		    */
 char		mgrfile[PATH_MAX];	/* Area/File- mgr logfile	    */
-long		loggrade;		/* Logging grade		    */
+int		loggrade;		/* Logging grade		    */
 pid_t		mypid;			/* Original parent pid if child	    */
-unsigned long	lcrc = 0, tcrc = 1;	/* CRC value of logstring	    */
+unsigned int	lcrc = 0, tcrc = 1;	/* CRC value of logstring	    */
 int		lcnt = 0;		/* Same message counter		    */
 static char	*pbuff = NULL;
 extern char	cpath[108];
@@ -100,7 +100,7 @@ char *xstrcat(char *src, char *add)
 
 
 
-void InitClient(char *user, char *myname, char *where, char *logfname, long loggr, char *err, char *mgr, char *debug)
+void InitClient(char *user, char *myname, char *where, char *logfname, int loggr, char *err, char *mgr, char *debug)
 {
 	if ((getenv("MBSE_ROOT")) == NULL) {
 		printf("Could not get the MBSE_ROOT environment variable\n");
@@ -261,7 +261,7 @@ void Syslog(int level, const char *format, ...)
  */
 void Syslogp(int level, char *outstr)
 {
-    long    mask = 0;
+    int	    mask = 0;
     int	    i, upper, debug;
 
     debug = isalpha(level);
@@ -412,7 +412,7 @@ void DoNop()
 
 
 
-static time_t	nop = 0;
+static int32_t nop = 0;
 
 /*
  * This function can be called very often but will only send once a minute
@@ -445,23 +445,23 @@ void Altime(int altime)
 
 
 
-unsigned long sequencer()
+unsigned int sequencer()
 {
-	char		*buf, *res;
-	unsigned long	seq = 0;
+    char	    *buf, *res;
+    unsigned int    seq = 0;
 
-	buf = calloc(SS_BUFSIZE, sizeof(char));
-	snprintf(buf, SS_BUFSIZE, "SSEQ:0;");
+    buf = calloc(SS_BUFSIZE, sizeof(char));
+    snprintf(buf, SS_BUFSIZE, "SSEQ:0;");
 
-	if (socket_send(buf) == 0) {
-		free(buf);
-		buf = socket_receive();
-		res = strtok(buf, ",");
-		res = strtok(NULL, ";");
-		seq = atol(res);
-	}
+    if (socket_send(buf) == 0) {
+	free(buf);
+	buf = socket_receive();
+	res = strtok(buf, ",");
+	res = strtok(NULL, ";");
+	seq = atol(res);
+    }
 
-	return seq;
+    return seq;
 }
 
 
@@ -470,14 +470,14 @@ unsigned long sequencer()
  * Check enough diskspace.
  * return 0=No, 1=Yes, 2=Unknown, 3=Error
  */
-int enoughspace(unsigned long needed)
+int enoughspace(unsigned int needed)
 {
     char	    *buf, *res;
     int		    rc = 3, cnt;
-    unsigned long   avail = 0L;
+    unsigned int    avail = 0L;
 
     buf = calloc(SS_BUFSIZE, sizeof(char));
-    snprintf(buf, SS_BUFSIZE, "DSPC:1,%ld;", needed);
+    snprintf(buf, SS_BUFSIZE, "DSPC:1,%d;", needed);
 
     if (socket_send(buf) == 0) {
 	snprintf(buf, SS_BUFSIZE, "%s", socket_receive());

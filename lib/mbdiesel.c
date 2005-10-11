@@ -193,7 +193,7 @@ void Cookie(int HtmlMode)
 {
     FILE    *olf;
     char    *fname, outbuf[256];
-    long    recno, records;
+    int	    recno, records;
 
     MacroVars("F", "s", "");
     fname = calloc(PATH_MAX, sizeof(char));

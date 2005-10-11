@@ -34,18 +34,18 @@
 #include "lhash.h"
 
 
-void hash_update_s(unsigned long *id, char *mod)
+void hash_update_s(unsigned int *id, char *mod)
 {
 	*id ^= lh_strhash(mod);
 }
 
 
 
-void hash_update_n(unsigned long *id, unsigned long mod)
+void hash_update_n(unsigned int *id, unsigned int mod)
 {
 	char	buf[32];
 
-	snprintf(buf,32, "%030lu",mod);
+	snprintf(buf,32, "%030u",mod);
 	*id ^= lh_strhash(buf);
 }
 

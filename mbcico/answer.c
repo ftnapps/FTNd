@@ -46,8 +46,8 @@
 
 extern int		carrier, online;
 extern time_t		c_start, c_end;
-extern unsigned long    sentbytes;
-extern unsigned long    rcvdbytes;
+extern unsigned int	sentbytes;
+extern unsigned int	rcvdbytes;
 extern int		Loaded;
 
 int answer(char *stype)

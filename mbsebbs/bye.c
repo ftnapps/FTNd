@@ -54,7 +54,7 @@ void Good_Bye(int onsig)
 {
     FILE    *pUsrConfig, *pExitinfo;
     char    *temp;
-    long    offset;
+    int	    offset;
     time_t  t_end;
     int	    i;
 

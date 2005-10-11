@@ -369,7 +369,7 @@ int toss_onemsg(char *msgname)
 	    do_scan = TRUE;
 	    snprintf(temp, PATH_MAX, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
 	    if ((np = fopen(temp, "a")) != NULL) {
-		fprintf(np, "%s %lu\n", msgs.Base, Msg.Id);
+		fprintf(np, "%s %u\n", msgs.Base, Msg.Id);
 		fclose(np);
 	    }
 	}

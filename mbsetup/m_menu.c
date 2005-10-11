@@ -308,8 +308,8 @@ void EditMenu(char *Name)
     char	    mtemp[PATH_MAX], temp[PATH_MAX], pick[12];
     FILE	    *fil, *tmp;
     int		    records = 0, i, o, y, MenuUpdated = FALSE, from, too;
-    long	    offset;
-    unsigned long   crc, crc1;
+    int		    offset;
+    unsigned int    crc, crc1;
     struct menufile tmenus;
 
     clr_index();

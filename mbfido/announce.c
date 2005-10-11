@@ -44,7 +44,7 @@
 extern int		do_quiet;		/* Suppress screen output   */
 struct _filerecord	T_File;			/* Internal announce record */
 int			TotalFiles;		/* Total announced files    */
-unsigned long		TotalSize;		/* Total size in KBytes.    */
+unsigned int		TotalSize;		/* Total size in KBytes.    */
 int			MsgCount;		/* Message counter	    */
 
 
@@ -112,7 +112,7 @@ void Uploads()
 			T_File.Size = fdb.Size;
 			T_File.SizeKb = fdb.Size / 1024;
 			T_File.Fdate = fdb.FileDate;
-			snprintf(T_File.Crc, 9, "%08lx", fdb.Crc32);
+			snprintf(T_File.Crc, 9, "%08x", fdb.Crc32);
 			snprintf(T_File.Desc, 256, "%s %s %s %s", fdb.Desc[0], fdb.Desc[1], fdb.Desc[2], fdb.Desc[3]);
 			k = 0;
 			for (j = 0; j < 25; j++) {
@@ -159,8 +159,8 @@ void Uploads()
 
 
 
-long StartMsg(void);
-long StartMsg(void)
+int StartMsg(void);
+int StartMsg(void)
 {
     if (!Msg_Open(newfiles.Area))
 	return -1;
@@ -196,8 +196,8 @@ long StartMsg(void)
 
 
 
-void FinishMsg(int, long);
-void FinishMsg(int Final, long filepos)
+void FinishMsg(int, int);
+void FinishMsg(int Final, int filepos)
 {
     char    *temp;
     FILE    *fp, *fi;
@@ -226,7 +226,7 @@ void FinishMsg(int Final, long filepos)
 
     snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "a")) != NULL) {
-	fprintf(fp, "%s %lu\n", newfiles.Area, Msg.Id);
+	fprintf(fp, "%s %u\n", newfiles.Area, Msg.Id);
 	fclose(fp);
     }
     Msg_Close();
@@ -239,14 +239,14 @@ void FinishMsg(int Final, long filepos)
 /*
  * Report one group block of new files.
  */
-long Report(gr_list *, long);
-long Report(gr_list *ta, long filepos)
+int Report(gr_list *, int);
+int Report(gr_list *ta, int filepos)
 {
     FILE	    *fp, *fi;
     char	    *temp, *line;
     int		    i, Total = 0;
-    unsigned long   Size = 0;
-    long	    filepos1 = 0, filepos2, filepos3 = 0, finalpos = 0;
+    unsigned int    Size = 0;
+    int		    filepos1 = 0, filepos2, filepos3 = 0, finalpos = 0;
     time_t	    ftime;
 
     temp = calloc(PATH_MAX, sizeof(char));
@@ -370,7 +370,7 @@ int Announce()
     char	*temp;
     FILE	*fp;
     int		Count = 0, rc = FALSE;
-    long	filepos, filepos1, filepos2;
+    int		filepos, filepos1, filepos2;
     char	group[13];
     int		i, groups, any;
 

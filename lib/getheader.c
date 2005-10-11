@@ -54,7 +54,7 @@ int getheader(faddr *f, faddr *t, FILE *pkt, char *pname, int session)
     unsigned char   buffer[0x3a];
     int		    i, capword, prodx, major, minor = 0, tome = FALSE;
     char	    *p, *prodn = NULL, *fa, *ta, buf[5];
-    long	    year, month, day, hour, min, sec;
+    int		    year, month, day, hour, min, sec;
 
     f->domain = NULL;
     f->name   = NULL;

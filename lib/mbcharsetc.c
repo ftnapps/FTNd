@@ -5,7 +5,7 @@
  * Author ................: Martin Junius, for Fidogate
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:   2:280/2802
  * Beekmansbos 10
@@ -123,17 +123,17 @@ int is_space(int c)
  * comments (starting with `#'), and empty lines. cf_getline() returns
  * a pointer to the first non-whitespace in buffer.
  */
-static long cf_lineno = 0;
+static int cf_lineno = 0;
 
-long cf_lineno_get(void)
+int cf_lineno_get(void)
 {
     return cf_lineno;
 }
 
 
-long cf_lineno_set(long n)
+int cf_lineno_set(int n)
 {
-    long old;
+    int	old;
 	    
     old = cf_lineno;
     cf_lineno = n;
@@ -225,7 +225,7 @@ int charset_do_line(char *line)
 	w1 = strtok(NULL, " \t");
 	w2 = strtok(NULL, " \t");
 	if(!w1 || !w2) {
-	    fprintf(stderr, "%s:%ld: argument(s) for alias missing\n", PROGRAM, cf_lineno_get());
+	    fprintf(stderr, "%s:%d: argument(s) for alias missing\n", PROGRAM, cf_lineno_get());
 	    return FALSE;
 	}
 	
@@ -239,7 +239,7 @@ int charset_do_line(char *line)
 	w1 = strtok(NULL, " \t");
 	w2 = strtok(NULL, " \t");
 	if(!w1 || !w2) {
-	    fprintf(stderr, "%s:%ld: argument(s) for table missing\n", PROGRAM, cf_lineno_get());
+	    fprintf(stderr, "%s:%d: argument(s) for table missing\n", PROGRAM, cf_lineno_get());
 	    return FALSE;
 	}
 
@@ -252,7 +252,7 @@ int charset_do_line(char *line)
     else if (strieq(key, "map")) {
 	w1 = strtok(NULL, " \t");
 	if (!w1) {
-	    fprintf(stderr, "%s:%ld: argument for map missing\n", PROGRAM, cf_lineno_get());
+	    fprintf(stderr, "%s:%d: argument for map missing\n", PROGRAM, cf_lineno_get());
 	    return FALSE;
 	}
 
@@ -281,17 +281,17 @@ int charset_do_line(char *line)
 	/* Normal mapping */
 	else {
 	    if ((c1 = charset_parse_c(w1)) == ERROR) {
-		fprintf(stderr, "%s:%ld: illegal char %s\n", PROGRAM, cf_lineno_get(), w1);
+		fprintf(stderr, "%s:%d: illegal char %s\n", PROGRAM, cf_lineno_get(), w1);
 		return FALSE;
 	    }
 	    if (c1 < 0x80) {
-		fprintf(stderr, "%s:%ld: illegal char %s, must be >= 0x80\n", PROGRAM, cf_lineno_get(), w1);
+		fprintf(stderr, "%s:%d: illegal char %s, must be >= 0x80\n", PROGRAM, cf_lineno_get(), w1);
 		return FALSE;
 	    }
 
 	    for (i=0; i<MAX_CHARSET_OUT-1 && (w2 = strtok(NULL, " \t")); i++ ) {
 		if( (c2 = charset_parse_c(w2)) == ERROR) {
-		    fprintf(stderr, "%s:%ld: illegal char definition %s\n", PROGRAM, cf_lineno_get(), w2);
+		    fprintf(stderr, "%s:%d: illegal char definition %s\n", PROGRAM, cf_lineno_get(), w2);
 		    return FALSE;
 		}
 		pt->map[c1 & 0x7f][i] = c2;
@@ -302,7 +302,7 @@ int charset_do_line(char *line)
     }
     /* Error */
     else {
-	fprintf(stderr, "%s:%ld: illegal key word %s\n", PROGRAM, cf_lineno_get(), key);
+	fprintf(stderr, "%s:%d: illegal key word %s\n", PROGRAM, cf_lineno_get(), key);
 	return FALSE;
     }
     
@@ -318,7 +318,7 @@ int charset_do_file(char *name)
 {
     FILE *fp;
     char *p;
-    long oldn;
+    int	oldn;
 
     if(!name)
 	return FALSE;

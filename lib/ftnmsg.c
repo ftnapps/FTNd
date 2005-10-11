@@ -44,17 +44,17 @@ static char *months[] = {
 
 char *ftndate(time_t t)
 {
-	static char	buf[32];
-	struct tm	*ptm;
+    static char	buf[32];
+    struct tm	*ptm;
 
-	ptm = localtime(&t);
-	if (ptm->tm_sec > 59)
-		ptm->tm_sec = 59;
+    ptm = localtime(&t);
+    if (ptm->tm_sec > 59)
+	ptm->tm_sec = 59;
 
-	snprintf(buf, 32, "%02d %s %02d  %02d:%02d:%02d",ptm->tm_mday,
+    snprintf(buf, 32, "%02d %s %02d  %02d:%02d:%02d",ptm->tm_mday,
 		months[ptm->tm_mon], ptm->tm_year%100,
 		ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
-	return buf;
+    return buf;
 }
 
 
@@ -120,14 +120,14 @@ FILE *ftnmsghdr(ftnmsg *fmsg, FILE *pkt, faddr *routeaddr, char flavor, char *Pi
 	if (fmsg->msgid_s) 
 		fprintf(pkt, "\1MSGID: %s\r", fmsg->msgid_s);
 	else if (fmsg->msgid_a) 
-		fprintf(pkt, "\1MSGID: %s %08lx\r",
+		fprintf(pkt, "\1MSGID: %s %08x\r",
 			fmsg->msgid_a,
 			fmsg->msgid_n);
 
 	if (fmsg->reply_s) 
 		fprintf(pkt, "\1REPLY: %s\r", fmsg->reply_s);
 	else if (fmsg->reply_a)
-		fprintf(pkt, "\1REPLY: %s %08lx\r",
+		fprintf(pkt, "\1REPLY: %s %08x\r",
 			fmsg->reply_a,
 			fmsg->reply_n);
 

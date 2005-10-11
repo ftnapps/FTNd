@@ -64,24 +64,24 @@ char *strupr (char *s)
 
 
 
-long filelength(int fd)
+int filelength(int fd)
 {
-	long		retval = -1L;
-	struct stat	buf;
+    int		retval = -1L;
+    struct stat	buf;
 
-	if (fd != -1) {
-		fstat(fd, &buf);
-		retval = buf.st_size;
-	}
+    if (fd != -1) {
+	fstat(fd, &buf);
+	retval = buf.st_size;
+    }
 
-	return (retval);
+    return (retval);
 }
 
 
 
-long tell(int fd)
+int tell(int fd)
 {
-	long	retval = -1L;
+	int retval = -1L;
 
 	if (fd != -1)
 		retval = lseek(fd, 0L, SEEK_CUR);
@@ -122,7 +122,7 @@ void Msg_Close(void)
 /*
  * Delete message number
  */
-int Msg_Delete(unsigned long ulMsg)
+int Msg_Delete(unsigned int ulMsg)
 {
 	if (!MsgBase.Locked)
 		return FALSE;
@@ -152,14 +152,14 @@ int Msg_GetLastRead(lastread *LR)
 /*
  * Get highest message number
  */
-unsigned long Msg_Highest(void)
+unsigned int Msg_Highest(void)
 {
 	return MsgBase.Highest = JAM_Highest();
 }
 
 
 
-int Msg_Lock(unsigned long ulTimeout)
+int Msg_Lock(unsigned int ulTimeout)
 {
 	return MsgBase.Locked = JAM_Lock(ulTimeout);
 }
@@ -169,7 +169,7 @@ int Msg_Lock(unsigned long ulTimeout)
 /*
  * Get lowest message number 
  */
-unsigned long Msg_Lowest(void)
+unsigned int Msg_Lowest(void)
 {
 	return MsgBase.Lowest = JAM_Lowest();
 }
@@ -190,7 +190,7 @@ int Msg_NewLastRead(lastread LR)
 
 
 
-int Msg_Next(unsigned long * ulMsg)
+int Msg_Next(unsigned int * ulMsg)
 {
 	return JAM_Next(ulMsg);
 }
@@ -200,7 +200,7 @@ int Msg_Next(unsigned long * ulMsg)
 /*
  * Return number of messages
  */
-unsigned long Msg_Number(void)
+unsigned int Msg_Number(void)
 {
 	return MsgBase.Total = JAM_Number();
 }
@@ -244,14 +244,14 @@ void Msg_Pack(void)
 
 
 
-int Msg_Previous (unsigned long * ulMsg)
+int Msg_Previous (unsigned int * ulMsg)
 {
 	return JAM_Previous(ulMsg);
 }
 
 
 
-int Msg_ReadHeader (unsigned long ulMsg)
+int Msg_ReadHeader (unsigned int ulMsg)
 {
 	return JAM_ReadHeader(ulMsg);
 }
@@ -261,7 +261,7 @@ int Msg_ReadHeader (unsigned long ulMsg)
 /*
  * Read message
  */
-int Msg_Read(unsigned long ulMsg, int nWidth)
+int Msg_Read(unsigned int ulMsg, int nWidth)
 {
 	return JAM_Read(ulMsg, nWidth);
 }
@@ -292,7 +292,7 @@ void Msg_UnLock(void)
 /*
  * Write message header
  */
-int Msg_WriteHeader (unsigned long ulMsg)
+int Msg_WriteHeader (unsigned int ulMsg)
 {
 	if (!MsgBase.Locked)
 		return FALSE;
@@ -318,8 +318,8 @@ void Msg_Write(FILE *fp)
  
 
 typedef struct {
-    unsigned long   Subject;
-    unsigned long   Number;
+    unsigned int    Subject;
+    unsigned int    Number;
 } MSGLINK;
 
 
@@ -380,7 +380,7 @@ void msg_colour(int fg, int bg)
 int Msg_Link(char *Path, int do_quiet, int slow_util)
 {
     int             i, m, msg_link = 0;
-    unsigned long   Number, Prev, Next, Crc, Total;
+    unsigned int    Number, Prev, Next, Crc, Total;
     char            Temp[128], *p;
     MSGLINK         *Link;
         
@@ -415,13 +415,13 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
 		    i++;
 
 		    if (((i % 10) == 0) && (!do_quiet)) {
-			printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+			printf("%6d / %6u\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
 			fflush(stdout);
 		    }
 		} while(Msg_Next(&Number) == TRUE);
 
 		if (!do_quiet) {
-		    printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+		    printf("%6d / %6u\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
 		    fflush(stdout);
 		}
 		Number = Msg_Lowest();
@@ -445,7 +445,7 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
 		    }
 
 		    if (((i % 10) == 0) && (!do_quiet)) {
-			printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+			printf("%6d / %6u\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
 			fflush(stdout);
 		    }
 
@@ -461,7 +461,7 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
 		} while(Msg_Next(&Number) == TRUE);
 
 		if (!do_quiet) {
-		    printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+		    printf("%6d / %6u\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
 		    fflush(stdout);
 		}
 

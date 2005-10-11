@@ -49,7 +49,7 @@ int	    some_fd;
 extern int  exp_golded;
 
 
-#define WRLONG cnt = write(some_fd, &longvar, sizeof(longvar));
+//  #define WRLONG cnt = write(some_fd, &longvar, sizeof(longvar));
 
 
 
@@ -1442,7 +1442,7 @@ void e_html(void)
 
 void global_menu(void)
 {
-    unsigned long   crc, crc1;
+    unsigned int    crc, crc1;
     int		    i;
     char	    *temp;
 
@@ -2100,9 +2100,9 @@ int global_doc(FILE *fp, FILE *toc, int page)
     addtoc(fp, toc, 1, 11, page, (char *)"Fileecho processing");
     fprintf(fp, "      Keep days on hold  %d\n", CFG.tic_days);
     fprintf(fp, "      Hatch password     %s\n", CFG.hatchpasswd);
-    fprintf(fp, "      Max. systems       %ld\n", CFG.tic_systems);
-    fprintf(fp, "      Max. groups        %ld\n", CFG.tic_groups);
-    fprintf(fp, "      Max. dupes         %ld\n", CFG.tic_dupes);
+    fprintf(fp, "      Max. systems       %d\n", CFG.tic_systems);
+    fprintf(fp, "      Max. groups        %d\n", CFG.tic_groups);
+    fprintf(fp, "      Max. dupes         %d\n", CFG.tic_dupes);
     fprintf(fp, "      Keep filedate      %s\n", getboolean(CFG.ct_KeepDate));
     fprintf(fp, "      Keep mgr netmail   %s\n", getboolean(CFG.ct_KeepMgr));
     fprintf(fp, "      Local requests     %s\n", getboolean(CFG.ct_LocalRep));
@@ -2150,8 +2150,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "      Default max msgs   %d\n", CFG.defmsgs);
     fprintf(fp, "      Default days       %d\n", CFG.defdays);
     fprintf(fp, "      Reject older then  %d days\n", CFG.toss_old);
-    fprintf(fp, "      Maximum systems    %ld\n", CFG.toss_systems);
-    fprintf(fp, "      Maximum groups     %ld\n", CFG.toss_groups);
+    fprintf(fp, "      Maximum systems    %d\n", CFG.toss_systems);
+    fprintf(fp, "      Maximum groups     %d\n", CFG.toss_groups);
     fprintf(fp, "      Use 4d addressing  %s\n", getboolean(CFG.addr4d));
     fprintf(fp, "      AreaMgr: allow +%%* %s\n", getboolean(CFG.ca_PlusAll));
     fprintf(fp, "      AreaMgr: notify    %s\n", getboolean(CFG.ca_Notify));
@@ -2223,7 +2223,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     addtoc(fp, toc, 1, 14, page, (char *)"Newfile reports");
     fprintf(fp, "      New files days     %d\n", CFG.newdays);
     fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
-    fprintf(fp, "      Max. newfile grps  %ld\n", CFG.new_groups);
+    fprintf(fp, "      Max. newfile grps  %d\n", CFG.new_groups);
     fprintf(fp, "      WWW logfile        %s\n", CFG.www_logfile);
     fprintf(fp, "      FTP logfile        %s\n", CFG.ftp_logfile);
     fprintf(wp, "</TBODY>\n");
@@ -2260,11 +2260,11 @@ int global_doc(FILE *fp, FILE *toc, int page)
     p = getloglevel(CFG.cico_loglevel);
     fprintf(fp, "      Mailer loglevel    %s\n",  p);
     free(p);
-    fprintf(fp, "      Res. modem timeout %ld\n", CFG.timeoutreset);
-    fprintf(fp, "      Connect timeout    %ld\n", CFG.timeoutconnect);
-    fprintf(fp, "      Random dialdelay   %ld\n", CFG.dialdelay);
+    fprintf(fp, "      Res. modem timeout %d\n", CFG.timeoutreset);
+    fprintf(fp, "      Connect timeout    %d\n", CFG.timeoutconnect);
+    fprintf(fp, "      Random dialdelay   %d\n", CFG.dialdelay);
     fprintf(fp, "      TCP/IP phone nr.   %s\n",  CFG.IP_Phone);
-    fprintf(fp, "      TCP/IP speed       %lu\n", CFG.IP_Speed);
+    fprintf(fp, "      TCP/IP speed       %u\n", CFG.IP_Speed);
     fprintf(fp, "      TCP/IP flags       %s\n",  CFG.IP_Flags);
     fprintf(fp, "      No Filerequests    %s\n",  getboolean(CFG.NoFreqs));
     fprintf(fp, "      No Calls           %s\n",  getboolean(CFG.NoCall));

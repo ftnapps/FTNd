@@ -368,7 +368,7 @@ SM_START(recv_packet)
 
 SM_STATE(recv_packet)
 
-    snprintf(recvpktname,16, "%08lx.pkt",(unsigned long)sequencer());
+    snprintf(recvpktname,16, "%08x.pkt", sequencer());
     if ((rc = xmrecv(recvpktname)) == 1) {
 	SM_SUCCESS;
     } else if (rc == 0) {

@@ -60,11 +60,11 @@ int		scanned;
  * Internal prototypes
  */
 void ScanFull(void);
-void ScanOne(char *, unsigned long);
-void ExportEcho(sysconnect, unsigned long, fa_list **);
-void ExportNews( unsigned long, fa_list **);
-void ExportNet(unsigned long, int);
-void ExportEmail(unsigned long);
+void ScanOne(char *, unsigned int);
+void ExportEcho(sysconnect, unsigned int, fa_list **);
+void ExportNews( unsigned int, fa_list **);
+void ExportNet(unsigned int, int);
+void ExportEmail(unsigned int);
 
 
 
@@ -76,7 +76,7 @@ void ExportEmail(unsigned long);
 void ScanMail(int DoAll)
 {
     int		    DoFull = FALSE, i = 0;
-    unsigned long   msg;
+    unsigned int    msg;
     char	    *Fname = NULL, *temp, *msgstr, *path;
     FILE	    *fp;
 
@@ -147,8 +147,8 @@ void ScanFull()
 {
     char	    *sAreas, sbe[128];
     FILE	    *pAreas;
-    long	    arearec = 0, sysstart, nextstart;
-    unsigned long   Total, Number;
+    int		    arearec = 0, sysstart, nextstart;
+    unsigned int    Total, Number;
     int		    i;
     sysconnect	    Link;
     fa_list	    *sbl = NULL;
@@ -189,7 +189,7 @@ void ScanFull()
 				msleep(1);
 
 			    if (((Number % 10) == 0) && (!do_quiet)) {
-				printf("%6lu\b\b\b\b\b\b", Number);
+				printf("%6u\b\b\b\b\b\b", Number);
 				fflush(stdout);
 			    }
 
@@ -238,7 +238,7 @@ void ScanFull()
 	    Nopper();
 	    if (!do_quiet) {
 		mbse_colour(CYAN, BLACK);
-		printf("\r%5ld .. %-40s", arearec, msgs.Name);
+		printf("\r%5d .. %-40s", arearec, msgs.Name);
 		mbse_colour(LIGHTMAGENTA, BLACK);
 		fflush(stdout);
 	    }
@@ -252,7 +252,7 @@ void ScanFull()
 			    msleep(1);
 
 			if (((Number % 10) == 0) && (!do_quiet)) {
-			    printf("%6lu\b\b\b\b\b\b", Number);
+			    printf("%6u\b\b\b\b\b\b", Number);
 			    fflush(stdout);
 			}
 
@@ -339,12 +339,12 @@ void ScanFull()
 
 
 
-void ScanOne(char *path, unsigned long MsgNum)
+void ScanOne(char *path, unsigned int MsgNum)
 {
     char	    *sAreas, sbe[128];
     FILE	    *pAreas;
-    long	    sysstart;
-    unsigned long   Total, Area = 0;
+    int		    sysstart;
+    unsigned int    Total, Area = 0;
     int		    i;
     sysconnect	    Link;
     fa_list	    *sbl = NULL;
@@ -406,7 +406,7 @@ void ScanOne(char *path, unsigned long MsgNum)
     if ((msgs.Active) && (msgs.Type == ECHOMAIL || msgs.Type == NETMAIL || msgs.Type == NEWS)) {
 	if (!do_quiet) {
 	    mbse_colour(CYAN, BLACK);
-	    printf("\r%5ld .. %-40s", Area, msgs.Name);
+	    printf("\r%5d .. %-40s", Area, msgs.Name);
 	    mbse_colour(LIGHTMAGENTA, BLACK);
 	    fflush(stdout);
 	}
@@ -485,16 +485,16 @@ void ScanOne(char *path, unsigned long MsgNum)
 
 
 
-int RescanOne(faddr *L, char *marea, unsigned long Num)
+int RescanOne(faddr *L, char *marea, unsigned int Num)
 // Return:    0 -> Ok
 //            1 -> Unknown area
 //            2 -> Node cant rescan this area
 {
-    unsigned long   Total, MsgNum, Area = 0;
+    unsigned int    Total, MsgNum, Area = 0;
     fa_list         *sbl = NULL;
     fidoaddr        *l;
     int             First, Found;
-    unsigned long   rescanned;
+    unsigned int    rescanned;
     sysconnect      Link;
 
     IsDoing("ReScan mail");
@@ -530,7 +530,7 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
     if ((msgs.Active) && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST))) {
         if (!do_quiet) {
             mbse_colour(CYAN, BLACK);
-            printf("\r%5ld .. %-40s", Area, msgs.Name);
+            printf("\r%5d .. %-40s", Area, msgs.Name);
             mbse_colour(LIGHTMAGENTA, BLACK);
 	    fflush(stdout);
 	}
@@ -573,7 +573,7 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
 /*
  *  Export message to downlink. The messagebase is locked.
  */
-void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
+void ExportEcho(sysconnect L, unsigned int MsgNum, fa_list **sbl)
 {
     int	    rc, seenlen, oldnet, flags = 0, kludges = TRUE;
     char    *p, sbe[128], ext[4];
@@ -680,7 +680,7 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
 /*
  *  Export message to the newsserver. The messagebase is locked.
  */
-void ExportNews(unsigned long MsgNum, fa_list **sbl)
+void ExportNews(unsigned int MsgNum, fa_list **sbl)
 {
     char    *p;
     int     i, seenlen, oldnet, flags = 0;
@@ -783,7 +783,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 /*
  *  Export Netmail message, the messagebase is locked.
  */
-void ExportNet(unsigned long MsgNum, int UUCPgate)
+void ExportNet(unsigned int MsgNum, int UUCPgate)
 {
     char	    *p, *q, ext[4], fromname[37], flavor, MailFrom[128], MailTo[128];
     int		    i, rc, flags = 0, first, is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE, mypoint = FALSE, empty = TRUE;
@@ -1091,7 +1091,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 /*
  *  Export Email message, the messagebase is locked.
  */
-void ExportEmail(unsigned long MsgNum)
+void ExportEmail(unsigned int MsgNum)
 {
     char    *p, *q, MailFrom[128], MailTo[128];
     FILE    *qp;

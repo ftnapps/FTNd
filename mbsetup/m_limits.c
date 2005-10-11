@@ -151,7 +151,7 @@ int OpenLimits(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+	int	oldsize;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
 	snprintf(fnout, PATH_MAX, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
@@ -215,7 +215,7 @@ void CloseLimits(int force)
 
 			while (fread(&LIMIT, LIMIThdr.recsize, 1, fi) == 1)
 				if (!LIMIT.Deleted) {
-					snprintf(temp, 20, "%014ld", LIMIT.Security);
+					snprintf(temp, 20, "%014d", LIMIT.Security);
 					fill_stlist(&lim, temp, ftell(fi) - LIMIThdr.recsize);
 				}
 			sort_stlist(&lim);
@@ -269,9 +269,9 @@ int EditLimRec(int Area)
 {
 	FILE	*fil;
 	char	mfile[PATH_MAX];
-	long	offset;
+	int	offset;
 	int	j;
-	unsigned long crc, crc1;
+	unsigned int	crc, crc1;
 
 	clr_index();
 	working(1, 0, 0);
@@ -356,7 +356,7 @@ void EditLimits(void)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);
@@ -401,7 +401,7 @@ void EditLimits(void)
 						set_color(CYAN, BLACK);
 					else
 						set_color(LIGHTBLUE, BLACK);
-					snprintf(temp, 81, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
+					snprintf(temp, 81, "%3d.  %-6d %-40s", i, LIMIT.Security, LIMIT.Description);
 					temp[37] = '\0';
 					mbse_mvprintw(y, x, temp);
 					y++;
@@ -448,7 +448,7 @@ char *PickLimits(int nr)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 
 	clr_index();
@@ -489,7 +489,7 @@ char *PickLimits(int nr)
 					set_color(CYAN, BLACK);
 				else
 					set_color(LIGHTBLUE, BLACK);
-				snprintf(temp, 81, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
+				snprintf(temp, 81, "%3d.  %-6d %-40s", i, LIMIT.Security, LIMIT.Description);
 				temp[37] = '\0';
 				mbse_mvprintw(y, x, temp);
 				y++;
@@ -500,7 +500,7 @@ char *PickLimits(int nr)
 				offset = sizeof(LIMIThdr) + ((atoi(pick) - 1) * LIMIThdr.recsize);
 				fseek(fil, offset, 0);
 				fread(&LIMIT, LIMIThdr.recsize, 1, fil);
-				snprintf(Lim, 21, "%ld", LIMIT.Security);
+				snprintf(Lim, 21, "%d", LIMIT.Security);
 			}
 			fclose(fil);
 		}
@@ -563,9 +563,9 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "     ------ ------ ------ ------ ------ ------------------------------\n");
 
     while ((fread(&LIMIT, LIMIThdr.recsize, 1, no)) == 1) {
-	fprintf(fp, "     %6ld %6ld %6ld %6d %s    %s\n", 
+	fprintf(fp, "     %6d %6d %6d %6d %s    %s\n", 
 	    LIMIT.Security, LIMIT.Time, LIMIT.DownK, LIMIT.DownF, getboolean(LIMIT.Available), LIMIT.Description);
-	fprintf(ip, "<TR><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%d</TD><TD>%s</TD><TD>%s</TD></TR>\n",
+	fprintf(ip, "<TR><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%s</TD><TD>%s</TD></TR>\n",
 	    LIMIT.Security, LIMIT.Time, LIMIT.DownK, LIMIT.DownF, getboolean(LIMIT.Available), LIMIT.Description);
     }	
 
@@ -589,7 +589,7 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 	    while (fread(&usrconfig, usrconfighdr.recsize, 1, up) == 1) {
 		nr++;
 		if (strlen(usrconfig.sUserName) && (usrconfig.Security.level == LIMIT.Security)) {
-		    fprintf(ip, "<TR><TD>%ld</TD><TD><A HREF=\"user_%d.html\">%s</A></TD><TD>%s</TD></TR>\n", 
+		    fprintf(ip, "<TR><TD>%d</TD><TD><A HREF=\"user_%d.html\">%s</A></TD><TD>%s</TD></TR>\n", 
 			LIMIT.Security, nr, usrconfig.sUserName, usrconfig.sLocation);
 		}
 	    }

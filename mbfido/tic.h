@@ -1,7 +1,7 @@
-/* $Id$ */
+#ifndef _TIC_H
+#define _TIC_H
 
-#ifndef	_TIC_H
-#define	_TIC_H
+/* $Id$ */
 
 
 typedef	struct	_tic_in {
@@ -23,7 +23,7 @@ typedef	struct	_tic_in {
 	char		Pw[21];			/* Password		    */
 	char		AreaDesc[61];		/* Area description	    */
 	char		Date[61];		/* Date field		    */
-	long		Cost;	    		/* Uplink cost		    */
+	int		Cost;	    		/* Uplink cost		    */
 	off_t		Size;			/* Size of file		    */
 	char		LDesc[25][81];		/* Long description	    */
 	int		TotLDesc;		/* Total lines		    */
@@ -43,7 +43,7 @@ typedef	struct	_TICrec {
 	char		NewFullName[256];	/* New LFN name		    */
 	char		File_Id[25][49];	/* Description		    */
 	int		File_Id_Ct;		/* Nr of lines		    */
-	unsigned long	Crc_Int;		/* Crc value		    */
+	unsigned int	Crc_Int;		/* Crc value		    */
 	int		KeepNum;		/* Keep number of files	    */
 	off_t		FileSize;		/* Size of file		    */
 	time_t		FileDate;		/* Date of file		    */
@@ -53,7 +53,7 @@ typedef	struct	_TICrec {
 	unsigned	PassThru	: 1;	/* PassThru file	    */
 	unsigned	NewAlias	: 1;	/* New alias is set	    */
 	unsigned	Orphaned	: 1;	/* File is Orphaned	    */
-	long		FileCost;		/* Cost for this file	    */
+	int		FileCost;		/* Cost for this file	    */
 	char		BBSpath[PATH_MAX];	/* Path to import in	    */
 	char		BBSdesc[55];		/* Area description	    */
 } TICrec;
@@ -70,4 +70,3 @@ int	LoadTic(char *, char *);
 
 
 #endif
-

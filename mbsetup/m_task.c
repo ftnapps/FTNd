@@ -38,7 +38,7 @@
 
 
 struct taskrec	TCFG;
-unsigned long	crc1, crc2;
+unsigned int	crc1, crc2;
 
 
 

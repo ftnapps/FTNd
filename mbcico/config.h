@@ -3,9 +3,9 @@
 
 /* $Id$ */
 
-extern long configtime;
-extern long maxfsize;
-extern long maxmsize;
+extern int  configtime;
+extern int  maxfsize;
+extern int  maxmsize;
 
 
 extern char *name;

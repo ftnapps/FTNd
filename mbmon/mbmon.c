@@ -336,7 +336,7 @@ void disk_stat(void)
 {
     int		    ch, i, ro;
     char	    buf[1024], *cnt, *type, *fs, *p, sign;
-    unsigned long   last[10], size, used, perc, avail;
+    unsigned int    last[10], size, used, perc, avail;
 
     clr_index();
     set_color(WHITE, BLACK);
@@ -390,7 +390,7 @@ void disk_stat(void)
 		    } else {
 			set_color(GREEN, BLACK);
 		    }
-		    printf("%3lu", perc);
+		    printf("%3u", perc);
 		    putchar('%');
 		    set_color(CYAN, BLACK);
 		    printf("  %-8s  %s %-37s", type, ro ?"RO":"RW", fs);

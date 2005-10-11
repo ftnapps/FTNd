@@ -86,7 +86,7 @@ int IsZMH()
 }
 
 
-unsigned long rnd (void)
+unsigned int rnd (void)
 {
     static int	i;
 

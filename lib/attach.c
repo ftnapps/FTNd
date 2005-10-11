@@ -160,7 +160,7 @@ int check_flo(faddr *node, char *filename, char flavor)
 {
     char    *flofile, *ticfile, *buf;
     FILE    *fp;
-    long    filepos, newpos;
+    int	    filepos, newpos;
     char    tpl = '~';
     int	    rc = 0;
 

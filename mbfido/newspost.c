@@ -45,7 +45,7 @@ int newspost(void)
 {
     int		    start = TRUE, fatal = FALSE;
     char	    *buf, *p;
-    long	    curpos, count, seqnr;
+    int		    curpos, count, seqnr;
     FILE	    *ofp = NULL, *nb;
     struct utsname  utsbuf;
 
@@ -138,7 +138,7 @@ int newspost(void)
 	    if (!count)
 		break;
 	    fseek(nfp, curpos, SEEK_SET);
-	    fprintf(ofp, "#! rnews %ld\n", count);
+	    fprintf(ofp, "#! rnews %d\n", count);
 	    while (fgets(buf, 10240, nfp)) {
 		if (strcmp(buf, ".\n")) {
 		    fprintf(ofp, buf);
@@ -194,17 +194,17 @@ int newspost(void)
 	    return TRUE;
 	}
 
-	snprintf(buf, 10240, "%s/C.%s%lx", CFG.rnewspath, CFG.nntpnode, seqnr);
+	snprintf(buf, 10240, "%s/C.%s%x", CFG.rnewspath, CFG.nntpnode, seqnr);
 	if ((nb = fopen(buf, "a")) == NULL) {
 	    WriteError("Can't create %s", buf);
 	    newsopen = FALSE;
 	    return TRUE;
 	}
 	seqnr = sequencer();
-	fprintf(nb, "E D.%s%lx D.%s%lx news -C D.%s%lx 0666 \"\" 0 rnews\n", 
+	fprintf(nb, "E D.%s%x D.%s%x news -C D.%s%x 0666 \"\" 0 rnews\n", 
 			utsbuf.nodename, seqnr, utsbuf.nodename, seqnr, utsbuf.nodename, seqnr);
 	fclose(nb);
-	snprintf(buf, 10240, "%s/D.%s%lx", CFG.rnewspath, utsbuf.nodename, seqnr);
+	snprintf(buf, 10240, "%s/D.%s%x", CFG.rnewspath, utsbuf.nodename, seqnr);
 	if ((nb = fopen(buf, "a")) == NULL) {
 	    WriteError("Can't create %s", buf);
 	    newsopen = FALSE;

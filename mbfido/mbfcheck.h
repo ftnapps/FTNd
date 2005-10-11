@@ -1,8 +1,8 @@
-/* $Id$ */
-
-#ifndef _MBFCHECK_H_
+#ifndef _MBFCHECK_H
 #define _MBFCHECK_H
 
-void	Check(long);			/* Check file database		*/
+/* $Id$ */
+
+void	Check(int);			/* Check file database		*/
 
 #endif

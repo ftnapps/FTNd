@@ -22,7 +22,7 @@ typedef struct _ncs_list {
     unsigned		gotserver   : 1;    /* Received valid server	*/
     struct sockaddr_in	servaddr_in;	    /* Peer socketaddress	*/
     int			socket;		    /* Peer socket		*/
-    unsigned long	token;		    /* Server token		*/
+    unsigned int	token;		    /* Server token		*/
 } ncs_list;
 
 

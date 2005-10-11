@@ -895,7 +895,7 @@ int command_server(char *hostname, char *parameters)
     usr_list	    *tmp;
     chn_list	    *tmpc;
     char	    *name, *hops, *id, *prod, *vers, *fullname;
-    unsigned long   token;
+    unsigned int    token;
     int		    ihops, found = FALSE;
 
     name = strtok(parameters, " \0");

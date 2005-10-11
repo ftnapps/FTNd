@@ -40,7 +40,7 @@
 #include "m_fdb.h"
 
 
-void E_F(long);
+void E_F(int);
 void EditFile(void);
 
 
@@ -105,20 +105,20 @@ void EditFile()
 
 
 
-void E_F(long areanr)
+void E_F(int areanr)
 {
     FILE	    *fil;
     char	    temp[PATH_MAX], help[81];
     int		    i, y, o, records, Ondisk;
     static char	    *menu = (char *)"0";
-    long	    offset;
+    int		    offset;
     time_t	    Time;
     struct stat	    statfile;
-    unsigned long   crc, crc1;
+    unsigned int    crc, crc1;
 
     clr_index();
 
-    snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), areanr);
+    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), areanr);
     if ((fil = fopen(temp, "r+")) == NULL) {
 	working(2, 0, 0);
 	return;
@@ -262,7 +262,7 @@ void EditFDB()
     char    pick[12];
     FILE    *fil;
     char    temp[PATH_MAX];
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);
@@ -353,7 +353,7 @@ void EditFDB()
 void InitFDB(void)
 {
     int			    records, i;
-    long		    Area = 0;
+    int			    Area = 0;
     char		    *temp, Magic[21];
     FILE		    *fp1, *fp2, *fil, *ft, *fp;
     DIR			    *dp;
@@ -374,12 +374,12 @@ void InitFDB(void)
 	while (fread(&area, areahdr.recsize, 1, fil)) {
 	    Area++;
 	    if (area.Available) {
-		snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
 		if ((fp1 = fopen(temp, "r")) != NULL) {
 		    /*
 		     * Old area available, upgrade.
 		     */
-		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 		    if ((fp2 = fopen(temp, "w+")) == NULL) {
 			WriteError("$Can't create %s", temp);
 		    } else {
@@ -452,7 +452,7 @@ void InitFDB(void)
 			Syslog('+', "Upgraded file area database %d", Area);
 		    }
 		    fclose(fp1);
-		    snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
 		    unlink(temp);
 		} // Old area type upgrade.
 
@@ -460,7 +460,7 @@ void InitFDB(void)
 		 * Current area, check
 		 */
 		if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
-		    WriteError("InitFDB(): database area %ld might be corrupt", Area);
+		    WriteError("InitFDB(): database area %d might be corrupt", Area);
 		else
 		    mbsedb_CloseFDB(fdb_area);
 	    }

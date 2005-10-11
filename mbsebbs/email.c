@@ -47,7 +47,7 @@
 #include "ttyio.h"
 
 
-extern unsigned long	LastNum;
+extern unsigned int	LastNum;
 extern int		Kludges;
 extern FILE		*qf;
 extern char		*Message[];
@@ -60,7 +60,7 @@ extern int		LC_Wrote;
  * Internal prototypes
  */
 int  HasNoEmail(void);
-int  Export_a_Email(unsigned long);
+int  Export_a_Email(unsigned int);
 int  EmailPanel(void);
 int  Save_Email(int);
 
@@ -96,7 +96,7 @@ void ShowEmailHdr(void)
     snprintf(temp, 81, "   %-70s", sMailbox);
     pout(BLUE, LIGHTGRAY, temp);
 
-    snprintf(temp, 81, "#%-5lu", Msg.Id);
+    snprintf(temp, 81, "#%-5u", Msg.Id);
     pout(RED, LIGHTGRAY, temp);
     Enter(1);
 
@@ -156,9 +156,9 @@ void ShowEmailHdr(void)
     Enter(1);
     
     if (Msg.Reply)
-	snprintf(Buf1, 35, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
+	snprintf(Buf1, 35, "\"+\" %s %u", (char *)Language(211), Msg.Reply);
     if (Msg.Original)
-	snprintf(Buf2, 35, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
+	snprintf(Buf2, 35, "   \"-\" %s %u", (char *)Language(212), Msg.Original);
     snprintf(Buf3, 35, "%s%s ", Buf1, Buf2);
     snprintf(temp, 81, "%78s  ", Buf3);
     pout(YELLOW, BLUE, temp);
@@ -170,7 +170,7 @@ void ShowEmailHdr(void)
 /*
  * Export a email to file in the users home directory.
  */
-int Export_a_Email(unsigned long Num)
+int Export_a_Email(unsigned int Num)
 {
     char    *p, temp[21];
 
@@ -211,7 +211,7 @@ int Export_a_Email(unsigned long Num)
      * written in M$DOS <cr/lf> format.
      */
     p = calloc(PATH_MAX, sizeof(char));
-    snprintf(p, PATH_MAX, "%s/%s/wrk/%s_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, sMailbox, Num);
+    snprintf(p, PATH_MAX, "%s/%s/wrk/%s_%u.msg", CFG.bbs_usersdir, exitinfo.Name, sMailbox, Num);
     if ((qf = fopen(p, "w")) != NULL) {
 	free(p);
 	p = NULL;
@@ -240,7 +240,7 @@ int Export_a_Email(unsigned long Num)
      */
     Enter(2);
     pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(46));
-    snprintf(temp, 21, "%s_%lu.msg", sMailbox, Num);
+    snprintf(temp, 21, "%s_%u.msg", sMailbox, Num);
     pout(CFG.HiliteF, CFG.HiliteB, temp);
     Enter(2);
     Pause();
@@ -256,8 +256,8 @@ int Save_Email(int IsReply)
 {
     int             i;
     char            *p, *temp;
-    unsigned long   crc = -1;
-    long	    id;
+    unsigned int    crc = -1;
+    int		    id;
     FILE	    *fp;
 
     if (Line < 2)
@@ -298,7 +298,7 @@ int Save_Email(int IsReply)
     MsgText_Add2(temp);
     p = calloc(81, sizeof(char));
     id = sequencer();
-    snprintf(p, 81, "<%08lx@%s>", id, CFG.sysdomain);
+    snprintf(p, 81, "<%08x@%s>", id, CFG.sysdomain);
     snprintf(temp, PATH_MAX, "\001Message-id: %s", p);
     MsgText_Add2(temp);
     Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
@@ -352,7 +352,7 @@ int Save_Email(int IsReply)
 
     Enter(1);
     /* Saving message to disk */
-    snprintf(temp, 81, "%s(%ld)", (char *) Language(202), Msg.Id);
+    snprintf(temp, 81, "%s(%d)", (char *) Language(202), Msg.Id);
     pout(CFG.HiliteF, CFG.HiliteB, temp);
     Enter(2);
     sleep(2);
@@ -362,7 +362,7 @@ int Save_Email(int IsReply)
      */
     snprintf(temp, PATH_MAX, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "a")) != NULL) {
-	fprintf(fp, "%s/%s/mailbox %lu\n", CFG.bbs_usersdir, exitinfo.Name, Msg.Id);
+	fprintf(fp, "%s/%s/mailbox %u\n", CFG.bbs_usersdir, exitinfo.Name, Msg.Id);
 	fclose(fp);
     }
 
@@ -374,7 +374,7 @@ int Save_Email(int IsReply)
 
 
 
-int Read_a_Email(unsigned long Num)
+int Read_a_Email(unsigned int Num)
 {
     char        *p = NULL, *fn;
     lastread    LR;
@@ -602,7 +602,7 @@ int EmailPanel(void)
 void Read_Email(void)
 {
     char            *temp;
-    unsigned long   Start;
+    unsigned int    Start;
     lastread        LR;
 
     if (HasNoEmail())
@@ -611,7 +611,7 @@ void Read_Email(void)
     Enter(1);
     temp = calloc(128, sizeof(char));
     /* Message area \"%s\" contains %lu messages. */
-    snprintf(temp, 128, "\n%s\"%s\" %s%lu %s", (char *) Language(221), sMailbox, (char *) Language(222), 
+    snprintf(temp, 128, "\n%s\"%s\" %s%u %s", (char *) Language(221), sMailbox, (char *) Language(222), 
 		EmailBase.Total, (char *) Language(223));
     pout(CFG.TextColourF, CFG.TextColourB, temp);
 
@@ -637,11 +637,11 @@ void Read_Email(void)
 
     Enter(1);
     /* Please enter a message between */
-    snprintf(temp, 81, "%s(%lu - %lu)", (char *) Language(224), EmailBase.Lowest, EmailBase.Highest);
+    snprintf(temp, 81, "%s(%u - %u)", (char *) Language(224), EmailBase.Lowest, EmailBase.Highest);
     pout(WHITE, BLACK, temp);
     Enter(1);
     /* Message number [ */
-    snprintf(temp, 81, "%s%lu]: ", (char *) Language(225), Start);
+    snprintf(temp, 81, "%s%u]: ", (char *) Language(225), Start);
     PUTSTR(temp);
 
     colour(CFG.InputColourF, CFG.InputColourB);
@@ -692,7 +692,7 @@ void Reply_Email(int IsReply)
     clear();
     snprintf(temp, 81, "   %-70s", sMailbox);
     pout(BLUE, LIGHTGRAY, temp);
-    snprintf(temp, 81, "#%-5lu", EmailBase.Highest + 1);
+    snprintf(temp, 81, "#%-5u", EmailBase.Highest + 1);
     pout(RED, LIGHTGRAY, temp);
     Enter(1);
 
@@ -917,7 +917,7 @@ void Write_Email(void)
 void QuickScan_Email(void)
 {
     int     FoundMsg  = FALSE;
-    long    i;
+    int	    i;
     char    temp[81];
 
     iLineCount = 2;
@@ -940,7 +940,7 @@ void QuickScan_Email(void)
 	for (i = EmailBase.Lowest; i <= EmailBase.Highest; i++) {
 	    if (Msg_ReadHeader(i)) {
                                 
-		snprintf(temp, 81, "%-6lu", Msg.Id);
+		snprintf(temp, 81, "%-6u", Msg.Id);
 		pout(WHITE, BLACK, temp);
 		snprintf(temp, 81, "%s ", padleft(Msg.From, 20, ' '));
 		pout(CYAN, BLACK, temp);

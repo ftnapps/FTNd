@@ -5,7 +5,7 @@
 
 #ifndef	USE_NEWSGATE
 
-unsigned long atoul(char*);
+unsigned int atoul(char*);
 
 #endif
 

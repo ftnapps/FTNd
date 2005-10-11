@@ -91,7 +91,7 @@ void Clean(int count)
 void ScanArea(ff_list **);
 void ScanArea(ff_list **ffl)
 {
-    unsigned long	Number, Highest;
+    unsigned int    Number, Highest;
 
     if (!do_quiet) {
 	mbse_colour(CYAN, BLACK);
@@ -108,7 +108,7 @@ void ScanArea(ff_list **ffl)
 
 	do {
 	   if (!do_quiet) {
-		printf("%6lu / %6lu", Number, Highest);
+		printf("%6u / %6u", Number, Highest);
 		Back(15);
 	    }
 
@@ -117,7 +117,7 @@ void ScanArea(ff_list **ffl)
 
 	    if (Msg_ReadHeader(Number) == TRUE) {
 		if (((!strcasecmp(Msg.To, "allfix")) || (!strcasecmp(Msg.To, "filefind"))) && (!Msg.Received)) {
-		    Syslog('m', "Msg: %s (%lu) [%s]", Msg.From, Number, Msg.Subject);
+		    Syslog('m', "Msg: %s (%u) [%s]", Msg.From, Number, Msg.Subject);
 		    Msg.Received = TRUE;
 		    Msg.Read = time(NULL);
 		    if (Msg_Lock(30L)) {
@@ -145,11 +145,11 @@ void ScanArea(ff_list **ffl)
 
 
 
-long StartReply(ff_list *);
-long StartReply(ff_list *ffl)
+int StartReply(ff_list *);
+int StartReply(ff_list *ffl)
 {
     char	    *temp;
-    unsigned long   crc = -1;
+    unsigned int    crc = -1;
 
     if (strlen(scanmgr.ReplBoard)) {
 	if (!Msg_Open(scanmgr.ReplBoard))
@@ -199,8 +199,8 @@ long StartReply(ff_list *ffl)
 
 
 
-void FinishReply(int, int, long);
-void FinishReply(int Reported, int Total, long filepos)
+void FinishReply(int, int, int);
+void FinishReply(int Reported, int Total, int filepos)
 {
     char    *temp;
     FILE    *fp, *fi;
@@ -226,9 +226,9 @@ void FinishReply(int Reported, int Total, long filepos)
     snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), scanmgr.NetReply?"net":"echo");
     if ((fp = fopen(temp, "a")) != NULL) {
 	if (strlen(scanmgr.ReplBoard))
-	    fprintf(fp, "%s %lu\n", scanmgr.ReplBoard, Msg.Id);
+	    fprintf(fp, "%s %u\n", scanmgr.ReplBoard, Msg.Id);
 	else
-	    fprintf(fp, "%s %lu\n", scanmgr.ScanBoard, Msg.Id);
+	    fprintf(fp, "%s %u\n", scanmgr.ScanBoard, Msg.Id);
 	fclose(fp);
     }
 
@@ -246,11 +246,11 @@ void ScanFiles(ff_list *tmp)
 {
     char	    *temp, *kwd, *BigDesc, *line;
     FILE	    *pAreas, *fi;
-    unsigned long   areanr = 0, found = 0, SubSize = 0;
+    unsigned int    areanr = 0, found = 0, SubSize = 0;
     int		    i, j, k, keywrd, Found;
     rf_list	    *rfl = NULL, *rft;
     int		    Rep = 0, Sub = 0, Stop = FALSE;
-    long	    filepos, filepos1 = 0, filepos2 = 0, filepos3 = 0, filepos4 = 0;
+    int		    filepos, filepos1 = 0, filepos2 = 0, filepos3 = 0, filepos4 = 0;
     struct _fdbarea *fdb_area = NULL;
 
     /*
@@ -288,7 +288,7 @@ void ScanFiles(ff_list *tmp)
 		msleep(1);
 
 	    if (!do_quiet) {
-		printf("%6lu / %6lu", areanr, found);
+		printf("%6u / %6u", areanr, found);
 		Back(15);
 	    }
 	    if (area.Available && area.FileFind) {

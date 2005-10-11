@@ -54,8 +54,8 @@ typedef enum {LINEEDIT, FSEDIT, EXTEDIT} MSGEDITOR;
  */
 typedef struct _security {
 	unsigned int	level;			/* Security level	   */
-	unsigned long	flags;			/* Access flags		   */
-	unsigned long	notflags;		/* No Access flags	   */
+	unsigned int	flags;			/* Access flags		   */
+	unsigned int	notflags;		/* No Access flags	   */
 } securityrec;
 
 #endif
@@ -73,21 +73,21 @@ typedef struct _security {
  * Users Control Structures (users.data)
  */
 struct	userhdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of records	    */
 };
 
 struct	userrec {
 	char		sUserName[36];		/* User First and Last Name */
 	char		Name[9];		/* Unix name		    */
-	unsigned long	xPassword;
+	unsigned int	xPassword;
 	char		sVoicePhone[20];	/* Voice Number             */
 	char		sDataPhone[20];		/* Data/Business Number     */
 	char		sLocation[28];		/* Users Location           */
 	char		address[3][41];		/* Users address	    */
 	char		sDateOfBirth[12];	/* Date of Birth            */
-	time_t		tFirstLoginDate;	/* Date of First Login      */
-	time_t		tLastLoginDate;		/* Date of Last Login       */
+	int32_t		tFirstLoginDate;	/* Date of First Login      */
+	int32_t		tLastLoginDate;		/* Date of Last Login       */
 	securityrec	Security;		/* User Security Level      */
 	char		sComment[81];		/* User Comment             */
 	char		sExpiryDate[12];	/* User Expiry Date         */
@@ -113,9 +113,9 @@ struct	userrec {
 	int		iConnectTime;           /* Connect time this call   */
 	int		iTimeUsed;              /* Time used today          */
 	int		xScreenLen;
-	time_t		tLastPwdChange;         /* Date last password chg   */
+	int32_t		tLastPwdChange;         /* Date last password chg   */
 	unsigned	xHangUps;
-	long		Credit;			/* Users credit		    */
+	int		Credit;			/* Users credit		    */
 	int		Paged;			/* Times paged today	    */
 	int		MsgEditor;		/* Message Editor to use    */
 	int		LastPktNum;		/* Todays Last packet number*/
@@ -124,12 +124,12 @@ struct	userrec {
 	int		iLastFileArea;          /* Number of last file area */
 	int		iLastFileGroup;		/* Number of last file group*/
 	char		sProtocol[21];          /* Users default protocol   */
-	unsigned long	Downloads;		/* Total number of d/l's    */
-	unsigned long	Uploads;		/* Total number of uploads  */
-	unsigned long	UploadK;		/* Upload KiloBytes         */
-	unsigned long	DownloadK;		/* Download KiloBytes       */
-	long		DownloadKToday;		/* KB Downloaded today      */
-	long		UploadKToday;		/* KB Uploaded today        */
+	unsigned int	Downloads;		/* Total number of d/l's    */
+	unsigned int	Uploads;		/* Total number of uploads  */
+	unsigned int	UploadK;		/* Upload KiloBytes         */
+	unsigned int	DownloadK;		/* Download KiloBytes       */
+	int		DownloadKToday;		/* KB Downloaded today      */
+	int		UploadKToday;		/* KB Uploaded today        */
 	int		iTransferTime;          /* Last file transfer time  */
 	int		iLastMsgArea;           /* Number of last msg area  */
 	int		iLastMsgGroup;		/* Number of last msg group */

@@ -5,7 +5,7 @@
 
 
 void		CheckScreen(void);	/* Detect screensize changes	    */
-long		Speed(void);			/* Get (locked) tty speed   */
+int		Speed(void);			/* Get (locked) tty speed   */
 int		Waitchar(unsigned char *, int);	/* Wait n* 10mSec for char  */
 int		Escapechar(unsigned char *);	/* Escape sequence test	    */
 unsigned char	Readkey(void);			/* Read a translated key    */

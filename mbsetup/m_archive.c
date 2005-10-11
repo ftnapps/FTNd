@@ -393,7 +393,7 @@ int OpenArchive(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+	int	oldsize;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	snprintf(fnout, PATH_MAX, "%s/etc/archiver.temp", getenv("MBSE_ROOT"));
@@ -509,9 +509,9 @@ int EditArchRec(int Area)
 {
     FILE	    *fil;
     char	    mfile[PATH_MAX];
-    long	    offset;
+    int		    offset;
     int		    j;
-    unsigned long   crc, crc1;
+    unsigned int    crc, crc1;
 
     clr_index();
     working(1, 0, 0);
@@ -611,7 +611,7 @@ void EditArchive(void)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);
@@ -717,7 +717,7 @@ char *PickArchive(char *shdr)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 
 	clr_index();

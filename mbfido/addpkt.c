@@ -65,7 +65,7 @@ int PrepARC(char *Queue, fidoaddr Dest)
     }
 
     pktfile = calloc(PATH_MAX, sizeof(char));
-    snprintf(pktfile, PATH_MAX, "%s/%d.%d.%d.%d/%08lx.pkt", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, sequencer());
+    snprintf(pktfile, PATH_MAX, "%s/%d.%d.%d.%d/%08x.pkt", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, sequencer());
     Syslog('p', "Rename .pkt to %s", pktfile);
 
     if (rename(Queue, pktfile)) {

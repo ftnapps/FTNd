@@ -50,7 +50,7 @@ typedef struct _nl_user {
 
 
 FILE		*ifp, *ufp, *ffp;
-long		total = 0, entries = 0, users = 0;
+int		total = 0, entries = 0, users = 0;
 int		filenr = 0;
 unsigned short	regio;
 nl_list		*nll = NULL;
@@ -652,7 +652,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
     Syslog('+', "%d entries", entries);
 
     if (!do_quiet) {
-	printf(" %ld entries\n", entries);
+	printf(" %d entries\n", entries);
 	fflush(stdout);
     }
 

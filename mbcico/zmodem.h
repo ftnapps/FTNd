@@ -1,6 +1,8 @@
 #ifndef ZMODEM_H
 #define ZMODEM_H
 
+/* $Id$ */
+
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -141,14 +143,14 @@
 /* Parameters for ZCOMMAND frame ZF0 (otherwise 0) */
 #define ZCACK1	1	/* Acknowledge, then do command */
 
-long rclhdr(register char *);
+int rclhdr(register char *);
 
 /* Globals used by ZMODEM functions */
 extern int  Rxframeind;		/* ZBIN ZBIN32, or ZHEX type of frame */
 extern int  Rxtype;		/* Type of header received */
 extern int  Rxcount;		/* Count of data bytes received */
-extern int  long Rxpos;		/* Received file position */
-extern int  long Txpos;		/* Transmitted file position */
+extern int  Rxpos;		/* Received file position */
+extern int  Txpos;		/* Transmitted file position */
 extern int  Txfcs32;		/* TURE means send binary frames with 32 bit FCS */
 extern int  Crc32t;		/* Display flag indicating 32 bit CRC being sent */
 extern int  Crc32r;		/* Display flag indicating 32 bit CRC being received */
@@ -170,7 +172,7 @@ extern int  Effbaud;
 extern int  Zmodem;
 extern int  Zctlesc;
 extern int  Filesleft;
-extern long Totalleft;
+extern int  Totalleft;
 
 extern char *frametypes[];
 #define FTOFFSET 16
@@ -180,7 +182,7 @@ extern void zshhdr(int,int,char*);
 extern int  zgethdr(char*);
 extern void zsdata(char*,int,int);
 extern int  zrdata(char*,int);
-extern void stohdr(long);
+extern void stohdr(int);
 
 extern void zsendline(int);
 extern void zsdar32(char*,int,int);
@@ -188,7 +190,7 @@ extern int  zrdatr32(char*,int);
 extern int  zdlread(void);
 
 extern unsigned short crc16xmodemtab[];
-extern unsigned long crc32tab[];
+extern unsigned int crc32tab[];
 #define updcrc16(cp,crc) (crc16xmodemtab[(((int)crc >> 8) & 0xff)] ^ (crc << 8) ^ cp)
 #define updcrc32(cp,crc) (crc32tab[((int)crc ^ cp) & 0xff] ^ ((crc >> 8) & 0x00ffffff))
 

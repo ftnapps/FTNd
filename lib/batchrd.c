@@ -4,7 +4,7 @@
  * Purpose ...............: Batch reading
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -32,7 +32,7 @@
 #include "mbselib.h"
 
 
-static long	counter = 0L;
+static int	counter = 0L;
 static int	batchmode = -1;
 int		usetmp = 0;
 
@@ -42,18 +42,18 @@ char *bgets(char *buf, int count, FILE *fp)
 		return fgets(buf,count,fp);
 	}
 
-	if ((batchmode == 1) && (counter > 0L) && (counter < (long)(count-1))) 
-		count=(int)(counter+1L);
+	if ((batchmode == 1) && (counter > 0L) && (counter < (count-1))) 
+		count=(counter+1);
 	if (fgets(buf,count,fp) == NULL) 
 		return NULL;
 
 	switch (batchmode) {
 	case -1: if (!strncmp(buf,"#! rnews ",9) || !strncmp(buf,"#!rnews ",8)) {
 			batchmode=1;
-			sscanf(buf+8,"%ld",&counter);
-			Syslog('m', "first chunk of input batch: %ld",counter);
-			if (counter < (long)(count-1)) 
-				count=(int)(counter+1L);
+			sscanf(buf+8,"%d",&counter);
+			Syslog('m', "first chunk of input batch: %d",counter);
+			if (counter < (count-1)) 
+				count=(counter+1);
 			if (fgets(buf,count,fp) == NULL) 
 				return NULL;
 			else {
@@ -73,12 +73,12 @@ char *bgets(char *buf, int count, FILE *fp)
 				if (fgets(buf,count,fp) == NULL) 
 					return NULL;
 			}
-			sscanf(buf+8,"%ld",&counter);
-			Syslog('m', "next chunk of input batch: %ld",counter);
+			sscanf(buf+8,"%d",&counter);
+			Syslog('m', "next chunk of input batch: %d",counter);
 			return NULL;
 		} else {
-			counter -= (long)strlen(buf);
-			Syslog('m', "bread \"%s\", %ld left of this chunk", buf,counter);
+			counter -= strlen(buf);
+			Syslog('m', "bread \"%s\", %d left of this chunk", buf,counter);
 			return buf;
 		}
 	}

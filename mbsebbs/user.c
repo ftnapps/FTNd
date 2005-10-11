@@ -174,7 +174,7 @@ void user(void)
 {
     FILE	*pUsrConfig, *pLimits;
     int		i, x, FoundName = FALSE, iFoundLimit = FALSE, IsNew = FALSE, logins = 0, Start;
-    long	l1, l2;
+    int		l1, l2;
     char	*token, temp[PATH_MAX], temp1[84], UserName[37], buf[128], *fullname;
     time_t	LastLogin;
     struct stat st;

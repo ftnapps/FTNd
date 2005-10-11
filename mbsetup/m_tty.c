@@ -195,7 +195,7 @@ int OpenTtyinfo(void)
 {
     FILE	*fin, *fout;
     char	*fnin, *fnout;
-    long	oldsize;
+    int		oldsize;
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
@@ -363,9 +363,9 @@ int EditTtyRec(int Area)
 {
     FILE	    *fil;
     char	    *mfile;
-    long	    offset;
+    int		    offset;
     int		    j;
-    unsigned long   crc, crc1;
+    unsigned int    crc, crc1;
 
     clr_index();
     working(1, 0, 0);
@@ -483,7 +483,7 @@ void EditTtyinfo(void)
     char    pick[12];
     FILE    *fil;
     char    temp[PATH_MAX];
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);
@@ -657,7 +657,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "     Honor ZMH    %s\n", getboolean(ttyinfo.honor_zmh));
 	fprintf(fp, "     Callout      %s\n", getboolean(ttyinfo.callout));
 	fprintf(fp, "     Modem type   %s\n", ttyinfo.modem);
-	fprintf(fp, "     Locked speed %ld\n", ttyinfo.portspeed);
+	fprintf(fp, "     Locked speed %d\n", ttyinfo.portspeed);
 	fprintf(fp, "     EMSI name    %s\n", ttyinfo.name);
 	fprintf(fp, "\n\n");
 	j++;

@@ -61,7 +61,7 @@ typedef struct lhash_node_st
 	char *data;
 	struct lhash_node_st *next;
 #ifndef NO_HASH_COMP
-	unsigned long hash;
+	unsigned int hash;
 #endif
 	} LHASH_NODE;
 
@@ -69,41 +69,41 @@ typedef struct lhash_st
 	{
 	LHASH_NODE **b;
 	int (*comp)(char *, char *);
-	unsigned long (*hash)(char *);
+	unsigned int (*hash)(char *);
 	unsigned int num_nodes;
 	unsigned int num_alloc_nodes;
 	unsigned int p;
 	unsigned int pmax;
-	unsigned long up_load; /* load times 256 */
-	unsigned long down_load; /* load times 256 */
-	unsigned long num_items;
+	unsigned int up_load; /* load times 256 */
+	unsigned int down_load; /* load times 256 */
+	unsigned int num_items;
 
-	unsigned long num_expands;
-	unsigned long num_expand_reallocs;
-	unsigned long num_contracts;
-	unsigned long num_contract_reallocs;
-	unsigned long num_hash_calls;
-	unsigned long num_comp_calls;
-	unsigned long num_insert;
-	unsigned long num_replace;
-	unsigned long num_delete;
-	unsigned long num_no_delete;
-	unsigned long num_retreve;
-	unsigned long num_retreve_miss;
-	unsigned long num_hash_comps;
+	unsigned int num_expands;
+	unsigned int num_expand_reallocs;
+	unsigned int num_contracts;
+	unsigned int num_contract_reallocs;
+	unsigned int num_hash_calls;
+	unsigned int num_comp_calls;
+	unsigned int num_insert;
+	unsigned int num_replace;
+	unsigned int num_delete;
+	unsigned int num_no_delete;
+	unsigned int num_retreve;
+	unsigned int num_retreve_miss;
+	unsigned int num_hash_comps;
 	} LHASH;
 
 #define LH_LOAD_MULT	256
 
 #ifndef NOPROTO
-LHASH *lh_new(unsigned long (*h)(char *), int (*c)(char *, char *));
+LHASH *lh_new(unsigned int (*h)(char *), int (*c)(char *, char *));
 void lh_free(LHASH *lh);
 char *lh_insert(LHASH *lh, char *data);
 char *lh_delete(LHASH *lh, char *data);
 char *lh_retrieve(LHASH *lh, char *data);
 void lh_doall(LHASH *lh, void (*func)(char *, char *));
 void lh_doall_arg(LHASH *lh, void (*func)(char *, char *),char *arg);
-unsigned long lh_strhash(char *c);
+unsigned int lh_strhash(char *c);
 
 #ifndef WIN16
 void lh_stats(LHASH *lh, FILE *out);
@@ -128,7 +128,7 @@ char *lh_delete();
 char *lh_retrieve();
 void lh_doall();
 void lh_doall_arg();
-unsigned long lh_strhash();
+unsigned int lh_strhash();
 
 #ifndef WIN16
 void lh_stats();

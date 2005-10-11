@@ -4,7 +4,7 @@
  * Purpose ...............: Ymodem receiver
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -47,7 +47,7 @@ static int	errors;
 static int	Gflg = FALSE;
 static char	NAKchar;
 
-extern long	Bytesleft;
+extern int	Bytesleft;
 extern off_t	rxbytes;
 extern int	Crcflg;
 extern char	Lastrx;
@@ -149,7 +149,7 @@ int wcrx(void)
     register int sectnum, sectcurr;
     register char sendchar;
     size_t Blklen;
-    long bytes_received = 0;
+    int bytes_received = 0;
 
     Firstsec = TRUE; sectnum = 0; 
     eof_seen = FALSE;

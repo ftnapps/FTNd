@@ -44,7 +44,7 @@ void ListFileAreas(int Area)
 {
     FILE    *pAreas, *pTic;
     int     i, iAreas, fcount, tcount = 0, iTotal = 0, columns = 80;
-    long    fsize, tsize = 0;
+    int	    fsize, tsize = 0;
     char    *sAreas, *fAreas, *sTic, flags[6], *ticarea;
     struct _fdbarea *fdb_area = NULL;
 
@@ -130,8 +130,8 @@ void ListFileAreas(int Area)
 		    flags[2] = 'A';
 
 		fdb.LName[columns - 60] = '\0';
-		printf("%-12s %5ld %s %4ld %s %-20s %s\n", fdb.Name, (long)(fdb.Size / 1024), StrDateDMY(fdb.FileDate), 
-			(long)(fdb.TimesDL), flags, fdb.TicArea, fdb.LName);
+		printf("%-12s %5d %s %4d %s %-20s %s\n", fdb.Name, (int)(fdb.Size / 1024), StrDateDMY(fdb.FileDate), 
+			(int)(fdb.TimesDL), flags, fdb.TicArea, fdb.LName);
 		fcount++;
 		fsize = fsize + fdb.Size;
 	    }
@@ -142,7 +142,7 @@ void ListFileAreas(int Area)
 	    for (i = 60; i < columns; i++)
 		printf("-");
 	    printf("\n");
-	    printf("%d file%s, %ld Kbytes\n", fcount, (fcount == 1) ? "":"s", fsize);
+	    printf("%d file%s, %d Kbytes\n", fcount, (fcount == 1) ? "":"s", fsize);
 	    mbsedb_CloseFDB(fdb_area);
 
 	} else {
@@ -183,7 +183,7 @@ void ListFileAreas(int Area)
 	    tcount += fcount;
 	    tsize  += fsize;
 
-	    printf("%5d %5d %5ld %-12s %s\n", i, fcount, fsize, area.BbsGroup, area.Name);
+	    printf("%5d %5d %5d %-12s %s\n", i, fcount, fsize, area.BbsGroup, area.Name);
 	    iTotal++;
 	    mbsedb_CloseFDB(fdb_area);
 	}
@@ -191,7 +191,7 @@ void ListFileAreas(int Area)
 
     mbse_colour(CYAN, BLACK);
     printf("----- ----- ----- ---------------------------------------------------------\n");
-    printf("%5d %5d %5ld \n", iTotal, tcount, tsize);
+    printf("%5d %5d %5d \n", iTotal, tcount, tsize);
     fclose(pAreas);
     free(ticarea);
     free(sAreas);

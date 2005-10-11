@@ -44,8 +44,8 @@ time_t		    t_end;
 char		    *envptr = NULL;
 struct sockaddr_in  peeraddr;
 pid_t		    mypid;
-unsigned long	    rcvdbytes = 0L;
-unsigned long	    sentbytes = 0L;
+unsigned int	    rcvdbytes = 0L;
+unsigned int	    sentbytes = 0L;
 int		    do_mailout = FALSE;
 
 extern char	    *ttystat[];

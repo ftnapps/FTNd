@@ -55,8 +55,8 @@ extern char *freqname;
 static void		attach_report(file_list**);
 static void		add_report(char *, ...);
 static char		*report_text = NULL;
-static unsigned long	report_total = 0L;
-static unsigned long	report_count = 0L;
+static unsigned int	report_total = 0L;
+static unsigned int	report_count = 0L;
 static int		no_more = FALSE;
 
 
@@ -159,7 +159,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
     time_t		upd = 0L;
     int			newer = 1, Send;
     FILE		*fa, *fi;
-    long		Area;
+    int			Area;
     struct FILEIndex	idx;
     struct _fdbarea	*fdb_area = NULL;
 
@@ -432,13 +432,13 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 	int		i, escaped;
 	file_list	*fl = NULL;
 	FILE		*fp, *ft;
-	long		zeroes = 0L;
+	int		zeroes = 0L;
 	ftnmsg		fmsg;
 	char		*svname;
 
 	Syslog('+', "Magic execute: %s", strrchr(xstrcpy(cmd), '/')+1);
 	add_report((char *)"RQ: Magic \"%s\"",cmd);
-	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08lX", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
+	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08X", getenv((char *)"MBSE_ROOT"), (unsigned int)sequencer());
 	Syslog('+', "tmpfn \"%s\"", tmpfn);
 	if ((p = strrchr(cmd,'/'))) 
 		p++;
@@ -483,7 +483,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 		unlink(tmpfn);
 	} else {
 		if (stat(tmpfn, &st) == 0) {
-			snprintf(tmptx, PATH_MAX -1, "%s/tmp/%08lX", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
+			snprintf(tmptx, PATH_MAX -1, "%s/tmp/%08X", getenv((char *)"MBSE_ROOT"), (unsigned int)sequencer());
 			Syslog('+', "tmptx \"%s\"", tmptx);
 
 			if ((fp = fopen(tmptx, "w"))) {
@@ -523,7 +523,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 				}
 				fwrite(&zeroes, 1, 3, fp);
 				fclose(fp);
-				snprintf(remname, 32, "%08lX.PKT", (unsigned long)sequencer());
+				snprintf(remname, 32, "%08X.PKT", (unsigned int)sequencer());
 
 				add_list(&fl, tmptx, remname, KFS, 0L, NULL, 0);
 				fmsg.from->name = svname;
@@ -549,7 +549,7 @@ static void attach_report(file_list **fl)
 	FILE	*fp;
 	char	*tmpfn;
 	char	remname[14];
-	long	zeroes = 0L, recno, records;
+	int	zeroes = 0L, recno, records;
 	ftnmsg	fmsg;
 	char	*svname;
 
@@ -595,7 +595,7 @@ static void attach_report(file_list **fl)
 
 	add_report((char *)"\r%s\r", TearLine());
 
-	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08lX.rpl", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
+	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08X.rpl", getenv((char *)"MBSE_ROOT"), (unsigned int)sequencer());
 	if ((fp = fopen(tmpfn,"w"))) {
 		fmsg.flags = M_PVT|M_KILLSENT;
 		fmsg.from = bestaka_s(remote->addr);
@@ -622,7 +622,7 @@ static void attach_report(file_list **fl)
 		fwrite(report_text, 1, strlen(report_text), fp);
 		fwrite(&zeroes, 1, 3, fp);
 		fclose(fp);
-		snprintf(remname, 14, "%08lX.PKT", (unsigned long)sequencer());
+		snprintf(remname, 14, "%08X.PKT", (unsigned int)sequencer());
 		add_list(fl, tmpfn, remname, KFS, 0L, NULL, 0);
 		fmsg.from->name = svname;
 	} else {

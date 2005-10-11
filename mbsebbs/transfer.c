@@ -75,7 +75,7 @@ int ForceProtocol()
 
 
 
-void add_download(down_list **lst, char *local, char *remote, long Area, unsigned long size, int kfs)
+void add_download(down_list **lst, char *local, char *remote, int Area, unsigned int size, int kfs)
 {
     down_list	*tmp, *ta;
     int		i;
@@ -149,7 +149,7 @@ int download(down_list *download_list)
     down_list	    *tmpf;
     int		    err, maxrc = 0, Count = 0;
     char	    *temp, *symTo, *symFrom;
-    unsigned long   Size = 0;
+    unsigned int    Size = 0;
     struct dirent   *dp;
     DIR		    *dirp;
     struct timeval  starttime, endtime;
@@ -225,7 +225,7 @@ int download(down_list *download_list)
     /* File(s)     : */
     pout(YELLOW, BLACK, (char *) Language(349)); snprintf(temp, PATH_MAX, "%d", Count);     PUTSTR(temp); Enter(1);
     /* Size        : */
-    pout(  CYAN, BLACK, (char *) Language(350)); snprintf(temp, PATH_MAX, "%lu", Size);     PUTSTR(temp); Enter(1);
+    pout(  CYAN, BLACK, (char *) Language(350)); snprintf(temp, PATH_MAX, "%u", Size);      PUTSTR(temp); Enter(1);
     /* Protocol    : */
     pout(  CYAN, BLACK, (char *) Language(351)); snprintf(temp, PATH_MAX, "%s", sProtName); PUTSTR(temp); Enter(1);
 
@@ -341,7 +341,7 @@ int download(down_list *download_list)
 	 * Size of the File by the amount of time it took to download 
 	 * the file.
 	 */
-	Syslog('+', "Download %s in %d file(s)", transfertime(starttime, endtime, (unsigned long)Size, TRUE), Count);
+	Syslog('+', "Download %s in %d file(s)", transfertime(starttime, endtime, (unsigned int)Size, TRUE), Count);
     }
     
     free(symTo);
@@ -390,7 +390,7 @@ int upload(up_list **upload_list)
     struct stat	    statfile;
     struct timeval  starttime, endtime;
     struct timezone tz;
-    unsigned long   Size = 0;
+    unsigned int    Size = 0;
     int		    err, Count = 0, rc = 0, want1k = FALSE, wantg = FALSE;
     up_list	    *tmp, *ta;
 
@@ -548,7 +548,7 @@ int upload(up_list **upload_list)
 		}
 	    }
 	    closedir(dirp);
-	    Syslog('+', "Upload %s in %d file(s)", transfertime(starttime, endtime, (unsigned long)Size, FALSE), Count);
+	    Syslog('+', "Upload %s in %d file(s)", transfertime(starttime, endtime, (unsigned int)Size, FALSE), Count);
 	}
     }
     free(temp);
@@ -559,10 +559,10 @@ int upload(up_list **upload_list)
 
 
 
-char *transfertime(struct timeval start, struct timeval end, long bytes, int sent)
+char *transfertime(struct timeval start, struct timeval end, int bytes, int sent)
 {
     static char     resp[81];
-    double long     startms, endms, elapsed;
+    double long	    startms, endms, elapsed;
 
     startms = (start.tv_sec * 1000) + (start.tv_usec / 1000);
     endms = (end.tv_sec * 1000) + (end.tv_usec / 1000);
@@ -571,10 +571,10 @@ char *transfertime(struct timeval start, struct timeval end, long bytes, int sen
     if (!elapsed)
 	elapsed = 1L;
     if (bytes > 1000000)
-	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
+	snprintf(resp, 81, "%d bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
 		bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes / elapsed) * 1000) / 1024);
     else
-	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
+	snprintf(resp, 81, "%d bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
 		bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes * 1000) / elapsed) / 1024);   
     return resp;
 }

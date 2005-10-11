@@ -68,9 +68,9 @@ void ToBeRep(void)
 	mbse_colour(LIGHTGRAY, BLACK);
 	
 	while (fread(&rep, sizeof(rep), 1, fp) == 1) {
-	    printf("%-20s  %-12s  %-12s  %5ld  %s     %s\n", 
+	    printf("%-20s  %-12s  %-12s  %5d  %s     %s\n", 
 		rep.Echo, rep.Group, rep.Name, rep.SizeKb, StrDateDMY(rep.Fdate), rep.Announce ? "Yes":"No ");
-	    Syslog('f', "%-20s  %-12s  %-12s  %5ld  %s     %s",
+	    Syslog('f', "%-20s  %-12s  %-12s  %5d  %s     %s",
 		    rep.Echo, rep.Group, rep.Name, rep.SizeKb, StrDateDMY(rep.Fdate), rep.Announce ? "Yes":"No ");
 	}
 

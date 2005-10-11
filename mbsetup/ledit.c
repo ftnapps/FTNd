@@ -916,7 +916,7 @@ int edit_bool(int y, int x, int val, char *help)
 
 
 
-char *getloglevel(long val)
+char *getloglevel(int val)
 {
     char	*p;
 
@@ -949,7 +949,7 @@ char *getloglevel(long val)
 
 
 
-void show_logl(int y, int x, long val)
+void show_logl(int y, int x, int val)
 {
 	char	*p;
 
@@ -960,7 +960,7 @@ void show_logl(int y, int x, long val)
 
 
 
-long edit_logl(long val, char *txt)
+int edit_logl(int val, char *txt)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
@@ -1149,14 +1149,14 @@ unsigned short toggle_sbit(int y, int x, unsigned short val, unsigned short mask
 
 
 
-void show_lbit(int y, int x, long val, long mask)
+void show_lbit(int y, int x, int val, int mask)
 {
 	show_bool(y, x, (val & mask) != 0);
 }
 
 
 
-long toggle_lbit(int y, int x, long val, long mask, char *help)
+int toggle_lbit(int y, int x, int val, int mask, char *help)
 {
 	int ch;
 
@@ -1176,7 +1176,7 @@ long toggle_lbit(int y, int x, long val, long mask, char *help)
 
 
 
-char *getflag(unsigned long flag, unsigned long not)
+char *getflag(unsigned int flag, unsigned int not)
 {
 	static	char temp[33];
 	int	i;

@@ -6,6 +6,6 @@
 void		setmyname(char *);
 char		*date(time_t);
 int		IsZMH(void);
-unsigned long	rnd(void);
+unsigned int	rnd(void);
 
 #endif

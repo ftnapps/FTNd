@@ -203,7 +203,7 @@ unsigned char Readkey(void)
 /*
  * Read the (locked) speed from the tty
  */
-long Speed(void)
+int Speed(void)
 {
     speed_t	mspeed;
 

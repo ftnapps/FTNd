@@ -72,7 +72,7 @@ int ProcessTic(fa_list **sbl)
     int		    UnPacked = FALSE, IsArchive = FALSE, rc, i, j, k, File_Id = FALSE;
     char	    *Temp, *unarc = NULL, *cmd = NULL;
     char	    temp1[PATH_MAX], temp2[PATH_MAX], sbe[24], TDesc[256];
-    unsigned long   crc, crc2, Kb;
+    unsigned int    crc, crc2, Kb;
     sysconnect	    Link;
     FILE	    *fp;
     struct utimbuf  ut;

@@ -34,6 +34,6 @@
 
 int	inbound_open(faddr *, int, int);    /* Open temp inbound	*/
 int	inbound_close(int);		    /* Close temp inbound	*/
-long	inbound_space(void);		    /* Get free inbound space   */
+int	inbound_space(void);		    /* Get free inbound space   */
 
 #endif

@@ -63,23 +63,23 @@ extern int		ZMH;
 
 
 typedef struct {
-	long		tot_clt;	/* Total client connects 	*/
-	long		peak_clt;	/* Peak simultaneous tot_cltes	*/
-	long		s_error;	/* Syntax errors from clients	*/
-	long		c_error;	/* Comms errors from clients	*/
+	int		tot_clt;	/* Total client connects 	*/
+	int		peak_clt;	/* Peak simultaneous tot_cltes	*/
+	int		s_error;	/* Syntax errors from clients	*/
+	int		c_error;	/* Comms errors from clients	*/
 } cl_stat;
 
 
 typedef struct {
-	time_t		start;		/* Start date/time		*/
-	time_t		laststart;	/* Last start date/time		*/
-	time_t		daily;		/* Last daily update		*/
-	long		startups;	/* Total starts			*/
-	long		clients;	/* Connected clients		*/
+	int		start;		/* Start date/time		*/
+	int		laststart;	/* Last start date/time		*/
+	int		daily;		/* Last daily update		*/
+	int		startups;	/* Total starts			*/
+	int		clients;	/* Connected clients		*/
 	cl_stat		total;		/* Total statistics		*/
 	cl_stat		today;		/* Todays statistics		*/
 	unsigned	open	: 1;	/* Is BBS open			*/
-	unsigned long	sequence;	/* Sequencer counter		*/
+	unsigned int	sequence;	/* Sequencer counter		*/
 } status_r;
 
 
@@ -114,7 +114,7 @@ void status_init()
 	memset((char *)&status, 0, sizeof(status_r));
 	status.start = time(NULL);
 	status.daily = time(NULL);
-	status.sequence = (unsigned long)time(NULL);
+	status.sequence = (unsigned int)time(NULL);
 	stat_fd = open(stat_fn, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR); 
 	cnt = write(stat_fd, &status, sizeof(status_r));
 	Syslog('+', "New statusfile created");
@@ -319,8 +319,8 @@ char *stat_status()
 	chncnt++;
     for (tmpu = users; tmpu; tmpu = tmpu->next)
 	usrcnt++;
-    snprintf(buf, 160, "100:23,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu,%d,%d,%d;",
-	(long)status.start, (long)status.laststart, (long)status.daily,
+    snprintf(buf, 160, "100:23,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%2.2f,%u,%d,%d,%d;",
+	(int)status.start, (int)status.laststart, (int)status.daily,
 	status.startups, status.clients, 
 	status.total.tot_clt, status.total.peak_clt,
 	status.total.s_error, status.total.c_error,
@@ -360,13 +360,13 @@ char *getseq(void)
     buf[0] = '\0';
     status.sequence++;
     status_write();
-    snprintf(buf, 80, "100:1,%lu;", status.sequence);
+    snprintf(buf, 80, "100:1,%u;", status.sequence);
     return buf;
 }
 
 
 
-unsigned long gettoken(void)
+unsigned int gettoken(void)
 {
     status.sequence++;
     status_write();

@@ -1,4 +1,6 @@
 /*
+**  $Id$
+**
 **  JAM(mbp) - The Joaquim-Andrew-Mats Message Base Proposal
 **
 **  C API
@@ -44,8 +46,8 @@
 **  _QC             Microsoft Quick C
 */
 
-typedef long                INT32;      /* 32 bits signed integer     */
-typedef unsigned long       UINT32;     /* 32 bits unsigned integer   */
+typedef int		    INT32;      /* 32 bits signed integer     */
+typedef unsigned int        UINT32;     /* 32 bits unsigned integer   */
 typedef short int           INT16;      /* 16 bits signed integer     */
 typedef unsigned short int  UINT16;     /* 16 bits unsigned integer   */
 typedef char                CHAR8;      /* 8 bits signed integer      */

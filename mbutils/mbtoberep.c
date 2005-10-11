@@ -39,6 +39,7 @@ int main(int argc, char **argv)
 	FILE			*fp;
 	struct _filerecord	rep;
 	int			i;
+	time_t			tt;
 
 	if ((BBSpath = getenv("MBSE_ROOT")) == NULL) {
 		printf("MBSE_ROOT variable not set\n");
@@ -60,9 +61,10 @@ int main(int argc, char **argv)
 		printf("Group         %s\n", rep.Group);
 		printf("Short name    %s\n", rep.Name);
 		printf("Long name     %s\n", rep.LName);
-		printf("File size     %lu\n", (long)(rep.Size));
-		printf("File size Kb  %lu\n", rep.SizeKb);
-		printf("File date     %s", ctime(&rep.Fdate));
+		printf("File size     %u\n", (int)rep.Size);
+		printf("File size Kb  %u\n", rep.SizeKb);
+		tt = (time_t)rep.Fdate;
+		printf("File date     %s", ctime(&tt));
 		printf("File CRC      %s\n", rep.Crc);
 		printf("Origin system %s\n", rep.Origin);
 		printf("From system   %s\n", rep.From);

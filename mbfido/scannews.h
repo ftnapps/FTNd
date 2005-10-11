@@ -1,6 +1,8 @@
 #ifndef	_SCANNEWS_H
 #define	_SCANNEWS_H
 
+/* $Id$ */
+
 #define MAX_MSGID_LEN 196
 #define MAX_GRP_LEN 128
 
@@ -23,7 +25,7 @@ typedef struct	XOVERVIEW {
 typedef struct LinkList {
         struct LinkList *next;
         char		msgid[MAX_MSGID_LEN];
-	long		nr;
+	int		nr;
 	int		isdupe;
 } List, *PList;
 
@@ -35,4 +37,3 @@ void ScanNews(void);
 
 
 #endif
-

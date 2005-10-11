@@ -205,7 +205,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 	    if (Comport)
 		fprintf(fp, "19200\r\n");/* Locked baudrate	*/
 	    else
-		fprintf(fp, "%ld\r\n", ttyinfo.portspeed); /* Locked baudrate */
+		fprintf(fp, "%d\r\n", ttyinfo.portspeed); /* Locked baudrate */
 	    fprintf(fp, "Y\r\n");		/* Screen snoop		*/
 	    fprintf(fp, "N\r\n");		/* Printer on		*/
 	    fprintf(fp, "Y\r\n");		/* Page bell		*/
@@ -228,10 +228,10 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 	    fprintf(fp, "%s\r\n", Rdate(exitinfo.sExpiryDate, Y2Kdoorsys));
 	    fprintf(fp, "%d\r\n", grecno);	/* Users recordnumber	*/
 	    fprintf(fp, "%s\r\n", exitinfo.sProtocol);
-	    fprintf(fp, "%ld\r\n", exitinfo.Uploads);
-	    fprintf(fp, "%ld\r\n", exitinfo.Downloads);
-	    fprintf(fp, "%ld\r\n", LIMIT.DownK); /* FIXME: Download Kb today */
-	    fprintf(fp, "%ld\r\n", LIMIT.DownK);
+	    fprintf(fp, "%d\r\n", exitinfo.Uploads);
+	    fprintf(fp, "%d\r\n", exitinfo.Downloads);
+	    fprintf(fp, "%d\r\n", LIMIT.DownK); /* FIXME: Download Kb today */
+	    fprintf(fp, "%d\r\n", LIMIT.DownK);
 	    fprintf(fp, "%s\r\n", Rdate(exitinfo.sDateOfBirth, Y2Kdoorsys));
 	    fprintf(fp, "\r\n");		/* Path to userbase	*/
 	    fprintf(fp, "\r\n");		/* Path to messagebase	*/
@@ -248,8 +248,8 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 	    fprintf(fp, "%s\r\n", LastLoginTime);	    /* Time of last call    */
 	    fprintf(fp, "32768\r\n");	/* Always 32768		*/
 	    fprintf(fp, "%d\r\n", exitinfo.DownloadsToday);
-	    fprintf(fp, "%ld\r\n", exitinfo.UploadK);
-	    fprintf(fp, "%ld\r\n", exitinfo.DownloadK);
+	    fprintf(fp, "%d\r\n", exitinfo.UploadK);
+	    fprintf(fp, "%d\r\n", exitinfo.DownloadK);
 	    fprintf(fp, "%s\r\n", exitinfo.sComment);
 	    fprintf(fp, "0\r\n");		/* Always 0		*/
 	    fprintf(fp, "%d\r\n\032", exitinfo.iPosted);

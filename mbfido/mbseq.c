@@ -4,7 +4,7 @@
  * Purpose ...............: give a hexadecimal sequence to stdout
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -39,7 +39,7 @@
 int main(int argc, char **argv)
 {
 	struct passwd	*pw;
-	unsigned long	seq;
+	unsigned int	seq;
 
 	InitConfig();
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 
 	seq = sequencer();
 	Syslog('+', "Sequence string %08lx", seq);
-	printf("%08lx", seq);
+	printf("%08x", seq);
 	fflush(stdout);
 
 	Syslog(' ', "MBSEQ finished");

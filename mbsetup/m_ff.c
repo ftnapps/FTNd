@@ -87,7 +87,7 @@ int OpenFilefind(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+	int	oldsize;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
 	snprintf(fnout, PATH_MAX, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
@@ -239,8 +239,8 @@ int EditFfRec(int Area)
 {
     FILE	    *fil;
     char	    mfile[PATH_MAX], temp1[2];
-    long	    offset;
-    unsigned long   crc, crc1;
+    int		    offset;
+    unsigned int    crc, crc1;
     int		    i;
 
     clr_index();
@@ -331,7 +331,7 @@ void EditFilefind(void)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);

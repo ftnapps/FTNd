@@ -77,9 +77,9 @@ int newuser(void)
 {
     FILE	    *pUsrConfig;
     int		    i, x, Found, iLang, recno = 0, Count = 0, badname;
-    unsigned long   crc;
+    unsigned int    crc;
     char	    temp[PATH_MAX], *FullName, *temp1, *temp2, *Phone1, *Phone2;
-    long	    offset;
+    int		    offset;
     struct userrec  us;
 
     IsDoing("New user login");

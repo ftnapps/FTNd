@@ -64,7 +64,7 @@ static int blklen = 128;	/* Length of transmitted records */
 static int blkopt;		/* Override value for zmodem blklen */
 static int errors;
 static int Lastsync;
-static long bytcnt;
+static int bytcnt;
 static int Lrxpos=0;
 static int Lztrans=0;
 static int Lzmanag=0;
@@ -72,11 +72,11 @@ static int Lskipnocor=0;
 static int Lzconv=0;
 static int Beenhereb4;
 static char Myattn[]={0};
-static long skipsize;
+static int skipsize;
 struct timeval	starttime, endtime;
 struct timezone	tz;
 
-extern unsigned long	sentbytes;
+extern unsigned int sentbytes;
 extern int Rxhlen;
 extern void get_frame_buffer(void);
 extern void free_frame_buffer(void);
@@ -210,11 +210,11 @@ static int sendzfile(char *ln, char *rn)
 	}
 
 	Syslog('+', "Zmodem: send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
-	Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned long)st.st_size, date(st.st_mtime));
+	Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned int)st.st_size, date(st.st_mtime));
 	gettimeofday(&starttime, &tz);
 
-	snprintf(txbuf,MAXBLOCK, "%s %lu %lo %o 0 0 0", rn,
-		(unsigned long)st.st_size, (long)st.st_mtime+((long)st.st_mtime%2), st.st_mode);
+	snprintf(txbuf,MAXBLOCK, "%s %u %o %o 0 0 0", rn,
+		(unsigned int)st.st_size, (int)st.st_mtime+((int)st.st_mtime%2), st.st_mode);
 	bufl = strlen(txbuf);
 	*(strchr(txbuf,' ')) = '\0'; /*hope no blanks in filename*/
 
@@ -225,8 +225,8 @@ static int sendzfile(char *ln, char *rn)
 		return 0;
 	} else if ((rc == OK) && (st.st_size - skipsize)) {
 		gettimeofday(&endtime, &tz);
-		Syslog('+', "Zmodem: OK %s", transfertime(starttime, endtime, (unsigned long)st.st_size - skipsize, TRUE));
-		sentbytes += (unsigned long)st.st_size - skipsize;
+		Syslog('+', "Zmodem: OK %s", transfertime(starttime, endtime, (unsigned int)st.st_size - skipsize, TRUE));
+		sentbytes += (unsigned int)st.st_size - skipsize;
 		return 0;
 	} else 
 		return 2;
@@ -358,8 +358,8 @@ int zfilbuf(void)
 int zsendfile(char *buf, int blen)
 {
 	int	c;
-	register unsigned long crc = -1;
-	long lastcrcrq = -1;
+	register unsigned int crc = -1;
+	int lastcrcrq = -1;
 
 	Syslog('z', "zsendfile %s (%d)", buf, blen);
 	for (errors=0; ++errors<11;) {

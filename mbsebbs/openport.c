@@ -3,7 +3,7 @@
  * $Id$
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -35,8 +35,8 @@
 
 #ifdef USE_SGTTY
 #  ifdef LLITOUT
-long Locmode;           /* Saved "local mode" for 4.x BSD "new driver" */
-long Locbit = LLITOUT;  /* Bit SUPPOSED to disable output translations */
+int Locmode;           /* Saved "local mode" for 4.x BSD "new driver" */
+int Locbit = LLITOUT;  /* Bit SUPPOSED to disable output translations */
 #  endif
 #endif
 

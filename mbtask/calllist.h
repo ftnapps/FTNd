@@ -14,9 +14,9 @@ typedef struct _tocall {
     callstat	    cst;			/* Last call status	*/
     int		    calling;			/* Is calling		*/
     pid_t	    taskpid;			/* Task pid number	*/
-    unsigned long   moflags;			/* Modem flags		*/
-    unsigned long   diflags;			/* ISDN flags		*/
-    unsigned long   ipflags;			/* TCP/IP flags		*/
+    unsigned int    moflags;			/* Modem flags		*/
+    unsigned int    diflags;			/* ISDN flags		*/
+    unsigned int    ipflags;			/* TCP/IP flags		*/
 } tocall;
 
 

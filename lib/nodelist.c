@@ -40,7 +40,7 @@ static char		*k, *v;
 static char		*nlpath = NULL;
 static int		nlinitdone = FALSE;
 static int		linecnt = 0;
-static unsigned long	mypots = 0, myisdn = 0, mytcpip =0;
+static unsigned int	mypots = 0, myisdn = 0, mytcpip =0;
 
 
 static int		getkwd(char**);
@@ -76,12 +76,12 @@ static struct _keytab {
 
 
 /*
- * Get a keyword, string, unsigned long
+ * Get a keyword, string, unsigned int
  */
 static int getkwd(char **dest)
 {
     char	    *p;
-    unsigned long   tmp;
+    unsigned int    tmp;
     nodelist_flag   **tmpm;
     
     for (p = v; *p && !isspace(*p); p++);
@@ -107,12 +107,12 @@ static int getkwd(char **dest)
 
 
 /*
- * Get a keyword, string, unsigned long, unsigned long
+ * Get a keyword, string, unsigned int, unsigned int
  */
 static int getmdm(char **dest)
 {
     char            *p, *q;
-    unsigned long   tmp1, tmp2;
+    unsigned int    tmp1, tmp2;
     nodelist_modem  **tmpm;
 
     for (p = v; *p && !isspace(*p); p++);
@@ -202,12 +202,12 @@ static int getdom(char **dest)
 
 
 /*
- * Get a keyword, string, string, unsigned long
+ * Get a keyword, string, string, unsigned int
  */
 static int getsrv(char **dest)
 {
     char		*p, *q;
-    unsigned long	tmp;
+    unsigned int	tmp;
     nodelist_service	**tmpm;
 
     for (p = v; *p && !isspace(*p); p++);
@@ -540,7 +540,7 @@ node *getnlent(faddr *addr)
     char		    *mydomain, *path, *r;
     struct _nlfil	    fdx;
     struct _nlidx	    ndx;
-    long		    lowest, highest, current;
+    int			    lowest, highest, current;
     struct _nodeshdr	    ndhdr;
     static struct _nodes    nd;
     nodelist_modem	    **tmpm;
@@ -548,7 +548,7 @@ node *getnlent(faddr *addr)
     nodelist_service	    **tmps;
     nodelist_array	    **tmpa, **tmpaa;
     nodelist_domsuf	    **tmpd;
-    unsigned long	    tport = 0;
+    unsigned int	    tport = 0;
     
     Syslog('n', "getnlent: %s", ascfnode(addr,0xff));
 
@@ -1090,7 +1090,7 @@ node *getnlent(faddr *addr)
 	     * No optional port number, add one from the default
 	     * for this protocol.
 	     */
-	    snprintf(tbuf, 256, ":%lu", tport);
+	    snprintf(tbuf, 256, ":%u", tport);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	}
 
@@ -1146,7 +1146,7 @@ node *getnlent(faddr *addr)
     return &nodebuf;
 
 badsyntax:
-    WriteError("nodelist %d offset +%lu: bad syntax in line \"%s\"", ndx.fileno, (unsigned long)ndx.offset, buf);
+    WriteError("nodelist %d offset +%lu: bad syntax in line \"%s\"", ndx.fileno, (unsigned int)ndx.offset, buf);
     /* fallthrough */
 
 retdummy:
@@ -1165,7 +1165,7 @@ retdummy:
 
 
 
-void olflags(unsigned long flags)
+void olflags(unsigned int flags)
 {
     char	    *t;
     nodelist_flag   **tmpm;
@@ -1183,7 +1183,7 @@ void olflags(unsigned long flags)
 
 
 
-void rqflags(unsigned long flags)
+void rqflags(unsigned int flags)
 {
     char	    *t;
     nodelist_flag   **tmpm;
@@ -1208,7 +1208,7 @@ void rqflags(unsigned long flags)
 
 
 
-void moflags(unsigned long flags)
+void moflags(unsigned int flags)
 {
     char	    *t;
     nodelist_modem  **tmpm;
@@ -1228,7 +1228,7 @@ void moflags(unsigned long flags)
 
 
 
-void diflags(unsigned long flags)
+void diflags(unsigned int flags)
 {
     char	    *t;
     nodelist_modem  **tmpm;
@@ -1248,7 +1248,7 @@ void diflags(unsigned long flags)
 
 
 
-void ipflags(unsigned long flags)
+void ipflags(unsigned int flags)
 {
     char	    *t;
     nodelist_modem  **tmpm;

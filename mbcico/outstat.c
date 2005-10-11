@@ -301,8 +301,8 @@ int outstat()
 	    cst = getstatus(&(tmp->addr));
 	    age = time(NULL);
 	    age -= tmp->time;
-	    snprintf(temp, PATH_MAX -1, "%s %3d %9lu %s %s", 
-		    flstr, cst->tryno, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
+	    snprintf(temp, PATH_MAX -1, "%s %3d %9u %s %s", 
+		    flstr, cst->tryno, (int)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
 
 	    if (!do_quiet)
 		printf("%s\n", temp);

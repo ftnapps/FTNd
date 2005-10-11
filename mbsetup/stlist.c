@@ -53,7 +53,7 @@ void tidy_stlist(st_list ** fdp)
 /*
  * Add a string to the array
  */
-void fill_stlist(st_list **fdp, char *stringname, long pos)
+void fill_stlist(st_list **fdp, char *stringname, int pos)
 {
 	st_list	*tmp;
 

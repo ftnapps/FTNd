@@ -272,8 +272,8 @@ void Masterlist()
 {
     FILE	    *fp, *np, *pAreas, *pHeader;
     int		    AreaNr = 0, z, x = 0, New;
-    unsigned long   AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
-    unsigned long   AllAreaFiles, AllAreaBytes, popdown, down, NewAreaFiles, NewAreaBytes;
+    unsigned int    AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
+    unsigned int    AllAreaFiles, AllAreaBytes, popdown, down, NewAreaFiles, NewAreaBytes;
     char	    *sAreas, temp[PATH_MAX], pop[81];
     struct _fdbarea *fdb_area = NULL;
 
@@ -381,9 +381,9 @@ void Masterlist()
 		    MidLine(temp, fp, area.FileReq);
 		    MidLine(temp, np, area.FileReq && NewAreaFiles);
 
-		    snprintf(temp, 81, "%ld KBytes in %ld files", AllAreaBytes / 1024, AllAreaFiles);
+		    snprintf(temp, 81, "%d KBytes in %d files", AllAreaBytes / 1024, AllAreaFiles);
 		    MidLine(temp, fp, TRUE);
-		    snprintf(temp, 81, "%ld KBytes in %ld files", NewAreaBytes / 1024, NewAreaFiles);
+		    snprintf(temp, 81, "%d KBytes in %d files", NewAreaBytes / 1024, NewAreaFiles);
 		    MidLine(temp, np, NewAreaFiles);
 		    if (popdown) {
 			snprintf(temp, 81, "Most popular file is %s", pop);
@@ -397,8 +397,8 @@ void Masterlist()
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (!fdb.Deleted) {
 			    New = (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays);
-			    snprintf(temp, 81, "%-12s%10lu K %s [%04ld] Uploader: %s",
-				fdb.Name, (long)(fdb.Size / 1024), StrDateDMY(fdb.UploadDate), fdb.TimesDL, 
+			    snprintf(temp, 81, "%-12s%10u K %s [%04d] Uploader: %s",
+				fdb.Name, (int)(fdb.Size / 1024), StrDateDMY(fdb.UploadDate), fdb.TimesDL, 
 				strlen(fdb.Uploader)?fdb.Uploader:"");
 			    fprintf(fp, "%s\r\n", temp);
 			    if (New)
@@ -434,9 +434,9 @@ void Masterlist()
 
     TopBox(fp, TRUE);
     TopBox(np, TRUE);
-    snprintf(temp, 81, "Total %ld files, %ld KBytes", AllFiles, AllKBytes);
+    snprintf(temp, 81, "Total %d files, %d KBytes", AllFiles, AllKBytes);
     MidLine(temp, fp, TRUE);
-    snprintf(temp, 81, "Total %ld files, %ld KBytes", NewFiles, NewKBytes);
+    snprintf(temp, 81, "Total %d files, %d KBytes", NewFiles, NewKBytes);
     MidLine(temp, np, TRUE);
 
     MidLine((char *)"", fp, TRUE);

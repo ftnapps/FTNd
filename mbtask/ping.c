@@ -161,7 +161,7 @@ int ping_send(struct in_addr addr)
     struct protoent	*pe;
     int			SOL_IP;
 #endif
-    unsigned long	sum;
+    unsigned int	sum;
     unsigned short	*ptr;
 
 #ifndef __linux__
@@ -269,7 +269,7 @@ int ping_receive(struct in_addr addr)
 	    if (len > sizeof(struct iphdr)) {
 		memcpy(&iph, buf, sizeof(iph));
 		if (len - iph.ip_hl * 4 >= ICMP_BASEHDR_LEN) {
-		    memcpy(&icmpp, ((unsigned long int *)buf)+iph.ip_hl, sizeof(icmpp));
+		    memcpy(&icmpp, ((uint32_t *)buf)+iph.ip_hl, sizeof(icmpp));
 		    if (iph.ip_saddr == addr.s_addr && icmpp.icmp_type == ICMP_ECHOREPLY &&
 			ntohs(icmpp.icmp_id) == id && ntohs(icmpp.icmp_seq) == p_sequence) {
 			return 0;

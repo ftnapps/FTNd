@@ -4,7 +4,7 @@
  * Purpose ...............: Crc32 and Crc16 calculations
  *
  *****************************************************************************
- * Copyright (C) 1993-2004
+ * Copyright (C) 1993-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -70,7 +70,7 @@
 /* using byte-swap instructions.					*/
 
 
-unsigned long crc32tab[] = {  /* CRC polynomial 0xedb88320 */
+unsigned int crc32tab[] = {  /* CRC polynomial 0xedb88320 */
 0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
 0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
@@ -181,14 +181,14 @@ unsigned short crc16ccitttab[256] =	/* CRC polynomial 0x8408 */
 
 
 
-unsigned long crc32ccitt(char *str, int l)
+unsigned int crc32ccitt(char *str, int l)
 {
-	unsigned long crc;
+    unsigned int crc;
 
-	for (crc = 0xffffffffL; l--; str++) 
-		crc = crc32tab[((int) crc ^ (*str)) & 0xff] ^ ((crc >> 8) & 0x00ffffffL);
+    for (crc = 0xffffffffL; l--; str++) 
+	crc = crc32tab[((int) crc ^ (*str)) & 0xff] ^ ((crc >> 8) & 0x00ffffffL);
 
-	return crc;
+    return crc;
 }
 
 
@@ -209,24 +209,24 @@ unsigned short crc16ccitt(char *str, int l)
 /*
  * Calculate the CRC of a string.
  */
-unsigned long str_crc32(char *str)
+unsigned int str_crc32(char *str)
 {
-	unsigned long crc;
+    unsigned int crc;
 
-	for (crc=0L; *str; str++) 
-		crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffffL);
-	return crc;
+    for (crc=0L; *str; str++) 
+	crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffffL);
+    return crc;
 }
 
 
 
-unsigned long StringCRC32(char *str)
+unsigned int StringCRC32(char *str)
 {
-	unsigned long crc;
+    unsigned int crc;
 
-	for (crc = 0xffffffffL; *str; str++)
-		crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffffL);
-	return crc;
+    for (crc = 0xffffffffL; *str; str++)
+	crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffffL);
+    return crc;
 }
 
 
@@ -234,16 +234,16 @@ unsigned long StringCRC32(char *str)
 /*
  * Update CRC32, first initialize crc with 0xffffffff
  */
-unsigned long upd_crc32(char *buf, unsigned long crc, int len)
+unsigned int upd_crc32(char *buf, unsigned int crc, int len)
 {
-	int i;
-	unsigned long cr;
+    int		    i;
+    unsigned int    cr;
 
-	cr = crc;
-	for (i = 0; i < len; i++) {
-		cr = (crc32tab[((int)cr ^ ((long)buf[i])) & 0xff] ^ ((((unsigned long)cr) >> 8) & 0x00ffffffL));
-	}
-	return cr;
+    cr = crc;
+    for (i = 0; i < len; i++) {
+	cr = (crc32tab[((int)cr ^ ((int)buf[i])) & 0xff] ^ ((((unsigned int)cr) >> 8) & 0x00ffffffL));
+    }
+    return cr;
 }
 
 
@@ -252,18 +252,18 @@ unsigned long upd_crc32(char *buf, unsigned long crc, int len)
  * return normalized CRC32 value, which means put al bytes in the 
  * normal (not for comms) order.
  */
-unsigned long norm_crc32(unsigned long crc)
+unsigned int norm_crc32(unsigned int crc)
 {
-	unsigned long L;
+    unsigned int L;
 
-	L = crc & 0x000000ffL;
-	L <<= 8;
-	L |= ((crc >> 8) & 0x000000ffL);
-	L <<= 8;
-	L |= ((crc >> 16) & 0x000000ffL);
-	L <<= 8;
-	L |= ((crc >> 24) & 0x000000ffL); 
-	return L;
+    L = crc & 0x000000ffL;
+    L <<= 8;
+    L |= ((crc >> 8) & 0x000000ffL);
+    L <<= 8;
+    L |= ((crc >> 16) & 0x000000ffL);
+    L <<= 8;
+    L |= ((crc >> 24) & 0x000000ffL); 
+    return L;
 }
 
 

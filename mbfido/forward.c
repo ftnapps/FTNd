@@ -101,7 +101,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     ticfile = calloc(PATH_MAX, sizeof(char));
     ticname = calloc(15, sizeof(char));
     if (nodes.Tic) {
-	snprintf(ticname, 15, "%08lx.tic", sequencer());
+	snprintf(ticname, 15, "%08x.tic", sequencer());
 	subject = xstrcat(subject, (char *)" ");
 	subject = xstrcat(subject, ticname);
 	snprintf(ticfile, PATH_MAX, "%s/%s", CFG.ticout, ticname);
@@ -175,7 +175,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		if (strlen(TIC.NewFullName))
 		    fprintf(fp, "Fullname %s\r\n", TIC.NewFullName);
 	    }
-	    fprintf(fp, "Size %ld\r\n", (long)(TIC.FileSize));
+	    fprintf(fp, "Size %d\r\n", (int)(TIC.FileSize));
 	    fprintf(fp, "Desc %s\r\n", TIC.TicIn.Desc);
 	    fprintf(fp, "Crc %s\r\n", TIC.TicIn.Crc);
 	    if (nodes.TIC_To) {
@@ -199,7 +199,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    subject = ctime(&now);
 	    Striplf(subject);
 	    ba = bestaka_s(dest);
-	    fprintf(fp, "Path %s %lu %s %s\r\n", ascfnode(ba, 0x1f), (long)mktime(localtime(&now)), subject, tzname[0]);
+	    fprintf(fp, "Path %s %u %s %s\r\n", ascfnode(ba, 0x1f), (int)mktime(localtime(&now)), subject, tzname[0]);
 	    tidy_faddr(ba);
 
 	    if (nodes.TIC_AdvSB) {

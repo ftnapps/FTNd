@@ -92,7 +92,7 @@ int OpenFGroup(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
-	long	oldsize;
+	int	oldsize;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	snprintf(fnout, PATH_MAX, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
@@ -307,11 +307,11 @@ void FgScreen(void)
  */
 int EditFGrpRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX], temp[13];
-	long	offset;
-	int	i, j, tmp;
-	unsigned long crc, crc1;
+	FILE		*fil;
+	char		mfile[PATH_MAX], temp[13];
+	int		offset;
+	int		i, j, tmp;
+	unsigned int	crc, crc1;
 
 	clr_index();
 	working(1, 0, 0);
@@ -485,7 +485,7 @@ void EditFGroup(void)
     int	    records, i, o, x, y;
     char    pick[12], temp[PATH_MAX];
     FILE    *fil;
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);
@@ -598,7 +598,7 @@ char *PickFGroup(char *shdr)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 
 	clr_index();
@@ -685,6 +685,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
     char    *temp, group[13];
     FILE    *ti, *wp, *ip, *no;
     int	    refs, i, First = TRUE;;
+    time_t  tt;
 
     temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
@@ -730,7 +731,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Use Aka", aka2str(fgroup.UseAka));
 	    add_webtable(wp, (char *)"Uplink Aka", aka2str(fgroup.UpLink));
 	    add_webtable(wp, (char *)"Areas file", fgroup.AreaFile);
-	    snprintf(temp, 81, "%ld", fgroup.StartArea);
+	    snprintf(temp, 81, "%d", fgroup.StartArea);
 	    add_webtable(wp, (char *)"Start autocreate BBS area", temp);
 	    add_webtable(wp, (char *)"Banner file", fgroup.Banner);
 	    add_webtable(wp, (char *)"Default archiver", fgroup.Convert);
@@ -758,8 +759,10 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 		fgroup.AnnGroup);
 	    snprintf(temp, 81, "%d", fgroup.Upload);
 	    add_webtable(wp, (char *)"Upload area", temp);
-	    add_webtable(wp, (char *)"Start date", ctime(&fgroup.StartDate));
-	    add_webtable(wp, (char *)"Last active date", ctime(&fgroup.LastDate));
+	    tt = (time_t)fgroup.StartDate;
+	    add_webtable(wp, (char *)"Start date", ctime(&tt));
+	    tt = (time_t)fgroup.LastDate;
+	    add_webtable(wp, (char *)"Last active date", ctime(&tt));
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
 	    fprintf(wp, "<HR>\n");
@@ -863,7 +866,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Use Aka        %s\n", aka2str(fgroup.UseAka));
 	fprintf(fp, "    Uplink         %s\n", aka2str(fgroup.UpLink));
 	fprintf(fp, "    Areas file     %s\n", fgroup.AreaFile);
-	fprintf(fp, "    Start area     %ld\n", fgroup.StartArea);
+	fprintf(fp, "    Start area     %d\n", fgroup.StartArea);
 	fprintf(fp, "    Banner file    %s\n", fgroup.Banner);
 	fprintf(fp, "    Def. archiver  %s\n", fgroup.Convert);
 	fprintf(fp, "    Filegate fmt   %s\n", getboolean(fgroup.FileGate));
@@ -887,8 +890,10 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    BBS group      %s\n", fgroup.BbsGroup);
 	fprintf(fp, "    Newfiles group %s\n", fgroup.AnnGroup);
 	fprintf(fp, "    Upload area    %d\n", fgroup.Upload);
-	fprintf(fp, "    Start date     %s", ctime(&fgroup.StartDate));
-	fprintf(fp, "    Last date      %s\n", ctime(&fgroup.LastDate));
+	tt = (time_t)fgroup.StartDate;
+	fprintf(fp, "    Start date     %s", ctime(&tt));
+	tt = (time_t)fgroup.LastDate;
+	fprintf(fp, "    Last date      %s\n", ctime(&tt));
     }
 
     fprintf(ip, "</TBODY>\n");

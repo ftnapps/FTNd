@@ -44,7 +44,7 @@
 
 
 int		MsgUpdated = 0;
-unsigned long	MsgCrc;
+unsigned int	MsgCrc;
 FILE		*tfil = NULL;
 extern int	exp_golded;
 int		MailForced = FALSE;
@@ -176,7 +176,7 @@ int OpenMsgarea(void)
 {
     FILE    *fin, *fout;
     char    fnin[PATH_MAX], fnout[PATH_MAX];
-    long    oldsize, oldsys;
+    int	    oldsize, oldsys;
     struct  _sysconnect syscon;
     int	    i, oldsystems;
     time_t  start = 900000000; /* Faked startdate of 09-07-1998 17:00:00 */
@@ -427,7 +427,7 @@ int EditConnections(FILE *);
 int EditConnections(FILE *fil)
 {
 	int		systems, o = 0, i, y, x;
-	long		offset;
+	int		offset;
 	char		pick[12];
 	sysconnect	System;
 	char		status[5];
@@ -554,12 +554,12 @@ void SetScreen()
 
 
 
-long LoadMsgRec(int, int);
-long LoadMsgRec(int Area, int work)
+int LoadMsgRec(int, int);
+int LoadMsgRec(int Area, int work)
 {
     FILE	*fil;
     char	mfile[PATH_MAX];
-    long	offset;
+    int		offset;
     sysconnect	System;
     int		i;
 
@@ -603,7 +603,7 @@ int SaveMsgRec(int Area, int work)
 {
 	int		i;
 	FILE		*fil;
-	long		offset;
+	int		offset;
 	char		mfile[PATH_MAX];
 	sysconnect	System;
 
@@ -708,7 +708,7 @@ void MsgGlobal(void)
     fidoaddr	a1, a2;
     int		menu = 0, marea, Areas, akan = 0, Found, charset = FTNC_CP437;
     int		Total, Done, netbrd, daysold, maxmsgs, maxarticles;
-    long	offset;
+    int		offset;
     securityrec	rs, ws, ss, as;
     sysconnect	S, Sc;
 
@@ -1085,7 +1085,7 @@ void MsgGlobal(void)
 int EditMsgRec(int);
 int EditMsgRec(int Area)
 {
-    unsigned long   crc1;
+    unsigned int    crc1;
     int		    tmp, i, connections = 0, changed = FALSE, Active, Forced = FALSE;
     sysconnect	    System;
     char	    *temp, oldpath[81];
@@ -1411,7 +1411,7 @@ void EditMsgarea(void)
     int		records, rc, i, o, y, from, too;
     char	pick[12], temp[PATH_MAX];
     FILE	*fil;
-    long	offset;
+    int		offset;
     sysconnect	System;
 
     clr_index();
@@ -1577,7 +1577,7 @@ char *PickMsgarea(char *shdr)
 	char		pick[12];
 	FILE 		*fil;
 	char		temp[PATH_MAX];
-	long		offset;
+	int		offset;
 	static char	Buf[81];
 
 	clr_index();
@@ -1842,7 +1842,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
     int		i = 0, j, k, systems, refs, First = TRUE, LMiy;
     sysconnect	System;
     struct tm	*t;
-    time_t	Now;
+    time_t	Now, tt;
 
     Now = time(NULL);
     t = localtime(&Now);
@@ -1921,9 +1921,12 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 		add_webtable(wp, (char *)"Append quotes", getboolean(msgs.Quotes));
 		add_webtable(wp, (char *)"Nodes mandatory", getboolean(msgs.Mandatory));
 		add_webtable(wp, (char *)"UnSecure toss", getboolean(msgs.UnSecure));
-		add_webtable(wp, (char *)"Last msg rcvd", ctime(&msgs.LastRcvd));
-		add_webtable(wp, (char *)"Last msg posted", ctime(&msgs.LastPosted));
-		add_webtable(wp, (char *)"Area created at", ctime(&msgs.Created));
+		tt = (time_t)msgs.LastRcvd;
+		add_webtable(wp, (char *)"Last msg rcvd", ctime(&tt));
+		tt = (time_t)msgs.LastPosted;
+		add_webtable(wp, (char *)"Last msg posted", ctime(&tt));
+		tt = (time_t)msgs.Created;
+		add_webtable(wp, (char *)"Area created at", ctime(&tt));
 		fprintf(wp, "</TBODY>\n");
 		fprintf(wp, "</TABLE>\n");
 		fprintf(wp, "<HR>\n");
@@ -1959,9 +1962,12 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "    Append quotes    %s\n", getboolean(msgs.Quotes));
 	    fprintf(fp, "    Nodes mandatory  %s\n", getboolean(msgs.Mandatory));
 	    fprintf(fp, "    UnSecure toss    %s\n", getboolean(msgs.UnSecure));
-	    fprintf(fp, "    Last msg rcvd.   %s",   ctime(&msgs.LastRcvd));
-	    fprintf(fp, "    Last msg posted  %s",   ctime(&msgs.LastPosted));
-	    fprintf(fp, "    Area created at  %s",   ctime(&msgs.Created));
+	    tt = (time_t)msgs.LastRcvd;
+	    fprintf(fp, "    Last msg rcvd.   %s",   ctime(&tt));
+	    tt = (time_t)msgs.LastPosted;
+	    fprintf(fp, "    Last msg posted  %s",   ctime(&tt));
+	    tt = (time_t)msgs.Created;
+	    fprintf(fp, "    Area created at  %s",   ctime(&tt));
 
 	    refs = 0;
 	    for (j = 0; j < systems; j++) {
@@ -2026,8 +2032,8 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "\n");
 	    fprintf(fp, "                     Total      This Month Last Month\n");
 	    fprintf(fp, "                     ---------- ---------- ----------\n");
-	    fprintf(fp, "    Msgs received    %-10ld %-10ld %-10ld\n", msgs.Received.total, msgs.Received.month[Miy], msgs.Received.month[LMiy]);
-	    fprintf(fp, "    Msgs posted      %-10ld %-10ld %-10ld\n", msgs.Posted.total, msgs.Posted.month[Miy], msgs.Posted.month[LMiy]);
+	    fprintf(fp, "    Msgs received    %-10d %-10d %-10d\n", msgs.Received.total, msgs.Received.month[Miy], msgs.Received.month[LMiy]);
+	    fprintf(fp, "    Msgs posted      %-10d %-10d %-10d\n", msgs.Posted.total, msgs.Posted.month[Miy], msgs.Posted.month[LMiy]);
 
 	} else
 	    fseek(no, msgshdr.syssize, SEEK_CUR);

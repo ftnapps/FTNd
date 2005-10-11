@@ -1321,7 +1321,7 @@ Mfunc(f_time)
 {
     ArgCount(0, 0);
 
-    V snprintf(output, MAXSTR, "%ld", (long) time((time_t *) NULL)); 
+    V snprintf(output, MAXSTR, "%d", (int32_t) time((time_t *) NULL)); 
     return TRUE;
 }
 #endif /* UNIXTENSIONS */

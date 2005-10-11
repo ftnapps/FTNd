@@ -116,7 +116,7 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 	/*
 	 * Add MSGID, REPLY and PID
 	 */
-	fprintf(qp, "\001MSGID: %s %08lx\r", aka2str(Orig), sequencer());
+	fprintf(qp, "\001MSGID: %s %08x\r", aka2str(Orig), sequencer());
 	if (reply != NULL)
 		fprintf(qp, "\001REPLY: %s\r", reply);
 	fprintf(qp, "\001PID: MBSE-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());

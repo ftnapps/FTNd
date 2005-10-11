@@ -91,7 +91,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 {
     char	*temp, *buf, *tag, *desc, *p;
     FILE	*ap, *mp;
-    long	offset;
+    int		offset;
     int		i, rc = 0;
     sysconnect	System;
     faddr	*From, *To;

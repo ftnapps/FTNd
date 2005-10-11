@@ -123,8 +123,8 @@ struct termios;
 #     include <sgtty.h>
 #     define USE_SGTTY
 #     ifdef LLITOUT
-       extern long Locmode;	/* Saved "local mode" for 4.x BSD "new driver" */
-       extern long Locbit;	/* Bit SUPPOSED to disable output translations */
+       extern int Locmode;	/* Saved "local mode" for 4.x BSD "new driver" */
+       extern int Locbit;	/* Bit SUPPOSED to disable output translations */
 #     endif
 #    else
 #     error neither termio.h nor sgtty.h found. Cannot continue.
@@ -513,7 +513,7 @@ typedef struct	_nlidx {
 	unsigned char	type;			/* Node type		*/
 	unsigned char	pflag;			/* Node status		*/
 	unsigned short	fileno;			/* Nodelist number	*/
-	long		offset;			/* Offset in nodelist	*/
+	int		offset;			/* Offset in nodelist	*/
 } nlidx;
 
 
@@ -569,8 +569,8 @@ typedef struct	_nlusr {
  */
 typedef struct _security {
 	unsigned int	level;			/* Security level	   */
-	unsigned long	flags;			/* Access flags		   */
-	unsigned long	notflags;		/* No Access flags	   */
+	unsigned int	flags;			/* Access flags		   */
+	unsigned int	notflags;		/* No Access flags	   */
 } securityrec;
 
 #endif
@@ -616,12 +616,12 @@ typedef	struct _sysconnect {
  * Statistic counters structure
  */
 typedef struct _statcnt {
-	unsigned long	tdow[7];		/* Days of current week	   */
-	unsigned long	ldow[7];		/* Days of previous week   */
-	unsigned long	tweek;			/* Week total counters	   */
-	unsigned long	lweek;			/* Last week counters	   */
-	unsigned long	month[12];		/* Monthly total counters  */
-	unsigned long	total;			/* The ever growing total  */
+	unsigned int	tdow[7];		/* Days of current week	   */
+	unsigned int	ldow[7];		/* Days of previous week   */
+	unsigned int	tweek;			/* Week total counters	   */
+	unsigned int	lweek;			/* Last week counters	   */
+	unsigned int	month[12];		/* Monthly total counters  */
+	unsigned int	total;			/* The ever growing total  */
 } statcnt;
 
 
@@ -680,9 +680,9 @@ struct	taskrec {
  * Special mail services (service.data)
  */
 struct	servicehdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
-	time_t		lastupd;		/* Last updated at	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of records	    */
+	int32_t		lastupd;		/* Last updated at	    */
 };
 
 struct	servicerec {
@@ -698,9 +698,9 @@ struct	servicerec {
  * Domain translation (domain.data)
  */
 struct	domhdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-	time_t		lastupd;		/* Last updated at	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
+	int32_t		lastupd;		/* Last updated at	   */
 };
 
 struct	domrec {
@@ -716,15 +716,15 @@ struct	domrec {
  * System Control Structures (sysinfo.data)
  */
 struct	sysrec {
-	unsigned long	SystemCalls;		/* Total # of system calls */
-	unsigned long	Pots;			/* POTS calls		   */
-	unsigned long	ISDN;			/* ISDN calls		   */
-	unsigned long	Network;		/* Network (internet) calls*/
-	unsigned long	Local;			/* Local calls		   */
-	unsigned long	xADSL;			/*			   */
-	time_t		StartDate;		/* Start Date of BBS	   */
+	unsigned int	SystemCalls;		/* Total # of system calls */
+	unsigned int	Pots;			/* POTS calls		   */
+	unsigned int	ISDN;			/* ISDN calls		   */
+	unsigned int	Network;		/* Network (internet) calls*/
+	unsigned int	Local;			/* Local calls		   */
+	unsigned int	xADSL;			/*			   */
+	int32_t		StartDate;		/* Start Date of BBS	   */
 	char		LastCaller[37];		/* Last Caller to BBS	   */
-	time_t		LastTime;		/* Time of last caller	   */
+	int32_t		LastTime;		/* Time of last caller	   */
 };
 
 
@@ -733,8 +733,8 @@ struct	sysrec {
  * Protocol Control Structure (protocol.data)
  */
 struct	prothdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of records	    */
 };
 
 struct	prot {
@@ -758,8 +758,8 @@ struct	prot {
  * Oneliners Control Structure (oneline.data)
  */
 struct	onelinehdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of record	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of record	    */
 };
 
 struct	oneline	{
@@ -775,8 +775,8 @@ struct	oneline	{
  * File Areas Control Structure (fareas.data)
  */
 struct	fileareashdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of records	    */
 };
 
 struct	fileareas {
@@ -816,8 +816,8 @@ struct	fileareas {
 struct	FILEIndex {
 	char		Name[13];		/* Short DOS name	   */
 	char		LName[81];		/* Long filename	   */
-	long		AreaNum;		/* File area number	   */
-	long		Record;			/* Record in database	   */
+	int		AreaNum;		/* File area number	   */
+	int		Record;			/* Record in database	   */
 };
 
 
@@ -826,8 +826,8 @@ struct	FILEIndex {
  * Files database (file#.data)
  */
 struct FILE_recordhdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Record size		    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Record size		    */
 };
 
 
@@ -836,12 +836,12 @@ struct  FILE_record {
 	char            LName[81];              /* Long filename            */
 	char            TicArea[21];            /* Tic area file came in    */
 	off_t           Size;                   /* File Size                */
-	unsigned long   Crc32;                  /* File CRC-32              */
+	unsigned int	Crc32;                  /* File CRC-32              */
 	char            Uploader[36];           /* Uploader name            */
-	time_t          UploadDate;             /* Date/Time uploaded       */
-	time_t          FileDate;               /* Real file date           */
-	time_t          LastDL;                 /* Last Download date       */
-	unsigned long   TimesDL;                /* Times file was dl'ed     */
+	int32_t		UploadDate;             /* Date/Time uploaded       */
+	int32_t         FileDate;               /* Real file date           */
+	int32_t         LastDL;                 /* Last Download date       */
+	unsigned int	TimesDL;                /* Times file was dl'ed     */
 	char            Password[16];           /* File password            */
 	char            Desc[25][49];           /* file description         */
 	char		Magic[21];		/* Magic request name	    */
@@ -860,16 +860,16 @@ struct	OldFILERecord {
 	char		Name[13];		/* DOS style filename	    */
 	char		LName[81];		/* Long filename	    */
 	char		xTicArea[9];		/* Tic area file came in    */
-	unsigned long	TicAreaCRC;		/* CRC of TIC area name	    */
+	unsigned int	TicAreaCRC;		/* CRC of TIC area name	    */
 	off_t		Size;			/* File Size                */
-	unsigned long	Crc32;			/* File CRC-32		    */
+	unsigned int	Crc32;			/* File CRC-32		    */
 	char		Uploader[36];		/* Uploader name            */
-	time_t		UploadDate;		/* Date/Time uploaded	    */
-	time_t		FileDate;		/* Real file date	    */
-	time_t		LastDL;			/* Last Download date	    */
-	unsigned long	TimesDL;		/* Times file was dl'ed     */
-	unsigned long	TimesFTP;		/* Times file was FTP'ed    */
-	unsigned long	TimesReq;		/* Times file was frequed   */
+	int32_t		UploadDate;		/* Date/Time uploaded	    */
+	int32_t		FileDate;		/* Real file date	    */
+	int32_t		LastDL;			/* Last Download date	    */
+	unsigned int	TimesDL;		/* Times file was dl'ed     */
+	unsigned int	TimesFTP;		/* Times file was FTP'ed    */
+	unsigned int	TimesReq;		/* Times file was frequed   */
 	char		Password[16];		/* File password            */
 	char		Desc[25][49];		/* file description         */
 	int		Cost;			/* File cost		    */
@@ -887,8 +887,8 @@ struct	OldFILERecord {
  * BBS List Control Structure (bbslist.data)
  */
 struct	bbslisthdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of records	    */
 };
 
 struct	bbslist {
@@ -915,8 +915,8 @@ struct	bbslist {
  * Last Callers Control Structure (lastcall.data)
  */
 struct	lastcallershdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of records	    */
 };
 
 struct  lastcallers {  
@@ -1002,7 +1002,7 @@ struct	sysconfig {
                                                 /* before every d/l or u/l  */
 	unsigned	sysop_access;		/* Sysop Access Security    */
 	int		password_length;        /* Minimum Password Length  */
-	long		bbs_loglevel;		/* Logging level for BBS    */
+	int		bbs_loglevel;		/* Logging level for BBS    */
 	int		iPasswd_Char;		/* Password Character       */
   	int		iQuota;			/* User homedir quota in MB */
 	int		idleout;                /* Idleout Value            */
@@ -1097,7 +1097,7 @@ struct	sysconfig {
 	char		xTimeRatio[7];
 	char		xByteRatio[7];
 
-	long		new_groups;		/* Maximum newfiles groups  */
+	int		new_groups;		/* Maximum newfiles groups  */
 	int		new_split;		/* Split reports at KB.	    */
 	int		new_force;		/* Force split at KB.	    */
 	char		startname[9];		/* BBS startup name	    */
@@ -1119,11 +1119,11 @@ struct	sysconfig {
 	int		OLR_MaxReq;		/* Max nr of Freq's	    */
 	int		tic_days;		/* Keep on hold for n days  */
 	char		hatchpasswd[21];	/* Internal Hatch Passwd    */
-	unsigned long	xdrspace;
+	unsigned int	xdrspace;
 	char		xmgrname[5][21];	/* Areamgr names	    */
-	long		tic_systems;		/* Systems in database	    */
-	long		tic_groups;		/* Groups in database	    */
-	long		tic_dupes;		/* TIC dupes dabase size    */
+	int		tic_systems;		/* Systems in database	    */
+	int		tic_groups;		/* Groups in database	    */
+	int		tic_dupes;		/* TIC dupes dabase size    */
 	char		badtic[65];		/* Bad TIC's path	    */
 	char		ticout[65];		/* TIC queue		    */
 
@@ -1133,7 +1133,7 @@ struct	sysconfig {
 	int		maxarcsize;		/* Maximum archive size	    */
 	int		toss_old;		/* Reject older then days   */
 	char		xtoss_log[11];
-	long		util_loglevel;		/* Logging level for utils  */
+	int		util_loglevel;		/* Logging level for utils  */
 	char		badboard[65];		/* Bad Mail board	    */
 	char		dupboard[65];		/* Dupe Mail board	    */
 	char		popnode[65];		/* Node with pop3 boxes     */
@@ -1143,8 +1143,8 @@ struct	sysconfig {
 	int		defmsgs;		/* Default purge messages   */
 	int		defdays;		/* Default purge days	    */
 	int		freespace;		/* Free diskspace in MBytes */
-	long		toss_systems;		/* Systems in database	    */
-	long		toss_groups;		/* Groups in database       */
+	int		toss_systems;		/* Systems in database	    */
+	int		toss_groups;		/* Groups in database       */
 	char		xareamgr[5][21];	/* Areamgr names	    */
 
 						/* Flags		    */
@@ -1152,10 +1152,10 @@ struct	sysconfig {
 	fidoaddr	aka[40];		/* Fidonet AKA's	    */
 	unsigned short	akavalid[40];		/* Fidonet AKA valid/not    */
 
-	long		cico_loglevel;		/* Mailer loglevel	    */
-	long		timeoutreset;		/* Reset timeout	    */
-	long		timeoutconnect;		/* Connect timeout	    */
-	long		dialdelay;		/* Delay between calls	    */
+	int		cico_loglevel;		/* Mailer loglevel	    */
+	int		timeoutreset;		/* Reset timeout	    */
+	int		timeoutconnect;		/* Connect timeout	    */
+	int		dialdelay;		/* Delay between calls	    */
 	unsigned	NoFreqs		: 1;	/* Don't allow requests	    */
 	unsigned	NoCall		: 1;	/* Don't call		    */
 	unsigned	NoMD5		: 1;	/* Don't do MD5		    */
@@ -1172,7 +1172,7 @@ struct	sysconfig {
 	unsigned	xNoIFC		: 1;
 
 	char		IP_Phone[21];		/* TCP/IP phonenumber	    */
-	unsigned long	IP_Speed;		/* TCP/IP linespeed	    */
+	unsigned int	IP_Speed;		/* TCP/IP linespeed	    */
 	char		IP_Flags[31];		/* TCP/IP EMSI flags	    */
 	int		Req_Files;		/* Maximum files request    */
 	int		Req_MBytes;		/* Maximum MBytes request   */
@@ -1232,7 +1232,7 @@ struct	sysconfig {
 	unsigned	dontregate	: 1;	/* Don't regate gated msgs  */
 	char		nntpuser[16];		/* NNTP username	    */
 	char		nntppass[16];		/* NNTP password	    */
-	long		nntpdupes;		/* NNTP dupes database size */
+	int		nntpdupes;		/* NNTP dupes database size */
 	int		newsfeed;		/* Newsfeed mode	    */
 	int		maxarticles;		/* Default max articles	    */
 	char		bbs_macros[65];		/* Default macros path	    */
@@ -1266,14 +1266,14 @@ struct	sysconfig {
  * Limits Control Structure (limits.data)
  */
 struct	limitshdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct	limits {
-	unsigned long	Security;		/* Security Level          */
-	long		Time;			/* Amount of time per call */
-	unsigned long	DownK;			/* Download KB per call    */
+	unsigned int	Security;		/* Security Level          */
+	int		Time;			/* Amount of time per call */
+	unsigned int	DownK;			/* Download KB per call    */
 	unsigned int	DownF;			/* Download files per call */
 	char		Description[41];	/* Description for level   */
 	unsigned	Available	: 1;	/* Is this limit available */
@@ -1315,7 +1315,7 @@ struct	menufile {
 	unsigned	SingleUser	: 1;	/* Single user door	    */
 	unsigned	HideDoor	: 1;	/* Hide door from lists	    */
 #endif
-	long		xUnused;
+	int		xUnused;
 	int		HiForeGnd;		/* High ForeGround color    */
 	int		HiBackGnd;		/* High ForeGround color    */
 	int		ForeGnd;		/* Normal ForeGround color  */
@@ -1329,7 +1329,7 @@ struct	menufile {
  */
 struct	newsdupes {
 	char		NewsGroup[65];		/* Name of the group	    */
-	unsigned long	Crc;			/* CRC32 of msgid	    */
+	unsigned int	Crc;			/* CRC32 of msgid	    */
 };
 
 
@@ -1339,10 +1339,10 @@ struct	newsdupes {
  * This is also used for echomail, netmail and news
  */
 struct	msgareashdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
-	long		syssize;		/* Size for systems	    */
-	time_t		lastupd;		/* Last date stats updated  */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of records	    */
+	int		syssize;		/* Size for systems	    */
+	int32_t		lastupd;		/* Last date stats updated  */
 };
 
 struct msgareas {
@@ -1384,8 +1384,8 @@ struct msgareas {
 	unsigned	xUplDisc	: 1;
 	statcnt		Received;		/* Received messages	    */
 	statcnt		Posted;			/* Posted messages	    */
-	time_t		LastRcvd;		/* Last time msg received   */
-	time_t		LastPosted;		/* Last time msg posted	    */
+	int32_t		LastRcvd;		/* Last time msg received   */
+	int32_t		LastPosted;		/* Last time msg posted	    */
 	char		Newsgroup[81];		/* Newsgroup/Mailinglist    */
 	char		xDistribution[17];	/* Ng distribution	    */
 	char		xModerator[65];
@@ -1393,7 +1393,7 @@ struct msgareas {
 	int		Charset;		/* FTN characterset	    */
 	int		MaxArticles;		/* Max. newsarticles to get */
 	securityrec	LinkSec;		/* Link security flags	    */
-	time_t		Created;		/* Area creation date	    */
+	int32_t		Created;		/* Area creation date	    */
 };
 
 
@@ -1402,8 +1402,8 @@ struct msgareas {
  * Structure for Language file (language.data)
  */
 struct	languagehdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct language {
@@ -1434,8 +1434,8 @@ struct langdata {
  * Fidonet Networks (fidonet.data)
  */
 struct _fidonethdr {
-	long		hdrsize;		/* Size of header record   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header record   */
+	int		recsize;		/* Size of records	   */
 };
 
 typedef	struct	_seclist {
@@ -1461,8 +1461,8 @@ struct _fidonet {
  * Archiver programs (archiver.data)
  */
 struct _archiverhdr {
-	long		hdrsize;		/* Size of header record   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header record   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct _archiver {
@@ -1486,8 +1486,8 @@ struct _archiver {
  * Virus scanners (virscan.data)
  */
 struct	_virscanhdr {
-	long		hdrsize;		/* Size of header record   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header record   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct	_virscan {
@@ -1505,8 +1505,8 @@ struct	_virscan {
  * TTY information
  */
 struct	_ttyinfohdr {
-	long		hdrsize;		/* Size of header record   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header record   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct	_ttyinfo {
@@ -1523,7 +1523,7 @@ struct	_ttyinfo {
 	unsigned	callout		: 1;	/* Callout allowed	   */
 	char		modem[31];		/* Modem type		   */
 	char		name[36];		/* EMSI line name	   */
-	long		portspeed;		/* Locked portspeed	   */
+	int		portspeed;		/* Locked portspeed	   */
 };
 
 
@@ -1532,8 +1532,8 @@ struct	_ttyinfo {
  * Modem definitions.
  */
 struct	_modemhdr {
-	long		hdrsize;		/* Size of header record   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header record   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct	_modem {
@@ -1559,28 +1559,28 @@ struct	_modem {
  * Structure for TIC areas (tic.data)
  */
 struct	_tichdr {
-	long		hdrsize;		/* Size of header 	   */
-	long		recsize;		/* Size of records	   */
-	long		syssize;		/* Size for systems	   */
-	time_t		lastupd;		/* Last statistic update   */
+	int		hdrsize;		/* Size of header 	   */
+	int		recsize;		/* Size of records	   */
+	int		syssize;		/* Size for systems	   */
+	int		lastupd;		/* Last statistic update   */
 };
 
 struct	_tic {
 	char		Name[21];		/* Area name		   */
 	char		Comment[56];		/* Area comment		   */
-	long		FileArea;		/* The BBS filearea	   */
+	int		FileArea;		/* The BBS filearea	   */
 	char		Message[15];		/* Message file		   */
 	char		Group[13];		/* FDN group		   */
 	int		KeepLatest;		/* Keep latest n files	   */
-	long		xOld[6];
-	time_t		AreaStart;		/* Startdate		   */
+	int		xOld[6];
+	int32_t		AreaStart;		/* Startdate		   */
 	fidoaddr	Aka;			/* Fidonet address	   */
 	char		Convert[6];		/* Archiver to convert	   */
-	time_t		LastAction;		/* Last Action in this area*/
+	int32_t		LastAction;		/* Last Action in this area*/
 	char		Banner[15];		/* Banner file		   */
-	long		xUnitCost;
-	long		xUnitSize;
-	long		xAddPerc;
+	int		xUnitCost;
+	int		xUnitSize;
+	int		xAddPerc;
 	unsigned	Replace		: 1;	/* Allow Replace	   */
 	unsigned	DupCheck	: 1;	/* Dupe Check		   */
 	unsigned	Secure		: 1;	/* Check for secure system */
@@ -1608,11 +1608,11 @@ struct	_tic {
  * Nodes, up- and downlinks. (nodes.data)
  */
 struct	_nodeshdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-	long		filegrp;		/* Size for file groups	   */
-	long		mailgrp;		/* Size for mail groups	   */
-	time_t		lastupd;		/* Last statistic update   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
+	int		filegrp;		/* Size for file groups	   */
+	int		mailgrp;		/* Size for mail groups	   */
+	int		lastupd;		/* Last statistic update   */
 };
 
 struct	_nodes {
@@ -1663,13 +1663,13 @@ struct	_nodes {
 	unsigned	IgnHold		: 1;	/* Ignore Hold/Down status  */
 
 	char		xExtra[94];
-	time_t		StartDate;		/* Node start date	    */
-	time_t		LastDate;		/* Last action date	    */
-	long		xCredit;		/* Node's credit	    */
-	long		xDebet;			/* Node's debet		    */
-	long		xAddPerc;		/* Add Percentage	    */
-	long		xWarnLevel;		/* Warning level	    */
-	long		xStopLevel;		/* Stop level		    */
+	int32_t		StartDate;		/* Node start date	    */
+	int32_t		LastDate;		/* Last action date	    */
+	int		xCredit;		/* Node's credit	    */
+	int		xDebet;			/* Node's debet		    */
+	int		xAddPerc;		/* Add Percentage	    */
+	int		xWarnLevel;		/* Warning level	    */
+	int		xStopLevel;		/* Stop level		    */
 	fidoaddr	RouteVia;		/* Routing address	    */
 	int		Language;		/* Language for netmail	    */
 	statcnt		FilesSent;		/* Files sent to node	    */
@@ -1743,9 +1743,9 @@ struct	_nodes {
  * Groups for file areas. (fgroups.data)
  */
 struct	_fgrouphdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-	time_t		lastupd;		/* Last statistics update  */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
+	int		lastupd;		/* Last statistics update  */
 };
 
 struct	_fgroup {
@@ -1756,16 +1756,16 @@ struct	_fgroup {
 	unsigned	xDivideCost	: 1;	/* Divide cost over links  */
 	fidoaddr	UseAka;			/* Aka to use		   */
 	fidoaddr	UpLink;			/* Uplink address	   */
-	long		xUnitCost;		/* Cost per unit	   */
-	long		xUnitSize;		/* Size per unit	   */
-	long		xAddProm;		/* Promillage to add	   */
-	time_t		StartDate;		/* Start Date		   */
-	time_t		LastDate;		/* Last active date	   */
+	int		xUnitCost;		/* Cost per unit	   */
+	int		xUnitSize;		/* Size per unit	   */
+	int		xAddProm;		/* Promillage to add	   */
+	int		StartDate;		/* Start Date		   */
+	int		LastDate;		/* Last active date	   */
 	char		AreaFile[13];		/* Areas filename	   */
 	statcnt		Files;			/* Files processed	   */
 	statcnt		KBytes;			/* KBytes msgs or files	   */
 						/* Auto add area options   */
-	long		StartArea;		/* Lowest filearea nr.	   */
+	int		StartArea;		/* Lowest filearea nr.	   */
 	char		Banner[15];		/* Banner to add	   */
 	char		Convert[6];		/* Archiver to convert	   */
 	unsigned	FileGate	: 1;	/* List is in filegate fmt */
@@ -1800,9 +1800,9 @@ struct	_fgroup {
  * Groups for message areas. (mgroups.data)
  */
 struct	_mgrouphdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-	time_t		lastupd;		/* Last statistics update  */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
+	int		lastupd;		/* Last statistics update  */
 };
 
 struct	_mgroup {
@@ -1812,9 +1812,9 @@ struct	_mgroup {
 	unsigned	Deleted		: 1;	/* Group is deleted	   */
 	fidoaddr	UseAka;			/* Aka to use		   */
 	fidoaddr	UpLink;			/* Uplink address	   */
-	long		xOld[6];
-	time_t		StartDate;		/* Start Date		   */
-	time_t		LastDate;		/* Last active date	   */
+	int		xOld[6];
+	int		StartDate;		/* Start Date		   */
+	int		LastDate;		/* Last active date	   */
 	char		AreaFile[13];		/* Areas filename	   */
 	statcnt		MsgsRcvd;		/* Received messages	   */
 	statcnt		MsgsSent;		/* Sent messages	   */
@@ -1843,8 +1843,8 @@ struct	_mgroup {
  *  Groups for newfiles announce. (ngroups.data)
  */
 struct	_ngrouphdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct	_ngroup {
@@ -1860,9 +1860,9 @@ struct	_ngroup {
  * Hatch manager (hatch.data)
  */
 struct	_hatchhdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-	time_t		lastupd;		/* Last stats update	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
+	int		lastupd;		/* Last stats update	   */
 };
 
 struct	_hatch {
@@ -1896,8 +1896,8 @@ typedef enum {
 } MAGICTYPE;
 
 struct	_magichdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct	_magic {
@@ -1919,9 +1919,9 @@ struct	_magic {
  * Newfile reports (newfiles.data)
  */
 struct	_newfileshdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-	long		grpsize;		/* Size of groups	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
+	int		grpsize;		/* Size of groups	   */
 };
 
 struct	_newfiles {
@@ -1945,8 +1945,8 @@ struct	_newfiles {
  * Scanmanager (scanmgr.data)
  */
 struct	_scanmgrhdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
+	int		hdrsize;		/* Size of header	   */
+	int		recsize;		/* Size of records	   */
 };
 
 struct	_scanmgr {
@@ -1976,8 +1976,8 @@ struct	_filerecord {
 	char		Name[13];		/* File Name		   */
 	char		LName[81];		/* Long FileName	   */
 	off_t		Size;			/* File Size		   */
-	unsigned long	SizeKb;			/* File Size in Kb	   */
-	time_t		Fdate;			/* File Date		   */
+	unsigned int	SizeKb;			/* File Size in Kb	   */
+	int32_t		Fdate;			/* File Date		   */
 	char		Origin[24];		/* Origin system	   */
 	char		From[24];		/* From system		   */
 	char		Crc[9];			/* CRC 32		   */
@@ -2003,10 +2003,10 @@ struct _history {
 	char		sysop[36];		/* Sysop name		   */
 	char		location[36];		/* System location	   */
 	char		tty[7];			/* Tty of connection	   */
-	time_t		online;			/* Starttime of session	   */
-	time_t		offline;		/* Endtime of session	   */
-	unsigned long	sent_bytes;		/* Bytes sent		   */
-	unsigned long	rcvd_bytes;		/* Bytes received	   */
+	int		online;			/* Starttime of session	   */
+	int		offline;		/* Endtime of session	   */
+	unsigned int	sent_bytes;		/* Bytes sent		   */
+	unsigned int	rcvd_bytes;		/* Bytes received	   */
 	int		cost;			/* Session cost		   */
 	unsigned	inbound		: 1;	/* Inbound session	   */
 };
@@ -2023,8 +2023,8 @@ struct _history {
  * extra things can be done for netmail to a specific person.
  */
 struct _routehdr {
-	long            hdrsize;                /* Size of header	    */
-	long            recsize;                /* Size of records	    */
+	int            hdrsize;                /* Size of header	    */
+	int            recsize;                /* Size of records	    */
 };
 
 
@@ -2044,8 +2044,8 @@ struct _route {
  * IBC servers to connect to.
  */
 struct _ibcsrvhdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of record	    */
+	int		hdrsize;		/* Size of header	    */
+	int		recsize;		/* Size of record	    */
 };
 
 
@@ -2067,7 +2067,7 @@ struct _ibcsrv {
 char		*xmalloc(size_t);
 char		*xstrcpy(char *);
 char		*xstrcat(char *, char *);
-void		InitClient(char *, char *, char *, char *, long, char *, char *, char *);
+void		InitClient(char *, char *, char *, char *, int, char *, char *, char *);
 void		ExitClient(int);
 void		SockS(const char *, ...);
 char		*SockR(const char *, ...);
@@ -2082,8 +2082,8 @@ void		UserCity(pid_t, char *, char *);
 void		DoNop(void);
 void		Nopper(void);
 void		Altime(int);
-int		enoughspace(unsigned long);
-unsigned long	sequencer(void);
+int		enoughspace(unsigned int);
+unsigned int	sequencer(void);
 char		*printable(char *, int);
 char		*printablec(char);
 
@@ -2103,12 +2103,12 @@ int		socket_shutdown(pid_t);
 /*
  *  From crc.c
  */
-unsigned long  crc32ccitt(char *, int);
+unsigned int	crc32ccitt(char *, int);
 unsigned short crc16ccitt(char *, int);
-unsigned long  str_crc32(char *str);
-unsigned long  StringCRC32(char *);
-unsigned long  upd_crc32(char *buf, unsigned long crc, int len);
-unsigned long  norm_crc32(unsigned long crc);
+unsigned int	str_crc32(char *str);
+unsigned int	StringCRC32(char *);
+unsigned int	upd_crc32(char *buf, unsigned int crc, int len);
+unsigned int	norm_crc32(unsigned int crc);
 unsigned short crc16xmodem(char *, int);
 unsigned char  checksum(char *, int);
 
@@ -2163,14 +2163,14 @@ typedef struct  _ftnmsg {
         int             ftnorigin;
         faddr           *to;
         faddr           *from;
-        time_t          date;
+        int		date;
         char            *subj;
         char            *msgid_s;
         char            *msgid_a;
-        unsigned long   msgid_n;
+        unsigned int	msgid_n;
         char            *reply_s;
         char            *reply_a;
-        unsigned long   reply_n;
+        unsigned int	reply_n;
         char            *origin;
         char            *area;
 } ftnmsg;
@@ -2281,7 +2281,7 @@ int		getheader(faddr *, faddr *, FILE *, char *, int);
 /*
  * From gmtoffset.c
  */
-long		gmt_offset(time_t);
+int		gmt_offset(time_t);
 char		*gmtoffset(time_t);
 char		*str_time(time_t);
 char		*t_elapsed(time_t, time_t);
@@ -2294,8 +2294,8 @@ int		file_cp(char *from, char *to);
 int		file_rm(char *path);
 int		file_mv(char *oldpath, char *newpath);
 int		file_exist(char *path, int mode);
-long		file_size(char *path);
-long		file_crc(char *path, int);
+int		file_size(char *path);
+int		file_crc(char *path, int);
 time_t		file_time(char *path);
 int             mkdirs(char *name, mode_t);
 int		getfilecase(char *, char *);
@@ -2337,7 +2337,7 @@ char		*arcname(faddr *, unsigned short, int);
 void		mbse_Setraw(void);			/* Set raw mode		    */
 void		mbse_Unsetraw(void);			/* Unset raw mode	    */
 unsigned char	mbse_Getone(void);			/* Get one raw character    */
-long		mbse_Speed(void);			/* Get (locked) tty speed   */
+int		mbse_Speed(void);			/* Get (locked) tty speed   */
 int		mbse_Waitchar(unsigned char *, int);	/* Wait n * 10mSec for char */
 int		mbse_Escapechar(unsigned char *);	/* Escape sequence test	    */
 unsigned char	mbse_Readkey(void);			/* Read a translated key    */
@@ -2448,8 +2448,8 @@ char *bgets(char *, int, FILE *);
  */
 typedef struct _TIMEINFO {
     time_t  time;
-    long usec;
-    long tzone;
+    int	    usec;
+    int	    tzone;
 } TIMEINFO;
 
 /*
@@ -2461,7 +2461,7 @@ typedef enum _MERIDIAN {
 
 
 typedef union {
-    time_t		Number;
+    int32_t		Number;
     enum _MERIDIAN	Meridian;
 } CYYSTYPE;
 

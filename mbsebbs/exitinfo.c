@@ -51,7 +51,7 @@ int InitExitinfo()
 {
     FILE    *pUsrConfig, *pExitinfo;
     char    *temp;
-    long    offset;
+    int	    offset;
 
     temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));

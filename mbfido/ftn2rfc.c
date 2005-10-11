@@ -102,7 +102,7 @@ char *rfcmsgid(char *, faddr *);
 char *rfcmsgid(char *msgid, faddr *bestaka)
 {
     char	    *p, *q, *r;
-    unsigned long   id = 0L;
+    unsigned int    id = 0L;
     faddr	    *ta = NULL;
     size_t	    bufsize;
 
@@ -136,7 +136,7 @@ char *rfcmsgid(char *msgid, faddr *bestaka)
 	 * here we have a parseable address
 	 */
 	*p = '\0';
-	sscanf(p+1, "%lx", &id);
+	sscanf(p+1, "%x", &id);
 	ta = parsefnode(msgid);
 	*p=' ';
     }
@@ -149,7 +149,7 @@ char *rfcmsgid(char *msgid, faddr *bestaka)
 	 * isn't the case. By cheking also (ta->net) we avoid that
 	 */
 	if ((ta) && (ta->net)) {
-	    snprintf(rbuf, bufsize, "<%lu@%s.ftn>", id, ascinode(ta,0x1f));
+	    snprintf(rbuf, bufsize, "<%u@%s.ftn>", id, ascinode(ta,0x1f));
 	} else {
 	    p = xstrcpy(msgid);
 	    if ((q = strchr(p,' '))) 
@@ -180,12 +180,12 @@ char *rfcmsgid(char *msgid, faddr *bestaka)
 		    *q = '%';
 		}
 	    } else {
-		snprintf(rbuf, bufsize, "<%lu@%s>", id, p);
+		snprintf(rbuf, bufsize, "<%u@%s>", id, p);
 	    }
 	    free(p);
 	}
     } else {
-	snprintf(rbuf, bufsize, "<%lu@%s.ftn>", (unsigned long)sequencer(), ascinode(bestaka,0x1f));
+	snprintf(rbuf, bufsize, "<%u@%s.ftn>", (unsigned int)sequencer(), ascinode(bestaka,0x1f));
     }
     tidy_faddr(ta);
     if (r) 
@@ -270,7 +270,7 @@ void Send(int, char *);
 void Send(int newsmode, char *outstr)
 {
     char            *p;
-    unsigned long   crc;
+    unsigned int    crc;
 
     charwrite(outstr, nfp);
     Syslog('m', "+ %s", printable(outstr, 0));
@@ -400,7 +400,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 
 	    if (!strcmp(l,"Via") && (via_off == 0L)) { 
 		via_off = ftell(fp);
-		Syslog('m', "^AVia \"%s\" at offset %ld", printable(buf, 0), (long)via_off);
+		Syslog('m', "^AVia \"%s\" at offset %d", printable(buf, 0), (int)via_off);
 	    }
 	} else { 
 	    /*
@@ -428,7 +428,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		(*tmsg)->key = xstrcpy((char *)"Origin");
 		(*tmsg)->val = xstrcpy(buf+11);
 		tmsg = &((*tmsg)->next);
-		Syslog('M', "origin \"%s\" at offset %ld", buf,(long)orig_off);
+		Syslog('M', "origin \"%s\" at offset %d", buf,(int)orig_off);
 		p = buf+10;
 		while (*p == ' ') 
 		    p++;
@@ -1492,7 +1492,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	}
 
 	if (ftell(fp) > endmsg_off) {
-	    Syslog('m', "line \"%s\" past message end %ld %ld", buf,(long)endmsg_off, ftell(fp));
+	    Syslog('m', "line \"%s\" past message end %d %d", buf,(int)endmsg_off, ftell(fp));
 	    pass=0;
 	}
 	if (pass) {

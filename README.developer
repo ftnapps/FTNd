@@ -8,6 +8,19 @@ development only. There are no secrets in this file because it's public
 available.
 
 
+	Wordlengths.
+
+From bits/types.h:
+
+   Here we assume what is presently the case in all the GCC configurations
+   we support: long long is always 64 bits, long is always word/address size,
+   and int is always 32 bits.
+
+IOW: Never use long in the sources because it breaks between 32/64 bit 
+hardware.
+
+How about time_t, it seems an alias for long!
+
 
 	CVS tags.
 

@@ -56,7 +56,7 @@ char *get_sysinfo(void)
 
     if (fread(&SYSINFO, sizeof(SYSINFO), 1, fp) == 1) {
 	startdate = SYSINFO.StartDate;
-	snprintf(buf, SS_BUFSIZE, "100:7,%ld,%ld,%ld,%ld,%ld,%s,%s;", SYSINFO.SystemCalls,
+	snprintf(buf, SS_BUFSIZE, "100:7,%d,%d,%d,%d,%d,%s,%s;", SYSINFO.SystemCalls,
 			SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network, SYSINFO.Local,
 			ctime(&startdate), SYSINFO.LastCaller);
     }
@@ -131,7 +131,7 @@ char *get_lastcallerrec(int Rec)
 		action[8] = '\0';
 		snprintf(buf, SS_BUFSIZE, "100:9,%s,%s,%d,%s,%s,%d,%d,%s,%s;", LCALL.UserName, LCALL.Location,
 			LCALL.SecLevel, LCALL.Device, LCALL.TimeOn, 
-			LCALL.CallTime, LCALL.Calls, LCALL.Speed, action);
+			(int)LCALL.CallTime, LCALL.Calls, LCALL.Speed, action);
 	}
 
 	free(temp);

@@ -96,15 +96,15 @@ int load_node(fidoaddr n)
 
 
 
-char *size_str(long);
-char *size_str(long size)
+char *size_str(int);
+char *size_str(int size)
 {
     static char	fmt[25];
     
     if (size > 1048575) {
-	snprintf(fmt, 25, "%ldK", size / 1024);
+	snprintf(fmt, 25, "%dK", size / 1024);
     } else {
-	snprintf(fmt, 25, "%ld ", size);
+	snprintf(fmt, 25, "%d ", size);
     }
     return fmt;
 }
@@ -268,7 +268,7 @@ int outstat()
     DIR		    *dp = NULL;
     struct dirent   *de;
     struct stat	    sb;
-    unsigned long   ibnmask = 0, ifcmask = 0, itnmask = 0;
+    unsigned int    ibnmask = 0, ifcmask = 0, itnmask = 0;
     nodelist_modem  **tmpm;
 
     for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {

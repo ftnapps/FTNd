@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,9 +51,9 @@ int iwrite(int i, FILE *fp)
 
 
 /*
- * write long (32bit) integer in "standart" byte order
+ * write 32bit integer in "standart" byte order
  */
-int lwrite(long i, FILE *fp)
+int lwrite(int i, FILE *fp)
 {
 	int c;
 

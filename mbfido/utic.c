@@ -45,7 +45,7 @@ char *MakeTicName()
     static char	buf[13];
 
     buf[12] = '\0';
-    snprintf(buf, 13, "%08lx.tic", sequencer());
+    snprintf(buf, 13, "%08x.tic", sequencer());
     buf[0] = 'm';
     buf[1] = 'b';
 
@@ -173,7 +173,7 @@ void Bad(char *format, ...)
 void ReCalcCrc(char *fn)
 {
     TIC.Crc_Int = file_crc(fn, CFG.slow_util && do_quiet);
-    snprintf(TIC.TicIn.Crc, 9, "%08lX", TIC.Crc_Int);
+    snprintf(TIC.TicIn.Crc, 9, "%08X", TIC.Crc_Int);
     strcpy(T_File.Crc, TIC.TicIn.Crc);
 }
 

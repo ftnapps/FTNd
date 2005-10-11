@@ -247,7 +247,7 @@ int LoadTic(char *inb, char *tfn)
 
 	} else if (strncasecmp(Temp, "crc ", 4) == 0) {
 	    TIC.Crc_Int = strtoul(Temp+4, (char **)NULL, 16);
-	    snprintf(TIC.TicIn.Crc, 9, "%08lX", TIC.Crc_Int);
+	    snprintf(TIC.TicIn.Crc, 9, "%08X", TIC.Crc_Int);
 	    strcpy(T_File.Crc, TIC.TicIn.Crc);
 
 	} else if (strncasecmp(Temp, "pw ", 3) == 0) {

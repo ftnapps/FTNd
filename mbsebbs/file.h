@@ -12,7 +12,7 @@ int  FilenameScan(void);	/* Search a file on filenames		     */
 int  NewfileScan(int);		/* Scan for new files			     */
 int  Upload(void);		/* Upload a file.			     */
 void FileArea_List(char *);	/* Select file area			     */
-void SetFileArea(unsigned long);/* Select new area and load globals	     */
+void SetFileArea(unsigned int);	/* Select new area and load globals	     */
 void EditTaglist(void);		/* Edit download taglist		     */
 void List_Home(void);		/* List users home directory		     */
 void Delete_Home(void);		/* Delete file from home directory	     */

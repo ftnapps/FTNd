@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -57,9 +57,9 @@ static int	last;
 struct timeval	starttime, endtime;
 struct timezone	tz;
 static off_t	startofs;
-static long	recv_blk;
+static int	recv_blk;
 
-extern unsigned long 	rcvdbytes;
+extern unsigned int rcvdbytes;
 
 
 
@@ -94,7 +94,7 @@ int closeit(int success)
 	    Syslog('+', "Xmodem: OK %s", transfertime(starttime, endtime, endofs-startofs, FALSE));
 	else
 	    Syslog('+', "Xmodem: dropped after %ld bytes", endofs-startofs);
-	rcvdbytes += (unsigned long)(endofs-startofs);
+	rcvdbytes += (unsigned int)(endofs-startofs);
 	fp = NULL;
 	return closefile();
 }
@@ -136,9 +136,9 @@ SM_EDECL
 	} xmblk;
 	unsigned short	localcrc,remotecrc;
 	unsigned char	localcs,remotecs;
-	long		ackd_blk=-1L;
-	long		next_blk=1L;
-	long		last_blk=0L;
+	int		ackd_blk=-1L;
+	int		next_blk=1L;
+	int		last_blk=0L;
 	off_t		resofs;
 	char		tmpfname[16];
 	off_t		wsize;
@@ -550,12 +550,12 @@ int resync(off_t resofs)
 	int	count=0;
 	int	gotack,gotnak;
 	int	c;
-	long	sblk;
+	int	sblk;
 
-	Syslog('x', "trying to resync at offset %ld",resofs);
+	Syslog('x', "trying to resync at offset %d", (int)resofs);
 
 	sblk=resofs/XMBLKSIZ+1;
-	snprintf(resynbuf,16,"%ld",sblk);
+	snprintf(resynbuf,16,"%d",sblk);
 	lcrc=crc16xmodem(resynbuf,strlen(resynbuf));
 	gotack=0;
 	gotnak=0;

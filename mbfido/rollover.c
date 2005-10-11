@@ -36,7 +36,7 @@
 extern int	do_quiet;
 
 
-void StatAdd(statcnt *S, unsigned long V)
+void StatAdd(statcnt *S, unsigned int V)
 {
     S->total += V;
     S->tweek += V;

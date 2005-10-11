@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -63,10 +63,10 @@ faddr	*bestaka;
 
 
 
-int ftnmsgid(char *msgid, char **s, unsigned long *n, char *areaname)
+int ftnmsgid(char *msgid, char **s, unsigned int *n, char *areaname)
 {
     char	    *buf, *l, *r, *p;
-    unsigned long   nid = 0L;
+    unsigned int    nid = 0L;
     faddr	    *tmp;
     static int	    ftnorigin = 0;
 
@@ -117,7 +117,7 @@ int ftnmsgid(char *msgid, char **s, unsigned long *n, char *areaname)
 		*r++ = '\0';
             *s = xstrcpy(l+6);
 	    if (r) 
-		sscanf(r,"%lx",&nid);
+		sscanf(r,"%x",&nid);
 	    ftnorigin = 1;
 	/* <NOMSGID_mimeanything_abcd1234@ftn.domain> */
 	} else if (strncmp(l,"NOMSGID_",8) == 0) {
@@ -141,7 +141,7 @@ int ftnmsgid(char *msgid, char **s, unsigned long *n, char *areaname)
 	    r=strchr(l+4,'_');
 	    *r++='\0';
 	    *s=xstrcpy(l+4);
-	    sscanf(r,"%lx",&nid);
+	    sscanf(r,"%x",&nid);
 	    ftnorigin=1;
 	/* <wgcid$3$g712$h610$i22$kfidonet$j6596dbf5@brazerko.com> */
 	} else if (strncmp(l,"wgcid$",6) == 0) {
@@ -173,7 +173,7 @@ int ftnmsgid(char *msgid, char **s, unsigned long *n, char *areaname)
 	    if ((r=strstr(l,"$j"))) {
 		*r='\0';
 		*s=xstrcat(*s,l);
-		sscanf(r+2,"%lx",&nid);
+		sscanf(r+2,"%x",&nid);
 	    }
 	} else {
 	    *r='\0';

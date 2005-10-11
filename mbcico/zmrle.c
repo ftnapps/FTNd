@@ -52,7 +52,7 @@
 void zsdar32(char *buf, int length, int frameend)
 {
 	register int c, l, n;
-	register unsigned long crc;
+	register unsigned int crc;
 
 	crc = 0xFFFFFFFFL;  l = *buf++ & 0377;
 	if (length == 1) {
@@ -112,7 +112,7 @@ void zsdar32(char *buf, int length, int frameend)
 int zrdatr32(register char *buf, int length)
 {
 	register int c;
-	register unsigned long crc;
+	register unsigned int crc;
 	register char *end;
 	register int d;
 

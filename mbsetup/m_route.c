@@ -91,7 +91,7 @@ int OpenRoute(void)
 {
     FILE    *fin, *fout;
     char    *fnin, *fnout;
-    long    oldsize;
+    int	    oldsize;
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
@@ -310,8 +310,8 @@ int EditRouteRec(int Area)
 {
     FILE	    *fil;
     char	    *mfile, newmask[25];
-    long	    offset;
-    unsigned long   crc, crc1;
+    int		    offset;
+    unsigned int    crc, crc1;
     int		    i;
 
     clr_index();
@@ -409,7 +409,7 @@ void EditRoute(void)
     int	    records, i, o, x, y;
     char    pick[12], *temp;
     FILE    *fil;
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);

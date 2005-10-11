@@ -58,7 +58,7 @@ static FILE 	*in;
 static char 	txbuf[TCP_BLKSIZE];
 static char 	rxbuf[TCP_BLKSIZE];
 static int  	rx_type;
-static long 	sbytes;
+static int	sbytes;
 struct timeval	starttime, endtime;
 struct timezone	tz;
 static off_t	rxbytes;
@@ -72,8 +72,8 @@ static int	tcp_sblk(char *,int,int);
 static int  	tcp_rblk(char *,int *);
 static int  	getsync(void);
 
-extern unsigned long	sentbytes;
-extern unsigned long	rcvdbytes;
+extern unsigned int	sentbytes;
+extern unsigned int	rcvdbytes;
 extern char		*ttystat[];
 
 
@@ -124,7 +124,7 @@ int tcpsndfiles(file_list *lst)
 int tcprcvfiles(void)
 {
     int	    rc, bufl;
-    long    filesize, filetime;
+    int	    filesize, filetime;
     char    *filename = NULL, *p;	
 
     Syslog('+', "TCP: start receive files");
@@ -183,7 +183,7 @@ static int sendtfile(char *ln, char *rn)
     struct stat	    st;
     struct flock    fl;
     int		    bufl, sverr;
-    long	    offset;
+    int		    offset;
 
     fl.l_type = F_RDLCK;
     fl.l_whence = 0;
@@ -215,14 +215,14 @@ static int sendtfile(char *ln, char *rn)
 	
     if (st.st_size > 0) {
 	Syslog('+', "TCP: send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
-	Syslog('+', "TCP: size %lu bytes, dated %s", (unsigned long)st.st_size, date(st.st_mtime));
+	Syslog('+', "TCP: size %lu bytes, dated %s", (unsigned int)st.st_size, date(st.st_mtime));
 	gettimeofday(&starttime, &tz);
     } else {
 	Syslog('+', "TCP: file \"%s\" has 0 size, skiped",ln);
 	return 0;
     }
 
-    snprintf(txbuf,TCP_BLKSIZE, "S %s %lu %lu",rn,(unsigned long)st.st_size,(unsigned long)st.st_mtime+(st.st_mtime%2));
+    snprintf(txbuf,TCP_BLKSIZE, "S %s %u %u",rn,(unsigned int)st.st_size,(unsigned int)st.st_mtime+(unsigned int)(st.st_mtime%2));
     bufl = strlen(txbuf);
     rc = tcp_sblk(txbuf, bufl, TCP_CMD);
     rc = tcp_rblk(rxbuf, &bufl);
@@ -261,7 +261,7 @@ static int sendtfile(char *ln, char *rn)
 	gettimeofday(&endtime, &tz);
 	Syslog('a', "st_size %d, offset %d",st.st_size,offset);
 	Syslog('+', "TCP: OK %s", transfertime(starttime, endtime, st.st_size-offset, TRUE));
-	sentbytes += (unsigned long)st.st_size - offset;
+	sentbytes += (unsigned int)st.st_size - offset;
 	return 0;
     } else if(strncmp(rxbuf,"FERROR",6) == 0){
 	WriteError("TCP: remote file error",ln);
@@ -274,7 +274,7 @@ static int sendtfile(char *ln, char *rn)
 
 static int resync(off_t off)
 {
-    snprintf(txbuf, TCP_BLKSIZE, "ROK %ld",(long)off);
+    snprintf(txbuf, TCP_BLKSIZE, "ROK %d",(int)off);
     return 0;
 }
 

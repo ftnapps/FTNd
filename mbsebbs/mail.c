@@ -67,7 +67,7 @@
 /*
  * Global variables
  */
-unsigned long	LastNum;		/* Last read message number	    */
+unsigned int	LastNum;		/* Last read message number	    */
 int		Kludges = FALSE;	/* Show kludges or not		    */
 int		Line = 1;		/* Line counter in editor	    */
 char		*Message[TEXTBUFSIZE +1];/* Message compose text buffer	    */
@@ -81,13 +81,13 @@ extern int	rows;
  *  Internal prototypes
  */
 void	ShowMsgHdr(int Conv);		/* Show message header		    */
-int	Read_a_Msg(unsigned long Num, int);/* Read a message		    */
-int	Export_a_Msg(unsigned long Num);/* Export message to homedir	    */
+int	Read_a_Msg(unsigned int Num, int);/* Read a message		    */
+int	Export_a_Msg(unsigned int Num);/* Export message to homedir	    */
 int	ReadPanel(void);		/* Read panel bar		    */
 int	Save_Msg(int, faddr *);		/* Save a message		    */
 int	Save_CC(int, char *);		/* Save carbon copy		    */
 void	Reply_Msg(int);			/* Reply to message		    */
-void	Delete_MsgNum(unsigned long);	/* Delete specified message	    */
+void	Delete_MsgNum(unsigned int);	/* Delete specified message	    */
 int	CheckUser(char *);		/* Check if user exists		    */
 int	IsMe(char *);			/* Test if this is my userrecord    */
 
@@ -345,7 +345,7 @@ void Check_Attach(void)
  */
 void SysopComment(char *Cmt)
 {
-    unsigned long   tmp;
+    unsigned int    tmp;
     char	    *temp;
     FILE	    *fp;
 
@@ -821,7 +821,7 @@ int Save_Msg(int IsReply, faddr *Dest)
     Msg_AddMsg();
     Msg_UnLock();
 
-    snprintf(temp, 81, " (%ld)", Msg.Id);
+    snprintf(temp, 81, " (%d)", Msg.Id);
     PUTSTR(temp);
     Enter(1);
 		
@@ -831,7 +831,7 @@ int Save_Msg(int IsReply, faddr *Dest)
 
     LC_Wrote = TRUE;
 
-    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %ld", Msg.Id, Msg.To, Msg.Subject, iMsgAreaNumber + 1);
+    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %d", Msg.Id, Msg.To, Msg.Subject, iMsgAreaNumber + 1);
 
     msgs.LastPosted = time(NULL);
     msgs.Posted.total++;
@@ -878,7 +878,7 @@ int Save_Msg(int IsReply, faddr *Dest)
 	snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), 
 		((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 	if ((fp = fopen(temp, "a")) != NULL) {
-	    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
+	    fprintf(fp, "%s %u\n", msgs.Base, Msg.Id);
 	    fclose(fp);
 	}
     }
@@ -910,7 +910,7 @@ void ShowMsgHdr(int Conv)
     snprintf(msg, 81, "   %-70s", sMsgAreaDesc);
     pout(BLUE, LIGHTGRAY, msg);
 
-    snprintf(msg, 81,"#%-5lu", Msg.Id);
+    snprintf(msg, 81,"#%-5u", Msg.Id);
     pout(RED, LIGHTGRAY, msg);
     Enter(1);
 
@@ -1005,9 +1005,9 @@ void ShowMsgHdr(int Conv)
     colour(CFG.HiliteF, CFG.HiliteB);
     colour(YELLOW, BLUE);
     if (Msg.Reply)
-	snprintf(Buf1, 35, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
+	snprintf(Buf1, 35, "\"+\" %s %u", (char *)Language(211), Msg.Reply);
     if (Msg.Original)
-	snprintf(Buf2, 35, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
+	snprintf(Buf2, 35, "   \"-\" %s %u", (char *)Language(212), Msg.Original);
     snprintf(Buf3, 35, "%s%s ", Buf1, Buf2);
     snprintf(msg, 81, "%77s  ", Buf3);
     pout(YELLOW, BLUE, msg);
@@ -1019,7 +1019,7 @@ void ShowMsgHdr(int Conv)
 /*
  * Export a message to file in the users home directory or to the rules directory.
  */
-int Export_a_Msg(unsigned long Num)
+int Export_a_Msg(unsigned int Num)
 {
     char    *p, msg[81];
     int     ShowMsg = TRUE, z, homedir = TRUE;
@@ -1108,7 +1108,7 @@ int Export_a_Msg(unsigned long Num)
      */
     p = calloc(PATH_MAX, sizeof(char));
     if (homedir)
-	snprintf(p, PATH_MAX, "%s/%s/wrk/%d_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, iMsgAreaNumber + 1, Num);
+	snprintf(p, PATH_MAX, "%s/%s/wrk/%d_%u.msg", CFG.bbs_usersdir, exitinfo.Name, iMsgAreaNumber + 1, Num);
     else
 	snprintf(p, PATH_MAX, "%s/%s", CFG.rulesdir, msgs.Tag);
 
@@ -1151,7 +1151,7 @@ int Export_a_Msg(unsigned long Num)
     if (homedir) {
 	/* Message exported to your private directory as: */
 	pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(46));
-	snprintf(msg, 81, "%d_%lu.msg", iMsgAreaNumber + 1, Num);
+	snprintf(msg, 81, "%d_%u.msg", iMsgAreaNumber + 1, Num);
 	pout(CFG.HiliteF, CFG.HiliteB, msg);
     } else {
 	/* Message exported to rules directory as */
@@ -1169,7 +1169,7 @@ int Export_a_Msg(unsigned long Num)
  * Read a message on screen. Update the lastread pointers,
  * except while scanning and reading new mail at logon.
  */
-int Read_a_Msg(unsigned long Num, int UpdateLR)
+int Read_a_Msg(unsigned int Num, int UpdateLR)
 {
     char	*p = NULL, *fn, *charset = NULL, *charsin = NULL, *charsout = NULL;
     int		i, ShowMsg = TRUE, UseIconv = FALSE;
@@ -1380,13 +1380,13 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 void Read_Msgs()
 {
     char	    *temp;
-    unsigned long   Start;
+    unsigned int    Start;
     lastread	    LR;
 
     temp = calloc(81, sizeof(char));
     Enter(1);
 	/* Message area \"%s\" contains %lu messages. */
-    snprintf(temp, 81, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc, 
+    snprintf(temp, 81, "%s\"%s\" %s%u %s", (char *) Language(221), sMsgAreaDesc, 
 		(char *) Language(222), MsgBase.Total, (char *) Language(223));
     pout(CFG.TextColourF, CFG.TextColourB, temp);
 
@@ -1412,11 +1412,11 @@ void Read_Msgs()
 
     Enter(1);
     /* Please enter a message between */
-    snprintf(temp, 81, "%s(%lu - %lu)", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
+    snprintf(temp, 81, "%s(%u - %u)", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
     pout(WHITE, BLACK, temp);
     Enter(1);
     /* Message number [ */
-    snprintf(temp, 81, "%s%lu]: ", (char *) Language(225), Start);
+    snprintf(temp, 81, "%s%u]: ", (char *) Language(225), Start);
     PUTSTR(temp);
 
     colour(CFG.InputColourF, CFG.InputColourB);
@@ -1584,7 +1584,7 @@ void Reply_Msg(int IsReply)
     clear();
     snprintf(msg, 81, "   %-71s", sMsgAreaDesc);
     pout(BLUE, LIGHTGRAY, msg);
-    snprintf(msg, 81, "#%-5lu", MsgBase.Highest + 1);
+    snprintf(msg, 81, "#%-5u", MsgBase.Highest + 1);
     pout(RED, LIGHTGRAY, msg);
     Enter(1);
 
@@ -1810,7 +1810,7 @@ int IsMe(char *Name)
 void QuickScan_Msgs()
 {
     int	    FoundMsg  = FALSE;
-    long    i;
+    int	    i;
     char    msg[81];
 
     iLineCount = 2;
@@ -1834,7 +1834,7 @@ void QuickScan_Msgs()
 	    if (Msg_ReadHeader(i) && ((msgs.Type != NETMAIL) || 
 				    ((msgs.Type == NETMAIL) && ((IsMe(Msg.From)) || (IsMe(Msg.To)))))) {
 				
-		snprintf(msg, 81, "%-6lu", Msg.Id);
+		snprintf(msg, 81, "%-6u", Msg.Id);
 		pout(WHITE, BLACK, msg);
 		snprintf(msg, 81, "%s ", padleft(Msg.From, 20, ' '));
 		if (IsMe(Msg.From))
@@ -1878,7 +1878,7 @@ void QuickScan_Msgs()
 void Delete_Msg()
 {
     char	    *temp;
-    unsigned long   Msgnum = 0L;
+    unsigned int    Msgnum = 0L;
 
     WhosDoingWhat(READ_POST, NULL);
 
@@ -1897,13 +1897,13 @@ void Delete_Msg()
     temp = calloc(81, sizeof(char));
     Enter(1);
     /* Message area \"%s\" contains %lu messages. */
-    snprintf(temp, 81, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc,
+    snprintf(temp, 81, "%s\"%s\" %s%u %s", (char *) Language(221), sMsgAreaDesc,
 	    (char *) Language(222), MsgBase.Total, (char *) Language(223));
     pout(CFG.TextColourF, CFG.TextColourB, temp);
 
     Enter(1);
     /* Please enter a message between */
-    snprintf(temp, 81, "%s(%lu - %lu): ", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
+    snprintf(temp, 81, "%s(%u - %u): ", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
     pout(WHITE, BLACK, temp);
 
     colour(CFG.InputColourF, CFG.InputColourB);
@@ -1993,7 +1993,7 @@ void MsgArea_List(char *Option)
     int		iAreaCount = 6, Recno = 0, iOldArea = 0, iAreaNum = 0, loopcount = 0;
     int		iGotArea = FALSE; /* Flag to check if user typed in area */
     int		iCheckNew = FALSE; /* Flag to check for new mail in area */
-    long	offset;
+    int		offset;
     char	*temp, msg[81];
     lastread	LR;
 
@@ -2319,7 +2319,7 @@ void MsgArea_List(char *Option)
 
 
 
-void Delete_MsgNum(unsigned long MsgNum)
+void Delete_MsgNum(unsigned int MsgNum)
 {
     int	Result = FALSE;
 
@@ -2351,8 +2351,8 @@ int CheckUser(char *To)
     FILE	    *pUsrConfig;
     int		    Found = FALSE;
     char	    *temp;
-    long	    offset;
-    unsigned long   Crc;
+    int		    offset;
+    unsigned int    Crc;
 
     temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
@@ -2399,10 +2399,10 @@ void CheckMail()
     FILE		*pMsgArea, *Tmp;
     int			x, Found = 0, Color, Count = 0, Reading, OldMsgArea;
     char		*temp, *sFileName, msg[81];
-    unsigned long	i, Start;
+    unsigned int	i, Start;
     typedef struct	_Mailrec {
-	long		Area;
-	unsigned long	Msg;
+	int		Area;
+	unsigned int	Msg;
     } _Mail;
     _Mail		Mail;
     lastread		LR;
@@ -2634,7 +2634,7 @@ void MailStatus()
     int		    OldMsgArea;
     char	    temp[81], msg[81];
     char	    *sFileName;
-    unsigned long   i;
+    unsigned int    i;
 
     sFileName = calloc(PATH_MAX, sizeof(char));
     OldMsgArea = iMsgAreaNumber;
@@ -2661,12 +2661,12 @@ void MailStatus()
 	    snprintf(msg, 81, " %-40s", Language(467 + i));
 	    pout(LIGHTCYAN, BLACK, msg);
 	    if (EmailBase.Highest)
-		snprintf(msg, 81, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
+		snprintf(msg, 81, " %8u", EmailBase.Highest - EmailBase.Lowest + 1);
 	    else
 		snprintf(msg, 81, "        0");
 	    pout(YELLOW, BLACK, msg);
 	    if (EmailBase.Highest)
-		snprintf(msg, 81, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
+		snprintf(msg, 81, " %8u", EmailBase.Highest - EmailBase.Lowest + 1);
 	    else
 		snprintf(msg, 81, "        0");
 	    pout(LIGHTBLUE, BLACK, msg);
@@ -2724,7 +2724,7 @@ void MailStatus()
 	    } else
 		WriteError("Error open JAM %s", sMsgAreaBase);
 	    if (MsgBase.Highest)
-		snprintf(msg, 81, " %8lu", MsgBase.Highest - MsgBase.Lowest + 1);
+		snprintf(msg, 81, " %8u", MsgBase.Highest - MsgBase.Lowest + 1);
 	    else
 		snprintf(msg, 81, "        0");
 	    pout(YELLOW, BLACK, msg);
@@ -2748,10 +2748,10 @@ void MailStatus()
 /*
  * Set message area number, set global area description and JAM path
  */
-void SetMsgArea(unsigned long AreaNum)
+void SetMsgArea(unsigned int AreaNum)
 {
     FILE    *pMsgArea;
-    long    offset;
+    int	    offset;
     char    *sFileName;
 
     sFileName = calloc(PATH_MAX, sizeof(char));

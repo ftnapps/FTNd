@@ -61,10 +61,10 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
 
     strcpy(ctt,date(remtime));
 
-    Syslog('s', "openfile(\"%s\",%s,%lu,...)", MBSE_SS(fname), MBSE_SS(ctt), (unsigned long)remsize);
+    Syslog('s', "openfile(\"%s\",%s,%lu,...)", MBSE_SS(fname), MBSE_SS(ctt), (unsigned int)remsize);
 
     if ((fname == NULL) || (fname[0] == '\0')) {
-	snprintf(tmpfname,16,"%08lx.pkt",(unsigned long)sequencer());
+	snprintf(tmpfname,16,"%08x.pkt",sequencer());
 	fname=tmpfname;
     }
 
@@ -141,7 +141,7 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
 	rc = 1;
 	p = strrchr(infpath,'/');
 	*p = '\0';
-	snprintf(ctt,32,"%08lx.doe",(unsigned long)sequencer());
+	snprintf(ctt,32,"%08x.doe",sequencer());
 	free(infpath);
 	infpath = xstrcpy(p);
 	infpath = xstrcat(infpath, ctt);
@@ -158,7 +158,7 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
 	    case 0:	/* Success  */
 			opentype = (char *)"a+";
 			*resofs = st.st_size;
-			Syslog('+', "Resyncing at offset %lu of \"%s\"", (unsigned long)st.st_size, infpath);
+			Syslog('+', "Resyncing at offset %lu of \"%s\"", (unsigned int)st.st_size, infpath);
 			break;
 	    case -1:	/* Binkp did send a GET, return here and do not open file */
 			free(infpath);
@@ -184,7 +184,7 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
 	freqname = xstrcpy(infpath);
     }
 
-    Syslog('s', "opened file \"%s\" for \"%s\", restart at %lu", infpath,opentype,(unsigned long)*resofs);
+    Syslog('s', "opened file \"%s\" for \"%s\", restart at %lu", infpath,opentype,(unsigned int)*resofs);
     return infp;
 }
 

@@ -75,10 +75,10 @@ extern	char	*replyaddr;
  *  Internal functions
  */
 int		do_one_group(List **, char *, char *, int);
-int		get_xover(char *, long, long, List **);
+int		get_xover(char *, int, int, List **);
 int		get_xoverview(void);
 void		tidy_artlist(List **);
-void		fill_artlist(List **, char *, long, int);
+void		fill_artlist(List **, char *, int, int);
 void		Marker(void);
 int		get_article(char *, char *);
 
@@ -100,7 +100,7 @@ void tidy_artlist(List **fdp)
 /*
  * Add article to the list
  */
-void fill_artlist(List **fdp, char *id, long nr, int dupe)
+void fill_artlist(List **fdp, char *id, int nr, int dupe)
 {
 	List	**tmp;
 
@@ -255,7 +255,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
     List    *tmp;
     char    temp[128], *resp;
     int	    retval, fetched = 0;
-    long    total, start, end;
+    int	    total, start, end;
 
     Syslog('m', "do_one_group(%s, %s)", grpname, ftntag);
     IsDoing((char *)"Scan %s", grpname);
@@ -388,15 +388,15 @@ int get_article(char *msgid, char *ftntag)
 
 
 
-int get_xover(char *grpname, long startnr, long endnr, List **art)
+int get_xover(char *grpname, int startnr, int endnr, List **art)
 {
     char	    cmd[81], *ptr, *ptr2, *resp, *p;
     int		    retval, dupe, done = FALSE;
-    long	    nr;
-    unsigned long   crc;
+    int		    nr;
+    unsigned int    crc;
     POverview	    pov;
 
-    snprintf(cmd, 81, "XOVER %ld-%ld\r\n", startnr, endnr);
+    snprintf(cmd, 81, "XOVER %d-%d\r\n", startnr, endnr);
     if ((retval = nntp_cmd(cmd, 224))) {
 	switch (retval) {
 	    case 412:	WriteError("No newsgroup selected");

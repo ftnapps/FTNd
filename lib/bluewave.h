@@ -93,8 +93,8 @@ typedef signed char    tCHAR;     /* 8 bit signed values    */
 typedef unsigned char  tBYTE;     /* 8 bit unsigned values  */
 typedef signed short   tINT;      /* 16 bit signed values   */
 typedef unsigned short tWORD;     /* 16 bit unsigned values */
-typedef signed long    tLONG;     /* 32 bit signed values   */
-typedef unsigned long  tDWORD;    /* 32 bit unsigned values */
+typedef int            tLONG;     /* 32 bit signed values   */
+typedef unsigned int   tDWORD;    /* 32 bit unsigned values */
 
 
 

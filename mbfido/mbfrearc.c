@@ -51,6 +51,7 @@ void ReArc(int Area, char *File)
     int		    i, rc = -1, count = 0, errors = 0;
     struct utimbuf  ut;
     struct _fdbarea *fdb_area = NULL;
+    time_t	    tt;
 
     IsDoing("ReArc file(s)");
     mbse_colour(LIGHTRED, BLACK);
@@ -158,8 +159,9 @@ void ReArc(int Area, char *File)
 		Syslog('f', "%s %s", fdb.Name, fdb.LName);
 		fdb.Size = file_size(temp);
 		fdb.Crc32 = file_crc(temp, FALSE);
-		ut.actime = mktime(localtime(&fdb.FileDate));
-		ut.modtime = mktime(localtime(&fdb.FileDate));
+		tt = fdb.FileDate;
+		ut.actime = mktime(localtime(&tt));
+		ut.modtime = mktime(localtime(&tt));
 		utime(temp, &ut);
 		
 		/*

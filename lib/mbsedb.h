@@ -43,7 +43,7 @@ int	IsOurAka(fidoaddr);		/* Check if our aka		     */
 typedef enum {D_ECHOMAIL, D_FILEECHO, D_NEWS} DUPETYPE;
 
 void	InitDupes(void);
-int	CheckDupe(unsigned long, int, int);
+int	CheckDupe(unsigned int, int, int);
 void	CloseDupes(void);
 
 
@@ -138,13 +138,13 @@ void    UpdateMsgs(void);               /* Update current messages record   */
  * Structure of current open file area
  */
 struct _fdbarea {
-    long        area;           /* Area number          */
+    int		area;           /* Area number          */
     int         locked;         /* Is area locked       */
     FILE        *fp;            /* File pointer         */
 };
 
 
-struct _fdbarea *mbsedb_OpenFDB(long, int);
+struct _fdbarea *mbsedb_OpenFDB(int, int);
 int mbsedb_CloseFDB(struct _fdbarea *);
 int mbsedb_LockFDB(struct _fdbarea *, int);
 int mbsedb_UnlockFDB(struct _fdbarea *);

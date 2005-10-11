@@ -58,7 +58,7 @@ char *rfcdate(time_t now)
     struct tm	ptm, gtm;
     char	sign;
     int		hr, min;
-    long	offset;
+    int		offset;
 
     if (!now) 
 	now = time(NULL);
@@ -156,7 +156,7 @@ void Close_Msgbase(char *Base)
 void Add_Headkludges(faddr *dest, int IsReply)
 {
     char	    *temp;
-    unsigned long   crc = -1;
+    unsigned int    crc = -1;
     time_t	    tt;
     faddr	    *Node;
 
@@ -231,7 +231,7 @@ void Add_Headkludges(faddr *dest, int IsReply)
 	snprintf(temp, PATH_MAX, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));
     }
     MsgText_Add2(temp);
-    snprintf(temp, PATH_MAX, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
+    snprintf(temp, PATH_MAX, "\001MSGID: %s %08x", aka2str(msgs.Aka), sequencer());
     MsgText_Add2(temp);
     Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
 

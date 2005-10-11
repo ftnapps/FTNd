@@ -142,7 +142,7 @@ int dirinbound(void)
 {
     FILE	    *fp;
     char	    *temp, *from, *too;
-    long	    fileptr;
+    int		    fileptr;
     struct dirent   *de;
     DIR		    *dp;
     int		    Something = FALSE;

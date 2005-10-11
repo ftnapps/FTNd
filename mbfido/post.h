@@ -3,7 +3,7 @@
 
 /* $Id$ */
 
-int Post(char *, long, char *, char *, char *);	/* Post a Message */
+int Post(char *, int, char *, char *, char *);	/* Post a Message */
 
 
 #endif

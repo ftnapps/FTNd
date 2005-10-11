@@ -4,7 +4,7 @@
  * Purpose ...............: Import a netmail message in the message base.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ extern	int	net_bad;		/* Bad netmails (tracking errors    */
 int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgid, char *reply, FILE *fp, char *flagstr)
 {
     int		    result = FALSE, i, empty = TRUE, bad;
-    unsigned long   crc2;
+    unsigned int    crc2;
     char	    *Buf;
 
     mbse_CleanSubject(Subj);

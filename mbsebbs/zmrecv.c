@@ -47,13 +47,13 @@ char	    *curfile = NULL;
 off_t rxbytes;
 static int Eofseen;		/* indicates cpm eof (^Z) has been received */
 static int errors;
-long sbytes;
+int sbytes;
 struct timeval starttime, endtime;
 struct timezone tz;
 
 #define DEFBYTL 2000000000L	/* default rx file size */
-long Bytesleft;			/* number of bytes of incoming file left */
-static long Modtime;		/* Unix style mod time for incoming file */
+int Bytesleft;			/* number of bytes of incoming file left */
+static int Modtime;		/* Unix style mod time for incoming file */
 static int Filemode;		/* Unix style mode for incoming file */
 static int Thisbinary = TRUE;	/* current file is to be received in bin mode */
 char *secbuf=0;			/* "sector" buffer */
@@ -67,10 +67,10 @@ static int rzfiles(void);
 static int rzfile(void);
 static void zmputs(char*);
 static int ackbibi(void);
-static long getfree(void);
+static int getfree(void);
 
 
-extern unsigned long	rcvdbytes;
+extern unsigned int	rcvdbytes;
 extern int		zmodem_requested;
 
 
@@ -540,7 +540,7 @@ int procheader(char *Name)
 
     p = Name + 1 + strlen(Name);
     if (*p) { /* file coming from Unix or DOS system */
-	sscanf(p, "%ld%lo%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
+	sscanf(p, "%d%o%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
 	strcpy(ctt, rfcdate(Modtime));
     } else {
 	Syslog('z', "File coming from a CP/M system");
@@ -611,7 +611,7 @@ int putsec(char *buf, int n)
 
 
 
-long getfree(void)
+int getfree(void)
 {
     struct statfs   sfs;
     char	    *temp;

@@ -46,7 +46,7 @@
 
 
 extern pid_t	    mypid;
-long		    arecno = 1;	/* Area record number			     */
+int		    arecno = 1;	/* Area record number			     */
 int		    Hcolor = 9;	/* Color of area line in xxxScan() functions */
 extern int	    rows;
 
@@ -185,7 +185,7 @@ void Sheader()
     char    temp[81];
 
     PUTCHAR('\r');
-    snprintf(temp, 81, "  %-4ld", arecno);
+    snprintf(temp, 81, "  %-4d", arecno);
     pout(Hcolor, BLACK, temp);
 
     pout(LIGHTBLUE, BLACK, (char *)" ... ");
@@ -361,13 +361,13 @@ int ShowOneFile()
 	snprintf(temp, 81, "%-12s", fdb.Name);
 	pout(CFG.FilenameF, CFG.FilenameB, temp);
 
-	snprintf(temp, 81, "%10lu ", (long)(fdb.Size));
+	snprintf(temp, 81, "%10u ", (int)(fdb.Size));
 	pout(CFG.FilesizeF, CFG.FilesizeB, temp);
 
 	snprintf(temp, 81, "%-10s  ", StrDateDMY(fdb.UploadDate));
 	pout(CFG.FiledateF, CFG.FiledateB, temp);
 
-	snprintf(temp, 81, "[%4ld] ", fdb.TimesDL);
+	snprintf(temp, 81, "[%4d] ", fdb.TimesDL);
 	pout(LIGHTRED, BLACK, temp);
 
 	if ((strcmp(fdb.Uploader, "")) == 0)
@@ -409,7 +409,7 @@ int ShowOneFile()
 
 
 
-int CheckBytesAvailable(long CostSize)
+int CheckBytesAvailable(int CostSize)
 {
     char    temp[81];
 
@@ -426,7 +426,7 @@ int CheckBytesAvailable(long CostSize)
 	    Enter(2);
 
 	    /* Kilobytes currently available: */
-	    snprintf(temp, 81, "%s%lu Kbytes.", (char *) Language(254), exitinfo.DownloadKToday);
+	    snprintf(temp, 81, "%s%u Kbytes.", (char *) Language(254), exitinfo.DownloadKToday);
 	    pout(YELLOW, BLACK, temp);
 	    Enter(2);
 
@@ -787,7 +787,7 @@ int ImportFile(char *fn, int Area, int fileid, off_t Size)
 		exitinfo.UploadKToday += (Size / 1024);
 		Syslog('b', "Uploads %d, Kb %d, Kb today %d", exitinfo.Uploads, exitinfo.UploadK, exitinfo.UploadKToday);
 		/* You have */  /* extra download KBytes. */
-		snprintf(msg, 81, "%s %ld %s", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
+		snprintf(msg, 81, "%s %d %s", (char *) Language(249), (int)(Size / 1024), (char *) Language(250));
 		PUTSTR(msg);
 		Enter(1);
 	
@@ -856,7 +856,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	strcpy(temp1, File);
 	name_mangle(temp1);
 	strncpy(fdb.Name, temp1, 12); /* 8.3 name */
-	fdb.Size = (long)(statfile.st_size);
+	fdb.Size = (int)(statfile.st_size);
 	fdb.FileDate = statfile.st_mtime;
 	fdb.Crc32 = file_crc(Filename, TRUE);
 	strncpy(fdb.Uploader, exitinfo.sUserName, 35);
@@ -1026,7 +1026,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    fprintf(pPrivate, "****************************************************");
 	    fprintf(pPrivate, "\nUser        : %s", fdb.Uploader);
 	    fprintf(pPrivate, "\nFile        : %s (%s)", fdb.LName, fdb.Name);
-	    fprintf(pPrivate, "\nSize        : %lu", (long)(fdb.Size));
+	    fprintf(pPrivate, "\nSize        : %u", (int)(fdb.Size));
 	    fprintf(pPrivate, "\nUpload Date : %s\n\n", StrDateDMY(fdb.UploadDate));
 				
 	    for (i = 0; i < iDesc - 1; i++)
@@ -1051,10 +1051,10 @@ int Addfile(char *File, int AreaNum, int fileid)
 /*
  * Set file area number, set global area description and path.
  */
-void SetFileArea(unsigned long AreaNum)
+void SetFileArea(unsigned int AreaNum)
 {
     FILE    *pArea;
-    long    offset;
+    int	    offset;
 
     memset(&area, 0, sizeof(area));
 
@@ -1079,11 +1079,11 @@ void SetFileArea(unsigned long AreaNum)
 /*
  * Return size in bytes of all files in the users wrk directory.
  */
-unsigned long Quota()
+unsigned int Quota()
 {
     DIR		    *dirp;
     char	    *FileName, *temp;
-    unsigned long   Bytes = 0;
+    unsigned int    Bytes = 0;
     struct dirent   *dp;
     struct stat	    statfile;
 

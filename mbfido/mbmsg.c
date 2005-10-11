@@ -44,7 +44,7 @@ int	do_link = FALSE;	/* Link messages			    */
 int	do_post = FALSE;	/* Post a Message			    */
 extern	int do_quiet;		/* Quiet flag				    */
 extern	int show_log;		/* Show loglines			    */
-long	do_area = 0;		/* Do only one area			    */
+int	do_area = 0;		/* Do only one area			    */
 time_t	t_start;		/* Start time				    */
 time_t	t_end;			/* End time				    */
 int	are_tot = 0;		/* Total areas				    */
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     int		    i;
     char	    *cmd, *too = NULL, *subj = NULL, *mfile = NULL, *flavor = NULL;
     struct passwd   *pw;
-    long	    tarea = 0;
+    int		    tarea = 0;
 
 
     InitConfig();
@@ -246,7 +246,7 @@ void DoMsgBase()
 {
     FILE    *pAreas;
     char    *sAreas, *Name;
-    long    arearec;
+    int	    arearec;
     int	    Del = 0;
 
     sAreas  = calloc(PATH_MAX, sizeof(char));
@@ -281,7 +281,7 @@ void DoMsgBase()
 
 		if (!do_quiet) {
 		    mbse_colour(CYAN, BLACK);
-		    printf("\r%5ld .. %-40s", do_area, msgs.Name);
+		    printf("\r%5d .. %-40s", do_area, msgs.Name);
 		    fflush(stdout);
 		}
 		are_tot++;
@@ -309,7 +309,7 @@ void DoMsgBase()
 		Nopper();
 		if (!do_quiet) {
 		    mbse_colour(CYAN, BLACK);
-		    printf("\r%5ld .. %-40s", arearec, msgs.Name);
+		    printf("\r%5d .. %-40s", arearec, msgs.Name);
 		    fflush(stdout);
 		}
 		are_tot++;
@@ -403,7 +403,7 @@ void DoMsgBase()
 
 
 
-void LinkArea(char *Path, long Areanr)
+void LinkArea(char *Path, int Areanr)
 {
     int	    rc;
 
@@ -421,9 +421,9 @@ void LinkArea(char *Path, long Areanr)
 /*
  * Kill messages according to age and max messages.
  */
-void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, long Areanr)
+void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, int Areanr)
 {
-    unsigned long   Number, TotalMsgs = 0, Highest, *Active, Counter = 0;
+    unsigned int    Number, TotalMsgs = 0, Highest, *Active, Counter = 0;
     int		    i, DelCount = 0, DelAge = 0, Done;
     time_t	    Today, MsgDate;
 
@@ -444,7 +444,7 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, long Areanr)
 	    TotalMsgs = Msg_Number();
 
 	    if (TotalMsgs) {
-		if ((Active = (unsigned long *)malloc((size_t)((TotalMsgs + 100L) * sizeof(unsigned long)))) != NULL) {
+		if ((Active = (unsigned int *)malloc((size_t)((TotalMsgs + 100L) * sizeof(unsigned int)))) != NULL) {
 		    i = 0;
 		    Number = Msg_Lowest();
 		    do {
@@ -462,7 +462,7 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, long Areanr)
 		msleep(1);
 
 		if ((!do_quiet) && ((Counter % 10L) == 0)) {
-		    printf("%6lu / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", Counter, TotalMsgs);
+		    printf("%6u / %6u\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", Counter, TotalMsgs);
 		    fflush(stdout);
 		}
 		if ((Counter % 10L) == 0)
@@ -539,7 +539,7 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, long Areanr)
 /*
  * Pack message area if there are deleted messages.
  */
-void PackArea(char *Path, long Areanr)
+void PackArea(char *Path, int Areanr)
 {
     IsDoing("Packing %ld", Areanr);
     if (Msg_Open(Path)) {

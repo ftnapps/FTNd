@@ -109,7 +109,7 @@ void F_List(faddr *t, char *replyid, int Notify)
     char	Stat[4];
     faddr	*f, *g, *Temp;
     sysconnect	System;
-    long	msgptr;
+    int		msgptr;
     fpos_t      fileptr,fileptr1,fileptr2;
 
     subject = calloc(255, sizeof(char));
@@ -589,7 +589,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     faddr	*f, *Temp;
     int		i, Link, First = TRUE, Cons;
     sysconnect	Sys;
-    long	Pos;
+    int		Pos;
 
     if (Grp == NULL) {
 	if (Connect)

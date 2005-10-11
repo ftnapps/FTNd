@@ -123,7 +123,7 @@ int kludgewrite(char *s, FILE *fp)
 
 int findorigmsg(char *msgid, char *o)
 {
-    unsigned long   i, start, end;
+    unsigned int    i, start, end;
     char	    *gen2;
 
     if (msgid == NULL) {
@@ -177,7 +177,7 @@ int rfc2ftn(FILE *fp)
     FILE            *ofp, *qfp;
     fa_list         *sbl = NULL, *ptl = NULL, *tmpl;
     faddr           *ta, *fta;
-    unsigned long   svmsgid, svreply;
+    unsigned int    svmsgid, svreply;
     int             sot_kludge = FALSE, eot_kludge = FALSE, tinyorigin = FALSE;
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
@@ -399,14 +399,14 @@ int rfc2ftn(FILE *fp)
 	fprintf(ofp, "AREA:%s\n", msgs.Tag);
 	if ((fmsg->msgid_a == NULL) && (fmsg->msgid_n == 0)) {
 	    Syslog('n', "No Messageid from poster, creating new MSGID");
-	    fprintf(ofp, "\001MSGID: %s %08lx\n", aka2str(msgs.Aka), sequencer());
+	    fprintf(ofp, "\001MSGID: %s %08x\n", aka2str(msgs.Aka), sequencer());
 	} else {
-	    fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
+	    fprintf(ofp, "\001MSGID: %s %08x\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
 	}
 	if (fmsg->reply_s) 
 	    fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
 	else if (fmsg->reply_a)
-	    fprintf(ofp, "\1REPLY: %s %08lx\n", fmsg->reply_a, fmsg->reply_n);
+	    fprintf(ofp, "\1REPLY: %s %08x\n", fmsg->reply_a, fmsg->reply_n);
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	fprintf(ofp, "\001TZUTC: %s\n", gmtoffset(Now));
 	fprintf(ofp, "\001CHRS: %s\n", getftnchrs(msgs.Charset));
@@ -746,7 +746,7 @@ int rfc2ftn(FILE *fp)
 		 */
 		snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
 		if ((qfp = fopen(temp, "a")) != NULL) {
-		    fprintf(qfp, "%s %lu\n", msgs.Base, Msg.Id);
+		    fprintf(qfp, "%s %u\n", msgs.Base, Msg.Id);
 		    fclose(qfp);
 		}
 

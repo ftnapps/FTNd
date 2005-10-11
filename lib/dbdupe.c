@@ -4,7 +4,7 @@
  * Purpose ...............: Dupe checking.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -37,7 +37,7 @@
 
 
 typedef struct _dupesrec {
-	unsigned long	*crcs;
+	unsigned int	*crcs;
 	int		loaded;
 	int		changed;
 	int		count;
@@ -70,11 +70,11 @@ void InitDupes()
 
 
 
-int CheckDupe(unsigned long crc, int idx, int max)
+int CheckDupe(unsigned int crc, int idx, int max)
 {
     char	    *dfile;
     FILE	    *fil;
-    unsigned long   test;
+    unsigned int    test;
     int		    i, size = 0;
 
     if (!dupes[idx].loaded) {
@@ -93,7 +93,7 @@ int CheckDupe(unsigned long crc, int idx, int max)
 	    fil = fopen(dfile, "r+");
 	} else {
 	    fseek(fil, 0L, SEEK_END);
-	    size = ftell(fil) / sizeof(unsigned long);
+	    size = ftell(fil) / sizeof(unsigned int);
 	    fseek(fil, 0L, SEEK_SET);
 	}
 
@@ -104,8 +104,8 @@ int CheckDupe(unsigned long crc, int idx, int max)
 	    dupes[idx].peak = size + 5000;
 	else
 	    dupes[idx].peak = max + 5000;
-	dupes[idx].crcs = (unsigned long *)malloc(dupes[idx].peak * sizeof(unsigned long));
-	memset(dupes[idx].crcs, 0, dupes[idx].peak * sizeof(unsigned long));
+	dupes[idx].crcs = (unsigned int *)malloc(dupes[idx].peak * sizeof(unsigned int));
+	memset(dupes[idx].crcs, 0, dupes[idx].peak * sizeof(unsigned int));
 
 	/*
 	 *  Load dupe records
@@ -158,7 +158,7 @@ void CloseDdb(int idx)
 	    snprintf(dfile, PATH_MAX -1, "%s/etc/%s.dupe", getenv("MBSE_ROOT"), files[idx]);
 	    if ((fil = fopen(dfile, "w"))) {
 		for (j = start; j < dupes[idx].count; j++)
-		    fwrite(&dupes[idx].crcs[j], sizeof(unsigned long), 1, fil);
+		    fwrite(&dupes[idx].crcs[j], sizeof(unsigned int), 1, fil);
 		fclose(fil);
 	    } else {
 		WriteError("$Can't write %s", dfile);

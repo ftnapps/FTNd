@@ -104,7 +104,7 @@ int nodelock(faddr *addr, pid_t mypid)
      */
     ltime = file_time(fn);
     now = time(NULL);
-    if (CFG.ZeroLocks && (rc != 1) && (((unsigned long)now - (unsigned long)ltime) > 21600)) {
+    if (CFG.ZeroLocks && (rc != 1) && (((unsigned int)now - (unsigned int)ltime) > 21600)) {
 	Syslog('+', "Found zero byte lock older then 6 hours for %s, unlink", ascfnode(addr,0x1f));
 	unlink(fn);
     } else if (CFG.ZeroLocks && (rc != 1)) {
@@ -115,7 +115,7 @@ int nodelock(faddr *addr, pid_t mypid)
     } else if (kill(pid, 0) && (errno == ESRCH)) {
 	Syslog('+', "Found stale bsy file for %s, unlink", ascfnode(addr,0x1f));
 	unlink(fn);
-    } else if (((unsigned long)now - (unsigned long)ltime) > 21600) {
+    } else if (((unsigned int)now - (unsigned int)ltime) > 21600) {
 	Syslog('+', "Found lock older then 6 hours for %s, unlink", ascfnode(addr,0x1f));
 	unlink(fn);
     } else {

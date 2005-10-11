@@ -63,7 +63,7 @@ int		a_query	= FALSE;	/* Send AreaMgr query		    */
 int		a_stat	= FALSE;	/* Send AreaMgr status		    */
 int		a_unlnk	= FALSE;	/* Send AreaMgr unlinked	    */
 int		a_flow  = FALSE;	/* Send AreaMgr flow		    */
-unsigned long	a_msgs = 0;		/* Messages to rescan		    */
+unsigned int	a_msgs = 0;		/* Messages to rescan		    */
 
 
 
@@ -120,7 +120,7 @@ void A_List(faddr *t, char *replyid, int Notify)
     char	Stat[5];
     faddr	*f, *g, *Temp;
     sysconnect	System;
-    long        msgptr;
+    int		msgptr;
     fpos_t      fileptr,fileptr1,fileptr2;
 
     subject = calloc(255, sizeof(char));
@@ -312,8 +312,8 @@ void A_Flow(faddr *t, char *replyid, int Notify)
     time_t	Now;
     struct tm	*tt;
     int		lmonth;
-    long	rlw, rlm, rlt, plw, plm, plt;
-    long        msgptr;
+    int		rlw, rlm, rlt, plw, plm, plt;
+    int		msgptr;
     fpos_t	fileptr, fileptr1, fileptr2; 
 
     Now = time(NULL);
@@ -781,7 +781,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     faddr	*f, *Temp;
     int		i, Link, First = TRUE, Cons;
     sysconnect	Sys;
-    long	Pos;
+    int		Pos;
 
     if (Grp == NULL) {
 	if (Connect)

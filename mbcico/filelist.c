@@ -53,7 +53,7 @@ static char *tmpkname(void)
 {
     static char buf[16];
 
-    snprintf(buf,16,"%08lx.pkt", sequencer());
+    snprintf(buf,16,"%08x.pkt", sequencer());
     return buf;
 }
 
@@ -490,9 +490,9 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
     }
 
     for (tmpf = st; tmpf; tmpf = tmpf->next)
-	Syslog('o',"flist: \"%s\" -> \"%s\" dsp:%d flofp:%lu floff:%lu",
+	Syslog('o',"flist: \"%s\" -> \"%s\" dsp:%d flofp:%u floff:%u",
 		MBSE_SS(tmpf->local), MBSE_SS(tmpf->remote), tmpf->disposition,
-		(unsigned long)tmpf->flofp, (unsigned long)tmpf->floff);
+		(unsigned int)tmpf->flofp, (unsigned int)tmpf->floff);
 
     return st;
 }
@@ -612,7 +612,7 @@ void execute_disposition(file_list *fl)
 	     */
 	    if (fseek(fl->flofp, fl->floff, 0) == 0) {
 		if (fwrite(&tpl,1,1,fl->flofp) != 1) {
-		    WriteError("$Error writing '~' to .flo at %lu", (unsigned long)fl->floff);
+		    WriteError("$Error writing '~' to .flo at %u", (unsigned int)fl->floff);
 		} else {
 		    Syslog('o', "Marked file \"%s\" as sent", MBSE_SS(nm));
 		}
@@ -625,7 +625,7 @@ void execute_disposition(file_list *fl)
 #endif
 #endif
 	    } else 
-		WriteError("$error seeking in .flo to %lu", (unsigned long)fl->floff);
+		WriteError("$error seeking in .flo to %u", (unsigned int)fl->floff);
 	}
     }
 
@@ -658,7 +658,7 @@ void execute_disposition(file_list *fl)
 
 
 
-char *transfertime(struct timeval start, struct timeval end, long bytes, int sent)
+char *transfertime(struct timeval start, struct timeval end, int bytes, int sent)
 {
     static char	    resp[81];
     double long	    startms, endms, elapsed;
@@ -670,21 +670,21 @@ char *transfertime(struct timeval start, struct timeval end, long bytes, int sen
     if (!elapsed)
 	elapsed = 1L;
     if (bytes > 1000000)
-	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
+	snprintf(resp, 81, "%d bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
 	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes / elapsed) * 1000) / 1024);
     else
-	snprintf(resp, 81, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
+	snprintf(resp, 81, "%d bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
 	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes * 1000) / elapsed) / 1024);   
     return resp;
 }
 
 
 
-char *compress_stat(long original, long saved)
+char *compress_stat(int original, int saved)
 {
     static char	    resp[81];
 
-    snprintf(resp, 81, "compressed %ld bytes, compression %0.1f%%", saved, ((saved * 100.0) / original));
+    snprintf(resp, 81, "compressed %d bytes, compression %0.1f%%", saved, ((saved * 100.0) / original));
     return resp;
 }
 

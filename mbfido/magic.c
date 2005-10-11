@@ -37,7 +37,7 @@
 #include "magic.h"
 
 
-long	MagicNr;		/* Current magic record number		    */
+int	MagicNr;		/* Current magic record number		    */
 int	Magics = 0;		/* Processed magics			    */
 
 

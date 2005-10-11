@@ -4,7 +4,7 @@
  * Purpose ...............: Common string functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -40,12 +40,12 @@ char *padleft(char *str, int size, char pad)
 	static char temp[256];
 
 	strcpy(stri, str);
-	memset(temp, pad, (long)size);
+	memset(temp, pad, (size_t)size);
 	temp[size] = '\0';
 	if (strlen(stri) <= size)
-		memmove(temp, stri, (long)strlen(stri));
+		memmove(temp, stri, (size_t)strlen(stri));
 	else
-		memmove(temp, stri, (long)size);
+		memmove(temp, stri, (size_t)size);
 	return temp;
 }
 
@@ -258,12 +258,12 @@ void strreplace(char *sStr, char *sFind, char *sReplace)
  */
 char *StrTimeHM(time_t date)
 {
-	static char	ttime[6];
-	struct tm	*l_d;
+    static char	ttime[6];
+    struct tm	*l_d;
 
-	l_d = localtime(&date);
-	snprintf(ttime, 6, "%02d:%02d", l_d->tm_hour, l_d->tm_min);
-	return ttime;
+    l_d = localtime(&date);
+    snprintf(ttime, 6, "%02d:%02d", l_d->tm_hour, l_d->tm_min);
+    return ttime;
 }
 
 

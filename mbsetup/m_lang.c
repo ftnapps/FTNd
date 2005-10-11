@@ -114,7 +114,7 @@ int OpenLanguage(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+	int	oldsize;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
 	snprintf(fnout, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
@@ -249,11 +249,11 @@ void s_lang(void)
  */
 int EditLangRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX];
-	long	offset;
-	int	j;
-	unsigned long crc, crc1;
+	FILE		*fil;
+	char		mfile[PATH_MAX];
+	int		offset;
+	int		j;
+	unsigned int	crc, crc1;
 
 	clr_index();
 	working(1, 0, 0);
@@ -332,7 +332,7 @@ void EditLanguage(void)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);
@@ -420,7 +420,7 @@ int PickLanguage(char *nr)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 
 	clr_index();

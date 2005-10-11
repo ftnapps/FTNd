@@ -143,7 +143,7 @@ char *rfcdate(time_t now)
 	struct tm	ptm, gtm;
 	char		sign;
 	int		hr, min;
-	long		offset;
+	int		offset;
 
 	if (!now) 
 		now = time(NULL);

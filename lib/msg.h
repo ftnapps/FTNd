@@ -14,8 +14,8 @@
  * Global message buffer
  */
 typedef	struct _msgbuf {
-	unsigned long	Id;
-	unsigned long	Current;
+	unsigned int	Id;
+	unsigned int	Current;
 	char		From[101];		/* From name		    */
 	char		To[101];		/* To name		    */
 	char		Subject[101];		/* Message subject	    */
@@ -56,15 +56,15 @@ typedef	struct _msgbuf {
 	time_t		Read;			/* Date message is received */
 	char		FromAddress[101];	/* From address		    */
 	char		ToAddress[101];		/* To address		    */
-	unsigned long	Reply;			/* Message is reply to	    */
-	unsigned long	Original;		/* Original message	    */
-	unsigned long	MsgIdCRC;		/* Message Id CRC	    */
-	unsigned long	ReplyCRC;		/* Reply CRC		    */
+	unsigned int	Reply;			/* Message is reply to	    */
+	unsigned int	Original;		/* Original message	    */
+	unsigned int	MsgIdCRC;		/* Message Id CRC	    */
+	unsigned int	ReplyCRC;		/* Reply CRC		    */
 	char		Msgid[81];		/* Msgid string		    */
 	char		Replyid[81];		/* Replyid string	    */
 	char		ReplyAddr[81];		/* Gated Reply Address	    */
 	char		ReplyTo[81];		/* Gated Reply To	    */
-	long		Size;			/* Message size during write*/
+	int		Size;			/* Message size during write*/
 } msgbuf;
 
 
@@ -76,10 +76,10 @@ typedef	struct _msgbase {
 	char		Path[PATH_MAX];		/* Path to message base	    */
 	unsigned	Open		: 1;	/* If base is open	    */
 	unsigned	Locked		: 1;	/* If base is locked	    */
-	unsigned long	LastNum;		/* Lastread message number  */
-	unsigned long	Lowest;			/* Lowest message number    */
-	unsigned long	Highest;		/* Highest message number   */
-	unsigned long	Total;			/* Total number of msgs	    */
+	unsigned int	LastNum;		/* Lastread message number  */
+	unsigned int	Lowest;			/* Lowest message number    */
+	unsigned int	Highest;		/* Highest message number   */
+	unsigned int	Total;			/* Total number of msgs	    */
 } msgbase;
 
 
@@ -88,10 +88,10 @@ typedef	struct _msgbase {
  * LastRead structure
  */
 typedef struct _lastread {
-	unsigned long	UserCRC;		/* CRC32 lowercase username */
-	unsigned long	UserID;			/* Unique user-id	    */
-	unsigned long	LastReadMsg;		/* Last Read message number */
-	unsigned long	HighReadMsg;		/* Highes read message	    */
+	unsigned int	UserCRC;		/* CRC32 lowercase username */
+	unsigned int	UserID;			/* Unique user-id	    */
+	unsigned int	LastReadMsg;		/* Last Read message number */
+	unsigned int	HighReadMsg;		/* Highes read message	    */
 } lastread;
 
 
@@ -112,8 +112,8 @@ char		szWrp[MAX_LINE_LENGTH + 1];
  */
 char		*strlwr(char *);
 char		*strupr(char *);
-long		filelength(int);
-long		tell(int);
+int		filelength(int);
+int		tell(int);
 char		*Fgets(char *, int, FILE *);
 
 
@@ -123,24 +123,24 @@ char		*Fgets(char *, int, FILE *);
  */
 int		Msg_AddMsg(void);
 void		Msg_Close(void);
-int		Msg_Delete(unsigned long);
+int		Msg_Delete(unsigned int);
 void		Msg_DeleteMsgBase(char *);
 int		Msg_GetLastRead(lastread *);
-unsigned long	Msg_Highest(void);
-int		Msg_Lock(unsigned long);
-unsigned long	Msg_Lowest(void);
+unsigned int	Msg_Highest(void);
+int		Msg_Lock(unsigned int);
+unsigned int	Msg_Lowest(void);
 void		Msg_New(void);
 int		Msg_NewLastRead(lastread);
-int		Msg_Next(unsigned long *);
-unsigned long	Msg_Number(void);
+int		Msg_Next(unsigned int *);
+unsigned int	Msg_Number(void);
 int		Msg_Open(char *);
 void		Msg_Pack(void);
-int		Msg_Previous(unsigned long *);
-int		Msg_ReadHeader(unsigned long);
-int		Msg_Read(unsigned long, int);
+int		Msg_Previous(unsigned int *);
+int		Msg_ReadHeader(unsigned int);
+int		Msg_Read(unsigned int, int);
 int		Msg_SetLastRead(lastread);
 void		Msg_UnLock(void);
-int		Msg_WriteHeader(unsigned long);
+int		Msg_WriteHeader(unsigned int);
 void		Msg_Write(FILE *);
 int		Msg_Link(char *, int, int);
 

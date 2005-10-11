@@ -138,7 +138,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     FILE            *ofp;
     fa_list         *sbl = NULL, *ptl = NULL, *tmpl;
     faddr           *ta, *fta;
-    unsigned long   svmsgid, svreply, acup_n = 0;
+    unsigned int    svmsgid, svreply, acup_n = 0;
     int             sot_kludge = FALSE, eot_kludge = FALSE, tinyorigin = FALSE;
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
@@ -385,11 +385,11 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    Syslog('!', "Rfc2ftn: warning, no MSGID %s %08lx", MBSE_SS(fmsg->msgid_a), fmsg->msgid_n);
 	}
 
-	fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
+	fprintf(ofp, "\001MSGID: %s %08x\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
 	if (fmsg->reply_s) 
 	    fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
 	else if (fmsg->reply_a)
-	    fprintf(ofp, "\1REPLY: %s %08lx\n", fmsg->reply_a, fmsg->reply_n);
+	    fprintf(ofp, "\1REPLY: %s %08x\n", fmsg->reply_a, fmsg->reply_n);
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	fprintf(ofp, "\001TZUTC: %s\n", gmtoffset(Now));
 	fprintf(ofp, "\001CHRS: %s\n", getftnchrs(msgs.Charset));
@@ -453,7 +453,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		if (acup_a) {
 		    hash_update_s(&acup_n,fmsg->area);
 		    hdrsize += 26 + strlen(acup_a);
-		    fprintf(ofp,"\1ACUPDATE: DELETE %s %08lx\n", acup_a,acup_n);
+		    fprintf(ofp,"\1ACUPDATE: DELETE %s %08x\n", acup_a,acup_n);
 		}
 	    }
 	}
@@ -462,7 +462,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    if (acup_a) {
 		hash_update_s(&acup_n,fmsg->area);
 		hdrsize += 26 + strlen(acup_a);
-		fprintf(ofp,"\1ACUPDATE: MODIFY %s %08lx\n", acup_a,acup_n);
+		fprintf(ofp,"\1ACUPDATE: MODIFY %s %08x\n", acup_a,acup_n);
 	    }
 	}
 	if (!(hdr((char *)"X-FTN-Tearline", msg)) && !(hdr((char *)"X-FTN-TID", msg))) {

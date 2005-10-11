@@ -37,11 +37,11 @@
 
 char		tic_fil[PATH_MAX];	/* Database filename		   */
 char		tgrp_fil[PATH_MAX];	/* Group database filename	   */
-long		tic_pos = -1;		/* Current record position	   */
-long		tgrp_pos = -1;		/* Current group position	   */
-unsigned long	tic_crc = -1;		/* CRC value of current record     */
-unsigned long	tgrp_crc = -1;		/* CRC value of group record	   */
-static long	sysstart, sysrecord;
+int		tic_pos = -1;		/* Current record position	   */
+int		tgrp_pos = -1;		/* Current group position	   */
+unsigned int	tic_crc = -1;		/* CRC value of current record     */
+unsigned int	tgrp_crc = -1;		/* CRC value of group record	   */
+static int	sysstart, sysrecord;
 
 
 
@@ -263,7 +263,7 @@ int GetTicSystem(sysconnect * Sys, int First)
 
 void UpdateTic()
 {
-	unsigned long	crc = 0xffffffff;
+	unsigned int	crc = 0xffffffff;
 	FILE		*fil;
 
 	if (tic_pos == -1)

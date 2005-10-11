@@ -87,7 +87,7 @@ int OpenMagics(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+	int	oldsize;
 	int	FieldPatch = FALSE;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
@@ -281,9 +281,9 @@ int EditMagicRec(int Area)
 {
 	FILE	*fil;
 	char	mfile[PATH_MAX];
-	long	offset;
+	int	offset;
 	int	j, choices;
-	unsigned long crc, crc1;
+	unsigned int	crc, crc1;
 
 	clr_index();
 	working(1, 0, 0);
@@ -386,7 +386,7 @@ void EditMagics(void)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);

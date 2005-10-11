@@ -40,7 +40,7 @@
 
 extern int	do_quiet;		/* Suppress screen output   */
 int		lastfile;		/* Last file number	    */
-long		gfilepos = 0;		/* Global file position	    */
+int		gfilepos = 0;		/* Global file position	    */
 int		TotalHtml = 0;		/* Total html files	    */
 int		AreasHtml = 0;		/* Total html areas	    */
 int		aUpdate = 0;		/* Updated areas	    */
@@ -321,7 +321,7 @@ void ReqIndex(void);
 void ReqIndex(void)
 {
     FILE                *pAreas, *pIndex, *fp;
-    unsigned long       i, iAreas, iAreasNew = 0, record;
+    unsigned int	i, iAreas, iAreasNew = 0, record;
     int                 iTotal = 0, j, z, x = 0;
     int                 fbAreas = 0, fbFiles = 0, fbUpdate = 0;
     char                *sAreas, *newdir = NULL, *sIndex, *temp;
@@ -367,7 +367,7 @@ void ReqIndex(void)
 		die(MBERR_DISK_FULL);
 
 	    if (!do_quiet) {
-		printf("\r%4ld => %-44s    \b\b\b\b", i, area.Name);
+		printf("\r%4d => %-44s    \b\b\b\b", i, area.Name);
 		fflush(stdout);
 	    }
 
@@ -386,7 +386,7 @@ void ReqIndex(void)
 
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
 		die(MBERR_GENERAL);
-	    snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+	    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 	    db_time = (int) file_time(temp);
 
 	    /*
@@ -431,7 +431,7 @@ void ReqIndex(void)
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (!fdb.Deleted) {
 			    fbFiles++;
-			    fprintf(fp, "%-12s [%ld] %s\r\n", fdb.Name, fdb.TimesDL, fdb.Desc[0]);
+			    fprintf(fp, "%-12s [%d] %s\r\n", fdb.Name, fdb.TimesDL, fdb.Desc[0]);
 			    for (j = 1; j < 25; j++)
 				if (strlen(fdb.Desc[j]))
 				    fprintf(fp, " +%s\r\n", fdb.Desc[j]);
@@ -481,7 +481,7 @@ void ReqIndex(void)
 				for (z = 0; z <= 25; z++) {
 				    if (strlen(fdb.Desc[z])) {
 					if (z == 0)
-					    fprintf(fp, "%-12s %7luK %s ", fdb.Name, (long)(fdb.Size / 1024), 
+					    fprintf(fp, "%-12s %7uK %s ", fdb.Name, (int)(fdb.Size / 1024), 
 					    	StrDateDMY(fdb.UploadDate));
 					else
 					    fprintf(fp, "                                 ");
@@ -528,13 +528,13 @@ void HtmlIndex(char *);
 void HtmlIndex(char *Lang)
 {
     FILE		*pAreas, *fa, *fb = NULL, *fm, *fi = NULL;
-    unsigned long	i, iAreas, KSize = 0L, aSize = 0;
+    unsigned int	i, iAreas, KSize = 0L, aSize = 0;
     int			AreaNr = 0, j, k, x = 0, isthumb;
     int			aTotal = 0, inArea = 0, filenr;
     char		*sAreas, *fn, *temp;
     char		linebuf[1024], outbuf[1024], desc[6400], namebuf[1024];
     time_t		last = 0L, later, db_time, obj_time;
-    long		fileptr = 0, fileptr1 = 0;
+    int			fileptr = 0, fileptr1 = 0;
     struct _fdbarea	*fdb_area = NULL;
     
     sAreas = calloc(PATH_MAX, sizeof(char));
@@ -616,13 +616,13 @@ void HtmlIndex(char *Lang)
 		die(MBERR_DISK_FULL);
 
 	    if (!do_quiet) {
-		printf("\r%4ld => %-44s    \b\b\b\b", i, area.Name);
+		printf("\r%4d => %-44s    \b\b\b\b", i, area.Name);
 		fflush(stdout);
 	    }
 
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
 		die(MBERR_GENERAL);
-            snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+            snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 	    db_time = (int) file_time(temp);
 	    snprintf(temp, PATH_MAX, "%s/index.html", area.Path);
 	    obj_time = (int) file_time(temp);
@@ -708,7 +708,7 @@ void HtmlIndex(char *Lang)
 				MacroVars("fghi", "dsss", 0, outbuf, fdb.LName, "");
 			    }
 
-			    snprintf(outbuf, 1024, "%lu Kb.", (long)(fdb.Size / 1024));
+			    snprintf(outbuf, 1024, "%u Kb.", (int)(fdb.Size / 1024));
 			    MacroVars("jkl", "ssd", StrDateDMY(fdb.FileDate), outbuf, fdb.TimesDL);
 			    memset(&desc, 0, sizeof(desc));
 			    k = 0;
@@ -781,9 +781,9 @@ void HtmlIndex(char *Lang)
 		html_massage(linebuf, namebuf, 1024);
 		snprintf(linebuf, 1024, "%s/%s%s/index.html", CFG.www_url, CFG.www_link2ftp, area.Path+strlen(CFG.ftp_base));
 		if (aSize > 1048576)
-		    snprintf(outbuf, 1024, "%ld Mb.", aSize / 1048576);
+		    snprintf(outbuf, 1024, "%d Mb.", aSize / 1048576);
 		else
-		    snprintf(outbuf, 1024, "%ld Kb.", aSize / 1024);
+		    snprintf(outbuf, 1024, "%d Kb.", aSize / 1024);
 		MacroVars("efghi", "dssds", AreaNr, linebuf, namebuf, aTotal, outbuf);
 		if (last == 0L)
 		    MacroVars("j", "s", "&nbsp;");
@@ -797,7 +797,7 @@ void HtmlIndex(char *Lang)
     }
 
     if (fm) {
-	snprintf(linebuf, 1024, "%ld Mb.", KSize / 1024);
+	snprintf(linebuf, 1024, "%d Mb.", KSize / 1024);
 	MacroVars("cd", "ds", TotalHtml, linebuf);
 	MacroRead(fi, fm);
 	fclose(fi);

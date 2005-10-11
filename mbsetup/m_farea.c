@@ -107,7 +107,7 @@ int OpenFilearea(void)
 {
     FILE    *fin, *fout;
     char    fnin[PATH_MAX], fnout[PATH_MAX];
-    long    oldsize;
+    int	    oldsize;
 
     snprintf(fnin,  PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     snprintf(fnout, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
@@ -263,8 +263,8 @@ int EditFileRec(int Area)
 {
 	FILE		*fil;
 	char		mfile[PATH_MAX], *temp, tpath[65], frpath[81], topath[81];
-	long		offset;
-	unsigned long	crc, crc1;
+	int		offset;
+	unsigned int	crc, crc1;
 	int		Available, files, rc, Force = FALSE, count;
 	DIR		*dp;
 	struct dirent	*de;
@@ -469,7 +469,7 @@ void EditFilearea(void)
 	char	pick[12];
 	FILE	*fil, *tfil;
 	char	temp[PATH_MAX], new[PATH_MAX];
-	long	offset, from, too;
+	int	offset, from, too;
 
 	clr_index();
 	working(1, 0, 0);
@@ -590,8 +590,8 @@ void EditFilearea(void)
 				offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
 				fseek(fil, offset, 0);
 				fwrite(&area, areahdr.recsize, 1, fil);
-				snprintf(temp, PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), from);
-				snprintf(new,  PATH_MAX, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), too);
+				snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), from);
+				snprintf(new,  PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), too);
 				rename(temp, new);
 
 				/*
@@ -664,13 +664,13 @@ void EditFilearea(void)
 
 
 
-long PickFilearea(char *shdr)
+int PickFilearea(char *shdr)
 {
 	int	records, i, o = 0, x, y;
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);

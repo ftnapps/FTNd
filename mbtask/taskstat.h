@@ -17,7 +17,7 @@ void		stat_inc_cerr(void);	/* Increase comms error		*/
 char		*stat_status(void);	/* Return status record		*/
 int		stat_bbs_stat(void);	/* Get BBS open status		*/
 char		*getseq(void);		/* Get next sequence number	*/
-unsigned long	gettoken(void);		/* Get next sequence number	*/
+unsigned int	gettoken(void);		/* Get next sequence number	*/
 int		get_zmh(void);		/* Check Zone Mail Hour		*/
 int		sem_set(char *, int);	/* Set/Reset semafore		*/
 char		*sem_status(char *);	/* Get semafore status		*/

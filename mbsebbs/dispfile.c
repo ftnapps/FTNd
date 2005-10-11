@@ -232,7 +232,7 @@ int DisplayTextFile(char *filename)
 int DisplayFile(char *filename)
 {
     FILE	    *pFileName;
-    long	    iSec = 0;
+    int		    iSec = 0;
     char	    *sFileName, *tmp, *tmp1, newfile[PATH_MAX];
     int		    i, x;
     unsigned char   c;
@@ -364,27 +364,27 @@ void ControlCodeF(int ch)
 		snprintf(temp, 81, "%s", exitinfo.sProtocol);
 		break;
 	case 'A':
-		snprintf(temp, 81, "%ld", exitinfo.Uploads);
+		snprintf(temp, 81, "%d", exitinfo.Uploads);
 		break;
 
 	case 'B':
-		snprintf(temp, 81, "%ld", exitinfo.Downloads);
+		snprintf(temp, 81, "%d", exitinfo.Downloads);
 		break;
 
 	case 'C':
-		snprintf(temp, 81, "%lu", exitinfo.DownloadK);
+		snprintf(temp, 81, "%u", exitinfo.DownloadK);
 		break;
 
 	case 'D':
-		snprintf(temp, 81, "%lu", exitinfo.UploadK);
+		snprintf(temp, 81, "%u", exitinfo.UploadK);
 		break;
 
 	case 'E':
-		snprintf(temp, 81, "%lu", exitinfo.DownloadK + exitinfo.UploadK);
+		snprintf(temp, 81, "%u", exitinfo.DownloadK + exitinfo.UploadK);
 		break;
 
 	case 'F':
-		snprintf(temp, 81, "%lu", LIMIT.DownK); 
+		snprintf(temp, 81, "%u", LIMIT.DownK); 
 		break;
 
 	case 'H':
@@ -594,7 +594,7 @@ void ControlCodeK(int ch)
 		break;
 
 	case 'E':
-		snprintf(temp, 81, "%ld", Speed());
+		snprintf(temp, 81, "%d", Speed());
 		break;
 
 	case 'F':
@@ -609,7 +609,7 @@ void ControlCodeK(int ch)
 		snprintf(sDataFile, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
 		if((pCallerLog = fopen(sDataFile, "rb")) != NULL) {
 		    fread(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
-		    snprintf(temp, 81, "%ld", SYSINFO.SystemCalls);
+		    snprintf(temp, 81, "%d", SYSINFO.SystemCalls);
 		    fclose(pCallerLog);
 		}
 		break;
@@ -628,7 +628,7 @@ void ControlCodeK(int ch)
 
 	case 'L':
 		SetMsgArea(iMsgAreaNumber);
-		snprintf(temp, 81, "%ld", MsgBase.Total);
+		snprintf(temp, 81, "%d", MsgBase.Total);
 		break;
 
 	case 'M':
@@ -637,7 +637,7 @@ void ControlCodeK(int ch)
 		    if (Msg_GetLastRead(&LR) == TRUE) {
 			if (LR.HighReadMsg > MsgBase.Highest)
 			    LR.HighReadMsg = MsgBase.Highest;
-			snprintf(temp, 81, "%ld", LR.HighReadMsg);
+			snprintf(temp, 81, "%d", LR.HighReadMsg);
 		    } else
 			snprintf(temp, 81, "?");
 		    Msg_Close();
@@ -650,7 +650,7 @@ void ControlCodeK(int ch)
 
 	case 'O':
 		SetEmailArea(sMailbox);
-		snprintf(temp, 81, "%ld", EmailBase.Total);
+		snprintf(temp, 81, "%d", EmailBase.Total);
 		break;
 
 	case 'P':
@@ -660,7 +660,7 @@ void ControlCodeK(int ch)
 		    if (Msg_GetLastRead(&LR) == TRUE) {
 			if (LR.HighReadMsg > EmailBase.Highest)
 			    LR.HighReadMsg = EmailBase.Highest;
-			snprintf(temp, 81, "%ld", LR.HighReadMsg);
+			snprintf(temp, 81, "%d", LR.HighReadMsg);
 		    } else
 			snprintf(temp, 81, "?");
 		    Msg_Close();

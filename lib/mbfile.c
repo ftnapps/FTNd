@@ -4,7 +4,7 @@
  * Purpose ...............: Basic File I/O
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -159,7 +159,7 @@ int file_exist(char *path, int mode)
 /*
  * Return size of file, or -1 if file doesn't exist
  */
-long file_size(char *path)
+int file_size(char *path)
 {
 	static struct	stat sb;
 
@@ -172,30 +172,30 @@ long file_size(char *path)
 
 
 /*
- * Claclulate the 32 bit CRC of a file. Return -1 if file not found.
+ * Calculate the 32 bit CRC of a file. Return -1 if file not found.
  */
-long file_crc(char *path, int slow)
+int file_crc(char *path, int slow)
 {
-	static	long crc;
-	int	bread;
-	FILE	*fp;
-	char	*line;
+    static int	crc;
+    int		bread;
+    FILE	*fp;
+    char	*line;
 
-	if ((fp = fopen(path, "r")) == NULL) 
-		return -1;
+    if ((fp = fopen(path, "r")) == NULL) 
+	return -1;
 
-	line = malloc(32768);
-	crc = 0xffffffff;
+    line = malloc(32768);
+    crc = 0xffffffff;
 
-	do {
-		bread = fread(line, 1, 32768, fp);
-		crc = upd_crc32(line, crc, bread);
-		Nopper(); // For large files on slow systems.
-	} while (bread > 0);
+    do {
+	bread = fread(line, 1, 32768, fp);
+	crc = upd_crc32(line, crc, bread);
+	Nopper(); // For large files on slow systems.
+    } while (bread > 0);
 
-	free(line);
-	fclose(fp);
-	return crc ^ 0xffffffff;
+    free(line);
+    fclose(fp);
+    return crc ^ 0xffffffff;
 }
 
 
@@ -207,12 +207,12 @@ long file_crc(char *path, int slow)
  */
 time_t file_time(char *path)
 {
-	static struct stat sb;
+    static struct stat sb;
 
-	if (stat(path, &sb) == -1)
-		return -1;
+    if (stat(path, &sb) == -1)
+	return -1;
 
-	return sb.st_mtime;
+    return sb.st_mtime;
 }
 
 

@@ -107,9 +107,9 @@ int OpenNewfiles(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+	int	oldsize;
 	int	i, old_groups;
-	long	oldgroup;
+	int	oldgroup;
 	char	group[13];
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
@@ -293,8 +293,8 @@ int EditNewRec(int Area)
 {
 	FILE		*fil;
 	char		mfile[PATH_MAX], temp1[2];
-	long		offset;
-	unsigned long	crc, crc1;
+	int		offset;
+	unsigned int	crc, crc1;
 	gr_list		*fgr = NULL, *tmp;
 	char		group[13];
 	int		groups, i, j, GrpChanged = FALSE;
@@ -435,7 +435,7 @@ void EditNewfiles(void)
     int	    records, i, o, x, y;
     char    pick[12], temp[PATH_MAX];
     FILE    *fil;
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);

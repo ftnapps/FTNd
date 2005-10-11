@@ -55,7 +55,7 @@ void retr_msg(int msgnum)
 {
     char	    *p, *q, temp[PATH_MAX], *base;
     int		    Header;
-    unsigned long   crc = -1;
+    unsigned int    crc = -1;
 
     snprintf(temp, 81, "RETR %d\r\n", msgnum);
     if (pop3_cmd(temp) == 0) {

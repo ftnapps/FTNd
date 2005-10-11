@@ -37,7 +37,7 @@
 
 
 extern char	nodes_fil[81];
-extern long	nodes_pos;
+extern int	nodes_pos;
 
 /*
  * Internal prototypes
@@ -161,7 +161,7 @@ int GetTableRoute(char *ftn, fidoaddr *res)
     faddr	*dest;
     fidoaddr	mask;
     int		match, last;
-    long	ptr;
+    int		ptr;
     FILE	*fil;
 
     /*

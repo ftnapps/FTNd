@@ -33,7 +33,7 @@ void            RemoveSema(char *);
 int		IsSema(char *);
 int             file_exist(char *, int);
 int		mkdirs(char *, mode_t);
-long		file_size(char *);
+int		file_size(char *);
 time_t		file_time(char *);
 char		*ascfnode(faddr *, int);
 char		*fido2str(fidoaddr, int);

@@ -196,7 +196,7 @@ int inbound_close(int success)
 /*
  * Get the free space size in the temp inbound directory.
  */
-long inbound_space(void)
+int inbound_space(void)
 {
     struct statfs   sfs;
 

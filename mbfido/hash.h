@@ -1,8 +1,9 @@
 #ifndef HASH_H
 #define HASH_H
 
-void hash_update_s(unsigned long *, char *);
-void hash_update_n(unsigned long *, unsigned long);
+/* $Id$ */
 
+void hash_update_s(unsigned int *, char *);
+void hash_update_n(unsigned int *, unsigned int);
 
 #endif

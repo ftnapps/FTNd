@@ -68,19 +68,19 @@ static int put_binbyte(char *outbuf, char c);
 static int put_hexbyte(char *outbuf, char c);
 static enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot);
 static void hytxpkt(enum HyPktTypes pkttype, char *txbuf, int txlen);
-static int put_flags(char *buf, unsigned long Flags);
-static unsigned long get_flags(char *buf);
+static int put_flags(char *buf, unsigned int Flags);
+static unsigned int get_flags(char *buf);
 static int resync(off_t off);
 static int hydra_batch(int role, file_list *to_send);
 
-extern unsigned long	sentbytes;
-extern unsigned long	rcvdbytes;
+extern unsigned int	sentbytes;
+extern unsigned int	rcvdbytes;
 
 
 
 static struct h_flags_struct {
 	char *str;
-	unsigned long val;
+	unsigned int	val;
 } h_flags[] =
 	{
 	{ (char *)"XON", HOPT_XONXOFF },
@@ -103,28 +103,28 @@ static struct h_flags_struct {
 static int txoptions, rxoptions;
 
 
-static char *put_long(char *buffer, long val)
+static char *put_long(char *buffer, int val)
 {
 #ifdef WORDS_BIGENDIAN
-    buffer[0] =  (unsigned long) val & 0xff;
-    buffer[1] = ((unsigned long) val >> 8) & 0xff;
-    buffer[2] = ((unsigned long) val >> 16) & 0xff;
-    buffer[3] = ((unsigned long) val >> 24) & 0xff;
+    buffer[0] =  (unsigned int) val & 0xff;
+    buffer[1] = ((unsigned int) val >> 8) & 0xff;
+    buffer[2] = ((unsigned int) val >> 16) & 0xff;
+    buffer[3] = ((unsigned int) val >> 24) & 0xff;
 #else
-    *(unsigned long *) buffer = (unsigned long) val;
+    *(unsigned int *) buffer = (unsigned int) val;
 #endif
     return buffer;
 }
 
 
 
-static long get_long(char *buffer)
+static int get_long(char *buffer)
 {
 #ifdef WORDS_BIGENDIAN
-    return ((unsigned long) ((unsigned char) buffer[0])) | ((unsigned long) ((unsigned char) buffer[1]) << 8) |
-	   ((unsigned long) ((unsigned char) buffer[2]) << 16) | ((unsigned long) ((unsigned char) buffer[3]) << 24);
+    return ((unsigned int) ((unsigned char) buffer[0])) | ((unsigned int) ((unsigned char) buffer[1]) << 8) |
+	   ((unsigned int) ((unsigned char) buffer[2]) << 16) | ((unsigned int) ((unsigned char) buffer[3]) << 24);
 #else
-    return *(long *) buffer;
+    return *(int *) buffer;
 #endif
 }
 
@@ -390,7 +390,7 @@ void hytxpkt(enum HyPktTypes pkttype, char *txbuf, int txlen)
      * check if we can use 32-bit CRC's
      */
     if ((format != HCHR_HEXPKT) && (txoptions & HOPT_CRC32)) {
-	unsigned long crc;
+	unsigned int crc;
 
 	/*
 	 * Calc CRC-32 of data + pkttype
@@ -471,7 +471,7 @@ void hytxpkt(enum HyPktTypes pkttype, char *txbuf, int txlen)
 
 
 
-int put_flags(char *buf, unsigned long Flags)
+int put_flags(char *buf, unsigned int Flags)
 {
     int i, count = 0;
 
@@ -494,9 +494,9 @@ int put_flags(char *buf, unsigned long Flags)
 
 
 
-unsigned long get_flags(char *buf)
+unsigned int get_flags(char *buf)
 {
-    unsigned long   Flags = 0L;
+    unsigned int    Flags = 0L;
     char	    *p;
     int		    i;
 
@@ -530,11 +530,11 @@ int hydra_batch(int role, file_list *to_send)
     FILE	    *rxfp = NULL;		/* file currently being received */
     char	    *inbuf, *outbuf;
     int		    rxlen, txlen;		/* length of receive/transmit buffer */
-    long	    txwindow, rxwindow;		/* window sizes */
-    long	    txpos;
+    int		    txwindow, rxwindow;		/* window sizes */
+    int		    txpos;
     off_t	    rxpos;			/* file positions */
-    long	    stxpos, srxpos;
-    long	    longnum;
+    int		    stxpos, srxpos;
+    int		    longnum;
     int		    hdxlink = FALSE;
     int		    txretries, rxretries;
     int		    txlastack, txsyncid;
@@ -556,7 +556,7 @@ int hydra_batch(int role, file_list *to_send)
     int		    txcompressed, rxctries;
 #ifdef HAVE_ZLIB_H
     static char	    txzbuf[H_ZIPBUFLEN], rxzbuf[H_ZIPBUFLEN];
-    unsigned long   rxzlen, txzlen;             /* length of receive/transmit compressed buffer */
+    unsigned int    rxzlen, txzlen;             /* length of receive/transmit compressed buffer */
     int		    rcz, cmpblksize;
 #endif
     
@@ -645,9 +645,9 @@ int hydra_batch(int role, file_list *to_send)
 	if ((pkttype == HPKT_RPOS) && (rxlen == 12)
 		&& ((txstate == HTX_DATA) || (txstate == HTX_DATAACK)
 		|| (txstate == HTX_XWAIT) || (txstate == HTX_EOFACK))) {
-	    long rpos_pos = get_long(rxbuf);
-	    long rpos_blksize = get_long(rxbuf + 4);
-	    long rpos_id = get_long(rxbuf + 8);
+	    int rpos_pos = get_long(rxbuf);
+	    int rpos_blksize = get_long(rxbuf + 4);
+	    int rpos_id = get_long(rxbuf + 8);
 
 #ifdef HAVE_ZLIB_H
 	    /*
@@ -875,7 +875,7 @@ int hydra_batch(int role, file_list *to_send)
 		    }
 
 		    Syslog('+', "Hydra: send \"%s\" as \"%s\"", MBSE_SS(to_send->local), MBSE_SS(to_send->remote));
-		    Syslog('+', "Hydra: size %lu bytes, dated %s",(unsigned long)txstat.st_size, date(txstat.st_mtime));
+		    Syslog('+', "Hydra: size %lu bytes, dated %s",(unsigned int)txstat.st_size, date(txstat.st_mtime));
 		    gettimeofday(&txstarttime, &tz);
 		}
 
@@ -901,9 +901,9 @@ int hydra_batch(int role, file_list *to_send)
 		    break;
 		} else {
 		    if (to_send) {
-			txlen = snprintf(txbuf, H_ZIPBUFLEN, "%08lx%08lx%08lx%08lx%08lx",
-					(long)mtime2sl(txstat.st_mtime+(txstat.st_mtime%2)),
-					(long)(txstat.st_size), 0UL, 0UL, 0UL);
+			txlen = snprintf(txbuf, H_ZIPBUFLEN, "%08x%08x%08x%08x%08x",
+					(int)mtime2sl(txstat.st_mtime+(txstat.st_mtime%2)),
+					(int)(txstat.st_size), 0U, 0U, 0U);
 
 			/*
 			 * convert file name to DOS-format
@@ -1038,9 +1038,12 @@ int hydra_batch(int role, file_list *to_send)
 			Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);	// 03-11-2003 MB.
 			SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);		// 03-11-2003 MB.
 #ifdef HAVE_ZLIB_H
+			uLongf	destLen;
 			if (compstate == HCMP_GZ) {
 			    txzlen = H_ZIPBUFLEN - 4;
-			    rcz = compress2(txzbuf + 4, &txzlen, txbuf + 4, txlen, 9);
+			    destLen = (uLongf)txzlen;
+			    rcz = compress2(txzbuf + 4, &destLen, txbuf + 4, txlen, 9);
+			    txzlen = (int)destLen;
 			    if (rcz == Z_OK) {
 				Syslog('h', "Hydra: compressed OK, srclen=%d, destlen=%d, will send compressed=%s", txlen, txzlen,
 					(txzlen < txlen) ?"yes":"no");
@@ -1357,7 +1360,7 @@ int hydra_batch(int role, file_list *to_send)
  		     * get desired window sizes
 		     */
 		    txwindow = rxwindow = 0;
-		    sscanf(inbuf, "%08lx%08lx", &rxwindow, &txwindow);
+		    sscanf(inbuf, "%08x%08x", &rxwindow, &txwindow);
 
 		    if (rxwindow < 0)
 			rxwindow = 0;
@@ -1403,10 +1406,11 @@ int hydra_batch(int role, file_list *to_send)
 		    else if ((rxlen > 41) && (rxbuf[rxlen - 1] == 0)) {
 			time_t timestamp;
 			time_t orgstamp;
-			long filesize;
+			int filesize, tt;
 			char dosname[8 + 1 + 3 + 1], *Name;
 
-			sscanf(rxbuf, "%08lx%08lx%*08x%*08x%*08x",  &timestamp, &filesize);
+			sscanf(rxbuf, "%08x%08x%*08x%*08x%*08x",  &tt, &filesize);
+			timestamp = (time_t)tt;
 
 			/* convert timestamp to UNIX time */
 			orgstamp = timestamp;
@@ -1496,9 +1500,12 @@ int hydra_batch(int role, file_list *to_send)
 		    /*
 		     * If data packet is a zlib compressed packet, uncompress it first.
 		     */
+		    uLongf  destLen;
 		    if (pkttype == HPKT_ZIPDATA) {
 			rxzlen = H_ZIPBUFLEN;
-			rcz = uncompress(rxzbuf, &rxzlen, rxbuf + 4, rxlen - 4);
+			destLen = (uLongf)rxzlen;
+			rcz = uncompress(rxzbuf, &destLen, rxbuf + 4, rxlen - 4);
+			rxzlen = (int)destLen;
 			if (rcz == Z_OK) {
 			    /*
 			     * Uncompress data and put the data into the normal receive buffer.
@@ -1684,7 +1691,7 @@ int hydra_batch(int role, file_list *to_send)
 		 */
 		if ((compstate != HCMP_NONE) && (rxctries > 2)) {
 		    Syslog('+', "Hydra: too much compress errors, instructing remote to stop compression");
-		    put_long(txbuf + 8, (long)-1L);
+		    put_long(txbuf + 8, (int)-1L);
 		} else {
 		    put_long(txbuf + 8, rxsyncid);
 		}

@@ -118,7 +118,7 @@ void tidy_rflist(rf_list ** fdp)
 /*
  * Add a reply file to the array
  */
-void fill_rflist(rf_list **fdp, char *fname, unsigned long larea)
+void fill_rflist(rf_list **fdp, char *fname, unsigned int larea)
 {
 	rf_list	*tmp, *ta;
 

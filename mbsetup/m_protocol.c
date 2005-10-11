@@ -179,7 +179,7 @@ int OpenProtocol(void)
 {
     FILE    *fin, *fout;
     char    fnin[PATH_MAX], fnout[PATH_MAX], newkey = 'A', *usedkeys;
-    long    oldsize;
+    int	    oldsize;
     int	    AddInt = TRUE;
 
     snprintf(fnin,  PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
@@ -394,9 +394,9 @@ int EditProtRec(int Area)
 {
     FILE	    *fil;
     char	    mfile[PATH_MAX];
-    long	    offset;
+    int		    offset;
     int		    j;
-    unsigned long   crc, crc1;
+    unsigned int    crc, crc1;
 
     clr_index();
     working(1, 0, 0);
@@ -508,7 +508,7 @@ void EditProtocol(void)
     char    pick[12];
     FILE    *fil;
     char    temp[PATH_MAX];
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);
@@ -611,7 +611,7 @@ char *PickProtocol(int nr)
     char	pick[12];
     FILE	*fil;
     char	temp[PATH_MAX];
-    long	offset;
+    int		offset;
 
     clr_index();
     working(1, 0, 0);

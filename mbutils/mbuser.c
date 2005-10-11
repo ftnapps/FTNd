@@ -175,7 +175,7 @@ void UserPack(int days, int level, int pack)
 {
     FILE    *fin, *fout;
     char    *fnin, *fnout, *cmd;
-    long    oldsize, curpos;
+    int	    oldsize, curpos;
     int	    updated, delete = 0, rc, highest = 0, record = 0, sysop = FALSE;
     time_t  Last;
 

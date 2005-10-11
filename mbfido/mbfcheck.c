@@ -45,7 +45,7 @@ int	iErrors = 0;
 int	iTotal = 0;
 int	iAreasNew = 0;
 
-void    CheckArea(long);                /* Check a single area          */
+void    CheckArea(int);                /* Check a single area          */
 
 
 /*
@@ -63,11 +63,11 @@ void    CheckArea(long);                /* Check a single area          */
  *  Remarks:  Maybe if the crc check fails, and the date and time are
  *            ok, the file is damaged and must be made unavailable.
  */
-void Check(long AreaNr)
+void Check(int AreaNr)
 {
     FILE		*pAreas, *pFile;
     char		*sAreas, *fAreas, *newdir, *temp, *mname;
-    long		i, iAreas;
+    int			i, iAreas;
     DIR			*dp;
     struct dirent	*de;
     int			Found;
@@ -120,7 +120,7 @@ void Check(long AreaNr)
 	    } else {
 
 		if (strlen(area.Name) == 0) {
-		    snprintf(fAreas, PATH_MAX, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+		    snprintf(fAreas, PATH_MAX, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 		    if (unlink(fAreas) == 0) {
 			Syslog('+', "Removed obsolete %s", fAreas);
 		    }
@@ -198,7 +198,7 @@ void Check(long AreaNr)
 
 
 
-void CheckArea(long Area)
+void CheckArea(int Area)
 {
     int			j, Fix, inArea, rc;
     char		*newdir, *temp, *mname, *tname;
@@ -218,7 +218,7 @@ void CheckArea(long Area)
     IsDoing("Check area %ld", Area);
 
     if (!do_quiet) {
-	printf("\r%4ld => %-44s    \b\b\b\b", Area, area.Name);
+	printf("\r%4d => %-44s    \b\b\b\b", Area, area.Name);
 	fflush(stdout);
     }
 

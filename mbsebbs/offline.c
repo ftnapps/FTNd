@@ -54,8 +54,8 @@
 
 
 
-long		Total, TotalPersonal, Current, Personal;
-unsigned long	TotalPack;
+int		Total, TotalPersonal, Current, Personal;
+unsigned int	TotalPack;
 unsigned short	BarWidth;
 lastread	LR;
 static char	TempStr[128];
@@ -67,9 +67,9 @@ char		*newtear = NULL;
 
 typedef struct	_msg_high {
 	struct	_msg_high	*next;
-	unsigned long		Area;
-	unsigned long		LastMsg;
-	unsigned long		Personal;
+	unsigned int		Area;
+	unsigned int		LastMsg;
+	unsigned int		Personal;
 } msg_high;
 
 
@@ -79,19 +79,19 @@ typedef struct	_msg_high {
  */
 void		AddArc(char *, char *);
 void		tidy_high(msg_high **);
-void		fill_high(msg_high **, unsigned long, unsigned long, unsigned long);
+void		fill_high(msg_high **, unsigned int, unsigned int, unsigned int);
 void		UpdateLR(msg_high *, FILE *);
 void		Add_Kludges(fidoaddr, int, char *);
 int		OLR_Prescan(void);
 void		DrawBar(char *);
-unsigned long	BlueWave_PackArea(unsigned long, long);
+unsigned int	BlueWave_PackArea(unsigned int, int);
 void		BlueWave_Fetch(void);
-unsigned long	QWK_PackArea(unsigned long, long);
+unsigned int	QWK_PackArea(unsigned int, int);
 void		QWK_Fetch(void);
 float		IEEToMSBIN(float);
 float		MSBINToIEE(float);
 char		*StripSpaces(char *, int);
-unsigned long	ASCII_PackArea(unsigned long, long);
+unsigned int	ASCII_PackArea(unsigned int, int);
 
 
 
@@ -126,7 +126,7 @@ void tidy_high(msg_high **hdp)
 /*
  *  Add an area to the array
  */
-void fill_high(msg_high **hdp, unsigned long Area, unsigned long Last, unsigned long Pers)
+void fill_high(msg_high **hdp, unsigned int Area, unsigned int Last, unsigned int Pers)
 {
     msg_high *tmp;
 
@@ -228,7 +228,7 @@ void OLR_TagArea()
     char    *Msgname, *Tagname;
     FILE    *ma, *tf;
     char    *buf, msg[81];
-    long    total, Offset, Area;
+    int	    total, Offset, Area;
     int	    lines, input, ignore = FALSE, maxlines;
 
     WhosDoingWhat(OLR, NULL);
@@ -271,7 +271,7 @@ void OLR_TagArea()
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && (!olrtagrec.Tagged) && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
-				snprintf(msg, 81, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+				snprintf(msg, 81, "%-20.20s %-5d %-5d  %s", msgs.QWKname, Area, total, msgs.Name);
 				poutCR(CYAN, BLACK, msg);
 			    }
 			    if (lines == 0) {
@@ -368,7 +368,7 @@ void OLR_UntagArea()
 {
     char    *Msgname, *Tagname, *buf, msg[81];
     FILE    *ma, *tf;
-    long    total, Offset, Area;
+    int	    total, Offset, Area;
     int     lines, input, ignore = FALSE, maxlines;
 
     WhosDoingWhat(OLR, NULL);
@@ -411,7 +411,7 @@ void OLR_UntagArea()
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && olrtagrec.Tagged && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
-				snprintf(msg, 81, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+				snprintf(msg, 81, "%-20.20s %-5d %-5d  %s", msgs.QWKname, Area, total, msgs.Name);
 				poutCR(CYAN, BLACK, msg);
 			    }
 			    if (lines == 0) {
@@ -530,13 +530,13 @@ void New_Hdr()
 
 
 
-void New_Area(long);
-void New_Area(long Area)
+void New_Area(int);
+void New_Area(int Area)
 {
     char    msg[81];
 
     	/*    New    */
-    snprintf(msg, 81, "%4ld  %s", Area, (char *)Language(391));
+    snprintf(msg, 81, "%4d  %s", Area, (char *)Language(391));
     pout(LIGHTCYAN, BLACK, msg);
 
     switch (msgs.Type) {
@@ -556,13 +556,13 @@ void New_Area(long Area)
 
 
 
-void Old_Area(long);
-void Old_Area(long Area)
+void Old_Area(int);
+void Old_Area(int Area)
 {
     char    msg[81];
 
     /*            Del */
-    snprintf(msg, 81, "%4ld  %s", Area, (char *)Language(397));
+    snprintf(msg, 81, "%4d  %s", Area, (char *)Language(397));
     poutCR(LIGHTRED, BLACK, msg);
 }
 
@@ -576,7 +576,7 @@ void OLR_SyncTags()
 {
     char    *Tagname, *Msgname;
     FILE    *fp, *ma;
-    long    Area;
+    int	    Area;
     int	    Changed = FALSE;
 
     Tagname = calloc(PATH_MAX, sizeof(char));
@@ -716,7 +716,7 @@ void OLR_ViewTags()
 {
     char    *Tagname, *Msgname, msg[81];
     FILE    *tf, *ma;
-    long    total, Area = 0;
+    int	    total, Area = 0;
     int     lines, input, ignore = FALSE, maxlines;
 
     WhosDoingWhat(OLR, NULL);
@@ -764,7 +764,7 @@ void OLR_ViewTags()
 		total = 0;
 	    if ( (lines != 0) || (ignore) ) {
 		lines--;
-		snprintf(msg, 81, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+		snprintf(msg, 81, "%-20.20s %-5d %-5d  %s", msgs.QWKname, Area, total, msgs.Name);
 		PUTSTR(msg);
 		Enter(1);
 	    }
@@ -806,7 +806,7 @@ void OLR_ViewTags()
 int OLR_Prescan()
 {
     unsigned short  RetVal = FALSE, Areas;
-    unsigned long   Number;
+    unsigned int    Number;
     char	    *Temp, msg[81];
     FILE	    *mf, *tf;
     int		    x;
@@ -868,18 +868,18 @@ int OLR_Prescan()
 		    } while (Msg_Next(&Number));
 		}
 
-		snprintf(msg, 81, "%5lu %5lu", Current, Personal);
+		snprintf(msg, 81, "%5u %5u", Current, Personal);
 		poutCR(LIGHTGREEN, BLACK, msg);
 		Msg_Close();
 	    }
 	}
     }
 
-    Syslog('+', "OLR Prescan: %u Areas, %lu Messages", Areas, Total);
+    Syslog('+', "OLR Prescan: %u Areas, %u Messages", Areas, Total);
 
     Enter(1);
     /*        Total messages found: */
-    snprintf(msg, 81, "%s %lu", (char *)Language(338), Total);
+    snprintf(msg, 81, "%s %u", (char *)Language(338), Total);
     pout(LIGHTBLUE, BLACK, msg);
     Enter(2);
 
@@ -1152,12 +1152,12 @@ void OLR_DownBW()
     struct tm	    *tp;
     time_t	    Now;
     char	    Pktname[32], *Work, *Temp;
-    long	    Area = 0;
+    int		    Area = 0;
     int		    RetVal = FALSE, rc = 0;
     FILE	    *fp, *tf, *mf, *af;
     INF_HEADER	    Inf;
     INF_AREA_INFO   AreaInf;
-    unsigned long   Start, High;
+    unsigned int    Start, High;
     msg_high	    *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -1260,7 +1260,7 @@ void OLR_DownBW()
 
 	if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
 	    memset(&AreaInf, 0, sizeof(AreaInf));
-	    snprintf((char *)AreaInf.areanum, 6, "%lu", Area);
+	    snprintf((char *)AreaInf.areanum, 6, "%u", Area);
 	    strncpy((char *)AreaInf.echotag, msgs.QWKname, 21);
 	    strncpy((char *)AreaInf.title, msgs.Name, 50);
 	    if (olrtagrec.Tagged) {
@@ -1566,7 +1566,7 @@ void BlueWave_Fetch()
 				snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
 					((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 				if ((fp = fopen(temp, "a")) != NULL) {
-				    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
+				    fprintf(fp, "%s %u\n", msgs.Base, Msg.Id);
 				    fclose(fp);
 				}
 			    }
@@ -1792,11 +1792,11 @@ void BlueWave_Fetch()
 /*
  *  Add one area to the BlueWave download packet
  */
-unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
+unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 {
     FILE	    *fdm, *fdfti, *fdmix;
     char	    *Temp, *Text, msg[81];
-    unsigned long   Number;
+    unsigned int    Number;
     MIX_REC	    Mix;
     FTI_REC	    Fti;
     struct tm	    *tp;
@@ -1815,7 +1815,7 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
     fdm = fopen(Temp, "a+");
 
     memset(&Mix, 0, sizeof(MIX_REC));
-    snprintf((char *)Mix.areanum, 6, "%lu", Area);
+    snprintf((char *)Mix.areanum, 6, "%u", Area);
     Mix.msghptr = ftell(fdfti);
 
     if ((fdfti != NULL) && (fdmix != NULL) && (fdm != NULL)) {
@@ -1915,11 +1915,11 @@ void OLR_DownQWK(void)
     struct tm	    *tp;
     time_t	    Now;
     char	    Pktname[32];
-    long	    Area = 0;
+    int		    Area = 0;
     char	    *Work, *Temp;
     int		    i, rc = 0;
     FILE	    *fp = NULL, *tf, *mf, *af;
-    unsigned long   Start, High;
+    unsigned int    Start, High;
     msg_high	    *tmp, *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -2017,7 +2017,7 @@ void OLR_DownQWK(void)
 	fprintf(fp, "%s\n", tu(Temp));
 	fprintf(fp, " \n");
 	fprintf(fp, "0\n");
-	fprintf(fp, "%lu\n", Total);
+	fprintf(fp, "%u\n", Total);
 
 	/*
 	 * Count available areas.
@@ -2096,7 +2096,7 @@ void OLR_DownQWK(void)
 		    AddArc(Temp, Pktname);
 
 		    for (tmp = mhl; tmp; tmp = tmp->next) {
-			snprintf(Temp, PATH_MAX, "%s/%03ld.NDX", Work, tmp->Area);
+			snprintf(Temp, PATH_MAX, "%s/%03d.NDX", Work, tmp->Area);
 			AddArc(Temp, Pktname);
 		    }
 
@@ -2150,7 +2150,7 @@ void QWK_Fetch()
     char	    *temp, *otemp, Temp[128], szLine[132], *pLine = NULL, *pBuff, Dirpath[PATH_MAX], Filename[81];
     FILE	    *fp, *up = NULL, *op, *mf;
     unsigned short  nRec, i, r, x, nCol = 0, nWidth, nReaded, nPosted = 0;
-    unsigned long   Area;
+    unsigned int    Area;
     struct tm	    *ltm = NULL;
     fidoaddr	    dest;
     int		    HasTear;
@@ -2366,7 +2366,7 @@ void QWK_Fetch()
 					snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
 					    ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 					if ((fp = fopen(temp, "a")) != NULL) {
-					    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
+					    fprintf(fp, "%s %u\n", msgs.Base, Msg.Id);
 					    fclose(fp);
 					}
 				    }
@@ -2411,7 +2411,7 @@ void QWK_Fetch()
 union Converter {
     unsigned char   uc[10];
     unsigned short  ui[5];
-    unsigned long   ul[2];
+    unsigned int    ul[2];
     float	    f[2];
     double	    d[1];
 };
@@ -2450,12 +2450,12 @@ float MSBINToIEEE(float f)
 /*
  * Pack messages in one mail area
  */
-unsigned long QWK_PackArea(unsigned long ulLast, long Area)
+unsigned int QWK_PackArea(unsigned int ulLast, int Area)
 {
     FILE	    *fdm, *fdi, *fdp;
     float	    out, in;
     char	    *Work, *Temp, *Text, msg[81];
-    unsigned long   Number, Pos, Size, Blocks;
+    unsigned int    Number, Pos, Size, Blocks;
     int		    Pack = FALSE;
     struct tm	    *tp;
 
@@ -2466,7 +2466,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
     Work = calloc(PATH_MAX, sizeof(char));
     snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-    snprintf(Temp, PATH_MAX, "%s/%03ld.NDX", Work, Area);
+    snprintf(Temp, PATH_MAX, "%s/%03d.NDX", Work, Area);
     fdi = fopen(Temp, "a+");
 
     snprintf(Temp, PATH_MAX, "%s/PERSONAL.NDX", Work);
@@ -2522,7 +2522,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 		     */
                     Pos = ftell(fdm);
 		    Blocks = (Pos / 128L) + 1L;
-		    snprintf(Temp, 6, "%lu", Blocks);
+		    snprintf(Temp, 6, "%u", Blocks);
 		    in = atof(Temp);
 		    out = IEEToMSBIN(in);
 		    fwrite(&out, sizeof(float), 1, fdi);
@@ -2531,7 +2531,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 		    Total++;
 
 		    memset(&Qwk, ' ', sizeof(Qwk));
-		    snprintf(Temp, 81, "%-*lu", (int)sizeof(Qwk.Msgnum), (long)Number);
+		    snprintf(Temp, 81, "%-*u", (int)sizeof(Qwk.Msgnum), (int)Number);
 		    Syslog('M', "Message %s", Temp);
 		    memcpy(Qwk.Msgnum, Temp, sizeof(Qwk.Msgnum));
 		    tp = localtime(&Msg.Written);
@@ -2564,7 +2564,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 			    Size += fwrite(Temp, (int)(128L - (Size % 128L)), 1, fdm);
 			}
 
-			snprintf(Qwk.Msgrecs, 6, "%-*lu", (int)sizeof(Qwk.Msgrecs), (long)((ftell(fdm) - Pos) / 128L));
+			snprintf(Qwk.Msgrecs, 6, "%-*u", (int)sizeof(Qwk.Msgrecs), (int)((ftell(fdm) - Pos) / 128L));
 			fseek(fdm, Pos, SEEK_SET);
 			fwrite(&Qwk, sizeof(Qwk), 1, fdm);
 			fseek(fdm, 0L, SEEK_END);
@@ -2626,10 +2626,10 @@ void OLR_DownASCII(void)
     struct  tm      *tp;
     time_t          Now;
     char            Pktname[32], *Work, *Temp;
-    long            Area = 0;
+    int		    Area = 0;
     int             rc = 0;
     FILE            *fp = NULL, *tf, *mf, *af;
-    unsigned long   Start, High;
+    unsigned int    Start, High;
     msg_high        *tmp, *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -2722,7 +2722,7 @@ void OLR_DownASCII(void)
 		    alarm_on();
 
 		    for (tmp = mhl; tmp; tmp = tmp->next) {
-			snprintf(Temp, PATH_MAX, "%s/%03ld.TXT", Work, tmp->Area);
+			snprintf(Temp, PATH_MAX, "%s/%03d.TXT", Work, tmp->Area);
 			AddArc(Temp, Pktname);
 		    }
 		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
@@ -2760,11 +2760,11 @@ void OLR_DownASCII(void)
 /*
  * Pack messages in one mail area
  */
-unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
+unsigned int ASCII_PackArea(unsigned int ulLast, int Area)
 {
     FILE            *fp;
     char            *Work, *Temp, *Text, msg[81];
-    unsigned long   Number;
+    unsigned int    Number;
     int             Pack = FALSE;
     struct tm       *tp;
 
@@ -2775,7 +2775,7 @@ unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
     Work = calloc(PATH_MAX, sizeof(char));
     snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-    snprintf(Temp, PATH_MAX, "%s/%03ld.TXT", Work, Area);
+    snprintf(Temp, PATH_MAX, "%s/%03d.TXT", Work, Area);
     if ((fp = fopen(Temp, "a+")) != NULL) {
 	if (Msg_Next(&Number)) {
 	    do {
@@ -2795,7 +2795,7 @@ unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 		}
 
                 if (Pack) {
-		    fprintf (fp, "\n==============================================\n    Msg. #%ld of %ld (%s)\n", 
+		    fprintf (fp, "\n==============================================\n    Msg. #%d of %d (%s)\n", 
 			    Number, Msg_Number(), msgs.Name);
 		    tp = localtime(&Msg.Written);
 		    fprintf (fp, "   Date: %d %s %d %2d:%02d\n", tp->tm_mday, 

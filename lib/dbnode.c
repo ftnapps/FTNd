@@ -36,10 +36,10 @@
 
 
 char		nodes_fil[PATH_MAX];	/* Nodes database filename	    */
-long		nodes_pos = -1;		/* Noderecord position		    */
-long		nodes_fgp = -1;		/* Nodes files group position	    */
-long		nodes_mgp = -1;		/* Nodes message group position	    */
-unsigned long	nodes_crc = -1;		/* Noderecord crc value		    */
+int		nodes_pos = -1;		/* Noderecord position		    */
+int		nodes_fgp = -1;		/* Nodes files group position	    */
+int		nodes_mgp = -1;		/* Nodes message group position	    */
+unsigned int	nodes_crc = -1;		/* Noderecord crc value		    */
 
 
 
@@ -130,7 +130,7 @@ int SearchNode(fidoaddr aka)
  */
 int UpdateNode()
 {
-	unsigned long	crc;
+	unsigned int	crc;
 	FILE		*fil;
 
 	if (nodes_pos == -1)

@@ -215,7 +215,7 @@ faddr *parsefaddr(char *s)
 	int		gotzone = 0, gotnet = 0, gotnode = 0, gotpoint = 0;
 	int		zone = 0, net = 0, noden = 0, point = 0;
 	char		*domain = NULL, *freename = NULL;
-	long		num;
+	int		num;
 	char		*p = NULL,*q = NULL,*t = NULL;
 	int		l, quoted;
 	FILE		*fp;

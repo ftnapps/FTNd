@@ -100,7 +100,7 @@ int OpenMGroup(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
-	long	oldsize;
+	int	oldsize;
 	int	i;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
@@ -301,9 +301,9 @@ int EditMGrpRec(int Area)
 {
     FILE	    *fil;
     static char	    mfile[PATH_MAX], temp[13];
-    static long	    offset;
+    static int	    offset;
     static int	    i, j, tmp;
-    unsigned long   crc, crc1;
+    unsigned int    crc, crc1;
 
     clr_index();
     working(1, 0, 0);
@@ -442,7 +442,7 @@ void EditMGroup(void)
     int	    records, i, o, x, y;
     char    pick[12], temp[PATH_MAX];
     FILE    *fil;
-    long    offset;
+    int	    offset;
 
     clr_index();
     working(1, 0, 0);
@@ -556,7 +556,7 @@ char *PickMGroup(char *shdr)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 
 	clr_index();
@@ -642,6 +642,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
     char    temp[PATH_MAX], group[13];
     FILE    *ti, *wp, *ip, *no;
     int	    refs, i, j;
+    time_t  tt;
 
     snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
@@ -697,8 +698,10 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Auto add/del areas", getboolean(mgroup.AutoChange));
 	    add_webtable(wp, (char *)"User add/del areas", getboolean(mgroup.UserChange));
 	    add_webtable(wp, (char *)"Default charset", getftnchrs(mgroup.Charset));
-	    add_webtable(wp, (char *)"Start area date", ctime(&mgroup.StartDate));
-	    add_webtable(wp, (char *)"Last active date", ctime(&mgroup.LastDate));
+	    tt = (time_t)mgroup.StartDate;
+	    add_webtable(wp, (char *)"Start area date", ctime(&tt));
+	    tt = (time_t)mgroup.LastDate;
+	    add_webtable(wp, (char *)"Last active date", ctime(&tt));
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
 	    fprintf(wp, "<HR>\n");
@@ -790,8 +793,10 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
 	fprintf(fp, "    User add/del areas %s\n", getboolean(mgroup.UserChange));
 	fprintf(fp, "    Default charset    %s\n", getftnchrs(mgroup.Charset));
-	fprintf(fp, "    Start area date    %s",   ctime(&mgroup.StartDate));
-	fprintf(fp, "    Last active date   %s\n", ctime(&mgroup.LastDate));
+	tt = (time_t)mgroup.StartDate;
+	fprintf(fp, "    Start area date    %s",   ctime(&tt));
+	tt = (time_t)mgroup.LastDate;
+	fprintf(fp, "    Last active date   %s\n", ctime(&tt));
 	fprintf(fp, "\n\n");
 	j++;
     }

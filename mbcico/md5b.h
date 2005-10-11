@@ -38,7 +38,7 @@ typedef unsigned char *POINTER;
 /* UINT2 defines a two byte word */
 typedef unsigned short int UINT2;
 /* UINT4 defines a four byte word */
-typedef unsigned long int UINT4;
+typedef unsigned int UINT4;
 
 /* end of GLOBAL.H ---------------------------------------------------------- */
 

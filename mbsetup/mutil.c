@@ -244,8 +244,8 @@ void add_statcnt(FILE *fp, char * hstr, statcnt st)
     fprintf(fp, "<TBODY>\n");
     fprintf(fp, "<TR><TH colspan='9'>Weekdays overview of %s</TH></TR>\n", hstr);
     fprintf(fp, "<TR><TH>&nbsp;</TH><TH align='left'>Sun</TH><TH align='left'>Mon</TH><TH align='left'>Tue</TH><TH align='left'>Wed</TH><TH align='left'>Thu</TH><TH align='left'>Fri</TH><TH align='left'>Sat</TH><TH align='left'>Total</TH></TR>\n");
-    fprintf(fp, "<TR><TH align='left'>This week</TH><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD></TR>\n", st.tdow[0], st.tdow[1], st.tdow[2], st.tdow[3], st.tdow[4], st.tdow[5], st.tdow[6], st.tweek);
-    fprintf(fp, "<TR><TH align='left'>Last week</TH><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD></TR>\n", st.ldow[0], st.ldow[1], st.ldow[2], st.ldow[3], st.ldow[4], st.ldow[5], st.ldow[6], st.lweek);
+    fprintf(fp, "<TR><TH align='left'>This week</TH><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD></TR>\n", st.tdow[0], st.tdow[1], st.tdow[2], st.tdow[3], st.tdow[4], st.tdow[5], st.tdow[6], st.tweek);
+    fprintf(fp, "<TR><TH align='left'>Last week</TH><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD></TR>\n", st.ldow[0], st.ldow[1], st.ldow[2], st.ldow[3], st.ldow[4], st.ldow[5], st.ldow[6], st.lweek);
     fprintf(fp, "</TBODY>\n");
     fprintf(fp, "</TABLE>\n");
     fprintf(fp, "<P>\n");
@@ -253,7 +253,7 @@ void add_statcnt(FILE *fp, char * hstr, statcnt st)
     fprintf(fp, "<TBODY>\n");    
     fprintf(fp, "<TR><TH colspan='12'>Monthly overview of %s</TH><TH align='left' rowspan='2'>Total ever</TH></TR>\n", hstr);
     fprintf(fp, "<TR><TH align='left'>Jan</TH><TH align='left'>Feb</TH><TH align='left'>Mar</TH><TH align='left'>Apr</TH><TH align='left'>May</TH><TH align='left'>Jun</TH><TH align='left'>Jul</TH><TH align='left'>Aug</TH><TH align='left'>Sep</TH><TH align='left'>Oct</TH><TH align='left'>Nov</TH><TH align='left'>Dec</TH></TR>\n");
-    fprintf(fp, "<TR><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD></TR>\n", 
+    fprintf(fp, "<TR><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD><TD>%d</TD></TR>\n", 
 	    st.month[0], st.month[1], st.month[2], st.month[3], st.month[4], st.month[5], st.month[6], st.month[7], st.month[8], st.month[0], st.month[10], st.month[11], st.total);
     fprintf(fp, "</TBODY>\n");
     fprintf(fp, "</TABLE>\n");

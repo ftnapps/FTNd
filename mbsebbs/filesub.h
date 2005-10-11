@@ -4,7 +4,7 @@
 /* $Id$ */
 
 FILE		*OpenFareas(int);
-int		CheckBytesAvailable(long);
+int		CheckBytesAvailable(int);
 int		iLC(int);
 void		Header(void);
 void		Sheader(void);
@@ -21,7 +21,7 @@ void		Home(void);
 int		ScanDirect(char *);
 int		ScanArchive(char *, char *);
 int		ImportFile(char *, int, int, off_t);
-unsigned long	Quota(void);
+unsigned int	Quota(void);
 void		ImportHome(char *);
 
 #endif

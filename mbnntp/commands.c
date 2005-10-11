@@ -41,11 +41,11 @@
 
 #ifndef	USE_NEWSGATE
 
-unsigned long	article = 0L;	    /* Current article	    */
+unsigned int	article = 0L;	    /* Current article	    */
 char		currentgroup[81];   /* Current newsgroup    */
 
-extern unsigned long	sentbytes;
-extern unsigned long	rcvdbytes;
+extern unsigned int	sentbytes;
+extern unsigned int	rcvdbytes;
 
 extern char         *ttystat[];
 
@@ -100,7 +100,7 @@ char *make_msgid(char *msgid)
 {
     static char	buf[100];
 
-    snprintf(buf, 100, "<%08lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
+    snprintf(buf, 100, "<%08x$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
     return buf;
 }
 
@@ -115,7 +115,7 @@ char *make_msgid(char *msgid)
 void command_abhs(char *buf)
 {
     char	    *p, *cmd, *opt, *subj, *charset = NULL;
-    unsigned long   art = 0L;
+    unsigned int    art = 0L;
     int		    i, found;
 
     Syslog('+', "%s", buf);
@@ -567,7 +567,7 @@ void command_post(char *cmd)
 void command_xover(char *cmd)
 {
     char	    *opt, *p, msgid[100], reply[100];
-    unsigned long   i, start, end;
+    unsigned int    i, start, end;
     int		    bytecount, linecount;
 
     IsDoing("Xover");

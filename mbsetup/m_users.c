@@ -92,7 +92,7 @@ int OpenUsers(void)
 {
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+	int	oldsize;
 
 	snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
@@ -480,9 +480,9 @@ int EditUsrRec(int Area)
 {
     FILE	    *fil;
     char	    mfile[PATH_MAX];
-    long	    offset;
+    int		    offset;
     int		    j = 0;
-    unsigned long   crc, crc1, level;
+    unsigned int    crc, crc1, level;
 
     clr_index();
     working(1, 0, 0);
@@ -574,7 +574,7 @@ void EditUsers(void)
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
-	long	offset;
+	int	offset;
 
 	clr_index();
 	working(1, 0, 0);
@@ -681,6 +681,7 @@ void users_doc(void)
     char    temp[PATH_MAX];
     FILE    *wp, *ip, *fp;
     int	    nr = 0;
+    time_t  tt;
 
     snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL)
@@ -707,9 +708,12 @@ void users_doc(void)
 	    web_secflags(wp, (char *)"Security level", usrconfig.Security);
 	    add_webtable(wp, (char *)"Expiry date", usrconfig.sExpiryDate);
 	    web_secflags(wp, (char *)"Expiry security level", usrconfig.ExpirySec);
-	    add_webtable(wp, (char *)"First login date", ctime(&usrconfig.tFirstLoginDate));
-	    add_webtable(wp, (char *)"Last login date", ctime(&usrconfig.tLastLoginDate));
-	    add_webtable(wp, (char *)"Last password change", ctime(&usrconfig.tLastPwdChange));
+	    tt = (time_t)usrconfig.tFirstLoginDate;
+	    add_webtable(wp, (char *)"First login date", ctime(&tt));
+	    tt = (time_t)usrconfig.tLastLoginDate;
+	    add_webtable(wp, (char *)"Last login date", ctime(&tt));
+	    tt = (time_t)usrconfig.tLastPwdChange;
+	    add_webtable(wp, (char *)"Last password change", ctime(&tt));
 	    add_webdigit(wp, (char *)"Credit", usrconfig.Credit);
 	    add_webtable(wp, (char *)"Hidden from lists", getboolean(usrconfig.Hidden));
 	    add_webtable(wp, (char *)"Never delete", getboolean(usrconfig.NeverDelete));

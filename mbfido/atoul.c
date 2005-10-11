@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -33,11 +33,11 @@
 #include "atoul.h"
 
 
-unsigned long atoul(char *str)
+unsigned int atoul(char *str)
 {
-	unsigned long x;
+	unsigned int x;
 
-	if (sscanf(str,"%lu",&x) == 1)
+	if (sscanf(str,"%u",&x) == 1)
 		return x;
 	else 
 		return 0xffffffff;

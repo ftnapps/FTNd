@@ -176,7 +176,7 @@ int CheckHatch(char *temp)
 			}
 		    }
 		    fprintf(Tf, "\r\n");
-		    fprintf(Tf, "Crc %08lx\r\n", file_crc(de->d_name, CFG.slow_util && do_quiet));
+		    fprintf(Tf, "Crc %08x\r\n", file_crc(de->d_name, CFG.slow_util && do_quiet));
 		    fprintf(Tf, "Pw %s\r\n", CFG.hatchpasswd);
 		    fclose(Tf);
 		    Hatched++;

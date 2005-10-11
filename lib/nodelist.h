@@ -24,11 +24,11 @@ typedef struct	_node {
 	char		*sysop;			/* Sysop name		*/
 	char		*phone;			/* Phone number		*/
 	unsigned	speed;			/* Baudrate		*/
-	unsigned long	mflags;			/* Modem flags		*/
-	unsigned long	dflags;			/* ISDN flags		*/
-	unsigned long	iflags;			/* TCP-IP flags		*/
-	unsigned long	oflags;			/* Online flags		*/
-	unsigned long	xflags;			/* Request flags	*/
+	unsigned int	mflags;			/* Modem flags		*/
+	unsigned int	dflags;			/* ISDN flags		*/
+	unsigned int	iflags;			/* TCP-IP flags		*/
+	unsigned int	oflags;			/* Online flags		*/
+	unsigned int	xflags;			/* Request flags	*/
 	char		*uflags[MAXUFLAGS];	/* User flags		*/
 	int		t1;			/* T flag, first char	*/
 	int		t2;			/* T flag, second char	*/
@@ -47,15 +47,15 @@ typedef struct	_node {
 typedef struct _nodelist_flag {
 	struct _nodelist_flag	*next;
 	char			*name;
-	unsigned long		value;
+	unsigned int		value;
 } nodelist_flag;
 
 
 typedef struct _nodelist_modem {
 	struct _nodelist_modem	*next;
 	char			*name;
-	unsigned long		mask;
-	unsigned long		value;
+	unsigned int		mask;
+	unsigned int		value;
 } nodelist_modem;
 
 
@@ -76,8 +76,8 @@ typedef struct _nodelist_service {
 	struct _nodelist_service    *next;
 	char			    *flag;
 	char			    *service;
-	unsigned long		    defport;	    /* Configured default port	*/
-	unsigned long		    tmpport;	    /* Override port for call	*/
+	unsigned int		    defport;	    /* Configured default port	*/
+	unsigned int		    tmpport;	    /* Override port for call	*/
 } nodelist_service;
 
 
@@ -122,11 +122,11 @@ nodelist_service    *nl_service;
 int		initnl(void);
 void		deinitnl(void);
 node		*getnlent(faddr *);
-void		olflags(unsigned long);
-void		rqflags(unsigned long);
-void		moflags(unsigned long);
-void		diflags(unsigned long);
-void		ipflags(unsigned long);
+void		olflags(unsigned int);
+void		rqflags(unsigned int);
+void		moflags(unsigned int);
+void		diflags(unsigned int);
+void		ipflags(unsigned int);
 
 
 #endif

@@ -83,8 +83,8 @@ int Rxhlen;		/* Length of header received */
 int Rxcount;		/* Count of data bytes received */
 char Rxhdr[ZMAXHLEN];	/* Received header */
 char Txhdr[ZMAXHLEN];	/* Transmitted header */
-long Rxpos;		/* Received file position */
-long Txpos;		/* Transmitted file position */
+int Rxpos;		/* Received file position */
+int Txpos;		/* Transmitted file position */
 int Txfcs32;		/* TRUE means send binary frames with 32 bit FCS */
 int Crc32t;		/* Controls 32 bit CRC being sent */
 			/* 1 == CRC32,  2 == CRC32 + RLE */
@@ -230,7 +230,7 @@ void zsbhdr(int len, int type, register char *shdr)
 void zsbh32(int len, register char *shdr, int type, int flavour)
 {
 	register int n;
-	register unsigned long crc;
+	register unsigned int crc;
 
 	BUFFER_BYTE(flavour); 
 	if (Usevhdrs) 
@@ -338,7 +338,7 @@ void zsdata(register char *buf, int length, int frameend)
 void zsda32(register char *buf, int length, int frameend)
 {
 	register int c;
-	register unsigned long crc;
+	register unsigned int crc;
 
 	crc = 0xFFFFFFFFL;
 	for (;--length >= 0; ++buf) {
@@ -429,7 +429,7 @@ crcfoo:
 int zrdat32(register char *buf, int length)
 {
 	register int c;
-	register unsigned long crc;
+	register unsigned int crc;
 	register char *end;
 	register int d;
 
@@ -704,7 +704,7 @@ int zrbhdr(register char *shdr)
 int zrbhd32(register char *shdr)
 {
 	register int c, n;
-	register unsigned long crc;
+	register unsigned int crc;
 
 	if ((c = zdlread()) & ~0377)
 		return c;
@@ -967,7 +967,7 @@ int noxrd7(void)
 /*
  * Store long integer pos in Txhdr
  */
-void stohdr(long pos)
+void stohdr(int pos)
 {
 	Txhdr[ZP0] = pos;
 	Txhdr[ZP1] = pos>>8;
@@ -980,9 +980,9 @@ void stohdr(long pos)
 /*
  * Recover a long integer from a header
  */
-long rclhdr(register char *shdr)
+int rclhdr(register char *shdr)
 {
-	register long l;
+	register int l;
 
 	l = (shdr[ZP3] & 0377);
 	l = (l << 8) | (shdr[ZP2] & 0377);
