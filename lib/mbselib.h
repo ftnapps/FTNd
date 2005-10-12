@@ -154,6 +154,10 @@ struct termios;
 #if defined(__NetBSD__)
 #include <re_comp.h>
 #endif
+#if defined(__OpenBSD__) || defined(__NetBSD__)
+#include <sys/sysctl.h>
+#endif
+
 
 /*
  *  Some older systems don;t have this
