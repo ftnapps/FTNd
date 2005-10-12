@@ -333,7 +333,7 @@ int scanemsidat(char *buf)
     fa_list **tmp, *tmpa;
     faddr   *fa;
     char    *p, *q, *mailer_prod, *mailer_name, *mailer_version, *mailer_serial;
-    int	    dupe;
+    int	    dupe, ttt;
 
     p = sel_brace(buf);
     if (strcasecmp(p,"EMSI") != 0) {
@@ -482,7 +482,8 @@ int scanemsidat(char *buf)
 	    now = time(NULL);
 	    p=sel_brace(NULL);
 	    p=sel_bracket(p);
-	    if (sscanf(p,"%08lx",&tt) == 1) {
+	    if (sscanf(p,"%08x",&ttt) == 1) {
+		tt = (time_t)ttt;
 		strcpy(ctt,date(sl2mtime(tt)));
 		Syslog('+', "time    : %s",ctt);
 		Syslog('+', "tranx   : %08lX/%08lX [%ld]", now, sl2mtime(tt), now - sl2mtime(tt));
