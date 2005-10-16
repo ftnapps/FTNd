@@ -214,8 +214,8 @@ int main(int argc, char *argv[])
 	    WriteError("$Can't create %s", cmd);
 	} else {
 	    memset(&history, 0, sizeof(history));
-	    history.online = time(NULL);
-	    history.offline = time(NULL);
+	    history.online = (int)time(NULL);
+	    history.offline = (int)time(NULL);
 	    fwrite(&history, sizeof(history), 1, fp);
 	    fclose(fp);
 	    Syslog('+', "Created new %s", cmd);

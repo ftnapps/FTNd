@@ -130,8 +130,8 @@ int answer(char *stype)
 	c_end = time(NULL);
 	online += (c_end - c_start);
 
-	history.online  = c_start;
-	history.offline = c_end;
+	history.online  = (int)c_start;
+	history.offline = (int)c_end;
 	history.sent_bytes = sentbytes;
 	history.rcvd_bytes = rcvdbytes;
 	history.inbound = TRUE;
@@ -147,7 +147,7 @@ int answer(char *stype)
 	free(p);
 	
 	if (Loaded) {
-	    nodes.LastDate = time(NULL);
+	    nodes.LastDate = (int32_t)time(NULL);
 	    UpdateNode();
 	}
     }

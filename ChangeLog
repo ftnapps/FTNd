@@ -4,6 +4,12 @@ $Id$
 
 v0.81.2		14-Oct-2005.
 
+	mbcico:
+		Some time_t/int conversions.
+
+	mbfido:
+		Some time_t/int conversions.
+
 
 v0.81.1		09-Oct-2005 - 14-Oct-2005
 

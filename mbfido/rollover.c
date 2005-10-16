@@ -53,11 +53,11 @@ void RollWeek(statcnt *S)
 
     for (i = 0; i < 7; i++) {
 	S->ldow[i] = S->tdow[i];
-	S->tdow[i] = 0L;
+	S->tdow[i] = 0;
     }
 
     S->lweek = S->tweek;
-    S->tweek = 0L;
+    S->tweek = 0;
 
     if (CFG.slow_util && do_quiet)
 	msleep(1);
@@ -109,7 +109,7 @@ void Rollover()
 
     if ((fp = OpenData((char *)"nodes.data")) != NULL) {
 	fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
-	Temp = nodeshdr.lastupd;
+	Temp = (time_t)nodeshdr.lastupd;
 	t = localtime(&Temp);
 
 	/*
@@ -161,7 +161,7 @@ void Rollover()
 	    }
 
 	    fseek(fp, 0, SEEK_SET);
-	    nodeshdr.lastupd = time(NULL);
+	    nodeshdr.lastupd = (int)time(NULL);
 	    fwrite(&nodeshdr, nodeshdr.hdrsize, 1, fp);
 	}
 
@@ -170,7 +170,7 @@ void Rollover()
 
     if ((fp = OpenData((char *)"mareas.data")) != NULL) {
 	fread(&msgshdr, sizeof(msgshdr), 1, fp);
-	Temp = msgshdr.lastupd;
+	Temp = (time_t)msgshdr.lastupd;
 	t = localtime(&Temp);
 
 	if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
@@ -240,7 +240,7 @@ void Rollover()
 		fwrite(&mgroup, mgrouphdr.recsize, 1, fp);
 	    }
 
-	    mgrouphdr.lastupd = time(NULL);
+	    mgrouphdr.lastupd = (int)time(NULL);
 	    fseek(fp, 0, SEEK_SET);
 	    fwrite(&mgrouphdr, mgrouphdr.hdrsize, 1, fp);
 	}
@@ -249,7 +249,7 @@ void Rollover()
 
     if ((fp = OpenData((char *)"tic.data")) != NULL) {
 	fread(&tichdr, sizeof(tichdr), 1, fp);
-	Temp = tichdr.lastupd;
+	Temp = (time_t)tichdr.lastupd;
 	t = localtime(&Temp);
 
 	if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
@@ -280,7 +280,7 @@ void Rollover()
 		fseek(fp, tichdr.syssize, SEEK_CUR);
 	    }
 
-	    tichdr.lastupd = time(NULL);
+	    tichdr.lastupd = (int)time(NULL);
 	    fseek(fp, 0, SEEK_SET);
 	    fwrite(&tichdr, tichdr.hdrsize, 1, fp);
 	}
@@ -289,7 +289,7 @@ void Rollover()
 
     if ((fp = OpenData((char *)"fgroups.data")) != NULL) {
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
-	Temp = fgrouphdr.lastupd;
+	Temp = (time_t)fgrouphdr.lastupd;
 	t = localtime(&Temp);
 
 	if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
@@ -319,7 +319,7 @@ void Rollover()
 		fwrite(&fgroup, fgrouphdr.recsize, 1, fp);
 	    }
 
-	    fgrouphdr.lastupd = time(NULL);
+	    fgrouphdr.lastupd = (int)time(NULL);
 	    fseek(fp, 0, SEEK_SET);
 	    fwrite(&fgrouphdr, fgrouphdr.hdrsize, 1, fp);
 	}
@@ -328,7 +328,7 @@ void Rollover()
 
     if ((fp = OpenData((char *)"hatch.data")) != NULL) {
 	fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
-	Temp = hatchhdr.lastupd;
+	Temp = (time_t)hatchhdr.lastupd;
 	t = localtime(&Temp);
 
 	if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
@@ -355,7 +355,7 @@ void Rollover()
 		fwrite(&hatch, hatchhdr.recsize, 1, fp);
 	    }
 
-	    hatchhdr.lastupd = time(NULL);
+	    hatchhdr.lastupd = (int)time(NULL);
 	    fseek(fp, 0, SEEK_SET);
 	    fwrite(&hatchhdr, hatchhdr.hdrsize, 1, fp);
 	}
@@ -367,7 +367,7 @@ void Rollover()
     snprintf(temp, PATH_MAX, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r"))) {
 	fread(&history, sizeof(history), 1, fp);
-	Temp = history.online;
+	Temp = (time_t)history.online;
 	t = localtime(&Temp);
 	if (t->tm_mon != Miy) {
 	    /*
@@ -392,13 +392,13 @@ void Rollover()
 		fclose(fp);
 	    } else {
 		memset(&history, 0, sizeof(history));
-		history.online = time(NULL);
-		history.offline = time(NULL);
+		history.online = (int)time(NULL);
+		history.offline = (int)time(NULL);
 		fwrite(&history, sizeof(history), 1, ft);
 
 		i = 0;
 		while (fread(&history, sizeof(history), 1, fp)) {
-		    if (history.online >= Now) {
+		    if (history.online >= (int)Now) {
 			fwrite(&history, sizeof(history), 1, ft);
 			i++;
 		    }

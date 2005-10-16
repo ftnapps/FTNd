@@ -121,8 +121,8 @@ int hangup()
 	online += (c_end - c_start);
 	Syslog('+', "Connection time %s", t_elapsed(c_start, c_end));
 	carrier = FALSE;
-	history.offline = c_end;
-	history.online  = c_start;
+	history.offline = (int)c_end;
+	history.online  = (int)c_start;
 	history.sent_bytes = sentbytes;
 	history.rcvd_bytes = rcvdbytes;
 	history.inbound = ~master;

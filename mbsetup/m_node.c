@@ -537,17 +537,17 @@ void S_Stat(void)
 	else
 		LMiy = Miy - 1;
 
-	mbse_mvprintw(10,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.FilesSent.tweek, 
+	mbse_mvprintw(10,18, (char *)"%10u %10u %10u %10u %10u", nodes.FilesSent.tweek, 
 		nodes.FilesSent.lweek, nodes.FilesSent.month[Miy], nodes.FilesSent.month[LMiy], nodes.FilesSent.total);
-	mbse_mvprintw(11,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.F_KbSent.tweek, 
+	mbse_mvprintw(11,18, (char *)"%10u %10u %10u %10u %10u", nodes.F_KbSent.tweek, 
 		nodes.F_KbSent.lweek, nodes.F_KbSent.month[Miy], nodes.F_KbSent.month[LMiy], nodes.F_KbSent.total);
-	mbse_mvprintw(12,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.FilesRcvd.tweek, 
+	mbse_mvprintw(12,18, (char *)"%10u %10u %10u %10u %10u", nodes.FilesRcvd.tweek, 
 		nodes.FilesRcvd.lweek, nodes.FilesRcvd.month[Miy], nodes.FilesRcvd.month[LMiy], nodes.FilesRcvd.total);
-	mbse_mvprintw(13,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.F_KbRcvd.tweek, 
+	mbse_mvprintw(13,18, (char *)"%10u %10u %10u %10u %10u", nodes.F_KbRcvd.tweek, 
 		nodes.F_KbRcvd.lweek, nodes.F_KbRcvd.month[Miy], nodes.F_KbRcvd.month[LMiy], nodes.F_KbRcvd.total);
-	mbse_mvprintw(14,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.MailSent.tweek, 
+	mbse_mvprintw(14,18, (char *)"%10u %10u %10u %10u %10u", nodes.MailSent.tweek, 
 		nodes.MailSent.lweek, nodes.MailSent.month[Miy], nodes.MailSent.month[LMiy], nodes.MailSent.total);
-	mbse_mvprintw(15,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.MailRcvd.tweek, 
+	mbse_mvprintw(15,18, (char *)"%10u %10u %10u %10u %10u", nodes.MailRcvd.tweek, 
 		nodes.MailRcvd.lweek, nodes.MailRcvd.month[Miy], nodes.MailRcvd.month[LMiy], nodes.MailRcvd.total);
 	set_color(CYAN, BLACK);
 	center_addstr(LINES - 4, (char *)"Press any key");
