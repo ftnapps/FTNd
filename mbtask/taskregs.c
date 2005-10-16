@@ -95,8 +95,8 @@ int reg_newcon(char *data)
     strncpy((char *)&reginfo[retval].prg, prg, 14); 
     strncpy((char *)&reginfo[retval].city, city, 35);
     strcpy((char *)&reginfo[retval].doing, "-"); 
-    reginfo[retval].started = time(NULL); 
-    reginfo[retval].lastcon = time(NULL);
+    reginfo[retval].started = (int)time(NULL); 
+    reginfo[retval].lastcon = (int)time(NULL);
     reginfo[retval].altime = 600;
 
     /*
@@ -170,7 +170,7 @@ void reg_check(void)
 		/*
 		 * Check timeout
 		 */
-		if ((Now - reginfo[i].lastcon) >= reginfo[i].altime) {
+		if (((int)Now - reginfo[i].lastcon) >= reginfo[i].altime) {
 		    if (reginfo[i].altime < 600) {
 			kill(reginfo[i].pid, SIGKILL);
 			Syslog('+', "Send SIGKILL to pid %d", reginfo[i].pid);
@@ -182,7 +182,7 @@ void reg_check(void)
 		     *  10 seconds to the next kill
 		     */
 		    reginfo[i].altime = 10;
-		    reginfo[i].lastcon = time(NULL);
+		    reginfo[i].lastcon = (int)time(NULL);
 		}
 	    }
 	}
@@ -207,7 +207,7 @@ int reg_doing(char *data)
 	return -1;
 
     strncpy(reginfo[rec].doing, line, 35);
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
 
@@ -228,7 +228,7 @@ int reg_ip(char *data)
 	return -1;
 
     reginfo[rec].istcp = TRUE;
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     ipmailers++;
     Syslog('?', "TCP/IP session registered (%s), now %d sessions", pid, ipmailers);
     return 0;
@@ -249,7 +249,7 @@ int reg_nop(char *data)
     if ((rec = reg_find(pid)) == -1)
 	return -1;
 
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
 
@@ -282,7 +282,7 @@ int reg_timer(int Set, char *data)
 	return -1;
 
     reginfo[rec].altime = val;
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     Syslog('r', "Set timeout value for %d to %d", reginfo[rec].pid, val);
     return 0;
 }
@@ -305,7 +305,7 @@ int reg_tty(char *data)
 	return -1;
 
     strncpy((char *)&reginfo[rec].tty, tty, 6);
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
 
@@ -327,7 +327,7 @@ int reg_silent(char *data)
 	return -1;
 
     reginfo[rec].silent = atoi(line);
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
 
@@ -351,7 +351,7 @@ int reg_user(char *data)
 
     strncpy((char *)&reginfo[rec].uname, user, 35);
     strncpy((char *)&reginfo[rec].city,  city, 35);
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
 
@@ -370,7 +370,7 @@ int reg_sysop(char *data)
     sysop_present = atoi(strtok(NULL, ";"));
  
     if ((rec = reg_find(pid)) != -1) {
-	reginfo[rec].lastcon = time(NULL);
+	reginfo[rec].lastcon = (int)time(NULL);
     }
 
     Syslog('+', "Sysop present for chat: %s", sysop_present ? "True":"False");
@@ -396,7 +396,7 @@ char *reg_ipm(char *data)
     if ((rec = reg_find(pid)) == -1)
 	return buf;
 
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     if (!reginfo[rec].ismsg)
 	return buf;
 
@@ -546,7 +546,7 @@ char *get_reginfo(int first)
 				reginfo[entrypos].pid, reginfo[entrypos].tty,
 				reginfo[entrypos].uname, reginfo[entrypos].prg,
 				reginfo[entrypos].city, reginfo[entrypos].doing,
-				(int)reginfo[entrypos].started);
+				reginfo[entrypos].started);
 	    return buf;
 	}
     }
@@ -590,7 +590,7 @@ int reg_page(char *data)
      */
     reginfo[rec].paging = TRUE;
     strncpy(reginfo[rec].reason, reason, 80);
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
 
@@ -616,7 +616,7 @@ int reg_cancel(char *data)
 	reginfo[rec].paging = FALSE;
 	reginfo[rec].haspaged = TRUE;
     }
-    reginfo[rec].lastcon = time(NULL);
+    reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
 

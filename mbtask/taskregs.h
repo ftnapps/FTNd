@@ -19,8 +19,8 @@ typedef struct _reg_info {
         char            prg[15];                /* Program name         */
         char            city[36];               /* Users city           */
         char            doing[36];              /* What is going on     */
-        time_t          started;                /* Startime connection  */
-        time_t          lastcon;                /* Last connection      */
+        int		started;                /* Startime connection  */
+        int		lastcon;                /* Last connection      */
         int             altime;                 /* Alarm time           */
         unsigned        silent          : 1;    /* Do not disturb       */
         unsigned        ismsg           : 1;    /* Message waiting      */

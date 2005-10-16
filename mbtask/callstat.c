@@ -116,7 +116,7 @@ callstat *getstatus(faddr *addr)
     static callstat cst;
     FILE	    *fp;
 
-    cst.trytime = 0L;
+    cst.trytime = 0;
     cst.tryno   = 0;
     cst.trystat = 0;
 

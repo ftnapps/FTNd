@@ -965,7 +965,7 @@ void start_scheduler(void)
     strcpy(reginfo[0].prg,   "mbtask");
     strcpy(reginfo[0].city,  "localhost");
     strcpy(reginfo[0].doing, "Start");
-    reginfo[0].started = time(NULL);
+    reginfo[0].started = (int)time(NULL);
     if (nodaemon)
         printf("reginfo filled\n");
 
@@ -1143,7 +1143,7 @@ void *scheduler(void)
 	    snprintf(doing, 32, "Overload %2.2f", Load);
 
 	snprintf(reginfo[0].doing, 36, "%s", doing);
-	reginfo[0].lastcon = time(NULL);
+	reginfo[0].lastcon = (int)time(NULL);
 
 	/*
 	 *  Touch the mbtask.last semafore to prove this daemon
@@ -1344,7 +1344,7 @@ void *scheduler(void)
 			 * then launch a callprocess for this node.
 			 */
 			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling && 
-				(calllist[call_entry].cst.trytime < now)) {
+				(calllist[call_entry].cst.trytime < (int)now)) {
 			    if ((calllist[call_entry].callmode == CM_INET) && (ipmailers < TCFG.max_tcp) && internet) {
 				found = TRUE;
 				break;

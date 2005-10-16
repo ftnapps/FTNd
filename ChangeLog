@@ -4,10 +4,18 @@ $Id$
 
 v0.81.2		14-Oct-2005.
 
+	upgrade:
+		Owners of 64 bits systems should check if all *.sts files in
+		the outbound are 12 bytes log. If not, stop the whole bbs and
+		remove all these files. Then start the bbs again.
+
 	mbcico:
 		Some time_t/int conversions.
 
 	mbfido:
+		Some time_t/int conversions.
+
+	mbtask:
 		Some time_t/int conversions.
 
 

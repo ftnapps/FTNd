@@ -5,7 +5,7 @@
 
 
 typedef struct _callstat {
-	time_t trytime;
+	int trytime;
 	int tryno;
 	int trystat;
 } callstat;

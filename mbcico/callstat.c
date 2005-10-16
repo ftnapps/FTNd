@@ -39,7 +39,7 @@ callstat *getstatus(faddr *addr)
     static callstat	cst;
     FILE		*fp;
 
-    cst.trytime = 0L;
+    cst.trytime = 0;
     cst.tryno   = 0;
     cst.trystat = 0;
 	
@@ -82,7 +82,7 @@ void putstatus(faddr *addr, int incr, int sts)
 
 	if (sts != -1)
 	    cst->trystat = sts;
-	cst->trytime = time(NULL) + j;
+	cst->trytime = (int)time(NULL) + j;
 
 	fwrite(cst, sizeof(callstat), 1, fp);
 	fclose(fp);
