@@ -112,8 +112,8 @@ void status_init()
     stat_fd = open(stat_fn, O_RDWR);
     if (stat_fd == -1) {
 	memset((char *)&status, 0, sizeof(status_r));
-	status.start = time(NULL);
-	status.daily = time(NULL);
+	status.start = (int)time(NULL);
+	status.daily = (int)time(NULL);
 	status.sequence = (unsigned int)time(NULL);
 	stat_fd = open(stat_fn, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR); 
 	cnt = write(stat_fd, &status, sizeof(status_r));
@@ -127,7 +127,7 @@ void status_init()
 	exit(MBERR_INIT_ERROR);
     }
     status.startups++;
-    status.laststart = time(NULL);
+    status.laststart = (int)time(NULL);
     status.clients = 1;		/* We are a client ourself */
     s_bbsopen = status.open;
     lseek(stat_fd, 0, SEEK_SET);
@@ -155,13 +155,13 @@ void status_write(void)
     temp = time(NULL);
     localtime_r(&temp, &ttm);
     yday = ttm.tm_yday;
-    temp = status.daily;
+    temp = (time_t)status.daily;
     localtime_r(&temp, &ttm);
 #else
     temp = time(NULL);
     ttm = *localtime(&temp);
     yday = ttm.tm_yday;
-    temp = status.daily;	// On a Sparc, first put the time in temp, then pass it to locattime.
+    temp = (time_t)status.daily;
     ttm = *localtime(&temp);
 #endif
 
@@ -214,9 +214,9 @@ void status_write(void)
  */
 int get_zmh()
 {
-    struct  tm l_date; 
-    char    sstime[6];
-    time_t  Now;
+    struct tm	l_date; 
+    char	sstime[6];
+    time_t	Now;
 
     Now = time(NULL);
 #if defined(__OpenBSD__)
@@ -320,7 +320,7 @@ char *stat_status()
     for (tmpu = users; tmpu; tmpu = tmpu->next)
 	usrcnt++;
     snprintf(buf, 160, "100:23,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%2.2f,%u,%d,%d,%d;",
-	(int)status.start, (int)status.laststart, (int)status.daily,
+	status.start, status.laststart, status.daily,
 	status.startups, status.clients, 
 	status.total.tot_clt, status.total.peak_clt,
 	status.total.s_error, status.total.c_error,
