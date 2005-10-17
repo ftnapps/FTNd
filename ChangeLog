@@ -20,6 +20,7 @@ v0.81.2		14-Oct-2005.
 
 	mbsebbs:
 		Accepts connections via ssh.
+		Log close message sent to the user.
 
 	mbnewusr:
 		Accepts connections via ssh.

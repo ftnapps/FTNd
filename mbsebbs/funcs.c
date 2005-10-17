@@ -70,6 +70,7 @@ int CheckStatus()
 	PUTCHAR('\007');
 	snprintf(msg, 81, "*** %s ***", buf+8);
 	PUTSTR(msg);
+	Syslog('+', "Send user message \"%s\"", buf+8);
 	Enter(3);
     }
     return FALSE;
