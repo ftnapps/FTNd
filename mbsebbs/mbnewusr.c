@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     pout(WHITE, BLACK, (char *)COPYRIGHT);
     Enter(2);
  
-    if ((p = getenv("REMOTEHOST")) != NULL) {
+    if (((p = getenv("REMOTEHOST")) != NULL)  || ((p = getenv("SSH_CLIENT")) != NULL)) {
 	/*
     	 * Network connection, no tty checking but fill a ttyinfo record.
 	 */
@@ -197,6 +197,7 @@ int main(int argc, char **argv)
 	snprintf(ttyinfo.flags,   31, "IBN,IFC,XX");
 	ttyinfo.type = NETWORK;
 	ttyinfo.available = TRUE;
+	ttyinfo.honor_zmh = FALSE;
 	snprintf(ttyinfo.name,    36, "Network port #%d", iNode);
     } else {
 	/*

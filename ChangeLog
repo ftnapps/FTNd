@@ -18,6 +18,12 @@ v0.81.2		14-Oct-2005.
 	mbtask:
 		Some time_t/int conversions.
 
+	mbsebbs:
+		Accepts connections via ssh.
+
+	mbnewusr:
+		Accepts connections via ssh.
+
 
 v0.81.1		09-Oct-2005 - 14-Oct-2005
 
