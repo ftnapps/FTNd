@@ -20,6 +20,8 @@ v0.81.2		14-Oct-2005.
 
 	mbtask:
 		Some time_t/int conversions.
+		Added clencode and cldecode to safe escape messages with
+		clients.
 
 	mbsebbs:
 		Accepts connections via ssh.

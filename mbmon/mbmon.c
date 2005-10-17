@@ -36,8 +36,8 @@
 #include "mutil.h"
 
 
-int		lines = 24;
-int		columns = 80;
+int		cols = 80;
+int		rows = 24;
 
 extern int	bbs_free;
 extern int	ttyfd;
@@ -80,7 +80,7 @@ static void die(int onsig)
 void ShowSysinfo(void)
 {
     int	    ch;
-    char    buf[128], *cnt;
+    char    buf[128], *cnt, *lc;
 
     clr_index();
     set_color(WHITE, BLACK);
@@ -93,7 +93,7 @@ void ShowSysinfo(void)
     mbse_mvprintw(11, 6, "5.   Local calls");
     mbse_mvprintw(12, 6, "6.   Date started");
     mbse_mvprintw(13, 6, "7.   Last caller");
-    center_addstr(lines - 3, (char *)"Press any key");
+    center_addstr(rows - 3, (char *)"Press any key");
     IsDoing("View System Info");
 
     do {
@@ -110,11 +110,13 @@ void ShowSysinfo(void)
 		mbse_mvprintw(10,26, "%s", strtok(NULL, ","));
 		mbse_mvprintw(11,26, "%s", strtok(NULL, ","));
 		mbse_mvprintw(12,26, "%s", strtok(NULL, ","));
-		mbse_mvprintw(13,26, "%s", strtok(NULL, ";"));
+		lc = xstrcpy(cldecode(strtok(NULL, ";")));
+		mbse_mvprintw(13,26, "%s", lc);
+		free(lc);
 		fflush(stdout);
 	    }
 	}
-	ch = testkey(lines - 3, columns / 2 + 8);
+	ch = testkey(rows - 3, cols / 2 + 8);
     } while (ch == '\0');
 }
 
@@ -131,9 +133,9 @@ void ShowLastcaller(void)
     set_color(YELLOW, RED);
     mbse_mvprintw( 6, 1, "Nr Username       Location     Level Device Time  Mins Calls Speed     Actions ");
     set_color(CYAN, BLACK);
-    center_addstr(lines - 1, (char *)"Press any key");
+    center_addstr(rows - 1, (char *)"Press any key");
     IsDoing("View Lastcallers");
-    maxrows = lines - 10;
+    maxrows = rows - 10;
 
     do {
 	show_date(LIGHTGRAY, BLACK, 0, 0);
@@ -161,8 +163,8 @@ void ShowLastcaller(void)
 		    if (strncmp(buf, "100:9,", 6) == 0) {
 			cnt = strtok(buf, ",");
 			mbse_mvprintw(y, 1, "%2d", i);
-			mbse_mvprintw(y, 4, "%s", strtok(NULL, ","));
-			mbse_mvprintw(y,19, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y, 4, "%s", cldecode(strtok(NULL, ",")));
+			mbse_mvprintw(y,19, "%s", cldecode(strtok(NULL, ",")));
 			mbse_mvprintw(y,32, "%s", strtok(NULL, ","));
 			mbse_mvprintw(y,38, "%s", strtok(NULL, ","));
 			mbse_mvprintw(y,45, "%s", strtok(NULL, ","));
@@ -175,7 +177,7 @@ void ShowLastcaller(void)
 		}
 	    }
 	}
-	ch = testkey(lines - 1, columns / 2 + 8);
+	ch = testkey(rows - 1, cols / 2 + 8);
     } while (ch == '\0');
 }
 
@@ -193,7 +195,7 @@ void system_moni(void)
     set_color(YELLOW, RED);
     mbse_mvprintw( 7, 1, "Pid   tty    user     program  city            doing                      time ");
     set_color(CYAN, BLACK);
-    center_addstr(lines - 1, (char *)"Press any key");
+    center_addstr(rows - 1, (char *)"Press any key");
     IsDoing("System Monitor");
 
     do {
@@ -202,7 +204,7 @@ void system_moni(void)
 	eof = 0;
 	set_color(LIGHTGRAY, BLACK);
 
-	for (y = 8; y <= lines - 2; y++) { 
+	for (y = 8; y <= rows - 2; y++) { 
 	    if (y == 8)
 		snprintf(buf, 128, "GMON:1,1;");
 	    else
@@ -221,9 +223,9 @@ void system_moni(void)
 			cnt = strtok(buf, ",");
 			mbse_mvprintw(y, 1, (char *)"%.5s", strtok(NULL, ","));
 			mbse_mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
-			mbse_mvprintw(y,14, (char *)"%.8s", strtok(NULL, ","));
-			mbse_mvprintw(y,23, (char *)"%.8s", strtok(NULL, ","));
-			mbse_mvprintw(y,32, (char *)"%.15s", strtok(NULL, ","));
+			mbse_mvprintw(y,14, (char *)"%.8s", cldecode(strtok(NULL, ",")));
+			mbse_mvprintw(y,23, (char *)"%.8s", cldecode(strtok(NULL, ",")));
+			mbse_mvprintw(y,32, (char *)"%.15s", cldecode(strtok(NULL, ",")));
 			mbse_mvprintw(y,48, (char *)"%.26s", strtok(NULL, ","));
 			start = atoi(strtok(NULL, ";"));
 			now = time(NULL);
@@ -239,7 +241,7 @@ void system_moni(void)
 	    }
 	} /* for () */
 
-	ch = testkey(lines - 1, columns / 2 + 8);
+	ch = testkey(rows - 1, cols / 2 + 8);
     } while (ch == '\0');
 }
 
@@ -277,7 +279,7 @@ void system_stat(void)
     mbse_mvprintw(16,59, "IBC users");
     mbse_mvprintw(17, 6, "Communication errors");
     mbse_mvprintw(19, 6, "Next sequence number");
-    mbse_mvprintw(lines -3,59, "Press any key");
+    mbse_mvprintw(rows -3,59, "Press any key");
     IsDoing("System Statistics");
 
     do {
@@ -326,7 +328,7 @@ void system_stat(void)
 		    break;
 	}
 
-	ch = testkey(lines -3,73);
+	ch = testkey(rows -3,73);
     } while (ch == '\0');
 }
 
@@ -344,7 +346,7 @@ void disk_stat(void)
     set_color(YELLOW, RED);
     mbse_mvprintw( 7, 1, " Size MB   Free MB     Used  FS-Type   St Mountpoint                          ");
     set_color(CYAN, BLACK);
-    mbse_mvprintw(lines - 2, 6, "Press any key");
+    mbse_mvprintw(rows - 2, 6, "Press any key");
     IsDoing("Filesystem Usage");
     for (i = 0; i < 10; i++)
 	last[i] = 0;
@@ -400,7 +402,7 @@ void disk_stat(void)
 	    }
 	}
 
-	ch = testkey(lines - 2, 20);
+	ch = testkey(rows - 2, 20);
     } while (ch == '\0');
 }
 
@@ -461,11 +463,11 @@ void soft_info(void)
 	set_color(LIGHTCYAN, BLACK);
 	center_addstr(14, (char *)"http://www.mbse.dds.nl or 2:280/2802");
 	set_color(LIGHTGREEN, BLACK);
-	center_addstr(lines -7, (char *)"This is free software; released under the terms of the GNU General");
-	center_addstr(lines -6, (char *)"Public License as published by the Free Software Foundation.");
+	center_addstr(rows -7, (char *)"This is free software; released under the terms of the GNU General");
+	center_addstr(rows -6, (char *)"Public License as published by the Free Software Foundation.");
 	set_color(CYAN, BLACK);
-	center_addstr(lines -4, (char *)"Press any key");
-	readkey(lines - 4, columns / 2 + 8, LIGHTGRAY, BLACK);
+	center_addstr(rows -4, (char *)"Press any key");
+	readkey(rows - 4, cols / 2 + 8, LIGHTGRAY, BLACK);
 }
 
 
@@ -473,11 +475,13 @@ void soft_info(void)
 /*
  * Colorize the chat window
  */
-void Showline(int y, int x, char *msg)
+void Showline(int y, int x, char *msgin)
 {
     int     i;
+    char    *msg;
 
-    if (strlen(msg)) {
+    if (strlen(msgin)) {
+	msg = xstrcpy(cldecode(msgin));
 	if (msg[0] == '<') {
 	    mbse_locate(y, x);
 	    mbse_colour(LIGHTCYAN, BLACK);
@@ -502,6 +506,7 @@ void Showline(int y, int x, char *msg)
 	    mbse_colour(GREEN, BLACK);
 	    mbse_mvprintw(y, x, msg);
 	}
+	free(msg);
     }
 }
 
@@ -546,7 +551,7 @@ void Chat(int sysop)
     static char	    buf[200];
 
     clr_index();
-    rsize = lines - 7;
+    rsize = rows - 7;
     rpointer = 0;
 
     snprintf(buf, 200, "CCON,4,%d,%s,%s,%s;", mypid, CFG.sysop_name, CFG.sysop, sysop ? "1":"0");
@@ -559,19 +564,19 @@ void Chat(int sysop)
 	    mbse_mvprintw(4, 1, (char *)"The chatserver is not configured in /etc/services");
 	    working(2, 0, 0);
 	    working(0, 0, 0);
-	    center_addstr(lines -4, (char *)"Press any key");
-	    readkey(lines - 4, columns / 2 + 8, LIGHTGRAY, BLACK);
+	    center_addstr(rows -4, (char *)"Press any key");
+	    readkey(rows - 4, cols / 2 + 8, LIGHTGRAY, BLACK);
 	    return;
 	}
     }
 
-    mbse_locate(lines - 2, 1);
+    mbse_locate(rows - 2, 1);
     set_color(WHITE, BLUE);
     clrtoeol();
-    mbse_mvprintw(lines - 2, 2, "Chat, type \"/EXIT\" to exit");
+    mbse_mvprintw(rows - 2, 2, "Chat, type \"/EXIT\" to exit");
 
     set_color(WHITE, BLACK);
-    mbse_mvprintw(lines - 1, 1, ">");
+    mbse_mvprintw(rows - 1, 1, ">");
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
 
@@ -631,7 +636,7 @@ void Chat(int sysop)
 	/*
 	 * Check for a pressed key, if so then process it
 	 */
-	ch = testkey(lines -1, curpos + 2);
+	ch = testkey(rows -1, curpos + 2);
 	if (isprint(ch)) {
 	    set_color(CYAN, BLACK);
 	    if (curpos < 77) {
@@ -673,10 +678,10 @@ void Chat(int sysop)
 	    }
 	    curpos = 0;
 	    memset(&sbuf, 0, sizeof(sbuf));
-	    mbse_locate(lines - 1, 2);
+	    mbse_locate(rows - 1, 2);
 	    clrtoeol();
 	    set_color(WHITE, BLACK);
-	    mbse_mvprintw(lines - 1, 1, ">");
+	    mbse_mvprintw(rows - 1, 1, ">");
 	}
     }
 
@@ -728,9 +733,8 @@ void Chat(int sysop)
 int main(int argc, char *argv[])
 {
     struct passwd   *pw;
+    struct winsize  ws;
     char	    buf[128];
-    int		    rc;
-
 
     /*
      * Find out who is on the keyboard or automated the keyboard.
@@ -767,21 +771,14 @@ int main(int argc, char *argv[])
     signal(SIGTERM,(void (*))die);
     signal(SIGKILL,(void (*))die);
 
-    /*
-     * Find out if the environment variables LINES and COLUMNS are present,
-     * if so, then use these for screen dimensions.
-     */
-    if (getenv("LINES")) {
-	rc = atoi(getenv("LINES"));
-	if (rc >= 24)
-	    lines = rc;
+    if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
+	rows = ws.ws_row;
+	if (rows < 24) {
+	    Syslog('!', "Warning, only %d screen rows, forcing to 24", rows);
+	    rows = 24;
+	}
     }
-    if (getenv("COLUMNS")) {
-	rc = atoi(getenv("COLUMNS"));
-	if (rc >= 80)
-	    columns = rc;
-    }
-    Syslog('-', "Screen size set to %dx%d", columns, lines);
+    Syslog('+', "Screen size set to %dx%d", cols, rows);
 
     if (lockprogram((char *)"mbmon")) {
 	printf("\n\7Another mbmon is already running, abort.\n\n");

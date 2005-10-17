@@ -76,15 +76,18 @@ int reg_newcon(char *data)
     cnt = strtok(data, ",");
     pid = strtok(NULL, ",");
     tty = strtok(NULL, ",");
-    uid = strtok(NULL, ",");
-    prg = strtok(NULL, ",");
-    city = strtok(NULL, ";");
+    uid = xstrcpy(cldecode(strtok(NULL, ",")));
+    prg = xstrcpy(cldecode(strtok(NULL, ",")));
+    city = xstrcpy(cldecode(strtok(NULL, ";")));
 
     /*
      * Abort if no empty record is found 
      */
     if ((retval = reg_find((char *)"0")) == -1) {
 	Syslog('?', "Maximum clients (%d) reached", MAXCLIENT);
+	free(uid);
+	free(prg);
+	free(city);
 	return -1;
     }
 
@@ -110,6 +113,9 @@ int reg_newcon(char *data)
 	mailers++;
     Syslog('-', "Registered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
 		prg, pid, retval, mailers, ipmailers);
+    free(uid);
+    free(prg);
+    free(city);
     return retval;
 }
 
@@ -201,13 +207,16 @@ int reg_doing(char *data)
 
     cnt = strtok(data, ",");
     pid = strtok(NULL, ",");
-    line = strtok(NULL, ";");
+    line = xstrcpy(cldecode(strtok(NULL, ";")));
 
-    if ((rec = reg_find(pid)) == -1)
+    if ((rec = reg_find(pid)) == -1) {
+	free(line);
 	return -1;
+    }
 
     strncpy(reginfo[rec].doing, line, 35);
     reginfo[rec].lastcon = (int)time(NULL);
+    free(line);
     return 0;
 }
 
@@ -343,15 +352,20 @@ int reg_user(char *data)
 
     cnt  = strtok(data, ",");
     pid  = strtok(NULL, ",");
-    user = strtok(NULL, ",");
-    city = strtok(NULL, ";");
+    user = xstrcpy(cldecode(strtok(NULL, ",")));
+    city = xstrcpy(cldecode(strtok(NULL, ";")));
 
-    if ((rec = reg_find(pid)) == -1)
+    if ((rec = reg_find(pid)) == -1) {
+	free(user);
+	free(city);
 	return -1;
+    }
 
     strncpy((char *)&reginfo[rec].uname, user, 35);
     strncpy((char *)&reginfo[rec].city,  city, 35);
     reginfo[rec].lastcon = (int)time(NULL);
+    free(user);
+    free(city);
     return 0;
 }
 
@@ -384,7 +398,7 @@ int reg_sysop(char *data)
  */
 char *reg_ipm(char *data)
 {
-    char	*cnt, *pid;
+    char	*cnt, *pid, *name, *msg;
     static char	buf[128];
     int		rec;
 
@@ -401,7 +415,9 @@ char *reg_ipm(char *data)
 	return buf;
 
     buf[0] = '\0';
-    snprintf(buf, 128, "100:2,%s,%s;", reginfo[rec].fname[reginfo[rec].ptr_out], reginfo[rec].msg[reginfo[rec].ptr_out]);
+    name = xstrcpy(clencode(reginfo[rec].fname[reginfo[rec].ptr_out]));
+    msg  = xstrcpy(clencode(reginfo[rec].msg[reginfo[rec].ptr_out]));
+    snprintf(buf, 128, "100:2,%s,%s;", name, msg);
     if (reginfo[rec].ptr_out < RB)
 	reginfo[rec].ptr_out++;
     else
@@ -411,6 +427,8 @@ char *reg_ipm(char *data)
     
     Syslog('+', "reg_ipm: in=%d out=%d ismsg=%d", reginfo[rec].ptr_in, reginfo[rec].ptr_out, reginfo[rec].ismsg);
 
+    free(name);
+    free(msg);
     return buf;
 }
 
@@ -425,10 +443,9 @@ int reg_spm(char *data)
     int	    i;
 
     cnt  = strtok(data, ",");
-    from = strtok(NULL, ",");
-    too  = strtok(NULL, ",");
-    txt  = strtok(NULL, "\0");
-    txt[strlen(txt)-1] = '\0';
+    from = xstrcpy(cldecode(strtok(NULL, ",")));
+    too  = xstrcpy(cldecode(strtok(NULL, ",")));
+    txt  = xstrcpy(cldecode(strtok(NULL, ";")));
 
     Syslog('-', "SIPM:%s,%s,%s,%s;", cnt, from, too, txt);
 
@@ -440,6 +457,9 @@ int reg_spm(char *data)
 	     *  can't get anymore new messages.
 	     */
 	    if (reginfo[i].ismsg && (reginfo[i].ptr_in == reginfo[i].ptr_out)) {
+		free(from);
+		free(too);
+		free(txt);
 		return 2;
 	    }
 
@@ -447,6 +467,9 @@ int reg_spm(char *data)
 	     *  If user has the "do not distrurb" flag set, but the sysop ignore's this.
 	     */
 	    if (reginfo[i].silent) {
+		free(from);
+		free(too);
+		free(txt);
 		return 1;
 	    }
 
@@ -469,10 +492,16 @@ int reg_spm(char *data)
 	    }
 
 	    Syslog('+', "reg_spm: rec=%d in=%d out=%d ismsg=%d", i, reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);
+	    free(from);
+	    free(too);
+	    free(txt);
 	    return 0;
 	}
     }
     
+    free(from);
+    free(too);
+    free(txt);
     return 3;   // Error, user not found
 }
 
@@ -523,6 +552,7 @@ char *reg_fre(void)
 char *get_reginfo(int first)
 {
     static char	buf[256];
+    char	*name, *prg, *city, *doing;
 
     memset(&buf, 0, sizeof(buf));
     snprintf(buf, 256, "100:0;");
@@ -542,11 +572,17 @@ char *get_reginfo(int first)
 	    return buf;
 
 	if ((int)reginfo[entrypos].pid != 0) {
+	    name  = xstrcpy(clencode(reginfo[entrypos].uname));
+	    prg   = xstrcpy(clencode(reginfo[entrypos].prg));
+	    city  = xstrcpy(clencode(reginfo[entrypos].city));
+	    doing = xstrcpy(clencode( reginfo[entrypos].doing));
 	    snprintf(buf, 256, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
 				reginfo[entrypos].pid, reginfo[entrypos].tty,
-				reginfo[entrypos].uname, reginfo[entrypos].prg,
-				reginfo[entrypos].city, reginfo[entrypos].doing,
-				reginfo[entrypos].started);
+				name, prg, city, doing, reginfo[entrypos].started);
+	    free(name);
+	    free(prg);
+	    free(city);
+	    free(doing);
 	    return buf;
 	}
     }
@@ -565,25 +601,30 @@ int reg_page(char *data)
 	        
     cnt    = strtok(data, ",");
     pid    = strtok(NULL, ",");
-    reason = strtok(NULL, "\0");
-    reason[strlen(reason)-1] = '\0';
+    reason = xstrcpy(cldecode(strtok(NULL, ";")));
 
     Syslog('+', "reg_page: pid=%d, reason=\"%s\"", pid, reason);
 
-    if (!sysop_present)
+    if (!sysop_present) {
+	free(reason);
 	return 2;
+    }
 
     /*
      * Check if another user is paging the sysop or has paged the sysop.
      * If so, mark sysop busy.
      */
     for (i = 1; i < MAXCLIENT; i++) {
-	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].paging || reginfo[i].haspaged))
+	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].paging || reginfo[i].haspaged)) {
+	    free(reason);
 	    return 1;
+	}
     }
 
-    if ((rec = reg_find(pid)) == -1)
+    if ((rec = reg_find(pid)) == -1) {
+	free(reason);
 	return 3;
+    }
 
     /*
      * All seems well, accept the page
@@ -633,11 +674,11 @@ char *reg_checkpage(char *data)
     memset(&buf, 0, sizeof(buf));
     for (i = 1; i < MAXCLIENT; i++) {
 	if (reginfo[i].pid && reginfo[i].paging) {
-	    snprintf(buf, 128, "100:3,%d,1,%s;", reginfo[i].pid, reginfo[i].reason);
+	    snprintf(buf, 128, "100:3,%d,1,%s;", reginfo[i].pid, clencode(reginfo[i].reason));
 	    return buf;
 	}
 	if (reginfo[i].pid && reginfo[i].haspaged) {
-	    snprintf(buf, 128, "100:3,%d,0,%s;", reginfo[i].pid, reginfo[i].reason);
+	    snprintf(buf, 128, "100:3,%d,0,%s;", reginfo[i].pid, clencode(reginfo[i].reason));
 	    return buf;
 	}
     }

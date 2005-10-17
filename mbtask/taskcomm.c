@@ -58,19 +58,21 @@ int				cmd_run = FALSE;/* cmd running		*/
 int userlog(char *);
 int userlog(char *param)
 {
-	char		*prname, *prpid, *grade, *msg;
-	static char	lfn[PATH_MAX], token[14];
+    char	*prname, *prpid, *grade, *msg;
+    static char	lfn[PATH_MAX], token[14];
+    int		rc;
 
-	lfn[0] = '\0';
-	strcpy(token, strtok(param, ","));
-	strcpy(token, strtok(NULL, ","));
-	snprintf(lfn, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), token);
-	prname = strtok(NULL, ",");
-	prpid  = strtok(NULL, ",");
-	grade  = strtok(NULL, ",");
-	msg    = strtok(NULL, "\0");
-	msg[strlen(msg) -1] = '\0';
-	return ulog(lfn, grade, prname, prpid, msg);
+    lfn[0] = '\0';
+    strcpy(token, strtok(param, ","));
+    strcpy(token, strtok(NULL, ","));
+    snprintf(lfn, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), token);
+    prname = strtok(NULL, ",");
+    prpid  = strtok(NULL, ",");
+    grade  = strtok(NULL, ",");
+    msg    = xstrcpy(cldecode(strtok(NULL, ";")));
+    rc = ulog(lfn, grade, prname, prpid, msg);
+    free(msg);
+    return rc;
 }
 
 
@@ -519,7 +521,7 @@ char *exe_cmd(char *in)
     }
 
     /*
-     *  SCLO:1,message;
+     *  SCLO:0;
      *  100:0;
      */
     if (strncmp(cmd, "SCLO", 4) == 0) {

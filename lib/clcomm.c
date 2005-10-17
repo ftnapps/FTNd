@@ -530,7 +530,7 @@ char *clencode(char *s)
 	return s;
     }
     for (p = s, q = buf; *p != '\0';) {
-	if ((! isascii(*p)) || (*p == ',')) {
+	if ((! isascii(*p)) || (*p == ',') || (*p == ';')) {
 	    *q++ = '\\';
 	    *q++ = Base16Code[(*p >> 4) & 0x0f];
 	    *q++ = Base16Code[*p & 0x0f];
@@ -570,6 +570,8 @@ char *cldecode(char *s)
 	    *q++ = *p;
 	}
     }
+
+    *q = '\0';
     return s;
 }
 

@@ -58,7 +58,7 @@ char *get_sysinfo(void)
 	startdate = SYSINFO.StartDate;
 	snprintf(buf, SS_BUFSIZE, "100:7,%d,%d,%d,%d,%d,%s,%s;", SYSINFO.SystemCalls,
 			SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network, SYSINFO.Local,
-			ctime(&startdate), SYSINFO.LastCaller);
+			ctime(&startdate), clencode(SYSINFO.LastCaller));
     }
 
     fclose(fp);
@@ -94,49 +94,53 @@ char *get_lastcallercount(void)
 
 char *get_lastcallerrec(int Rec)
 {
-	static char		buf[SS_BUFSIZE];
-	char                    *temp, action[9];
-	FILE                    *fp;
+    static char	buf[SS_BUFSIZE];
+    char        *temp, action[9], *name, *city;
+    FILE        *fp;
 
-	snprintf(buf, SS_BUFSIZE, "201:1,16;");
-	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "r")) == NULL) {
-		free(temp);
-		return buf;
-	}
-	fread(&LCALLhdr, sizeof(LCALLhdr), 1, fp);
-	fseek(fp, ((Rec -1) * LCALLhdr.recsize) + LCALLhdr.hdrsize, SEEK_SET);
+    snprintf(buf, SS_BUFSIZE, "201:1,16;");
+    temp = calloc(PATH_MAX, sizeof(char));
+    snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	free(temp);
+	return buf;
+    }
+    fread(&LCALLhdr, sizeof(LCALLhdr), 1, fp);
+    fseek(fp, ((Rec -1) * LCALLhdr.recsize) + LCALLhdr.hdrsize, SEEK_SET);
 
-	if (fread(&LCALL, LCALLhdr.recsize, 1, fp) == 1) {
-		LCALL.UserName[15] = '\0';
-		LCALL.Location[12] = '\0';
-		strcpy(action, "--------");
-		if (LCALL.Hidden)
-			action[0] = 'H';
-		if (LCALL.Download)
-			action[1] = 'D';
-		if (LCALL.Upload)
-			action[2] = 'U';
-		if (LCALL.Read)
-			action[3] = 'R';
-		if (LCALL.Wrote)
-			action[4] = 'P';
-		if (LCALL.Chat)
-			action[5] = 'C';
-		if (LCALL.Olr)
-			action[6] = 'O';
-		if (LCALL.Door)
-			action[7] = 'E';
-		action[8] = '\0';
-		snprintf(buf, SS_BUFSIZE, "100:9,%s,%s,%d,%s,%s,%d,%d,%s,%s;", LCALL.UserName, LCALL.Location,
+    if (fread(&LCALL, LCALLhdr.recsize, 1, fp) == 1) {
+	LCALL.UserName[15] = '\0';
+	LCALL.Location[12] = '\0';
+	strcpy(action, "--------");
+	if (LCALL.Hidden)
+	    action[0] = 'H';
+	if (LCALL.Download)
+	    action[1] = 'D';
+	if (LCALL.Upload)
+	    action[2] = 'U';
+	if (LCALL.Read)
+	    action[3] = 'R';
+	if (LCALL.Wrote)
+	    action[4] = 'P';
+	if (LCALL.Chat)
+	    action[5] = 'C';
+	if (LCALL.Olr)
+	    action[6] = 'O';
+	if (LCALL.Door)
+	    action[7] = 'E';
+	action[8] = '\0';
+	name = xstrcpy(clencode(LCALL.UserName));
+	city = xstrcpy(clencode(LCALL.Location));
+	snprintf(buf, SS_BUFSIZE, "100:9,%s,%s,%d,%s,%s,%d,%d,%s,%s;", name, city,
 			LCALL.SecLevel, LCALL.Device, LCALL.TimeOn, 
 			(int)LCALL.CallTime, LCALL.Calls, LCALL.Speed, action);
-	}
+	free(name);
+	free(city);
+    }
 
-	free(temp);
-	fclose(fp);
-	return buf;
+    free(temp);
+    fclose(fp);
+    return buf;
 }
 
 

@@ -404,11 +404,11 @@ char *chat_connect(char *data)
     /*
      * Register with IBC
      */
-    pid = strtok(data, ",");        /* Should be 3  */
-    pid = strtok(NULL, ",");        /* The pid      */
-    realname = strtok(NULL, ",");   /* Username     */
-    nick = strtok(NULL, ",");       /* Mickname     */
-    sys = atoi(strtok(NULL, ";"));  /* Sysop flag   */
+    pid = strtok(data, ",");			    /* Should be 3  */
+    pid = strtok(NULL, ",");			    /* The pid      */
+    realname = xstrcpy(cldecode(strtok(NULL, ",")));/* Username     */
+    nick = xstrcpy(cldecode(strtok(NULL, ",")));    /* Nickname     */
+    sys = atoi(strtok(NULL, ";"));		    /* Sysop flag   */
 
     add_user(&users, CFG.myfqdn, nick, realname);
     send_all("USER %s@%s %s\r\n", nick, CFG.myfqdn, realname);
@@ -512,8 +512,7 @@ char *chat_put(char *data)
 	
     pid = strtok(data, ",");
     pid = strtok(NULL, ",");
-    msg = strtok(NULL, "\0");
-    msg[strlen(msg)-1] = '\0';
+    msg = xstrcpy(cldecode(strtok(NULL, ";")));
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	if (tmpu->pid == atoi(pid)) {
@@ -689,14 +688,17 @@ char *chat_put(char *data)
     }
     Syslog('-', "Pid %s was not connected to chatserver");
     snprintf(buf, 200, "100:2,1,*** ERROR - Not connected to server;");
+    free(msg);
     return buf;
 
 ack:
     snprintf(buf, 200, "100:0;");
+    free(msg);
     return buf;
 
 hangup:
     snprintf(buf, 200, "100:2,1,Disconnecting;");
+    free(msg);
     return buf;
 }
 
@@ -737,7 +739,7 @@ char *chat_get(char *data)
 		    /*
 		     * Message is for us
 		     */
-		    snprintf(buf, 200, "100:2,0,%s;", chat_messages[tmpu->pointer].message);
+		    snprintf(buf, 200, "100:2,0,%s;", clencode(chat_messages[tmpu->pointer].message));
 		    Syslog('-', "%s", buf);
 		    return buf;
 		}

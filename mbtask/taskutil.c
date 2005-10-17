@@ -625,3 +625,68 @@ char *printable(char *s, int l)
     return pbuff;
 }
 
+
+
+char *clencode(char *s)
+{
+    char        Base16Code[]="0123456789ABCDEF";
+    static char *buf;
+    char        *p, *q;
+
+    if (buf)
+	free(buf);
+    buf = NULL;
+    if (s == NULL)
+	return NULL;
+			                                    
+    if ((buf = malloc(2 * strlen(s) + 1 * sizeof(char))) == NULL) {
+	Syslog('+', "clencode: out of memory:string too long:\"%s\"", s);
+	return s;
+    }
+    for (p = s, q = buf; *p != '\0';) {
+	if ((! isascii(*p)) || (*p == ',') || (*p == ';')) {
+	    *q++ = '\\';
+	    *q++ = Base16Code[(*p >> 4) & 0x0f];
+	    *q++ = Base16Code[*p & 0x0f];
+	    p++;
+	} else if (*p == '\\') {
+	    *q++ = '\\';
+	    *q++ = *p++;
+	} else {
+	    *q++ = *p++;
+	}
+    }
+    *q = '\0';
+    return buf;
+}
+
+
+
+char *cldecode(char *s)
+{
+    char    *p, *q;
+    int     i;
+
+    if (s == NULL) {
+	return NULL;
+    }
+
+    for (p = s, q = s; *p; p++) {
+	if (*p == '\\') {
+	    if (*(p + 1) == '\\') {
+		*q++ = *p++;
+	    } else {
+		sscanf(p + 1, "%02x", &i);
+		*q++ = i;
+		p += 2;
+	    }
+	} else {
+	    *q++ = *p;
+	}
+    }
+
+    *q = '\0';
+    return s;
+}
+
+

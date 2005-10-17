@@ -33,7 +33,7 @@
 #include "mutil.h"
 
 
-extern int  lines, columns;
+extern int  rows, cols;
 extern int  ttyfd;
 int	    bbs_free;
 
@@ -305,10 +305,10 @@ int select_menu(int max)
      * Loop forever until it's right.
      */
     for (;;) {
-	mbse_mvprintw(lines - 2, 6, "Enter your choice >");
+	mbse_mvprintw(rows - 2, 6, "Enter your choice >");
 	menu = (char *)"-";
-	menu = edit_field(lines - 2, 26, 3, '9', menu);
-	mbse_locate(lines -2, 6);
+	menu = edit_field(rows - 2, 26, 3, '9', menu);
+	mbse_locate(rows - 2, 6);
 	clrtoeol();
 
 	if (strncmp(menu, "-", 1) == 0) 
@@ -330,7 +330,7 @@ void clrtoeol()
     int	i;
 
     printf("\r");
-    for (i = 0; i < columns; i++)
+    for (i = 0; i < cols; i++)
 	putchar(' ');
     printf("\r");
     fflush(stdout);
@@ -382,10 +382,10 @@ void show_date(int fg, int bg, int y, int x)
 	set_color(LIGHTGREEN, BLUE);
 	p = ctime(&now);
 	Striplf(p);
-	mbse_mvprintw(1, columns - 36, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
+	mbse_mvprintw(1, cols - 36, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
 	p = asctime(gmtime(&now));
 	Striplf(p);
-	mbse_mvprintw(2, columns - 36, (char *)"%s UTC", p);
+	mbse_mvprintw(2, cols - 36, (char *)"%s UTC", p);
 
 	/*
 	 * Indicator if bbs is free
@@ -395,15 +395,15 @@ void show_date(int fg, int bg, int y, int x)
 	    strcpy(buf, SockR("SBBS:0;"));
 	    if (strncmp(buf, "100:2,1", 7) == 0) {
 		set_color(WHITE, RED);
-		mbse_mvprintw(2,columns - 6, (char *)" Down ");
+		mbse_mvprintw(2,cols - 6, (char *)" Down ");
 	    } else {
 		set_color(WHITE, BLUE);
-		mbse_mvprintw(2,columns - 6, (char *)" Free ");
+		mbse_mvprintw(2,cols - 6, (char *)" Free ");
 	    }
 	    bbs_free = TRUE;
 	} else {
 	    set_color(WHITE, RED);
-	    mbse_mvprintw(2,columns - 6, (char *)" Busy ");
+	    mbse_mvprintw(2,cols - 6, (char *)" Busy ");
 	    bbs_free = FALSE;
 	}
 
@@ -447,7 +447,7 @@ void show_date(int fg, int bg, int y, int x)
 
 void center_addstr(int y, char *s)
 {
-    mbse_mvprintw(y, (columns / 2) - (strlen(s) / 2), s);
+    mbse_mvprintw(y, (cols / 2) - (strlen(s) / 2), s);
 }
 
 
@@ -459,18 +459,18 @@ void screen_start(char *name)
 {
     int	i;
 
-    mbse_TermInit(1, columns, lines);
+    mbse_TermInit(1, cols, rows);
     /*
      *  Overwrite screen the first time, if user had it black on white
      *  it will change to white on black. clear() won't do the trick.
      */
     set_color(LIGHTGRAY, BLUE);
     mbse_locate(1, 1);
-    for (i = 0; i < lines; i++) {
+    for (i = 0; i < rows; i++) {
 	if (i == 3)
 	    mbse_colour(LIGHTGRAY, BLACK);
 	clrtoeol();
-	if (i < lines)
+	if (i < rows)
 	    printf("\n");
     }
     fflush(stdout);
@@ -521,11 +521,11 @@ void working(int txno, int y, int x)
 	set_color(LIGHTGRAY, BLACK);
 
     switch (txno) {
-	case 0: mbse_mvprintw(4, columns - 14, (char *)"             ");
+	case 0: mbse_mvprintw(4, cols - 14, (char *)"             ");
 		break;
-	case 1: mbse_mvprintw(4, columns - 14, (char *)"Working . . .");
+	case 1: mbse_mvprintw(4, cols - 14, (char *)"Working . . .");
 		break;
-	case 2:	mbse_mvprintw(4, columns - 14, (char *)">>> ERROR <<<");
+	case 2:	mbse_mvprintw(4, cols - 14, (char *)">>> ERROR <<<");
 		for (i = 1; i <= 5; i++) {
 		    putchar(7);
 		    fflush(stdout);
@@ -533,12 +533,12 @@ void working(int txno, int y, int x)
 		}
 		msleep(550);
 		break;
-	case 3: mbse_mvprintw(4, columns - 14, (char *)"Form inserted");
+	case 3: mbse_mvprintw(4, cols - 14, (char *)"Form inserted");
 		putchar(7);
 		fflush(stdout);
 		sleep(1);
 		break;
-	case 4: mbse_mvprintw(4, columns - 14, (char *)"Form deleted ");
+	case 4: mbse_mvprintw(4, cols - 14, (char *)"Form deleted ");
 		putchar(7);
 		fflush(stdout);
 		sleep(1);
@@ -562,7 +562,7 @@ void clr_index()
     int i;
 
     set_color(LIGHTGRAY, BLACK);
-    for (i = 4; i <= (lines); i++) {
+    for (i = 4; i <= (rows); i++) {
 	mbse_locate(i, 1);
 	clrtoeol();
     }
@@ -578,7 +578,7 @@ void showhelp(char *T)
     int f, i, x, forlim;
 
     f = FALSE;
-    mbse_locate(lines, 1);
+    mbse_locate(rows, 1);
     set_color(WHITE, RED);
     clrtoeol();
     x = 0;
