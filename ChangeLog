@@ -1,8 +1,15 @@
 $Id$
 
-	WARNING, NOT FULLY TESTED YET ON 64 BIT PLATFORMS!
+	WARNING, NOT FULLY TESTED YET ON 64 BIT PLATFORMS! (but it's close).
 
-v0.81.2		14-Oct-2005.
+v0.81.3		17-Oct-2005
+
+
+v0.81.2		14-Oct-2005 - 17-Oct-2005.
+
+	general:
+		Added escaping in client/server comms. It is now allowed to
+		use commans's in user names, locations etc.
 
 	upgrade:
 		Owners of 64 bits systems should check if all *.sts files in
