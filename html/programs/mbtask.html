@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 09-Sep-2004</h5></div>
+<div align="right"><h5>Last update 17-Oct-2005</h5></div>
 <div align="center"><H1>mbtask - MBSE BBS Taskmanager</H1></div>
 
 <H3>Sysopsis.</H3>
@@ -171,6 +171,10 @@ this condition. Replies can also contain optional data. Examples:<br>
 100:0;                  Response 100, no data.
 200:1,Syntax error;     One datafield.
 </pre>
+Because data fields in commands and replies are separated and terminated by
+, and ; characters these characters need to be escaped. Also characters outside
+the us-ascii range must be escaped. This is done by ttranslating the character
+to a backslash followed by the hexadecimal number of the character.
 The server has a 10 minute timeout for receiving data when a connection
 is established. The clients need to "ping" the server at regular intervals
 to prevent a disconnect. All official MBSE BBS programs do that. The pid
