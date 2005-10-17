@@ -26,6 +26,7 @@ v0.81.2		14-Oct-2005.
 	mbsebbs:
 		Accepts connections via ssh.
 		Log close message sent to the user.
+		Allow comma again in several input functions.
 
 	mbnewusr:
 		Accepts connections via ssh.

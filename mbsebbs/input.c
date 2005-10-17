@@ -410,7 +410,7 @@ void GetstrC(char *sStr, int iMaxlen)
 		PUTCHAR('\007');
 	}
 
-	if ((ch > 31) && (ch < 127) && (ch != ',')) {
+	if ((ch > 31) && (ch < 127)) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
 		snprintf(sStr + strlen(sStr), 5, "%c", ch);
@@ -688,7 +688,7 @@ void GetnameNE(char *sStr, int iMaxlen)
 		putchar('\007');
 	}
 
-	if ((ch > 31) && (ch < 127) && (ch != ',')) {
+	if ((ch > 31) && (ch < 127)) {
 	    if (iPos < iMaxlen) {
 		iPos++;
 
