@@ -99,7 +99,7 @@ void WhosOn(char *OpData)
 		cnt = strtok(buf, ",");
 		strtok(NULL, ",");
 		device   = xstrcpy(strtok(NULL, ","));
-		fullname = xstrcpy(strtok(NULL, ","));
+		fullname = xstrcpy(cldecode(strtok(NULL, ",")));
 
 		if (((strcasecmp(OpData, "/H")) == 0) || (strlen(OpData) == 0)) {
 		    /*
@@ -136,8 +136,8 @@ void WhosOn(char *OpData)
 		free(device);
 
 		strtok(NULL, ",");
-		location = xstrcpy(strtok(NULL, ","));
-		isdoing  = xstrcpy(strtok(NULL, ","));
+		location = xstrcpy(cldecode(strtok(NULL, ",")));
+		isdoing  = xstrcpy(cldecode(strtok(NULL, ",")));
 
 		if (strstr(isdoing, "Browsing"))
 		    /* Browseng */
@@ -267,7 +267,7 @@ void WhosDoingWhat(int iStatus, char *what)
 void SendOnlineMsg(char *OpData)
 {
     static char	    buf[128];
-    char	    *User, *String, *temp;
+    char	    *User, *String, *temp, *from, *too, *msg;
     FILE            *fp;
     struct userhdr  ushdr;
     struct userrec  us;
@@ -320,11 +320,17 @@ void SendOnlineMsg(char *OpData)
     if ((strcmp(String, "")) != 0) {
 	buf[0] = '\0';
 	if ((strcasecmp(OpData, "/H") == 0) && strlen(exitinfo.sHandle))
-	    snprintf(buf, 128, "CSPM:3,%s,%s,%s;", exitinfo.sHandle, User, String);
+	    from = xstrcpy(clencode(exitinfo.sHandle));
 	else if (strcasecmp(OpData, "/U") == 0)
-	    snprintf(buf, 128, "CSPM:3,%s,%s,%s;", exitinfo.Name, User, String);
+	    from = xstrcpy(clencode(exitinfo.Name));
 	else
-	    snprintf(buf, 128, "CSPM:3,%s,%s,%s;", exitinfo.sUserName, User, String);
+	    from = xstrcpy(clencode(exitinfo.sUserName));
+	too = xstrcpy(clencode(User));
+	msg = xstrcpy(clencode(String));
+	snprintf(buf, 128, "CSPM:3,%s,%s,%s;", from, too, msg);
+	free(from);
+	free(too);
+	free(msg);
 
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());

@@ -62,9 +62,9 @@ void Check_PM(void)
         if (strncmp(buf, "100:0;", 6) == 0)
             return;
 
-        strncpy(resp, strtok(buf, ":"), 5);	/* Should be 100	*/
-	strncpy(resp, strtok(NULL, ","), 3);	/* Should be 2		*/
-	strncpy(resp, strtok(NULL, ","), 36);	/* From Name		*/
+        strncpy(resp, strtok(buf, ":"), 5);		/* Should be 100	*/
+	strncpy(resp, strtok(NULL, ","), 3);		/* Should be 2		*/
+	strncpy(resp, cldecode(strtok(NULL, ",")), 36);	/* From Name		*/
 
 	Enter(2);
 	PUTCHAR('\007');
@@ -72,8 +72,7 @@ void Check_PM(void)
         /* ** Message ** from */
         snprintf(msg, 81, "%s %s:", (char *)Language(434), resp);
 	poutCR(CYAN, BLACK, msg);
-	strncpy(resp, strtok(NULL, "\0"), 80);   /* The real message	*/
-	resp[strlen(resp)-1] = '\0';
+	strncpy(resp, cldecode(strtok(NULL, "\0")), 80);    /* The real message	*/
         PUTSTR(resp);
 	Enter(1);
         Pause();

@@ -446,8 +446,7 @@ int reg_spm(char *data)
     from = xstrcpy(cldecode(strtok(NULL, ",")));
     too  = xstrcpy(cldecode(strtok(NULL, ",")));
     txt  = xstrcpy(cldecode(strtok(NULL, ";")));
-
-    Syslog('-', "SIPM:%s,%s,%s,%s;", cnt, from, too, txt);
+    Syslog('+', "PM from \"%s\" to \"%s\": \"%s\"", from, too, txt);
 
     for (i = 0; i < MAXCLIENT; i++) {
 	if (reginfo[i].pid && (strcasecmp(reginfo[i].uname, too) == 0)) {

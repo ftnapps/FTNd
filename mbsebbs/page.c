@@ -146,7 +146,7 @@ void Page_Sysop(char *String)
 
     locate(16, ((80 - CFG.iPageLength) / 2 - 2) + 1);
 
-    snprintf(buf, 128, "CPAG:2,%d,%s;", mypid, Reason);
+    snprintf(buf, 128, "CPAG:2,%d,%s;", mypid, clencode(Reason));
     if (socket_send(buf)) {
 	Syslog('+', "Failed to send message to mbtask");
 	free(Reason);

@@ -51,7 +51,7 @@ int socket_connect(char *user, char *prg, char *city)
 {
     int 	s;
     static char	buf[SS_BUFSIZE], tty[18];
-    char	*tmp;
+    char	*tmp, *u, *p, *c;
 
     myname = prg;
 
@@ -117,7 +117,13 @@ int socket_connect(char *user, char *prg, char *city)
     /*
      * Send the information to the server. 
      */
-    snprintf(buf, SS_BUFSIZE, "AINI:5,%d,%s,%s,%s,%s;", getpid(), tty, user, prg, city);
+    u = xstrcpy(clencode(user));
+    p = xstrcpy(clencode(prg));
+    c = xstrcpy(clencode(city));
+    snprintf(buf, SS_BUFSIZE, "AINI:5,%d,%s,%s,%s,%s;", getpid(), tty, u, p, c);
+    free(c);
+    free(p);
+    free(u);
     if (socket_send(buf) != 0) {
 	sock = -1;
 	return -1;

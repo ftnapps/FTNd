@@ -419,8 +419,7 @@ void show_date(int fg, int bg, int y, int x)
 	    pid = strtok(buf, ",");
 	    pid = strtok(NULL, ",");
 	    page = strtok(NULL, ",");
-	    reason = strtok(NULL, "\0");
-	    reason[strlen(reason)-1] = '\0';
+	    reason = xstrcpy(cldecode(strtok(NULL, ";")));
 	    if (strlen(reason) > 60)
 		reason[60] = '\0';
 
@@ -435,6 +434,7 @@ void show_date(int fg, int bg, int y, int x)
 		mbse_mvprintw(3, 1, " Sysop page (%s) %-60s", pid, reason);
 		putchar(7);		/* Each second	    */
 	    }
+	    free(reason);
 	}
 
 	if (y && x)

@@ -279,10 +279,10 @@ void user(void)
 		/*
 		 * Only mbsebbs is wanted
 		 */
-		strtok(buf, ",");			/* response */
-		strtok(NULL, ",");			/* pid	    */
-		strtok(NULL, ",");			/* tty	    */
-		fullname = xstrcpy(strtok(NULL, ","));	/* username */
+		strtok(buf, ",");				    /* response */
+		strtok(NULL, ",");				    /* pid	*/
+		strtok(NULL, ",");				    /* tty	*/
+		fullname = xstrcpy(cldecode(strtok(NULL, ",")));    /* username */
 		if (strcmp(fullname, usrconfig.Name) == 0) {
 		    logins++;
 		}

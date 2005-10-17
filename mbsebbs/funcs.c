@@ -68,9 +68,9 @@ int CheckStatus()
 	buf[strlen(buf) -1] = '\0';
 	Enter(2);
 	PUTCHAR('\007');
-	snprintf(msg, 81, "*** %s ***", buf+8);
+	snprintf(msg, 81, "*** %s ***", cldecode(buf+8));
 	PUTSTR(msg);
-	Syslog('+', "Send user message \"%s\"", buf+8);
+	Syslog('+', "Send user message \"%s\"", cldecode(buf+8));
 	Enter(3);
     }
     return FALSE;

@@ -547,15 +547,20 @@ void Chat(int sysop)
 {
     int		    curpos = 0, stop = FALSE, data, rc;
     unsigned char   ch = 0;
-    char	    sbuf[81], resp[128];
+    char	    sbuf[81], resp[128], *sysop_name, *name;
     static char	    buf[200];
 
     clr_index();
     rsize = rows - 7;
     rpointer = 0;
 
-    snprintf(buf, 200, "CCON,4,%d,%s,%s,%s;", mypid, CFG.sysop_name, CFG.sysop, sysop ? "1":"0");
+    sysop_name = xstrcpy(clencode(CFG.sysop_name));
+    name = xstrcpy(clencode(CFG.sysop));
+    snprintf(buf, 200, "CCON,4,%d,%s,%s,%s;", mypid, sysop_name, name, sysop ? "1":"0");
+    free(sysop_name);
+    free(name);
     Syslog('-', "> %s", buf);
+
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
 	Syslog('-', "< %s", buf);
@@ -611,8 +616,7 @@ void Chat(int sysop)
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error	    */
 		    rc = atoi(resp);
 		    memset(&resp, 0, sizeof(resp));
-		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message	    */
-		    resp[strlen(resp)-1] = '\0';
+		    strncpy(resp, cldecode(strtok(NULL, ";")), 80);  /* The message	    */
 		    DispMsg(resp);
 		    if (rc == 1) {
 			Syslog('+', "Chat server error: %s", resp);
@@ -657,7 +661,7 @@ void Chat(int sysop)
 		putchar(7);
 	    }
 	} else if ((ch == '\r') && curpos) {
-	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, sbuf);
+	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, clencode(sbuf));
 	    Syslog('-', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
@@ -667,8 +671,7 @@ void Chat(int sysop)
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2              */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error, end chat	*/
 		    rc = atoi(resp);
-		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message              */
-		    resp[strlen(resp)-1] = '\0';
+		    strncpy(resp, cldecode(strtok(NULL, ";")), 80);  /* The message              */
 		    DispMsg(resp);
 		    if (rc == 1) {
 			Syslog('+', "Chat server error: %s", resp);
@@ -701,8 +704,7 @@ void Chat(int sysop)
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
 		rc = atoi(resp);
 		memset(&resp, 0, sizeof(resp));
-		strncpy(resp, strtok(NULL, "\0"), 80);  /* The message          */
-		resp[strlen(resp)-1] = '\0';
+		strncpy(resp, cldecode(strtok(NULL, ";")), 80);  /* The message          */
 		DispMsg(resp);
 		if (rc == 1) {
 		    Syslog('+', "Chat server error: %s", resp);
@@ -722,8 +724,6 @@ void Chat(int sysop)
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
 	Syslog('-', "< %s", buf);
-	if (strncmp(buf, "100:1,", 6)) {
-	}
     }
     sleep(1);
 }
