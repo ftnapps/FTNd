@@ -102,32 +102,38 @@ char *xstrcat(char *src, char *add)
 
 void InitClient(char *user, char *myname, char *where, char *logfname, int loggr, char *err, char *mgr, char *debug)
 {
-	if ((getenv("MBSE_ROOT")) == NULL) {
-		printf("Could not get the MBSE_ROOT environment variable\n");
-		printf("Please set the environment variable ie:\n");
-		printf("\"MBSE_ROOT=/opt/mbse; export MBSE_ROOT\"\n\n");
-		exit(MBERR_INIT_ERROR);
-	}
+    char    *u, *w;
 
-	snprintf(progname, 20, "%s", myname);
-	snprintf(logfile, PATH_MAX -1, "%s", logfname);
-	snprintf(errfile, PATH_MAX -1, "%s", err);
-	snprintf(mgrfile, PATH_MAX -1, "%s", mgr);
-	snprintf(logdebug, PATH_MAX -1, "%s", debug);
-	loggrade = loggr;
+    if ((getenv("MBSE_ROOT")) == NULL) {
+	printf("Could not get the MBSE_ROOT environment variable\n");
+	printf("Please set the environment variable ie:\n");
+	printf("\"MBSE_ROOT=/opt/mbse; export MBSE_ROOT\"\n\n");
+	exit(MBERR_INIT_ERROR);
+    }
 
-        snprintf(cpath, 107, "%s/tmp/%s%d", getenv("MBSE_ROOT"), progname, getpid());
-        snprintf(spath, 107, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+    snprintf(progname, 20, "%s", myname);
+    snprintf(logfile, PATH_MAX -1, "%s", logfname);
+    snprintf(errfile, PATH_MAX -1, "%s", err);
+    snprintf(mgrfile, PATH_MAX -1, "%s", mgr);
+    snprintf(logdebug, PATH_MAX -1, "%s", debug);
+    loggrade = loggr;
 
-        /*
-         * Store my pid in case a child process is forked and wants to do
-         * some communications with the mbsed server.
-         */
-        mypid = getpid();
-        if (socket_connect(user, myname, where) == -1) {
-                printf("PANIC: cannot access socket\n");
-                exit(MBERR_INIT_ERROR);
-        }
+    snprintf(cpath, 107, "%s/tmp/%s%d", getenv("MBSE_ROOT"), progname, getpid());
+    snprintf(spath, 107, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+
+    /*
+     * Store my pid in case a child process is forked and wants to do
+     * some communications with the mbsed server.
+     */
+    mypid = getpid();
+    u = xstrcpy(clencode(user));
+    w = xstrcpy(clencode(where));
+    if (socket_connect(u, myname, w) == -1) {
+        printf("PANIC: cannot access socket\n");
+        exit(MBERR_INIT_ERROR);
+    }
+    free(w);
+    free(u);
 }
 
 
@@ -366,17 +372,17 @@ void Mgrlog(const char *format, ...)
 
 void IsDoing(const char *format, ...)
 {
-	char	*outputstr;
-	va_list	va_ptr;
+    char	*outputstr;
+    va_list	va_ptr;
 
-	outputstr = calloc(SS_BUFSIZE, sizeof(char));
+    outputstr = calloc(SS_BUFSIZE, sizeof(char));
 
-	va_start(va_ptr, format);
-	vsnprintf(outputstr, SS_BUFSIZE, format, va_ptr);
-	va_end(va_ptr);
+    va_start(va_ptr, format);
+    vsnprintf(outputstr, SS_BUFSIZE, format, va_ptr);
+    va_end(va_ptr);
 
-	SockS("ADOI:2,%d,%s;", mypid, outputstr);
-	free(outputstr);
+    SockS("ADOI:2,%d,%s;", mypid, outputstr);
+    free(outputstr);
 }
 
 
@@ -393,26 +399,32 @@ void RegTCP(void)
 
 void SetTTY(char *tty)
 {
-	SockS("ATTY:2,%d,%s;", mypid, tty);
+    SockS("ATTY:2,%d,%s;", mypid, tty);
 }
 
 
 
 void UserCity(pid_t pid, char *user, char *city)
 {
-        SockS("AUSR:3,%d,%s,%s;", pid, user, city);
+    char    *u, *c;
+
+    u = xstrcpy(clencode(user));
+    c = xstrcpy(clencode(city));
+    SockS("AUSR:3,%d,%s,%s;", pid, u, c);
+    free(u);
+    free(c);
 }
 
 
 
 void DoNop()
 {
-	SockS("GNOP:1,%d;", mypid);
+    SockS("GNOP:1,%d;", mypid);
 }
 
 
 
-static int32_t nop = 0;
+static time_t	nop = 0;
 
 /*
  * This function can be called very often but will only send once a minute
@@ -420,13 +432,13 @@ static int32_t nop = 0;
  */
 void Nopper(void)
 {
-	time_t	now;
+    time_t  now;
 
-	now = time(NULL);
-	if (((time_t)now - (time_t)nop) > 60) {
-		nop = now;
-		SockS("GNOP:1,%d;", mypid);
-	}
+    now = time(NULL);
+    if ((now - nop) > 60) {
+	nop = now;
+	SockS("GNOP:1,%d;", mypid);
+    }
 }
 
 
@@ -437,10 +449,10 @@ void Nopper(void)
  */
 void Altime(int altime)
 {
-	if (altime)
-		SockS("ATIM:2,%d,%d;", mypid, altime);
-	else
-		SockS("ADEF:1,%d;", mypid);
+    if (altime)
+	SockS("ATIM:2,%d,%d;", mypid, altime);
+    else
+	SockS("ADEF:1,%d;", mypid);
 }
 
 
@@ -501,6 +513,68 @@ int enoughspace(unsigned int needed)
 
 
 
+char *clencode(char *s)
+{
+    char        Base16Code[]="0123456789ABCDEF";
+    static char *buf;
+    char        *p, *q;
+
+    if (buf)
+	free(buf);
+    buf = NULL;
+    if (s == NULL)
+	return NULL;
+			        
+    if ((buf = malloc(2 * strlen(s) + 1 * sizeof(char))) == NULL) {
+	Syslog('+', "clencode: out of memory:string too long:\"%s\"", s);
+	return s;
+    }
+    for (p = s, q = buf; *p != '\0';) {
+	if ((! isascii(*p)) || (*p == ',')) {
+	    *q++ = '\\';
+	    *q++ = Base16Code[(*p >> 4) & 0x0f];
+	    *q++ = Base16Code[*p & 0x0f];
+	    p++;
+	} else if (*p == '\\') {
+	    *q++ = '\\';
+	    *q++ = *p++;
+	} else {
+	    *q++ = *p++;
+	}
+    }
+    *q = '\0';
+    return buf;
+}
+
+
+
+char *cldecode(char *s)
+{
+    char    *p, *q;
+    int	    i;
+
+    if (s == NULL) {
+	return NULL;
+    }
+
+    for (p = s, q = s; *p; p++) {
+	if (*p == '\\') {
+	    if (*(p + 1) == '\\') {
+		*q++ = *p++;
+	    } else {
+		sscanf(p + 1, "%02x", &i);
+		*q++ = i;
+		p += 2;
+	    }
+	} else {
+	    *q++ = *p;
+	}
+    }
+    return s;
+}
+
+
+
 char *printable(char *s, int l)
 {
     int	    len;
@@ -547,7 +621,7 @@ char *printable(char *s, int l)
 
 char *printablec(char c)
 {
-	return printable(&c,1);
+    return printable(&c,1);
 }
 
 

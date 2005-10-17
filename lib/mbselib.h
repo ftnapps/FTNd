@@ -2088,6 +2088,8 @@ void		Nopper(void);
 void		Altime(int);
 int		enoughspace(unsigned int);
 unsigned int	sequencer(void);
+char		*clencode(char *);
+char		*cldecode(char *);
 char		*printable(char *, int);
 char		*printablec(char);
 
@@ -2108,13 +2110,13 @@ int		socket_shutdown(pid_t);
  *  From crc.c
  */
 unsigned int	crc32ccitt(char *, int);
-unsigned short crc16ccitt(char *, int);
+unsigned short	crc16ccitt(char *, int);
 unsigned int	str_crc32(char *str);
 unsigned int	StringCRC32(char *);
 unsigned int	upd_crc32(char *buf, unsigned int crc, int len);
 unsigned int	norm_crc32(unsigned int crc);
-unsigned short crc16xmodem(char *, int);
-unsigned char  checksum(char *, int);
+unsigned short	crc16xmodem(char *, int);
+unsigned char	checksum(char *, int);
 
 
 

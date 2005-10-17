@@ -9,6 +9,9 @@ v0.81.2		14-Oct-2005.
 		the outbound are 12 bytes log. If not, stop the whole bbs and
 		remove all these files. Then start the bbs again.
 
+	libmbse.a:
+		Added clencode and cldecode to safe escape messages to mbtask.
+
 	mbcico:
 		Some time_t/int conversions.
 
