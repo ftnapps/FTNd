@@ -1038,10 +1038,10 @@ int hydra_batch(int role, file_list *to_send)
 			Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);	// 03-11-2003 MB.
 			SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);		// 03-11-2003 MB.
 #ifdef HAVE_ZLIB_H
-			uLongf	destLen;
+			unsigned long destLen;
 			if (compstate == HCMP_GZ) {
 			    txzlen = H_ZIPBUFLEN - 4;
-			    destLen = (uLongf)txzlen;
+			    destLen = (unsigned long)txzlen;
 			    rcz = compress2(txzbuf + 4, &destLen, txbuf + 4, txlen, 9);
 			    txzlen = (int)destLen;
 			    if (rcz == Z_OK) {
@@ -1500,10 +1500,10 @@ int hydra_batch(int role, file_list *to_send)
 		    /*
 		     * If data packet is a zlib compressed packet, uncompress it first.
 		     */
-		    uLongf  destLen;
+		    unsigned long destLen;
 		    if (pkttype == HPKT_ZIPDATA) {
 			rxzlen = H_ZIPBUFLEN;
-			destLen = (uLongf)rxzlen;
+			destLen = (unsigned long)rxzlen;
 			rcz = uncompress(rxzbuf, &destLen, rxbuf + 4, rxlen - 4);
 			rxzlen = (int)destLen;
 			if (rcz == Z_OK) {

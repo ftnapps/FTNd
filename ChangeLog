@@ -4,6 +4,9 @@ $Id$
 
 v0.81.3		17-Oct-2005
 
+	mbcico:
+		Changed uLongf to unsigned long in hydra driver.
+
 
 v0.81.2		14-Oct-2005 - 17-Oct-2005.
 
