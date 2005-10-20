@@ -558,6 +558,7 @@ int hydra_batch(int role, file_list *to_send)
     static char	    txzbuf[H_ZIPBUFLEN], rxzbuf[H_ZIPBUFLEN];
     unsigned int    rxzlen, txzlen;             /* length of receive/transmit compressed buffer */
     int		    rcz, cmpblksize;
+    unsigned long   destLen;
 #endif
     
     Syslog('h', "Hydra: resettimers");
@@ -1038,7 +1039,6 @@ int hydra_batch(int role, file_list *to_send)
 			Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);	// 03-11-2003 MB.
 			SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);		// 03-11-2003 MB.
 #ifdef HAVE_ZLIB_H
-			unsigned long destLen;
 			if (compstate == HCMP_GZ) {
 			    txzlen = H_ZIPBUFLEN - 4;
 			    destLen = (unsigned long)txzlen;
@@ -1500,7 +1500,6 @@ int hydra_batch(int role, file_list *to_send)
 		    /*
 		     * If data packet is a zlib compressed packet, uncompress it first.
 		     */
-		    unsigned long destLen;
 		    if (pkttype == HPKT_ZIPDATA) {
 			rxzlen = H_ZIPBUFLEN;
 			destLen = (unsigned long)rxzlen;
