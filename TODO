@@ -24,6 +24,8 @@ everything:
 
 	L: Add personal message area.
 
+	N: The ttyinfo.tty field is too short for NetBSD.
+
 install:
 	L: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf. Is this still a problem?
