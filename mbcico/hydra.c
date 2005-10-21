@@ -558,7 +558,7 @@ int hydra_batch(int role, file_list *to_send)
     static char	    txzbuf[H_ZIPBUFLEN], rxzbuf[H_ZIPBUFLEN];
     unsigned int    rxzlen, txzlen;             /* length of receive/transmit compressed buffer */
     int		    rcz, cmpblksize;
-    unsigned long   destLen;
+    uLongf	    destLen;
 #endif
     
     Syslog('h', "Hydra: resettimers");
@@ -1041,7 +1041,7 @@ int hydra_batch(int role, file_list *to_send)
 #ifdef HAVE_ZLIB_H
 			if (compstate == HCMP_GZ) {
 			    txzlen = H_ZIPBUFLEN - 4;
-			    destLen = (unsigned long)txzlen;
+			    destLen = (uLongf)txzlen;
 			    rcz = compress2(txzbuf + 4, &destLen, txbuf + 4, txlen, 9);
 			    txzlen = (int)destLen;
 			    if (rcz == Z_OK) {
@@ -1502,7 +1502,7 @@ int hydra_batch(int role, file_list *to_send)
 		     */
 		    if (pkttype == HPKT_ZIPDATA) {
 			rxzlen = H_ZIPBUFLEN;
-			destLen = (unsigned long)rxzlen;
+			destLen = (uLongf)rxzlen;
 			rcz = uncompress(rxzbuf, &destLen, rxbuf + 4, rxlen - 4);
 			rxzlen = (int)destLen;
 			if (rcz == Z_OK) {
