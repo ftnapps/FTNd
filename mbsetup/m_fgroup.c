@@ -684,7 +684,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 {
     char    *temp, group[13];
     FILE    *ti, *wp, *ip, *no;
-    int	    refs, i, First = TRUE;;
+    int	    refs, i, First = TRUE;
     time_t  tt;
 
     temp = calloc(PATH_MAX, sizeof(char));

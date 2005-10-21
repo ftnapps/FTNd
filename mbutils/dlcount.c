@@ -46,10 +46,10 @@ extern int  do_quiet;
 
 void dlcount(void)
 {
-    char	*temp, *p, *q, *date, *file, *base, month[20];
+    char	*temp, *p, *q = NULL, *date, *file, *base, month[20];
     FILE	*fp;
     int		i, date_ok, file_ok, result, filesize;
-    time_t	filedate, lastcheck;
+    time_t	filedate = (time_t)0, lastcheck;
     struct tm	tm;
     
     temp = calloc(PATH_MAX, sizeof(char));
