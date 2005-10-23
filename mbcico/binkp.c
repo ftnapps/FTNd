@@ -94,7 +94,9 @@ typedef enum {CompNone, CompGZ, CompBZ2, CompPLZ} CompType;
 // static char *txstate[] = { (char *)"TxGNF", (char *)"TxTryR", (char *)"TxReadS", (char *)"TxWLA", (char *)"TxDone" };
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
 static char *opstate[] = { (char *)"No", (char *)"Can", (char *)"Want", (char *)"Active" };
+#endif
 static char *cpstate[] = { (char *)"No", (char *)"GZ", (char *)"BZ2", (char *)"PLZ" };
 
 
@@ -113,8 +115,6 @@ struct timeval      rxtvstart;			/* Receiver start time              */
 struct timeval      rxtvend;			/* Receiver end time                */
 
 
-#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
-
 int compress_init(int type);
 int do_compress(int type, char *dst, int *dst_len, char *src, int *src_len, int finish, void *data);
 void compress_deinit(int type, void *data);
@@ -126,8 +126,6 @@ int decompress_abort(int type, void *data);
 
 #define ZBLKSIZE        1024    /* read/write file buffer size */
 	
-#endif
-
 
 struct binkprec {
     int			Role;			/* 1=orig, 0=answer		    */
@@ -188,7 +186,7 @@ struct binkprec {
     int			buggyIrex;		/* Buggy Irex detected		    */
 
     int			txcpos;			/* Transmitter compressed position  */
-#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB2_H)
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     int			EXTCMDwe;		/* EXTCMD flag			    */
     int			EXTCMDthey;
 #endif
@@ -272,7 +270,9 @@ int binkp(int role)
     bp.remote_EOB = FALSE;
     bp.msgs_on_queue = 0;
     bp.cmpblksize = SND_BLKSIZE;
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     bp.EXTCMDwe = bp.EXTCMDthey = No;	    /* Default	*/
+#endif
 #ifdef	HAVE_ZLIB_H
     if (localoptions & NOPLZ)
 	bp.PLZthey = bp.PLZwe = No;
@@ -1415,8 +1415,10 @@ TrType binkp_receiver(void)
 
 TrType binkp_transmitter(void)
 {
-    int		rc = 0, eof = FALSE;
-    int		sz, rc1 = 0;
+    int		rc = 0, eof = FALSE, rc1 = 0;
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
+    int		sz;
+#endif
     char	*extra;
     char	*nonhold_mail;
     fa_list	*eff_remote;
@@ -1987,9 +1989,11 @@ int binkp_banner(int originate)
  */
 int binkp_send_comp_opts(void)
 {
-    int	    rc = 0, plz = FALSE, gz = FALSE, bz2 = FALSE;
+    int	    rc = 0;
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
+    int	    plz = FALSE, gz = FALSE, bz2 = FALSE;
     char    *p = NULL;
-
+    
 #ifdef	HAVE_ZLIB_H
     if ((bp.GZwe == Can) || (bp.GZthey == Can) || (bp.GZthey == Want)) {
 	gz = TRUE;
@@ -2025,6 +2029,7 @@ int binkp_send_comp_opts(void)
 	rc = binkp_send_command(MM_NUL,"%s", p);
 	free(p);
     }
+#endif
 
     return rc;    
 }
@@ -2033,11 +2038,13 @@ int binkp_send_comp_opts(void)
 
 void binkp_set_comp_state(void)
 {
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     Syslog('b', "Binkp: EXTCMD they=%s we=%s", opstate[bp.EXTCMDthey], opstate[bp.EXTCMDwe]);
     if ((bp.EXTCMDthey == Want) && (bp.EXTCMDwe == Want)) {
 	Syslog('+', "Binkp: EXTCMD is active");
 	bp.EXTCMDthey = bp.EXTCMDwe = Active;
     }
+#endif
 
 #ifdef  HAVE_BZLIB_H
     Syslog('b', "Binkp: BZ2    they=%s we=%s", opstate[bp.BZ2they], opstate[bp.BZ2we]);
@@ -2182,13 +2189,14 @@ void parse_m_nul(char *msg)
 			free(bp.MD_Challenge);
 		    bp.MD_Challenge = MD_getChallenge(q, NULL);
 		}
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
 	    } else if (strcmp(q, (char *)"EXTCMD") == 0) {
 		Syslog('b', "Binkp: remote wants EXTCMD mode");
 		if (bp.EXTCMDthey == Can) {
 		    bp.EXTCMDthey = Want;
 		    binkp_set_comp_state();
 		}
-
+#endif
 #ifdef	HAVE_BZLIB_H
 	    } else if (strcmp(q, (char *)"BZ2") == 0) {
 		Syslog('b', "Binkp: remote wants BZ2 mode");
@@ -2814,7 +2822,9 @@ void binkp_clear_filelist(int rc)
 
 int compress_init(int type)
 {
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     int	    lvl;
+#endif
 
     switch (type) {
 #ifdef HAVE_BZLIB_H
@@ -2850,7 +2860,9 @@ int compress_init(int type)
 
 int do_compress(int type, char *dst, int *dst_len, char *src, int *src_len, int finish, void *data)
 {
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     int rc;
+#endif
 
     switch (type) {
 #ifdef HAVE_BZLIB_H
@@ -2971,7 +2983,9 @@ int decompress_init(int type)
 
 int do_decompress(int type, char *dst, int *dst_len, char *src, int *src_len, void *data) 
 {
+#if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     int	    rc;
+#endif
 
     switch (type) {
 #ifdef HAVE_BZLIB_H

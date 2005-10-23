@@ -16,7 +16,7 @@ and host systems.
 Internal mail format is JAM (c) messagebase.
 Full tic file support, including extended
 tic files.
-OS: GNU/Linux, NetBSD and FreeBSD.
+OS: GNU/Linux and *BSD, 32/64 bit versions.
 Originating sites 2:280/2802@fidonet and
 http://www.mbse.dds.nl/
 Copyright by Michiel Broek.
