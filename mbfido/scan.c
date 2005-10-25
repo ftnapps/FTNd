@@ -1124,7 +1124,7 @@ void ExportEmail(unsigned int MsgNum)
     if (Msg_Read(MsgNum, 79)) {
 	if ((p = (char *)MsgText_First()) != NULL) {
 	    do {
-		Syslog('m', "%s", printable(p, 0));
+		Syslogp('m', printable(p, 0));
 		/*
 		 *  GoldED places ^A characters in front of the RFC headers, 
 		 *  so does mbsebbs as well.

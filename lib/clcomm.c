@@ -197,48 +197,54 @@ char *SockR(const char *format, ...)
 
 void WriteError(const char *format, ...)
 {
-	char		*outputstr;
-	va_list		va_ptr;
-	int		i;
+    char    *outputstr, *temp;
+    va_list va_ptr;
+    int	    i;
 
-	outputstr = calloc(10240, sizeof(char));
+    outputstr = calloc(10240, sizeof(char));
 
-	va_start(va_ptr, format);
-	vsnprintf(outputstr, 10240, format, va_ptr);
+    va_start(va_ptr, format);
+    vsnprintf(outputstr, 10240, format, va_ptr);
 
-	va_end(va_ptr);
+    va_end(va_ptr);
 
-	for (i = 0; i < strlen(outputstr); i++)
-		if (outputstr[i] == '\r' || outputstr[i] == '\n')
-			outputstr[i] = ' ';
+    for (i = 0; i < strlen(outputstr); i++)
+	if (outputstr[i] == '\r' || outputstr[i] == '\n')
+	    outputstr[i] = ' ';
 
-	if (*outputstr == '$')
-		snprintf(outputstr+strlen(outputstr), 10240, ": %s", strerror(errno));
+    if (*outputstr == '$')
+	snprintf(outputstr+strlen(outputstr), 10240, ": %s", strerror(errno));
 
-	if (strlen(outputstr) > (SS_BUFSIZE - 64)) {
-		outputstr[SS_BUFSIZE - 65] = ';';
-		outputstr[SS_BUFSIZE - 64] = '\0';
-	}
-	tcrc = StringCRC32(outputstr);
-	if (tcrc == lcrc) {
-		lcnt++;
-		free(outputstr);
-		return;
-	} else {
-		lcrc = tcrc;
-		if (lcnt) {
-			lcnt++;
-			SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", logdebug, progname, mypid, lcnt);
-			SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", logfile, progname, mypid, lcnt);
-			SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", errfile, progname, mypid, lcnt);
-		}
-		lcnt = 0;
-	}
-
-	SockS("ALOG:5,%s,%s,%d,?,%s;", logdebug, progname, mypid, *outputstr == '$' ? outputstr+1 : outputstr);
-	SockS("ALOG:5,%s,%s,%d,?,%s;", logfile, progname, mypid, *outputstr == '$' ? outputstr+1 : outputstr);
-	SockS("ALOG:5,%s,%s,%d,?,%s;", errfile, progname, mypid, *outputstr == '$' ? outputstr+1 : outputstr);
+    if (strlen(outputstr) > (SS_BUFSIZE - 64)) {
+	outputstr[SS_BUFSIZE - 65] = ';';
+	outputstr[SS_BUFSIZE - 64] = '\0';
+    }
+    tcrc = StringCRC32(outputstr);
+    if (tcrc == lcrc) {
+	lcnt++;
 	free(outputstr);
+	return;
+    } else {
+	lcrc = tcrc;
+	if (lcnt) {
+	    lcnt++;
+	    SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", logdebug, progname, mypid, lcnt);
+	    SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", logfile, progname, mypid, lcnt);
+	    SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", errfile, progname, mypid, lcnt);
+	}
+	lcnt = 0;
+    }
+
+    if (*outputstr == '$') {
+	temp = xstrcpy(clencode(outputstr+1));
+    } else {
+	temp = xstrcpy(clencode(outputstr));
+    }
+    SockS("ALOG:5,%s,%s,%d,?,%s;", logdebug, progname, mypid, temp);
+    SockS("ALOG:5,%s,%s,%d,?,%s;", logfile, progname, mypid, temp);
+    SockS("ALOG:5,%s,%s,%d,?,%s;", errfile, progname, mypid, temp);
+    free(temp);
+    free(outputstr);
 }
 
 
@@ -248,16 +254,16 @@ void WriteError(const char *format, ...)
  */
 void Syslog(int level, const char *format, ...)
 {
-	char		*outstr;
-	va_list		va_ptr;
+    char	*outstr;
+    va_list	va_ptr;
 
-	outstr = calloc(10240, sizeof(char));
+    outstr = calloc(10240, sizeof(char));
 
-	va_start(va_ptr, format);
-	vsnprintf(outstr, 10240, format, va_ptr);
-	va_end(va_ptr);
-	Syslogp(level, outstr);
-	free(outstr);
+    va_start(va_ptr, format);
+    vsnprintf(outstr, 10240, format, va_ptr);
+    va_end(va_ptr);
+    Syslogp(level, outstr);
+    free(outstr);
 }
 
 
@@ -333,13 +339,13 @@ void Syslogp(int level, char *outstr)
 	printf("%c %s\n", level, outstr);
 
     if (*outstr == '$') {
-	SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logdebug, progname, mypid, level, outstr+1, strerror(errno));
+	SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logdebug, progname, mypid, level, clencode(outstr+1), strerror(errno));
 	if (!debug)
-	    SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logfile, progname, mypid, level, outstr+1, strerror(errno));
+	    SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logfile, progname, mypid, level, clencode(outstr+1), strerror(errno));
     } else {
-	SockS("ALOG:5,%s,%s,%d,%c,%s;", logdebug, progname, mypid, level, outstr);
+	SockS("ALOG:5,%s,%s,%d,%c,%s;", logdebug, progname, mypid, level, clencode(outstr));
 	if (!debug)
-	    SockS("ALOG:5,%s,%s,%d,%c,%s;", logfile, progname, mypid, level, outstr);
+	    SockS("ALOG:5,%s,%s,%d,%c,%s;", logfile, progname, mypid, level, clencode(outstr));
     }
 }
 
@@ -363,7 +369,7 @@ void Mgrlog(const char *format, ...)
     if (strlen(outstr) > (SS_BUFSIZE - 64))
 	outstr[SS_BUFSIZE - 64] = '\0';
     
-    SockS("ALOG:5,%s,%s,%d,+,%s;", mgrfile, progname, mypid, outstr);
+    SockS("ALOG:5,%s,%s,%d,+,%s;", mgrfile, progname, mypid, clencode(outstr));
     Syslogp('+', outstr);
     free(outstr);
 }
@@ -381,7 +387,7 @@ void IsDoing(const char *format, ...)
     vsnprintf(outputstr, SS_BUFSIZE, format, va_ptr);
     va_end(va_ptr);
 
-    SockS("ADOI:2,%d,%s;", mypid, outputstr);
+    SockS("ADOI:2,%d,%s;", mypid, clencode(outputstr));
     free(outputstr);
 }
 

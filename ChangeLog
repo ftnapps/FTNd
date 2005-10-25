@@ -3,6 +3,9 @@ $Id$
 
 v0.81.4		23-Oct-2005
 
+	libmbse.a:
+		Added some forgotten client/server encoding.
+
 
 v0.81.3		17-Oct-2005 - 23-Oct-2005
 
