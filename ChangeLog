@@ -1,7 +1,9 @@
 $Id$
 
 
-v0.81.4		23-Oct-2005
+v0.81.5		25-Oct-2005
+
+v0.81.4		23-Oct-2005 - 25-Oct-2005
 
 	libmbse.a:
 		Added some forgotten client/server encoding.
