@@ -559,8 +559,8 @@ char *cldecode(char *s)
     char    *p, *q;
     int	    i;
 
-    if (s == NULL) {
-	return NULL;
+    if ((s == NULL) || (! strlen(s))) {
+	return (char *)"";
     }
 
     for (p = s, q = s; *p; p++) {
