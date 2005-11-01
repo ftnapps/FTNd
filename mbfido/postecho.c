@@ -434,7 +434,12 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     /*
      * Ensure that it will not match for the first entry.
      */
-    oldnet = sbl->addr->net - 1;
+    if ((sbl) && (sbl->addr) && (sbl->addr->net))
+	oldnet = sbl->addr->net - 1;
+    else {
+	Syslog('m', "Empty seen-by list in %s", msgs.Tag);
+	oldnet = -1;
+    }
     for (tmpl = sbl; tmpl; tmpl = tmpl->next) {
 	if (tmpl->addr->net == oldnet)
 	    snprintf(sbe, 16, " %u", tmpl->addr->node);

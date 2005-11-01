@@ -3,6 +3,11 @@ $Id$
 
 v0.81.5		25-Oct-2005
 
+        mbfido:
+                Fixed a segfault when tossing as a point echomail without a
+                seen-by line.
+
+
 v0.81.4		23-Oct-2005 - 25-Oct-2005
 
 	libmbse.a:
