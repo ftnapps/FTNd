@@ -1556,7 +1556,7 @@ void receiver(struct servent  *se)
 		}
 	    }
 	    if (!inlist) {
-		Syslog('!', "IBC: message from unknown host (%s), dropped", hostname);
+		Syslog('r', "IBC: message from unknown host (%s), dropped", hostname);
 		return;
 	    }
 
