@@ -1,120 +1,83 @@
 $Id$
 
 
-v0.81.6		01-Nov-2005
+v0.82.0		06-Oct-2005 - 06-Nov-2005
 
-v0.81.5		25-Oct-2005 - 01-Nov-2005
+		This is a bugfix release for version 0.80.0.
+
+        general:
+                Made changes to structures and sources to make everything
+                compatible between 32 and 64 bit systems. Special thanks to
+		Alan Ianson and Robert Wolfe for testing the 64 bit versions.
+                Added escaping in client/server comms. It is now allowed to
+                use comma's in user names, locations etc.
+
+        upgrade:
+                The bbs menu Change Screenlength is obsolete. Remove this from
+                the menus (setup.mnu) and ascii/ansi screens (setup.a??).
+                Owners of 64 bits systems should check if all *.sts files in
+                the outbound are 12 bytes log. If not, stop the whole bbs and
+                remove all these files. Then start the bbs again.
+		Owners of 64 bit systems that have run version 0.80.0 or older
+		should really backup everything and be prepared that all data
+		files are not compatible anymore. Blame the GNU people for
+		changing the storage format for some variables.
+		After upgrade databases are compatible between 32 and 64 bit
+		systems.
+
+        libmbse.a:
+                Added clencode and cldecode to safe escape messages to mbtask.
+                In nodelock show program name if node is already locked.
+
+        mbcico:
+                Made binkp GZ and BZ2 compression final.
+                Fixed compile errors when both zlib and bzlib development
+                packages are not installed on some distro's.
 
         mbfido:
                 Fixed a segfault when tossing as a point echomail without a
                 seen-by line.
 
-
-v0.81.4		23-Oct-2005 - 25-Oct-2005
-
-	libmbse.a:
-		Added some forgotten client/server encoding.
-
-	mbtask:
-		Fixed crashing mbtask on receiving empty coded loglines.
-
-
-v0.81.3		17-Oct-2005 - 23-Oct-2005
-
-	mbcico:
-		Fixed compile errors when both zlib and bzlib development
-		packages are not installed on some distro's.
-
-	mbsetup:
-		SuSE compile fix.
-
-
-v0.81.2		14-Oct-2005 - 17-Oct-2005.
-
-	general:
-		Added escaping in client/server comms. It is now allowed to
-		use commans's in user names, locations etc.
-
-	upgrade:
-		Owners of 64 bits systems should check if all *.sts files in
-		the outbound are 12 bytes log. If not, stop the whole bbs and
-		remove all these files. Then start the bbs again.
-
-	libmbse.a:
-		Added clencode and cldecode to safe escape messages to mbtask.
-
-	mbcico:
-		Some time_t/int conversions.
-
-	mbfido:
-		Some time_t/int conversions.
-
-	mbtask:
-		Some time_t/int conversions.
-		Added clencode and cldecode to safe escape messages with
-		clients.
-
-	mbsebbs:
-		Accepts connections via ssh.
-		Log close message sent to the user.
-		Allow comma again in several input functions.
-
-	mbnewusr:
-		Accepts connections via ssh.
-
-
-v0.81.1		09-Oct-2005 - 14-Oct-2005
-
-	general:
-		Made changes to structures and sources to make everything
-		compatible between 32 and 64 bit systems.
-
-
-v0.81.0		07-Oct-2005 - 09-Oct-2005
-
-	upgrade:
-		The bbs menu Change Screenlength is obsolete. Remove this from
-		the menus (setup.mnu) and ascii/ansi screens (setup.a??).
-
-	libmbse.a:
-		In nodelock show program name if node is already locked.
-
-	mbcico:
-		Made binkp GZ and BZ2 compression final.
-
-	mbsebbs:
-		Automatic dynamic detection of the users screensize.
-		There is no check anymore for a valid tty with network calls,
-		instead a fake ttyinfo record is created. Modem/ISDN and
-		console still need a valid configured tty.
-		Fixed a bug in the email menu that would let the current
-		mailbox disappear.
-		Fixed the internal fullscreen editor.
-
-	mbnewusr:
+        mbsebbs:
+                Automatic dynamic detection of the users screensize.
                 There is no check anymore for a valid tty with network calls,
                 instead a fake ttyinfo record is created. Modem/ISDN and
                 console still need a valid configured tty.
+                Fixed a bug in the email menu that would let the current
+                mailbox disappear.
+                Fixed the internal fullscreen editor.
+                Accepts connections via ssh.
+                Log close message sent to the user.
+                Allow comma again in several input functions.
 
-	mbtask:
-		Logs program name that locks serial ports.
+        mbnewusr:
+                There is no check anymore for a valid tty with network calls,
+                instead a fake ttyinfo record is created. Modem/ISDN and
+                console still need a valid configured tty.
+                Accepts connections via ssh.
 
-	mbsetup:
-		Removed settings for users screenlength.
-		In tty setup the network records are automatic removed. The
-		setting for auth log is removed (was never used).
+        mbtask:
+                Logs program name that locks serial ports.
+                Added clencode and cldecode to safe escape messages with
+                clients.
 
-	lang:	Removed prompts 64, 80 and 81.
-		Changed prompt 348.
-		Added prompt 31.
+        mbsetup:
+                Removed settings for users screenlength.
+                In tty setup the network records are automatic removed. The
+                setting for auth log is removed (was never used).
+                SuSE compile fix.
 
-	examples:
-		removed Change Screenlength from the English menus and 
-		txtfiles.
+        lang:   Removed prompts 64, 80 and 81.
+                Changed prompt 348.
+                Added prompt 31.
+
+        examples:
+                removed Change Screenlength from the English menus and
+                txtfiles.
+
 
 
 v0.80.0		27-Oct-2004 - 06-Oct-2005
-
 
 		Yes, this release took too long to complete. But there were too
 		many problems that a stable release wasn't a good idea.

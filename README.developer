@@ -19,7 +19,7 @@ From bits/types.h:
 IOW: Never use long in the sources because it breaks between 32/64 bit 
 hardware.
 
-How about time_t, it seems an alias for long!
+How about time_t, it seems an alias for long! (and it is).
 
 
 	CVS tags.
@@ -45,5 +45,6 @@ mbsebbs-0_70_00_release 26-Oct-2004 Version 0.70.0 release.
 mbsebbs-0_71_00_current 27-Oct-2004 Start 0.71 development.
 mbsebbs-0_80_00_release 06-Oct-2004 Version 0.80.0 release.
 mbsebbs-0_81_00_current 07-Oct-2005 Start 0.81 development.
+mbsebbs-0_82_00_release 06-Nov-2005 Version 0.82.0 release.
 
 Michiel.
