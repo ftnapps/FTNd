@@ -12,7 +12,7 @@ dnl After changeing the version number, run autoconf!
 dnl
 PACKAGE="mbsebbs"
 MAJOR="0"
-MINOR="82"
+MINOR="83"
 REVISION="0"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2005 Michiel Broek, All Rights Reserved"
