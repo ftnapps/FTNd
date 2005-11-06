@@ -3,6 +3,10 @@ $Id$
 
 v0.83.0		06-Nov-2005
 
+	mbtask:
+		Fixed accepting connections with the chatserver when no
+		password is given.
+
 
 v0.82.0		06-Oct-2005 - 06-Nov-2005
 

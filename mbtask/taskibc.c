@@ -81,7 +81,7 @@ static char *ncsstate[] = {
 void fill_ncslist(ncs_list **, char *, char *, char *);
 void dump_ncslist(void);
 void tidy_servers(srv_list **);
-void add_server(srv_list **, char *, int, char *, char *, char *, char *);
+int  add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 void del_router(srv_list **, char *);
 int  send_msg(ncs_list *, const char *, ...);
@@ -148,6 +148,7 @@ void dump_ncslist(void)
     srv_list	*srv;
     usr_list	*usrp;
     chn_list	*chnp;
+    char	temp1[128], temp2[128];
 
     if (!callchg && !srvchg && !usrchg && !chnchg && !banchg && !nickchg)
 	return;
@@ -157,7 +158,8 @@ void dump_ncslist(void)
 	    Syslog('r', "Server                         State   Del Pwd Srv Next action");
 	    Syslog('r', "------------------------------ ------- --- --- --- -----------");
 	    for (tmp = ncsl; tmp; tmp = tmp->next) {
-		Syslog('r', "%-30s %-7s %s %s %s %d", tmp->server, ncsstate[tmp->state], 
+		snprintf(temp1, 30, "%s", tmp->server);
+		Syslog('r', "%-30s %-7s %s %s %s %d", temp1, ncsstate[tmp->state], 
 		    tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
 		    tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
 	    }
@@ -171,8 +173,9 @@ void dump_ncslist(void)
 	    Syslog('+', "IBC: Server                    Router                     Hops Users Connect time");
 	    Syslog('+', "IBC: ------------------------- ------------------------- ----- ----- --------------------");
 	    for (srv = servers; srv; srv = srv->next) {
-		Syslog('+', "IBC: %-25s %-25s %5d %5d %s", srv->server, srv->router, srv->hops, 
-			srv->users, rfcdate(srv->connected));
+		snprintf(temp1, 25, "%s", srv->server);
+		snprintf(temp2, 25, "%s", srv->router);
+		Syslog('+', "IBC: %-25s %-25s %5d %5d %s", temp1, temp2, srv->hops, srv->users, rfcdate(srv->connected));
 	    }
 	} else {
 	    Syslog('+', "IBC: Servers list is empty");
@@ -184,7 +187,9 @@ void dump_ncslist(void)
 	    Syslog('+', "IBC: Server               User                 Name/Nick Channel       Sys Connect time");
 	    Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
 	    for (usrp = users; usrp; usrp = usrp->next) {
-		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel,
+		snprintf(temp1, 20, "%s", usrp->server);
+		snprintf(temp2, 20, "%s", usrp->realname);
+		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", temp1, temp2, usrp->nick, usrp->channel,
 		    usrp->sysop ? "yes":"no ", rfcdate(usrp->connected));
 	    }
 	} else {
@@ -405,16 +410,33 @@ void del_channel(chn_list **fap, char *name)
 
 
 
-void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname, char *router)
+int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname, char *router)
 {
     srv_list	*tmp, *ta;
-    
-    Syslog('r', "add_server %s %d %s %s %s", name, hops, prod, vers, fullname);
+    int		haverouter = FALSE;
+
+    Syslog('r', "add_server %s %d %s %s \"%s\" %s", name, hops, prod, vers, fullname, router);
  
     for (ta = *fdp; ta; ta = ta->next) {
 	if (strcmp(ta->server, name) == 0) {
 	    Syslog('r', "duplicate, ignore");
-	    return;
+	    return 0;
+	}
+    }
+
+    /*
+     * If name <> router it's a remote server, then check if we have a router in our list.
+     */
+    if (strcmp(name, router) && hops) {
+	for (ta = *fdp; ta; ta = ta->next) {
+	    if (strcmp(ta->server, router) == 0) {
+		haverouter = TRUE;
+		break;
+	    }
+	}
+	if (! haverouter) {
+	    Syslog('-', "IBC: no router for server %s, ignore", name);
+	    return 0;
 	}
     }
 
@@ -445,6 +467,7 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 
     pthread_mutex_unlock(&b_mutex);
     srvchg = TRUE;
+    return 1;
 }
 
 
@@ -734,13 +757,18 @@ void check_servers(void)
 					    break;
 					}
 					
-					tnsl->socket = socket(AF_INET, SOCK_DGRAM, 0);
 					if (tnsl->socket == -1) {
-					    Syslog('!', "$IBC: can't create socket for %s", tnsl->server);
-					    tnsl->state = NCS_FAIL;
-					    tnsl->action = now + (time_t)120;
-					    callchg = TRUE;
-					    break;
+					    tnsl->socket = socket(AF_INET, SOCK_DGRAM, 0);
+					    if (tnsl->socket == -1) {
+						Syslog('!', "$IBC: can't create socket for %s", tnsl->server);
+						tnsl->state = NCS_FAIL;
+						tnsl->action = now + (time_t)120;
+						callchg = TRUE;
+						break;
+					    }
+					    Syslog('r', "socket created");
+					} else {
+					    Syslog('r', "socket reused");
 					}
 
 					Syslog('r', "socket %d", tnsl->socket);
@@ -757,6 +785,13 @@ void check_servers(void)
 				     * the remote with the same token as we have sent.
 				     */
 				    Syslog('r', "%s call", tnsl->server);
+				    if (strlen(tnsl->passwd) == 0) {
+					Syslog('!', "IBC: no password configured for %s", tnsl->server);
+					tnsl->state = NCS_FAIL;
+					tnsl->action = now + (time_t)300;
+					callchg = TRUE;
+					break;
+				    }
 				    tnsl->token = gettoken();
 				    send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 				    send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
@@ -860,9 +895,15 @@ int command_pass(char *hostname, char *parameters)
 	}
     }
 
+    tnsl->gotpass = FALSE;
     passwd = strtok(parameters, " \0");
     version = strtok(NULL, " \0");
     lnk = strtok(NULL, " \0");
+
+    if (strcmp(passwd, "0100") == 0) {
+	send_msg(tnsl, "414 PASS: Got empty password\r\n");
+	return 414;
+    }
 
     if (version == NULL) {
 	send_msg(tnsl, "400 PASS: Not enough parameters\r\n");
@@ -1018,13 +1059,14 @@ int command_server(char *hostname, char *parameters)
 
     if (! found) {
        /*
-	* Got a message about a server that is not our neighbour.
+	* Got a message about a server that is not our neighbour, could be a relayed server.
 	*/
-	add_server(&servers, name, ihops, prod, vers, fullname, hostname);
-	broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
-	srvchg = TRUE;
-	Syslog('+', "IBC: new relay server %s: %s", name, fullname);
-	system_shout("* New server: %s, %s", name, fullname);
+	if (add_server(&servers, name, ihops, prod, vers, fullname, hostname)) {
+	    broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    srvchg = TRUE;
+	    Syslog('+', "IBC: new relay server %s: %s", name, fullname);
+	    system_shout("* New server: %s, %s", name, fullname);
+	}
 	return 0;
     }
 
