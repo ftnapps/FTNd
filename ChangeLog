@@ -3,6 +3,10 @@ $Id$
 
 v0.83.0		06-Nov-2005
 
+	upgrade:
+		Start mbsetup once and leave, this will update user records
+		with the wrong editor choice.
+
 	mbsebbs:
 		Removed antique line editor.
 
