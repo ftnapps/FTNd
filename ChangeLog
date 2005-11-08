@@ -3,9 +3,20 @@ $Id$
 
 v0.83.0		06-Nov-2005
 
+	mbsebbs:
+		Removed antique line editor.
+
 	mbtask:
 		Fixed accepting connections with the chatserver when no
 		password is given.
+
+	mbsetup:
+		In users edit screen, removed append record option.
+		Blocked changing the users unixname.
+		Removed antique line editor is edit users.
+
+	lang:
+		Changed language prompts 373 and 438.
 
 
 v0.82.0		06-Oct-2005 - 06-Nov-2005

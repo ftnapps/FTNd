@@ -90,57 +90,60 @@ int CountUsers(void)
 int OpenUsers(void);
 int OpenUsers(void)
 {
-	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	int	oldsize;
+    FILE    *fin, *fout;
+    char    fnin[PATH_MAX], fnout[PATH_MAX];
+    int	    oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
-	if ((fin = fopen(fnin, "r")) != NULL) {
-		if ((fout = fopen(fnout, "w")) != NULL) {
-			fread(&usrconfighdr, sizeof(usrconfighdr), 1, fin);
-			/*
-			 * In case we are automatic upgrading the data format
-			 * we save the old format. If it is changed, the
-			 * database must always be updated.
-			 */
-			oldsize = usrconfighdr.recsize;
-			if (oldsize != sizeof(usrconfig)) {
-				UsrUpdated = 1;
-				Syslog('+', "Upgraded %s, format changed", fnin);
-			} else
-				UsrUpdated = 0;
-			usrconfighdr.hdrsize = sizeof(usrconfighdr);
-			usrconfighdr.recsize = sizeof(usrconfig);
-			fwrite(&usrconfighdr, sizeof(usrconfighdr), 1, fout);
+    snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    if ((fin = fopen(fnin, "r")) != NULL) {
+	if ((fout = fopen(fnout, "w")) != NULL) {
+	    fread(&usrconfighdr, sizeof(usrconfighdr), 1, fin);
+	    /*
+	     * In case we are automatic upgrading the data format
+	     * we save the old format. If it is changed, the
+	     * database must always be updated.
+	     */
+	    oldsize = usrconfighdr.recsize;
+	    if (oldsize != sizeof(usrconfig)) {
+		UsrUpdated = 1;
+		Syslog('+', "Upgraded %s, format changed", fnin);
+	    } else
+		UsrUpdated = 0;
+	    usrconfighdr.hdrsize = sizeof(usrconfighdr);
+	    usrconfighdr.recsize = sizeof(usrconfig);
+	    fwrite(&usrconfighdr, sizeof(usrconfighdr), 1, fout);
 
-			/*
-			 * The datarecord is filled with zero's before each
-			 * read, so if the format changed, the new fields
-			 * will be empty.
-			 */
-			memset(&usrconfig, 0, sizeof(usrconfig));
-			while (fread(&usrconfig, oldsize, 1, fin) == 1) {
-			    /*
-			     * In version 0.33.20 the message editor has 3 choices,
-			     * adjust settings.
-			     */
-			    if (usrconfig.xFsMsged && (usrconfig.MsgEditor == LINEEDIT)) {
-				usrconfig.MsgEditor = FSEDIT;
-				UsrUpdated = 1;
-				Syslog('+', "Adjusted editor setting for user %s", usrconfig.sUserName);
-			    }
-			    fwrite(&usrconfig, sizeof(usrconfig), 1, fout);
-			    memset(&usrconfig, 0, sizeof(usrconfig));
-			}
+	    /*
+	     * The datarecord is filled with zero's before each
+	     * read, so if the format changed, the new fields
+	     * will be empty.
+	     */
+	    memset(&usrconfig, 0, sizeof(usrconfig));
+	    while (fread(&usrconfig, oldsize, 1, fin) == 1) {
+		/*
+		 * Since 0.83.0 there is no more line editor.
+		 */
+		if ((usrconfig.MsgEditor == X_LINEEDIT) || 
+			((usrconfig.MsgEditor == EXTEDIT) && (strlen(CFG.externaleditor) == 0))) {
+		    if (strlen(CFG.externaleditor))
+			usrconfig.MsgEditor = EXTEDIT;
+		    else
+			usrconfig.MsgEditor = FSEDIT;
+		    UsrUpdated = 1;
+		    Syslog('+', "Adjusted editor setting for user %s", usrconfig.sUserName);
+		}
+		fwrite(&usrconfig, sizeof(usrconfig), 1, fout);
+		memset(&usrconfig, 0, sizeof(usrconfig));
+	    }
 
-			fclose(fin);
-			fclose(fout);
-			return 0;
-		} else
-			return -1;
-	}
-	return -1;
+	    fclose(fin);
+	    fclose(fout);
+	    return 0;
+	} else
+	    return -1;
+    }
+    return -1;
 }
 
 
@@ -171,26 +174,6 @@ void CloseUsers(int force)
 
 
 
-int AppendUsers(void)
-{
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-
-	snprintf(ffile, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "a")) != NULL) {
-		memset(&usrconfig, 0, sizeof(usrconfig));
-		usrconfig.MailScan = TRUE;
-		usrconfig.ieFILE = TRUE;
-		fwrite(&usrconfig, sizeof(usrconfig), 1, fil);
-		fclose(fil);
-		UsrUpdated = 1;
-		return 0;
-	} else
-		return -1;
-}
-
-
-
 void Screen1(void)
 {
         clr_index();
@@ -201,28 +184,28 @@ void Screen1(void)
         mbse_mvprintw( 7, 2, "2.  Security");
         mbse_mvprintw( 8, 2, "3.  Expirydate");
         mbse_mvprintw( 9, 2, "4.  Expiry Sec");
-        mbse_mvprintw(10, 2, "5.  Unix name");
+        mbse_mvprintw(10, 2, "    Unix name");
 	mbse_mvprintw(11, 2, "    1st login");
 	mbse_mvprintw(12, 2, "    Last login");
 	mbse_mvprintw(13, 2, "    Pwdchange");
-        mbse_mvprintw(14, 2, "6.  Credit");
-        mbse_mvprintw(15, 2, "7.  Hidden");
-	mbse_mvprintw(16, 2, "8.  Deleted");
-	mbse_mvprintw(17, 2, "9.  No Kill");
-	mbse_mvprintw(18, 2, "10. Comment");
+        mbse_mvprintw(14, 2, "5.  Credit");
+        mbse_mvprintw(15, 2, "6.  Hidden");
+	mbse_mvprintw(16, 2, "7.  Deleted");
+	mbse_mvprintw(17, 2, "8.  No Kill");
+	mbse_mvprintw(18, 2, "9.  Comment");
 
-        mbse_mvprintw( 6,54, "11. Locked");
-        mbse_mvprintw( 7,54, "12. Guest");
-        mbse_mvprintw( 8,54, "13. Ext Info");
-        mbse_mvprintw( 9,54, "14. Email");
+        mbse_mvprintw( 6,54, "10. Locked");
+        mbse_mvprintw( 7,54, "11. Guest");
+        mbse_mvprintw( 8,54, "12. Ext Info");
+        mbse_mvprintw( 9,54, "13. Email");
 	mbse_mvprintw(10,54, "    Calls");
 	mbse_mvprintw(11,54, "    Downlds");
 	mbse_mvprintw(12,54, "    Down Kb");
 	mbse_mvprintw(13,54, "    Uploads");
 	mbse_mvprintw(14,54, "    Upload Kb");
 	mbse_mvprintw(15,54, "    Posted");
-	mbse_mvprintw(16,54, "15. Time left");
-	mbse_mvprintw(17,54, "16. Screen 2");
+	mbse_mvprintw(16,54, "14. Time left");
+	mbse_mvprintw(17,54, "15. Screen 2");
 }
 
 
@@ -238,8 +221,9 @@ void Fields1(void)
 	show_int( 7,17,    usrconfig.Security.level);
 	show_str( 8,17,10, usrconfig.sExpiryDate);
 	show_int( 9,17,    usrconfig.ExpirySec.level);
+	set_color(LIGHTGRAY, BLACK);
 	show_str(10,17, 8, usrconfig.Name);
-	
+
 	now = usrconfig.tFirstLoginDate;
         ld = localtime(&now);
         snprintf(Date, 30, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
@@ -256,6 +240,7 @@ void Fields1(void)
 		ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
 	show_str(13,17,19, Date);
 	
+	set_color(WHITE, BLACK);
         show_int( 14,17,    usrconfig.Credit);
         show_bool(15,17,    usrconfig.Hidden);
 	show_bool(16,17,    usrconfig.Deleted);
@@ -266,12 +251,14 @@ void Fields1(void)
         show_bool( 7,68, usrconfig.Guest);
         show_bool( 8,68, usrconfig.OL_ExtInfo);
         show_bool( 9,68, usrconfig.Email);
+	set_color(LIGHTGRAY, BLACK);
 	show_int( 10,68, usrconfig.iTotalCalls);
 	show_int( 11,68, usrconfig.Downloads);
 	show_int( 12,68, usrconfig.DownloadK);
 	show_int( 13,68, usrconfig.Uploads);
 	show_int( 14,68, usrconfig.UploadK);
 	show_int( 15,68, usrconfig.iPosted);
+	set_color(WHITE, BLACK);
 	show_int( 16,68, usrconfig.iTimeLeft);
 }
 
@@ -502,13 +489,19 @@ int EditUsrRec(int Area)
 
     fread(&usrconfig, sizeof(usrconfig), 1, fil);
     fclose(fil);
+
+    if (strlen(usrconfig.sUserName) == 0) {
+	errmsg((char *)"You cannot edit an empty record");
+	return -1;
+    }
+
     crc = 0xffffffff;
     crc = upd_crc32((char *)&usrconfig, crc, sizeof(usrconfig));
     Screen1();
 
     for (;;) {
 	Fields1();
-	j = select_menu(16);
+	j = select_menu(15);
 	switch(j) {
 	case 0: crc1 = 0xffffffff;
 		crc1 = upd_crc32((char *)&usrconfig, crc1, sizeof(usrconfig));
@@ -541,22 +534,21 @@ int EditUsrRec(int Area)
 		break;
 	case 3 :E_STR(  8,17,10,usrconfig.sExpiryDate,    "The ^Expiry Date^ in DD-MM-YYYY format, 00-00-0000 is no expire")
 	case 4 :E_INT(  9,17,   usrconfig.ExpirySec.level,"The ^Expiry Level^ for this user")
-	case 5 :E_STR( 10,17,8, usrconfig.Name,           "The ^Unix username^ for this user")
-	case 6 :E_INT( 14,17,   usrconfig.Credit,         "Users ^Credit^")
-	case 7 :E_BOOL(15,17,   usrconfig.Hidden,         "Is user ^hidden^ on the BBS")
-	case 8 :E_BOOL(16,17,   usrconfig.Deleted,        "Is user marked for ^deletion^")
-	case 9 :E_BOOL(17,17,   usrconfig.NeverDelete,    "^Never delete^ this user")
-	case 10:E_STR( 18,17,62,usrconfig.sComment,       "A ^Comment^ for this user")
+	case 5 :E_INT( 14,17,   usrconfig.Credit,         "Users ^Credit^")
+	case 6 :E_BOOL(15,17,   usrconfig.Hidden,         "Is user ^hidden^ on the BBS")
+	case 7 :E_BOOL(16,17,   usrconfig.Deleted,        "Is user marked for ^deletion^")
+	case 8 :E_BOOL(17,17,   usrconfig.NeverDelete,    "^Never delete^ this user")
+	case 9 :E_STR( 18,17,62,usrconfig.sComment,       "A ^Comment^ for this user")
 
-	case 11:E_BOOL( 6,68,   usrconfig.LockedOut,      "User is ^Locked Out^ of this BBS")
-	case 12:E_BOOL( 7,68,   usrconfig.Guest,          "This is a ^Guest^ account")
-	case 13:E_BOOL( 8,68,   usrconfig.OL_ExtInfo,     "Add ^Extended Message Info^ in OLR download")
-	case 14:E_BOOL( 9,68,   usrconfig.Email,          "User has a ^private email^ mailbox")
-	case 15:if (yes_no((char *)"Reset time left for today") == 1) {
+	case 10:E_BOOL( 6,68,   usrconfig.LockedOut,      "User is ^Locked Out^ of this BBS")
+	case 11:E_BOOL( 7,68,   usrconfig.Guest,          "This is a ^Guest^ account")
+	case 12:E_BOOL( 8,68,   usrconfig.OL_ExtInfo,     "Add ^Extended Message Info^ in OLR download")
+	case 13:E_BOOL( 9,68,   usrconfig.Email,          "User has a ^private email^ mailbox")
+	case 14:if (yes_no((char *)"Reset time left for today") == 1) {
 		    Reset_Time();
 		}
 		break;
-	case 16:EditUsrRec2();
+	case 15:EditUsrRec2();
 		clr_index();
 		Screen1();
 		Fields1();
@@ -570,99 +562,90 @@ int EditUsrRec(int Area)
 
 void EditUsers(void)
 {
-	int	records, i, o, x, y;
-	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	int	offset;
+    int	    records, i, o, x, y;
+    char    pick[12];
+    FILE    *fil;
+    char    temp[PATH_MAX];
+    int	    offset;
 
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Browsing Menu");
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    records = CountUsers();
+    if (records == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    if (OpenUsers() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+    o = 0;
+    if (! check_free())
+	return;
+
+    for (;;) {
 	clr_index();
-	working(1, 0, 0);
-	IsDoing("Browsing Menu");
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	records = CountUsers();
-	if (records == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	if (OpenUsers() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-	o = 0;
-        if (! check_free())
-	    return;
-
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 3, "15.  USERS EDITOR");
+	set_color(WHITE, BLACK);
+	mbse_mvprintw( 5, 3, "15.  USERS EDITOR");
+	set_color(CYAN, BLACK);
+	if (records != 0) {
+	    snprintf(temp, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+	    working(1, 0, 0);
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		fread(&usrconfighdr, sizeof(usrconfighdr), 1, fil);
+		x = 2;
+		y = 7;
 		set_color(CYAN, BLACK);
-		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
-			working(1, 0, 0);
-			if ((fil = fopen(temp, "r")) != NULL) {
-				fread(&usrconfighdr, sizeof(usrconfighdr), 1, fil);
-				x = 2;
-				y = 7;
-				set_color(CYAN, BLACK);
-				for (i = 1; i <= 20; i++) {
-					if (i == 11) {
-						x = 42;
-						y = 7;
-					}
-					if ((o + i) <= records) {
-						offset = sizeof(usrconfighdr) + (((i + o) - 1) * usrconfighdr.recsize);
-						fseek(fil, offset, 0);
-						fread(&usrconfig, usrconfighdr.recsize, 1, fil);
-						if (!usrconfig.Deleted)
-							set_color(CYAN, BLACK);
-						else
-							set_color(LIGHTBLUE, BLACK);
-						snprintf(temp, 81, "%3d.  %-32s", o + i, usrconfig.sUserName);
-						temp[37] = 0;
-						mbse_mvprintw(y, x, temp);
-						y++;
-					}
-				}
-				fclose(fil);
-			}
+		for (i = 1; i <= 20; i++) {
+		    if (i == 11) {
+			x = 42;
+			y = 7;
+		    }
+		    if ((o + i) <= records) {
+			offset = sizeof(usrconfighdr) + (((i + o) - 1) * usrconfighdr.recsize);
+			fseek(fil, offset, 0);
+			fread(&usrconfig, usrconfighdr.recsize, 1, fil);
+			if ((!usrconfig.Deleted) && strlen(usrconfig.sUserName))
+			    set_color(CYAN, BLACK);
+			else
+			    set_color(LIGHTBLUE, BLACK);
+			snprintf(temp, 81, "%3d.  %-32s", o + i, usrconfig.sUserName);
+			temp[37] = 0;
+			mbse_mvprintw(y, x, temp);
+			y++;
+		    }
 		}
-		strcpy(pick, select_record(records, 20));
-		
-		if (strncmp(pick, "-", 1) == 0) {
-			CloseUsers(FALSE);
-			open_bbs();
-			return;
-		}
-
-		if (strncmp(pick, "A", 1) == 0) {
-			working(1, 0, 0);
-			if (AppendUsers() == 0) {
-				records++;
-				working(1, 0, 0);
-			} else
-				working(2, 0, 0);
-		}
-
-		if (strncmp(pick, "N", 1) == 0) 
-			if ((o + 20) < records)
-				o = o + 20;
-
-		if (strncmp(pick, "P", 1) == 0)
-			if ((o - 20) >= 0)
-				o = o - 20;
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			EditUsrRec(atoi(pick));
-			o = ((atoi(pick) - 1) / 20) * 20;
-		}
+		fclose(fil);
+	    }
 	}
+	strcpy(pick, select_pick(records, 20));
+		
+	if (strncmp(pick, "-", 1) == 0) {
+	    CloseUsers(FALSE);
+	    open_bbs();
+	    return;
+	}
+
+	if (strncmp(pick, "N", 1) == 0) 
+	    if ((o + 20) < records)
+		o = o + 20;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 20) >= 0)
+		o = o - 20;
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+	    EditUsrRec(atoi(pick));
+	    o = ((atoi(pick) - 1) / 20) * 20;
+	}
+    }
 }
 
 

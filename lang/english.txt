@@ -371,7 +371,7 @@ YN|Are you Sure? [Y/n]:
 |New Files check is now ON
 |New Files check is now OFF
 |Now using the
-123|Select: 1) Line editor, 2) Fullscreen editor, 3) External editor 
+12|Select: 1) Fullscreen editor, 2) External editor 
 |No messages found to download!
 |Press (Enter) to continue: 
 |Center
@@ -436,7 +436,7 @@ YN|Do you want to download these messages [Y/n]?
 |Your password is expired, new password : 
 |Press ENTER to continue 
 |Posting not allowed, this area is Read Only!
-12|Select: 1) Line editor, 2) Fullscreen editor
+1|Select: 1) Fullscreen editor
 |Offline Reader Upload
 |Invalid packet received
 |Unknown compression type

@@ -371,7 +371,7 @@ SN|¨Est s seguro? [S/n]:
 |Comprobar ficheros nuevos ACTIVADO
 |Comprobar ficheros nuevos DESACTIVADO
 |Est s usando el editor
-123|Elige: 1) Editor de l¡neas, 2) E. Pantalla completa, 3) Editor externo 
+12|Elige: 1) E. Pantalla completa, 2) Editor externo 
 |¡No hay mensajes! 
 |Pulsa (Enter) para seguir: 
 |Centrar
@@ -436,7 +436,7 @@ SN|¨Quieres descargar estos mensajes [S/N]?
 |Tu password ha caducado, nuevo password : 
 |Pulsa ENTER para seguir 
 |No puedes escribir, ­esta  rea es de Solo Lectura!
-12|Elige: 1) Editor de l¡neas, 2) Editor de pantalla completa
+1|Elige: 1) Editor de pantalla completa
 |Upload de correo Off-Line
 |El paquete recibido no es v lido
 |Comprimido con un compresor desconocido

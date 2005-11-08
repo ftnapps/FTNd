@@ -371,7 +371,7 @@ SN|¨Est s seguro? [S/n]:
 |Comprobar ficheiros novos ACTIVADO
 |Comprobar ficheios novos DESACTIVADO
 |Est s usando o editor 
-123|Escolle: 1) Editor de li¤as, 2) E. pantalla completa, 3) Editor externo 
+12|Escolle: 1) E. pantalla completa, 2) Editor externo 
 |¡Non hai mensaxes! 
 |Pulsa (Enter) para seguir: 
 |Centrar
@@ -436,7 +436,7 @@ SN|¨Queres descargar estas mensaxes [S/N]?
 |A tua password caducou, nova password : 
 |Pulsa ENTER para seguir 
 |Non podes escribir, ­esta  rea es S¢ Lectura!
-12|Escolle: 1) Editor de li¤as, 2) Editor de pantalla completa
+1|Escolle: 1) Editor de pantalla completa
 |Upload de correo Off-Line
 |O paquete recibido non ‚ v lido
 |Comprimido con un compresor desco¤ecido

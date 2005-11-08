@@ -371,7 +371,7 @@ JN|Bist Du sicher? [<J>a/<n>ein]:
 |Check auf neue Dateien ist jetzt AN
 |Check auf neue Dateien ist jetzt AUS
 |Du verwendest jetzt den 
-123|Auswahl: <1> Zeilen-Editor, <2> Vollbild-Editor, <3> Externer Editor 
+12|Auswahl: <1> Vollbild-Editor, <3> Externer Editor 
 |Es liegen keine Mitteilungen zum Herunterladen vor!
 |Weiter mit <Enter> ... 
 |Zentrieren
@@ -436,7 +436,7 @@ JN|Moechtest Du diese Mitteilungen herunterladen [<J>a/<n>ein]?
 |Dein Passwort ist abgelaufen, neues Passwort: 
 |Drueck <Enter> um fortzufahren 
 |Kein Senden moeglich, diese Area ist "Nur lesen"!
-12|Auswahl: <1> Zeilen-Editor, <2> Vollbild-Editor
+1|Auswahl: <1> Vollbild-Editor
 |"Offline Reader" Paket heraufladen 
 |Kein oder fehlerhaftes Paket erhalten
 |Unbekannter Datenkompressionstyp

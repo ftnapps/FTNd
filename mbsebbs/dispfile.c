@@ -528,13 +528,13 @@ void ControlCodeU(int ch)
 
 	case '3':
 		switch(exitinfo.MsgEditor) {
-		    case LINEEDIT:  snprintf(temp, 81, "%s", Language(387));
-				    break;
-		    case FSEDIT:    snprintf(temp, 81, "%s", Language(388));
-				    break;
-		    case EXTEDIT:   snprintf(temp, 81, "%s", Language(389));
-				    break;
-		    default:	    snprintf(temp, 81, "?");
+		    case X_LINEEDIT:	snprintf(temp, 81, "%s", Language(388));
+					break;
+		    case FSEDIT:	snprintf(temp, 81, "%s", Language(388));
+					break;
+		    case EXTEDIT:	snprintf(temp, 81, "%s", Language(389));
+					break;
+		    default:		snprintf(temp, 81, "?");
 		}	    
 		break;
 

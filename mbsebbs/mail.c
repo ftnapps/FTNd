@@ -50,7 +50,6 @@
 #include "timeout.h"
 #include "oneline.h"
 #include "exitinfo.h"
-#include "lineedit.h"
 #include "fsedit.h"
 #include "filesub.h"
 #include "msgutil.h"
@@ -376,9 +375,9 @@ void SysopComment(char *Cmt)
 int Edit_Msg()
 {
     switch (exitinfo.MsgEditor) {
-	case LINEEDIT:	return Line_Edit();
-	case FSEDIT:	return Fs_Edit();
-	case EXTEDIT:	return Ext_Edit();
+	case X_LINEEDIT:    return Fs_Edit();
+	case FSEDIT:	    return Fs_Edit();
+	case EXTEDIT:	    return Ext_Edit();
     }
     return 0;
 }

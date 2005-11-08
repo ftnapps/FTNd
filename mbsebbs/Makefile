@@ -6,7 +6,7 @@ include ../Makefile.global
 
 SRCS		= signature.c filesub.c language.c \
 		  msgutil.c oneline.c morefile.c \
-		  email.c fsedit.c lineedit.c page.c \
+		  email.c fsedit.c page.c \
 		  bye.c funcs.c mail.c term.c ttyio.c openport.c \
 		  newuser.c pinfo.c timecheck.c change.c transfer.c \
 		  exitinfo.c mbsebbs.c menu.c pop3.c lastcallers.c \
@@ -15,7 +15,7 @@ SRCS		= signature.c filesub.c language.c \
 		  door.c dispfile.c userlist.c timestats.c logentry.c \
 		  ymsend.c ymrecv.c zmmisc.c zmsend.c zmrecv.c
 HDRS		= signature.h filesub.h language.h mbsebbs.h misc.h offline.h \
-		  timeout.h email.h fsedit.h lineedit.h \
+		  timeout.h email.h fsedit.h \
 		  msgutil.h oneline.h user.h bye.h morefile.h \
 		  funcs.h mail.h page.h term.h ttyio.h openport.h \
 		  change.h exitinfo.h newuser.h \
@@ -26,14 +26,14 @@ HDRS		= signature.h filesub.h language.h mbsebbs.h misc.h offline.h \
 MBSEBBS_OBJS	= signature.o chat.o file.o funcs.o mail.o menu.o \
 		  misc.o pinfo.o oneline.o page.o fsedit.o transfer.o \
 		  bye.o change.o mbsebbs.o timeout.o user.o timecheck.o \
-		  exitinfo.o filesub.o lineedit.o offline.o language.o msgutil.o \
+		  exitinfo.o filesub.o offline.o language.o msgutil.o \
 		  pop3.o email.o input.o whoson.o door.o dispfile.o userlist.o timestats.o \
 		  logentry.o morefile.o lastcallers.o term.o ttyio.o openport.o \
 		  ymsend.o ymrecv.o zmmisc.o zmsend.o zmrecv.o
 MBSEBBS_LIBS	= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libmbinet.a ../lib/libnodelist.a
 MBNEWUSR_OBJS	= mbnewusr.o newuser.o language.o timeout.o dispfile.o oneline.o ttyio.o \
 		  timecheck.o input.o exitinfo.o funcs.o misc.o change.o door.o term.o openport.o \
-		  filesub.o mail.o email.o msgutil.o pop3.o lineedit.o fsedit.o whoson.o
+		  filesub.o mail.o email.o msgutil.o pop3.o fsedit.o whoson.o
 MBNEWUSR_LIBS	= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libmbinet.a ../lib/libnodelist.a
 OTHER		= Makefile
 TARGET		= mbsebbs mbnewusr
@@ -99,11 +99,10 @@ oneline.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h oneline.h f
 morefile.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h morefile.h timeout.h term.h ttyio.h
 email.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h ../lib/mbinet.h exitinfo.h language.h mail.h timeout.h msgutil.h input.h email.h whoson.h term.h ttyio.h
 fsedit.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h mail.h input.h language.h timeout.h pinfo.h fsedit.h term.h ttyio.h
-lineedit.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h mail.h input.h language.h timeout.h lineedit.h term.h ttyio.h
 page.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h dispfile.h input.h chat.h page.h timeout.h mail.h language.h term.h ttyio.h
 bye.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/nodelist.h dispfile.h misc.h language.h bye.h term.h openport.h ttyio.h
 funcs.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h funcs.h term.h ttyio.h
-mail.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/nodelist.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h input.h language.h misc.h timeout.h oneline.h exitinfo.h lineedit.h fsedit.h filesub.h msgutil.h pop3.h email.h door.h whoson.h term.h ttyio.h openport.h
+mail.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/nodelist.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h input.h language.h misc.h timeout.h oneline.h exitinfo.h fsedit.h filesub.h msgutil.h pop3.h email.h door.h whoson.h term.h ttyio.h openport.h
 term.o: ../config.h ../lib/mbselib.h ../lib/users.h term.h ttyio.h
 ttyio.o: ../config.h ../lib/mbselib.h ttyio.h
 openport.o: ../config.h ../lib/mbselib.h ttyio.h openport.h zmmisc.h

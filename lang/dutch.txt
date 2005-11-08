@@ -371,7 +371,7 @@ JN|Zeker weten? [J/n]:
 |Tonen nieuwe Bestanden is nu AAN
 |Tonen nieuwe Bestanden is nu UIT
 |U gebruikt nu de
-123|Kies: 1) Regel editer, 2) Volle scherm editer, 3) Externe editer 
+12|Kies: 1) Volle scherm editer, 2) Externe editer 
 |Geen berichten gevonden voor download!
 |Geef (Enter) voor doorgaan: 
 |Centreer
@@ -436,7 +436,7 @@ JN|Wilt U deze berichten downloaden [J/n]?
 |Uw wachtwoord is verlopen, geef nieuw wachtwoord: 
 |Toets ENTER voor doorgaan 
 |Plaatsen berichten niet toegestaan, dit gebied is alleen lezen!
-12|Kies: 1) Regel editer, 2) Volle scherm editer
+1|Kies: 1) Volle scherm editer
 |Offline Reader Upload
 |Ongeldig pakket ontvangen
 |Onbekende compressie methode

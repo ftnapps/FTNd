@@ -1813,10 +1813,10 @@ int edit_newsmode(int y, int x, int val)
 char *getmsgeditor(int val)
 {
     switch (val) {
-	case LINEEDIT:	return (char *)"Line";
-	case FSEDIT:	return (char *)"FS. ";
-	case EXTEDIT:	return (char *)"Ext.";
-	default:	return NULL;
+	case X_LINEEDIT:    return (char *)"FS. ";
+	case FSEDIT:	    return (char *)"FS. ";
+	case EXTEDIT:	    return (char *)"Ext.";
+	default:	    return NULL;
     }
 }
 
@@ -1841,10 +1841,14 @@ int edit_msgeditor(int y, int x, int val)
 	ch = readkey(y, x, YELLOW, BLUE);
 
 	if (ch == ' ') {
-	    if (val < EXTEDIT)
-		val++;
-	    else
-		val = LINEEDIT;
+	    if (strlen(CFG.externaleditor)) {
+		if (val < EXTEDIT)
+		    val++;
+		else
+		    val = FSEDIT;
+	    } else {
+		val = FSEDIT;
+	    }
 	}
     } while ((ch != KEY_ENTER) && (ch != '\012'));
 

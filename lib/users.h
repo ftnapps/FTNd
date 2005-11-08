@@ -36,7 +36,7 @@
 #define Max_passlen     14      /* Define maximum passwd length            */
 
 
-typedef enum {LINEEDIT, FSEDIT, EXTEDIT} MSGEDITOR;
+typedef enum {X_LINEEDIT, FSEDIT, EXTEDIT} MSGEDITOR;
 
 
 /************************************************************************
