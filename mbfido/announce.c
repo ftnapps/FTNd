@@ -162,6 +162,7 @@ void Uploads()
 int StartMsg(void);
 int StartMsg(void)
 {
+    Syslog('m', "StartMsg()");
     if (!Msg_Open(newfiles.Area))
 	return -1;
 
@@ -201,6 +202,8 @@ void FinishMsg(int Final, int filepos)
 {
     char    *temp;
     FILE    *fp, *fi;
+
+    Syslog('m', "FinishMsg(%s, %d)", Final ? "TRUE":"FALSE", filepos);
 
     temp = calloc(PATH_MAX, sizeof(char));
 
@@ -349,6 +352,7 @@ int Report(gr_list *ta, int filepos)
      */
     if (Msg.Size > (CFG.new_split * 1024)) {
 	MsgCount++;
+	Syslog('m', "Report() splitting report");
 	FinishMsg(FALSE, finalpos);
 	StartMsg();
     }
