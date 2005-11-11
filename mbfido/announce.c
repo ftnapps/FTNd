@@ -268,6 +268,7 @@ int Report(gr_list *ta, int filepos)
 	    break;
     }
 
+	Syslog('m', "Announce %s %s %s", T_File.Echo, T_File.Name, T_File.LName);
     if ((fi = OpenMacro(newfiles.Template, newfiles.Language, FALSE)) != NULL) {
 	/*
 	 * Area block header
@@ -303,8 +304,6 @@ int Report(gr_list *ta, int filepos)
 	     * Extra description lines follow
 	     */
 	    for (i = 1; i < 24; i++) {
-//		if (strlen(T_File.LDesc[i]))
-//		    MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
 		fseek(fi, filepos2, SEEK_SET);
 		if (strlen(T_File.LDesc[i])) {
 		    MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));

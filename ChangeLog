@@ -14,6 +14,10 @@ v0.83.0		06-Nov-2005
 		Fixed accepting connections with the chatserver when no
 		password is given.
 
+	mbaff:
+		Fixed announce and filefind report problem when there were "
+		characters in the description.
+
 	mbsetup:
 		In users edit screen, removed append record option.
 		Blocked changing the users unixname.

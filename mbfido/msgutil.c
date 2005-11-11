@@ -268,19 +268,27 @@ void CountPosted(char *Base)
 
 char *To_Low(char *inp, int High)
 {
-	static char	temp[81];
-	int		i;
+    static char	temp[81];
+    int		i;
 
-	memset(&temp, 0, sizeof(temp));
-	strncpy(temp, inp, 80);
+    memset(&temp, 0, sizeof(temp));
+    strncpy(temp, inp, 80);
 
-	if (High)
-		return temp;
+    /*
+     * Change " into ' because the diesel macro processor gets confused by
+     * the " characters.
+     */
+    for (i = 0; i < strlen(temp); i++)
+	if (temp[i] == '"')
+	    temp[i] = '\'';
 
-	for (i = 0; i < strlen(temp); i++)
-		temp[i] = lotab[temp[i] & 0xff];
-
+    if (High)
 	return temp;
+
+    for (i = 0; i < strlen(temp); i++)
+	temp[i] = lotab[temp[i] & 0xff];
+
+    return temp;
 }
 
 
