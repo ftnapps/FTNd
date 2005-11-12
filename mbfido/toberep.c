@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #include "../lib/mbselib.h"
+#include "orphans.h"
 #include "tic.h"
 #include "toberep.h"
 

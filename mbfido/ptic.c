@@ -35,6 +35,7 @@
 #include "unpack.h"
 #include "mover.h"
 #include "toberep.h"
+#include "orphans.h"
 #include "tic.h"
 #include "utic.h"
 #include "magic.h"
@@ -45,7 +46,6 @@
 #include "createf.h"
 #include "virscan.h"
 #include "qualify.h"
-#include "orphans.h"
 #include "addbbs.h"
 
 
@@ -66,7 +66,7 @@ extern	int	check_dupe;
  * 1 - Some error
  * 2 - Orphaned tic
  */
-int ProcessTic(fa_list **sbl)
+int ProcessTic(fa_list **sbl, orphans **opl)
 {
     time_t	    Now, Fdate;
     int		    Age, First, Listed = FALSE, DownLinks = 0, MustRearc = FALSE;

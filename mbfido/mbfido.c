@@ -38,6 +38,7 @@
 #include "flock.h"
 #include "tosspkt.h"
 #include "unpack.h"
+#include "orphans.h"
 #include "tic.h"
 #include "fsort.h"
 #include "scan.h"

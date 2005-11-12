@@ -33,6 +33,7 @@
 #include "../lib/users.h"
 #include "../lib/mbsedb.h"
 #include "../lib/diesel.h"
+#include "orphans.h"
 #include "tic.h"
 #include "sendmail.h"
 #include "rollover.h"

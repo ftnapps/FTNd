@@ -66,7 +66,7 @@ int	CompileNL;
 
 
 int	Tic(void);
-int	LoadTic(char *, char *);
+int	LoadTic(char *, char *, orphans **);
 
 
 #endif

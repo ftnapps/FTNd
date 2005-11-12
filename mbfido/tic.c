@@ -33,9 +33,9 @@
 #include "../lib/users.h"
 #include "../lib/mbsedb.h"
 #include "unpack.h"
-#include "ptic.h"
 #include "fsort.h"
 #include "orphans.h"
+#include "ptic.h"
 #include "tic.h"
 
 #define	UNPACK_FACTOR 300
@@ -66,6 +66,7 @@ int Tic()
     struct stat	    sbuf;
     int		    i, rc = 0;
     fd_list	    *fdl = NULL;
+    orphans	    *opl = NULL;
 
     IsDoing("Process .tic files");
     CompileNL = FALSE;
@@ -123,7 +124,7 @@ int Tic()
     sort_fdlist(&fdl);
 
     while ((fname = pull_fdlist(&fdl)) != NULL) {
-	if (LoadTic(inbound, fname) == 0)
+	if (LoadTic(inbound, fname, &opl) == 0)
 	    rc = 1;
 	if (IsSema((char *)"upsalarm")) {
 	    rc = 0;
@@ -151,6 +152,8 @@ int Tic()
     if (CompileNL) 
 	CreateSema((char *)"mbindex");
 
+    tidy_orphans(&opl);
+
     free(inbound);
     return rc;
 }
@@ -160,7 +163,7 @@ int Tic()
 /*
  * Returns 1 if error, 0 if ok.
  */
-int LoadTic(char *inb, char *tfn)
+int LoadTic(char *inb, char *tfn, orphans **opl)
 {
     FILE	    *tfp;
     char	    *Temp, *Temp2, *Buf, *Log = NULL, RealName[256];
@@ -484,7 +487,7 @@ int LoadTic(char *inb, char *tfn)
     free(Buf);
 
     tic_in++;
-    rc = ProcessTic(&sbl);
+    rc = ProcessTic(&sbl, opl);
     tidy_falist(&sbl);
 
     return rc;

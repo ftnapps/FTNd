@@ -32,6 +32,7 @@
 #include "../lib/mbselib.h"
 #include "../lib/users.h"
 #include "../lib/mbsedb.h"
+#include "orphans.h"
 #include "tic.h"
 #include "fsort.h"
 #include "qualify.h"
