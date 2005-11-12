@@ -1,7 +1,9 @@
 $Id$
 
+v0.83.1		12-Nov-2005
 
-v0.83.0		06-Nov-2005
+
+v0.83.0		06-Nov-2005 - 12-Nov-2005
 
 	upgrade:
 		Start mbsetup once and leave, this will update user records
