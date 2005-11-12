@@ -35,6 +35,7 @@
 #include "unpack.h"
 #include "ptic.h"
 #include "fsort.h"
+#include "orphans.h"
 #include "tic.h"
 
 #define	UNPACK_FACTOR 300

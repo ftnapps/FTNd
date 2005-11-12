@@ -45,6 +45,7 @@
 #include "createf.h"
 #include "virscan.h"
 #include "qualify.h"
+#include "orphans.h"
 #include "addbbs.h"
 
 
