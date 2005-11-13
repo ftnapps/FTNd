@@ -5,6 +5,11 @@ v0.83.1		12-Nov-2005
 	mbfido:
 		Added some experimental code for tic orphans processing.
 
+	mbmon:
+		Improved error message when the chatserver is not configured
+		in /etc/services.
+
+
 v0.83.0		06-Nov-2005 - 12-Nov-2005
 
 	upgrade:

@@ -566,7 +566,8 @@ void Chat(int sysop)
 	Syslog('-', "< %s", buf);
 	if (strncmp(buf, "200:1,", 6) == 0) {
 	    set_color(LIGHTRED, BLACK);
-	    mbse_mvprintw(4, 1, (char *)"The chatserver is not configured in /etc/services");
+	    mbse_mvprintw(4, 1, (char *)"Add \"fido  60179/udp  # Chatserver\" to /etc/services");
+	    mbse_mvprintw(5, 1, (char *)"Leave mbmon, then restart mbtask and come back here");
 	    working(2, 0, 0);
 	    working(0, 0, 0);
 	    center_addstr(rows -4, (char *)"Press any key");
