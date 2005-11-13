@@ -35,6 +35,8 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
+	N: Check access right to the users homedirectory.
+
 	N: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
