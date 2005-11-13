@@ -66,7 +66,7 @@ int Tic()
     struct stat	    sbuf;
     int		    i, rc = 0;
     fd_list	    *fdl = NULL;
-    orphans	    *opl = NULL;
+    orphans	    *opl = NULL, *tmp;
 
     IsDoing("Process .tic files");
     CompileNL = FALSE;
@@ -152,6 +152,11 @@ int Tic()
     if (CompileNL) 
 	CreateSema((char *)"mbindex");
 
+    Syslog('f', "start tidy_orphans()");
+    for (tmp = opl; tmp; tmp = opl->next) {
+	Syslog('f', "%-12s %-20s %-12s %s %s", tmp->TicName, tmp->Area, tmp->FileName,
+		tmp->Orphaned ? "ORP" : "n/a", tmp->BadCRC ? "CRC" : "n/a");
+    }
     tidy_orphans(&opl);
 
     free(inbound);
@@ -452,7 +457,7 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
 	 * will handle this orphaned tic file.
 	 */
 	TIC.Orphaned = TRUE;
-	WriteError("Can't find file in inbound");
+	Syslog('+', "Can't find file in inbound, will check later");
     } else {
 	Syslog('f', "Returned RealName %s", RealName);
 	/*
