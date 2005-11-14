@@ -232,23 +232,25 @@ int EditIBCRec(int Area)
     set_color(CYAN, BLACK);
     mbse_mvprintw( 7, 2, "1.  Comment");
     mbse_mvprintw( 8, 2, "2.  Server");
-    mbse_mvprintw( 9, 2, "3.  Myname");
-    mbse_mvprintw(10, 2, "4.  Password");
-    mbse_mvprintw(11, 2, "5.  Active");
-    mbse_mvprintw(12, 2, "6.  Deleted");
-    mbse_mvprintw(13, 2, "7.  Compress");
+    mbse_mvprintw( 9, 2, "3.  Dyn. DNS");
+    mbse_mvprintw(10, 2, "4.  Myname");
+    mbse_mvprintw(11, 2, "5.  Password");
+    mbse_mvprintw(12, 2, "6.  Active");
+    mbse_mvprintw(13, 2, "7.  Deleted");
+    mbse_mvprintw(14, 2, "8.  Compress");
 
     for (;;) {
 	set_color(WHITE, BLACK);
 	show_str(  7,16,40, ibcsrv.comment);
 	show_str(  8,16,63, ibcsrv.server);
-	show_str(  9,16,63, ibcsrv.myname);
-	show_str( 10,16,15, ibcsrv.passwd);
-	show_bool(11,16,    ibcsrv.Active);
-	show_bool(12,16,    ibcsrv.Deleted);
-	show_bool(13,16,    ibcsrv.Compress);
+	show_bool( 9,16,    ibcsrv.Dyndns);
+	show_str( 10,16,63, ibcsrv.myname);
+	show_str( 11,16,15, ibcsrv.passwd);
+	show_bool(12,16,    ibcsrv.Active);
+	show_bool(13,16,    ibcsrv.Deleted);
+	show_bool(14,16,    ibcsrv.Compress);
 
-	j = select_menu(7);
+	j = select_menu(8);
 	switch(j) {
 	case 0:	crc1 = 0xffffffff;
 		crc1 = upd_crc32((char *)&ibcsrv, crc1, sizeof(ibcsrv));
@@ -270,11 +272,12 @@ int EditIBCRec(int Area)
 		return 0;
 	case 1:	E_STR(  7,16,40,ibcsrv.comment,  "The ^Comment^ for this record")
 	case 2:	E_STR(  8,16,63,ibcsrv.server,   "The known internet ^name^ or ^IP^ address of the remote server")
-	case 3: E_STR(  9,16,63,ibcsrv.myname,   "The known internet ^name^ or ^IP^ address of this server")
-	case 4:	E_STR( 10,16,64,ibcsrv.passwd,   "The ^password^ for this server")
-	case 5:	E_BOOL(11,16,   ibcsrv.Active,   "Switch if this server is ^Active^ for chat")
-	case 6:	E_BOOL(12,16,   ibcsrv.Deleted,  "Is this server to be ^Deleted^")
-	case 7:	E_BOOL(13,16,   ibcsrv.Compress, "Use ^zlib compression^ with this server")
+	case 3: E_BOOL( 9,16,   ibcsrv.Dyndns,   "Set to Yes if the remote server uses a ^dynamic dns^ service")
+	case 4: E_STR( 10,16,63,ibcsrv.myname,   "The known internet ^name^ or ^IP^ address of this server")
+	case 5:	E_STR( 11,16,64,ibcsrv.passwd,   "The ^password^ for this server")
+	case 6:	E_BOOL(12,16,   ibcsrv.Active,   "Switch if this server is ^Active^ for chat")
+	case 7:	E_BOOL(13,16,   ibcsrv.Deleted,  "Is this server to be ^Deleted^")
+	case 8:	E_BOOL(14,16,   ibcsrv.Compress, "Use ^zlib compression^ with this server")
 	}
     }
 
@@ -415,6 +418,7 @@ int ibc_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<TBODY>\n");
 	    add_webtable(wp, (char *)"Server comment", ibcsrv.comment);
 	    add_webtable(wp, (char *)"Server address", ibcsrv.server);
+	    add_webtable(wp, (char *)"Uses dynamic dns", getboolean(ibcsrv.Dyndns));
 	    add_webtable(wp, (char *)"My address", ibcsrv.myname);
 	    add_webtable(wp, (char *)"Active", getboolean(ibcsrv.Active));
 	    add_webtable(wp, (char *)"Compresion", getboolean(ibcsrv.Compress));
@@ -425,6 +429,7 @@ int ibc_doc(FILE *fp, FILE *toc, int page)
 
 	fprintf(fp, "      Comment     %s\n", ibcsrv.comment);
 	fprintf(fp, "      Server      %s\n", ibcsrv.server);
+	fprintf(fp, "      Dynamic dns %s\n", getboolean(ibcsrv.Dyndns));
 	fprintf(fp, "      My name     %s\n", ibcsrv.myname);
 	fprintf(fp, "      Active      %s\n", getboolean(ibcsrv.Active));
 	fprintf(fp, "      Compression %s\n", getboolean(ibcsrv.Compress)); 

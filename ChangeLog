@@ -9,6 +9,9 @@ v0.83.1		12-Nov-2005
 		Improved error message when the chatserver is not configured
 		in /etc/services.
 
+	mbsetup:
+		In IBC setup added a switch for dynamic dns.
+
 
 v0.83.0		06-Nov-2005 - 12-Nov-2005
 
