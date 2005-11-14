@@ -2061,6 +2061,7 @@ struct _ibcsrv {
 	unsigned	Active	    : 1;	/* Is server active	    */
 	unsigned	Deleted	    : 1;	/* Must server be deleted   */
 	unsigned	Compress    : 1;	/* Use compresssion	    */
+	unsigned	Dyndns	    : 1;	/* Remote uses dynamic dns  */
 };
 
 
