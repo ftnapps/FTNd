@@ -94,11 +94,11 @@ void chat_dump(void)
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	if (tmpu->pid) {
 	    if (first) {
-		Syslog('u', "  pid username                             nick      channel              sysop");
-		Syslog('u', "----- ------------------------------------ --------- -------------------- -----");
+		Syslog('c', "  pid username                             nick      channel              sysop");
+		Syslog('c', "----- ------------------------------------ --------- -------------------- -----");
 		first = FALSE;
 	    }
-	    Syslog('u', "%5d %-36s %-9s %-20s %s", tmpu->pid, tmpu->realname, tmpu->nick,
+	    Syslog('c', "%5d %-36s %-9s %-20s %s", tmpu->pid, tmpu->realname, tmpu->nick,
 		tmpu->channel, tmpu->sysop?"True ":"False");
 	}
     }
@@ -116,7 +116,7 @@ void system_msg(pid_t pid, char *msg)
     else
 	buffer_head = 0;
 
-    Syslog('-', "system_msg(%d, %s) ptr=%d", pid, msg, buffer_head);
+    Syslog('c', "system_msg(%d, %s) ptr=%d", pid, msg, buffer_head);
     memset(&chat_messages[buffer_head], 0, sizeof(_chat_messages));
     chat_messages[buffer_head].topid = pid;
     snprintf(chat_messages[buffer_head].fromname, 36, "Server");
@@ -184,7 +184,7 @@ int join(pid_t pid, char *channel, int sysop)
     chn_list	*tmp;
     usr_list	*tmpu;
 
-    Syslog('-', "Join pid %d to channel %s", pid, channel);
+    Syslog('c', "Join pid %d to channel %s", pid, channel);
 
     if (channels) {
 	for (tmp = channels; tmp; tmp = tmp->next) {
@@ -275,7 +275,7 @@ int part(pid_t pid, char *reason)
     if (strlen(reason) > 54)
 	reason[54] = '\0';
 
-    Syslog('-', "Part pid %d from channel, reason %s", pid, reason);
+    Syslog('c', "Part pid %d from channel, reason %s", pid, reason);
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	if ((tmpu->pid == pid) && strlen(tmpu->channel)) {
@@ -388,7 +388,7 @@ char *chat_connect(char *data)
     srv_list	*sl;
     usr_list	*tmpu;
 
-    Syslog('-', "CCON:%s", data);
+    Syslog('c', "CCON:%s", data);
     memset(&buf, 0, sizeof(buf));
 
     if (IsSema((char *)"upsalarm")) {
@@ -428,7 +428,7 @@ char *chat_connect(char *data)
 	    pthread_mutex_unlock(&b_mutex);
 	    usrchg = TRUE;
 	    srvchg = TRUE;
-	    Syslog('-', "Connected user %s (%s) with chatserver, sysop %s", realname, pid, sys ? "True":"False");
+	    Syslog('c', "Connected user %s (%s) with chatserver, sysop %s", realname, pid, sys ? "True":"False");
 
             /*
 	     * Now put welcome message into the ringbuffer and report success.
@@ -463,7 +463,7 @@ char *chat_close(char *data)
     char	*pid;
     usr_list	*tmpu;
 
-    Syslog('-', "CCLO:%s", data);
+    Syslog('c', "CCLO:%s", data);
     memset(&buf, 0, sizeof(buf));
     pid = strtok(data, ",");
     pid = strtok(NULL, ";");
@@ -475,12 +475,12 @@ char *chat_close(char *data)
 	     */
 	    send_all("QUIT %s@%s Leaving chat\r\n", tmpu->name, CFG.myfqdn);
 	    del_user(&users, CFG.myfqdn, tmpu->name);
-	    Syslog('-', "Closing chat for pid %s", pid);
+	    Syslog('c', "Closing chat for pid %s", pid);
 	    snprintf(buf, 81, "100:0;");
 	    return buf;
 	}
     }
-    Syslog('-', "Pid %s was not connected to chatserver");
+    Syslog('c', "Pid %s was not connected to chatserver");
     snprintf(buf, 81, "100:1,*** ERROR - Not connected to server;");
     return buf;
 }
@@ -497,7 +497,7 @@ char *chat_put(char *data)
     chn_list	*tmpc;
     char	temp[81];
 
-    Syslog('-', "CPUT:%s", data);
+    Syslog('c', "CPUT:%s", data);
     memset(&buf, 0, sizeof(buf));
 
     if (IsSema((char *)"upsalarm")) {
@@ -537,9 +537,9 @@ char *chat_put(char *data)
 		} else if ((strncasecmp(msg, "/join", 5) == 0) ||
 		    (strncasecmp(msg, "/j ", 3) == 0)) {
 		    cmd = strtok(msg, " \0");
-		    Syslog('-', "\"%s\"", cmd);
+		    Syslog('c', "\"%s\"", cmd);
 		    cmd = strtok(NULL, "\0");
-		    Syslog('-', "\"%s\"", cmd);
+		    Syslog('c', "\"%s\"", cmd);
 		    if ((cmd == NULL) || (cmd[0] != '#') || (strcmp(cmd, "#") == 0)) {
 			snprintf(buf, 200, "** Try /join #channel");
 			system_msg(tmpu->pid, buf);
@@ -547,7 +547,7 @@ char *chat_put(char *data)
 			snprintf(buf, 200, "** Cannot join while in a channel");
 			system_msg(tmpu->pid, buf);
 		    } else {
-			Syslog('-', "Trying to join channel %s", cmd);
+			Syslog('c', "Trying to join channel %s", cmd);
 			join(tmpu->pid, cmd, tmpu->sysop);
 		    }
 		    chat_dump();
@@ -624,9 +624,9 @@ char *chat_put(char *data)
 		    goto ack;
 		} else if (strncasecmp(msg, "/part", 5) == 0) {
 		    cmd = strtok(msg, " \0");
-		    Syslog('-', "\"%s\"", cmd);
+		    Syslog('c', "\"%s\"", cmd);
 		    cmd = strtok(NULL, "\0");
-		    Syslog('-', "\"%s\"", printable(cmd, 0));
+		    Syslog('c', "\"%s\"", printable(cmd, 0));
 		    if (part(tmpu->pid, cmd ? cmd : (char *)"Quitting") == FALSE) {
 			snprintf(buf, 200, "** Not in a channel");
 			system_msg(tmpu->pid, buf);
@@ -686,7 +686,7 @@ char *chat_put(char *data)
 	    goto ack;
 	}
     }
-    Syslog('-', "Pid %s was not connected to chatserver");
+    Syslog('c', "Pid %s was not connected to chatserver");
     snprintf(buf, 200, "100:2,1,*** ERROR - Not connected to server;");
     free(msg);
     return buf;
@@ -740,7 +740,7 @@ char *chat_get(char *data)
 		     * Message is for us
 		     */
 		    snprintf(buf, 200, "100:2,0,%s;", clencode(chat_messages[tmpu->pointer].message));
-		    Syslog('-', "%s", buf);
+		    Syslog('c', "%s", buf);
 		    return buf;
 		}
 	    }
@@ -768,7 +768,7 @@ char *chat_checksysop(char *data)
     pid = strtok(NULL, ";");
 
     if (reg_ispaging(pid)) {
-	Syslog('-', "Check sysopchat for pid %s, user has paged", pid);
+	Syslog('c', "Check sysopchat for pid %s, user has paged", pid);
 
 	/*
 	 * Now check if sysop is present in the sysop channel
@@ -776,7 +776,7 @@ char *chat_checksysop(char *data)
 	for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	    if (atoi(pid) != tmpu->pid) {
 		if (strlen(tmpu->channel) && (strcasecmp(tmpu->channel, "#sysop") == 0) && tmpu->sysop) {
-		    Syslog('-', "Sending ACK on check");
+		    Syslog('c', "Sending ACK on check");
 		    snprintf(buf, 20, "100:1,1;");
 		    reg_sysoptalk(pid);
 		    return buf;
