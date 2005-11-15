@@ -9,6 +9,10 @@ v0.83.1		12-Nov-2005
 		Improved error message when the chatserver is not configured
 		in /etc/services.
 
+	mbtask:
+		Added code to the chatserver thread to handle remote servers
+		with dynamic dns addresses.
+
 	mbsetup:
 		In IBC setup added a switch for dynamic dns.
 

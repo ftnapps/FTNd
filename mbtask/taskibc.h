@@ -10,6 +10,7 @@
 typedef struct _ncs_list {
     struct _ncs_list	*next;
     char		server[64];	    /* Server address		*/
+    char		resolved[64];	    /* Resolved server address	*/
     char		myname[64];	    /* My server address	*/
     char		passwd[16];	    /* Server password		*/
     int			state;		    /* Connection state		*/
@@ -20,6 +21,7 @@ typedef struct _ncs_list {
     unsigned		compress    : 1;    /* User link compression	*/
     unsigned		gotpass	    : 1;    /* Received valid password	*/
     unsigned		gotserver   : 1;    /* Received valid server	*/
+    unsigned		dyndns	    : 1;    /* Is a dynamic dns remote	*/
     struct sockaddr_in	servaddr_in;	    /* Peer socketaddress	*/
     int			socket;		    /* Peer socket		*/
     unsigned int	token;		    /* Server token		*/

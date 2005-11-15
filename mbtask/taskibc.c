@@ -78,7 +78,7 @@ static char *ncsstate[] = {
 /*
  * Internal prototypes
  */
-void fill_ncslist(ncs_list **, char *, char *, char *);
+void fill_ncslist(ncs_list **, char *, char *, char *, int);
 void dump_ncslist(void);
 void tidy_servers(srv_list **);
 int  add_server(srv_list **, char *, int, char *, char *, char *, char *);
@@ -104,7 +104,7 @@ void receiver(struct servent *);
 /*
  * Add a server to the serverlist
  */
-void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
+void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int dyndns)
 {
     ncs_list	*tmp, *ta;
 
@@ -114,6 +114,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
     memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
     strncpy(tmp->server, server, 63);
+    strncpy(tmp->resolved, server, 63);
     strncpy(tmp->myname, myname, 63);
     strncpy(tmp->passwd, passwd, 15);
     tmp->state = NCS_INIT;
@@ -125,6 +126,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
     tmp->token = 0;
     tmp->gotpass = FALSE;
     tmp->gotserver = FALSE;
+    tmp->dyndns = dyndns;
 
     if (*fdp == NULL) {
 	*fdp = tmp;
@@ -155,13 +157,14 @@ void dump_ncslist(void)
 
     if (callchg) {
 	if (ncsl) {
-	    Syslog('r', "Server                         State   Del Pwd Srv Next action");
-	    Syslog('r', "------------------------------ ------- --- --- --- -----------");
+	    Syslog('r', "Server                         State   Del Pwd Srv Dyn Next action");
+	    Syslog('r', "------------------------------ ------- --- --- --- --- -----------");
 	    for (tmp = ncsl; tmp; tmp = tmp->next) {
 		snprintf(temp1, 30, "%s", tmp->server);
-		Syslog('r', "%-30s %-7s %s %s %s %d", temp1, ncsstate[tmp->state], 
+		Syslog('r', "%-30s %-7s %s %s %s %s %d", temp1, ncsstate[tmp->state], 
 		    tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
-		    tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
+		    tmp->gotserver ? "yes":"no ", tmp->dyndns ? "yes":"no ",
+		    (int)tmp->action - (int)now);
 	    }
 	} else {
 	    Syslog('r', "No servers configured");
@@ -633,7 +636,7 @@ void check_servers(void)
 			}
 		    }
 		    if (!inlist ) {
-			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
+			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd, ibcsrv.Dyndns);
 			srvchg = TRUE;
 			callchg = TRUE;
 			Syslog('+', "IBC: new configured Internet BBS Chatserver: %s", ibcsrv.server);
@@ -1516,11 +1519,12 @@ int do_command(char *hostname, char *command, char *parameters)
 void receiver(struct servent  *se)
 {
     struct pollfd   pfd;
-    struct hostent  *hp;
+    struct hostent  *hp, *tp;
+    struct in_addr  in;
     int             rc, len, inlist;
     socklen_t       sl;
     ncs_list	    *tnsl;
-    char            *hostname, *command, *parameters;
+    char            *hostname, *command, *parameters, *ipaddress;
 
     pfd.fd = ls;
     pfd.events = POLLIN;
@@ -1548,12 +1552,42 @@ void receiver(struct servent  *se)
 	        return;
 	    }
 
+	    /*
+	     * First check fr a fixed IP address.
+	     */
 	    inlist = FALSE;
 	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 		if (strcmp(tnsl->server, hostname) == 0) {
 		    inlist = TRUE;
 		    break;
 		}
+	    }
+	    if (!inlist) {
+		/*
+		 * Check for dynamic dns address
+		 */
+		ipaddress = xstrcpy(inet_ntoa(clientaddr_in.sin_addr));
+		for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+		    if (tnsl->dyndns) {
+			tp = gethostbyname(tnsl->server);
+			if (tp != NULL) {
+			    memcpy(&in, tp->h_addr, tp->h_length);
+			    if (strcmp(inet_ntoa(in), ipaddress) == 0) {
+				/*
+				 * Store the back resolved IP fqdn for reference and change the
+				 * FQDN to the one from the setup, so we continue to use the
+				 * dynamic FQDN.
+				 */
+				strncpy(tnsl->resolved, hostname, 63);
+				inlist = TRUE;
+				Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", tnsl->resolved, tnsl->server);
+				hostname = tnsl->server;
+				break;
+			    }
+			}
+		    }
+		}
+		free(ipaddress);
 	    }
 	    if (!inlist) {
 		Syslog('r', "IBC: message from unknown host (%s), dropped", hostname);
