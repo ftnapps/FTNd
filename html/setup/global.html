@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 10-Aug-2005</h5></div>
+<div align="right"><h5>Last update 16-Nov-2005</h5></div>
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 
 In this setup you can edit all global settings for MBSE BBS. All sections will
@@ -45,9 +45,13 @@ group them.
 </pre>
 A note abou the last item, My FQDN. This <b>MUST</b> be the name that is
 returned with <code>nslookup 1.2.3.4</code> (use your internet IP adress there)
-and not some alias  that you also might have registered in the DNS. The correct
-use of this field is important if you want to join the Internet BBS Chat
-network.
+if you have a fixed IP address. Systems that are on a dynamic IP address and use
+some sort of dyndns service <b>may</b> put that dyndns FQDN in there. Using this will
+cause the other system to do twice as much dns resolve actions, so use this only
+when needed. Another note, what you put in here has nothing to do with mail or
+mail domains, that needs to be in the second option of this screen. The My FQDN
+field is used by the Internet BBS Chatserver (IBC) to allow bbs systems to build
+a chat network.
 <P>
 
 <h3>1.3. Edit Global Filenames.</H3>
