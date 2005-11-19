@@ -162,7 +162,7 @@ mbindex.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbindex.h
 msgutil.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h msgutil.h
 postecho.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h ftn2rfc.h postecho.h storeecho.h addpkt.h rollover.h qualify.h
 rollover.o: ../config.h ../lib/mbselib.h rollover.h
-tic.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h unpack.h fsort.h orphans.h ptic.h tic.h
+tic.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h unpack.h fsort.h orphans.h ptic.h mover.h tic.h
 areamgr.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h ../lib/diesel.h sendmail.h mgrutil.h scan.h createm.h areamgr.h
 filefind.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h fflist.h filefind.h msgutil.h
 grlist.o: ../config.h ../lib/mbselib.h grlist.h

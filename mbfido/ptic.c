@@ -101,19 +101,6 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     if (TIC.Orphaned) {
 	fill_orphans(opl, TIC.TicName, TIC.TicIn.Area, TIC.TicIn.File, TRUE, FALSE);
 	Syslog('+', "File not in inbound: %s", TIC.TicIn.File);
-	/*
-	 * Now check the age of the .tic file.
-	 */
-//	snprintf(Temp, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicName);
-//	Fdate = file_time(Temp);
-//	Age = (Now - Fdate) / 84400;
-//	Syslog('+', "Orphaned tic age %d days", Age);
-
-//	if (Age > 21) {
-//	    tic_bad++;
-//	    mover(TIC.TicName);
-//	}
-	
 	free(Temp);
 	return 2;
     }
@@ -138,7 +125,6 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    Syslog('!', "CRC: expected %08lX, the file is %08lX", TIC.Crc_Int, crc);
 	    fill_orphans(opl, TIC.TicName, TIC.TicIn.Area, TIC.TicIn.File, FALSE, TRUE);
 	    if (check_crc) {
-//		Bad((char *)"CRC: error, %s may be damaged", TIC.TicIn.File);
 		Syslog('+', "Bad CRC, will check this ticfile later");
 		free(Temp);
 		return 1;
@@ -584,9 +570,18 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     /*
      * Now check if other (older) ticfiles point to this file
      */
+    First = TRUE;
     for (topl = *opl; topl; topl = topl->next) {
+	if (First) {
+	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
+	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
+	    First = FALSE;
+	}
+	Syslog('f', "%-12s %-20s %-12s %s %s %s", topl->TicName, topl->Area, topl->FileName,
+		topl->Orphaned ? "Yes" : "No ", topl->BadCRC ? "Yes" : "No ", topl->Purged ? "Yes":"No ");
 	if ((strcmp(topl->Area, TIC.TicIn.Area) == 0) && (strcmp(topl->FileName, TIC.TicIn.File) == 0)) {
-	    Syslog('f', "Found matching tic file %s, should purge this one", topl->TicName);
+	    Syslog('f', "Found matching tic file %s, mark to purge this one", topl->TicName);
+	    topl->Purged = TRUE;
 	}
     }
 

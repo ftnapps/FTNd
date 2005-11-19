@@ -36,6 +36,7 @@
 #include "fsort.h"
 #include "orphans.h"
 #include "ptic.h"
+#include "mover.h"
 #include "tic.h"
 
 #define	UNPACK_FACTOR 300
@@ -64,9 +65,10 @@ int Tic()
     DIR		    *dp;
     struct dirent   *de;
     struct stat	    sbuf;
-    int		    i, rc = 0, first = TRUE;
+    int		    i, rc = 0, first = TRUE, Age;
     fd_list	    *fdl = NULL;
     orphans	    *opl = NULL, *tmp;
+    time_t	    Now, Fdate;
 
     IsDoing("Process .tic files");
     CompileNL = FALSE;
@@ -152,15 +154,57 @@ int Tic()
     if (CompileNL) 
 	CreateSema((char *)"mbindex");
 
+    /*
+     * Handle the array with orphaned and bad crc ticfiles.
+     */
     Syslog('f', "start tidy_orphans()");
+    Now = time(NULL);
     for (tmp = opl; tmp; tmp = tmp->next) {
 	if (first) {
-	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC");
-	    Syslog('f', "------------ -------------------- ------------ --- ---");
+	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
+	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
 	    first = FALSE;
 	}
-	Syslog('f', "%-12s %-20s %-12s %s %s", tmp->TicName, tmp->Area, tmp->FileName,
-		tmp->Orphaned ? "Yes" : "No ", tmp->BadCRC ? "Yes" : "No ");
+	Syslog('f', "%-12s %-20s %-12s %s %s %s", tmp->TicName, tmp->Area, tmp->FileName,
+		tmp->Orphaned ? "Yes" : "No ", tmp->BadCRC ? "Yes" : "No ", tmp->Purged ? "Yes":"No ");
+
+	/*
+	 * Bad CRC and not marked purged are real crc errors.
+	 */
+	if (tmp->BadCRC && (! tmp->Purged)) {
+	    Syslog('+', "Moving %s and %s to badtic directory", tmp->TicName, tmp->FileName);
+	    mover(tmp->TicName);
+	    mover(tmp->FileName);
+	    tic_bad++;
+	}
+
+	/*
+	 * Orphans that are not marked purged are real orphans, check age.
+	 */
+	if (tmp->Orphaned && (! tmp->Purged)) {
+	    fname = calloc(PATH_MAX, sizeof(char));
+	    snprintf(fname, PATH_MAX, "%s/%s", inbound, tmp->TicName);
+	    Fdate = file_time(fname);
+	    Age = (Now - Fdate) / 84400;
+	    if (Age > 21) {
+		Syslog('+', "Moving %s of %d days old to badtic", tmp->TicName, Age);
+		tic_bad++;
+		mover(tmp->TicName);
+	    } else {
+		Syslog('+', "Keeping %s of %d days old for %d days", tmp->TicName, Age, 21 - Age);
+	    }
+	    free(fname);
+	}
+
+	/*
+	 * If marked to purge, remove the ticfile
+	 */
+	if (tmp->Purged) {
+	    fname = calloc(PATH_MAX, sizeof(char));
+	    snprintf(fname, PATH_MAX, "%s/%s", inbound, tmp->TicName);
+	    Syslog('+', "Removing obsolete %s", tmp->TicName);
+	    free(fname);
+	}
     }
     tidy_orphans(&opl);
 

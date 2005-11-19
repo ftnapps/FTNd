@@ -46,14 +46,14 @@ void mover(char *fn)
 
     snprintf(From, PATH_MAX, "%s/%s", TIC.Inbound, fn);
     snprintf(To,   PATH_MAX, "%s/%s", CFG.badtic, fn);
-    Syslog('!', "Moving %s to %s", From, To);
+    Syslog('+', "Moving %s to %s", From, To);
 
     if (mkdirs(To, 0770)) {
 	if ((rc = file_mv(From, To))) {
-	    WriteError("$Failed to move %s to %s: %s", From, To, strerror(rc));
+	    WriteError("Failed to move %s to %s: %s", From, To, strerror(rc));
 	}
     } else {
-	WriteError("$Can't create directory for %s", To);
+	WriteError("Can't create directory for %s", To);
     }
 
     free(From);
