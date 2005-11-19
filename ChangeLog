@@ -2,6 +2,9 @@ $Id$
 
 v0.83.2		16-Nov-2005
 
+	mbfido:
+		Fixed crash when receiving bad tics.
+
 
 v0.83.1		12-Nov-2005 - 16-Nov-2005
 

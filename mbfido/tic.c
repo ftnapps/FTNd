@@ -64,7 +64,7 @@ int Tic()
     DIR		    *dp;
     struct dirent   *de;
     struct stat	    sbuf;
-    int		    i, rc = 0;
+    int		    i, rc = 0, first = TRUE;
     fd_list	    *fdl = NULL;
     orphans	    *opl = NULL, *tmp;
 
@@ -153,9 +153,14 @@ int Tic()
 	CreateSema((char *)"mbindex");
 
     Syslog('f', "start tidy_orphans()");
-    for (tmp = opl; tmp; tmp = opl->next) {
+    for (tmp = opl; tmp; tmp = tmp->next) {
+	if (first) {
+	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC");
+	    Syslog('f', "------------ -------------------- ------------ --- ---");
+	    first = FALSE;
+	}
 	Syslog('f', "%-12s %-20s %-12s %s %s", tmp->TicName, tmp->Area, tmp->FileName,
-		tmp->Orphaned ? "ORP" : "n/a", tmp->BadCRC ? "CRC" : "n/a");
+		tmp->Orphaned ? "Yes" : "No ", tmp->BadCRC ? "Yes" : "No ");
     }
     tidy_orphans(&opl);
 
