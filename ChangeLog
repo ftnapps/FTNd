@@ -5,6 +5,7 @@ v0.83.2		16-Nov-2005
 	mbfido:
 		Fixed crash when receiving bad tics.
 		Reinstalled tic orphans and bad crc handling using new method.
+		Removed some debug logging.
 
 
 v0.83.1		12-Nov-2005 - 16-Nov-2005

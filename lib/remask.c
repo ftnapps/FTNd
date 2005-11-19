@@ -78,7 +78,7 @@ char *re_mask(char *nm, int forceupper)
     }
     *q++ = '$';
     *q++ = '\0';
-    Syslog('f', "Search mask \"%s\" => \"%s\"", nm, mask);
+//    Syslog('f', "Search mask \"%s\" => \"%s\"", nm, mask);
     return mask;
 }
 

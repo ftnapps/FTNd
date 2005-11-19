@@ -508,7 +508,6 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
 	TIC.Orphaned = TRUE;
 	Syslog('+', "Can't find file in inbound, will check later");
     } else {
-	Syslog('f', "Returned RealName %s", RealName);
 	/*
 	 * If no LFN received in the ticfile and the file in the inbound is the same as the 8.3 name
 	 * but only the case is different, then treat the real filename as LFN.

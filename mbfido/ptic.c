@@ -614,7 +614,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     if ((strlen(tic.Banner)) && IsArchive) {
 	cmd = xstrcpy(archiver.barc);
 	if ((cmd == NULL) || (!strlen(cmd))) {
-	    Syslog('!', "No banner command for %s", archiver.name);
+	    Syslog('+', "No banner command for %s", archiver.name);
 	} else {
 	    snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
 	    snprintf(Temp, PATH_MAX, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);

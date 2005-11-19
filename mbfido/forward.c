@@ -145,7 +145,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		CloseMail(net, Temp);
 	    }
 	} else {
-	    WriteError("$Can't create netmail");
+	    WriteError("Can't create netmail");
 	}
 	tidy_faddr(Temp);
     }
@@ -277,7 +277,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     free(queuedir);
     free(listfile);
     tidy_faddr(routeto);
-    Syslog('f', "forward done");
 }
 
 

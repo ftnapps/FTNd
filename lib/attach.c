@@ -169,7 +169,6 @@ int check_flo(faddr *node, char *filename, char flavor)
     ticfile = calloc(PATH_MAX, sizeof(char));
 
     snprintf(flofile, PATH_MAX -1, "%s", floname(node, flavor));
-    Syslog('p', "check_flo: %s", flofile);
     if ((fp = fopen(flofile, "r+"))) {
 	filepos = 0;
 	while (fgets(buf, PATH_MAX +2, fp)) {
