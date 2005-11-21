@@ -95,7 +95,6 @@ int Add_BBS(qualify **qal)
 		    mbsedb_UnlockFDB(fdb_area);
 		}
 		mbsedb_CloseFDB(fdb_area);
-		Syslog('f', "updated file entry");
 		tic_imp++;
 		if ((i = file_rm(temp1)))
 		    WriteError("file_rm(%s): %s", temp1, strerror(i));

@@ -362,10 +362,8 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
 
 	} else if (strncasecmp(Temp, "date ", 5) == 0) {
 	    /*
-	     * Drop this one and log
+	     * Drop this one (HTick writes these)
 	     */
-	    Syslog('f', "Date: %s", Temp+5);
-
 	} else if (strncasecmp(Temp, "cost ", 5) == 0) {
 	    TIC.TicIn.Cost = atoi(Temp+5);
 

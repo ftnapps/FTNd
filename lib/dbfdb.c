@@ -154,7 +154,7 @@ int mbsedb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
     }
 
     if (rc) {
-	WriteError("$FDB %d lock error", fdb_area->area);
+	WriteError("FDB %d lock error", fdb_area->area);
 	return FALSE;
     }
 
