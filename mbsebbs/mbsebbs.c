@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 {
     FILE	    *pTty;
     char	    *p, *tty, temp[PATH_MAX];
-    int		    i, rc;
+    int		    i, rc, Fix;
     struct stat	    sb;
     struct winsize  ws;
     
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
  
     /*
      * Check users homedirectory, some *nix systems let users in if no
-     * homedirectory exists
+     * homedirectory exists. Then check the permissions.
      */
     snprintf(temp, PATH_MAX, "%s/%s", CFG.bbs_usersdir, sUnixName);
     if (stat(temp, &sb)) {
@@ -211,7 +211,54 @@ int main(int argc, char **argv)
 	WriteError("homedirectory %s doesn't exist", temp);
 	Quick_Bye(MBERR_OK);
     }
-    
+    Fix = FALSE;
+    if ((sb.st_mode & S_IRUSR) == 0) {
+	Fix = TRUE;
+	WriteError("No owner read access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IWUSR) == 0) {
+	Fix = TRUE;
+	WriteError("No owner write access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IXUSR) == 0) {
+	Fix = TRUE;
+	WriteError("No owner execute access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IRGRP) == 0) {
+	Fix = TRUE;
+	WriteError("No group read access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IWGRP) == 0) {
+	Fix = TRUE;
+	WriteError("No group write access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IXGRP) == 0) {
+	Fix = TRUE;
+	WriteError("No group execute access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IROTH)) {
+	Fix = TRUE;
+	WriteError("Others have read access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IWOTH)) {
+	Fix = TRUE;
+	WriteError("Others have write access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if ((sb.st_mode & S_IXOTH)) {
+	Fix = TRUE;
+	WriteError("Others have execute access in %s, mode is %04o", temp, sb.st_mode & 0x1ff);
+    }
+    if (Fix) {
+	if (chmod(temp, 0770)) {
+	    WriteError("Could not set home directory mode to 0770");
+	    snprintf(temp, 81, "Internal error, the sysop is notified");
+	    poutCR(LIGHTRED, BLACK, temp);
+	    Enter(1);
+	    Quick_Bye(MBERR_OK);
+	} else {
+	    Syslog('+', "Corrected home directory mode to 0770");
+	}
+    }
 
     if (((p = getenv("REMOTEHOST")) != NULL) || ((p = getenv("SSH_CLIENT")) != NULL)) {
 	/*
