@@ -202,6 +202,7 @@ int Tic()
 	if (tmp->Purged) {
 	    fname = calloc(PATH_MAX, sizeof(char));
 	    snprintf(fname, PATH_MAX, "%s/%s", inbound, tmp->TicName);
+	    unlink(fname);
 	    Syslog('+', "Removing obsolete %s", tmp->TicName);
 	    free(fname);
 	}
