@@ -623,7 +623,7 @@ int ScanArchive(char *fn, char *ftype)
 		pout(CFG.TextColourF, CFG.TextColourB, msg);
 
 		Altime(3600);
-		err = execute_str(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", stdlog, errlog);
+		err = execute_str(virscan.scanner, virscan.options, (char *)NULL, (char *)"/dev/null", stdlog, errlog);
 		if (file_size(stdlog)) {
 		    if ((lp = fopen(stdlog, "r"))) {
 			while (fgets(buf, sizeof(buf) -1, lp)) {

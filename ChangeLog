@@ -10,6 +10,7 @@ v0.83.2		16-Nov-2005
 	mbsebbs:
 		Added check for users homedirectory permissions and attempt to
 		fix errors. If fatal the connection is dropped.
+		Fixed virus scan of uploaded archives.
 
 
 v0.83.1		12-Nov-2005 - 16-Nov-2005
