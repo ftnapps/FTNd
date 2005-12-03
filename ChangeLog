@@ -10,6 +10,7 @@ v0.83.2		16-Nov-2005
 		Reinstalled tic orphans and bad crc handling using new method.
 		Removed some debug logging.
 		Now using new tmp workdirectory functions.
+		When a hatch directory doesn't exist, it is created.
 
 	mbfile:
 		Now using new tmp workdirectory functions.

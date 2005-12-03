@@ -245,7 +245,7 @@ int mkdirs(char *name, mode_t mode)
 	if ((last == 0) || (last == EEXIST)) {
 		return TRUE;
 	} else {
-		WriteError("$mkdirs(%s)", name);
+		WriteError("mkdirs(%s)", name);
 		return FALSE;
 	}
 }

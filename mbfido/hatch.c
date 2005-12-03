@@ -107,6 +107,11 @@ int CheckHatch(char *temp)
     char	    mask[256];
     FILE	    *Tf;
 
+    if (mkdirs(temp, 0775) == FALSE) {
+	WriteError("Can't create dir %s", temp);
+	return FALSE;
+    }
+
     fn = xstrcpy(strrchr(temp, '/') + 1);
 
     while (temp[strlen(temp) -1] != '/')
