@@ -55,6 +55,8 @@ int VirScan(char *path)
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("No virus scanners defined");
 	free(temp);
+	free(stdlog);
+	free(errlog);
 	return FALSE;
     }
     fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
@@ -67,6 +69,8 @@ int VirScan(char *path)
 	Syslog('+', "No active virus scanners, skipping scan");
 	fclose(fp);
 	free(temp);
+	free(stdlog);
+	free(errlog);
 	return FALSE;
     }
     
