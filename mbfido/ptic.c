@@ -367,33 +367,30 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     if ((tic.VirScan || MustRearc) && IsArchive) {
 
 	/*
-	 * Check if there is a temp directory for the archive conversion.
+	 * Create a temp directory for the archive conversion.
 	 */
-	snprintf(temp2, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
-	if ((access(temp2, R_OK)) != 0) {
-	    if (mkdir(temp2, 0777)) {
-		WriteError("$Can't create %s", temp2);
-		free(Temp);
-		tidy_qualify(&qal);
-		return 1;
-	    }
+	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	if (create_tmpwork) {
+	    free(Temp);
+	    tidy_qualify(&qal);
+	    return 1;
 	}
 
 	/*
 	 * Check for stale FILE_ID.DIZ files
 	 */
-	snprintf(temp1, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-	if (!unlink(temp1))
-	    Syslog('+', "Removed stale %s", temp1);
-	snprintf(temp1, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
-	if (!unlink(temp1))
-	    Syslog('+', "Removed stale %s", temp1);
-	snprintf(temp1, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-	if (!unlink(temp1))
-	    Syslog('+', "Removed stale %s", temp1);
-	snprintf(temp1, PATH_MAX, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
-	if (!unlink(temp1))
-	    Syslog('+', "Removed stale %s", temp1);
+//	snprintf(temp1, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+//	if (!unlink(temp1))
+//	    Syslog('+', "Removed stale %s", temp1);
+//	snprintf(temp1, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+//	if (!unlink(temp1))
+//	    Syslog('+', "Removed stale %s", temp1);
+//	snprintf(temp1, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+//	if (!unlink(temp1))
+//	    Syslog('+', "Removed stale %s", temp1);
+//	snprintf(temp1, PATH_MAX, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
+//	if (!unlink(temp1))
+//	    Syslog('+', "Removed stale %s", temp1);
 
 	if (!checkspace(temp2, TIC.TicIn.File, UNPACK_FACTOR)) {
 	    Bad((char *)"Not enough free diskspace left");
@@ -429,7 +426,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 		chdir(TIC.Inbound);
 		Bad((char *)"Archive maybe corrupt");
 		free(Temp);
-		DeleteVirusWork();
+		clean_tmpwork();
 		return 1;
 	    }
 	    free(cmd);
@@ -443,7 +440,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	 * with worms or other macro viri
 	 */
 	snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
-	snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), TIC.TicIn.File);
+	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), TIC.TicIn.File);
 
 	if ((rc = file_cp(temp1, temp2))) {
 	    WriteError("Can't copy %s to %s: %s", temp1, temp2, strerror(rc));
@@ -452,7 +449,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    return 1;
 	}
 
-	snprintf(temp2, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
+	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
 	if (chdir(temp2) != 0) {
 	    WriteError("$Can't change to %s", temp2);
 	    free(Temp);
@@ -469,7 +466,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	}
 
 	if (VirScan(NULL)) {
-	    DeleteVirusWork();
+	    clean_tmpwork();
 	    chdir(TIC.Inbound);
 	    Bad((char *)"Possible virus found!");
 	    free(Temp);
@@ -486,12 +483,12 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 
     if (tic.FileId && tic.FileArea && IsArchive) {
 	if (UnPacked) {
-	    snprintf(temp1, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+	    snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/FILE_ID.DIZ", getenv("MBSE_ROOT"), (int)getpid());
 	    snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
 	    if (file_cp(temp1, temp2) == 0) {
 		File_Id = TRUE;
 	    } else {
-		snprintf(temp1, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+		snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/file_id.diz", getenv("MBSE_ROOT"), (int)getpid());
 		if (file_cp(temp1, temp2) == 0) {
 		    File_Id = TRUE;
 		}
@@ -631,7 +628,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	}
     }
 
-    DeleteVirusWork();
+    clean_tmpwork();
     chdir(TIC.Inbound);
 
     /*

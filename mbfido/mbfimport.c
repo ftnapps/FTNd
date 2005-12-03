@@ -86,8 +86,14 @@ void ImportFiles(int Area)
         getcwd(pwd, PATH_MAX);
 	if (CheckFDB(Area, area.Path))
 	    die(MBERR_GENERAL);
-	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
 
+	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	if (create_tmpwork()) {
+	    WriteError("Can't create %s", tmpdir);
+	    if (!do_quiet)
+		printf("\nCan't create %s\n", tmpdir);
+	    die(MBERR_GENERAL);
+	}
 	IsDoing("Import files");
 
 	/*
@@ -117,8 +123,7 @@ void ImportFiles(int Area)
 		    Doit = TRUE;
 		    if ((unarc = unpacker(temp)) == NULL) {
 			Syslog('+', "Unknown archive format %s", temp);
-			snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.Name);
-			mkdirs(temp2, 0755);
+			snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), f_db.Name);
 			if ((rc = file_cp(temp, temp2))) {
 			    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 			    if (!do_quiet)
@@ -154,7 +159,7 @@ void ImportFiles(int Area)
 			    Doit = FALSE;
 			}
 		    }
-		    DeleteVirusWork();
+		    clean_tmpwork();
 		    if (Doit) {
 			if (!do_quiet) {
 			    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
@@ -375,8 +380,7 @@ void ImportFiles(int Area)
 	    Doit = TRUE;
 	    if ((unarc = unpacker(temp)) == NULL) {
 		Syslog('+', "Unknown archive format %s", temp);
-		snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.LName);
-		mkdirs(temp2, 0755);
+		snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), f_db.LName);
 		if ((rc = file_cp(temp, temp2))) {
 		    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 		    Doit = FALSE;
@@ -410,7 +414,7 @@ void ImportFiles(int Area)
 		    Doit = FALSE;
 		}
 	    }
-	    DeleteVirusWork();
+	    clean_tmpwork();
 	    if (Doit) {
 		if (!do_quiet) {
 		    printf("Adding    \b\b\b\b\b\b\b\b\b\b");

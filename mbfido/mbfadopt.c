@@ -77,12 +77,18 @@ void AdoptFile(int Area, char *File, char *Description)
 	    fflush(stdout);
 	}
 
+	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	if (create_tmpwork()) {
+	    WriteError("Can't create %s", tmpdir);
+	    if (!do_quiet)
+		printf("\nCan't create dir %s\n", tmpdir);
+	    die(MBERR_INIT_ERROR);
+	}
+
 	snprintf(temp, PATH_MAX, "%s/%s", pwd, File);
-	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
 	if ((unarc = unpacker(File)) == NULL) {
 	    Syslog('+', "No known archive: %s", File);
-	    snprintf(temp2, PATH_MAX, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), File);
-	    mkdirs(temp2, 0755);
+	    snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), File);
 	    if ((rc = file_cp(temp, temp2))) {
 		WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 		if (!do_quiet)
@@ -99,7 +105,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		    IsVirus = FALSE;
 		}
 		if (IsVirus) {
-		    DeleteVirusWork();
+		    clean_tmpwork();
 		    chdir(pwd);
 		    WriteError("Virus found");
 		    if (!do_quiet)
@@ -126,7 +132,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	    }
 
             if (IsVirus) {
-		DeleteVirusWork();
+		clean_tmpwork();
                 chdir(pwd);
 		WriteError("Virus found");
 		if (!do_quiet)
@@ -150,12 +156,12 @@ void AdoptFile(int Area, char *File, char *Description)
 	    /*
 	     * Try to get a FILE_ID.DIZ
 	     */
-            snprintf(temp, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+            snprintf(temp, PATH_MAX, "%s/tmp/arc%d/FILE_ID.DIZ", getenv("MBSE_ROOT"), (int)getpid());
             snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
             if (file_cp(temp, temp2) == 0) {
                 File_Id = TRUE;
 	    } else {
-		snprintf(temp, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/tmp/arc%d/file_id.diz", getenv("MBSE_ROOT"), (int)getpid());
 		if (file_cp(temp, temp2) == 0)
 		    File_Id = TRUE;
 	    }
@@ -215,7 +221,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		WriteError("No FILE_ID.DIZ and no description on the commandline");
 		if (!do_quiet)
 		    printf("\nNo FILE_ID.DIZ and no description on the commandline\n");
-		DeleteVirusWork();
+		clean_tmpwork();
 		die(MBERR_COMMANDLINE);
 	    } else {
 		/*
@@ -255,7 +261,8 @@ void AdoptFile(int Area, char *File, char *Description)
 	 * Import the file.
 	 */
 	chdir(pwd);
-	DeleteVirusWork();
+	clean_tmpwork();
+
 	/*
 	 * Work out the kind of filename, is it a long filename
 	 * or a 8.3 DOS filename. The file on disk must become

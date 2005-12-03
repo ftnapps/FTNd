@@ -260,6 +260,7 @@ void die(int onsig)
 
     signal(onsig, SIG_IGN);
     deinitnl();
+    clean_tmpwork();
 
     if (!do_quiet) {
 	show_log = TRUE;

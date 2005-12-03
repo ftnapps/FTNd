@@ -2,10 +2,17 @@ $Id$
 
 v0.83.2		16-Nov-2005
 
+	libmbse.a:
+		Added temp workdirectory functions.
+
 	mbfido:
 		Fixed crash when receiving bad tics.
 		Reinstalled tic orphans and bad crc handling using new method.
 		Removed some debug logging.
+		Now using new tmp workdirectory functions.
+
+	mbfile:
+		Now using new tmp workdirectory functions.
 
 	mbsebbs:
 		Added check for users homedirectory permissions and attempt to

@@ -146,6 +146,7 @@ install:
 			echo "you may remove that obsolete directory." ; \
 		fi
 		@rm -rf ${PREFIX}/sema
+		@rm -rf ${PREFIX}/tmp/arc
 
 
 dist tar:	${TARFILE}

@@ -90,6 +90,7 @@ void die(int onsig)
 	    WriteError("Terminated with error %d", onsig);
     }
 
+    clean_tmpwork();
     ulockprogram((char *)"mbfile");
     t_end = time(NULL);
     Syslog(' ', "MBFILE finished in %s", t_elapsed(t_start, t_end));
@@ -202,29 +203,6 @@ void Marker(void)
 
 
 
-void DeleteVirusWork()
-{
-        char    *buf, *temp;
-
-        buf  = calloc(PATH_MAX, sizeof(char));
-        temp = calloc(PATH_MAX, sizeof(char));
-        getcwd(buf, PATH_MAX);
-        snprintf(temp, PATH_MAX, "%s/tmp", getenv("MBSE_ROOT"));
-
-        if (chdir(temp) == 0) {
-                Syslog('f', "DeleteVirusWork %s/arc", temp);
-                execute_pth((char *)"rm", (char *)"-r -f arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-		execute_pth((char *)"mkdir", (char *)"arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-        } else
-                WriteError("$Can't chdir to %s", temp);
-
-        chdir(buf);
-        free(temp);
-        free(buf);
-}
-
-
-
 int UnpackFile(char *File)
 {
     char    *temp, *pwd, *unarc, *cmd;
@@ -243,23 +221,20 @@ int UnpackFile(char *File)
     /*
      * Check if there is a temp directory to unpack the archive.
      */
-    snprintf(temp, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
-    if ((access(temp, R_OK)) != 0) {
-	if (mkdir(temp, 0777)) {
-	    WriteError("$Can't create %s", temp);
-	    if (!do_quiet)
-		printf("\nCan't create %s\n", temp);
-	    die(MBERR_GENERAL);
-	}
+    if (create_tmpwork()) {
+	snprintf(temp, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
+	if (!do_quiet)
+	    printf("\nCan't create %s\n", temp);
+	die(MBERR_GENERAL);
     }
 
     /*
      * Check for stale FILE_ID.DIZ files
      */
-    snprintf(temp, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/arc%d/FILE_ID.DIZ", getenv("MBSE_ROOT"), (int)getpid());
     if (!unlink(temp))
 	Syslog('+', "Removed stale %s", temp);
-    snprintf(temp, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/arc%d/file_id.diz", getenv("MBSE_ROOT"), (int)getpid());
     if (!unlink(temp))
 	Syslog('+', "Removed stale %s", temp);
 
@@ -278,7 +253,7 @@ int UnpackFile(char *File)
 	return FALSE;
     }
 
-    snprintf(temp, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
     if (chdir(temp) != 0) {
 	WriteError("$Can't change to %s", temp);
 	die(MBERR_GENERAL);
@@ -293,7 +268,7 @@ int UnpackFile(char *File)
     } else {
 	chdir(pwd);
 	WriteError("Unpack error, file may be corrupt");
-	DeleteVirusWork();
+	clean_tmpwork();
     }
     return FALSE;
 }

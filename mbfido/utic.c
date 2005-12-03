@@ -132,29 +132,6 @@ int Rearc(char *unarc)
 
 
 
-void DeleteVirusWork()
-{
-    char    *buf, *temp;
-
-    buf  = calloc(PATH_MAX, sizeof(char));
-    temp = calloc(PATH_MAX, sizeof(char));
-    getcwd(buf, PATH_MAX);
-    snprintf(temp, PATH_MAX, "%s/tmp", getenv("MBSE_ROOT"));
-
-    if (chdir(temp) == 0) {
-	Syslog('f', "DeleteVirusWork %s/arc", temp);
-	execute_pth((char *)"rm", (char *)"-r -f arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-	execute_pth((char *)"mkdir", (char *)"arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-    } else
-	WriteError("$Can't chdir to %s", temp);
-
-    chdir(buf);
-    free(temp);
-    free(buf);
-}
-
-
-
 void Bad(char *format, ...)
 {
     char    outstr[1024];
