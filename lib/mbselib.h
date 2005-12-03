@@ -2562,6 +2562,13 @@ int  magic_check(char *, char *);   /* Check if magic alias exists	*/
 int pid2prog(pid_t, char *, size_t);	/* Find progrname for a pid	*/
 
 
+/*
+ * tmpwork.c
+ */
+void clean_tmpwork(void);	    /* Remove tmp workdir		*/
+int  create_tmpwork(void);	    /* Create tmp workdir		*/
+
+
 /*************************************************************************
  *
  *  Charset mapping
