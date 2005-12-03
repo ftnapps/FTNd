@@ -70,6 +70,7 @@ int create_tmpwork(void)
 
     if (! is_tmpwork) {
 	temp = calloc(PATH_MAX, sizeof(char));
+	getcwd(buf, PATH_MAX);
 	snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
 
 	if (! mkdirs(temp, 0755))
