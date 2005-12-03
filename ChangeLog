@@ -1,6 +1,8 @@
 $Id$
 
-v0.83.2		16-Nov-2005
+v0.83.3		03-Dec-2005
+
+v0.83.2		16-Nov-2005 - 03-Dec-2005
 
 	libmbse.a:
 		Added temp workdirectory functions.
