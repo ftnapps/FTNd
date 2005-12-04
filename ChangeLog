@@ -1,6 +1,12 @@
 $Id$
 
-v0.83.3		03-Dec-2005
+v0.83.4		04-Dec-2005
+
+
+v0.83.3		03-Dec-2005 - 04-Dec-2005
+
+	remark:
+		This version was broken.
 
 	libmbse.a:
 		Fixed new tmpwork functions.
