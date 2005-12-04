@@ -340,6 +340,15 @@ int ProcessTic(fa_list **sbl, orphans **opl)
      * is used for this file.
      */
     if (strlen(tic.Convert) || tic.VirScan || tic.FileId || tic.ConvertAll || strlen(tic.Banner)) {
+	/*
+	 * Create tmp workdir
+	 */
+	if (create_tmpwork()) {
+	    free(Temp);
+	    tidy_qualify(&qal);
+	    return 1;
+	}
+
 	if ((unarc = unpacker(TIC.TicIn.File)) == NULL)
 	    Syslog('+', "Unknown archive format %s", TIC.TicIn.File);
 	else {
@@ -366,15 +375,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 
     if ((tic.VirScan || MustRearc) && IsArchive) {
 
-	/*
-	 * Create a temp directory for the archive conversion.
-	 */
 	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
-	if (create_tmpwork) {
-	    free(Temp);
-	    tidy_qualify(&qal);
-	    return 1;
-	}
 
 	/*
 	 * Check for stale FILE_ID.DIZ files
@@ -396,6 +397,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    Bad((char *)"Not enough free diskspace left");
 	    free(Temp);
 	    tidy_qualify(&qal);
+	    clean_tmpwork();
 	    return 1;
 	}
 
@@ -403,6 +405,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    WriteError("$Can't change to %s", temp2);
 	    free(Temp);
 	    tidy_qualify(&qal);
+	    clean_tmpwork();
 	    return 1;
 	}
 
@@ -411,6 +414,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    chdir(TIC.Inbound);
 	    free(Temp);
 	    tidy_qualify(&qal);
+	    clean_tmpwork();
 	    return 1;
 	}
 
@@ -446,6 +450,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    WriteError("Can't copy %s to %s: %s", temp1, temp2, strerror(rc));
 	    free(Temp);
 	    tidy_qualify(&qal);
+	    clean_tmpwork();
 	    return 1;
 	}
 
@@ -454,6 +459,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    WriteError("$Can't change to %s", temp2);
 	    free(Temp);
 	    tidy_qualify(&qal);
+	    clean_tmpwork();
 	    return 1;
 	}
     }
@@ -471,6 +477,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    Bad((char *)"Possible virus found!");
 	    free(Temp);
 	    tidy_qualify(&qal);
+	    clean_tmpwork();
 	    return 1;
 	}
 
@@ -662,6 +669,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    Bad((char *)"File Import Error");
 	    free(Temp);
 	    tidy_qualify(&qal);
+	    clean_tmpwork();
 	    return 1;
 	}
     }

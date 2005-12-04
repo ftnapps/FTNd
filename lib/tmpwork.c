@@ -45,11 +45,11 @@ void clean_tmpwork(void)
 	arc  = calloc(PATH_MAX, sizeof(char));
 	getcwd(buf, PATH_MAX);
 	snprintf(temp, PATH_MAX, "%s/tmp", getenv("MBSE_ROOT"));
-	snprintf(arc,  PATH_MAX, "arc%d", (int)getpid());
+	snprintf(arc,  PATH_MAX, "-r -f arc%d", (int)getpid());
 	
 	if (chdir(temp) == 0) {
-	    Syslog('f', "clean_tmpwork %s/%s", temp, arc);
-	    execute_pth((char *)"rm -r -f", arc, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+	    Syslog('f', "clean_tmpwork %s/arc%d", temp, (int)getpid());
+	    execute_pth((char *)"rm", arc, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 	} else {
 	    WriteError("$Can't chdir to %s", temp);
 	}
@@ -70,8 +70,7 @@ int create_tmpwork(void)
 
     if (! is_tmpwork) {
 	temp = calloc(PATH_MAX, sizeof(char));
-	getcwd(buf, PATH_MAX);
-	snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	snprintf(temp, PATH_MAX, "%s/tmp/arc%d/foobar", getenv("MBSE_ROOT"), (int)getpid());
 
 	if (! mkdirs(temp, 0755))
 	    rc = 1;
