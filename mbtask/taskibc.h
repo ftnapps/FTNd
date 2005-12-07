@@ -25,6 +25,7 @@ typedef struct _ncs_list {
     struct sockaddr_in	servaddr_in;	    /* Peer socketaddress	*/
     int			socket;		    /* Peer socket		*/
     unsigned int	token;		    /* Server token		*/
+    int			halfdead;	    /* Halfdead connect count	*/
 } ncs_list;
 
 

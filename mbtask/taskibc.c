@@ -127,6 +127,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int 
     tmp->gotpass = FALSE;
     tmp->gotserver = FALSE;
     tmp->dyndns = dyndns;
+    tmp->halfdead = 0;
 
     if (*fdp == NULL) {
 	*fdp = tmp;
@@ -157,14 +158,14 @@ void dump_ncslist(void)
 
     if (callchg) {
 	if (ncsl) {
-	    Syslog('r', "Server                         State   Del Pwd Srv Dyn Next action");
-	    Syslog('r', "------------------------------ ------- --- --- --- --- -----------");
+	    Syslog('r', "Server                         State   Del Pwd Srv Dyn 1/2 Next action");
+	    Syslog('r', "------------------------------ ------- --- --- --- --- --- -----------");
 	    for (tmp = ncsl; tmp; tmp = tmp->next) {
 		snprintf(temp1, 30, "%s", tmp->server);
-		Syslog('r', "%-30s %-7s %s %s %s %s %d", temp1, ncsstate[tmp->state], 
+		Syslog('r', "%-30s %-7s %s %s %s %s %3d, %d", temp1, ncsstate[tmp->state], 
 		    tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
 		    tmp->gotserver ? "yes":"no ", tmp->dyndns ? "yes":"no ",
-		    (int)tmp->action - (int)now);
+		    tmp->halfdead, (int)tmp->action - (int)now);
 	    }
 	} else {
 	    Syslog('r', "No servers configured");
@@ -826,6 +827,28 @@ void check_servers(void)
 				     */
 				    j = (int)now - (int)tnsl->last;
 
+				    if (tnsl->halfdead > 5) {
+					/*
+					 * Halfdead means 5 times received a PASS while we are in
+					 * connected state. This means the other side "thinks" it's
+					 * not connected and tries to connect. This can be caused by
+					 * temporary internet problems. 
+					 * Reset our side of the connection.
+					 */
+					Syslog('+', "IBC: server %s connection is half dead", tnsl->server);
+					tnsl->state = NCS_DEAD;
+					tnsl->action = now + (time_t)60;    // 1 minute delay before calling again.
+					tnsl->gotpass = FALSE;
+					tnsl->gotserver = FALSE;
+					tnsl->token = 0;
+					tnsl->halfdead = 0;
+					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
+					callchg = TRUE;
+					srvchg = TRUE;
+					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
+					del_router(&servers, tnsl->server);
+					break;
+				    }
 				    if (((int)now - (int)tnsl->last) > 130) {
 					/*
 					 * Missed 3 PING replies
@@ -836,6 +859,7 @@ void check_servers(void)
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
+					tnsl->halfdead = 0;
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					callchg = TRUE;
 					srvchg = TRUE;
@@ -920,6 +944,7 @@ int command_pass(char *hostname, char *parameters)
 
     if (tnsl->state == NCS_CONNECT) {
 	send_msg(tnsl, "401: PASS: Already registered\r\n");
+	tnsl->halfdead++;   /* Count them   */
 	return 401;
     }
 
@@ -1466,8 +1491,9 @@ int do_command(char *hostname, char *command, char *parameters)
     }
     if (! strcmp(command, (char *)"PONG")) {
 	/*
-	 * Just accept
+	 * Just accept, but reset halfdead counter.
 	 */
+	tnsl->halfdead = 0;
 	return 0;
     }
 
