@@ -162,7 +162,7 @@ void dump_ncslist(void)
 	    Syslog('r', "------------------------------ ------- --- --- --- --- --- -----------");
 	    for (tmp = ncsl; tmp; tmp = tmp->next) {
 		snprintf(temp1, 30, "%s", tmp->server);
-		Syslog('r', "%-30s %-7s %s %s %s %s %3d, %d", temp1, ncsstate[tmp->state], 
+		Syslog('r', "%-30s %-7s %s %s %s %s %3d %d", temp1, ncsstate[tmp->state], 
 		    tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
 		    tmp->gotserver ? "yes":"no ", tmp->dyndns ? "yes":"no ",
 		    tmp->halfdead, (int)tmp->action - (int)now);
