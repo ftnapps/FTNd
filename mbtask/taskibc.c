@@ -945,6 +945,7 @@ int command_pass(char *hostname, char *parameters)
     if (tnsl->state == NCS_CONNECT) {
 	send_msg(tnsl, "401: PASS: Already registered\r\n");
 	tnsl->halfdead++;   /* Count them   */
+	srvchg = TRUE;
 	return 401;
     }
 
@@ -1493,7 +1494,11 @@ int do_command(char *hostname, char *command, char *parameters)
 	/*
 	 * Just accept, but reset halfdead counter.
 	 */
-	tnsl->halfdead = 0;
+	if (tnsl->halfdead) {
+	    Syslog('r', "Reset halfdead counter");
+	    tnsl->halfdead = 0;
+	    srvchg = TRUE;
+	}
 	return 0;
     }
 
