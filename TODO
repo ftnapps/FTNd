@@ -106,6 +106,9 @@ mbnntp:
 
 	N: Lastread pointers are not updated.
 
+mbfile:
+	N: Pack removes NODEDIFF.A87 but leaves the link nodediff.a87
+
 mbaff:
 	L: Rewrite filefind search algorithm.
 
