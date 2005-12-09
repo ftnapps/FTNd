@@ -638,7 +638,7 @@ void check_servers(void)
 			}
 		    }
 		    for (srv = servers; srv; srv = srv->next) {
-			if (strcmp(srv->server, ibcsrv.server) == 0) {
+			if ((strcmp(srv->server, ibcsrv.server) == 0) && (strcmp(srv->router, ibcsrv.server))) {
 			    inlist = TRUE;
 			    Syslog('+', "IBC: can't add new configured server %s: already connected via %s", 
 				    ibcsrv.server, srv->router);
