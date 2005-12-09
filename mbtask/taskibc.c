@@ -605,6 +605,7 @@ void check_servers(void)
     char	    *errmsg, scfgfn[PATH_MAX];
     FILE	    *fp;
     ncs_list	    *tnsl, **tmp;
+    srv_list	    *srv;
     int		    j, inlist, Remove;
     int		    a1, a2, a3, a4;
     struct servent  *se;
@@ -634,6 +635,13 @@ void check_servers(void)
 		    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 			if (strcmp(tnsl->server, ibcsrv.server) == 0) {
 			    inlist = TRUE;
+			}
+		    }
+		    for (srv = servers; srv; srv = srv->next) {
+			if (strcmp(srv->server, ibcsrv.server) == 0) {
+			    inlist = TRUE;
+			    Syslog('+', "IBC: can't add new configured server %s: already connected via %s", 
+				    ibcsrv.server, srv->router);
 			}
 		    }
 		    if (!inlist ) {
