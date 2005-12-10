@@ -5,6 +5,7 @@ v0.83.4		04-Dec-2005
 	mbtask:
 		Experimental code to recover from a half dead chatlink.
 		Added some protection against looped configuration.
+		All IBC log lines start now with IBC: to allow easier grep.
 
 
 v0.83.3		03-Dec-2005 - 04-Dec-2005

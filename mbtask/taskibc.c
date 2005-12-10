@@ -158,17 +158,17 @@ void dump_ncslist(void)
 
     if (callchg) {
 	if (ncsl) {
-	    Syslog('r', "Server                         State   Del Pwd Srv Dyn 1/2 Next action");
-	    Syslog('r', "------------------------------ ------- --- --- --- --- --- -----------");
+	    Syslog('r', "IBC: Server                         State   Del Pwd Srv Dyn 1/2 Next action");
+	    Syslog('r', "IBC: ------------------------------ ------- --- --- --- --- --- -----------");
 	    for (tmp = ncsl; tmp; tmp = tmp->next) {
 		snprintf(temp1, 30, "%s", tmp->server);
-		Syslog('r', "%-30s %-7s %s %s %s %s %3d %d", temp1, ncsstate[tmp->state], 
+		Syslog('r', "IBC: %-30s %-7s %s %s %s %s %3d %d", temp1, ncsstate[tmp->state], 
 		    tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
 		    tmp->gotserver ? "yes":"no ", tmp->dyndns ? "yes":"no ",
 		    tmp->halfdead, (int)tmp->action - (int)now);
 	    }
 	} else {
-	    Syslog('r', "No servers configured");
+	    Syslog('r', "IBC: No servers configured");
 	}
     }
 
@@ -301,7 +301,7 @@ void del_user(usr_list **fap, char *server, char *name)
     usr_list    **tmp, *tmpa;
     srv_list	*sl;
 
-    Syslog('r', "deluser %s %s", server, printable(name, 0));
+    Syslog('r', "IBC: deluser %s %s", server, printable(name, 0));
 
     if (*fap == NULL)
 	return;
@@ -317,7 +317,7 @@ void del_user(usr_list **fap, char *server, char *name)
 	    free(tmpa);
 	    usrchg = TRUE;
 	} else if ((name == NULL) && (strcmp((*tmp)->server, server) == 0)) {
-	    Syslog('r', "removed user %s from %s", (*tmp)->name, (*tmp)->server);
+	    Syslog('r', "IBC: removed user %s from %s", (*tmp)->name, (*tmp)->server);
 	    tmpa = *tmp;
 	    *tmp=(*tmp)->next;
 	    free(tmpa);
@@ -347,7 +347,7 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
 {
     chn_list    *tmp, *ta;
 
-    Syslog('r', "add_channel %s %s %s", name, owner, server);
+    Syslog('r', "IBC: add_channel %s %s %s", name, owner, server);
 
     for (ta = *fap; ta; ta = ta->next) {
 	if ((strcmp(ta->name, name) == 0) && (strcmp(ta->owner, owner) == 0) && (strcmp(ta->server, server) == 0)) {
@@ -390,7 +390,7 @@ void del_channel(chn_list **fap, char *name)
 {
     chn_list    **tmp, *tmpa;
 	        
-    Syslog('r', "del_channel %s", name);
+    Syslog('r', "IBC: del_channel %s", name);
 
     if (*fap == NULL)
 	return;
@@ -419,11 +419,11 @@ int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
     srv_list	*tmp, *ta;
     int		haverouter = FALSE;
 
-    Syslog('r', "add_server %s %d %s %s \"%s\" %s", name, hops, prod, vers, fullname, router);
+    Syslog('r', "IBC: add_server %s %d %s %s \"%s\" %s", name, hops, prod, vers, fullname, router);
  
     for (ta = *fdp; ta; ta = ta->next) {
 	if (strcmp(ta->server, name) == 0) {
-	    Syslog('r', "duplicate, ignore");
+	    Syslog('r', "IBC: duplicate, ignore");
 	    return 0;
 	}
     }
@@ -483,7 +483,7 @@ void del_server(srv_list **fap, char *name)
 {
     srv_list	*ta, *tan;
     
-    Syslog('r', "delserver %s", name);
+    Syslog('r', "IBC: delserver %s", name);
 
     if (*fap == NULL)
 	return;
@@ -511,7 +511,7 @@ void del_router(srv_list **fap, char *name)
 {   
     srv_list	*ta, *tan;
     
-    Syslog('r', "delrouter %s", name);
+    Syslog('r', "IBC: delrouter %s", name);
 
     if (*fap == NULL)
 	return;
@@ -589,7 +589,7 @@ int send_msg(ncs_list *tnsl, const char *format, ...)
     vsnprintf(buf, 512, format, va_ptr);
     va_end(va_ptr);
 
-    Syslog('r', "> %s: %s", tnsl->server, printable(buf, 0));
+    Syslog('r', "IBC: > %s: %s", tnsl->server, printable(buf, 0));
 
     if (sendto(tnsl->socket, buf, strlen(buf), 0, (struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
 	Syslog('!', "$IBC: can't send message");
@@ -617,7 +617,7 @@ void check_servers(void)
      * Check if configuration is changed, if so then apply the changes.
      */
     if (file_time(scfgfn) != scfg_time) {
-	Syslog('r', "%s filetime changed, rereading", scfgfn);
+	Syslog('r', "IBC: %s filetime changed, rereading", scfgfn);
 
 	if (servers == NULL) {
 	    /*
@@ -687,14 +687,14 @@ void check_servers(void)
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->remove) {
 	    Remove = TRUE;
-	    Syslog('r', "Remove server %s", tnsl->server);
+	    Syslog('r', "IBC: Remove server %s", tnsl->server);
 	    if (tnsl->state == NCS_CONNECT) {
 		broadcast(tnsl->server, "SQUIT %s Removed from configuration\r\n", tnsl->server);
 		send_msg(tnsl, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
 		del_router(&servers, tnsl->server);
 	    }
 	    if (tnsl->socket != -1) {
-		Syslog('r', "Closing socket %d", tnsl->socket);
+		Syslog('r', "IBC: Closing socket %d", tnsl->socket);
 		shutdown(tnsl->socket, SHUT_WR);
 		tnsl->socket = -1;
 		tnsl->state = NCS_HANGUP;
@@ -710,7 +710,7 @@ void check_servers(void)
      * If a neighbour is removed by configuration, remove it from the list.
      */
     if (Remove) {
-	Syslog('r', "Starting remove list");
+	Syslog('r', "IBC: Starting remove list");
 	pthread_mutex_lock(&b_mutex);
 	tmp = &ncsl;
 	while (*tmp) {
@@ -735,7 +735,7 @@ void check_servers(void)
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (((int)tnsl->action - (int)now) <= 0) {
 	    switch (tnsl->state) {
-		case NCS_INIT:	    Syslog('r', "%s init", tnsl->server);
+		case NCS_INIT:	    Syslog('r', "IBC: %s init", tnsl->server);
 
 				    /*
 				     * If Internet is available, setup the connection.
@@ -778,12 +778,12 @@ void check_servers(void)
 						callchg = TRUE;
 						break;
 					    }
-					    Syslog('r', "socket created");
+					    Syslog('r', "IBC: socket created");
 					} else {
-					    Syslog('r', "socket reused");
+					    Syslog('r', "IBC: socket reused");
 					}
 
-					Syslog('r', "socket %d", tnsl->socket);
+					Syslog('r', "IBC: socket %d", tnsl->socket);
 					tnsl->state = NCS_CALL;
 					tnsl->action = now + (time_t)1;
 					callchg = TRUE;
@@ -796,7 +796,7 @@ void check_servers(void)
 				     * In this state we accept PASS and SERVER commands from
 				     * the remote with the same token as we have sent.
 				     */
-				    Syslog('r', "%s call", tnsl->server);
+				    Syslog('r', "IBC: %s call", tnsl->server);
 				    if (strlen(tnsl->passwd) == 0) {
 					Syslog('!', "IBC: no password configured for %s", tnsl->server);
 					tnsl->state = NCS_FAIL;
@@ -817,7 +817,7 @@ void check_servers(void)
 				     * This state can be left by before the timeout is reached
 				     * by a reply from the remote if the connection is accepted.
 				     */
-				    Syslog('r', "%s waitpwd", tnsl->server);
+				    Syslog('r', "IBC: %s waitpwd", tnsl->server);
 				    tnsl->token = 0;
 				    tnsl->state = NCS_CALL;
 				    while (TRUE) {
@@ -825,7 +825,7 @@ void check_servers(void)
 					if ((j > (CFG.dialdelay / 10)) && (j > 9))
 					    break;
 				    }
-				    Syslog('r', "next call in %d %d seconds", CFG.dialdelay, j);
+				    Syslog('r', "IBC: next call in %d %d seconds", CFG.dialdelay, j);
 				    tnsl->action = now + (time_t)j;
 				    callchg = TRUE;
 				    break;
@@ -879,10 +879,10 @@ void check_servers(void)
 				     * Ping at 60, 90 and 120 seconds
 				     */
 				    if (((int)now - (int)tnsl->last) > 120) {
-					Syslog('r', "sending 3rd PING at 120 seconds");
+					Syslog('r', "IBC: sending 3rd PING at 120 seconds");
 					send_msg(tnsl, "PING\r\n");
 				    } else if (((int)now - (int)tnsl->last) > 90) {
-					Syslog('r', "sending 2nd PING at 90 seconds");
+					Syslog('r', "IBC: sending 2nd PING at 90 seconds");
 					send_msg(tnsl, "PING\r\n");
 				    } else if (((int)now - (int)tnsl->last) > 60) {
 					send_msg(tnsl, "PING\r\n");
@@ -890,21 +890,21 @@ void check_servers(void)
 				    tnsl->action = now + (time_t)10;
 				    break;
 
-		case NCS_HANGUP:    Syslog('r', "%s hangup => call", tnsl->server);
+		case NCS_HANGUP:    Syslog('r', "IBC: %s hangup => call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
 				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
 
-		case NCS_DEAD:	    Syslog('r', "%s dead -> call", tnsl->server);
+		case NCS_DEAD:	    Syslog('r', "IBC: %s dead -> call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
 				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
 
-		case NCS_FAIL:	    Syslog('r', "%s fail => init", tnsl->server);
+		case NCS_FAIL:	    Syslog('r', "IBC: %s fail => init", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_INIT;
 				    callchg = TRUE;
@@ -1503,7 +1503,7 @@ int do_command(char *hostname, char *command, char *parameters)
 	 * Just accept, but reset halfdead counter.
 	 */
 	if (tnsl->halfdead) {
-	    Syslog('r', "Reset halfdead counter");
+	    Syslog('r', "IBC: Reset halfdead counter");
 	    tnsl->halfdead = 0;
 	    srvchg = TRUE;
 	}
@@ -1570,7 +1570,7 @@ void receiver(struct servent  *se)
     pfd.revents = 0;
 
     if ((rc = poll(&pfd, 1, 1000) < 0)) {
-	Syslog('r', "$poll/select failed");
+	Syslog('r', "$IBC: poll/select failed");
 	return;
     }
 
@@ -1640,7 +1640,7 @@ void receiver(struct servent  *se)
 
 	    tnsl->last = now;
 	    crbuf[strlen(crbuf) -2] = '\0';
-	    Syslog('r', "< %s: \"%s\"", hostname, printable(crbuf, 0));
+	    Syslog('r', "IBC: < %s: \"%s\"", hostname, printable(crbuf, 0));
 
 	    /*
 	     * Parse message
@@ -1654,7 +1654,7 @@ void receiver(struct servent  *se)
 		do_command(hostname, command, parameters);
 	    }
 	} else {
-	    Syslog('r', "recvfrom returned len=%d", len);
+	    Syslog('r', "IBC: recvfrom returned len=%d", len);
 	}
     }
 }
