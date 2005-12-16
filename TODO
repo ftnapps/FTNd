@@ -30,10 +30,6 @@ install:
 	L: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf. Is this still a problem?
 
-libdiesel.a:
-	U: Processed stringlines containing unbalanced " characters are not
-	   processed, instead the previous macro value will be returned.
-
 mbsebbs:
 	N: OLR, implement file requests.
 
@@ -102,12 +98,12 @@ mbcico:
 mbnntp:
 	U: fetched mail doesn't get the status Rcvd if it was for the user.
 
-	N: Do a better job for message linking by newsclients.
+	N: Do a better job for message linking by newsclients. This is a
+	   problem because we use the message numbers and messages are
+	   sometimes renumbered. This will make some clients try to fetch
+	   the wrong messages because they cache the message id's.
 
 	N: Lastread pointers are not updated.
-
-mbfile:
-	N: Pack removes NODEDIFF.A87 but leaves the link nodediff.a87
 
 mbaff:
 	L: Rewrite filefind search algorithm.

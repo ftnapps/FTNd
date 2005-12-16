@@ -6,6 +6,8 @@ v0.83.4		04-Dec-2005
 		Fixed file importing of non-archived files.
 		The test for files.bbs for files to import was done in the
 		wrong directory.
+		If a file is not removed from disk during pack, a error log
+		is created instead of a normal log.
 
 	mbtask:
 		Experimental code to recover from a half dead chatlink.

@@ -105,11 +105,11 @@ void PackFileBase(void)
 			snprintf(fn, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 			rc = unlink(fn);
 			if (rc && (errno != ENOENT))
-			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
+			    WriteError("PackFileBase(): unlink %s failed, result %s", fn, strerror(rc));
 			snprintf(fn, PATH_MAX, "%s/%s", area.Path, fdb.Name);
 			rc = unlink(fn);
 			if (rc && (errno != ENOENT))
-			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
+			    WriteError("PackFileBase(): unlink %s failed, result %s", fn, strerror(rc));
 			/*
 			 * If a dotted version (thumbnail) exists, remove it silently
 			 */
