@@ -4,6 +4,8 @@ v0.83.4		04-Dec-2005
 
 	mbfile:
 		Fixed file importing of non-archived files.
+		The test for files.bbs for files to import was done in the
+		wrong directory.
 
 	mbtask:
 		Experimental code to recover from a half dead chatlink.

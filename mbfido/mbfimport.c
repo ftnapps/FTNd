@@ -100,7 +100,7 @@ void ImportFiles(int Area)
 	 * Find and open files.bbs
 	 */
 	snprintf(temp, PATH_MAX, "FILES.BBS");
-	if (getfilecase(area.Path, temp) == FALSE) {
+	if (getfilecase(pwd, temp) == FALSE) {
 	    WriteError("Can't find files.bbs anywhere");
 	    if (!do_quiet)
 		printf("Can't find files.bbs anywhere\n");
