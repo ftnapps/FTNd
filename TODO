@@ -12,10 +12,11 @@ $Id$
 	Classes: U = Urgent.
 		 N = Normal, second priority.
                  L = Cosmetic or nice to have.
+	         W = Feature request.
 		 X = Will not be done unless it's really needed.
 
 everything:
-	L: Implement IPv6.
+	W: Implement IPv6.
 
 	N: In BSO the i flavor should have been d flavor.
 
@@ -31,7 +32,7 @@ install:
 	   also adds entries to inetd.conf. Is this still a problem?
 
 mbsebbs:
-	N: OLR, implement file requests.
+	W: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
 
@@ -50,13 +51,13 @@ mbsebbs:
 	N: Joe 3.3 doesn't work with mbsebbs, some locking problem.
 
 mbfido:
-	N: Check all .flo files for dead attachments.
+	W: Check all .flo files for dead attachments.
 
-	N: Check all .flo files for to old attachments.
+	W: Check all .flo files for to old attachments.
 
-	N: Count posted messages during mailscan.
+	W: Count posted messages during mailscan.
 
-	N: Code cleanup and make a structure in this program. Remove duplicate
+	W: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 
 	N: Process GoldED filerequest netmails with the filereq flag set, we
@@ -64,31 +65,31 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
-	N: Add macro's for stats of all months.
+	W: Add macro's for stats of all months.
 
-	N: Implement file requests for directory nodes.
+	W: Implement file requests for directory nodes.
 
-	L: Add %from command to areamgr/filemgr.
+	W: Add %from command to areamgr/filemgr.
 
-	L: Add netmail notification of changed areas.
+	W: Add netmail notification of changed areas.
 
-	L: Make it possible to only virus scan the complete archives.
+	W: Make it possible to only virus scan the complete archives.
 
-	N: Let mbfido areas with a special switch update area descriptions.
+	W: Let mbfido areas with a special switch update area descriptions.
 
-	N: Send rulefile via netmail for each new connected mail area.
+	W: Send rulefile via netmail for each new connected mail area.
 
-	N: Send notifications to downlinks about changed areas from uplink.
+	W: Send notifications to downlinks about changed areas from uplink.
 
-	N: Add statistic mail messages. Via AMC??
+	W: Add statistic mail messages. Via AMC??
 
 	N: After readalias we need to free the alias list when mbfido ends.
 
 	N: Hatch statistics are not updated.
 
-	N: Copy personal mail to a personal message area.
+	W: Copy personal mail to a personal message area.
 
-	N: Someday make retoss from bad possible (volonteers?).
+	W: Someday make retoss from bad possible (volonteers?).
 
 mbcico:
 	N: Implement binkp option NR.
@@ -96,7 +97,7 @@ mbcico:
 	L: Implement binkp option ND and NDA.
 
 mbnntp:
-	U: fetched mail doesn't get the status Rcvd if it was for the user.
+	N: fetched mail doesn't get the status Rcvd if it was for the user.
 
 	N: Do a better job for message linking by newsclients. This is a
 	   problem because we use the message numbers and messages are
@@ -106,7 +107,7 @@ mbnntp:
 	N: Lastread pointers are not updated.
 
 mbaff:
-	L: Rewrite filefind search algorithm.
+	W: Rewrite filefind search algorithm.
 
 mbsetup:
 	N: Add a check for double areatag names.
@@ -117,10 +118,10 @@ mbsetup:
 
 	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
 
-	N: Add global setup in menus 9.1 and 10.1 at least to change uplink
+	W: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.
 
-	N: See if a check can be made in file groups setup for the areas file
+	W: See if a check can be made in file groups setup for the areas file
 	   format, if a filegate list is installed and the filegate switch
 	   setting is wrong, a lot of wrong areas will be created.
 
