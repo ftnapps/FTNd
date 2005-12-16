@@ -125,7 +125,7 @@ void ImportFiles(int Area)
 			Syslog('+', "Unknown archive format %s", temp);
 			snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), f_db.Name);
 			if ((rc = file_cp(temp, temp2))) {
-			    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
+			    WriteError("1 Can't copy file to %s, %s", temp2, strerror(rc));
 			    if (!do_quiet)
 				printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
 			    Doit = FALSE;
@@ -159,7 +159,6 @@ void ImportFiles(int Area)
 			    Doit = FALSE;
 			}
 		    }
-		    clean_tmpwork();
 		    if (Doit) {
 			if (!do_quiet) {
 			    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
@@ -192,6 +191,12 @@ void ImportFiles(int Area)
 		 */
 		if (enoughspace(CFG.freespace) == 0)
 		    die(MBERR_DISK_FULL);
+
+		/*
+		 * Refresh tmpwork
+		 */
+		clean_tmpwork();
+		create_tmpwork();
 
 		Files++;
 		memset(&f_db, 0, sizeof(f_db));
@@ -414,7 +419,6 @@ void ImportFiles(int Area)
 		    Doit = FALSE;
 		}
 	    }
-	    clean_tmpwork();
 	    if (Doit) {
 		if (!do_quiet) {
 		    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
@@ -436,6 +440,7 @@ void ImportFiles(int Area)
 	    }
 	}
 
+	clean_tmpwork();
 	free(fod);
 	free(lname);
 	free(dest);

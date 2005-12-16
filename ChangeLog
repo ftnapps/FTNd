@@ -2,6 +2,9 @@ $Id$
 
 v0.83.4		04-Dec-2005
 
+	mbfile:
+		Fixed file importing of non-archived files.
+
 	mbtask:
 		Experimental code to recover from a half dead chatlink.
 		Added some protection against looped configuration.
