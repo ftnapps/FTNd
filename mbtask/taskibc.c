@@ -860,12 +860,14 @@ void check_servers(void)
 					 * Reset our side of the connection.
 					 */
 					Syslog('+', "IBC: server %s connection is half dead", tnsl->server);
+					pthread_mutex_lock(&b_mutex);
 					tnsl->state = NCS_DEAD;
 					tnsl->action = now + (time_t)60;    // 1 minute delay before calling again.
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					tnsl->halfdead = 0;
+					pthread_mutex_unlock(&b_mutex);
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					callchg = TRUE;
 					srvchg = TRUE;
@@ -878,12 +880,14 @@ void check_servers(void)
 					 * Missed 3 PING replies
 					 */
 					Syslog('+', "IBC: server %s connection is dead", tnsl->server);
+					pthread_mutex_lock(&b_mutex);
 					tnsl->state = NCS_DEAD;
 					tnsl->action = now + (time_t)120;    // 2 minutes delay before calling again.
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					tnsl->halfdead = 0;
+					pthread_mutex_unlock(&b_mutex);
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					callchg = TRUE;
 					srvchg = TRUE;
@@ -1023,11 +1027,13 @@ int command_server(char *hostname, char *parameters)
 	if (tnsl->token == token) {
 	    broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	    system_shout("* New server: %s, %s", name, fullname);
+	    pthread_mutex_lock(&b_mutex);
 	    tnsl->gotserver = TRUE;
 	    callchg = TRUE;
 	    srvchg = TRUE;
 	    tnsl->state = NCS_CONNECT;
 	    tnsl->action = now + (time_t)10;
+	    pthread_mutex_unlock(&b_mutex);
 	    Syslog('+', "IBC: connected with neighbour server: %s", tnsl->server);
 	    /*
 	     * Send all already known servers
@@ -1073,9 +1079,11 @@ int command_server(char *hostname, char *parameters)
 	send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
 	broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	system_shout("* New server: %s, %s", name, fullname);
+	pthread_mutex_lock(&b_mutex);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
+	pthread_mutex_unlock(&b_mutex);
 	Syslog('+', "IBC: connected with neighbour server: %s", tnsl->server);
 	/*
 	 * Send all already known servers
@@ -1145,11 +1153,13 @@ int command_squit(char *hostname, char *parameters)
 
     if (strcmp(name, tnsl->server) == 0) {
 	Syslog('+', "IBC: disconnect neighbour server %s: %s", name, message);
+	pthread_mutex_lock(&b_mutex);
 	tnsl->state = NCS_HANGUP;
 	tnsl->action = now + (time_t)120;	// 2 minutes delay before calling again.
 	tnsl->gotpass = FALSE;
 	tnsl->gotserver = FALSE;
 	tnsl->token = 0;
+	pthread_mutex_unlock(&b_mutex);
 	del_router(&servers, name);
     } else {
 	Syslog('+', "IBC: disconnect relay server %s: %s", name, message);
@@ -1443,7 +1453,9 @@ int command_topic(char *hostname, char *parameters)
     for (tmp = channels; tmp; tmp = tmp->next) {
 	if (strcmp(tmp->name, channel) == 0) {
 	    chnchg = TRUE;
+	    pthread_mutex_lock(&b_mutex);
 	    strncpy(tmp->topic, topic, 54);
+	    pthread_mutex_unlock(&b_mutex);
 	    Syslog('+', "IBC: channel %s topic: %s", channel, topic);
 	    snprintf(msg, 81, "* Channel topic is now: %s", tmp->topic);
 	    chat_msg(channel, NULL, msg);
