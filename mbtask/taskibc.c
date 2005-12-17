@@ -59,6 +59,9 @@ int		    usrchg = FALSE;	    /* Is userlist changed	*/
 int		    chnchg = FALSE;	    /* Is channellist changed	*/
 int		    banchg = FALSE;	    /* Is banned users changed	*/
 int		    nickchg = FALSE;	    /* Is nicknames changed	*/
+time_t		    resettime;		    /* Time to reset all	*/
+int		    do_reset = FALSE;	    /* Reset init		*/
+
 
 #define	PING_PONG_LOG	1
 
@@ -611,7 +614,7 @@ void check_servers(void)
     FILE	    *fp;
     ncs_list	    *tnsl, **tmp;
     srv_list	    *srv;
-    int		    j, inlist, Remove;
+    int		    j, inlist, Remove, local_reset;
     int		    a1, a2, a3, a4;
     unsigned int    crc;
     struct servent  *se;
@@ -620,10 +623,27 @@ void check_servers(void)
     snprintf(scfgfn, PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
     
     /*
+     * Check if we reached the global reset time
+     */
+    if (((int)time(NULL) > (int)resettime) && !do_reset) {
+	resettime = time(NULL) + (time_t)86400;
+	do_reset = TRUE;
+	Syslog('+', "IBC: global reset time reached, preparing reset");
+    }
+
+    local_reset = FALSE;
+    if ((users == NULL) && (channels == NULL) && do_reset) {
+	Syslog('+', "IBC: no channels and users, performing reset");
+	local_reset = TRUE;
+	do_reset = FALSE;
+    }
+
+    /*
      * Check if configuration is changed, if so then apply the changes.
      */
-    if (file_time(scfgfn) != scfg_time) {
-	Syslog('r', "IBC: %s filetime changed, rereading", scfgfn);
+    if ((file_time(scfgfn) != scfg_time) || local_reset) {
+	if (! local_reset)
+	    Syslog('r', "IBC: %s filetime changed, rereading", scfgfn);
 
 	if (servers == NULL) {
 	    /*
@@ -631,6 +651,16 @@ void check_servers(void)
 	     */
 	    add_server(&servers, CFG.myfqdn, 0, (char *)"mbsebbs", (char *)VERSION, CFG.bbs_name, (char *)"none");
 	}
+
+	/*
+	 * Local reset, make all crc's invalid so the connections will restart.
+	 */
+	pthread_mutex_lock(&b_mutex);
+	if (local_reset)
+	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next)
+		tnsl->crc--;
+	pthread_mutex_unlock(&b_mutex);
+	
 
 	if ((fp = fopen(scfgfn, "r"))) {
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fp);
@@ -1725,6 +1755,7 @@ void *ibc_thread(void *dummy)
 
     ibc_run = TRUE;
     srand(getpid());
+    resettime = time(NULL) + (time_t)86400;
 
     while (! T_Shutdown) {
 
