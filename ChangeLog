@@ -1,6 +1,8 @@
 $Id$
 
-v0.83.5		16-Dec-2005
+v0.83.6		17-Dec-2005
+
+v0.83.5		16-Dec-2005 - 17-Dec-2005
 
 	mbtask:
 		Better handling of changes in the list of chatservers.
