@@ -119,3 +119,19 @@ unsigned int StringCRC32(char *str)
 
 
 
+/*
+ * Update CRC32, first initialize crc with 0xffffffff
+ */
+unsigned int upd_crc32(char *buf, unsigned int crc, int len)
+{
+    int             i;
+    unsigned int    cr;
+
+    cr = crc;
+    for (i = 0; i < len; i++) {
+	cr = (crc32tab[((int)cr ^ ((int)buf[i])) & 0xff] ^ ((((unsigned int)cr) >> 8) & 0x00ffffffL));
+    }
+    return cr;
+}
+
+

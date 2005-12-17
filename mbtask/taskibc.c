@@ -60,6 +60,7 @@ int		    chnchg = FALSE;	    /* Is channellist changed	*/
 int		    banchg = FALSE;	    /* Is banned users changed	*/
 int		    nickchg = FALSE;	    /* Is nicknames changed	*/
 
+#define	PING_PONG_LOG	1
 
 
 pthread_mutex_t b_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -78,7 +79,7 @@ static char *ncsstate[] = {
 /*
  * Internal prototypes
  */
-void fill_ncslist(ncs_list **, char *, char *, char *, int);
+void fill_ncslist(ncs_list **, char *, char *, char *, int, unsigned int);
 void dump_ncslist(void);
 void tidy_servers(srv_list **);
 int  add_server(srv_list **, char *, int, char *, char *, char *, char *);
@@ -104,7 +105,7 @@ void receiver(struct servent *);
 /*
  * Add a server to the serverlist
  */
-void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int dyndns)
+void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int dyndns, unsigned int crc)
 {
     ncs_list	*tmp, *ta;
 
@@ -128,6 +129,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int 
     tmp->gotserver = FALSE;
     tmp->dyndns = dyndns;
     tmp->halfdead = 0;
+    tmp->crc = crc;
 
     if (*fdp == NULL) {
 	*fdp = tmp;
@@ -608,6 +610,7 @@ void check_servers(void)
     srv_list	    *srv;
     int		    j, inlist, Remove;
     int		    a1, a2, a3, a4;
+    unsigned int    crc;
     struct servent  *se;
     struct hostent  *he;
 
@@ -630,6 +633,12 @@ void check_servers(void)
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fp);
 
 	    while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
+		crc = 0xffffffff;
+		crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
+
+		/*
+		 * Check for new configured servers
+		 */
 		if (ibcsrv.Active) {
 		    inlist = FALSE;
 		    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
@@ -645,7 +654,7 @@ void check_servers(void)
 			}
 		    }
 		    if (!inlist ) {
-			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd, ibcsrv.Dyndns);
+			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd, ibcsrv.Dyndns, crc);
 			srvchg = TRUE;
 			callchg = TRUE;
 			Syslog('+', "IBC: new configured Internet BBS Chatserver: %s", ibcsrv.server);

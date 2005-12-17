@@ -26,6 +26,7 @@ typedef struct _ncs_list {
     int			socket;		    /* Peer socket		*/
     unsigned int	token;		    /* Server token		*/
     int			halfdead;	    /* Halfdead connect count	*/
+    unsigned int	crc;		    /* CRC value of record	*/
 } ncs_list;
 
 
