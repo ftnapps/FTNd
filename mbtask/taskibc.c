@@ -632,9 +632,83 @@ void check_servers(void)
 	if ((fp = fopen(scfgfn, "r"))) {
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fp);
 
+            /*
+	     * Check for neighbour servers to delete
+	     */
+	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+		fseek(fp, ibcsrvhdr.hdrsize, SEEK_SET);
+		inlist = FALSE;
+		while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
+		    crc = 0xffffffff;
+		    crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
+		    if ((strcmp(tnsl->server, ibcsrv.server) == 0) && ibcsrv.Active && (tnsl->crc == crc)) {
+			inlist = TRUE;
+		    }
+		}
+		if (!inlist) {
+		    Syslog('+', "IBC: server %s configuration changed or removed", tnsl->server);
+		    pthread_mutex_lock(&b_mutex);
+		    tnsl->remove = TRUE;
+		    tnsl->action = now;
+		    pthread_mutex_unlock(&b_mutex);
+		    srvchg = TRUE;
+		    callchg = TRUE;
+		}
+	    }
+
+	    /*
+	     * Start removing servers
+	     */
+	    Remove = FALSE;
+	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+		if (tnsl->remove) {
+		    Remove = TRUE;
+		    Syslog('r', "IBC: Remove server %s", tnsl->server);
+		    if (tnsl->state == NCS_CONNECT) {
+			broadcast(tnsl->server, "SQUIT %s Removed from configuration\r\n", tnsl->server);
+			send_msg(tnsl, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
+			del_router(&servers, tnsl->server);
+		    }
+		    if (tnsl->socket != -1) {
+			Syslog('r', "IBC: Closing socket %d", tnsl->socket);
+			shutdown(tnsl->socket, SHUT_WR);
+			tnsl->socket = -1;
+			tnsl->state = NCS_HANGUP;
+		    }
+		    callchg = TRUE;
+		    srvchg = TRUE;
+		}
+	    }
+	    dump_ncslist();
+
+	    /*
+	     * If a neighbour is removed by configuration, remove it from the list.
+	     */
+	    if (Remove) {
+		Syslog('r', "IBC: Starting remove list");
+		pthread_mutex_lock(&b_mutex);
+		tmp = &ncsl;
+		while (*tmp) {
+		    if ((*tmp)->remove) {
+			Syslog('r', "do %s", (*tmp)->server);
+			tnsl = *tmp;
+			*tmp = (*tmp)->next;
+			free(tnsl);
+			callchg = TRUE;
+		    } else {
+			tmp = &((*tmp)->next);
+		    }
+		}
+		pthread_mutex_unlock(&b_mutex);
+	    }
+	    dump_ncslist();
+	    
+	    /*
+	     * Changed or deleted servers are now removed, add new
+	     * configured servers or changed servers.
+	     */
+	    fseek(fp, ibcsrvhdr.hdrsize, SEEK_SET);
 	    while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
-		crc = 0xffffffff;
-		crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
 
 		/*
 		 * Check for new configured servers
@@ -654,6 +728,8 @@ void check_servers(void)
 			}
 		    }
 		    if (!inlist ) {
+			crc = 0xffffffff;
+			crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
 			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd, ibcsrv.Dyndns, crc);
 			srvchg = TRUE;
 			callchg = TRUE;
@@ -661,81 +737,10 @@ void check_servers(void)
 		    }
 		}
 	    }
-
-	    /*
-	     * Now check for neighbours to delete
-	     */
-	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-		fseek(fp, ibcsrvhdr.hdrsize, SEEK_SET);
-		inlist = FALSE;
-
-		while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
-		    if ((strcmp(tnsl->server, ibcsrv.server) == 0) && ibcsrv.Active) {
-			inlist = TRUE;
-		    }
-		}
-		if (!inlist) {
-		    Syslog('+', "IBC: server %s removed from configuration", tnsl->server);
-		    pthread_mutex_lock(&b_mutex);
-		    tnsl->remove = TRUE;
-		    tnsl->action = now;
-		    pthread_mutex_unlock(&b_mutex);
-		    srvchg = TRUE;
-		    callchg = TRUE;
-		}
-	    }
 	    fclose(fp);
 	}
-
 	scfg_time = file_time(scfgfn);
     }
-
-    dump_ncslist();
-
-    Remove = FALSE;
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (tnsl->remove) {
-	    Remove = TRUE;
-	    Syslog('r', "IBC: Remove server %s", tnsl->server);
-	    if (tnsl->state == NCS_CONNECT) {
-		broadcast(tnsl->server, "SQUIT %s Removed from configuration\r\n", tnsl->server);
-		send_msg(tnsl, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
-		del_router(&servers, tnsl->server);
-	    }
-	    if (tnsl->socket != -1) {
-		Syslog('r', "IBC: Closing socket %d", tnsl->socket);
-		shutdown(tnsl->socket, SHUT_WR);
-		tnsl->socket = -1;
-		tnsl->state = NCS_HANGUP;
-	    }
-	    callchg = TRUE;
-	    srvchg = TRUE;
-	}
-    }
-
-    dump_ncslist();
-
-    /*
-     * If a neighbour is removed by configuration, remove it from the list.
-     */
-    if (Remove) {
-	Syslog('r', "IBC: Starting remove list");
-	pthread_mutex_lock(&b_mutex);
-	tmp = &ncsl;
-	while (*tmp) {
-	    if ((*tmp)->remove) {
-		Syslog('r', "do %s", (*tmp)->server);
-		tnsl = *tmp;
-		*tmp = (*tmp)->next;
-		free(tnsl);
-		callchg = TRUE;
-	    } else {
-		tmp = &((*tmp)->next);
-	    }
-	}
-	pthread_mutex_unlock(&b_mutex);
-    }
-
     dump_ncslist();
 
     /*
@@ -843,7 +848,6 @@ void check_servers(void)
 				     * In this state we check if the connection is still alive
 				     */
 				    j = (int)now - (int)tnsl->last;
-
 				    if (tnsl->halfdead > 5) {
 					/*
 					 * Halfdead means 5 times received a PASS while we are in
