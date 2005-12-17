@@ -591,7 +591,10 @@ int send_msg(ncs_list *tnsl, const char *format, ...)
     vsnprintf(buf, 512, format, va_ptr);
     va_end(va_ptr);
 
-    Syslog('r', "IBC: > %s: %s", tnsl->server, printable(buf, 0));
+#ifndef	PING_PONG_LOG
+    if (strcmp(buf, "PING\r\n") && strcmp(buf, "PONG\r\n"))
+#endif
+	Syslog('r', "IBC: > %s: %s", tnsl->server, printable(buf, 0));
 
     if (sendto(tnsl->socket, buf, strlen(buf), 0, (struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
 	Syslog('!', "$IBC: can't send message");
@@ -1653,7 +1656,10 @@ void receiver(struct servent  *se)
 
 	    tnsl->last = now;
 	    crbuf[strlen(crbuf) -2] = '\0';
-	    Syslog('r', "IBC: < %s: \"%s\"", hostname, printable(crbuf, 0));
+#ifndef	PING_PONG_LOG
+	    if (strcmp(crbuf, (char *)"PING") && strcmp(crbuf, (char *)"PONG"))
+#endif
+		Syslog('r', "IBC: < %s: \"%s\"", hostname, printable(crbuf, 0));
 
 	    /*
 	     * Parse message
