@@ -679,7 +679,10 @@ void check_servers(void)
 		    }
 		}
 		if (!inlist) {
-		    Syslog('+', "IBC: server %s configuration changed or removed", tnsl->server);
+		    if (local_reset)
+			Syslog('+', "IBC: server %s connection reset", tnsl->server);
+		    else
+			Syslog('+', "IBC: server %s configuration changed or removed", tnsl->server);
 		    pthread_mutex_lock(&b_mutex);
 		    tnsl->remove = TRUE;
 		    tnsl->action = now;
@@ -698,8 +701,13 @@ void check_servers(void)
 		    Remove = TRUE;
 		    Syslog('r', "IBC: Remove server %s", tnsl->server);
 		    if (tnsl->state == NCS_CONNECT) {
-			broadcast(tnsl->server, "SQUIT %s Removed from configuration\r\n", tnsl->server);
-			send_msg(tnsl, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
+			if (local_reset) {
+			    broadcast(tnsl->server, "SQUIT %s Reset connection\r\n", tnsl->server);
+			    send_msg(tnsl, "SQUIT %s Your system connection is reset\r\n", tnsl->myname);
+			} else {
+			    broadcast(tnsl->server, "SQUIT %s Removed from configuration\r\n", tnsl->server);
+			    send_msg(tnsl, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
+			}
 			del_router(&servers, tnsl->server);
 		    }
 		    if (tnsl->socket != -1) {
