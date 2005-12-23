@@ -115,6 +115,24 @@ void ImportFiles(int Area)
 	
 	while (fgets(String, 4095, fbbs) != NULL) {
 
+	    /*
+	     *  Strip cr and lf characters
+	     */
+	    for (i = 0; i < strlen(String); i++) {
+		if (*(String + i) == '\0')
+		    break;
+		if (*(String + i) == '\n')
+		    *(String + i) = '\0';
+		if (*(String + i) == '\r')
+		    *(String + i) = '\0';
+	    }
+
+	    /*
+	     * Stop on an empty line
+	     */
+	    if (strlen(String) == 0)
+		break;
+
 	    if ((String[0] != ' ') && (String[0] != '\t')) {
 		/*
 		 * New file entry, check if there has been a file that is not yet saved.
