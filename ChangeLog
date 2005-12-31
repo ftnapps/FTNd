@@ -6,6 +6,10 @@ v0.83.6		17-Dec-2005
 		Removed gated SB debug logmessages.
 		Removed debug messages for obsolete ticfiles.
 
+	mbcico:
+		Don't add files to send anymore when batchnr > 20 to prevent
+		and infinite session loop.
+
 	mbfile:
 		Fixed a crash when files.bbs had empty lines.
 

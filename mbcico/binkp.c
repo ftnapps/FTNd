@@ -1456,7 +1456,7 @@ TrType binkp_transmitter(void)
 	     *  This one is special for binkp behaviour.
 	     */
 	    for (tsl = tosend; tsl; tsl = tsl->next) {
-		if (tsl->remote != NULL)
+		if ((tsl->remote != NULL) && (bp.batchnr < 20))
 		    fill_binkp_list(&bll, tsl, 0L);
 	    }
 
