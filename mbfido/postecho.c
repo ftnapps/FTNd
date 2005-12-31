@@ -344,10 +344,8 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	     * are stripped off including that of the other zone's
 	     * gate. Add the gate's aka to the SEEN-BY
 	     */
-	    Syslog('m', "Gated echomail, clean SB");
 	    tidy_falist(&sbl);
 	    snprintf(sbe, 16, "%u/%u", Link.aka.net, Link.aka.node);
-	    Syslog('m', "Add gate SB %s", sbe);
 	    fill_list(&sbl, sbe, NULL);
 	}
 

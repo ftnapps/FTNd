@@ -2,6 +2,9 @@ $Id$
 
 v0.83.6		17-Dec-2005
 
+	mbfido:
+		Removed gated SB debug logmessages.
+
 	mbfile:
 		Fixed a crash when files.bbs had empty lines.
 
