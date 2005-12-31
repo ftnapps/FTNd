@@ -65,7 +65,7 @@ int Tic()
     DIR		    *dp;
     struct dirent   *de;
     struct stat	    sbuf;
-    int		    i, rc = 0, first = TRUE, Age;
+    int		    i, rc = 0, Age;
     fd_list	    *fdl = NULL;
     orphans	    *opl = NULL, *tmp;
     time_t	    Now, Fdate;

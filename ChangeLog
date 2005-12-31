@@ -1,6 +1,8 @@
 $Id$
 
-v0.83.6		17-Dec-2005
+v0.83.7		31-Dec-2005
+
+v0.83.6		17-Dec-2005 - 31-Dec-2005
 
 	mbfido:
 		Removed gated SB debug logmessages.
