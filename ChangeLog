@@ -4,6 +4,7 @@ v0.83.6		17-Dec-2005
 
 	mbfido:
 		Removed gated SB debug logmessages.
+		Removed debug messages for obsolete ticfiles.
 
 	mbfile:
 		Fixed a crash when files.bbs had empty lines.

@@ -572,19 +572,20 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     } /* not get FILE_ID.DIZ */
 
     /*
-     * Now check if other (older) ticfiles point to this file
+     * Now check if other (older) ticfiles point to this file,
+     * if found mark it to purge later.
      */
-    First = TRUE;
+//  First = TRUE;
     for (topl = *opl; topl; topl = topl->next) {
-	if (First) {
-	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
-	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
-	    First = FALSE;
-	}
-	Syslog('f', "%-12s %-20s %-12s %s %s %s", topl->TicName, topl->Area, topl->FileName,
-		topl->Orphaned ? "Yes" : "No ", topl->BadCRC ? "Yes" : "No ", topl->Purged ? "Yes":"No ");
+//	if (First) {
+//	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
+//	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
+//	    First = FALSE;
+//	}
+//	Syslog('f', "%-12s %-20s %-12s %s %s %s", topl->TicName, topl->Area, topl->FileName,
+//		topl->Orphaned ? "Yes" : "No ", topl->BadCRC ? "Yes" : "No ", topl->Purged ? "Yes":"No ");
 	if ((strcmp(topl->Area, TIC.TicIn.Area) == 0) && (strcmp(topl->FileName, TIC.TicIn.File) == 0)) {
-	    Syslog('f', "Found matching tic file %s, mark to purge this one", topl->TicName);
+//	    Syslog('f', "Found matching obsolete tic file %s, mark to purge this one", topl->TicName);
 	    topl->Purged = TRUE;
 	}
     }
