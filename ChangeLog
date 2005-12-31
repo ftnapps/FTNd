@@ -8,7 +8,7 @@ v0.83.6		17-Dec-2005
 
 	mbcico:
 		Don't add files to send anymore when batchnr > 20 to prevent
-		and infinite session loop.
+		an infinite session loop.
 
 	mbfile:
 		Fixed a crash when files.bbs had empty lines.
