@@ -157,16 +157,16 @@ int Tic()
     /*
      * Handle the array with orphaned and bad crc ticfiles.
      */
-    Syslog('f', "start tidy_orphans()");
+//  Syslog('f', "start tidy_orphans()");
     Now = time(NULL);
     for (tmp = opl; tmp; tmp = tmp->next) {
-	if (first) {
-	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
-	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
-	    first = FALSE;
-	}
-	Syslog('f', "%-12s %-20s %-12s %s %s %s", tmp->TicName, tmp->Area, tmp->FileName,
-		tmp->Orphaned ? "Yes" : "No ", tmp->BadCRC ? "Yes" : "No ", tmp->Purged ? "Yes":"No ");
+//	if (first) {
+//	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
+//	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
+//	    first = FALSE;
+//	}
+//	Syslog('f', "%-12s %-20s %-12s %s %s %s", tmp->TicName, tmp->Area, tmp->FileName,
+//		tmp->Orphaned ? "Yes" : "No ", tmp->BadCRC ? "Yes" : "No ", tmp->Purged ? "Yes":"No ");
 
 	/*
 	 * Bad CRC and not marked purged are real crc errors.
