@@ -13,7 +13,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 03-Sep-2005</h5></div>
+<div align='right'><h5>Last update 03-Jan-2006</h5></div>
 <div align='center'><H1>How to setup an webserver to work with MBSE BBS.</H1></div>
 
 <H3>Introduction</H3>
@@ -66,7 +66,7 @@ As root edit your httpd.conf file, it is possible that you find it in
     #
     Alias /files/ /opt/mbse/ftp/pub/
     &lt;Directory "/opt/mbse/ftp/pub"&gt;
-        Options Indexes MultiViews
+        Options Indexes MultiViews FollowSymLinks
         AllowOverride None
         Order allow,deny
         Allow from all
