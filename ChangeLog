@@ -2,6 +2,10 @@ $Id$
 
 v0.83.7		31-Dec-2005
 
+	upgrade:
+		Add extra switches to unarchiver commands netry 11, see 
+		mbsetup for the archivers.
+
 	mbfido:
 		Made searching file file_id.diz case insensitive.
 
