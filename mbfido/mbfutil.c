@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -222,26 +222,17 @@ int UnpackFile(char *File)
      * Check if there is a temp directory to unpack the archive.
      */
     if (create_tmpwork()) {
-	snprintf(temp, PATH_MAX, "%s/tmp/arc", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
 	if (!do_quiet)
 	    printf("\nCan't create %s\n", temp);
 	die(MBERR_GENERAL);
     }
 
-    /*
-     * Check for stale FILE_ID.DIZ files
-     */
-    snprintf(temp, PATH_MAX, "%s/tmp/arc%d/FILE_ID.DIZ", getenv("MBSE_ROOT"), (int)getpid());
-    if (!unlink(temp))
-	Syslog('+', "Removed stale %s", temp);
-    snprintf(temp, PATH_MAX, "%s/tmp/arc%d/file_id.diz", getenv("MBSE_ROOT"), (int)getpid());
-    if (!unlink(temp))
-	Syslog('+', "Removed stale %s", temp);
-
     if (!getarchiver(unarc)) {
 	WriteError("No archiver available for %s", File);
 	if (!do_quiet)
 	    printf("\nNo archiver available for %s\n", File);
+	clean_tmpwork();
 	return FALSE;
     }
 
@@ -250,12 +241,14 @@ int UnpackFile(char *File)
 	WriteError("No unarc command available");
 	if (!do_quiet)
 	    printf("\nNo unarc command available\n");
+	clean_tmpwork();
 	return FALSE;
     }
 
     snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
     if (chdir(temp) != 0) {
 	WriteError("$Can't change to %s", temp);
+	clean_tmpwork();
 	die(MBERR_GENERAL);
     }
 
@@ -265,11 +258,11 @@ int UnpackFile(char *File)
 	free(pwd);
 	free(cmd);
 	return TRUE;
-    } else {
-	chdir(pwd);
-	WriteError("Unpack error, file may be corrupt");
-	clean_tmpwork();
     }
+	
+    chdir(pwd);
+    WriteError("Unpack error, file may be corrupt");
+    clean_tmpwork();
     return FALSE;
 }
 

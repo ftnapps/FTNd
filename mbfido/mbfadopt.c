@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Adopt file
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -46,7 +46,7 @@ extern int	do_novir;		/* Suppress virus check		    */
 void AdoptFile(int Area, char *File, char *Description)
 {
     FILE		*fp;
-    char		*temp, *temp2, *tmpdir, *unarc, *pwd, *lname;
+    char		*temp, *temp2, *tmpdir, *unarc, *pwd, *lname, *fileid;
     char		Desc[256], TDesc[256];
     int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
     int			IsVirus = FALSE, File_Id = FALSE;
@@ -156,15 +156,17 @@ void AdoptFile(int Area, char *File, char *Description)
 	    /*
 	     * Try to get a FILE_ID.DIZ
 	     */
-            snprintf(temp, PATH_MAX, "%s/tmp/arc%d/FILE_ID.DIZ", getenv("MBSE_ROOT"), (int)getpid());
-            snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-            if (file_cp(temp, temp2) == 0) {
-                File_Id = TRUE;
-	    } else {
-		snprintf(temp, PATH_MAX, "%s/tmp/arc%d/file_id.diz", getenv("MBSE_ROOT"), (int)getpid());
-		if (file_cp(temp, temp2) == 0)
+	    fileid = calloc(PATH_MAX, sizeof(char));
+            snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	    snprintf(fileid, PATH_MAX, "FILE_ID.DIZ");
+	    if (getfilecase(temp, fileid)) {
+		snprintf(temp, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), fileid);
+		snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+		if (file_cp(temp, temp2) == 0) {
 		    File_Id = TRUE;
+		}
 	    }
+	    free(fileid);
 
 	    if (File_Id) {
 		Syslog('f', "FILE_ID.DIZ found");

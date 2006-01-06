@@ -4,7 +4,7 @@
  * Purpose ...............: Process 1 .tic file
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -376,23 +376,6 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     if ((tic.VirScan || MustRearc) && IsArchive) {
 
 	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
-
-	/*
-	 * Check for stale FILE_ID.DIZ files
-	 */
-//	snprintf(temp1, PATH_MAX, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-//	if (!unlink(temp1))
-//	    Syslog('+', "Removed stale %s", temp1);
-//	snprintf(temp1, PATH_MAX, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
-//	if (!unlink(temp1))
-//	    Syslog('+', "Removed stale %s", temp1);
-//	snprintf(temp1, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-//	if (!unlink(temp1))
-//	    Syslog('+', "Removed stale %s", temp1);
-//	snprintf(temp1, PATH_MAX, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
-//	if (!unlink(temp1))
-//	    Syslog('+', "Removed stale %s", temp1);
-
 	if (!checkspace(temp2, TIC.TicIn.File, UNPACK_FACTOR)) {
 	    Bad((char *)"Not enough free diskspace left");
 	    free(Temp);
@@ -490,15 +473,17 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 
     if (tic.FileId && tic.FileArea && IsArchive) {
 	if (UnPacked) {
-	    snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/FILE_ID.DIZ", getenv("MBSE_ROOT"), (int)getpid());
-	    snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-	    if (file_cp(temp1, temp2) == 0) {
-		File_Id = TRUE;
-	    } else {
-		snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/file_id.diz", getenv("MBSE_ROOT"), (int)getpid());
+	    snprintf(temp1, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	    snprintf(Temp, PATH_MAX, "FILE_ID.DIZ");
+	    if (getfilecase(temp1, Temp)) {
+		Syslog('f', "Found %s", Temp);
+		snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), Temp);
+		snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
 		if (file_cp(temp1, temp2) == 0) {
 		    File_Id = TRUE;
 		}
+	    } else {
+		Syslog('f', "Didn't find a FILE_ID.DIZ");
 	    }
 	} else {
 	    if (!getarchiver(unarc)) {

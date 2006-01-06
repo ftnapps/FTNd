@@ -2,6 +2,13 @@ $Id$
 
 v0.83.7		31-Dec-2005
 
+	mbfido:
+		Made searching file file_id.diz case insensitive.
+
+	mbfile:
+		Made searching file file_id.diz case insensitive.
+
+
 v0.83.6		17-Dec-2005 - 31-Dec-2005
 
 	mbfido:
