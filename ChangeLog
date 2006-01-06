@@ -8,6 +8,15 @@ v0.83.7		31-Dec-2005
 	mbfile:
 		Made searching file file_id.diz case insensitive.
 
+	mbsetup:
+		Added switches to default extract commands for file_id.diz 
+		files to:
+		  nomarch -U
+		  rar -cu
+		  unrar -cu
+		  unzip -L
+		Other archives don't support forced upper or lowercase.
+		  
 
 v0.83.6		17-Dec-2005 - 31-Dec-2005
 

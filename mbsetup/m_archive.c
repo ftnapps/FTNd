@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Archive structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -94,7 +94,7 @@ int CountArchive(void)
 	    if (strlen(_PATH_NOMARCH)) {
 		snprintf(archiver.funarc, 65,  "%s -U", _PATH_NOMARCH);
 		snprintf(archiver.munarc, 65,  "%s", _PATH_NOMARCH);
-		snprintf(archiver.iunarc, 65,  "%s", _PATH_NOMARCH);
+		snprintf(archiver.iunarc, 65,  "%s -U", _PATH_NOMARCH);
 		snprintf(archiver.varc, 65,    "%s -l", _PATH_NOMARCH);
 	    }
 	    fwrite(&archiver, sizeof(archiver), 1, fil);
@@ -133,12 +133,12 @@ int CountArchive(void)
 		snprintf(archiver.varc, 65,    "%s l", _PATH_RAR);
 		snprintf(archiver.funarc, 65,  "%s x -o+ -y -r", _PATH_RAR);
 		snprintf(archiver.munarc, 65,  "%s e -o+ -y", _PATH_RAR);
-		snprintf(archiver.iunarc, 65,  "%s e", _PATH_RAR);
+		snprintf(archiver.iunarc, 65,  "%s e -cu", _PATH_RAR);
 	    } else if (strlen(_PATH_UNRAR)) {
 		archiver.available = TRUE;
 		snprintf(archiver.funarc, 65,  "%s x -o+ -y -r", _PATH_UNRAR);
 		snprintf(archiver.munarc, 65,  "%s e -o+ -y", _PATH_UNRAR);
-		snprintf(archiver.iunarc, 65,  "%s e", _PATH_UNRAR);
+		snprintf(archiver.iunarc, 65,  "%s e -cu", _PATH_UNRAR);
 		snprintf(archiver.varc, 65,    "%s l", _PATH_UNRAR);
 	    } else {
 		archiver.available = FALSE;
@@ -149,7 +149,7 @@ int CountArchive(void)
 		snprintf(archiver.varc, 65,    "/usr/bin/rar l");
 		snprintf(archiver.funarc, 65,  "/usr/bin/unrar x -o+ -y -r");
 		snprintf(archiver.munarc, 65,  "/usr/bin/unrar e -o+ -y");
-		snprintf(archiver.iunarc, 65,  "/usr/bin/unrar e");
+		snprintf(archiver.iunarc, 65,  "/usr/bin/unrar e -cu");
 	    }
             fwrite(&archiver, sizeof(archiver), 1, fil);
 
@@ -313,7 +313,7 @@ int CountArchive(void)
 	    } else {
 		snprintf(archiver.funarc, 65,  "/usr/bin/unzip -o -q");
 		snprintf(archiver.munarc, 65,  "/usr/bin/unzip -o -j -L");
-		snprintf(archiver.iunarc, 65,  "/usr/bin/unzip -o -j");
+		snprintf(archiver.iunarc, 65,  "/usr/bin/unzip -o -j -L");
 		snprintf(archiver.varc, 65,    "/usr/bin/unzip -l");
 	    }
             fwrite(&archiver, sizeof(archiver), 1, fil);
