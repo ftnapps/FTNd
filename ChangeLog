@@ -6,6 +6,9 @@ v0.83.7		31-Dec-2005
 		Add extra switches to unarchiver commands netry 11, see 
 		mbsetup for the archivers.
 
+	mbsebbs:
+		There are no paths anymore in OLR download packet files.
+
 	mbfido:
 		Made searching file file_id.diz case insensitive.
 

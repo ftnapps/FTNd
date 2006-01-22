@@ -1151,7 +1151,7 @@ void OLR_DownBW()
 {
     struct tm	    *tp;
     time_t	    Now;
-    char	    Pktname[32], *Work, *Temp;
+    char	    Pktname[32], *Work, *Temp, *cwd = NULL;
     int		    Area = 0;
     int		    RetVal = FALSE, rc = 0;
     FILE	    *fp, *tf, *mf, *af;
@@ -1366,15 +1366,20 @@ void OLR_DownBW()
 		    Syslog('+', "Archiver %s", archiver.comment);
 		    PUTSTR(archiver.comment);
 		    PUTCHAR(' ');
-		    snprintf(Temp, PATH_MAX, "%s/%s.DAT", Work, CFG.bbsid);
+		    cwd = getcwd(cwd, PATH_MAX);
+		    chdir(Work);
+		    snprintf(Temp, PATH_MAX, "%s.DAT", CFG.bbsid);
 		    AddArc(Temp, Pktname);
 		    alarm_on();
-		    snprintf(Temp, PATH_MAX, "%s/%s.FTI", Work, CFG.bbsid);
+		    snprintf(Temp, PATH_MAX, "%s.FTI", CFG.bbsid);
 		    AddArc(Temp, Pktname);
-		    snprintf(Temp, PATH_MAX, "%s/%s.INF", Work, CFG.bbsid);
+		    snprintf(Temp, PATH_MAX, "%s.INF", CFG.bbsid);
 		    AddArc(Temp, Pktname);
-		    snprintf(Temp, PATH_MAX, "%s/%s.MIX", Work, CFG.bbsid);
+		    snprintf(Temp, PATH_MAX, "%s.MIX", CFG.bbsid);
 		    AddArc(Temp, Pktname);
+		    chdir(cwd);
+		    free(cwd);
+		    cwd = NULL;
 		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    Syslog('m', "Download result %d", rc);
@@ -1914,7 +1919,7 @@ void OLR_DownQWK(void)
 {
     struct tm	    *tp;
     time_t	    Now;
-    char	    Pktname[32];
+    char	    Pktname[32], *cwd = NULL;
     int		    Area = 0;
     char	    *Work, *Temp;
     int		    i, rc = 0;
@@ -2089,25 +2094,30 @@ void OLR_DownQWK(void)
 		    Syslog('+', "Archiver %s", archiver.comment);
 		    PUTSTR(archiver.comment);
 		    PUTCHAR(' ');
-		    snprintf(Temp, PATH_MAX, "%s/CONTROL.DAT", Work);
+		    cwd = getcwd(cwd, PATH_MAX);
+		    chdir(Work);
+		    snprintf(Temp, PATH_MAX, "CONTROL.DAT");
 		    AddArc(Temp, Pktname);
 		    alarm_on();
-		    snprintf(Temp, PATH_MAX, "%s/MESSAGES.DAT", Work);
+		    snprintf(Temp, PATH_MAX, "MESSAGES.DAT");
 		    AddArc(Temp, Pktname);
 
 		    for (tmp = mhl; tmp; tmp = tmp->next) {
-			snprintf(Temp, PATH_MAX, "%s/%03d.NDX", Work, tmp->Area);
+			snprintf(Temp, PATH_MAX, "%03d.NDX", tmp->Area);
 			AddArc(Temp, Pktname);
 		    }
 
-		    snprintf(Temp, PATH_MAX, "%s/PERSONAL.NDX", Work);
+		    snprintf(Temp, PATH_MAX, "PERSONAL.NDX");
 		    if (TotalPersonal) {
 			AddArc(Temp, Pktname);
 		    } else
 			unlink(Temp);
 
-		    snprintf(Temp, PATH_MAX, "%s/DOOR.ID", Work);
+		    snprintf(Temp, PATH_MAX, "DOOR.ID");
 		    AddArc(Temp, Pktname);
+		    chdir(cwd);
+		    free(cwd);
+		    cwd = NULL;
 		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    Syslog('m', "Download result %d", rc);
@@ -2625,7 +2635,7 @@ void OLR_DownASCII(void)
 {
     struct  tm      *tp;
     time_t          Now;
-    char            Pktname[32], *Work, *Temp;
+    char            Pktname[32], *Work, *Temp, *cwd = NULL;
     int		    Area = 0;
     int             rc = 0;
     FILE            *fp = NULL, *tf, *mf, *af;
@@ -2719,12 +2729,17 @@ void OLR_DownASCII(void)
 		    Syslog('+', "Archiver %s", archiver.comment);
 		    PUTSTR(archiver.comment);
 		    PUTCHAR(' ');
+		    cwd = getcwd(cwd, PATH_MAX);
+		    chdir(Work);
 		    alarm_on();
 
 		    for (tmp = mhl; tmp; tmp = tmp->next) {
-			snprintf(Temp, PATH_MAX, "%s/%03d.TXT", Work, tmp->Area);
+			snprintf(Temp, PATH_MAX, "%03d.TXT", tmp->Area);
 			AddArc(Temp, Pktname);
 		    }
+		    chdir(cwd);
+		    free(cwd);
+		    cwd = NULL;
 		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    unlink(Temp);
