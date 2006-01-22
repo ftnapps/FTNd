@@ -1685,7 +1685,7 @@ void receiver(struct servent  *se)
 				 */
 				strncpy(tnsl->resolved, hostname, 63);
 				inlist = TRUE;
-//				Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", tnsl->resolved, tnsl->server);
+				Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", tnsl->resolved, tnsl->server);
 				hostname = tnsl->server;
 				break;
 			    }
