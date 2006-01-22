@@ -1919,10 +1919,8 @@ void OLR_DownQWK(void)
 {
     struct tm	    *tp;
     time_t	    Now;
-    char	    Pktname[32], *cwd = NULL;
-    int		    Area = 0;
-    char	    *Work, *Temp;
-    int		    i, rc = 0;
+    char	    Pktname[32], *cwd = NULL, *Work, *Temp;
+    int		    Area = 0, i, rc = 0;
     FILE	    *fp = NULL, *tf, *mf, *af;
     unsigned int    Start, High;
     msg_high	    *tmp, *mhl = NULL;
