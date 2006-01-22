@@ -4,7 +4,7 @@
  * Purpose ...............: Change integer value CPU endian independant
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -46,5 +46,14 @@ int le_int(int val)
 #endif
 }
 
+
+unsigned short le_us(unsigned short val)
+{
+#ifdef WORDS_BIGENDIAN
+    return ((val & 0xff) << 8) | ((val >> 8) & 0xff);
+#else
+    return val;
+#endif
+}
 
 

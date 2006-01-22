@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS main library header
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -2203,6 +2203,7 @@ struct	termios	tbufs, tbufsavs;	/* Structure for raw mode	*/
  * From endian.c
  */
 int	le_int(int);
+unsigned short	le_us(unsigned short);
 
 
 
