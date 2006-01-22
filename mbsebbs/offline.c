@@ -4,7 +4,7 @@
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -953,7 +953,6 @@ void OLR_RestrictDate()
 /*
  *  Upload offline mail. Filenames: BBSID.NEW or BBSID.REP.
  *  Should also do hhhhhhhh.SU0 for point uploads.
- *  NOTE: THE FIRST PART OF THE CODE IS FROM UPLOAD_HOME
  */
 void OLR_Upload(void)
 {
@@ -1199,29 +1198,29 @@ void OLR_DownBW()
      */
     memset(&Inf, 0, sizeof(Inf));
     Inf.ver = PACKET_LEVEL;
-    strcpy((char *)Inf.loginname, exitinfo.sUserName);
-    strcpy((char *)Inf.aliasname, exitinfo.sHandle);
-    Inf.zone  = CFG.aka[0].zone;
-    Inf.net   = CFG.aka[0].net;
-    Inf.node  = CFG.aka[0].node;
-    Inf.point = CFG.aka[0].point;
-    strcpy((char *)Inf.sysop, CFG.sysop_name);
-    strcpy((char *)Inf.systemname, CFG.bbs_name);
+    strncpy((char *)Inf.loginname, exitinfo.sUserName, 43);
+    strncpy((char *)Inf.aliasname, exitinfo.sHandle, 43);
+    Inf.zone  = le_us(CFG.aka[0].zone);
+    Inf.net   = le_us(CFG.aka[0].net);
+    Inf.node  = le_us(CFG.aka[0].node);
+    Inf.point = le_us(CFG.aka[0].point);
+    strncpy((char *)Inf.sysop, CFG.sysop_name, 41);
+    strncpy((char *)Inf.systemname, CFG.bbs_name, 65);
     Inf.maxfreqs = CFG.OLR_MaxReq;
     if (exitinfo.HotKeys)
-	Inf.uflags |= INF_HOTKEYS;
+	Inf.uflags |= le_us(INF_HOTKEYS);
     if (exitinfo.GraphMode)
-	Inf.uflags |= INF_GRAPHICS;
+	Inf.uflags |= le_us(INF_GRAPHICS);
     if (exitinfo.OL_ExtInfo)
-	Inf.uflags |= INF_EXT_INFO;
-    Inf.credits = exitinfo.Credit;
-    Inf.inf_header_len = sizeof(INF_HEADER);
-    Inf.inf_areainfo_len = sizeof(INF_AREA_INFO);
-    Inf.mix_structlen = sizeof(MIX_REC);
-    Inf.fti_structlen = sizeof(FTI_REC);
+	Inf.uflags |= le_us(INF_EXT_INFO);
+    Inf.credits = le_us(exitinfo.Credit);
+    Inf.inf_header_len = le_us((unsigned short)sizeof(INF_HEADER));
+    Inf.inf_areainfo_len = le_us((unsigned short)sizeof(INF_AREA_INFO));
+    Inf.mix_structlen = le_us((unsigned short)sizeof(MIX_REC));
+    Inf.fti_structlen = le_us((unsigned short)sizeof(FTI_REC));
     Inf.uses_upl_file = TRUE;
     Inf.can_forward = TRUE;
-    strcpy((char *)Inf.packet_id, CFG.bbsid);
+    strncpy((char *)Inf.packet_id, CFG.bbsid, 9);
     fwrite(&Inf, sizeof(INF_HEADER), 1, fp);
 
     /*
@@ -1264,7 +1263,7 @@ void OLR_DownBW()
 	    strncpy((char *)AreaInf.echotag, msgs.QWKname, 21);
 	    strncpy((char *)AreaInf.title, msgs.Name, 50);
 	    if (olrtagrec.Tagged) {
-		AreaInf.area_flags |= INF_SCANNING;
+		AreaInf.area_flags |= le_us((tWORD)INF_SCANNING);
 		RetVal = TRUE;
 	    }
 
@@ -1272,42 +1271,42 @@ void OLR_DownBW()
 		case LOCALMAIL:
 				break;
 
-		case NETMAIL:	AreaInf.area_flags |= (INF_ECHO+INF_NETMAIL+INF_HASFILE);
+		case NETMAIL:	AreaInf.area_flags |= le_us((tWORD)(INF_ECHO+INF_NETMAIL+INF_HASFILE));
 				break;
 
 		case LIST:
-		case ECHOMAIL:	AreaInf.area_flags |= INF_ECHO;
+		case ECHOMAIL:	AreaInf.area_flags |= le_us((tWORD)INF_ECHO);
 				break;
 
-//		case EMAIL:	AreaInf.area_flags |= (INF_ECHO+INF_NETMAIL);
-//				AreaInf.network_type |= INF_NET_INTERNET;
+//		case EMAIL:	AreaInf.area_flags |= le_us((tWORD)(INF_ECHO+INF_NETMAIL));
+//				AreaInf.network_type |= le_us((tWORD)INF_NET_INTERNET);
 //				break;
 
-		case NEWS:	AreaInf.area_flags |= INF_ECHO;
-				AreaInf.network_type |= INF_NET_INTERNET;
+		case NEWS:	AreaInf.area_flags |= le_us((tWORD)INF_ECHO);
+				AreaInf.network_type |= le_us((tWORD)INF_NET_INTERNET);
 				break;
 	    }
 	    
 	    switch(msgs.MsgKinds) {
 		case BOTH:	if (Access(exitinfo.Security, msgs.WRSec))
-				    AreaInf.area_flags |= INF_POST;
+				    AreaInf.area_flags |= le_us((tWORD)INF_POST);
 				break;
 
 		case PRIVATE:	if (Access(exitinfo.Security, msgs.WRSec))
-				    AreaInf.area_flags |= INF_POST;
-				AreaInf.area_flags |= INF_NO_PUBLIC;
+				    AreaInf.area_flags |= le_us((tWORD)INF_POST);
+				AreaInf.area_flags |= le_us((tWORD)INF_NO_PUBLIC);
 				break;
 
 		case PUBLIC:	if (Access(exitinfo.Security, msgs.WRSec))
-				    AreaInf.area_flags |= INF_POST;
-				AreaInf.area_flags |= INF_NO_PRIVATE;
+				    AreaInf.area_flags |= le_us((tWORD)INF_POST);
+				AreaInf.area_flags |= le_us((tWORD)INF_NO_PRIVATE);
 				break;
 
 		case RONLY:	break;
 	    }
 
 	    if (msgs.Aliases)
-		AreaInf.area_flags |= INF_ALIAS_NAME;
+		AreaInf.area_flags |= le_us((tWORD)INF_ALIAS_NAME);
 
 	    fwrite(&AreaInf, sizeof(AreaInf), 1, fp);
 	}
@@ -1380,7 +1379,7 @@ void OLR_DownBW()
 		    chdir(cwd);
 		    free(cwd);
 		    cwd = NULL;
-		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    Syslog('m', "Download result %d", rc);
 		    unlink(Temp);
@@ -1478,20 +1477,21 @@ void BlueWave_Fetch()
 	    Syslog('m', "  From  : %s", Upr.from);
 	    Syslog('m', "  To    : %s", Upr.to);
 	    Syslog('m', "  Subj  : %s", Upr.subj);
-	    now = Upr.unix_date;
+	    now = (time_t)le_int((int)Upr.unix_date);
 	    tm = gmtime(&now);
 	    Syslog('m', "  Date  : %02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
 		    tm->tm_year+1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
-	    Syslog('m', "  Dest  : %d:%d/%d.%d", Upr.destzone, Upr.destnet, Upr.destnode, Upr.destpoint);
-	    if (Upr.msg_attr & UPL_INACTIVE)
+	    Syslog('m', "  Dest  : %d:%d/%d.%d", le_us(Upr.destzone), le_us(Upr.destnet), 
+		    le_us(Upr.destnode), le_us(Upr.destpoint));
+	    if (Upr.msg_attr & le_us(UPL_INACTIVE))
 		Syslog('m', "  Message is Inactive");
-	    if (Upr.msg_attr & UPL_PRIVATE)
+	    if (Upr.msg_attr & le_us(UPL_PRIVATE))
 		Syslog('m', "  Message is Private");
-	    if (Upr.msg_attr & UPL_HAS_FILE)
+	    if (Upr.msg_attr & le_us(UPL_HAS_FILE))
 		Syslog('m', "  File Attach");
-	    if (Upr.msg_attr & UPL_NETMAIL)
+	    if (Upr.msg_attr & le_us(UPL_NETMAIL))
 		Syslog('m', "  Is Netmail");
-	    if (Upr.msg_attr & UPL_IS_REPLY)
+	    if (Upr.msg_attr & le_us(UPL_IS_REPLY))
 		Syslog('m', "  Is Reply");
 	    if (Upr.network_type)
 		Syslog('m', "  Type  : Internet");
@@ -1540,17 +1540,17 @@ void BlueWave_Fetch()
 			    strcpy(Msg.To, Upr.to);
 			    strcpy(Msg.Subject, Upr.subj);
 			    mbse_CleanSubject(Msg.Subject);
-			    if (Upr.msg_attr & UPL_PRIVATE)
+			    if (Upr.msg_attr & le_us(UPL_PRIVATE))
 				Msg.Private = TRUE;
 			    if (msgs.MsgKinds == PRIVATE)
 				Msg.Private = TRUE;
-			    Msg.Written = Upr.unix_date - (gmt_offset((time_t)0) * 60);
+			    Msg.Written = le_int((int)Upr.unix_date) - (gmt_offset((time_t)0) * 60);
 			    Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
 			    Msg.Local  = TRUE;
-			    dest.zone  = Upr.destzone;
-			    dest.net   = Upr.destnet;
-			    dest.node  = Upr.destnode;
-			    dest.point = Upr.destpoint;
+			    dest.zone  = le_us(Upr.destzone);
+			    dest.net   = le_us(Upr.destnet);
+			    dest.node  = le_us(Upr.destnode);
+			    dest.point = le_us(Upr.destpoint);
 			    Add_Kludges(dest, FALSE, Upr.filename);
 			    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
 			    snprintf(temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Upr.filename);
@@ -1762,7 +1762,10 @@ void BlueWave_Fetch()
     }
 
     /*
-     *  Check for .REQ file.
+     *  Check for .REQ file. This file should be saved in the users home
+     *  directory so that the next time a OLR download is done the
+     *  requests are added.
+     *  FIXME: nothing implemented yet!
      */
     snprintf(Filename, 81, "%s.REQ", CFG.bbsid);
     if (getfilecase(Dirpath, Filename)) {
@@ -1773,7 +1776,7 @@ void BlueWave_Fetch()
 //	colour(LIGHTBLUE, BLACK);
 	/*      Processing file requests */
 //	printf("%s\n", (char *)Language(457));
-	Syslog('+', "Processing file requests %s (not supported)", Filename);
+	Syslog('+', "Reading file requests %s (not supported)", Filename);
 
 	while (fread(&Req, sizeof(REQ_REC), 1, tp) == 1) {
 	    Syslog('m', "  File %s", Req.filename);
@@ -1821,7 +1824,7 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 
     memset(&Mix, 0, sizeof(MIX_REC));
     snprintf((char *)Mix.areanum, 6, "%u", Area);
-    Mix.msghptr = ftell(fdfti);
+    Mix.msghptr = le_int((int)ftell(fdfti));
 
     if ((fdfti != NULL) && (fdmix != NULL) && (fdm != NULL)) {
 	if (Msg_Next(&Number)) {
@@ -1847,23 +1850,20 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 		    Total++;
 		    memset (&Fti, 0, sizeof (FTI_REC));
 
-		    Msg.From[sizeof(Fti.from) - 1] = '\0';
-		    strcpy((char *)Fti.from, Msg.From);
-		    Msg.To[sizeof(Fti.to) - 1] = '\0';
-		    strcpy((char *)Fti.to, Msg.To);
-		    Msg.Subject[sizeof(Fti.subject) - 1] = '\0';
-		    strcpy((char *)Fti.subject, Msg.Subject);
+		    strncpy((char *)Fti.from, Msg.From, 36);
+		    strncpy((char *)Fti.to, Msg.To, 36);
+		    strncpy((char *)Fti.subject, Msg.Subject, 72);
 		    tp = localtime(&Msg.Written);
 		    snprintf((char *)Fti.date, 20, "%2d %.3s %2d %2d:%02d:%02d", tp->tm_mday, 
 			    (char *) Language(398 + tp->tm_mon), tp->tm_year, tp->tm_hour, tp->tm_min, tp->tm_sec);
-		    Fti.msgnum = Number;
-		    Fti.msgptr = ftell(fdm);
-		    Fti.replyto = Msg.Original;
-		    Fti.replyat = Msg.Reply;
+		    Fti.msgnum = le_us((tWORD)Number);
+		    Fti.msgptr = le_us((tLONG)ftell(fdm));
+		    Fti.replyto = le_us((tWORD)Msg.Original);
+		    Fti.replyat = le_us((tWORD)Msg.Reply);
 		    if (msgs.Type == NETMAIL) {
-			Fti.orig_zone = msgs.Aka.zone;
-			Fti.orig_net  = msgs.Aka.net;
-			Fti.orig_node = msgs.Aka.node;
+			Fti.orig_zone = le_us(msgs.Aka.zone);
+			Fti.orig_net  = le_us(msgs.Aka.net);
+			Fti.orig_node = le_us(msgs.Aka.node);
 		    }
 
 		    Fti.msglength += fwrite(" ", 1, 1, fdm);
@@ -1890,8 +1890,8 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 	}
     }
 
-    Mix.totmsgs = (tWORD)Current;
-    Mix.numpers = (tWORD)Personal;
+    Mix.totmsgs = le_us((tWORD)Current);
+    Mix.numpers = le_us((tWORD)Personal);
     fwrite(&Mix, sizeof (Mix), 1, fdmix);
 
     if (fdfti != NULL)
@@ -2093,7 +2093,7 @@ void OLR_DownQWK(void)
 		    PUTSTR(archiver.comment);
 		    PUTCHAR(' ');
 		    cwd = getcwd(cwd, PATH_MAX);
-		    chdir(Work);
+		    Syslog('m', "chdir(%s) rc=%d", Work, chdir(Work));
 		    snprintf(Temp, PATH_MAX, "CONTROL.DAT");
 		    AddArc(Temp, Pktname);
 		    alarm_on();
@@ -2116,7 +2116,7 @@ void OLR_DownQWK(void)
 		    chdir(cwd);
 		    free(cwd);
 		    cwd = NULL;
-		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    Syslog('m', "Download result %d", rc);
 		    unlink(Temp);
@@ -2738,7 +2738,7 @@ void OLR_DownASCII(void)
 		    chdir(cwd);
 		    free(cwd);
 		    cwd = NULL;
-		    snprintf(Temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
 		    rc = DownloadDirect(Temp, FALSE);
 		    unlink(Temp);
 		}

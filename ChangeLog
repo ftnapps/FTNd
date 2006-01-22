@@ -8,6 +8,7 @@ v0.83.7		31-Dec-2005
 
 	mbsebbs:
 		There are no paths anymore in OLR download packet files.
+		Made OLR bluewave packets CPU independant. (under test).
 
 	mbfido:
 		Made searching file file_id.diz case insensitive.
