@@ -1815,6 +1815,7 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 
     snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.FTI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
     fdfti = fopen(Temp, "a+");
+    fseek(fdfti, 0, SEEK_END);	/* We need to do this, else ftell doesn't work right */
 
     snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.MIX", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
     fdmix = fopen(Temp, "a+");
@@ -1824,6 +1825,7 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 
     memset(&Mix, 0, sizeof(MIX_REC));
     snprintf((char *)Mix.areanum, 6, "%u", Area);
+//    Syslog('m', "fti position: %d", ftell(fdfti));
     Mix.msghptr = le_int((int)ftell(fdfti));
 
     if ((fdfti != NULL) && (fdmix != NULL) && (fdm != NULL)) {
@@ -1892,6 +1894,7 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 
     Mix.totmsgs = le_us((tWORD)Current);
     Mix.numpers = le_us((tWORD)Personal);
+//    Syslog('m', "mix: %6s %6d %6d %6d", Mix.areanum, Mix.totmsgs, Mix.numpers, Mix.msghptr);
     fwrite(&Mix, sizeof (Mix), 1, fdmix);
 
     if (fdfti != NULL)
