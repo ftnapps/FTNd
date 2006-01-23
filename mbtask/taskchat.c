@@ -85,6 +85,20 @@ int part(pid_t, char*);
 
 
 
+void Chatlog(char *level, char *channel, char *msg)
+{
+    char    *logm;
+
+    if (CFG.iAutoLog && strlen(CFG.chat_log)) {
+	logm = calloc(PATH_MAX, sizeof(char));
+	snprintf(logm, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+	ulog(logm, level, channel, (char *)"-1", msg);
+	free(logm);
+    }
+}
+
+
+
 void chat_dump(void)
 {
     int		first;
@@ -145,6 +159,7 @@ void system_shout(const char *format, ...)
 	    system_msg(tmpu->pid, buf);
 	}
 
+    Chatlog((char *)"-", (char *)" ", buf);
     free(buf);
 }
 
@@ -353,20 +368,14 @@ void chat_cleanuser(pid_t pid)
  */
 void chat_msg(char *channel, char *nick, char *msg)
 {
-    char	buf[79], *logm;
+    char	buf[79];
     usr_list	*tmpu;
 
     if (nick == NULL)
 	snprintf(buf, 79, "%s", msg);
     else
 	snprintf(buf, 79, "<%s> %s", nick, msg);
-
-    if (CFG.iAutoLog && strlen(CFG.chat_log)) {
-	logm = calloc(PATH_MAX, sizeof(char));
-	snprintf(logm, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
-	ulog(logm, (char *)"+", channel, (char *)"-1", buf);
-	free(logm);
-    }
+    Chatlog((char *)"+", channel, buf);
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	if (strlen(tmpu->channel) && (strcmp(tmpu->channel, channel) == 0)) {

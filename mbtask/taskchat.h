@@ -3,6 +3,7 @@
 
 /* $Id$ */
 
+void Chatlog(char *, char *, char *);
 void chat_msg(char *, char *, char *);
 void system_shout(const char *, ...);
 void chat_init(void);
