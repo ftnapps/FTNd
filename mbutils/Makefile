@@ -96,5 +96,5 @@ mblang.o: ../config.h ../lib/mbselib.h
 mbstat.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbstat.h
 mbtoberep.o: ../config.h ../lib/mbselib.h
 mbuser.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbuser.h
-mbbw.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/bluewave.h ../lib/mbsedb.h mbbw.h
+mbbw.o: ../config.h ../lib/mbselib.h ../lib/bluewave.h
 # End of generated dependencies
