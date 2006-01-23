@@ -1808,7 +1808,7 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
     MIX_REC	    Mix;
     FTI_REC	    Fti;
     struct tm	    *tp;
-    int		    Pack;
+    int		    Pack, length;
 
     Number = ulLast;
     Temp = calloc(PATH_MAX, sizeof(char));
@@ -1819,9 +1819,11 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 
     snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.MIX", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
     fdmix = fopen(Temp, "a+");
+    fseek(fdmix, 0, SEEK_END);
 
     snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.DAT", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
     fdm = fopen(Temp, "a+");
+    fseek(fdm, 0, SEEK_END);
 
     memset(&Mix, 0, sizeof(MIX_REC));
     snprintf((char *)Mix.areanum, 6, "%u", Area);
@@ -1859,7 +1861,7 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 		    snprintf((char *)Fti.date, 20, "%2d %.3s %2d %2d:%02d:%02d", tp->tm_mday, 
 			    (char *) Language(398 + tp->tm_mon), tp->tm_year, tp->tm_hour, tp->tm_min, tp->tm_sec);
 		    Fti.msgnum = le_us((tWORD)Number);
-		    Fti.msgptr = le_us((tLONG)ftell(fdm));
+		    Fti.msgptr = le_int((tLONG)ftell(fdm));
 		    Fti.replyto = le_us((tWORD)Msg.Original);
 		    Fti.replyat = le_us((tWORD)Msg.Reply);
 		    if (msgs.Type == NETMAIL) {
@@ -1868,17 +1870,18 @@ unsigned int BlueWave_PackArea(unsigned int ulLast, int Area)
 			Fti.orig_node = le_us(msgs.Aka.node);
 		    }
 
-		    Fti.msglength += fwrite(" ", 1, 1, fdm);
+		    length = (int)fwrite(" ", 1, 1, fdm);
 
 		    if ((Text = (char *)MsgText_First()) != NULL) {
 			do {
 			    if ((Text[0] != 0x01) || (strncmp(Text, "\001MSGID", 6) == 0) ||
 				((strncmp(Text, "\001FMPT ", 6) == 0) && (msgs.Type == NETMAIL)) || (exitinfo.OL_ExtInfo)) {
-				Fti.msglength += fwrite(Text, 1, strlen(Text), fdm);
-				Fti.msglength += fwrite("\r\n", 1, 2, fdm);
+				length += fwrite(Text, 1, strlen(Text), fdm);
+				length += fwrite("\r\n", 1, 2, fdm);
 			    }
 			} while ((Text = (char *)MsgText_Next()) != NULL);
 
+			Fti.msglength = le_int(length);
 			fwrite(&Fti, sizeof (Fti), 1, fdfti);
 		    }
 		}
