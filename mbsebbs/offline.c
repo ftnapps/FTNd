@@ -1448,7 +1448,7 @@ void BlueWave_Fetch()
 	fread(&Uph, sizeof(UPL_HEADER), 1, up);
 	Syslog('+', "Processing BlueWave v3 \"%s\" file", Filename);
 	Syslog('+', "Client: %s %d.%d", Uph.reader_name, Uph.reader_major, Uph.reader_minor);
-	if (Uph.upl_header_len != sizeof(UPL_HEADER)) {
+	if (le_us(Uph.upl_header_len) != sizeof(UPL_HEADER)) {
 	    WriteError("Recordsize mismatch");
 	    fclose(up);
 	    free(temp);
