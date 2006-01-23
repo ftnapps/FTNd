@@ -41,7 +41,8 @@ int main(int argc, char **argv)
     INF_HEADER	    Inf;
     INF_AREA_INFO   AreaInf;
     MIX_REC	    Mix;
-    int		    i;
+    FTI_REC	    Fti;
+    int		    i, pos;
 
     printf("\nMBBW: MBSE BBS %s Bluewave Dump\n", VERSION);
     printf("      %s\n\n", COPYRIGHT);
@@ -149,6 +150,21 @@ int main(int argc, char **argv)
 	    printf("%6s %6d %6d %9d\n", Mix.areanum, Mix.totmsgs, Mix.numpers, Mix.msghptr);
 	}
 	printf("\n");
+	fclose(fp);
+    }
+
+    sprintf(temp, "%s.FTI", bwname);
+    pos = 0;
+    if ((fp = fopen(temp, "r"))) {
+	printf("---- %s.FTI -------------------------------------------------------\n\n", bwname);
+	printf("   Pos From                                  Date                Msgnum Replto Replat    Ptr Length\n");
+	printf("------ ------------------------------------- ------------------- ------ ------ ------ ------ ------\n");
+	while (fread(&Fti, ORIGINAL_FTI_STRUCT_LEN, 1, fp)) {
+	    printf("%6d %-36s %20s %6d %6d %6d %6d %6d\n", pos, Fti.from, Fti.date, Fti.msgnum, Fti.replyto, Fti.replyat,
+		    Fti.msgptr, Fti.msglength);
+
+	    pos += ORIGINAL_FTI_STRUCT_LEN;
+	}
 	fclose(fp);
     }
 
