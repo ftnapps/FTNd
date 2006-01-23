@@ -2314,13 +2314,13 @@ void QWK_Fetch()
 						nReaded--;
 						x--;
 					    }
-					    Syslog('m', "Final=%d", nReaded);
+//					    Syslog('m', "Final=%d", nReaded);
 					}
 
 					for (i = 0, pBuff = Temp; i < nReaded; i++, pBuff++) {
 					    if (*pBuff == '\r' || *pBuff == (char)0xE3) {
 						*pLine = '\0';
-						Syslog('m', "1 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
+//						Syslog('m', "1 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
 						MsgText_Add2(szLine);
 						if (strncmp(szLine, (char *)"--- ", 4) == 0)
 						    HasTear = TRUE;
@@ -2366,7 +2366,6 @@ void QWK_Fetch()
 
 				    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
 				    nPosted++;
-				    Syslog('m', "Msgbase closed again");
 				    fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
 				    msgs.Posted.total++;
 				    msgs.Posted.tweek++;
