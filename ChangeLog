@@ -9,6 +9,7 @@ v0.83.8		22-Jan-2006
 
 	mbtask:
 		Added logging of some user messages to chat.log
+		Added logging for crashes during chatsessions.
 
 
 v0.83.7		31-Dec-2005 - 22-Jan-2006

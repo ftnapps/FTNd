@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Daemon
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -652,7 +652,11 @@ void *cmd_thread(void)
 		memset(&buf, 0, sizeof(buf));
 		fromlen = sizeof(from);
 		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, (struct sockaddr *)&from, &fromlen);
-		do_cmd(buf);
+		if (rlen == -1) {
+		    Syslog('?', "$recvfrom()");
+		} else {
+		    do_cmd(buf);
+		}
 	    } else {
 		Syslog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
 	    }
