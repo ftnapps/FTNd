@@ -1472,7 +1472,8 @@ void BlueWave_Fetch()
 	i = 0;
 
 	memset(&Upr, 0, sizeof(UPL_REC));
-	while (fread(&Upr, Uph.upl_rec_len, 1, up) == 1) {
+	Syslog('m', "Start UPL reply records");
+	while (fread(&Upr, le_us(Uph.upl_rec_len), 1, up) == 1) {
 	    PUTCHAR('.');
 	    Syslog('m', "  From  : %s", Upr.from);
 	    Syslog('m', "  To    : %s", Upr.to);
@@ -1589,6 +1590,7 @@ void BlueWave_Fetch()
 	    }
 	    memset(&Upr, 0, sizeof(UPL_REC));
 	}
+	Syslog('m', "Stop UPL reply records");
 	Enter(1);
 	if (i) {
 	    /*         Messages imported */

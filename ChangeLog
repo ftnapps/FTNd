@@ -5,6 +5,7 @@ v0.83.8		22-Jan-2006
 	mbsebbs:
 		Fixed a strange bug that ftell didn't work right, this caused
 		corrupt bluewave download packets.
+		Bluewave is now big/little endian correct.
 
 
 v0.83.7		31-Dec-2005 - 22-Jan-2006
