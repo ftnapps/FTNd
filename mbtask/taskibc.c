@@ -111,8 +111,12 @@ void receiver(struct servent *);
 void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int dyndns, unsigned int crc)
 {
     ncs_list	*tmp, *ta;
+    int		rc;
 
-    pthread_mutex_lock(&b_mutex);
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$fill_ncslist mutex lock");
+	return;
+    }
 
     tmp = (ncs_list *)malloc(sizeof(ncs_list));
     memset(tmp, 0, sizeof(tmp));
@@ -145,7 +149,8 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int 
 	}
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$fill_ncslist mutex unlock");
 }
 
 
@@ -251,7 +256,7 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 {
     usr_list    *tmp, *ta;
     srv_list	*sl;
-    int		Found = FALSE;
+    int		rc, Found = FALSE;
 
     Syslog('r', "IBC: add_user (%s, %s, %s)", server, name, realname);
 
@@ -273,7 +278,10 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 	return 1;
     }
 
-    pthread_mutex_lock(&b_mutex);
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$add_user() mutex lock");
+	return 1;
+    }
 
     tmp = (usr_list *)malloc(sizeof(usr_list));
     memset(tmp, 0, sizeof(usr_list));
@@ -302,7 +310,8 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 	}
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$add_user() mutex unlock");
 
     usrchg = TRUE;
     return 0;
@@ -317,14 +326,17 @@ void del_user(usr_list **fap, char *server, char *name)
 {
     usr_list    **tmp, *tmpa;
     srv_list	*sl;
-    int		count = 0;
+    int		rc, count = 0;
 
     Syslog('r', "IBC: deluser (%s, %s)", server, printable(name, 0));
 
     if (*fap == NULL)
 	return;
 
-    pthread_mutex_lock(&b_mutex);
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$del_user() mutex lock");
+	return;
+    }
 
     tmp = fap;
     while (*tmp) {
@@ -356,7 +368,8 @@ void del_user(usr_list **fap, char *server, char *name)
 	}
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$del_user() mutex unlock");
 }
 
 
@@ -367,6 +380,7 @@ void del_user(usr_list **fap, char *server, char *name)
 int add_channel(chn_list **fap, char *name, char *owner, char *server)
 {
     chn_list    *tmp, *ta;
+    int		rc;
 
     Syslog('r', "IBC: add_channel (%s, %s, %s)", name, owner, server);
 
@@ -377,7 +391,10 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
 	}
     }
 
-    pthread_mutex_lock(&b_mutex);
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$add_channel() mutex lock");
+	return 1;
+    }
 
     tmp = (chn_list *)malloc(sizeof(chn_list));
     memset(tmp, 0, sizeof(chn_list));
@@ -399,7 +416,8 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
 	}
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$add_channel() mutex unlock");
 
     chnchg = TRUE;
     return 0;
@@ -410,14 +428,18 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
 void del_channel(chn_list **fap, char *name)
 {
     chn_list    **tmp, *tmpa;
+    int		rc;
 	        
     Syslog('r', "IBC: del_channel %s", name);
 
     if (*fap == NULL)
 	return;
 
-    pthread_mutex_lock(&b_mutex);
-
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$del_channel mutex lock");
+	return;
+    }
+    
     tmp = fap;
     while (*tmp) {
 	if (strcmp((*tmp)->name, name) == 0) {
@@ -430,7 +452,8 @@ void del_channel(chn_list **fap, char *name)
 	}
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$del_channel mutex unlock");
 }
 
 
@@ -438,7 +461,7 @@ void del_channel(chn_list **fap, char *name)
 int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname, char *router)
 {
     srv_list	*tmp, *ta;
-    int		haverouter = FALSE;
+    int		rc, haverouter = FALSE;
 
     Syslog('r', "IBC: add_server %s %d %s %s \"%s\" %s", name, hops, prod, vers, fullname, router);
  
@@ -465,7 +488,10 @@ int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 	}
     }
 
-    pthread_mutex_lock(&b_mutex);
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$add_server mutex lock");
+	return 0;
+    }
     
     tmp = (srv_list *)malloc(sizeof(srv_list));
     memset(tmp, 0, sizeof(tmp));
@@ -490,7 +516,8 @@ int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 	}
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$add_server mutex unlock");
     srvchg = TRUE;
     return 1;
 }
@@ -503,13 +530,17 @@ int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 void del_server(srv_list **fap, char *name)
 {
     srv_list	*ta, *tan;
+    int		rc;
     
     Syslog('r', "IBC: delserver %s", name);
 
     if (*fap == NULL)
 	return;
 
-    pthread_mutex_lock(&b_mutex);
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$del_server mutex lock");
+	return;
+    }
 
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->server, name) == 0)) {
@@ -520,7 +551,8 @@ void del_server(srv_list **fap, char *name)
 	ta->next = tan;
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$del_server mutex unlock");
 }
 
 
@@ -531,13 +563,18 @@ void del_server(srv_list **fap, char *name)
 void del_router(srv_list **fap, char *name)
 {   
     srv_list	*ta, *tan;
+    int		rc;
     
     Syslog('r', "IBC: delrouter %s", name);
 
     if (*fap == NULL)
 	return;
 
-    pthread_mutex_lock(&b_mutex);
+    if ((rc = pthread_mutex_lock(&b_mutex))) {
+	WriteError("$del_router mutex lock");
+	return;
+    }
+    
 
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->router, name) == 0)) {
@@ -549,7 +586,8 @@ void del_router(srv_list **fap, char *name)
 	ta->next = tan;
     }
 
-    pthread_mutex_unlock(&b_mutex);
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	WriteError("$del_router mutex unlock");
 }
 
 
@@ -631,7 +669,7 @@ void check_servers(void)
     ncs_list	    *tnsl, **tmp;
     srv_list	    *srv;
     int		    j, inlist, Remove, local_reset;
-    int		    a1, a2, a3, a4;
+    int		    a1, a2, a3, a4, rc;
     unsigned int    crc;
     struct servent  *se;
     struct hostent  *he;
@@ -672,10 +710,14 @@ void check_servers(void)
 	 * Local reset, make all crc's invalid so the connections will restart.
 	 */
 	if (local_reset) {
-	    pthread_mutex_lock(&b_mutex);
-	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next)
-		tnsl->crc--;
-	    pthread_mutex_unlock(&b_mutex);
+	    if ((rc = pthread_mutex_lock(&b_mutex))) {
+		WriteError("$check_servers 1 mutex lock");
+	    } else {
+		for (tnsl = ncsl; tnsl; tnsl = tnsl->next)
+		    tnsl->crc--;
+		if ((rc = pthread_mutex_unlock(&b_mutex)))
+		    WriteError("$check_servers 1 mutex unlock");
+	    }
 	}
 	
 	if ((fp = fopen(scfgfn, "r"))) {
@@ -699,10 +741,14 @@ void check_servers(void)
 			Syslog('+', "IBC: server %s connection reset", tnsl->server);
 		    else
 			Syslog('+', "IBC: server %s configuration changed or removed", tnsl->server);
-		    pthread_mutex_lock(&b_mutex);
-		    tnsl->remove = TRUE;
-		    tnsl->action = now;
-		    pthread_mutex_unlock(&b_mutex);
+		    if ((rc = pthread_mutex_lock(&b_mutex))) {
+			WriteError("$check_servers 2 mutex lock");
+		    } else {
+			tnsl->remove = TRUE;
+			tnsl->action = now;
+			if ((rc = pthread_mutex_unlock(&b_mutex)))
+			    WriteError("$check_servers 2 mutex unlock");
+		    }
 		    srvchg = TRUE;
 		    callchg = TRUE;
 		}
@@ -743,20 +789,24 @@ void check_servers(void)
 	     */
 	    if (Remove) {
 		Syslog('r', "IBC: Starting remove list");
-		pthread_mutex_lock(&b_mutex);
-		tmp = &ncsl;
-		while (*tmp) {
-		    if ((*tmp)->remove) {
-			Syslog('r', "do %s", (*tmp)->server);
-			tnsl = *tmp;
-			*tmp = (*tmp)->next;
-			free(tnsl);
-			callchg = TRUE;
-		    } else {
-			tmp = &((*tmp)->next);
+		if ((rc = pthread_mutex_lock(&b_mutex))) {
+		    WriteError("$check_servers 3 mutex lock");
+		} else {
+		    tmp = &ncsl;
+		    while (*tmp) {
+			if ((*tmp)->remove) {
+			    Syslog('r', "do %s", (*tmp)->server);
+			    tnsl = *tmp;
+			    *tmp = (*tmp)->next;
+			    free(tnsl);
+			    callchg = TRUE;
+			} else {
+			    tmp = &((*tmp)->next);
+			}
 		    }
+		    if ((rc = pthread_mutex_unlock(&b_mutex)))
+			WriteError("$check_servers 3 mutex unlock");
 		}
-		pthread_mutex_unlock(&b_mutex);
 	    }
 	    dump_ncslist();
 	    
@@ -914,14 +964,16 @@ void check_servers(void)
 					 * Reset our side of the connection.
 					 */
 					Syslog('+', "IBC: server %s connection is half dead", tnsl->server);
-					pthread_mutex_lock(&b_mutex);
+					if ((rc = pthread_mutex_lock(&b_mutex)))
+					    WriteError("$check_servers 4 mutex lock");
 					tnsl->state = NCS_DEAD;
 					tnsl->action = now + (time_t)60;    // 1 minute delay before calling again.
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					tnsl->halfdead = 0;
-					pthread_mutex_unlock(&b_mutex);
+					if ((rc = pthread_mutex_unlock(&b_mutex)))
+					    WriteError("$check_servers 4 mutex unlock");
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					callchg = TRUE;
 					srvchg = TRUE;
@@ -934,14 +986,16 @@ void check_servers(void)
 					 * Missed 3 PING replies
 					 */
 					Syslog('+', "IBC: server %s connection is dead", tnsl->server);
-					pthread_mutex_lock(&b_mutex);
+					if ((rc = pthread_mutex_lock(&b_mutex)))
+					    WriteError("$check_servers 5 mutex lock");
 					tnsl->state = NCS_DEAD;
 					tnsl->action = now + (time_t)120;    // 2 minutes delay before calling again.
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					tnsl->halfdead = 0;
-					pthread_mutex_unlock(&b_mutex);
+					if ((rc = pthread_mutex_unlock(&b_mutex)))
+					    WriteError("$check_servers 5 mutex unlock");
 					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
 					callchg = TRUE;
 					srvchg = TRUE;

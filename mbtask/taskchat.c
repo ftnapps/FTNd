@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - chat server
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -198,6 +198,7 @@ int join(pid_t pid, char *channel, int sysop)
     char	buf[81];
     chn_list	*tmp;
     usr_list	*tmpu;
+    int		rc;
 
     Syslog('c', "Join pid %d to channel %s", pid, channel);
 
@@ -207,10 +208,13 @@ int join(pid_t pid, char *channel, int sysop)
 		for (tmpu = users; tmpu; tmpu = tmpu->next) {
 		    if (tmpu->pid == pid) {
 
-			pthread_mutex_lock(&b_mutex);
-			strncpy(tmpu->channel, channel, 20);
-			tmp->users++;
-			pthread_mutex_unlock(&b_mutex);
+			if ((rc = pthread_mutex_lock(&b_mutex)) == 0) {
+			    strncpy(tmpu->channel, channel, 20);
+			    tmp->users++;
+			    rc = pthread_mutex_unlock(&b_mutex);
+			} else {
+			    WriteError("$join 1 mutex lock");
+			}
 			Syslog('+', "IBC: user %s has joined channel %s", tmpu->nick, channel);
 			usrchg = TRUE;
 			srvchg = TRUE;
@@ -248,9 +252,12 @@ int join(pid_t pid, char *channel, int sysop)
 	if (tmpu->pid == pid) {
 	    if (add_channel(&channels, channel, tmpu->nick, CFG.myfqdn) == 0) {
 
-		pthread_mutex_lock(&b_mutex);
-		strncpy(tmpu->channel, channel, 20);
-		pthread_mutex_unlock(&b_mutex);
+		if ((rc = pthread_mutex_lock(&b_mutex)) == 0) {
+		    strncpy(tmpu->channel, channel, 20);
+		    rc = pthread_mutex_unlock(&b_mutex);
+		} else {
+		    WriteError("$join 2 mutex lock");
+		}
 		Syslog('+', "IBC: user %s created and joined channel %s", tmpu->nick, channel);
 		usrchg = TRUE;
 		chnchg = TRUE;
@@ -286,6 +293,7 @@ int part(pid_t pid, char *reason)
     char	buf[81];
     chn_list	*tmp;
     usr_list	*tmpu;
+    int		rc;
 
     if (strlen(reason) > 54)
 	reason[54] = '\0';
@@ -314,9 +322,12 @@ int part(pid_t pid, char *reason)
 		    /*
 		     * Clean channel
 		     */
-		    pthread_mutex_lock(&b_mutex);
-		    tmp->users--;
-		    pthread_mutex_unlock(&b_mutex);
+		    if ((rc = pthread_mutex_lock(&b_mutex)) == 0) {
+			tmp->users--;
+			rc = pthread_mutex_unlock(&b_mutex);
+		    } else {
+			WriteError("$part 1 mutex lock");
+		    }
 		    Syslog('+', "IBC: nick %s leaves channel %s", tmpu->nick, tmp->name);
 		    if (tmp->users == 0) {
 			/*
@@ -330,9 +341,12 @@ int part(pid_t pid, char *reason)
 		    /*
 		     * Update user data
 		     */
-		    pthread_mutex_lock(&b_mutex);
-		    tmpu->channel[0] = '\0';
-		    pthread_mutex_unlock(&b_mutex);
+		    if ((rc = pthread_mutex_lock(&b_mutex)) == 0) {
+			tmpu->channel[0] = '\0';
+			rc = pthread_mutex_unlock(&b_mutex);
+		    } else {
+			WriteError("$part 2 mutex lock");
+		    }
 		    usrchg = TRUE;
 		    chnchg = TRUE;
 		    srvchg = TRUE;
@@ -393,7 +407,7 @@ char *chat_connect(char *data)
 {
     char	*pid, *realname, *nick;
     static char buf[200];
-    int		count = 0, sys = FALSE;
+    int		count = 0, sys = FALSE, rc;
     srv_list	*sl;
     usr_list	*tmpu;
 
@@ -430,11 +444,14 @@ char *chat_connect(char *data)
 	    /*
 	     * Oke, found
 	     */
-	    pthread_mutex_lock(&b_mutex);
-	    tmpu->pid = atoi(pid);
-	    tmpu->pointer = buffer_head;
-	    tmpu->sysop = sys;
-	    pthread_mutex_unlock(&b_mutex);
+	    if ((rc = pthread_mutex_lock(&b_mutex)) == 0) {
+		tmpu->pid = atoi(pid);
+		tmpu->pointer = buffer_head;
+		tmpu->sysop = sys;
+		rc = pthread_mutex_unlock(&b_mutex);
+	    } else {
+		WriteError("$chat_connect mutex lock");
+	    }
 	    usrchg = TRUE;
 	    srvchg = TRUE;
 	    Syslog('c', "Connected user %s (%s) with chatserver, sysop %s", realname, pid, sys ? "True":"False");
