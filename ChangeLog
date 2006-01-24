@@ -2,6 +2,16 @@ $Id$
 
 v0.83.9		23-Jan-2006
 
+	mbtask:
+		In IBC refuse to add a user when there is no known server for
+		that user.
+		Added setup checks for two main configuration settings for IBC
+		and fail to start if they are missing.
+		Don't start connections with IBC servers that miss settings in
+		the chatserver setup.
+		Added some code to trap mbtask crashing during chat and start
+		mail processing.
+
 
 v0.83.8		22-Jan-2006 - 23-Jan-2006
 

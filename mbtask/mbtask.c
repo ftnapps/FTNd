@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -116,6 +116,8 @@ extern int		ping_run;		/* Ping running		*/
 int			sched_run = FALSE;	/* Scheduler running	*/
 extern int		disk_run;		/* Disk watch running	*/
 extern int		ibc_run;		/* IBC thread running	*/
+extern pthread_mutex_t	b_mutex;		/* IBC mutex lock	*/
+
 
 
 /*
@@ -442,6 +444,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
     int	    i, rc = 0;
     pid_t   pid = 0;
 
+    Syslog('r', "launch() entered");
     if (checktasks(0) >= MAXTASKS) {
 	Syslog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
 	return 0;
@@ -463,6 +466,13 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	return 0;
     }
 
+    rc = pthread_mutex_lock(&b_mutex);
+    if (rc) {
+	WriteError("$launch mutex lock");
+	return 0;
+    }
+    Syslog('r', "launch() mutex locked");
+    
     pid = fork();
     switch (pid) {
 	case -1:
@@ -512,6 +522,12 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	    break;
 	}
     }
+
+    rc = pthread_mutex_unlock(&b_mutex);
+    if (rc) {
+	WriteError("$launch mutex unlock");
+    }
+    Syslog('r', "launch() mutex unlocked");
 
     ptimer = PAUSETIME;
 

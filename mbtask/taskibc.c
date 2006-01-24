@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - Internet BBS Chat (but it looks like...)
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -251,14 +251,26 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 {
     usr_list    *tmp, *ta;
     srv_list	*sl;
+    int		Found = FALSE;
 
-    Syslog('r', "add_user %s %s %s", server, name, realname);
+    Syslog('r', "IBC: add_user (%s, %s, %s)", server, name, realname);
 
     for (ta = *fap; ta; ta = ta->next) {
 	if ((strcmp(ta->server, server) == 0) && (strcmp(ta->realname, realname) == 0)) {
-	    Syslog('-', "IBC: add_user(%s %s %s), already registered", server, name, realname);
+	    Syslog('-', "IBC: add_user(%s, %s, %s), already registered", server, name, realname);
 	    return 1;
 	}
+    }
+
+    for (sl = servers; sl; sl = sl->next) {
+	if (strcmp(sl->server, server) == 0) {
+	    Found = TRUE;
+	    break;
+	}
+    }
+    if (!Found) {
+	Syslog('-', "IBC: add_user(%s, %s, %s), unknown server", server, name, realname);
+	return 1;
     }
 
     pthread_mutex_lock(&b_mutex);
@@ -305,28 +317,31 @@ void del_user(usr_list **fap, char *server, char *name)
 {
     usr_list    **tmp, *tmpa;
     srv_list	*sl;
+    int		count = 0;
 
-    Syslog('r', "IBC: deluser %s %s", server, printable(name, 0));
+    Syslog('r', "IBC: deluser (%s, %s)", server, printable(name, 0));
 
     if (*fap == NULL)
 	return;
 
-    if (name)
-	pthread_mutex_lock(&b_mutex);
+    pthread_mutex_lock(&b_mutex);
 
     tmp = fap;
     while (*tmp) {
 	if (name && (strcmp((*tmp)->server, server) == 0) && (strcmp((*tmp)->name, name) == 0)) {
+	    Syslog('r', "IBC: removed user %s from %s", (*tmp)->name, (*tmp)->server);
 	    tmpa = *tmp;
 	    *tmp=(*tmp)->next;
 	    free(tmpa);
 	    usrchg = TRUE;
+	    count++;
 	} else if ((name == NULL) && (strcmp((*tmp)->server, server) == 0)) {
 	    Syslog('r', "IBC: removed user %s from %s", (*tmp)->name, (*tmp)->server);
 	    tmpa = *tmp;
 	    *tmp=(*tmp)->next;
 	    free(tmpa);
 	    usrchg = TRUE;
+	    count++;
 	} else {
 	    tmp = &((*tmp)->next);
 	}
@@ -334,13 +349,14 @@ void del_user(usr_list **fap, char *server, char *name)
 
     for (sl = servers; sl; sl = sl->next) {
 	if ((strcmp(sl->server, server) == 0) && sl->users) {
-	    sl->users--;
+	    sl->users -= count;
+	    if (sl->users < 0)
+		sl->users = 0;	/* Just in case, nothing is perfect */
 	    srvchg = TRUE;
 	}
     }
 
-    if (name)
-	pthread_mutex_unlock(&b_mutex);
+    pthread_mutex_unlock(&b_mutex);
 }
 
 
@@ -352,11 +368,11 @@ int add_channel(chn_list **fap, char *name, char *owner, char *server)
 {
     chn_list    *tmp, *ta;
 
-    Syslog('r', "IBC: add_channel %s %s %s", name, owner, server);
+    Syslog('r', "IBC: add_channel (%s, %s, %s)", name, owner, server);
 
     for (ta = *fap; ta; ta = ta->next) {
 	if ((strcmp(ta->name, name) == 0) && (strcmp(ta->owner, owner) == 0) && (strcmp(ta->server, server) == 0)) {
-	    Syslog('-', "IBC: add_channel(%s %s %s), already registered", name, owner, server);
+	    Syslog('-', "IBC: add_channel(%s, %s, %s), already registered", name, owner, server);
 	    return 1;
 	}
     }
@@ -655,13 +671,13 @@ void check_servers(void)
 	/*
 	 * Local reset, make all crc's invalid so the connections will restart.
 	 */
-	pthread_mutex_lock(&b_mutex);
-	if (local_reset)
+	if (local_reset) {
+	    pthread_mutex_lock(&b_mutex);
 	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next)
 		tnsl->crc--;
-	pthread_mutex_unlock(&b_mutex);
+	    pthread_mutex_unlock(&b_mutex);
+	}
 	
-
 	if ((fp = fopen(scfgfn, "r"))) {
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fp);
 
@@ -754,7 +770,7 @@ void check_servers(void)
 		/*
 		 * Check for new configured servers
 		 */
-		if (ibcsrv.Active) {
+		if (ibcsrv.Active && strlen(ibcsrv.myname) && strlen(ibcsrv.server) && strlen(ibcsrv.passwd)) {
 		    inlist = FALSE;
 		    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 			if (strcmp(tnsl->server, ibcsrv.server) == 0) {
@@ -1742,6 +1758,16 @@ void *ibc_thread(void *dummy)
 
     if ((se = getservbyname("fido", "udp")) == NULL) {
 	Syslog('!', "IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat");
+	goto exit;
+    }
+
+    if (strlen(CFG.bbs_name) == 0) {
+	Syslog('!', "IBC: mbsetup 1.2.1 is empty, cannot start Internet BBS Chat");
+	goto exit;
+    }
+
+    if (strlen(CFG.myfqdn) == 0) {
+	Syslog('!', "IBC: mbsetup 1.2.10 is empty, cannot start Internet BBS Chat");
 	goto exit;
     }
 
