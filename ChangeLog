@@ -4,6 +4,9 @@ $Id$
 
 v0.83.9		23-Jan-2006
 
+	mbstat:
+		Don't write in errorlog after normal termination.
+
 	mbtask:
 		In IBC refuse to add a user when there is no known server for
 		that user.
