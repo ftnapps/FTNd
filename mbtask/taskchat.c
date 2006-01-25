@@ -224,7 +224,7 @@ int join(pid_t pid, char *channel, int sysop)
 			 * The sysop channel is private to the system, no broadcast
 			 */
 			if (strcasecmp(channel, "#sysop"))
-			    send_all("JOIN %s@%s %s\r\n", tmpu->nick, CFG.myfqdn, channel);
+			    send_at((char *)"JOIN", tmpu->nick, channel);
 			return TRUE;
 		    }
 		}
@@ -261,7 +261,7 @@ int join(pid_t pid, char *channel, int sysop)
 		chat_msg(channel, NULL, buf);
 		chat_dump();
 		if (strcasecmp(channel, "#sysop"))
-		    send_all("JOIN %s@%s %s\r\n", tmpu->nick, CFG.myfqdn, channel);
+		    send_at((char *)"JOIN", tmpu->nick, channel);
 
 		return TRUE;
 	    }
@@ -306,10 +306,12 @@ int part(pid_t pid, char *reason)
 		    snprintf(buf, 81, "%s has left channel %s, %d users left", tmpu->nick, tmp->name, tmp->users);
 		    chat_msg(tmpu->channel, NULL, buf);
 		    if (strcasecmp(tmp->name, (char *)"#sysop")) {
-			if (reason && strlen(reason))
-			    send_all("PART %s@%s %s %s\r\n", tmpu->nick, CFG.myfqdn, tmp->name, reason);
-			else
-			    send_all("PART %s@%s %s\r\n", tmpu->nick, CFG.myfqdn, tmp->name);
+			if (reason && strlen(reason)) {
+			    sprintf(buf, "%s %s", tmp->name, reason);
+			    send_at((char *)"PART", tmpu->nick, buf);
+			} else {
+			    send_at((char *)"PART", tmpu->nick, tmp->name);
+			}
 		    }
 
 		    /*
@@ -423,7 +425,7 @@ char *chat_connect(char *data)
     sys = atoi(strtok(NULL, ";"));		    /* Sysop flag   */
 
     add_user(&users, CFG.myfqdn, nick, realname);
-    send_all("USER %s@%s %s\r\n", nick, CFG.myfqdn, realname);
+    send_at((char *)"USER", nick, realname);
 
     /*
      * Now search the added entry to update the data
@@ -486,7 +488,7 @@ char *chat_close(char *data)
 	    /*
 	     * Remove from IBC network
 	     */
-	    send_all("QUIT %s@%s Leaving chat\r\n", tmpu->name, CFG.myfqdn);
+	    send_at((char *)"QUIT", tmpu->name, (char *)"Leaving chat");
 	    del_user(&users, CFG.myfqdn, tmpu->name);
 	    Syslog('c', "Closing chat for pid %s", pid);
 	    snprintf(buf, 81, "100:0;");
@@ -625,7 +627,7 @@ char *chat_put(char *data)
 			    strncpy(tmpu->nick, cmd, 9);
 			    snprintf(buf, 200, "Nick set to \"%s\"", cmd);
 			    system_msg(tmpu->pid, buf);
-			    send_all("NICK %s %s %s %s\r\n", tmpu->nick, tmpu->name, CFG.myfqdn, tmpu->realname);
+			    send_nick(tmpu->nick, tmpu->name, tmpu->realname);
 			    usrchg = TRUE;
 			    chat_dump();
 			    goto ack;

@@ -632,6 +632,39 @@ void send_all(const char *format, ...)
 
 
 /*
+ * Send command message to each connected neighbour server and use the correct own fqdn.
+ */
+void send_at(char *cmd, char *nick, char *param)
+{
+    ncs_list	*tnsl;
+    char	buf[512];
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (tnsl->state == NCS_CONNECT) {
+	    sprintf(buf, "%s %s@%s %s\r\n", cmd, nick, tnsl->myname, param);
+	    send_msg(tnsl, buf);
+	}
+    }
+}
+
+
+
+void send_nick(char *nick, char *name, char *realname)
+{
+    ncs_list    *tnsl;
+    char        buf[512];
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (tnsl->state == NCS_CONNECT) {
+	    sprintf(buf, "NICK %s %s %s %s\r\n", nick, name, tnsl->myname, realname);
+	    send_msg(tnsl, buf);
+	}
+    }
+}
+
+
+
+/*
  * Broadcast a message to all servers except the originating server
  */
 void broadcast(char *origin, const char *format, ...)

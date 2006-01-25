@@ -116,6 +116,8 @@ void del_channel(chn_list **, char *);
 int  do_command(char *, char *, char *);
 
 void send_all(const char *, ...);
+void send_at(char *, char *, char *);
+void send_nick(char *, char *, char *);
 void *ibc_thread(void *);
 
 

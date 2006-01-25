@@ -16,6 +16,8 @@ v0.83.9		23-Jan-2006
 		the chatserver setup.
 		Added some code to trap mbtask crashing during chat and start
 		mail processing.
+		Several commands now send the server address from the servers
+		setup to the neighbours.
 
 
 v0.83.8		22-Jan-2006 - 23-Jan-2006
