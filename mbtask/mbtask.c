@@ -116,7 +116,6 @@ extern int		ping_run;		/* Ping running		*/
 int			sched_run = FALSE;	/* Scheduler running	*/
 extern int		disk_run;		/* Disk watch running	*/
 extern int		ibc_run;		/* IBC thread running	*/
-extern pthread_mutex_t	b_mutex;		/* IBC mutex lock	*/
 
 
 
@@ -466,9 +465,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	return 0;
     }
 
-    rc = pthread_mutex_lock(&b_mutex);
-    if (rc) {
-	WriteError("$launch mutex lock");
+    if (lock_ibc((char *)"launch")) {
 	return 0;
     }
     Syslog('r', "launch() mutex locked");
@@ -523,10 +520,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	}
     }
 
-    rc = pthread_mutex_unlock(&b_mutex);
-    if (rc) {
-	WriteError("$launch mutex unlock");
-    }
+    unlock_ibc((char *)"launch");
     Syslog('r', "launch() mutex unlocked");
 
     ptimer = PAUSETIME;

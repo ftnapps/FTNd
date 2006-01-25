@@ -107,6 +107,8 @@ typedef struct _nick_list {
 
 
 
+int  lock_ibc(char *);
+void unlock_ibc(char *);
 int  add_user(usr_list **, char *, char *, char *);
 void del_user(usr_list **, char *, char *);
 int  add_channel(chn_list **, char *, char *, char *);
