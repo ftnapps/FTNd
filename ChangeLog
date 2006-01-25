@@ -18,6 +18,7 @@ v0.83.9		23-Jan-2006
 		mail processing.
 		Several commands now send the server address from the servers
 		setup to the neighbours.
+		After server connect send the correct usernames already in chat.
 
 
 v0.83.8		22-Jan-2006 - 23-Jan-2006

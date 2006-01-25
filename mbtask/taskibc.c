@@ -1198,7 +1198,8 @@ int command_server(char *hostname, char *parameters)
 		if (strlen(tmp->channel)) {
 		    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
 			if (strcasecmp(tmpc->name, tmp->channel) == 0) {
-			    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmpc->owner, tmpc->server, tmpc->name);
+//			    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmpc->owner, tmpc->server, tmpc->name);
+			    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
 			    if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
 				send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
 			    }
