@@ -1189,23 +1189,21 @@ int command_server(char *hostname, char *parameters)
 		}
 	    }
 	    /*
-	     * Send all known users
+	     * Send all known users, nicknames and join channels
 	     */
 	    for (tmp = users; tmp; tmp = tmp->next) {
 		send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
 		if (strcmp(tmp->name, tmp->nick))
 		    send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
-		if (strlen(tmp->channel)) {
-		    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
-			if (strcasecmp(tmpc->name, tmp->channel) == 0) {
-//			    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmpc->owner, tmpc->server, tmpc->name);
-			    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
-			    if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
-				send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
-			    }
-			}
-		    }
-		}
+		if (strlen(tmp->channel))
+		    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
+	    }
+	    /*
+	     * Send all known channel topics
+	     */
+	    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+		if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0))
+		    send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
 	    }
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	    return 0;
@@ -1247,16 +1245,12 @@ int command_server(char *hostname, char *parameters)
 	    send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
 	    if (strcmp(tmp->name, tmp->nick))
 		send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
-	    if (strlen(tmp->channel)) {
-		for (tmpc = channels; tmpc; tmpc = tmpc->next) {
-		    if (strcasecmp(tmpc->name, tmp->channel) == 0) {
-			send_msg(tnsl, "JOIN %s@%s %s\r\n", tmpc->owner, tmpc->server, tmpc->name);
-			if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
-			    send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
-			}
-		    }
-		}
-	    }
+	    if (strlen(tmp->channel))
+		send_msg(tnsl, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
+	}
+	for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+	    if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0))
+		send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	srvchg = TRUE;
