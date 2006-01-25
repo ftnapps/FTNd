@@ -1,8 +1,8 @@
 $Id$
 
-	WARNING!!! DO NOT USE, MBTASK WILL HANG!!!!
+v0.83.10	25-Jan-2006
 
-v0.83.9		23-Jan-2006
+v0.83.9		23-Jan-2006 - 25-Jan-2006
 
 	mbstat:
 		Don't write in errorlog after normal termination.
