@@ -112,12 +112,12 @@ int lock_ibc(char *func)
     int	    rc;
 
     if (is_locked) {
-	WriteError("%s() mutex already locked", func);
+	WriteError("IBC: %s() mutex lock, already locked", func);
 	return TRUE;
     }
     
     if ((rc = pthread_mutex_lock(&b_mutex))) {
-	WriteError("$%s() mutex lock", func);
+	WriteError("$IBC: %s() mutex lock", func);
 	return TRUE;
     }
 
@@ -132,13 +132,13 @@ void unlock_ibc(char *func)
     int	    rc;
 
     if (!is_locked) {
-	WriteError("%s() mutex unlock, was not locked", func);
+	WriteError("IBC: %s() mutex unlock, was not locked", func);
 	return;
     }
     is_locked = FALSE;
 
     if ((rc = pthread_mutex_unlock(&b_mutex)))
-	WriteError("$%s() mutex unlock", func);
+	WriteError("$IBC: %s() mutex unlock", func);
 }
 
 
