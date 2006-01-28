@@ -1657,7 +1657,7 @@ struct	_nodes {
 	unsigned	NoPLZ		: 1;	/* Disable PLZ compress	    */
 	unsigned	NoHydra		: 1;	/* Don't use Hydra	    */
 
-	unsigned	xCRC32		: 1;
+	unsigned	DoNR		: 1;	/* NR mode for this node    */
 	unsigned	PackNetmail	: 1;	/* Pack netmail		    */
 	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility    */
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name  */
