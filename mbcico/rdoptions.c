@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -52,6 +52,7 @@ static struct _ktab {
     {(char *)"Hydra",	NOHYDRA},
     {(char *)"PLZ",	NOPLZ},
     {(char *)"GZ/BZ2",	NOGZBZ2},
+    {(char *)"NR",	NONR},
     {NULL,		0}
 };
 
@@ -92,6 +93,7 @@ void rdoptions(int Loaded)
 	localoptions |= NOZEDZAP;
     if (CFG.NoHydra)
 	localoptions |= NOHYDRA;
+    localoptions |= NONR;
 
 #ifndef	HAVE_ZLIB_H
     localoptions |= NOPLZ;
@@ -127,6 +129,8 @@ void rdoptions(int Loaded)
 	localoptions |= NOPLZ;
     if (nodes.NoGZ)
 	localoptions |= NOGZBZ2;
+    if (nodes.DoNR)
+	localoptions &= ~NONR;
 
     logoptions();
 }

@@ -1,6 +1,22 @@
 $Id$
 
-v0.83.10	25-Jan-2006
+v0.83.11	28-Jan-2006
+
+
+v0.83.10	25-Jan-2006 - 28-Jan-2006
+
+	upgrade:
+		In menus 7.n.3.14 check if the NR flag is off, unless you need
+		it (which I doubt).
+
+	mbcico:
+		Implemented binkp NR option. We don't really make use of it,
+		but if the remote mailer whishes to send files in NR mode it
+		will work.
+
+	mbsetup:
+		Added NR switch to the nodes session setup.
+
 
 v0.83.9		23-Jan-2006 - 25-Jan-2006
 

@@ -5,7 +5,7 @@
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -95,7 +95,7 @@ typedef enum {CompNone, CompGZ, CompBZ2, CompPLZ} CompType;
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
-static char *opstate[] = { (char *)"No", (char *)"Can", (char *)"Want", (char *)"Active" };
+static char *opstate[] = { (char *)"No  ", (char *)"Can ", (char *)"Want", (char *)"Act." };
 #endif
 static char *cpstate[] = { (char *)"No", (char *)"GZ", (char *)"BZ2", (char *)"PLZ" };
 
@@ -225,7 +225,7 @@ int	binkp_send_command(int, ...);		    /* Send command frame	    */
 void	binkp_settimer(int);			    /* Set timeout timer	    */
 int	binkp_expired(void);			    /* Timer expired?		    */
 int	binkp_banner(int);			    /* Send system banner	    */
-int	binkp_send_comp_opts(void);		    /* Send compression options	    */
+int	binkp_send_comp_opts(int);		    /* Send compression options	    */
 void	binkp_set_comp_state(void);		    /* Set compression state	    */
 int	binkp_recv_command(char *, unsigned int *, int *);   /* Receive command frame	    */
 void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
@@ -297,8 +297,11 @@ int binkp(int role)
     }
 #endif
     bp.buggyIrex = FALSE;
-    bp.NRwe = No;
-    bp.NRthey = No;
+    if (localoptions & NONR)
+	bp.NRwe = Can;
+    else
+	bp.NRwe = Want;
+    bp.NRthey = Can;
     bp.NDwe = No;
     bp.NDthey = No;
     bp.NDAwe = No;
@@ -924,7 +927,7 @@ SM_STATE(Opts)
     }
 #endif
 
-    binkp_send_comp_opts();
+    binkp_send_comp_opts(FALSE);
     binkp_set_comp_state();
     
     SM_SUCCESS;
@@ -1048,7 +1051,7 @@ TrType binkp_receiver(void)
     char	    zbuf[ZBLKSIZE];
     char	    *buf = bp.rxbuf;
 
-//    Syslog('b', "Binkp: receiver %s", rxstate[bp.RxState]);
+    Syslog('b', "Binkp: receiver %s", rxstate[bp.RxState]);
 
     if (bp.RxState == RxWaitF) {
 
@@ -1145,8 +1148,24 @@ TrType binkp_receiver(void)
 	    else
 		return Ok;
 	}
-	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld comp %s", 
+
+	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld comp %s",
 		bp.rname, date(bp.rtime), bp.rsize, bp.roffs, cpstate[bp.rmode]);
+	if (bp.roffs == -1) {
+	    /*
+	     * Even without NR mode Taurus sends as if it's in NR mode.
+	     */
+	    if ((bp.NRwe != Active) && (bp.NRthey != Active)) {
+		Syslog('b', "Binkp: detected Taurus bug, start workaround");
+	    }
+	    bp.roffs = 0;
+	    rc =  binkp_send_command(MM_GET, "%s %ld %ld %ld", bp.rname, bp.rsize, bp.rtime, bp.roffs);
+	    bp.RxState = RxWaitF;
+	    if (rc)
+		return Failure;
+	    else
+		return Ok;
+	}
 	(void)binkp2unix(bp.rname);
 	rxbytes = bp.rxbytes;
 
@@ -1975,7 +1994,7 @@ int binkp_banner(int originate)
      */
     if (originate) {
 	if (!rc) {
-	    rc = binkp_send_comp_opts();
+	    rc = binkp_send_comp_opts(TRUE);
 	}
     }
 
@@ -1987,9 +2006,9 @@ int binkp_banner(int originate)
 /*
  * Send compression options
  */
-int binkp_send_comp_opts(void)
+int binkp_send_comp_opts(int originate)
 {
-    int	    rc = 0;
+    int	    rc = 0, nr = FALSE;
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
     int	    plz = FALSE, gz = FALSE, bz2 = FALSE;
     char    *p = NULL;
@@ -2014,7 +2033,22 @@ int binkp_send_comp_opts(void)
     }
 #endif
 
-    if (plz || gz || bz2) {
+    Syslog('b', "Binkp: binkp_send_comp_opts(%s) NRwe=%s NRthey=%s", 
+	    originate ?"TRUE":"FALSE", opstate[bp.NRwe], opstate[bp.NRthey]);
+    if (originate) {
+	if (bp.NRwe == Want) {
+	    Syslog('b', "Binkp: binkp_send_comp_opts(TRUE) NRwe=Want");
+	    nr = TRUE;
+	}
+    } else {
+	if ((bp.NRwe == Can)/* || (bp.NRthey == Can)*/ && (bp.NRthey == Want)) {
+	    Syslog('b', "Binkp: binkp_send_comp_opts(FALSE) NRwe=Can NRthey=Want");
+	    bp.NRwe = Want;
+	    nr = TRUE;
+	}
+    }
+
+    if (plz || gz || bz2 || nr) {
 	p = xstrcpy((char *)"OPT");
 	if (bz2 || gz) {
 	    bp.EXTCMDwe = Want;
@@ -2026,6 +2060,8 @@ int binkp_send_comp_opts(void)
 	    p = xstrcat(p, (char *)" BZ2");
 	if (plz)
 	    p = xstrcat(p, (char *)" PLZ");
+	if (nr)
+	    p = xstrcat(p, (char *)" NR");
 	rc = binkp_send_command(MM_NUL,"%s", p);
 	free(p);
     }
@@ -2069,7 +2105,6 @@ void binkp_set_comp_state(void)
     }
 #endif
 
-
 #ifdef  HAVE_ZLIB_H
     Syslog('b', "Binkp: PLZ    they=%s we=%s", opstate[bp.PLZthey], opstate[bp.PLZwe]);
     if ((bp.PLZthey == Want) && (bp.PLZwe == Want)) {
@@ -2077,6 +2112,12 @@ void binkp_set_comp_state(void)
 	Syslog('+', "Binkp: PLZ compression active");
     }
 #endif
+
+    Syslog('b', "Binkp: NR     they=%s we=%s", opstate[bp.NRthey], opstate[bp.NRwe]);
+    if ((bp.NRthey == Want) && (bp.NRwe == Want)) {
+	bp.NRwe = bp.NRthey = Active;
+	Syslog('+', "Binkp: NR mode active");
+    }
 }
 
 
@@ -2115,6 +2156,7 @@ int binkp_recv_command(char *buf, unsigned int *len, int *cmd)
     }
     binkp_settimer(BINKP_TIMEOUT);
     Nopper();
+    Syslog('b', "Binkp: rcvd %s %s", bstate[b0 & 0x7f], printable(buf+1, 0));
 
 to:
     if (tty_status)
@@ -2222,8 +2264,12 @@ void parse_m_nul(char *msg)
 		}
 #endif
 	    } else if (strcmp(q, (char *)"NR") == 0) {
-		Syslog('b', "Binkp: remote wants NR mode, NOT SUPPORTED HERE YET");
-		bp.NRthey = Want;
+//		Syslog('b', "Binkp: remote wants NR mode, NOT SUPPORTED HERE YET");
+		Syslog('b', "Binkp: remote requests NR mode");
+		if (bp.NRthey == Can) {
+		    bp.NRthey = Want;
+		    binkp_set_comp_state();
+		}
 	    } else if (strcmp(q, (char *)"NDA") == 0) {
 		Syslog('b', "Binkp: remote wants NDA mode, NOT SUPPORTED HERE YET");
 		bp.NDAthey = Want;

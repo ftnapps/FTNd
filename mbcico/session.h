@@ -62,7 +62,7 @@ extern int localoptions;
 #define NOHYDRA  0x0200
 #define	NOPLZ    0x0400
 #define	NOGZBZ2  0x0800
-
+#define	NONR	 0x1000
 
 struct	_history	history;	/* History record for sessions	*/
 
