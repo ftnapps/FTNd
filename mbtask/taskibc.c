@@ -203,6 +203,7 @@ void dump_ncslist(void)
     chn_list	*chnp;
     char	temp1[128], temp2[128], buf[21];
     struct tm	ptm;
+    time_t	tnow;
 
     if (!callchg && !srvchg && !usrchg && !chnchg && !banchg && !nickchg)
 	return;
@@ -230,7 +231,8 @@ void dump_ncslist(void)
 	    for (srv = servers; srv; srv = srv->next) {
 		snprintf(temp1, 25, "%s", srv->server);
 		snprintf(temp2, 25, "%s", srv->router);
-		localtime_r(&srv->connected, &ptm);
+		tnow = (time_t)srv->connected;
+		localtime_r(&tnow, &ptm);
 		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
 		Syslog('+', "IBC: %-25s %-25s %5d %5d %s", temp1, temp2, srv->hops, srv->users, buf);
@@ -247,7 +249,8 @@ void dump_ncslist(void)
 	    for (usrp = users; usrp; usrp = usrp->next) {
 		snprintf(temp1, 20, "%s", usrp->server);
 		snprintf(temp2, 20, "%s", usrp->realname);
-		localtime_r(&usrp->connected, &ptm);
+		tnow = (time_t)usrp->connected;
+		localtime_r(&tnow, &ptm);
 		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
 		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", temp1, temp2, usrp->nick, usrp->channel,
@@ -263,7 +266,8 @@ void dump_ncslist(void)
 	    Syslog('+', "IBC: Channel              Owner     Topic                               Usr Created");
 	    Syslog('+', "IBC: -------------------- --------- ----------------------------------- --- --------------------");
 	    for (chnp = channels; chnp; chnp = chnp->next) {
-		localtime_r(&chnp->created, &ptm);
+		tnow = (time_t)chnp->created;
+		localtime_r(&tnow, &ptm);
 		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
 		Syslog('+', "IBC: %-20s %-9s %-35s %3d %s", chnp->name, chnp->owner, chnp->topic, chnp->users, buf);
