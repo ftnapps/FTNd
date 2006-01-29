@@ -1785,6 +1785,14 @@ void receiver(struct servent  *se)
 				 * FQDN to the one from the setup, so we continue to use the
 				 * dynamic FQDN.
 				 */
+				if (strcmp(tnsl->resolved, hostname)) {
+				    Syslog('r', "IBC: old resolved %s new resolved %s state %s", 
+					    tnsl->resolved, hostname, ncsstate[tnsl->state]);
+				    /*
+				     * This would be the moment to reset this neighbour
+				     * Double check state: waitpwd or call ?
+				     */
+				}
 				strncpy(tnsl->resolved, hostname, 63);
 				inlist = TRUE;
 				Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", tnsl->resolved, tnsl->server);
