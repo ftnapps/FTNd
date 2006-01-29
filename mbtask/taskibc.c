@@ -1781,21 +1781,26 @@ void receiver(struct servent  *se)
 			    memcpy(&in, tp->h_addr, tp->h_length);
 			    if (strcmp(inet_ntoa(in), ipaddress) == 0) {
 				/*
-				 * Store the back resolved IP fqdn for reference and change the
-				 * FQDN to the one from the setup, so we continue to use the
-				 * dynamic FQDN.
+				 * Test if the backresolved dynamic DNS name is changed, but exclude the
+				 * initial value which is the same as the real server name.
 				 */
-				if (strcmp(tnsl->resolved, hostname)) {
-				    Syslog('r', "IBC: old resolved %s new resolved %s state %s", 
+				if (strcmp(tnsl->resolved, hostname) && strcmp(tnsl->resolved, tnsl->server)) {
+				    Syslog('r', "IBC: GrepThiz old resolved %s new resolved %s state %s", 
 					    tnsl->resolved, hostname, ncsstate[tnsl->state]);
 				    /*
 				     * This would be the moment to reset this neighbour
 				     * Double check state: waitpwd or call ?
 				     */
 				}
+				/*
+				 * Store the back resolved IP fqdn for reference and change the
+				 * FQDN to the one from the setup, so we continue to use the
+				 * dynamic FQDN.
+				 */
+				if (strcmp(tnsl->resolved, hostname))
+				    Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", hostname, tnsl->server);
 				strncpy(tnsl->resolved, hostname, 63);
 				inlist = TRUE;
-				Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", tnsl->resolved, tnsl->server);
 				hostname = tnsl->server;
 				break;
 			    }
