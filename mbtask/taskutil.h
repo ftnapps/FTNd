@@ -21,7 +21,6 @@ typedef struct  _srv_auth {
 /*
  *  Function prototypes
  */
-char		*rfcdate(time_t);
 void		WriteError(const char *, ...);
 void		Syslog(int, const char *, ...);
 int		ulog(char *, char *, char *, char *, char*);

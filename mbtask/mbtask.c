@@ -465,11 +465,6 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	return 0;
     }
 
-    if (lock_ibc((char *)"launch")) {
-	return 0;
-    }
-    Syslog('r', "launch() mutex locked");
-    
     pid = fork();
     switch (pid) {
 	case -1:
@@ -519,9 +514,6 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	    break;
 	}
     }
-
-    unlock_ibc((char *)"launch");
-    Syslog('r', "launch() mutex unlocked");
 
     ptimer = PAUSETIME;
 
@@ -755,6 +747,16 @@ void die(int onsig)
     }
     if (cmd_run || ping_run || sched_run || disk_run || ibc_run)
 	Syslog('+', "Not all threads stopped! Forced shutdown");
+	if (cmd_run)
+	    Syslog('+', "Thread cmd_run not responding");
+	if (ping_run)
+	    Syslog('+', "Thread ping_run not responding");
+	if (sched_run)
+	    Syslog('+', "Thread sched_run not responding");
+	if (disk_run)
+	    Syslog('+', "Thread disk_run not responding");
+	if (ibc_run)
+	    Syslog('+', "Thread ibc_run not responding");
     else
 	Syslog('+', "All threads stopped");
 
@@ -1240,9 +1242,12 @@ void *scheduler(void)
 	    running = checktasks(0);
 
 	    if (s_mailout && (!ptimer) && (!runtasktype(MBFIDO))) {
-		launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
-		running = checktasks(0);
-		s_mailout = FALSE; 
+		if (! lock_ibc((char *)"scheduler 1")) {
+		    launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
+		    unlock_ibc((char *)"scheduler 1");
+		    running = checktasks(0);
+		    s_mailout = FALSE;
+		}
 	    }
 
 	    if (s_mailin && (!ptimer) && (!runtasktype(MBFIDO))) {
@@ -1256,23 +1261,32 @@ void *scheduler(void)
 		if ((ipmailers + runtasktype(CM_ISDN) + runtasktype(CM_POTS)) == 0) {
 		    Syslog('i', "Mailin, no mailers running, start direct");
 		    tosswait = TOSSWAIT_TIME;
-		    launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
-		    running = checktasks(0);
-		    s_mailin = FALSE;
+		    if (! lock_ibc((char *)"scheduler 2")) {
+			launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+			unlock_ibc((char *)"scheduler 2");
+			running = checktasks(0);
+			s_mailin = FALSE;
+		    }
 		} else {
 		    Syslog('i', "Mailin, tosswait=%d", tosswait);
 		    if (tosswait == 0) {
-			launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
-			running = checktasks(0);
-			s_mailin = FALSE;
+			if (! lock_ibc((char *)"scheduler 3")) {
+			    launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+			    unlock_ibc((char *)"scheduler 3");
+			    running = checktasks(0);
+			    s_mailin = FALSE;
+			}
 		    }
 		}
 	    }
 
 	    if (s_newnews && (!ptimer) && (!runtasktype(MBFIDO))) {
-		launch(TCFG.cmd_newnews, NULL, (char *)"newnews", MBFIDO);
-		running = checktasks(0);
-		s_newnews = FALSE; 
+		if (! lock_ibc((char *)"scheduler 4")) {
+		    launch(TCFG.cmd_newnews, NULL, (char *)"newnews", MBFIDO);
+		    unlock_ibc((char *)"scheduler 4");
+		    running = checktasks(0);
+		    s_newnews = FALSE;
+		}
 	    }
 
 	    /*
@@ -1282,12 +1296,24 @@ void *scheduler(void)
 	     *  start them in parallel.
 	     */
 	    if (s_index && (!ptimer) && (!running)) {
-		if (strlen(TCFG.cmd_mbindex1))
-		    launch(TCFG.cmd_mbindex1, NULL, (char *)"compiler 1", MBINDEX);
-		if (strlen(TCFG.cmd_mbindex2))
-		    launch(TCFG.cmd_mbindex2, NULL, (char *)"compiler 2", MBINDEX);
-		if (strlen(TCFG.cmd_mbindex3))
-		    launch(TCFG.cmd_mbindex3, NULL, (char *)"compiler 3", MBINDEX);
+		if (strlen(TCFG.cmd_mbindex1)) {
+		    if (! lock_ibc((char *)"scheduler 5")) {
+			launch(TCFG.cmd_mbindex1, NULL, (char *)"compiler 1", MBINDEX);
+			unlock_ibc((char *)"scheduler 5");
+		    }
+		}
+		if (strlen(TCFG.cmd_mbindex2)) {
+		    if (! lock_ibc((char *)"scheduler 6")) {
+			launch(TCFG.cmd_mbindex2, NULL, (char *)"compiler 2", MBINDEX);
+			unlock_ibc((char *)"scheduler 6");
+		    }
+		}
+		if (strlen(TCFG.cmd_mbindex3)) {
+		    if (! lock_ibc((char *)"scheduler 7")) {
+			launch(TCFG.cmd_mbindex3, NULL, (char *)"compiler 3", MBINDEX);
+			unlock_ibc((char *)"scheduler 7");
+		    }
+		}
 		running = checktasks(0);
 		s_index = FALSE;
 	    }
@@ -1297,7 +1323,10 @@ void *scheduler(void)
 	     *  nothing else to do.
 	     */
 	    if (s_msglink && (!ptimer) && (!running)) {
-		launch(TCFG.cmd_msglink, NULL, (char *)"msglink", MBFIDO);
+		if (! lock_ibc((char *)"scheduler 8")) {
+		    launch(TCFG.cmd_msglink, NULL, (char *)"msglink", MBFIDO);
+		    unlock_ibc((char *)"scheduler 8");
+		}
 		running = checktasks(0);
 		s_msglink = FALSE;
 	    }
@@ -1306,7 +1335,10 @@ void *scheduler(void)
 	     *  Creating filerequest indexes, also only if nothing to do.
 	     */
 	    if (s_reqindex && (!ptimer) && (!running)) {
-		launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
+		if (! lock_ibc((char *)"scheduler 9")) {
+		    launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
+		    unlock_ibc((char *)"scheduler 9");
+		}
 		running = checktasks(0);
 		s_reqindex = FALSE;
 	    }
@@ -1410,7 +1442,10 @@ void *scheduler(void)
 				    calllist[call_entry].addr.net,
 				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			}
-			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
+			if (! lock_ibc((char *)"scheduler 10")) {
+			    calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
+			    unlock_ibc((char *)"scheduler 10");
+			}
 			if (calllist[call_entry].taskpid)
 			    calllist[call_entry].calling = TRUE;
 			running = checktasks(0);

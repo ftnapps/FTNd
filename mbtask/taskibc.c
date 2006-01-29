@@ -65,8 +65,6 @@ int		    is_locked = FALSE;	    /* Is mutex locked		*/
 
 
 #define	PING_PONG_LOG	1
-
-
 pthread_mutex_t b_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
@@ -77,6 +75,14 @@ typedef enum {NCS_INIT, NCS_CALL, NCS_WAITPWD, NCS_CONNECT, NCS_HANGUP, NCS_FAIL
 static char *ncsstate[] = {
     (char *)"init", (char *)"call", (char *)"waitpwd", (char *)"connect", 
     (char *)"hangup", (char *)"fail", (char *)"dead"
+};
+
+
+static char *mon[] = {
+    (char *)"Jan",(char *)"Feb",(char *)"Mar",
+    (char *)"Apr",(char *)"May",(char *)"Jun",
+    (char *)"Jul",(char *)"Aug",(char *)"Sep",
+    (char *)"Oct",(char *)"Nov",(char *)"Dec"
 };
 
 
@@ -195,7 +201,8 @@ void dump_ncslist(void)
     srv_list	*srv;
     usr_list	*usrp;
     chn_list	*chnp;
-    char	temp1[128], temp2[128];
+    char	temp1[128], temp2[128], buf[21];
+    struct tm	ptm;
 
     if (!callchg && !srvchg && !usrchg && !chnchg && !banchg && !nickchg)
 	return;
@@ -223,7 +230,10 @@ void dump_ncslist(void)
 	    for (srv = servers; srv; srv = srv->next) {
 		snprintf(temp1, 25, "%s", srv->server);
 		snprintf(temp2, 25, "%s", srv->router);
-		Syslog('+', "IBC: %-25s %-25s %5d %5d %s", temp1, temp2, srv->hops, srv->users, rfcdate(srv->connected));
+		localtime_r(&srv->connected, &ptm);
+		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
+		Syslog('+', "IBC: %-25s %-25s %5d %5d %s", temp1, temp2, srv->hops, srv->users, buf);
 	    }
 	} else {
 	    Syslog('+', "IBC: Servers list is empty");
@@ -237,8 +247,11 @@ void dump_ncslist(void)
 	    for (usrp = users; usrp; usrp = usrp->next) {
 		snprintf(temp1, 20, "%s", usrp->server);
 		snprintf(temp2, 20, "%s", usrp->realname);
+		localtime_r(&usrp->connected, &ptm);
+		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
 		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", temp1, temp2, usrp->nick, usrp->channel,
-		    usrp->sysop ? "yes":"no ", rfcdate(usrp->connected));
+		    usrp->sysop ? "yes":"no ", buf);
 	    }
 	} else {
 	    Syslog('+', "IBC: Users list is empty");
@@ -250,8 +263,10 @@ void dump_ncslist(void)
 	    Syslog('+', "IBC: Channel              Owner     Topic                               Usr Created");
 	    Syslog('+', "IBC: -------------------- --------- ----------------------------------- --- --------------------");
 	    for (chnp = channels; chnp; chnp = chnp->next) {
-		Syslog('+', "IBC: %-20s %-9s %-35s %3d %s", chnp->name, chnp->owner, chnp->topic, 
-			chnp->users, rfcdate(chnp->created));
+		localtime_r(&chnp->created, &ptm);
+		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
+		Syslog('+', "IBC: %-20s %-9s %-35s %3d %s", chnp->name, chnp->owner, chnp->topic, chnp->users, buf);
 	    }
 	} else {
 	    Syslog('+', "IBC: Channels list is empty");

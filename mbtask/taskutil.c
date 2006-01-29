@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager, utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -48,56 +48,17 @@ static char		    *pbuff = NULL;
 
 
 static char *mon[] = {
-        (char *)"Jan",(char *)"Feb",(char *)"Mar",
-        (char *)"Apr",(char *)"May",(char *)"Jun",
-        (char *)"Jul",(char *)"Aug",(char *)"Sep",
-        (char *)"Oct",(char *)"Nov",(char *)"Dec"
+    (char *)"Jan",(char *)"Feb",(char *)"Mar",
+    (char *)"Apr",(char *)"May",(char *)"Jun",
+    (char *)"Jul",(char *)"Aug",(char *)"Sep",
+    (char *)"Oct",(char *)"Nov",(char *)"Dec"
 };
-
 
 
 /************************************************************************
  *
  *  Loging procedures.
  */
-
-
-char *date(void);
-char *date(void)
-{
-    struct tm   ptm;
-    time_t      now;
-    static char buf[21];
-
-    now = time(NULL);
-#if defined(__OpenBSD__)
-    localtime_r(&now, &ptm);
-#else
-    ptm = *localtime(&now);
-#endif
-    snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
-			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
-    return(buf);
-}
-
-
-
-char *rfcdate(time_t now)
-{
-    struct tm   ptm;
-    static char buf[21];
-
-#if defined(__OpenBSD__)
-    localtime_r(&now, &ptm);
-#else
-    ptm = *localtime(&now);
-#endif
-    snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
-		ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
-    return(buf);
-}
-
-
 
 void WriteError(const char *format, ...)
 {
@@ -119,11 +80,13 @@ void WriteError(const char *format, ...)
  */
 void Syslog(int grade, const char *format, ...)
 {
-    va_list va_ptr;
-    char    outstr[1024];
-    int     oldmask, debug;
-    FILE    *logfile = NULL, *debugfile;
-    char    *logname = NULL, *debugname;
+    va_list	va_ptr;
+    char	outstr[1024], datestr[21];
+    int		oldmask, debug;
+    FILE	*logfile = NULL, *debugfile;
+    char	*logname = NULL, *debugname;
+    time_t	now;
+    struct tm	ptm;
 
     debug = isalpha(grade);
     va_start(va_ptr, format);
@@ -165,16 +128,21 @@ void Syslog(int grade, const char *format, ...)
 	return;
     }
 	
+    now = time(NULL);
+    localtime_r(&now, &ptm);
+    snprintf(datestr, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+	    ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
+
     if (lcnt) {
 	lcnt++;
-        fprintf(debugfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), mypid, lcnt);
+        fprintf(debugfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, datestr, mypid, lcnt);
 	if (!debug)
-	    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), mypid, lcnt);
+	    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, datestr, mypid, lcnt);
     }
     lcnt = 0;
 
     if (!debug) {
-	fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), mypid);
+	fprintf(logfile, "%c %s mbtask[%d] ", grade, datestr, mypid);
 	fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
 	if (*outstr == '$')
 	    fprintf(logfile, ": %s\n", strerror(errno));
@@ -188,7 +156,7 @@ void Syslog(int grade, const char *format, ...)
 	free(logname);
     }
 
-    fprintf(debugfile, "%c %s mbtask[%d] ", grade, date(), mypid);
+    fprintf(debugfile, "%c %s mbtask[%d] ", grade, datestr, mypid);
     fprintf(debugfile, *outstr == '$' ? outstr+1 : outstr);
     if (*outstr == '$')
 	fprintf(debugfile, ": %s\n", strerror(errno));
@@ -212,9 +180,12 @@ void Syslog(int grade, const char *format, ...)
  */
 int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
 {
-    int     i, oldmask;
-    FILE    *fp;
-        
+    int		i, oldmask;
+    FILE	*fp;
+    time_t	now;
+    struct tm	ptm;
+    char	datestr[21];
+
     oldmask = umask(066);
     fp = fopen(fn, "a");
     umask(oldmask);
@@ -224,7 +195,12 @@ int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
 	return -1;
     }
 
-    fprintf(fp, "%s %s %s[%s] ", grade, date(), prname, prpid);
+    now = time(NULL);
+    localtime_r(&now, &ptm);
+    snprintf(datestr, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+	    ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
+
+    fprintf(fp, "%s %s %s[%s] ", grade, datestr, prname, prpid);
     for (i = 0; i < strlen(format); i++) {
 	if (iscntrl(format[i])) {
 	    fputc('^', fp);
