@@ -4,7 +4,7 @@
  * Purpose ...............: Buffers for registration information.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -396,28 +396,26 @@ int reg_sysop(char *data)
 /*
  * Check for personal message
  */
-char *reg_ipm(char *data)
+void reg_ipm_r(char *data, char *buf)
 {
     char	*cnt, *pid, *name, *msg;
-    static char	buf[128];
     int		rec;
 
     buf[0] = '\0';
-    snprintf(buf, 128, "100:0;");
+    snprintf(buf, SS_BUFSIZE, "100:0;");
     cnt = strtok(data, ",");
     pid = strtok(NULL, ";");
 
     if ((rec = reg_find(pid)) == -1)
-	return buf;
+	return;
 
     reginfo[rec].lastcon = (int)time(NULL);
     if (!reginfo[rec].ismsg)
-	return buf;
+	return;
 
-    buf[0] = '\0';
     name = xstrcpy(clencode(reginfo[rec].fname[reginfo[rec].ptr_out]));
     msg  = xstrcpy(clencode(reginfo[rec].msg[reginfo[rec].ptr_out]));
-    snprintf(buf, 128, "100:2,%s,%s;", name, msg);
+    snprintf(buf, SS_BUFSIZE, "100:2,%s,%s;", name, msg);
     if (reginfo[rec].ptr_out < RB)
 	reginfo[rec].ptr_out++;
     else
@@ -429,7 +427,7 @@ char *reg_ipm(char *data)
 
     free(name);
     free(msg);
-    return buf;
+    return;
 }
 
 
@@ -506,12 +504,9 @@ int reg_spm(char *data)
 
 
 
-char *reg_fre(void)
+void reg_fre_r(char *buf)
 {
-    static char	buf[80];
     int		i, users = 0, utils = 0;
-
-    buf[0] = '\0';
 
     for (i = 1; i < MAXCLIENT; i++) {
 	if (reginfo[i].pid) {
@@ -538,7 +533,7 @@ char *reg_fre(void)
 	snprintf(buf, 80, "100:1,Running utilities: %02d  Active users: %02d;", utils, users);
     else
 	snprintf(buf, 80, "100:0;");
-    return buf;
+    return;
 }
 
 
@@ -548,13 +543,11 @@ char *reg_fre(void)
  * must be 1, for the next searches 0. Returns 100:0; if there
  * is an error or the end of file is reached.
  */
-char *get_reginfo(int first)
+void get_reginfo_r(int first, char *buf)
 {
-    static char	buf[256];
     char	*name, *prg, *city, *doing;
 
-    memset(&buf, 0, sizeof(buf));
-    snprintf(buf, 256, "100:0;");
+    snprintf(buf, SS_BUFSIZE, "100:0;");
 
     /*
      * Loop forever until an error occours, eof is reached or
@@ -568,21 +561,21 @@ char *get_reginfo(int first)
 	    entrypos++;
 
 	if (entrypos == MAXCLIENT)
-	    return buf;
+	    return;
 
 	if ((int)reginfo[entrypos].pid != 0) {
 	    name  = xstrcpy(clencode(reginfo[entrypos].uname));
 	    prg   = xstrcpy(clencode(reginfo[entrypos].prg));
 	    city  = xstrcpy(clencode(reginfo[entrypos].city));
 	    doing = xstrcpy(clencode( reginfo[entrypos].doing));
-	    snprintf(buf, 256, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
+	    snprintf(buf, SS_BUFSIZE, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
 				reginfo[entrypos].pid, reginfo[entrypos].tty,
 				name, prg, city, doing, reginfo[entrypos].started);
 	    free(name);
 	    free(prg);
 	    free(city);
 	    free(doing);
-	    return buf;
+	    return;
 	}
     }
     /* never reached */
@@ -665,24 +658,22 @@ int reg_cancel(char *data)
 /*
  * Check paging status for from mbmon
  */
-char *reg_checkpage(char *data)
+void reg_checkpage_r(char *data, char *buf)
 {
-    static char	buf[128];
     int		i;
 
-    memset(&buf, 0, sizeof(buf));
     for (i = 1; i < MAXCLIENT; i++) {
 	if (reginfo[i].pid && reginfo[i].paging) {
-	    snprintf(buf, 128, "100:3,%d,1,%s;", reginfo[i].pid, clencode(reginfo[i].reason));
-	    return buf;
+	    snprintf(buf, SS_BUFSIZE, "100:3,%d,1,%s;", reginfo[i].pid, clencode(reginfo[i].reason));
+	    return;
 	}
 	if (reginfo[i].pid && reginfo[i].haspaged) {
-	    snprintf(buf, 128, "100:3,%d,0,%s;", reginfo[i].pid, clencode(reginfo[i].reason));
-	    return buf;
+	    snprintf(buf, SS_BUFSIZE, "100:3,%d,0,%s;", reginfo[i].pid, clencode(reginfo[i].reason));
+	    return;
 	}
     }
-    snprintf(buf, 128, "100:0;");
-    return buf;
+    snprintf(buf, SS_BUFSIZE, "100:0;");
+    return;
 }
 
 

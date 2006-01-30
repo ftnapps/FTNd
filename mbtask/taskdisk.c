@@ -4,7 +4,7 @@
  * Purpose ...............: Give status of all filesystems
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -236,11 +236,8 @@ void fill_mfslist(mfs_list **fap, char *mountpoint, char *fstype)
  */
 char *disk_reset(void)
 {
-    static char	buf[10];
-
     disk_reread = TRUE;
-    snprintf(buf, 10, "100:0;");
-    return buf;
+    return (char *)"100:0;";
 }
 
 
@@ -249,9 +246,8 @@ char *disk_reset(void)
  * Check free diskspace on all by mbse used filesystems.
  * The amount of needed space is given in MBytes.
  */
-char *disk_check(char *token)
+void disk_check_r(char *token, char *buf)
 {
-    static char	    buf[SS_BUFSIZE];
     mfs_list	    *tmp;
     unsigned int    needed, lowest = 0xffffffff;
     int		    rc;
@@ -264,7 +260,7 @@ char *disk_check(char *token)
 	 * Answer Error
 	 */
 	snprintf(buf, SS_BUFSIZE, "100:1,3");
-	return buf;
+	return;
     }
 
     if ((rc = pthread_mutex_lock(&a_mutex)))
@@ -283,7 +279,7 @@ char *disk_check(char *token)
     } else {
 	snprintf(buf, SS_BUFSIZE, "100:2,1,%d;", lowest);
     }
-    return buf;
+    return;
 }
 
 
@@ -292,9 +288,8 @@ char *disk_check(char *token)
  * This function returns the information of all mounted filesystems,
  * but no more then 10 filesystems.
  */
-char *disk_getfs()
+void disk_getfs_r(char *buf)
 {
-    static char	    buf[SS_BUFSIZE];
     char	    tt[80], *ans = NULL;
     mfs_list	    *tmp;
     int		    rc, i = 0;
@@ -302,7 +297,7 @@ char *disk_getfs()
     buf[0] = '\0';
     if (mfs == NULL) {
 	snprintf(buf, SS_BUFSIZE, "100:0;");
-	return buf;
+	return;
     }
 
     if ((rc = pthread_mutex_lock(&a_mutex)))
@@ -332,7 +327,7 @@ char *disk_getfs()
 	free(ans);
 	ans = NULL;
 
-    return buf;
+    return;
 }
 
 

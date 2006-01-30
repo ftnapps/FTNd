@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - Scan mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -96,17 +96,15 @@ int load_node(fidoaddr n)
 
 
 
-char *size_str(int);
-char *size_str(int size)
+void size_str_r(int, char *);
+void size_str_r(int size, char *fmt)
 {
-    static char	fmt[25];
-    
     if (size > 1048575) {
 	snprintf(fmt, 25, "%dK", size / 1024);
     } else {
 	snprintf(fmt, 25, "%d ", size);
     }
-    return fmt;
+    return;
 }
 
 
@@ -119,11 +117,7 @@ void set_next(int hour, int min)
     int		uhour, umin;
 
     now = time(NULL);
-#if defined(__OpenBSD__)
     gmtime_r(&now, &etm);
-#else
-    etm = *gmtime(&now);
-#endif
     uhour = etm.tm_hour; /* For some reason, these intermediate integers are needed */
     umin  = etm.tm_min;
 
@@ -185,15 +179,18 @@ char *callmode(int mode)
  */
 void checkdir(char *boxpath, faddr *fa, char flavor)
 {
-    char	    *temp;
+    char	    *temp, *buf;
     DIR             *dp = NULL;
     struct dirent   *de;
     struct stat     sb;
     struct passwd   *pw;
 
     temp = calloc(PATH_MAX, sizeof(char));
+    buf  = calloc(PATH_MAX, sizeof(char));
     pw = getpwnam((char *)"mbse");
-    Syslog('o', "check filebox %s (%s) flavor %c", boxpath, ascfnode(fa, 0xff), flavor);
+    ascfnode_r(fa, 0xff, buf);
+    Syslog('o', "check filebox %s (%s) flavor %c", boxpath, buf, flavor);
+    free(buf);
 
     if ((dp = opendir(boxpath)) != NULL) {
 	while ((de = readdir(dp))) {
@@ -258,7 +255,7 @@ int outstat()
 {
     int		    rc, first = TRUE, T_window, iszmh = FALSE;
     struct _alist   *tmp, *old;
-    char	    digit[6], flstr[13], *temp, as[6], be[6], utc[6], flavor, *temp2;
+    char	    digit[6], flstr[13], *temp, as[6], be[6], utc[6], flavor, *temp2, *fmt, *buf;
     time_t	    now;
     struct tm	    tm;
     int		    uhour, umin, thour, tmin;
@@ -280,11 +277,7 @@ int outstat()
 	    itnmask = (*tmpm)->mask;
     }
     now = time(NULL);
-#if defined(__OpenBSD__)
-    gmtime_r(&now, &tm);
-#else
-    tm = *gmtime(&now); /* UTC time */
-#endif
+    gmtime_r(&now, &tm);    // UTC time
     uhour = tm.tm_hour;
     umin  = tm.tm_min;
     snprintf(utc, 6, "%02d:%02d", uhour, umin);
@@ -671,7 +664,10 @@ int outstat()
 	     * Here we are out of options, clear callflag.
 	     */
 	    if (tmp->callmode == CM_NONE) {
-		Syslog('!', "No method to call %s available", fido2str(tmp->addr, 0x0f));
+		buf = calloc(81, sizeof(char));
+		fido2str_r(tmp->addr, 0x0f, buf);
+		Syslog('!', "No method to call %s available", buf);
+		free(buf);
 		tmp->flavors &= ~F_CALL;
 	    }
 	}
@@ -687,11 +683,17 @@ int outstat()
 	/*
 	 * Show callresult for this node.
 	 */
-	snprintf(temp, PATH_MAX, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, size_str(tmp->size),
+	fmt = calloc(81, sizeof(char));
+	buf = calloc(81, sizeof(char));
+	size_str_r(tmp->size, fmt);
+	fido2str_r(tmp->addr, 0x0f, buf);
+	snprintf(temp, PATH_MAX, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, fmt,
 		(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
 		(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
-		tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), fido2str(tmp->addr, 0x0f));
+		tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), buf);
 	Syslog('+', "%s", temp);
+	free(fmt);
+	free(buf);
 
     } /* All nodes scanned. */
 	
@@ -733,7 +735,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
     struct _alist   **tmp;
     struct stat	    st;
     FILE	    *fp;
-    char	    buf[256], *p;
+    char	    buf[256], *p, *buf2;
     node	    *nlent;
     callstat	    *cst;
 
@@ -788,10 +790,12 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	(*tmp)->size = 0L;
     }
 
-    cst = getstatus(addr);
+    cst = malloc(sizeof(callstat));
+    getstatus_r(addr, cst);
     (*tmp)->cst.trytime = cst->trytime;
     (*tmp)->cst.tryno   = cst->tryno;
     (*tmp)->cst.trystat = cst->trystat;
+    free(cst);
 
     if ((isflo == OUT_FLO) || (isflo == OUT_PKT) || (isflo == OUT_FIL)) 
 	switch (flavor) {
@@ -833,7 +837,9 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 		    p++;
 		if (stat(p, &st) != 0) {
 		    if (strlen(CFG.dospath)) {
-			if (stat(Dos2Unix(p), &st) != 0) {
+			buf2 = calloc(PATH_MAX, sizeof(char));
+			Dos2Unix_r(p, buf2);
+			if (stat(buf2, &st) != 0) {
 			    /*
 			     * Fileattach dissapeared, maybe
 			     * the node doesn't poll enough and
@@ -842,6 +848,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 			    st.st_size  = 0L;
 			    st.st_mtime = time(NULL);
 			}
+			free(buf2);
 		    } else {
 			if (stat(p, &st) != 0) {
 			    st.st_size  = 0L;

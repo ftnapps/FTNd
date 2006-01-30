@@ -45,17 +45,17 @@ int	reg_nop(char *);
 int	reg_timer(int, char *);
 int	reg_tty(char *);
 int	reg_user(char *);
-int	reg_silent(char *);	    /* Set/Reset do not disturb	    */
-char	*reg_ipm(char *);	    /* Check for personal message   */
-int	reg_spm(char *);	    /* Send personal message	    */
-char	*reg_fre(void);		    /* Check if system is free	    */
-char	*get_reginfo(int);	    /* Get registration info	    */
-int	reg_sysop(char *);	    /* Registrate sysop presence    */
-int	reg_page(char *);	    /* Page sysop for chat	    */
-int	reg_cancel(char *);	    /* Cancel sysop page	    */
-char	*reg_checkpage(char *);	    /* Check paging status	    */
-int	reg_ispaging(char *);	    /* Check if user with pid paged */
-void	reg_sysoptalk(char *);	    /* Is now talking to the sysop  */
+int	reg_silent(char *);		    /* Set/Reset do not disturb	    */
+void	reg_ipm_r(char *, char *);	    /* Check for personal message   */
+int	reg_spm(char *);		    /* Send personal message	    */
+void	reg_fre_r(char *);		    /* Check if system is free	    */
+void	get_reginfo_r(int, char *);	    /* Get registration info	    */
+int	reg_sysop(char *);		    /* Registrate sysop presence    */
+int	reg_page(char *);		    /* Page sysop for chat	    */
+int	reg_cancel(char *);		    /* Cancel sysop page	    */
+void	reg_checkpage_r(char *, char *);    /* Check paging status	    */
+int	reg_ispaging(char *);		    /* Check if user with pid paged */
+void	reg_sysoptalk(char *);		    /* Is now talking to the sysop  */
 
 #endif
 

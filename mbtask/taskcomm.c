@@ -90,6 +90,7 @@ char *exe_cmd(char *in)
     static char	ebuf[19];
     static char	*cnt, var1[16];
     int		result;
+    char	*buf;
 
     strcpy(ibuf, in);
     strncpy(cmd, ibuf, 4);
@@ -253,7 +254,11 @@ char *exe_cmd(char *in)
      *  100:0;
      */
     if (strncmp(cmd, "CIPM", 4) == 0) {
-	return reg_ipm(token);
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	reg_ipm_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -312,7 +317,11 @@ char *exe_cmd(char *in)
      * 100:0;		    No page active
      */
     if (strncmp(cmd, "CCKP", 4) == 0) {
-	return reg_checkpage(token);
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	reg_checkpage_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -395,7 +404,11 @@ char *exe_cmd(char *in)
      *  100:1,3;            Error
      */
     if (strncmp(cmd, "DSPC", 4) == 0) {
-	return disk_check(token);
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	disk_check_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
     
     /*
@@ -403,7 +416,11 @@ char *exe_cmd(char *in)
      *  100:n,data1,..,data10;
      */
     if (strncmp(cmd, "DGFS", 4) == 0) {
-	return disk_getfs();
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	disk_getfs_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
     
     /*
@@ -442,7 +459,11 @@ char *exe_cmd(char *in)
      *  201:1,16;
      */
     if (strncmp(cmd, "GSTA", 4) == 0) {
-	return stat_status();
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	stat_status_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -453,7 +474,11 @@ char *exe_cmd(char *in)
     if (strncmp(cmd, "GMON", 4) == 0) {
 	cnt = strtok(token, ",");
 	strcpy(var1, strtok(NULL, ";"));
-	return get_reginfo(atoi(var1));
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	get_reginfo_r(atoi(var1), buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -461,7 +486,11 @@ char *exe_cmd(char *in)
      *  100:n,data1,..,data10;
      */
     if (strncmp(cmd, "GDST", 4) == 0) {
-	return disk_getfs();
+        buf = calloc(SS_BUFSIZE, sizeof(char));
+	disk_getfs_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -470,7 +499,11 @@ char *exe_cmd(char *in)
      *  201:1,16;
      */
     if (strncmp(cmd, "GSYS", 4) == 0) {
-	return get_sysinfo();
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	get_sysinfo_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -478,7 +511,11 @@ char *exe_cmd(char *in)
      *  100:1,n;
      */
     if (strncmp(cmd, "GLCC", 4) == 0) {
-	return get_lastcallercount();
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	get_lastcallercount_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -489,7 +526,11 @@ char *exe_cmd(char *in)
     if (strncmp(cmd, "GLCR", 4) == 0) {
         cnt = strtok(token, ",");
         strcpy(var1, strtok(NULL, ";"));
-	return get_lastcallerrec(atoi(var1));
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	get_lastcallerrec_r(atoi(var1), buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
 
@@ -536,7 +577,11 @@ char *exe_cmd(char *in)
      *  201:1,16;
      */
     if (strncmp(cmd, "SFRE", 4) == 0) {
-	return reg_fre();
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	reg_fre_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -545,7 +590,11 @@ char *exe_cmd(char *in)
      *  200:1,16;
      */
     if (strncmp(cmd, "SSEQ", 4) == 0) {
-	return getseq();
+        buf = calloc(SS_BUFSIZE, sizeof(char));
+	getseq_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -554,7 +603,11 @@ char *exe_cmd(char *in)
      *  200:1,16;
      */
     if (strncmp(cmd, "SEST", 4) == 0) {
-	return sem_status(token);
+        buf = calloc(SS_BUFSIZE, sizeof(char));
+	sem_status_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -563,7 +616,11 @@ char *exe_cmd(char *in)
      *  200:1,16;
      */
     if (strncmp(cmd, "SECR", 4) == 0) {
-	return sem_create(token);
+        buf = calloc(SS_BUFSIZE, sizeof(char));
+	sem_create_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -572,7 +629,11 @@ char *exe_cmd(char *in)
      *  200:1,16;
      */
     if (strncmp(cmd, "SERM", 4) == 0) {
-	return sem_remove(token);
+        buf = calloc(SS_BUFSIZE, sizeof(char));
+	sem_remove_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
 

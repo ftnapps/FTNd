@@ -62,6 +62,9 @@ int check_calllist(void)
 {
     int		    i, found, call_work;
     struct _alist   *tmp;
+    char	    *buf;
+
+    buf = calloc(81, sizeof(char));
 
     /*
      * Check callist, remove obsolete entries.
@@ -77,7 +80,8 @@ int check_calllist(void)
 		}
 	    }
 	    if (!found) {
-		Syslog('c', "Removing slot %d node %s from calllist", i, fido2str(calllist[i].addr, 0x01f));
+		fido2str_r(calllist[i].addr, 0x01f, buf);
+		Syslog('c', "Removing slot %d node %s from calllist", i, buf);
 		memset(&calllist[i], 0, sizeof(tocall));
 	    }
 	}
@@ -112,7 +116,8 @@ int check_calllist(void)
 		if (!found) {
 		    for (i = 0; i < MAXTASKS; i++) {
 			if (!calllist[i].addr.zone) {
-			    Syslog('c', "Adding %s to calllist slot %d", fido2str(tmp->addr, 0x1f), i);
+			    fido2str_r(tmp->addr, 0x1f, buf);
+			    Syslog('c', "Adding %s to calllist slot %d", buf, i);
 			    calllist[i].addr = tmp->addr;
 			    calllist[i].cst = tmp->cst;
 			    calllist[i].callmode = tmp->callmode;
@@ -138,12 +143,14 @@ int check_calllist(void)
 		Syslog('c', "---- ----- ----- --- ------- ------- -------- -------- -------- ----------------");
 	    }
 	    call_work++;
+	    fido2str_r(calllist[i].addr, 0x1f, buf);
 	    Syslog('c', "%4d %s %5d %3d %s %s %08x %08x %08x %s", i, calllist[i].calling?"true ":"false", calllist[i].taskpid,
 		calllist[i].cst.tryno, callstatus(calllist[i].cst.trystat), callmode(calllist[i].callmode),
-		calllist[i].moflags, calllist[i].diflags, calllist[i].ipflags, fido2str(calllist[i].addr, 0x1f));
+		calllist[i].moflags, calllist[i].diflags, calllist[i].ipflags, buf);
 	}
     }
 
+    free(buf);
     return call_work;
 }
 

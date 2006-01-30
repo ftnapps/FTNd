@@ -4,7 +4,7 @@
  * Purpose ...............: Read mailer last call status
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -37,10 +37,9 @@
 extern struct sysconfig        CFG;
 
 
-char *stsname(faddr *);
-char *stsname(faddr *addr)
+void stsname_r(faddr *, char *);
+void stsname_r(faddr *addr, char *buf)
 {
-    static char	buf[PATH_MAX];
     char	*p, *domain=NULL, zpref[8];
     int		i;
 
@@ -106,26 +105,29 @@ char *stsname(faddr *addr)
 
     if (domain)
 	free(domain);
-    return buf;
+    return;
 }
 
 
 
-callstat *getstatus(faddr *addr)
+void getstatus_r(faddr *addr, callstat *cst)
 {
-    static callstat cst;
-    FILE	    *fp;
+    FILE    *fp;
+    char    *temp;
 
-    cst.trytime = 0;
-    cst.tryno   = 0;
-    cst.trystat = 0;
+    cst->trytime = 0;
+    cst->tryno   = 0;
+    cst->trystat = 0;
+    temp = calloc(PATH_MAX, sizeof(char));
+    stsname_r(addr, temp);
 
-    if ((fp = fopen(stsname(addr), "r"))) {
-	fread(&cst, sizeof(callstat), 1, fp);
+    if ((fp = fopen(temp, "r"))) {
+	fread(cst, sizeof(callstat), 1, fp);
 	fclose(fp);
     }
+    free(temp);
 
-    return &cst;
+    return;
 }
 
 

@@ -472,7 +472,10 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		return 0;
 	case 0:
 		/* From Paul Vixies cron: */
-		(void)setsid(); /* It doesn't seem to help */
+		rc = setsid(); /* It doesn't seem to help */
+		if (rc == -1)
+		    Syslog('?', "$Launch: setsid()");
+
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
 		    Syslog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
@@ -718,7 +721,7 @@ void die(int onsig)
      */
     count = 30;
     while (count) {
-	snprintf(temp, 80, "%s", reg_fre());
+	reg_fre_r(temp);
 	if (strcmp(temp, "100:0;") == 0) {
 	    Syslog('+', "Good, no more other programs running");
 	    break;
@@ -1163,13 +1166,9 @@ void *scheduler(void)
 	 *  Reload configuration data if some file is changed.
 	 */
 	now = time(NULL);
-#if defined(__OpenBSD__)
 	localtime_r(&now, &tm);
 	gmtime_r(&now, &utm);
-#else
-	tm = *localtime(&now);
-	utm = *gmtime(&now);
-#endif
+
 	if (tm.tm_min != olddo) {
 	    /*
 	     * Each minute we execute this part

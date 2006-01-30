@@ -404,12 +404,14 @@ int file_size(char *path)
  */
 time_t file_time(char *path)
 {
-    static struct stat sb;
+    struct stat sb;
+    time_t	thetime;
 
     if (stat(path, &sb) == -1)
         return -1;
 
-    return sb.st_mtime;
+    thetime = sb.st_mtime;
+    return thetime;
 }
 
 
@@ -419,8 +421,24 @@ time_t file_time(char *path)
  */
 char *ascfnode(faddr *a, int fl)
 {
-    static char buf[128];
+    static char	buf[64];
 
+    buf[0] = '\0';
+    if ((fl & 0x08) && (a->zone))
+	snprintf(buf+strlen(buf), 10, "%u:",a->zone);
+    if (fl & 0x04)
+	snprintf(buf+strlen(buf), 10, "%u/",a->net);
+    if (fl & 0x02)
+	snprintf(buf+strlen(buf), 10, "%u",a->node);
+    if ((fl & 0x01) && (a->point))
+	snprintf(buf+strlen(buf), 10, ".%u",a->point);
+    if ((fl & 0x10) && (strlen(a->domain)))
+	snprintf(buf+strlen(buf), 14, "@%s",a->domain);
+    return buf;
+}
+
+void ascfnode_r(faddr *a, int fl, char *buf)
+{
     buf[0] = '\0';
     if ((fl & 0x08) && (a->zone))
         snprintf(buf+strlen(buf), 10, "%u:",a->zone);
@@ -432,7 +450,7 @@ char *ascfnode(faddr *a, int fl)
         snprintf(buf+strlen(buf), 10, ".%u",a->point);
     if ((fl & 0x10) && (strlen(a->domain)))
         snprintf(buf+strlen(buf), 14, "@%s",a->domain);
-    return buf;
+    return;
 }
 
 
@@ -440,10 +458,8 @@ char *ascfnode(faddr *a, int fl)
 /*
  * Return ASCII string for node, the bits in 'fl' set the output format.
  */
-char *fido2str(fidoaddr a, int fl)
+void fido2str_r(fidoaddr a, int fl, char *buf)
 {
-    static char buf[128];
-
     buf[0] = '\0';
     if ((fl & 0x08) && (a.zone))
 	snprintf(buf+strlen(buf), 10, "%u:",a.zone);
@@ -455,39 +471,36 @@ char *fido2str(fidoaddr a, int fl)
 	snprintf(buf+strlen(buf), 10, ".%u",a.point);
     if ((fl & 0x10) && (strlen(a.domain)))
 	snprintf(buf+strlen(buf), 14, "@%s",a.domain);
-    return buf;
+    return;
 }
 
 
 
-char *Dos2Unix(char *dosname)
+void Dos2Unix_r(char *dosname, char *buf2)
 {
-    char            buf[PATH_MAX];
-    static char     buf2[PATH_MAX];
-    char            *p, *q;
+    char    buf[PATH_MAX];
+    char    *p, *q;
 
     memset(&buf, 0, sizeof(buf));
-    memset(&buf2, 0, sizeof(buf2));
-    snprintf(buf, PATH_MAX, "%s", dosname);
     p = buf;
 
     if (strlen(CFG.dospath)) {
-        if (strncasecmp(p, CFG.dospath, strlen(CFG.dospath)) == 0) {
-            strcpy((char *)buf2, CFG.uxpath);
-            for (p+=strlen(CFG.dospath), q = buf2 + strlen(buf2); *p; p++, q++)
-                *q = ((*p) == '\\')?'/':tolower(*p);
+	if (strncasecmp(p, CFG.dospath, strlen(CFG.dospath)) == 0) {
+	    strcpy((char *)buf2, CFG.uxpath);
+	    for (p+=strlen(CFG.dospath), q = buf2 + strlen(buf2); *p; p++, q++)
+		*q = ((*p) == '\\')?'/':tolower(*p);
 	    *q = '\0';
-            p = buf2;
-        } else {
-            if (strncasecmp(p, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
-                for (p+=strlen(CFG.uxpath), q = buf2 + strlen(buf2); *p; p++, q++)
-                    *q = ((*p) == '\\')?'/':tolower(*p);
-                *q = '\0';
-                p = buf2;
-            }
-        }
+	    p = buf2;
+	} else {
+	    if (strncasecmp(p, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
+		for (p+=strlen(CFG.uxpath), q = buf2 + strlen(buf2); *p; p++, q++)
+		    *q = ((*p) == '\\')?'/':tolower(*p);
+		*q = '\0';
+		p = buf2;
+	    }
+	}
     }
-    return buf2;
+    return;
 }
 
 
@@ -499,17 +512,11 @@ char *dayname(void)
 {
     time_t  	tt;
     struct tm	ptm;
-    static char	buf[3];
 
     tt  = time(NULL);
-#if defined(__OpenBSD__)
     localtime_r(&tt, &ptm);
-#else
-    ptm = *localtime(&tt);
-#endif
-    snprintf(buf, 3, "%s", dow[ptm.tm_wday]);
 
-    return buf;     
+    return dow[ptm.tm_wday];
 }
 
 

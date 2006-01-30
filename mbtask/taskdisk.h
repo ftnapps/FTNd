@@ -3,9 +3,9 @@
 
 /* $Id$ */
 
-char	*disk_reset(void);	    /* Reset disk tables	    */
-char	*disk_check(char *);	    /* Check space in Megabytes	    */
-char	*disk_getfs(void);	    /* Get disk status		    */
-void	*disk_thread(void);	    /* Disk watch thread	    */
+char	*disk_reset(void);		/* Reset disk tables	    */
+void	disk_check_r(char *, char *);	/* Check space in Megabytes */
+void	disk_getfs_r(char *);		/* Get disk status	    */
+void	*disk_thread(void);		/* Disk watch thread	    */
 
 #endif

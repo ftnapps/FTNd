@@ -4,7 +4,7 @@
  * Purpose ...............: Give system information
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -37,10 +37,9 @@
 /*
  *  Get BBS System info.
  */
-char *get_sysinfo(void)
+void get_sysinfo_r(char *buf)
 {
     FILE	*fp;
-    static char	buf[SS_BUFSIZE];
     char	*temp;
     time_t	startdate;
 
@@ -50,51 +49,50 @@ char *get_sysinfo(void)
 
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
-	return buf;
+	return;
     }
-    free(temp);
 
     if (fread(&SYSINFO, sizeof(SYSINFO), 1, fp) == 1) {
 	startdate = SYSINFO.StartDate;
+	ctime_r(&startdate, temp);
 	snprintf(buf, SS_BUFSIZE, "100:7,%d,%d,%d,%d,%d,%s,%s;", SYSINFO.SystemCalls,
 			SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network, SYSINFO.Local,
-			ctime(&startdate), clencode(SYSINFO.LastCaller));
+			temp, clencode(SYSINFO.LastCaller));
     }
 
+    free(temp);
     fclose(fp);
 
-    return buf;
+    return;
 }
 
 
 
-char *get_lastcallercount(void)
+void get_lastcallercount_r(char *buf)
 {
-    static char	buf[41];
     char	*temp;
     FILE	*fp;
 
-    snprintf(buf, 41, "100:1,0;");
+    snprintf(buf, SS_BUFSIZE, "100:1,0;");
     temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
-	return buf;
+	return;
     }
     
     fread(&LCALLhdr, sizeof(LCALLhdr), 1, fp);
     fseek(fp, 0, SEEK_END);
-    snprintf(buf, 41, "100:1,%ld;", ((ftell(fp) - LCALLhdr.hdrsize) / LCALLhdr.recsize));
+    snprintf(buf, SS_BUFSIZE, "100:1,%ld;", ((ftell(fp) - LCALLhdr.hdrsize) / LCALLhdr.recsize));
     fclose(fp);
     free(temp);
-    return buf;
+    return;
 }
 
 
 
-char *get_lastcallerrec(int Rec)
+void get_lastcallerrec_r(int Rec, char *buf)
 {
-    static char	buf[SS_BUFSIZE];
     char        *temp, action[9], *name, *city;
     FILE        *fp;
 
@@ -103,7 +101,7 @@ char *get_lastcallerrec(int Rec)
     snprintf(temp, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
-	return buf;
+	return;
     }
     fread(&LCALLhdr, sizeof(LCALLhdr), 1, fp);
     fseek(fp, ((Rec -1) * LCALLhdr.recsize) + LCALLhdr.hdrsize, SEEK_SET);
@@ -140,7 +138,7 @@ char *get_lastcallerrec(int Rec)
 
     free(temp);
     fclose(fp);
-    return buf;
+    return;
 }
 
 

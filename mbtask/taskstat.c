@@ -4,7 +4,7 @@
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -151,19 +151,11 @@ void status_write(void)
     struct tm	ttm;
     time_t	temp;
 
-#if defined(__OpenBSD)
     temp = time(NULL);
     localtime_r(&temp, &ttm);
     yday = ttm.tm_yday;
     temp = (time_t)status.daily;
     localtime_r(&temp, &ttm);
-#else
-    temp = time(NULL);
-    ttm = *localtime(&temp);
-    yday = ttm.tm_yday;
-    temp = (time_t)status.daily;
-    ttm = *localtime(&temp);
-#endif
 
     /*
      * If we passed to the next day, zero the today counters 
@@ -219,11 +211,7 @@ int get_zmh()
     time_t	Now;
 
     Now = time(NULL);
-#if defined(__OpenBSD__)
     gmtime_r(&Now, &l_date);
-#else
-    l_date = *gmtime(&Now);
-#endif
     snprintf(sstime, 6, "%02d:%02d", l_date.tm_hour, l_date.tm_min);
 
     if ((strncmp(sstime, TCFG.zmh_start, 5) >= 0) && (strncmp(sstime, TCFG.zmh_end, 5) < 0)) {
@@ -303,15 +291,12 @@ void stat_inc_cerr()
 
 
 
-char *stat_status()
+void stat_status_r(char *buf)
 {
-    static char buf[160];
     int		srvcnt = 0, chncnt = 0, usrcnt = 0;
     srv_list	*tmps;
     chn_list	*tmpc;
     usr_list	*tmpu;
-
-    buf[0] = '\0';
 
     for (tmps = servers; tmps; tmps = tmps->next)
 	srvcnt++;
@@ -319,7 +304,7 @@ char *stat_status()
 	chncnt++;
     for (tmpu = users; tmpu; tmpu = tmpu->next)
 	usrcnt++;
-    snprintf(buf, 160, "100:23,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%2.2f,%u,%d,%d,%d;",
+    snprintf(buf, SS_BUFSIZE, "100:23,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%2.2f,%u,%d,%d,%d;",
 	status.start, status.laststart, status.daily,
 	status.startups, status.clients, 
 	status.total.tot_clt, status.total.peak_clt,
@@ -328,7 +313,7 @@ char *stat_status()
 	status.today.s_error, status.today.c_error,
 	status.open, get_zmh(), internet, s_do_inet, Processing, Load, status.sequence,
 	srvcnt, chncnt, usrcnt);
-    return buf;
+    return;
 }
 
 
@@ -353,15 +338,12 @@ int stat_bbs_stat()
 /*
  * Get next sequence number
  */
-char *getseq(void)
+void getseq_r(char *buf)
 {
-    static char	buf[80];
-
-    buf[0] = '\0';
     status.sequence++;
     status_write();
     snprintf(buf, 80, "100:1,%u;", status.sequence);
-    return buf;
+    return;
 }
 
 
@@ -406,13 +388,11 @@ int sem_set(char *sem, int value)
 
 
 
-char *sem_status(char *data)
+void sem_status_r(char *data, char *buf)
 {
     char	*cnt, *sem;
-    static char	buf[40];
     int		value;
 
-    buf[0] = '\0';
     snprintf(buf, 40, "200:1,16;");
     cnt = strtok(data, ",");
     sem = strtok(NULL, ";");
@@ -439,47 +419,45 @@ char *sem_status(char *data)
 	value = s_do_inet;
     } else {
 	Syslog('s', "sem_status(%s) buf=%s", sem, buf);
-	return buf;
+	return;
     }
 
     snprintf(buf, 40, "100:1,%s;", value ? "1":"0");
-    return buf;
+    return;
 }
 
 
 
-char *sem_create(char *data)
+void sem_create_r(char *data, char *buf)
 {
-    static char buf[40];
     char    	*cnt, *sem;
 
     cnt = strtok(data, ",");
     sem = strtok(NULL, ";");
-    buf[0] = '\0';
-    snprintf(buf, 40, "200:1,16;");
 
     if (sem_set(sem, TRUE))
 	snprintf(buf, 40, "100:0;");
+    else
+	snprintf(buf, 40, "200:1,16;");
 
-    return buf;
+    return;
 }
 
 
 
-char *sem_remove(char *data)
+void sem_remove_r(char *data, char *buf)
 {
-    static char buf[40];
     char    	*cnt, *sem;
 
     cnt = strtok(data, ",");
     sem = strtok(NULL, ";");
-    buf[0] = '\0';
-    snprintf(buf, 40, "200:1,16;");
 
     if (sem_set(sem, FALSE))
 	snprintf(buf, 40, "100:0;");
+    else
+	snprintf(buf, 40, "200:1,16;");
 
-    return buf;
+    return;
 }
 
 

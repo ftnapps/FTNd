@@ -11,6 +11,6 @@ typedef struct _callstat {
 } callstat;
 
 
-callstat *getstatus(faddr*);
+void getstatus_r(faddr *, callstat *);
 
 #endif

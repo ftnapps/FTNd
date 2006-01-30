@@ -4,9 +4,9 @@
 /* $Id$ */
 
 
-char	*get_sysinfo(void);		/* Get System Info		*/
-char	*get_lastcallercount(void);	/* Get Lastcallers count	*/
-char	*get_lastcallerrec(int);	/* Get Lastcaller record	*/
+void	get_sysinfo_r(char *);		    /* Get System Info		*/
+void	get_lastcallercount_r(char *);	    /* Get Lastcallers count	*/
+void	get_lastcallerrec_r(int, char *);   /* Get Lastcaller record	*/
 
 
 #endif
