@@ -1806,6 +1806,8 @@ void receiver(struct servent  *se)
 				if (strcmp(tnsl->resolved, hostname) && strcmp(tnsl->resolved, tnsl->server)) {
 				    Syslog('r', "IBC: GrepThiz old resolved %s new resolved %s state %s", 
 					    tnsl->resolved, hostname, ncsstate[tnsl->state]);
+				    Syslog('+', "IBC: server %s resolved FQDN changed, restarting", tnsl->server);
+				    tnsl->crc--;
 				    /*
 				     * This would be the moment to reset this neighbour
 				     * Double check state: waitpwd or call ?
