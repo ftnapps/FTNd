@@ -6,6 +6,7 @@ v0.83.11	28-Jan-2006
 		Added logging for possible detection of dialup IBC neighbour
 		address change.
 		Added experimental restart for changed resolved FQDN.
+		Fixed restart (I hope).
 		Made several functions multithread aware.
 
 

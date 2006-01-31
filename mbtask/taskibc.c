@@ -61,7 +61,9 @@ int		    banchg = FALSE;	    /* Is banned users changed	*/
 int		    nickchg = FALSE;	    /* Is nicknames changed	*/
 time_t		    resettime;		    /* Time to reset all	*/
 int		    do_reset = FALSE;	    /* Reset init		*/
+int		    link_reset = FALSE;	    /* Reset one link		*/
 int		    is_locked = FALSE;	    /* Is mutex locked		*/
+
 
 
 #define	PING_PONG_LOG	1
@@ -737,7 +739,7 @@ void check_servers(void)
     FILE	    *fp;
     ncs_list	    *tnsl, **tmp;
     srv_list	    *srv;
-    int		    j, inlist, Remove, local_reset;
+    int		    j, inlist, Remove, local_reset, conf_changed;
     int		    a1, a2, a3, a4;
     unsigned int    crc;
     struct servent  *se;
@@ -754,19 +756,22 @@ void check_servers(void)
 	Syslog('+', "IBC: global reset time reached, preparing reset");
     }
 
-    local_reset = FALSE;
+    local_reset = conf_changed = FALSE;
     if ((users == NULL) && (channels == NULL) && do_reset) {
 	Syslog('+', "IBC: no channels and users, performing reset");
 	local_reset = TRUE;
 	do_reset = FALSE;
     }
 
+    if (file_time(scfgfn) != scfg_time) {
+	conf_changed = TRUE;
+	Syslog('+', "IBC: %s filetime changed, rereading configuration", scfgfn);
+    }
+
     /*
      * Check if configuration is changed, if so then apply the changes.
      */
-    if ((file_time(scfgfn) != scfg_time) || local_reset) {
-	if (! local_reset)
-	    Syslog('r', "IBC: %s filetime changed, rereading", scfgfn);
+    if (conf_changed || local_reset || link_reset) {
 
 	if (servers == NULL) {
 	    /*
@@ -786,6 +791,11 @@ void check_servers(void)
 	    }
 	}
 	
+	if (link_reset) {
+	    Syslog('r', "IBC: link_reset starting");
+	    link_reset = FALSE;
+	}
+
 	if ((fp = fopen(scfgfn, "r"))) {
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fp);
 
@@ -803,7 +813,7 @@ void check_servers(void)
 		    }
 		}
 		if (!inlist) {
-		    if (local_reset)
+		    if (local_reset || link_reset)
 			Syslog('+', "IBC: server %s connection reset", tnsl->server);
 		    else
 			Syslog('+', "IBC: server %s configuration changed or removed", tnsl->server);
@@ -846,6 +856,10 @@ void check_servers(void)
 		}
 	    }
 	    dump_ncslist();
+
+	    if (link_reset) {
+		link_reset = FALSE;
+	    }
 
 	    /*
 	     * If a neighbour is removed by configuration, remove it from the list.
@@ -1808,6 +1822,7 @@ void receiver(struct servent  *se)
 					    tnsl->resolved, hostname, ncsstate[tnsl->state]);
 				    Syslog('+', "IBC: server %s resolved FQDN changed, restarting", tnsl->server);
 				    tnsl->crc--;
+				    link_reset = TRUE;
 				    /*
 				     * This would be the moment to reset this neighbour
 				     * Double check state: waitpwd or call ?
