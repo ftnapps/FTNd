@@ -449,32 +449,40 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	return 0;
     }
     memset(vector, 0, sizeof(vector));
-
+    Syslog('r', "launch() step 2");
+    
     if (opts == NULL)
 	snprintf(buf, PATH_MAX, "%s", cmd);
     else
 	snprintf(buf, PATH_MAX, "%s %s", cmd, opts);
+    Syslog('r', "launch() step 3");
 
     i = 0;
     vector[i++] = strtok(buf," \t\n\0");
     while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
     vector[15] = NULL;
+    Syslog('r', "launch() step 4");
 
     if (file_exist(vector[0], X_OK)) {
 	Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
 	return 0;
     }
+    Syslog('r', "launch() step 5");
 
     pid = fork();
+    Syslog('r', "launch() step 6");
+
     switch (pid) {
 	case -1:
 		Syslog('?', "$Launch: error, can't fork grandchild");
 		return 0;
 	case 0:
+		Syslog('r', "launch() step 7");
 		/* From Paul Vixies cron: */
 		rc = setsid(); /* It doesn't seem to help */
 		if (rc == -1)
 		    Syslog('?', "$Launch: setsid()");
+		Syslog('r', "launch() step 8");
 
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
@@ -492,6 +500,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
+		Syslog('r', "launch() step 9");
 		rc = execv(vector[0],vector);
 		Syslog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
 		_exit(MBERR_EXEC_FAILED);
@@ -500,6 +509,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		break;
     }
 
+    Syslog('r', "launch() step 10");
     /*
      *  Add it to the tasklist.
      */
