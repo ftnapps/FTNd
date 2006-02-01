@@ -108,6 +108,9 @@ mbnntp:
 
 	N: Lastread pointers are not updated.
 
+mbfile:
+	N: Empty lines in files.bbs stops import.
+
 mbaff:
 	W: Rewrite filefind search algorithm.
 
