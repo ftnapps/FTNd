@@ -7,6 +7,9 @@ v0.83.11	28-Jan-2006
 		will completly restart the connection with that remote.
 		Made several functions multithread aware (still not Ok).
 
+	mbcico:
+		Assume EXTCMD is set when GZ or BZ2 is active.
+
 
 v0.83.10	25-Jan-2006 - 28-Jan-2006
 

@@ -2085,23 +2085,15 @@ void binkp_set_comp_state(void)
 #ifdef  HAVE_BZLIB_H
     Syslog('b', "Binkp: BZ2    they=%s we=%s", opstate[bp.BZ2they], opstate[bp.BZ2we]);
     if ((bp.BZ2they == Want) && (bp.BZ2we == Want)) {
-	if (bp.EXTCMDwe == Active) {
-	    Syslog('+', "Binkp: BZ2 compression active");
-	    bp.BZ2we = bp.BZ2they = Active;
-	} else {
-	    Syslog('!', "Binkp: received BZ2 option without EXTCMD option");
-	}
+	Syslog('+', "Binkp: BZ2 compression active");
+	bp.BZ2we = bp.BZ2they = Active;
     }
 #endif
 #ifdef  HAVE_ZLIB_H
     Syslog('b', "Binkp: GZ     they=%s we=%s", opstate[bp.GZthey], opstate[bp.GZwe]);
     if ((bp.GZthey == Want) && (bp.GZwe == Want)) {
-	if (bp.EXTCMDwe == Active) {
-	    bp.GZwe = bp.GZthey = Active;
-	    Syslog('+', "Binkp: GZ compression active");
-	} else {
-	    Syslog('!', "Binkp: received GZ option without EXTCMD option");
-	}
+	bp.GZwe = bp.GZthey = Active;
+	Syslog('+', "Binkp: GZ compression active");
     }
 #endif
 
