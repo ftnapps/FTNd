@@ -54,6 +54,11 @@ void Help(void)
     printf("	s  set semafore Set named semafore\n");
     printf("	w  wait		Wait until the BBS is free\n\n");
     mbse_colour(LIGHTBLUE, BLACK);
+    printf("	Semafore's are:\n\n");
+    mbse_colour(CYAN, BLACK);
+    printf("			mailout mailin mbindex newnews msglink\n");
+    printf("			reqindex upsalarm upsdown do_inet\n\n");
+    mbse_colour(LIGHTBLUE, BLACK);
     printf("	Options are:\n\n");
     mbse_colour(CYAN, BLACK);
     printf("	-q -quiet	Quiet, no screen output\n");
