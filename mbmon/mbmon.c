@@ -477,7 +477,7 @@ void soft_info(void)
  */
 void Showline(int y, int x, char *msgin)
 {
-    int     i;
+    int     i, done = FALSE;
     char    *msg;
 
     if (strlen(msgin)) {
@@ -488,20 +488,25 @@ void Showline(int y, int x, char *msgin)
 	    putchar('<');
 	    mbse_colour(LIGHTBLUE, BLACK);
 	    for (i = 1; i < strlen(msg); i++) {
-		if (msg[i] == '>') {
+		if ((msg[i] == '>') && (! done)) {
 		    mbse_colour(LIGHTCYAN, BLACK);
 		    putchar(msg[i]);
 		    mbse_colour(CYAN, BLACK);
+		    done = TRUE;
 		} else {
 		    putchar(msg[i]);
 		}
 	    }
-	} else if ((msg[0] == '*') && (msg[1] == '*')) {
-	    mbse_colour(LIGHTRED, BLACK);
-	    mbse_mvprintw(y, x, msg);
 	} else if (msg[0] == '*') {
-	    putchar('\007');
-	    mbse_colour(LIGHTMAGENTA, BLACK);
+	    if (msg[1] == '*') {
+		if (msg[2] == '*')
+		    mbse_colour(YELLOW, BLACK);
+		else
+		    mbse_colour(LIGHTRED, BLACK);
+	    } else {
+		mbse_colour(LIGHTMAGENTA, BLACK);
+		putchar('\007');
+	    }
 	    mbse_mvprintw(y, x, msg);
 	} else {
 	    mbse_colour(GREEN, BLACK);
