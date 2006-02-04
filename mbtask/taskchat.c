@@ -548,7 +548,7 @@ void chat_put_r(char *data, char *buf)
 		    Syslog('c', "IBC: process command, in channel %s and we are %sthe owner", tmpu->channel, owner ? "":"not ");
 		}
 		if (strncasecmp(msg, "/help", 5) == 0) {
-		    chat_help(atoi(pid), FALSE);
+		    chat_help(atoi(pid), owner);
 		    goto ack;
 		} else if (strncasecmp(msg, "/echo", 5) == 0) {
 		    snprintf(mbuf, 200, "%s", msg);
