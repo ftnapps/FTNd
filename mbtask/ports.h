@@ -1,8 +1,7 @@
-/* $Id$ */
-
 #ifndef _PORTS_H
 #define	_PORTS_H
 
+/* $Id$ */
 
 
 /*
@@ -23,6 +22,7 @@ struct _ttyinfo	    ttyinfo;
 
 
 void load_ports(void);		/* Initialize portlist		*/
+void unload_ports(void);	/* Deinitialize portlist	*/
 void check_ports(void);		/* Check status of all ports	*/
 
 

@@ -556,13 +556,37 @@ int runtasktype(int tasktype)
 
 
 /*
+ * Signal handler for finished tasks
+ */
+void taskdie(int);
+void taskdie(int onsig)
+{
+    int	    i, status;
+
+    Syslog('t', "taskdie(%s)", SigName[onsig]);
+
+    for (i = 0; i < MAXTASKS; i++) {
+	if (strlen(task[i].name)) {
+	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
+	    if (task[i].rc) {
+		task[i].running = FALSE;
+		task[i].status = status;
+		Syslog('t', "taskdie() set task %d not running, rc=%d, status=%d", i, task[i].rc, status);
+	    }
+	}
+    }
+}
+
+
+
+/*
  *  Check all running tasks registered in the tasklist.
  *  Report programs that are stopped. If signal is set
  *  then send that signal.
  */
 int checktasks(int onsig)
 {
-    int	i, j, rc, count = 0, first = TRUE, status;
+    int	i, j, rc, count = 0, first = TRUE;
 
     for (i = 0; i < MAXTASKS; i++) {
 	if (strlen(task[i].name)) {
@@ -574,9 +598,11 @@ int checktasks(int onsig)
 		    Syslog('+', "%s to %s (pid %d) failed", SigName[onsig], task[i].name, task[i].pid);
 	    }
 
-	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
-	    if (task[i].rc) {
-		task[i].running = FALSE;
+//	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
+//	    if (task[i].rc) {
+//		task[i].running = FALSE;
+
+	    if (task[i].running == FALSE) {
 		/*
 		 * If a mailer call is finished, set the global rescan flag.
 		 */
@@ -613,7 +639,7 @@ int checktasks(int onsig)
 			/*
 			 * Update last known status when running.
 			 */
-			task[i].status = status;
+//			task[i].status = status;
 			count++;
 			break;
 		default:
@@ -777,6 +803,7 @@ void die(int onsig)
      * Free memory
      */
     deinitnl();
+    unload_ports();
     ulocktask();
     printable(NULL, 0);
 
@@ -1499,7 +1526,8 @@ int main(int argc, char **argv)
 	else if ((i == SIGINT) || (i == SIGTERM))
 	    signal(i, (void (*))start_shutdown);
 	else if (i == SIGCHLD)
-	    signal(i, SIG_DFL);
+//	    signal(i, SIG_DFL);
+	    signal(i, (void (*))taskdie);
     }
 
     /*

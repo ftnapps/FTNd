@@ -6,9 +6,13 @@ v0.83.11	28-Jan-2006
 		When the IBC server detects a IP change of a remote server it
 		will completly restart the connection with that remote.
 		Made several functions multithread aware (still not Ok).
+		Finished tasks now report using a signal call.
 
 	mbcico:
 		Assume EXTCMD is set when GZ or BZ2 is active.
+
+	mbstat:
+		Added semafore names to help.
 
 
 v0.83.10	25-Jan-2006 - 28-Jan-2006

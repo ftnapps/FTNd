@@ -332,7 +332,11 @@ char *exe_cmd(char *in)
      * 100:1,0;		    No
      */
     if (strncmp(cmd, "CISC", 4) == 0) {
-	return chat_checksysop(token);
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	chat_checksysop_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -343,10 +347,15 @@ char *exe_cmd(char *in)
      * 100:0;			Ok
      */
     if (strncmp(cmd, "CCON", 4) == 0) {
-	if (ibc_run)
-	    return chat_connect(token);
-	else
+	if (ibc_run) {
+	    buf = calloc(SS_BUFSIZE, sizeof(char));
+	    chat_connect_r(token, buf);
+	    snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	    free(buf);
+	    return obuf;
+	} else {
 	    return ebuf;
+	}
     }
     
     /*
@@ -357,7 +366,11 @@ char *exe_cmd(char *in)
      * 100:0;		    Ok
      */
     if (strncmp(cmd, "CCLO", 4) == 0) {
-	return chat_close(token);
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	chat_close_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -369,7 +382,11 @@ char *exe_cmd(char *in)
      * 100:0;		    Ok
      */
     if (strncmp(cmd, "CPUT", 4) == 0) {
-	return chat_put(token);
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	chat_put_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*
@@ -381,7 +398,11 @@ char *exe_cmd(char *in)
      * 100:0;		    No message
      */
     if (strncmp(cmd, "CGET", 4) == 0) {
-	return chat_get(token);
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	chat_get_r(token, buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
     }
 
     /*

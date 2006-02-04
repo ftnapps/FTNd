@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - mode portlists
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -172,6 +172,13 @@ void load_ports()
     tty_time = file_time(ttyfn);
     Syslog('+', "Detected %d modem port%s and %d ISDN port%s", 
 		    pots_lines, (pots_lines == 1)?"":"s", isdn_lines, (isdn_lines == 1)?"":"s");
+}
+
+
+
+void unload_ports()
+{
+    tidy_portlist(&pl);
 }
 
 
