@@ -78,7 +78,7 @@ extern int		srvchg;
  */
 void chat_dump(void);
 void system_msg(pid_t, char *);
-void chat_help(pid_t);
+void chat_help(pid_t, int);
 int join(pid_t, char *, int);
 int part(pid_t, char*);
 
@@ -129,7 +129,7 @@ void system_msg(pid_t pid, char *msg)
     else
 	buffer_head = 0;
 
-    Syslog('c', "system_msg(%d, %s) ptr=%d", pid, msg, buffer_head);
+//    Syslog('c', "system_msg(%d, %s) ptr=%d", pid, msg, buffer_head);
     memset(&chat_messages[buffer_head], 0, sizeof(_chat_messages));
     chat_messages[buffer_head].topid = pid;
     snprintf(chat_messages[buffer_head].fromname, 36, "Server");
@@ -167,7 +167,7 @@ void system_shout(const char *format, ...)
 /*
  * Show help
  */
-void chat_help(pid_t pid)
+void chat_help(pid_t pid, int owner)
 {
     system_msg(pid, (char *)"                     Help topics available:");
     system_msg(pid, (char *)"");
@@ -303,7 +303,7 @@ int part(pid_t pid, char *reason)
 		    if (reason != NULL) {
 			chat_msg(tmpu->channel, tmpu->nick, reason);
 		    }
-		    snprintf(buf, 81, "%s has left channel %s, %d users left", tmpu->nick, tmp->name, tmp->users);
+		    snprintf(buf, 81, "%s has left channel %s, %d users left", tmpu->nick, tmp->name, tmp->users -1);
 		    chat_msg(tmpu->channel, NULL, buf);
 		    if (strcasecmp(tmp->name, (char *)"#sysop")) {
 			if (reason && strlen(reason)) {
@@ -318,17 +318,19 @@ int part(pid_t pid, char *reason)
 		     * Clean channel
 		     */
 		    if (! lock_ibc((char *)"part 1")) {
-			tmp->users--;
+			if (tmp->users > 0)
+			    tmp->users--;
 			unlock_ibc((char *)"part 1");
 		    }
-		    Syslog('+', "IBC: nick %s leaves channel %s", tmpu->nick, tmp->name);
+		    Syslog('+', "IBC: nick %s leaves channel %s, %d user left", tmpu->nick, tmp->name, tmp->users);
 		    if (tmp->users == 0) {
 			/*
 			 * Last user in channel, remove channel
 			 */
+			snprintf(buf, 81, "* Removed channel %s", tmp->name);
+			system_msg(pid, buf);
 			Syslog('+', "IBC: removed channel %s, no more users left", tmp->name);
 			del_channel(&channels, tmp->name);
-			chnchg = TRUE;
 		    }
 
 		    /*
@@ -506,12 +508,10 @@ void chat_close_r(char *data, char *buf)
 
 void chat_put_r(char *data, char *buf)
 {
-    char	*pid, *msg, *cmd, *mbuf;
-    int		first, count;
-    int		found;
+    char	*pid, *msg, *cmd, *mbuf, *flags, temp[81];
+    int		first, count, owner = FALSE, found;
     usr_list	*tmpu, *tmp;
     chn_list	*tmpc;
-    char	temp[81];
 
     Syslog('c', "CPUT:%s", data);
 
@@ -534,10 +534,20 @@ void chat_put_r(char *data, char *buf)
 	if (tmpu->pid == atoi(pid)) {
 	    if (msg[0] == '/') {
 		/*
-		 * A command, process this
+		 * A command, process this but first se if we are in a channel
+		 * and own the channel. This gives us more power.
 		 */
+		if (strlen(tmpu->channel)) {
+		    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+			if (((strcmp(tmpu->nick, tmpc->owner) == 0) || (strcmp(tmpu->name, tmpc->owner) == 0)) &&
+			    (strcmp(tmpu->server, tmpc->server) == 0)) {
+			    owner = TRUE;
+			}
+		    }
+		    Syslog('c', "IBC: process command, in channel %s and we are %sthe owner", tmpu->channel, owner ? "":"not ");
+		}
 		if (strncasecmp(msg, "/help", 5) == 0) {
-		    chat_help(atoi(pid));
+		    chat_help(atoi(pid), FALSE);
 		    goto ack;
 		} else if (strncasecmp(msg, "/echo", 5) == 0) {
 		    snprintf(mbuf, 200, "%s", msg);
@@ -546,16 +556,21 @@ void chat_put_r(char *data, char *buf)
 		} else if ((strncasecmp(msg, "/exit", 5) == 0) || 
 		    (strncasecmp(msg, "/quit", 5) == 0) ||
 		    (strncasecmp(msg, "/bye", 4) == 0)) {
-                    part(tmpu->pid, (char *)"Quitting");
-		    snprintf(mbuf, 81, "Goodbye");
-		    system_msg(tmpu->pid, mbuf);
+		    if (strlen(tmpu->channel)) {
+			/*
+			 * If in a channel, leave channel first
+			 */
+			part(tmpu->pid, (char *)"Quitting");
+			snprintf(mbuf, 81, "Goodbye");
+			system_msg(tmpu->pid, mbuf);
+		    }
 		    goto hangup;
 		} else if ((strncasecmp(msg, "/join", 5) == 0) ||
 		    (strncasecmp(msg, "/j ", 3) == 0)) {
 		    cmd = strtok(msg, " \0");
-		    Syslog('c', "\"%s\"", cmd);
+//		    Syslog('c', "\"%s\"", cmd);
 		    cmd = strtok(NULL, "\0");
-		    Syslog('c', "\"%s\"", cmd);
+//		    Syslog('c', "\"%s\"", cmd);
 		    if ((cmd == NULL) || (cmd[0] != '#') || (strcmp(cmd, "#") == 0)) {
 			snprintf(mbuf, 200, "** Try /join #channel");
 			system_msg(tmpu->pid, mbuf);
@@ -563,7 +578,7 @@ void chat_put_r(char *data, char *buf)
 			snprintf(mbuf, 200, "** Cannot join while in a channel");
 			system_msg(tmpu->pid, mbuf);
 		    } else {
-			Syslog('c', "Trying to join channel %s", cmd);
+//			Syslog('c', "Trying to join channel %s", cmd);
 			join(tmpu->pid, cmd, tmpu->sysop);
 		    }
 		    chat_dump();
@@ -592,16 +607,31 @@ void chat_put_r(char *data, char *buf)
 			system_msg(tmpu->pid, mbuf);
 			snprintf(mbuf, 200, "Nick                                     Real name                      Flags");
 			system_msg(tmpu->pid, mbuf);
-			snprintf(mbuf, 200, "---------------------------------------- ------------------------------ -------");
+			snprintf(mbuf, 200, "---------------------------------------- ------------------------------ -----");
 			system_msg(tmpu->pid, mbuf);
 			count = 0;
 			for (tmp = users; tmp; tmp = tmp->next) {
 			    if (strcmp(tmp->channel, tmpu->channel) == 0) {
+				/*
+				 * Get channel flags
+				 */
+				flags = xstrcpy((char *)"--");
+				for (tmpc = channels; tmpc; tmpc = tmpc->next) {
+				    if (strcmp(tmpc->name, tmpu->channel) == 0) {
+					if (((strcmp(tmpc->owner, tmp->nick) == 0) || (strcmp(tmpc->owner, tmp->name) == 0)) &&
+					    (strcmp(tmpc->server, tmp->server) == 0)) {
+					    flags[0] = 'O';
+					}
+				    }
+				}
+				if (tmp->sysop)
+				    flags[1] = 'S';
+
 				snprintf(temp, 81, "%s@%s", tmp->nick, tmp->server);
-				snprintf(mbuf, 200, "%-40s %-30s %s", temp, tmp->realname,
-				    tmp->sysop ? (char *)"sysop" : (char *)"");
+				snprintf(mbuf, 200, "%-40s %-30s %s", temp, tmp->realname, flags);
 				system_msg(tmpu->pid, mbuf);
 				count++;
+				free(flags);
 			    }
 			}
 			snprintf(mbuf, 200, "%d user%s in this channel", count, (count == 1) ?"":"s");
@@ -757,7 +787,7 @@ void chat_get_r(char *data, char *buf)
 		     * Message is for us
 		     */
 		    snprintf(buf, 200, "100:2,0,%s;", clencode(chat_messages[tmpu->pointer].message));
-		    Syslog('c', "%s", buf);
+//		    Syslog('c', "%s", buf);
 		    return;
 		}
 	    }

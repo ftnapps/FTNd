@@ -1577,7 +1577,9 @@ int command_part(char *hostname, char *parameters)
 	}
     }
 
+    Syslog('r', "IBC: part input server=%s nick=%s", server, nick);
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
+	Syslog('r', "IBC: part  test server=%s nick=%s name=%s", tmpu->server, tmpu->nick, tmpu->name);
 	if ((strcmp(tmpu->server, server) == 0) && ((strcmp(tmpu->nick, nick) == 0) || (strcmp(tmpu->name, nick) == 0))) {
 	    lock_ibc((char *)"command_part");
 	    tmpu->channel[0] = '\0';
