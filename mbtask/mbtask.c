@@ -544,13 +544,13 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
  */
 int runtasktype(int tasktype)
 {
-	int	i, count = 0;
+    int	    i, count = 0;
 
-	for (i = 0; i < MAXTASKS; i++) {
-		if (strlen(task[i].name) && task[i].running && (task[i].tasktype == tasktype))
-			count++;
-	}
-	return count;
+    for (i = 0; i < MAXTASKS; i++) {
+	if (strlen(task[i].name) && task[i].running && (task[i].tasktype == tasktype))
+	    count++;
+    }
+    return count;
 }
 
 
@@ -563,15 +563,13 @@ void taskdie(int onsig)
 {
     int	    i, status;
 
-    Syslog('t', "taskdie(%s)", SigName[onsig]);
-
     for (i = 0; i < MAXTASKS; i++) {
 	if (strlen(task[i].name)) {
 	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
 	    if (task[i].rc) {
 		task[i].running = FALSE;
 		task[i].status = status;
-		Syslog('t', "taskdie() set task %d not running, rc=%d, status=%d", i, task[i].rc, status);
+		Syslog('t', "taskdie() set task %d got signal, rc=%d, status=%d", i, task[i].rc, status);
 	    }
 	}
     }
@@ -598,11 +596,12 @@ int checktasks(int onsig)
 		    Syslog('+', "%s to %s (pid %d) failed", SigName[onsig], task[i].name, task[i].pid);
 	    }
 
-//	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
-//	    if (task[i].rc) {
-//		task[i].running = FALSE;
-
-	    if (task[i].running == FALSE) {
+	    /*
+	     * If task was set not running by taskdie(), handle status
+	     */
+	    if (task[i].running) {
+		count++;
+	    } else {
 		/*
 		 * If a mailer call is finished, set the global rescan flag.
 		 */
@@ -616,56 +615,49 @@ int checktasks(int onsig)
 		    deinitnl();
 		    initnl();
 		}
-	    }
 
-	    if (first && task[i].rc) {
-		first = FALSE;
-		Syslog('t', "Task             Type      pid stat");
-		Syslog('t', "---------------- ------- ----- ----");
-		for (j = 0; j < MAXTASKS; j++)
-		    if (strlen(task[j].name))
-			Syslog('t', "%-16s %s %5d %s", task[j].name, callmode(task[j].tasktype), 
+		if (first) {
+		    first = FALSE;
+		    Syslog('t', "Task             Type      pid stat");
+		    Syslog('t', "---------------- ------- ----- ----");
+		    for (j = 0; j < MAXTASKS; j++)
+			if (strlen(task[j].name))
+			    Syslog('t', "%-16s %s %5d %s", task[j].name, callmode(task[j].tasktype), 
 				task[j].pid, task[j].running?"runs":"stop");
-	    }
+		}
 
-	    switch (task[i].rc) {
-		case -1:
-			if (errno == ECHILD)
-			    Syslog('+', "Task %d \"%s\" is ready", i, task[i].name);
-			else
-			    Syslog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
-			break;
-		case 0:
-			/*
-			 * Update last known status when running.
-			 */
-//			task[i].status = status;
-			count++;
-			break;
-		default:
-			if (WIFEXITED(task[i].status)) {
-			    rc = WEXITSTATUS(task[i].status);
-			    if (rc)
-				Syslog('+', "Task %s is ready, error=%d", task[i].name, rc);
+		switch (task[i].rc) {
+		    case -1:
+			    if (errno == ECHILD)
+				Syslog('+', "Task %d \"%s\" is ready", i, task[i].name);
 			    else
-				Syslog('+', "Task %s is ready", task[i].name);
-			} else if (WIFSIGNALED(task[i].status)) {
-			    rc = WTERMSIG(task[i].status);
-			    /*
-			     * Here we don't report an error number, on FreeBSD WIFSIGNALED
-			     * seems true while there's nothing wrong.
-			     */
-			    Syslog('+', "Task %s terminated", task[i].name);
-			} else if (WIFSTOPPED(task[i].status)) {
-			    rc = WSTOPSIG(task[i].status);
-			    Syslog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
-			} else {
-			    Syslog('+', "FIXME: 1");
-			}
-			break;
-	    }
+				Syslog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
+			    break;
+		    case 0:
+			    break;
+		    default:
+			    if (WIFEXITED(task[i].status)) {
+				rc = WEXITSTATUS(task[i].status);
+				if (rc)
+				    Syslog('+', "Task %s is ready, error=%d", task[i].name, rc);
+				else
+				    Syslog('+', "Task %s is ready", task[i].name);
+			    } else if (WIFSIGNALED(task[i].status)) {
+				rc = WTERMSIG(task[i].status);
+				/*
+				 * Here we don't report an error number, on FreeBSD WIFSIGNALED
+				 * seems true while there's nothing wrong.
+				 */
+				Syslog('+', "Task %s terminated", task[i].name);
+			    } else if (WIFSTOPPED(task[i].status)) {
+				rc = WSTOPSIG(task[i].status);
+				Syslog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
+			    } else {
+				Syslog('+', "FIXME: 1");
+			    }
+			    break;
+		}
 
-	    if (!task[i].running) {
 		for (j = 0; j < MAXTASKS; j++) {
 		    if (calllist[j].taskpid == task[i].pid) {
 			calllist[j].calling = FALSE;
