@@ -4,7 +4,7 @@
  * Purpose ...............: Monitor Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -500,6 +500,7 @@ void Showline(int y, int x, char *msgin)
 	    mbse_colour(LIGHTRED, BLACK);
 	    mbse_mvprintw(y, x, msg);
 	} else if (msg[0] == '*') {
+	    putchar('\007');
 	    mbse_colour(LIGHTMAGENTA, BLACK);
 	    mbse_mvprintw(y, x, msg);
 	} else {

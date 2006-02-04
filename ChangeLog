@@ -14,6 +14,9 @@ v0.83.11	28-Jan-2006
 	mbstat:
 		Added semafore names to help.
 
+	mbmon:
+		In chat beeps are heared for system messages.
+
 
 v0.83.10	25-Jan-2006 - 28-Jan-2006
 
