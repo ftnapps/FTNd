@@ -182,7 +182,8 @@ void chat_help(pid_t pid, int owner)
     system_msg(pid, (char *)" /NICK <name>      - Set new nickname");
     system_msg(pid, (char *)" /PART             - Leave current channel");
     system_msg(pid, (char *)" /QUIT             - Exit from chatserver");
-    system_msg(pid, (char *)" /TOPIC <topic>    - Set topic for current channel");
+    if (owner)
+	system_msg(pid, (char *)" /TOPIC <topic>    - Set topic for current channel");
     system_msg(pid, (char *)"");
     system_msg(pid, (char *)" All other input (without a starting /) is sent to the channel.");
 }
@@ -684,7 +685,7 @@ void chat_put_r(char *data, char *buf)
 			snprintf(mbuf, 200, "** Internal system error");
 			for (tmpc = channels; tmpc; tmpc = tmpc->next) {
 			    if (strcmp(tmpu->channel, tmpc->name) == 0) {
-				if ((strcmp(tmpu->name, tmpc->owner) == 0) || (strcmp(tmpu->nick, tmpc->owner) == 0)) {
+				if (owner) {
 				    cmd = strtok(msg, " \0");
 				    cmd = strtok(NULL, "\0");
 				    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 54)) {
