@@ -505,7 +505,6 @@ void Showline(int y, int x, char *msgin)
 		    mbse_colour(LIGHTRED, BLACK);
 	    } else {
 		mbse_colour(LIGHTMAGENTA, BLACK);
-		putchar('\007');
 	    }
 	    mbse_mvprintw(y, x, msg);
 	} else {
@@ -525,6 +524,12 @@ void DispMsg(char *);
 void DispMsg(char *msg)
 {
     int	    i;
+
+    /*
+     * Beep on minor system messages
+     */
+    if ((msg[0] == '*') && (msg[1] != '*'))
+	putchar('\007');
 
     strncpy(rbuf[rpointer], msg, 80);
     Showline(4+rpointer, 1, rbuf[rpointer]);
