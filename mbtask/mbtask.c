@@ -433,6 +433,43 @@ void load_taskcfg(void)
 
 
 /*
+ * Milliseconds timer, returns 0 on success.
+ */
+int msleep(int msecs)
+{
+    int             rc;
+    struct timespec req, rem;
+
+    rem.tv_sec = 0;
+    rem.tv_nsec = 0;
+    req.tv_sec = msecs / 1000;
+    req.tv_nsec = (msecs % 1000) * 1000000;
+
+    while (TRUE) {
+
+	rc = nanosleep(&req, &rem);
+	if (rc == 0)
+	    break;
+	if ((errno == EINVAL) || (errno == EFAULT)) {
+	    WriteError("$msleep(%d)", msecs);
+	    break;
+	}
+
+	/*
+	 * Error was EINTR, run timer again to complete.
+	 */
+	req.tv_sec = rem.tv_sec;
+	req.tv_nsec = rem.tv_nsec;
+	rem.tv_sec = 0;
+	rem.tv_nsec = 0;
+    }
+
+    return rc;
+}
+
+
+
+/*
  *  Launch an external program in the background.
  *  On success add it to the tasklist and return
  *  the pid. Set the pause timer.
@@ -449,40 +486,39 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	return 0;
     }
     memset(vector, 0, sizeof(vector));
-    Syslog('r', "launch() step 2");
     
     if (opts == NULL)
 	snprintf(buf, PATH_MAX, "%s", cmd);
     else
 	snprintf(buf, PATH_MAX, "%s %s", cmd, opts);
-    Syslog('r', "launch() step 3");
 
     i = 0;
     vector[i++] = strtok(buf," \t\n\0");
     while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
     vector[15] = NULL;
-    Syslog('r', "launch() step 4");
 
     if (file_exist(vector[0], X_OK)) {
 	Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
 	return 0;
     }
-    Syslog('r', "launch() step 5");
+    Syslog('r', "launch() step 2");
 
-    pid = fork();
-    Syslog('r', "launch() step 6");
-
-    switch (pid) {
+    switch (pid = fork()) {
 	case -1:
 		Syslog('?', "$Launch: error, can't fork grandchild");
 		return 0;
 	case 0:
-		Syslog('r', "launch() step 7");
+		/*
+		 * A delay in the child process to prevent it returns
+		 * before the main process sess it ever started.
+		 */
+		msleep(150);
+
+		Syslog('r', "launch() step 3");
 		/* From Paul Vixies cron: */
 		rc = setsid(); /* It doesn't seem to help */
 		if (rc == -1)
 		    Syslog('?', "$Launch: setsid()");
-		Syslog('r', "launch() step 8");
 
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
@@ -500,7 +536,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
-		Syslog('r', "launch() step 9");
+		Syslog('r', "launch() step 4");
 		rc = execv(vector[0],vector);
 		Syslog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
 		_exit(MBERR_EXEC_FAILED);
@@ -509,7 +545,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		break;
     }
 
-    Syslog('r', "launch() step 10");
+    Syslog('r', "launch() step 5");
     /*
      *  Add it to the tasklist.
      */
