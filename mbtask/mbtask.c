@@ -113,7 +113,6 @@ int			T_Shutdown = FALSE;	/* Shutdown threads	*/
 int			nodaemon = FALSE;	/* Run in foreground	*/
 extern int		cmd_run;		/* Cmd running		*/
 extern int		ping_run;		/* Ping running		*/
-int			sched_run = FALSE;	/* Scheduler running	*/
 extern int		disk_run;		/* Disk watch running	*/
 extern int		ibc_run;		/* IBC thread running	*/
 
@@ -809,17 +808,15 @@ void die(int onsig)
      * build to stop within a second.
      */
     now = time(NULL) + 2;
-    while ((cmd_run || ping_run || sched_run || disk_run || ibc_run) && (time(NULL) < now)) {
+    while ((cmd_run || ping_run || disk_run || ibc_run) && (time(NULL) < now)) {
 	sleep(1);
     }
-    if (cmd_run || ping_run || sched_run || disk_run || ibc_run)
+    if (cmd_run || ping_run || disk_run || ibc_run)
 	Syslog('+', "Not all threads stopped! Forced shutdown");
 	if (cmd_run)
 	    Syslog('+', "Thread cmd_run not responding");
 	if (ping_run)
 	    Syslog('+', "Thread ping_run not responding");
-	if (sched_run)
-	    Syslog('+', "Thread sched_run not responding");
 	if (disk_run)
 	    Syslog('+', "Thread disk_run not responding");
 	if (ibc_run)
@@ -1111,9 +1108,6 @@ void start_scheduler(void)
     } else if ((rc = pthread_create(&pt_disk, NULL, (void (*))disk_thread, NULL))) {
 	WriteError("$pthread_create disk_thread rc=%d", rc);
 	die(SIGTERM);
-    } else if ((rc = pthread_create(&pt_scheduler, NULL, (void (*))scheduler, NULL))) {
-	WriteError("$pthread_create scheduler rc=%d", rc);
-	die(SIGTERM);
     } else if ((rc = pthread_create(&pt_ibc, NULL, (void (*))ibc_thread, NULL))) {
 	WriteError("$pthread_create ibc rc=%d", rc);
 	die(SIGTERM);
@@ -1124,20 +1118,18 @@ void start_scheduler(void)
         printf("threads installed\n");
 
     /*
-     * Sleep until we die
+     * Run the scheduler
      */
-    while (! G_Shutdown) {
-	sleep(1);
-    }
+    scheduler();
     die(SIGTERM);
 }
 
 
 
 /*
- * Scheduler thread
+ * Scheduler loop
  */
-void *scheduler(void)
+void scheduler(void)
 {
     struct passwd   *pw;
     int             running = 0, i, found;
@@ -1155,7 +1147,6 @@ void *scheduler(void)
     pp_list         *tpl;
 
     Syslog('+', "Starting scheduler thread");
-    sched_run = TRUE;
     pw = getpwuid(getuid());
 
     /*
@@ -1163,7 +1154,7 @@ void *scheduler(void)
      */
     do {
 	sleep(1);
-	if (T_Shutdown)
+	if (G_Shutdown)
 	    break;
 
 	/*
@@ -1521,11 +1512,9 @@ void *scheduler(void)
 	    } /* if (Processing) */
 	} /* if ((tm->tm_sec / SLOWRUN) != oldmin) */
 
-    } while (! T_Shutdown);
+    } while (! G_Shutdown);
 
-    sched_run = FALSE;
-    Syslog('+', "Scheduler thread stopped");
-    pthread_exit(NULL);
+    Syslog('+', "Scheduler stopped");
 }
 
 
@@ -1554,7 +1543,6 @@ int main(int argc, char **argv)
 	else if ((i == SIGINT) || (i == SIGTERM))
 	    signal(i, (void (*))start_shutdown);
 	else if (i == SIGCHLD)
-//	    signal(i, SIG_DFL);
 	    signal(i, (void (*))taskdie);
     }
 
