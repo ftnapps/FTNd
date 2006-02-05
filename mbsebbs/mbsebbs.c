@@ -105,6 +105,14 @@ int main(int argc, char **argv)
     if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
 	cols = ws.ws_col;
 	rows = ws.ws_row;
+    } else {
+	Syslog('b', "Could not get screensize using ioctl() call");
+	if (getenv("LINES") != NULL) {
+	    rows = atoi(getenv("LINES"));
+	} else {
+	    Syslog('b', "Could net get screensize from environment too");
+	}
+	/* use linux/vt.h + ioctl VT_RESIZE */
     }
 
     if ((rc = rawport()) != 0) {
