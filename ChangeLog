@@ -16,6 +16,10 @@ v0.83.11	28-Jan-2006
 
 	mbmon:
 		In chat beeps are heared for system messages.
+		Removed most debug logging in chat.
+
+	mbsebbs:
+		Removed most debug logging in chat.
 
 
 v0.83.10	25-Jan-2006 - 28-Jan-2006

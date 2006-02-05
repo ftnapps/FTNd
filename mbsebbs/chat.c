@@ -4,7 +4,7 @@
  * Purpose ...............: Sysop to user chat utility
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -89,7 +89,7 @@ unsigned char testkey(int y, int x)
  */
 void Showline(int y, int x, char *msg)
 {
-    int	    i;
+    int	    i, done = FALSE;
 
     if (strlen(msg)) {
 	if (msg[0] == '<') {
@@ -98,19 +98,24 @@ void Showline(int y, int x, char *msg)
 	    PUTCHAR('<');
 	    colour(LIGHTBLUE, BLACK);
 	    for (i = 1; i < strlen(msg); i++) {
-		if (msg[i] == '>') {
+		if ((msg[i] == '>') && (! done)) {
 		    colour(LIGHTCYAN, BLACK);
 		    PUTCHAR(msg[i]);
 		    colour(CYAN, BLACK);
+		    done = TRUE;
 		} else {
 		    PUTCHAR(msg[i]);
 		}
 	    }
-	} else if ((msg[0] == '*') && (msg[1] == '*')) {
-	    colour(LIGHTRED, BLACK);
-	    mvprintw(y, x, msg);
 	} else if (msg[0] == '*') {
-	    colour(LIGHTMAGENTA, BLACK);
+	    if (msg[1] == '*') {
+		if (msg[2] == '*')
+		    mbse_colour(YELLOW, BLACK);
+		else
+		    colour(LIGHTRED, BLACK);
+	    } else {
+		colour(LIGHTMAGENTA, BLACK);
+	    }
 	    mvprintw(y, x, msg);
 	} else {
 	    colour(GREEN, BLACK);
@@ -128,6 +133,12 @@ void DispMsg(char *msg)
 {
     int     i;
 
+    /*
+     * Beep on minor system messages
+     */
+    if ((msg[0] == '*') && (msg[1] != '*'))
+	putchar('\007');
+    
     strncpy(rbuf[rpointer], msg, RBUFLEN);
     Showline(2 + rpointer, 1, rbuf[rpointer]);
     if (rpointer == rsize) {
@@ -218,10 +229,10 @@ void Chat(char *username, char *channel)
     snprintf(buf, 200, "CCON,4,%d,%s,%s,0;", mypid, mname, name);
     free(mname);
     free(name);
-    Syslog('c', "> %s", buf);
+//  Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strncpy(buf, socket_receive(), sizeof(buf)-1);
-	Syslog('c', "< %s", buf);
+//	Syslog('c', "< %s", buf);
 	if (strncmp(buf, "200:1,", 6) == 0) {
 	    Syslog('!', "Chatsever is not available");
 	    colour(LIGHTRED, BLACK);
@@ -257,7 +268,7 @@ void Chat(char *username, char *channel)
 	    strcpy(buf, socket_receive());
     }
 
-    Syslog('c', "Start loop");
+//  Syslog('c', "Start loop");
     chatting = TRUE;
 
     while (stop == FALSE) {
@@ -271,8 +282,8 @@ void Chat(char *username, char *channel)
 	    if (socket_send(buf) == 0) {
 		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
-		    Syslog('c', "> CGET:1,%d;", mypid);
-		    Syslog('c', "< %s", buf);
+//		    Syslog('c', "> CGET:1,%d;", mypid);
+//		    Syslog('c', "< %s", buf);
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal, chat ended */
@@ -321,10 +332,10 @@ void Chat(char *username, char *channel)
 	} else if ((ch == '\r') && curpos) {
 	    alarm_on();
 	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, clencode(sbuf));
-	    Syslog('c', "> %s", clencode(buf));
+//	    Syslog('c', "> %s", clencode(buf));
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
-		Syslog('c', "< %s", buf);
+//		Syslog('c', "< %s", buf);
 		if (strncmp(buf, "100:2,", 6) == 0) {
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100            */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2              */
@@ -356,8 +367,8 @@ void Chat(char *username, char *channel)
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
-		Syslog('c', "> CGET:1,%d;", mypid);
-		Syslog('c', "< %s", buf);
+//		Syslog('c', "> CGET:1,%d;", mypid);
+//		Syslog('c', "< %s", buf);
 		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
@@ -393,10 +404,10 @@ void Chat(char *username, char *channel)
      * Close server connection
      */
     snprintf(buf, 200, "CCLO,1,%d;", mypid);
-    Syslog('c', "> %s", buf);
+//  Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
-	Syslog('c', "< %s", buf);
+//	Syslog('c', "< %s", buf);
     }
     sleep(2);
     clear();

@@ -475,13 +475,11 @@ void soft_info(void)
 /*
  * Colorize the chat window
  */
-void Showline(int y, int x, char *msgin)
+void Showline(int y, int x, char *msg)
 {
     int     i, done = FALSE;
-    char    *msg;
 
-    if (strlen(msgin)) {
-	msg = xstrcpy(cldecode(msgin));
+    if (strlen(msg)) {
 	if (msg[0] == '<') {
 	    mbse_locate(y, x);
 	    mbse_colour(LIGHTCYAN, BLACK);
@@ -511,7 +509,6 @@ void Showline(int y, int x, char *msgin)
 	    mbse_colour(GREEN, BLACK);
 	    mbse_mvprintw(y, x, msg);
 	}
-	free(msg);
     }
 }
 
@@ -546,6 +543,7 @@ void DispMsg(char *msg)
     } else {
 	rpointer++;
     }
+
     fflush(stdout);
 }
 
@@ -570,11 +568,11 @@ void Chat(int sysop)
     snprintf(buf, 200, "CCON,4,%d,%s,%s,%s;", mypid, sysop_name, name, sysop ? "1":"0");
     free(sysop_name);
     free(name);
-    Syslog('-', "> %s", buf);
+//  Syslog('-', "> %s", buf);
 
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
-	Syslog('-', "< %s", buf);
+//	Syslog('-', "< %s", buf);
 	if (strncmp(buf, "200:1,", 6) == 0) {
 	    set_color(LIGHTRED, BLACK);
 	    mbse_mvprintw(4, 1, (char *)"Add \"fido  60179/udp  # Chatserver\" to /etc/services");
@@ -590,7 +588,7 @@ void Chat(int sysop)
     mbse_locate(rows - 2, 1);
     set_color(WHITE, BLUE);
     clrtoeol();
-    mbse_mvprintw(rows - 2, 2, "Chat, type \"/EXIT\" to exit");
+    mbse_mvprintw(rows - 2, 2, "Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
 
     set_color(WHITE, BLACK);
     mbse_mvprintw(rows - 1, 1, ">");
@@ -607,7 +605,7 @@ void Chat(int sysop)
 	}
     }
 
-    Syslog('-', "Start loop");
+//  Syslog('-', "Start loop");
 
     while (stop == FALSE) {
 
@@ -621,8 +619,8 @@ void Chat(int sysop)
 		memset(&buf, 0, sizeof(buf));
 		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
-		    Syslog('-', "> CGET:1,%d;", mypid);
-		    Syslog('-', "< %s", buf);
+//		    Syslog('-', "> CGET:1,%d;", mypid);
+//		    Syslog('-', "< %s", buf);
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100	    */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2	    */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error	    */
@@ -674,10 +672,10 @@ void Chat(int sysop)
 	    }
 	} else if ((ch == '\r') && curpos) {
 	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, clencode(sbuf));
-	    Syslog('-', "> %s", buf);
+//	    Syslog('-', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
-		Syslog('-', "< %s", buf);
+//		Syslog('-', "< %s", buf);
 		if (strncmp(buf, "100:2,", 6) == 0) {
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100            */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2              */
@@ -709,8 +707,8 @@ void Chat(int sysop)
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
-		Syslog('-', "> CGET:1,%d;", mypid);
-		Syslog('-', "< %s", buf);
+//		Syslog('-', "> CGET:1,%d;", mypid);
+//		Syslog('-', "< %s", buf);
 		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
@@ -732,10 +730,10 @@ void Chat(int sysop)
      * Close server connection
      */
     snprintf(buf, 200, "CCLO,1,%d;", mypid);
-    Syslog('-', "> %s", buf);
+//  Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
-	Syslog('-', "< %s", buf);
+//	Syslog('-', "< %s", buf);
     }
     sleep(1);
 }
