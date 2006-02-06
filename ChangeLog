@@ -1,11 +1,14 @@
 $Id$
 
-v0.83.11	28-Jan-2006
+v0.83.12	06-Feb-2006
+
+
+v0.83.11	28-Jan-2006 - 06-Feb-2006
 
 	mbtask:
 		When the IBC server detects a IP change of a remote server it
 		will completly restart the connection with that remote.
-		Made several functions multithread aware (still not Ok).
+		Made several functions multithread aware.
 		Finished tasks now report using a signal call.
 		The main scheduler doesn't run in a thread anymore.
 		Removed some debug logging in chat.
@@ -14,10 +17,10 @@ v0.83.11	28-Jan-2006
 		Assume EXTCMD is set when GZ or BZ2 is active.
 
 	mbstat:
-		Added semafore names to help.
+		Added semafore names to help display.
 
 	mbmon:
-		In chat beeps are heared for system messages.
+		In chat beeps are heard for system messages.
 		Removed most debug logging in chat.
 		Added width marker for chat input and fixed linelength.
 
