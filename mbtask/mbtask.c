@@ -477,7 +477,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 {
     char    buf[PATH_MAX], *vector[16];
     int	    i, rc = 0;
-    pid_t   pid = 0;
+    pid_t   pid = 0, lpgrp;
 
     Syslog('r', "launch() entered");
     if (checktasks(0) >= MAXTASKS) {
@@ -502,6 +502,12 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
     }
     Syslog('r', "launch() step 2");
 
+    if ((lpgrp = setpgid(0, 0)) == -1) {
+	Syslog('?', "$setpgid failed");
+	return 0;
+    }
+    Syslog('r', "launch() step 3, lpgrp=%d", lpgrp);
+
     switch (pid = fork()) {
 	case -1:
 		Syslog('?', "$Launch: error, can't fork grandchild");
@@ -513,7 +519,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		 */
 		msleep(150);
 
-		Syslog('r', "launch() step 3");
+		Syslog('r', "launch() step 4");
 		/* From Paul Vixies cron: */
 		rc = setsid(); /* It doesn't seem to help */
 		if (rc == -1)
@@ -535,7 +541,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
-		Syslog('r', "launch() step 4");
+		Syslog('r', "launch() step 5");
 		rc = execv(vector[0],vector);
 		Syslog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
 		_exit(MBERR_EXEC_FAILED);
@@ -544,7 +550,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		break;
     }
 
-    Syslog('r', "launch() step 5");
+    Syslog('r', "launch() step 6");
     /*
      *  Add it to the tasklist.
      */
