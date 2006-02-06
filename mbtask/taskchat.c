@@ -454,7 +454,7 @@ void chat_connect_r(char *data, char *buf)
 	    system_msg(tmpu->pid, temp);
 	    snprintf(temp, 200, "Welcome to the Internet BBS Chat Network");
 	    system_msg(tmpu->pid, temp);
-	    snprintf(buf, 200, "Current connected servers:");
+	    snprintf(temp, 200, "Current connected servers:");
 	    system_msg(tmpu->pid, temp);
 	    for (sl = servers; sl; sl = sl->next) {
 		snprintf(temp, 200, "  %s (%d user%s)", sl->fullname, sl->users, (sl->users == 1) ? "":"s");
