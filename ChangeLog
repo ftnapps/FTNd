@@ -8,6 +8,7 @@ v0.83.11	28-Jan-2006
 		Made several functions multithread aware (still not Ok).
 		Finished tasks now report using a signal call.
 		The main scheduler doesn't run in a thread anymore.
+		Removed some debug logging in chat.
 
 	mbcico:
 		Assume EXTCMD is set when GZ or BZ2 is active.

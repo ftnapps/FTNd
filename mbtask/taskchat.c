@@ -569,9 +569,7 @@ void chat_put_r(char *data, char *buf)
 		} else if ((strncasecmp(msg, "/join", 5) == 0) ||
 		    (strncasecmp(msg, "/j ", 3) == 0)) {
 		    cmd = strtok(msg, " \0");
-//		    Syslog('c', "\"%s\"", cmd);
 		    cmd = strtok(NULL, "\0");
-//		    Syslog('c', "\"%s\"", cmd);
 		    if ((cmd == NULL) || (cmd[0] != '#') || (strcmp(cmd, "#") == 0)) {
 			snprintf(mbuf, 200, "** Try /join #channel");
 			system_msg(tmpu->pid, mbuf);
@@ -579,7 +577,6 @@ void chat_put_r(char *data, char *buf)
 			snprintf(mbuf, 200, "** Cannot join while in a channel");
 			system_msg(tmpu->pid, mbuf);
 		    } else {
-//			Syslog('c', "Trying to join channel %s", cmd);
 			join(tmpu->pid, cmd, tmpu->sysop);
 		    }
 		    chat_dump();
@@ -723,16 +720,15 @@ void chat_put_r(char *data, char *buf)
 		 */
 		snprintf(mbuf, 200, "** No channel joined. Try /join #channel");
 		system_msg(tmpu->pid, mbuf);
-		chat_dump();
 		goto ack;
 	    } else {
 		chat_msg(tmpu->channel, tmpu->nick, msg);
 		send_all("PRIVMSG %s <%s> %s\r\n", tmpu->channel, tmpu->nick, msg);
-		chat_dump();
 	    }
 	    goto ack;
 	}
     }
+
     Syslog('c', "Pid %s was not connected to chatserver", pid);
     snprintf(buf, 200, "100:2,1,*** ERROR - Not connected to server;");
     free(msg);
@@ -788,7 +784,6 @@ void chat_get_r(char *data, char *buf)
 		     * Message is for us
 		     */
 		    snprintf(buf, 200, "100:2,0,%s;", clencode(chat_messages[tmpu->pointer].message));
-//		    Syslog('c', "%s", buf);
 		    return;
 		}
 	    }
