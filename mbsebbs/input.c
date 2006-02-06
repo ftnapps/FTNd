@@ -4,7 +4,7 @@
  * Purpose ...............: Input functions, also for some utils.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -50,6 +50,10 @@ void CheckScreen(void)
     struct winsize  ws;
 
     if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
+	if (ws.ws_col != 80)
+	    ws.ws_col = 80;
+	if (ws.ws_row < 24)
+	    ws.ws_row = 24;
 	if ((ws.ws_col != cols) || (ws.ws_row != rows)) {
 	    cols = ws.ws_col;
 	    rows = ws.ws_row;

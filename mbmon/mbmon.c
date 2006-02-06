@@ -46,7 +46,7 @@ extern pid_t	mypid;
 struct sysconfig    CFG;
 
 
-char  	rbuf[50][80];	    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
+char  	rbuf[50][81];	    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
 int	rpointer = 0;	    /* Chat receive pointer	*/
 int	rsize = 5;	    /* Chat receive size	*/
 
@@ -528,7 +528,7 @@ void DispMsg(char *msg)
     if ((msg[0] == '*') && (msg[1] != '*'))
 	putchar('\007');
 
-    strncpy(rbuf[rpointer], msg, 80);
+    strncpy(rbuf[rpointer], msg, 81);
     Showline(4+rpointer, 1, rbuf[rpointer]);
     if (rpointer == rsize) {
 	/*
@@ -537,7 +537,7 @@ void DispMsg(char *msg)
 	for (i = 0; i <= rsize; i++) {
 	    mbse_locate(i+4,1);
 	    clrtoeol();
-	    snprintf(rbuf[i], 80, "%s", rbuf[i+1]);
+	    snprintf(rbuf[i], 81, "%s", rbuf[i+1]);
 	    Showline(i+4, 1, rbuf[i]);
 	}
     } else {
@@ -554,7 +554,7 @@ void DispMsg(char *msg)
  */
 void Chat(int sysop)
 {
-    int		    curpos = 0, stop = FALSE, data, rc;
+    int		    curpos = 0, width, stop = FALSE, data, rc;
     unsigned char   ch = 0;
     char	    sbuf[81], resp[128], *sysop_name, *name;
     static char	    buf[200];
@@ -565,14 +565,13 @@ void Chat(int sysop)
 
     sysop_name = xstrcpy(clencode(CFG.sysop_name));
     name = xstrcpy(clencode(CFG.sysop));
+    width = cols - (strlen(name) + 3);
     snprintf(buf, 200, "CCON,4,%d,%s,%s,%s;", mypid, sysop_name, name, sysop ? "1":"0");
     free(sysop_name);
     free(name);
-//  Syslog('-', "> %s", buf);
 
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
-//	Syslog('-', "< %s", buf);
 	if (strncmp(buf, "200:1,", 6) == 0) {
 	    set_color(LIGHTRED, BLACK);
 	    mbse_mvprintw(4, 1, (char *)"Add \"fido  60179/udp  # Chatserver\" to /etc/services");
@@ -592,6 +591,7 @@ void Chat(int sysop)
 
     set_color(WHITE, BLACK);
     mbse_mvprintw(rows - 1, 1, ">");
+    mbse_mvprintw(rows - 1, width + 2, "<");
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
 
@@ -605,8 +605,6 @@ void Chat(int sysop)
 	}
     }
 
-//  Syslog('-', "Start loop");
-
     while (stop == FALSE) {
 
 	/*
@@ -619,14 +617,12 @@ void Chat(int sysop)
 		memset(&buf, 0, sizeof(buf));
 		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
-//		    Syslog('-', "> CGET:1,%d;", mypid);
-//		    Syslog('-', "< %s", buf);
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100	    */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2	    */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error	    */
 		    rc = atoi(resp);
 		    memset(&resp, 0, sizeof(resp));
-		    strncpy(resp, cldecode(strtok(NULL, ";")), 80);  /* The message	    */
+		    strncpy(resp, cldecode(strtok(NULL, ";")), 81);  /* The message	    */
 		    DispMsg(resp);
 		    if (rc == 1) {
 			Syslog('+', "Chat server error: %s", resp);
@@ -653,7 +649,7 @@ void Chat(int sysop)
 	ch = testkey(rows -1, curpos + 2);
 	if (isprint(ch)) {
 	    set_color(CYAN, BLACK);
-	    if (curpos < 77) {
+	    if (curpos < width) {
 		putchar(ch);
 		fflush(stdout);
 		sbuf[curpos] = ch;
@@ -672,16 +668,14 @@ void Chat(int sysop)
 	    }
 	} else if ((ch == '\r') && curpos) {
 	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, clencode(sbuf));
-//	    Syslog('-', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
-//		Syslog('-', "< %s", buf);
 		if (strncmp(buf, "100:2,", 6) == 0) {
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100            */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2              */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error, end chat	*/
 		    rc = atoi(resp);
-		    strncpy(resp, cldecode(strtok(NULL, ";")), 80);  /* The message              */
+		    strncpy(resp, cldecode(strtok(NULL, ";")), 81);  /* The message              */
 		    DispMsg(resp);
 		    if (rc == 1) {
 			Syslog('+', "Chat server error: %s", resp);
@@ -695,6 +689,7 @@ void Chat(int sysop)
 	    clrtoeol();
 	    set_color(WHITE, BLACK);
 	    mbse_mvprintw(rows - 1, 1, ">");
+	    mbse_mvprintw(rows - 1, width + 2, "<");
 	}
     }
 
@@ -707,8 +702,6 @@ void Chat(int sysop)
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
-//		Syslog('-', "> CGET:1,%d;", mypid);
-//		Syslog('-', "< %s", buf);
 		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
@@ -730,10 +723,8 @@ void Chat(int sysop)
      * Close server connection
      */
     snprintf(buf, 200, "CCLO,1,%d;", mypid);
-//  Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
-//	Syslog('-', "< %s", buf);
     }
     sleep(1);
 }

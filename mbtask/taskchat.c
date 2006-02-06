@@ -376,13 +376,13 @@ void chat_cleanuser(pid_t pid)
  */
 void chat_msg(char *channel, char *nick, char *msg)
 {
-    char	buf[79];
+    char	buf[81];
     usr_list	*tmpu;
 
     if (nick == NULL)
-	snprintf(buf, 79, "%s", msg);
+	snprintf(buf, 81, "%s", msg);
     else
-	snprintf(buf, 79, "<%s> %s", nick, msg);
+	snprintf(buf, 81, "<%s> %s", nick, msg);
     Chatlog((char *)"+", channel, buf);
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
@@ -721,7 +721,11 @@ void chat_put_r(char *data, char *buf)
 		goto ack;
 	    } else {
 		chat_msg(tmpu->channel, tmpu->nick, msg);
-		send_all("PRIVMSG %s <%s> %s\r\n", tmpu->channel, tmpu->nick, msg);
+		/*
+		 * Send message to all links but not the #sysop channel
+		 */
+		if (strcmp(tmpu->channel, "#sysop"))
+		    send_all("PRIVMSG %s <%s> %s\r\n", tmpu->channel, tmpu->nick, msg);
 	    }
 	    goto ack;
 	}

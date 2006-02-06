@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 	if (getenv("LINES") != NULL) {
 	    rows = atoi(getenv("LINES"));
 	} else {
-	    Syslog('b', "Could net get screensize from environment too");
+	    Syslog('b', "Could not get screensize from environment too");
 	}
 	/* use linux/vt.h + ioctl VT_RESIZE */
     }
@@ -194,6 +194,12 @@ int main(int argc, char **argv)
     snprintf(temp, 81, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
     poutCR(YELLOW, BLACK, temp);
     pout(WHITE, BLACK, (char *)COPYRIGHT);
+
+    /*
+     * Use 80 wide screens
+     */
+    if (cols > 80)
+	cols = 80;
 
     /*
      * Check and report screens that are too small

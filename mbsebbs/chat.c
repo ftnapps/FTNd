@@ -176,7 +176,7 @@ void clrtoeol(void)
  */
 void Chat(char *username, char *channel)
 {
-    int		    curpos = 0, stop = FALSE, data, rc;
+    int		    width, curpos = 0, stop = FALSE, data, rc;
     unsigned char   ch;
     char	    sbuf[81], resp[128], *name, *mname;
     static char	    buf[200];
@@ -220,19 +220,17 @@ void Chat(char *username, char *channel)
     clear();
     locate(1, 1);
     colour(WHITE, BLUE);
-    clrtoeol();
-    snprintf(buf, 200, "%-*s", cols -1, " MBSE BBS Chat Server");
+    snprintf(buf, 200, "%-*s", cols, " MBSE BBS Chat Server");
     mvprintw(1, 1, buf);
 
     mname = xstrcpy(clencode(exitinfo.sUserName));
     name  = xstrcpy(clencode(exitinfo.Name));
+    width = cols - (strlen(name) + 3);
     snprintf(buf, 200, "CCON,4,%d,%s,%s,0;", mypid, mname, name);
     free(mname);
     free(name);
-//  Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strncpy(buf, socket_receive(), sizeof(buf)-1);
-//	Syslog('c', "< %s", buf);
 	if (strncmp(buf, "200:1,", 6) == 0) {
 	    Syslog('!', "Chatsever is not available");
 	    colour(LIGHTRED, BLACK);
@@ -246,14 +244,15 @@ void Chat(char *username, char *channel)
 
     locate(rows - 2, 1);
     colour(WHITE, BLUE);
-    clrtoeol();
-    snprintf(buf, 200, "%-*s", cols -1, " Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
+    snprintf(buf, 200, "%-*s", cols, " Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
     mvprintw(rows - 2, 1, buf);
 
-    colour(LIGHTGRAY, BLACK);
+    colour(WHITE, BLACK);
     mvprintw(rows - 1, 1, ">");
+    mvprintw(rows - 1, width + 2, "<");
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
+    colour(LIGHTGRAY, BLACK);
 
     /*
      * If username and channelname are given, send the /nick and /join
@@ -268,7 +267,6 @@ void Chat(char *username, char *channel)
 	    strcpy(buf, socket_receive());
     }
 
-//  Syslog('c', "Start loop");
     chatting = TRUE;
 
     while (stop == FALSE) {
@@ -282,8 +280,6 @@ void Chat(char *username, char *channel)
 	    if (socket_send(buf) == 0) {
 		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
-//		    Syslog('c', "> CGET:1,%d;", mypid);
-//		    Syslog('c', "< %s", buf);
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal, chat ended */
@@ -322,7 +318,7 @@ void Chat(char *username, char *channel)
 	/* if KEY_DEL isprint, do no output again */
 	} else if (isprint(ch) || traduce(&ch)) {
 	    alarm_on();
-	    if (curpos < 77) {
+	    if (curpos < width) {
 		PUTCHAR(ch);
 		sbuf[curpos] = ch;
 		curpos++;
@@ -332,10 +328,8 @@ void Chat(char *username, char *channel)
 	} else if ((ch == '\r') && curpos) {
 	    alarm_on();
 	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, clencode(sbuf));
-//	    Syslog('c', "> %s", clencode(buf));
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
-//		Syslog('c', "< %s", buf);
 		if (strncmp(buf, "100:2,", 6) == 0) {
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100            */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2              */
@@ -353,7 +347,10 @@ void Chat(char *username, char *channel)
 	    memset(&sbuf, 0, sizeof(sbuf));
 	    locate(rows - 1, 2);
 	    clrtoeol();
+	    colour(WHITE, BLACK);
 	    mvprintw(rows - 1, 1, ">");
+	    mvprintw(rows - 1, width + 2, "<");
+	    colour(LIGHTGRAY, BLACK);
 	}
     }
     chatting = FALSE;
@@ -367,8 +364,6 @@ void Chat(char *username, char *channel)
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
-//		Syslog('c', "> CGET:1,%d;", mypid);
-//		Syslog('c', "< %s", buf);
 		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
@@ -404,10 +399,8 @@ void Chat(char *username, char *channel)
      * Close server connection
      */
     snprintf(buf, 200, "CCLO,1,%d;", mypid);
-//  Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
-//	Syslog('c', "< %s", buf);
     }
     sleep(2);
     clear();
