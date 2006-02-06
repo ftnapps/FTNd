@@ -514,8 +514,6 @@ void chat_put_r(char *data, char *buf)
     usr_list	*tmpu, *tmp;
     chn_list	*tmpc;
 
-    Syslog('c', "CPUT:%s", data);
-
     if (IsSema((char *)"upsalarm")) {
 	snprintf(buf, 81, "100:2,1,*** Power alarm, running on UPS;");
 	return;
@@ -729,7 +727,7 @@ void chat_put_r(char *data, char *buf)
 	}
     }
 
-    Syslog('c', "Pid %s was not connected to chatserver", pid);
+    Syslog('+', "Pid %s was not connected to chatserver", pid);
     snprintf(buf, 200, "100:2,1,*** ERROR - Not connected to server;");
     free(msg);
     free(mbuf);
