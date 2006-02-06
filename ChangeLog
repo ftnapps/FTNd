@@ -2,6 +2,10 @@ $Id$
 
 v0.83.12	06-Feb-2006
 
+	mbsebbs:
+		Added screen rows detection using ANSI sequences needed for
+		some terminal programs like minicom.
+
 
 v0.83.11	28-Jan-2006 - 06-Feb-2006
 

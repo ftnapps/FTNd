@@ -4,7 +4,7 @@
  * Purpose ...............: Main startup
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,6 +45,7 @@
 #include "term.h"
 #include "ttyio.h"
 #include "openport.h"
+#include "input.h"
 
 
 
@@ -61,7 +62,8 @@ int main(int argc, char **argv)
     int		    i, rc, Fix;
     struct stat	    sb;
     struct winsize  ws;
-    
+    unsigned char   ch = 0;
+
     pTTY = calloc(15, sizeof(char));
     tty = ttyname(1);
 
@@ -102,26 +104,65 @@ int main(int argc, char **argv)
     Syslog(' ', " ");
     Syslog(' ', "MBSEBBS v%s", VERSION);
 
-    if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
-	cols = ws.ws_col;
-	rows = ws.ws_row;
-    } else {
-	Syslog('b', "Could not get screensize using ioctl() call");
-	if (getenv("LINES") != NULL) {
-	    rows = atoi(getenv("LINES"));
-	} else {
-	    Syslog('b', "Could not get screensize from environment too");
-	}
-	/* use linux/vt.h + ioctl VT_RESIZE */
-    }
-
     if ((rc = rawport()) != 0) {
 	WriteError("Unable to set raw mode");
 	Quick_Bye(MBERR_OK);;
     }
 
-    PUTSTR((char *)"Loading MBSE BBS ...");
-    Enter(1);
+    if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
+	cols = ws.ws_col;
+	rows = ws.ws_row;
+	PUTSTR((char *)"Loading MBSE BBS ...");
+	Enter(1);
+    } else {
+	Syslog('b', "Could not get screensize using ioctl() call");
+	if (getenv("LINES") != NULL) {
+	    rows = atoi(getenv("LINES"));
+	    PUTSTR((char *)"Loading MBSE BBS ...");
+	    Enter(1);
+	} else {
+	    Syslog('b', "Could not get screensize from environment too");
+	
+	    /*
+	     * Next idea borrowed from Synchronet BBS
+	     */
+	    PUTSTR((char *)"\r\n");		    /* Locate cursor at column 1 */
+	    PUTSTR((char *)"\x1b[s");		    /* Save cursor position (necessary for HyperTerm auto-ANSI) */
+	    PUTSTR((char *)"\x1b[99B_");	    /* locate cursor as far down as possible */
+	    PUTSTR((char *)"\x1b[6n");		    /* Get cursor position */
+	    PUTSTR((char *)"\x1b[u");		    /* Restore cursor position */
+//	    PUTSTR((char *)"\x1b[!_");		    /* RIP? */
+//	    PUTSTR((char *)"\x1b[0t_");		    /* WIP? */
+//	    PUTSTR((char *)"\2\2?HTML?");	    /* HTML? */
+	    PUTSTR((char *)"\x1b[0m_");		    /* "Normal" colors */
+	    PUTSTR((char *)"\x1b[2J");		    /* clear screen */
+	    PUTSTR((char *)"\x1b[H");		    /* home cursor */
+	    PUTSTR((char *)"\xC");		    /* clear screen (in case not ANSI) */
+	    PUTSTR((char *)"\r");		    /* Move cursor left (in case previous char printed) */
+	    PUTSTR((char *)"Loading MBSE BBS ..."); /* Let the use think something is happening	*/
+	    Enter(1);
+
+	    memset(&temp, 0, sizeof(temp));
+	    for (i = 0; i < 10; i++) {
+		rc = Waitchar(&ch, 200);    /* 4 seconds timeout */
+		if (rc == 1) {
+		    temp[i] = ch;
+		    if (ch > 31)
+			Syslog('b', "detect rc=%d ch=%d ch=%c", rc, ch, ch);
+		    else
+			Syslog('b', "detect rc=%d ch=%d ch=^%c", rc, ch, ch+64);
+		}
+		if (rc == TIMEOUT)
+		    break;
+	    }
+	    if ((temp[0] == '\x1b') && (temp[1] == '[') && strchr(temp, ';') /*&& strchr(temp, 'R') */) {
+		rows = atoi(strtok(temp +2, ";"));
+		Syslog('b', "detected ANSI cursor position at row %d", rows);
+		if (rows < 24)
+		    rows = 24;
+	    }
+	}
+    }
 
     if ((p = getenv("CONNECT")) != NULL)
 	Syslog('+', "CONNECT %s", p);
