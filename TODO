@@ -50,6 +50,9 @@ mbsebbs:
 
 	N: Joe 3.3 doesn't work with mbsebbs, some locking problem.
 
+	N: Implement kermit protocol, external versions don't work right.
+
+
 mbfido:
 	W: Check all .flo files for dead attachments.
 

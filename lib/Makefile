@@ -169,6 +169,7 @@ term.o: ../config.h mbselib.h users.h
 endian.o: ../config.h mbselib.h
 timers.o: ../config.h mbselib.h
 pidinfo.o: ../config.h mbselib.h
+tmpwork.o: ../config.h mbselib.h
 dbcfg.o: ../config.h mbselib.h mbse.h users.h mbsedb.h
 dbdupe.o: ../config.h mbselib.h mbse.h users.h mbsedb.h
 dbftn.o: ../config.h mbselib.h users.h mbsedb.h

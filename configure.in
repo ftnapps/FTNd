@@ -199,23 +199,23 @@ dnl
 dnl
 dnl On NetBSD we need to add the pkg dirs for posix threads
 dnl
-if test "$SYSTEM" = "NetBSD"; then
-    CFLAGS="$CFLAGS `pthread-config --cflags`"
-    LDFLAGS="$LDFLAGS `pthread-config --ldflags`"
-fi
+dnl if test "$SYSTEM" = "NetBSD"; then
+dnl     CFLAGS="$CFLAGS `pthread-config --cflags`"
+dnl     LDFLAGS="$LDFLAGS `pthread-config --ldflags`"
+dnl fi
 
 
 dnl
 dnl For FreeBSD and OpenBSD we need -pthread for gcc and don't need libpthread
 dnl
-if test "$SYSTEM" = "FreeBSD" || test "$SYSTEM" = "OpenBSD"; then
-    CFLAGS="-pthread $CFLAGS"
-else
-    AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
-    if test "$result" = "yes"; then
-        LIBS="$LIBS -lpthread"
-    fi
-fi
+dnl if test "$SYSTEM" = "FreeBSD" || test "$SYSTEM" = "OpenBSD"; then
+dnl     CFLAGS="-pthread $CFLAGS"
+dnl else
+dnl     AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
+dnl     if test "$result" = "yes"; then
+dnl         LIBS="$LIBS -lpthread"
+dnl     fi
+dnl fi
 
 
 

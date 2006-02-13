@@ -59,6 +59,9 @@ static pid_t		pgrp;			/* Pids group		*/
 int			sock = -1;		/* Datagram socket	*/
 struct sockaddr_un	servaddr;		/* Server address	*/
 struct sockaddr_un	from;			/* From address		*/
+struct sockaddr_in	myaddr_in;		/* IBC local socket	*/
+struct sockaddr_in	clientaddr_in;		/* IBC remote socket	*/
+int			ibcsock = -1;		/* IBC socket		*/
 int			fromlen;
 char			waitmsg[81];		/* Waiting message	*/
 static char		spath[PATH_MAX];	/* Socket path		*/
@@ -111,10 +114,7 @@ extern pid_t		mypid;			/* Pid of daemon	*/
 int			G_Shutdown = FALSE;	/* Global shutdown	*/
 int			T_Shutdown = FALSE;	/* Shutdown threads	*/
 int			nodaemon = FALSE;	/* Run in foreground	*/
-extern int		cmd_run;		/* Cmd running		*/
-extern int		ping_run;		/* Ping running		*/
-extern int		disk_run;		/* Disk watch running	*/
-extern int		ibc_run;		/* IBC thread running	*/
+extern time_t		resettime;		/* IBC reset time	*/
 
 
 
@@ -122,10 +122,6 @@ extern int		ibc_run;		/* IBC thread running	*/
  * Global thread vaiables
  */
 pthread_t	pt_ping;
-pthread_t	pt_command;
-pthread_t	pt_disk;
-pthread_t	pt_scheduler;
-pthread_t	pt_ibc;
 
 
 
@@ -395,38 +391,38 @@ void load_maincfg(void)
  */
 void load_taskcfg(void)
 {
-	FILE	*fp;
+    FILE    *fp;
 
-	if ((fp = fopen(tcfgfn, "r")) == NULL) {
-		memset(&TCFG, 0, sizeof(TCFG));
-		TCFG.maxload = 1.50;
-		snprintf(TCFG.zmh_start, 6, "02:30");
-		snprintf(TCFG.zmh_end, 6, "03:30");
-		snprintf(TCFG.cmd_mailout,  81, "%s/bin/mbfido scan web -quiet", getenv("MBSE_ROOT"));
-		snprintf(TCFG.cmd_mailin,   81, "%s/bin/mbfido tic toss web -quiet", getenv("MBSE_ROOT"));
-		snprintf(TCFG.cmd_newnews,  81, "%s/bin/mbfido news web -quiet", getenv("MBSE_ROOT"));
-		snprintf(TCFG.cmd_mbindex1, 81, "%s/bin/mbindex -quiet", getenv("MBSE_ROOT"));
-		if (strlen(_PATH_GOLDNODE))
-		    snprintf(TCFG.cmd_mbindex2, 81, "%s -f -q", _PATH_GOLDNODE);
-		snprintf(TCFG.cmd_msglink,  81, "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
-		snprintf(TCFG.cmd_reqindex, 81, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
-		TCFG.max_tcp  = 0;
-		snprintf(TCFG.isp_ping1, 41, "192.168.1.1");
-		snprintf(TCFG.isp_ping2, 41, "192.168.1.1");
-		if ((fp = fopen(tcfgfn, "a+")) == NULL) {
-			Syslog('?', "$Can't create %s", tcfgfn);
-			die(MBERR_INIT_ERROR);
-		}
-		fwrite(&TCFG, sizeof(TCFG), 1, fp);
-		fclose(fp);
-		chmod(tcfgfn, 0640);
-		Syslog('+', "Created new %s", tcfgfn);
-	} else {
-		fread(&TCFG, sizeof(TCFG), 1, fp);
-		fclose(fp);
+    if ((fp = fopen(tcfgfn, "r")) == NULL) {
+	memset(&TCFG, 0, sizeof(TCFG));
+	TCFG.maxload = 1.50;
+	snprintf(TCFG.zmh_start, 6, "02:30");
+	snprintf(TCFG.zmh_end, 6, "03:30");
+	snprintf(TCFG.cmd_mailout,  81, "%s/bin/mbfido scan web -quiet", getenv("MBSE_ROOT"));
+	snprintf(TCFG.cmd_mailin,   81, "%s/bin/mbfido tic toss web -quiet", getenv("MBSE_ROOT"));
+	snprintf(TCFG.cmd_newnews,  81, "%s/bin/mbfido news web -quiet", getenv("MBSE_ROOT"));
+	snprintf(TCFG.cmd_mbindex1, 81, "%s/bin/mbindex -quiet", getenv("MBSE_ROOT"));
+	if (strlen(_PATH_GOLDNODE))
+	    snprintf(TCFG.cmd_mbindex2, 81, "%s -f -q", _PATH_GOLDNODE);
+	snprintf(TCFG.cmd_msglink,  81, "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
+	    snprintf(TCFG.cmd_reqindex, 81, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
+	TCFG.max_tcp  = 0;
+	snprintf(TCFG.isp_ping1, 41, "192.168.1.1");
+	snprintf(TCFG.isp_ping2, 41, "192.168.1.1");
+	if ((fp = fopen(tcfgfn, "a+")) == NULL) {
+	    Syslog('?', "$Can't create %s", tcfgfn);
+	    die(MBERR_INIT_ERROR);
 	}
+	fwrite(&TCFG, sizeof(TCFG), 1, fp);
+	fclose(fp);
+	chmod(tcfgfn, 0640);
+	Syslog('+', "Created new %s", tcfgfn);
+    } else {
+	fread(&TCFG, sizeof(TCFG), 1, fp);
+	fclose(fp);
+    }
 
-	tcfg_time = file_time(tcfgfn);
+    tcfg_time = file_time(tcfgfn);
 }
 
 
@@ -475,9 +471,10 @@ int msleep(int msecs)
  */
 pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 {
-    char    buf[PATH_MAX], *vector[16];
-    int	    i, rc = 0;
-    pid_t   pid = 0, lpgrp;
+    static char buf[PATH_MAX]; 
+    char	*vector[16];
+    int		i, rc = 0;
+    pid_t	pid = 0;
 
     Syslog('r', "launch() entered");
     if (checktasks(0) >= MAXTASKS) {
@@ -500,26 +497,21 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
 	return 0;
     }
-    Syslog('r', "launch() step 2");
 
-    if ((lpgrp = setpgid(0, 0)) == -1) {
-	Syslog('?', "$setpgid failed");
-	return 0;
-    }
-    Syslog('r', "launch() step 3, lpgrp=%d", lpgrp);
+    Syslog('r', "launch() step 2");
 
     switch (pid = fork()) {
 	case -1:
-		Syslog('?', "$Launch: error, can't fork grandchild");
+		WriteError("$Launch: error, can't fork grandchild");
 		return 0;
 	case 0:
 		/*
 		 * A delay in the child process to prevent it returns
-		 * before the main process sess it ever started.
+		 * before the main process sees it ever started.
 		 */
 		msleep(150);
 
-		Syslog('r', "launch() step 4");
+		Syslog('r', "launch() step 3");
 		/* From Paul Vixies cron: */
 		rc = setsid(); /* It doesn't seem to help */
 		if (rc == -1)
@@ -541,7 +533,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
-		Syslog('r', "launch() step 5");
+		Syslog('r', "launch() step 4");
 		rc = execv(vector[0],vector);
 		Syslog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
 		_exit(MBERR_EXEC_FAILED);
@@ -550,7 +542,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		break;
     }
 
-    Syslog('r', "launch() step 6");
+    Syslog('r', "launch() step 5");
     /*
      *  Add it to the tasklist.
      */
@@ -738,7 +730,6 @@ void die(int onsig)
 {
     int	    i, count;
     char    temp[80];
-    time_t  now;
 
     signal(onsig, SIG_IGN);
 
@@ -804,36 +795,21 @@ void die(int onsig)
     }
 
     /*
+     * Disconnect chatservers
+     */
+    ibc_shutdown();
+
+    /*
      * Now stop the threads
      */
     T_Shutdown = TRUE;
-    Syslog('+', "Signal all threads to stop");
-
-    /*
-     * Wait at most 2 seconds for the threads, internal they are
-     * build to stop within a second.
-     */
-    now = time(NULL) + 2;
-    while ((cmd_run || ping_run || disk_run || ibc_run) && (time(NULL) < now)) {
-	sleep(1);
-    }
-    if (cmd_run || ping_run || disk_run || ibc_run)
-	Syslog('+', "Not all threads stopped! Forced shutdown");
-	if (cmd_run)
-	    Syslog('+', "Thread cmd_run not responding");
-	if (ping_run)
-	    Syslog('+', "Thread ping_run not responding");
-	if (disk_run)
-	    Syslog('+', "Thread disk_run not responding");
-	if (ibc_run)
-	    Syslog('+', "Thread ibc_run not responding");
-    else
-	Syslog('+', "All threads stopped");
 
     /*
      * Free memory
      */
+    deinit_ping();
     deinitnl();
+    deinit_diskwatch();
     unload_ports();
     ulocktask();
     printable(NULL, 0);
@@ -843,8 +819,6 @@ void die(int onsig)
      */
     if (sock != -1)
 	close(sock);
-    if (ping_isocket != -1)
-	close(ping_isocket);
     if (!file_exist(spath, R_OK)) {
 	unlink(spath);
     }
@@ -1027,11 +1001,10 @@ void check_sema(void)
 
 
 
-void start_scheduler(void)
+void start_scheduler(int port)
 {
     struct passwd   *pw;
     char            *cmd = NULL;
-    int		    rc;
     
     if (nodaemon)
 	printf("init fidonet\n");
@@ -1077,6 +1050,28 @@ void start_scheduler(void)
         printf("sockets created\n");
 
     /*
+     * Setup IBC socket
+     */
+    myaddr_in.sin_family = AF_INET;
+    myaddr_in.sin_addr.s_addr = INADDR_ANY;
+    myaddr_in.sin_port = port;
+    Syslog('+', "IBC: listen on %s, port %d", inet_ntoa(myaddr_in.sin_addr), ntohs(myaddr_in.sin_port));
+
+    ibcsock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (ibcsock == -1) {
+	WriteError("$IBC: can't create listen socket");
+	die(MBERR_INIT_ERROR);
+    }
+
+    if (bind(ibcsock, (struct sockaddr *)&myaddr_in, sizeof(struct sockaddr_in)) == -1) {
+	WriteError("$IBC: can't bind listen socket");
+	die(MBERR_INIT_ERROR);
+    }
+
+    srand(getpid());
+    resettime = time(NULL) + (time_t)86400;
+
+    /*
      * The flag masterinit is set if a new config.data is created, this
      * is true if mbtask is started the very first time. Then we run
      * mbsetup init to create the default databases.
@@ -1100,29 +1095,6 @@ void start_scheduler(void)
 	Syslog('?', "WARNING: this system cannot connect to other systems, check setup");
     }
 
-    if (nodaemon)
-        printf("creating threads\n");
-    /*
-     * Install the threads that do the real work.
-     */
-    if ((rc = pthread_create(&pt_ping, NULL, /* (void (*)) */ ping_thread, NULL))) {
-	WriteError("$pthread_create ping_thread rc=%d", rc);
-	die(SIGTERM);
-    } else if ((rc = pthread_create(&pt_command, NULL, (void (*))cmd_thread, NULL))) {
-	WriteError("$pthread_create cmd_thread rc=%d", rc);
-	die(SIGTERM);
-    } else if ((rc = pthread_create(&pt_disk, NULL, (void (*))disk_thread, NULL))) {
-	WriteError("$pthread_create disk_thread rc=%d", rc);
-	die(SIGTERM);
-    } else if ((rc = pthread_create(&pt_ibc, NULL, (void (*))ibc_thread, NULL))) {
-	WriteError("$pthread_create ibc rc=%d", rc);
-	die(SIGTERM);
-    } else {
-	Syslog('+', "All threads installed");
-    }
-    if (nodaemon)
-        printf("threads installed\n");
-
     /*
      * Run the scheduler
      */
@@ -1137,20 +1109,21 @@ void start_scheduler(void)
  */
 void scheduler(void)
 {
-    struct passwd   *pw;
-    int             running = 0, i, found;
-    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
-    char            *cmd = NULL, opts[41], port[21];
-    static char     doing[32];
-    time_t          now;
-    struct tm       tm, utm;
+    struct passwd	*pw;
+    int			rlen, rc, running = 0, i, found, call_work = 0, len;
+    static int		LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70, call_entry = MAXTASKS;
+    char		*cmd = NULL, opts[41], port[21], crbuf[512];
+    static char		doing[32], buf[2048];
+    time_t		now;
+    struct tm		tm, utm;
 #if defined(__linux__)
-    FILE            *fp;
+    FILE		*fp;
 #endif
-    int             call_work = 0;
-    static int      call_entry = MAXTASKS;
-    double          loadavg[3];
-    pp_list         *tpl;
+    double		loadavg[3];
+    pp_list		*tpl;
+    struct pollfd	pfd[3];
+    socklen_t		sl;
+    struct sockaddr_in	ffrom;
 
     Syslog('+', "Starting scheduler thread");
     pw = getpwuid(getuid());
@@ -1159,16 +1132,79 @@ void scheduler(void)
      * Enter the mainloop (forever)
      */
     do {
-	sleep(1);
+	/*
+	 * Poll UNIX Datagram socket and IBC UDP socket until the defined 
+	 * timeout of one second.
+	 * This means we listen of a MBSE BBS client program has something
+	 * to tell. Timeout is one second, after the timeout the rest of the
+	 * mainloop is executed.
+	 */
+	pfd[0].fd = sock;
+	pfd[0].events = POLLIN;
+	pfd[0].revents = 0;
+	pfd[1].fd = ibcsock;
+	pfd[1].events = POLLIN;
+	pfd[1].revents = 0;
+	pfd[2].fd = ping_isocket;
+	pfd[2].events = POLLIN;
+	pfd[2].revents = 0;
+
+	rc = poll(pfd, 3, 1000);
+//	Syslog('s', "poll() rc=%d", rc);
+        if (rc == -1) {
+	    /* 
+	     *  Poll can be interrupted by a finished child so that's not a real error.
+	     */
+	    if (errno != EINTR) {
+		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd[0].revents);
+		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, ibcsock, pfd[1].revents);
+	    }
+        } else if (rc) {
+	    if (pfd[0].revents & POLLIN) {
+		/*
+		 * Process the clients request
+		 */
+		memset(&buf, 0, sizeof(buf));
+		fromlen = sizeof(from);
+		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, (struct sockaddr *)&from, &fromlen);
+		if (rlen == -1) {
+		    Syslog('?', "$recvfrom() for command receiver");
+		} else {
+		    do_cmd(buf);
+		}
+	    } 
+	    if (pfd[1].revents & POLLIN || pfd[1].revents & POLLERR || pfd[1].revents & POLLHUP || pfd[1].revents & POLLNVAL) {
+		sl = sizeof(myaddr_in);
+		memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
+		memset(&crbuf, 0, sizeof(crbuf));
+		if ((len = recvfrom(ibcsock, &crbuf, sizeof(crbuf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
+		    ibc_receiver(crbuf);
+		} else {
+		    WriteError("$recvfrom() for IBC receiver");
+		}
+	    }
+	    if (pfd[2].revents & POLLIN || pfd[2].revents & POLLERR || pfd[2].revents & POLLHUP || pfd[2].revents & POLLNVAL) {
+		sl = sizeof(ffrom);
+		if ((len = recvfrom(ping_isocket, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
+		    ping_receive(buf, len);
+		} else {
+		    WriteError("$recvfrom() for ping receiver");
+		}
+	    }
+	}
+
 	if (G_Shutdown)
 	    break;
 
 	/*
 	 * Check all registered connections and semafore's
 	 */
+	check_servers();
 	reg_check();
 	check_sema();
 	check_ports();
+	diskwatch();
+	check_ping();
 
 	/*
 	 * Check the systems load average.
@@ -1303,12 +1339,9 @@ void scheduler(void)
 	    running = checktasks(0);
 
 	    if (s_mailout && (!ptimer) && (!runtasktype(MBFIDO))) {
-		if (! lock_ibc((char *)"scheduler 1")) {
-		    launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
-		    unlock_ibc((char *)"scheduler 1");
-		    running = checktasks(0);
-		    s_mailout = FALSE;
-		}
+	        launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
+	        running = checktasks(0);
+		s_mailout = FALSE;
 	    }
 
 	    if (s_mailin && (!ptimer) && (!runtasktype(MBFIDO))) {
@@ -1322,32 +1355,23 @@ void scheduler(void)
 		if ((ipmailers + runtasktype(CM_ISDN) + runtasktype(CM_POTS)) == 0) {
 		    Syslog('i', "Mailin, no mailers running, start direct");
 		    tosswait = TOSSWAIT_TIME;
-		    if (! lock_ibc((char *)"scheduler 2")) {
-			launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
-			unlock_ibc((char *)"scheduler 2");
-			running = checktasks(0);
-			s_mailin = FALSE;
-		    }
+		    launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+		    running = checktasks(0);
+		    s_mailin = FALSE;
 		} else {
 		    Syslog('i', "Mailin, tosswait=%d", tosswait);
 		    if (tosswait == 0) {
-			if (! lock_ibc((char *)"scheduler 3")) {
-			    launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
-			    unlock_ibc((char *)"scheduler 3");
-			    running = checktasks(0);
-			    s_mailin = FALSE;
-			}
+		        launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+		        running = checktasks(0);
+		        s_mailin = FALSE;
 		    }
 		}
 	    }
 
 	    if (s_newnews && (!ptimer) && (!runtasktype(MBFIDO))) {
-		if (! lock_ibc((char *)"scheduler 4")) {
-		    launch(TCFG.cmd_newnews, NULL, (char *)"newnews", MBFIDO);
-		    unlock_ibc((char *)"scheduler 4");
-		    running = checktasks(0);
-		    s_newnews = FALSE;
-		}
+	        launch(TCFG.cmd_newnews, NULL, (char *)"newnews", MBFIDO);
+	        running = checktasks(0);
+	        s_newnews = FALSE;
 	    }
 
 	    /*
@@ -1358,22 +1382,13 @@ void scheduler(void)
 	     */
 	    if (s_index && (!ptimer) && (!running)) {
 		if (strlen(TCFG.cmd_mbindex1)) {
-		    if (! lock_ibc((char *)"scheduler 5")) {
-			launch(TCFG.cmd_mbindex1, NULL, (char *)"compiler 1", MBINDEX);
-			unlock_ibc((char *)"scheduler 5");
-		    }
+		    launch(TCFG.cmd_mbindex1, NULL, (char *)"compiler 1", MBINDEX);
 		}
 		if (strlen(TCFG.cmd_mbindex2)) {
-		    if (! lock_ibc((char *)"scheduler 6")) {
-			launch(TCFG.cmd_mbindex2, NULL, (char *)"compiler 2", MBINDEX);
-			unlock_ibc((char *)"scheduler 6");
-		    }
+		    launch(TCFG.cmd_mbindex2, NULL, (char *)"compiler 2", MBINDEX);
 		}
 		if (strlen(TCFG.cmd_mbindex3)) {
-		    if (! lock_ibc((char *)"scheduler 7")) {
-			launch(TCFG.cmd_mbindex3, NULL, (char *)"compiler 3", MBINDEX);
-			unlock_ibc((char *)"scheduler 7");
-		    }
+		    launch(TCFG.cmd_mbindex3, NULL, (char *)"compiler 3", MBINDEX);
 		}
 		running = checktasks(0);
 		s_index = FALSE;
@@ -1384,10 +1399,7 @@ void scheduler(void)
 	     *  nothing else to do.
 	     */
 	    if (s_msglink && (!ptimer) && (!running)) {
-		if (! lock_ibc((char *)"scheduler 8")) {
-		    launch(TCFG.cmd_msglink, NULL, (char *)"msglink", MBFIDO);
-		    unlock_ibc((char *)"scheduler 8");
-		}
+		launch(TCFG.cmd_msglink, NULL, (char *)"msglink", MBFIDO);
 		running = checktasks(0);
 		s_msglink = FALSE;
 	    }
@@ -1396,10 +1408,7 @@ void scheduler(void)
 	     *  Creating filerequest indexes, also only if nothing to do.
 	     */
 	    if (s_reqindex && (!ptimer) && (!running)) {
-		if (! lock_ibc((char *)"scheduler 9")) {
-		    launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
-		    unlock_ibc((char *)"scheduler 9");
-		}
+		launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
 		running = checktasks(0);
 		s_reqindex = FALSE;
 	    }
@@ -1503,10 +1512,7 @@ void scheduler(void)
 				    calllist[call_entry].addr.net,
 				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			}
-			if (! lock_ibc((char *)"scheduler 10")) {
-			    calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
-			    unlock_ibc((char *)"scheduler 10");
-			}
+			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
 			if (calllist[call_entry].taskpid)
 			    calllist[call_entry].calling = TRUE;
 			running = checktasks(0);
@@ -1532,6 +1538,7 @@ int main(int argc, char **argv)
     int             i;
     pid_t           frk;
     FILE            *fp;
+    struct servent  *se;
 
     /*
      * Print copyright notices and setup logging.
@@ -1598,6 +1605,24 @@ int main(int argc, char **argv)
     if (nodaemon)
 	printf("main config loaded\n");
 
+    if ((se = getservbyname("fido", "udp")) == NULL) {
+	fprintf(stderr, "IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat\n");
+	close(ping_isocket);
+	exit(MBERR_INIT_ERROR);
+    }
+
+    if (strlen(CFG.bbs_name) == 0) {
+	fprintf(stderr, "IBC: mbsetup 1.2.1 is empty, cannot start Internet BBS Chat\n");
+	close(ping_isocket);
+	exit(MBERR_INIT_ERROR);
+    }
+
+    if (strlen(CFG.myfqdn) == 0) {
+	fprintf(stderr, "IBC: mbsetup 1.2.10 is empty, cannot start Internet BBS Chat\n");
+	close(ping_isocket);
+	exit(MBERR_INIT_ERROR);
+    }
+
     mypid = getpid();
     if (nodaemon)
 	printf("my pid is %d\n", mypid);
@@ -1636,7 +1661,7 @@ int main(int argc, char **argv)
 	 */
 	mypid = getpid();
 	printf("init complete, starting scheduler ...\n");
-	start_scheduler();
+	start_scheduler(se->s_port);
     } else {
 	/*
 	 * Server initialization is complete. Now we can fork the 
@@ -1677,7 +1702,7 @@ int main(int argc, char **argv)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		mypid = getpid();
-		start_scheduler();
+		start_scheduler(se->s_port);
 		/* Not reached */
 	default:
 		/*

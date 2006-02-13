@@ -44,13 +44,9 @@ typedef struct _mfs_list {
 } mfs_list;
 
 mfs_list	    *mfs = NULL;		/* List of filesystems	*/
-int                 disk_reread = FALSE;        /* Reread tables        */
-extern int          T_Shutdown;                 /* Program shutdown     */
-int                 disk_run = FALSE;           /* Thread running       */
+int                 disk_reread = TRUE;		/* Reread tables        */
 int		    recursecount = 0;		/* Recurse counter	*/
 
-
-pthread_mutex_t a_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /*
@@ -250,7 +246,6 @@ void disk_check_r(char *token, char *buf)
 {
     mfs_list	    *tmp;
     unsigned int    needed, lowest = 0xffffffff;
-    int		    rc;
 
     strtok(token, ",");
     needed = atol(strtok(NULL, ";"));
@@ -263,16 +258,10 @@ void disk_check_r(char *token, char *buf)
 	return;
     }
 
-    if ((rc = pthread_mutex_lock(&a_mutex)))
-	Syslog('!', "disk_check() mutex_lock failed rc=%d", rc);
-
     for (tmp = mfs; tmp; tmp = tmp->next) {
 	if (!tmp->ro && (tmp->avail < lowest))
 	    lowest = tmp->avail;
     }
-
-    if ((rc = pthread_mutex_unlock(&a_mutex)))
-	Syslog('!', "disk_check() mutex_unlock failed rc=%d", rc);
 
     if (lowest < needed) {
 	snprintf(buf, SS_BUFSIZE, "100:2,0,%d;", lowest);
@@ -292,16 +281,13 @@ void disk_getfs_r(char *buf)
 {
     char	    tt[80], *ans = NULL;
     mfs_list	    *tmp;
-    int		    rc, i = 0;
+    int		    i = 0;
 
     buf[0] = '\0';
     if (mfs == NULL) {
 	snprintf(buf, SS_BUFSIZE, "100:0;");
 	return;
     }
-
-    if ((rc = pthread_mutex_lock(&a_mutex)))
-	Syslog('!', "disk_getfs() mutex_lock failed rc=%d", rc);
 
     for (tmp = mfs; tmp; tmp = tmp->next) {
 	i++;
@@ -315,8 +301,6 @@ void disk_getfs_r(char *buf)
 	if (i == 10) /* No more then 10 filesystems */
 	    break;
     }
-    if ((rc = pthread_mutex_unlock(&a_mutex)))
-	Syslog('!', "disk_getfs() mutex_unlock failed rc=%d", rc);
 
     if (strlen(ans) > (SS_BUFSIZE - 8))
 	snprintf(buf, SS_BUFSIZE, "100:0;");
@@ -333,7 +317,7 @@ void disk_getfs_r(char *buf)
 
 
 /*
- * Update disk useage status. The calling function must lock the mutex!
+ * Update disk useage status.
  */
 void update_diskstat(void)
 {
@@ -473,221 +457,172 @@ void add_path(char *lpath)
 
 
 /*
- * Diskwatch thread
+ * Diskwatch 
  */
-void *disk_thread(void)
+void diskwatch(void)
 {
     FILE	*fp;
     char	*temp = NULL;
     mfs_list	*tmp;
-    int		rc;
 
-    Syslog('+', "Start disk thread");
-    disk_run = TRUE;
-    disk_reread = TRUE;
-    
-    while (! T_Shutdown) {
+    if (disk_reread) {
+        disk_reread = FALSE;
+        Syslog('+', "Reread disk filesystems");
 
-	if (disk_reread) {
-	    disk_reread = FALSE;
-	    Syslog('+', "Reread disk filesystems");
+        tidy_mfslist(&mfs);
 
-	    if ((rc = pthread_mutex_lock(&a_mutex)))
-		Syslog('!', "disk_thread() mutex_lock failed rc=%d", rc);
-
-	    tidy_mfslist(&mfs);
-
-	    add_path(getenv("MBSE_ROOT"));
-	    add_path(CFG.bbs_menus);
-	    add_path(CFG.bbs_txtfiles);
-	    add_path(CFG.alists_path);
-	    add_path(CFG.req_magic);
-	    add_path(CFG.bbs_usersdir);
-	    add_path(CFG.nodelists);
-	    add_path(CFG.inbound);
-	    add_path(CFG.pinbound);
-	    add_path(CFG.outbound);
-	    add_path(CFG.ftp_base);
-	    add_path(CFG.bbs_macros);
-	    add_path(CFG.out_queue);
-	    add_path(CFG.rulesdir);
-	    add_path(CFG.tmailshort);
-	    add_path(CFG.tmaillong);
+        add_path(getenv("MBSE_ROOT"));
+        add_path(CFG.bbs_menus);
+        add_path(CFG.bbs_txtfiles);
+        add_path(CFG.alists_path);
+        add_path(CFG.req_magic);
+        add_path(CFG.bbs_usersdir);
+        add_path(CFG.nodelists);
+        add_path(CFG.inbound);
+        add_path(CFG.pinbound);
+        add_path(CFG.outbound);
+        add_path(CFG.ftp_base);
+        add_path(CFG.bbs_macros);
+        add_path(CFG.out_queue);
+        add_path(CFG.rulesdir);
+        add_path(CFG.tmailshort);
+        add_path(CFG.tmaillong);
 	
-	    temp = calloc(PATH_MAX, sizeof(char ));
-	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&areahdr, sizeof(areahdr), 1, fp);
-		fseek(fp, areahdr.hdrsize, SEEK_SET);
+        temp = calloc(PATH_MAX, sizeof(char ));
+        snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&areahdr, sizeof(areahdr), 1, fp);
+	    fseek(fp, areahdr.hdrsize, SEEK_SET);
 
-		while (fread(&area, areahdr.recsize, 1, fp)) {
-		    if (area.Available) { 
-			add_path(area.Path);
-		    }
+	    while (fread(&area, areahdr.recsize, 1, fp)) {
+	        if (area.Available) { 
+		    add_path(area.Path);
 		}
-		fclose(fp);
 	    }
-
-	    if (T_Shutdown)
-		break;
-	    
-	    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&msgshdr, sizeof(msgshdr), 1, fp);
-		fseek(fp, msgshdr.hdrsize, SEEK_SET);
-
-		while (fread(&msgs, msgshdr.recsize, 1, fp)) {
-		    if (msgs.Active)
-			add_path(msgs.Base);
-		    fseek(fp, msgshdr.syssize, SEEK_CUR);
-		}
-		fclose(fp);
-	    }
-
-	    if (T_Shutdown)
-		break;
-	    
-	    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&langhdr, sizeof(langhdr), 1, fp);
-		fseek(fp, langhdr.hdrsize, SEEK_SET);
-
-		while (fread(&lang, langhdr.recsize, 1, fp)) {
-		    if (lang.Available) {
-			add_path(lang.MenuPath);
-			add_path(lang.TextPath);
-			add_path(lang.MacroPath);
-		    }
-		}
-		fclose(fp);
-	    }
-
-	    if (T_Shutdown)
-		break;
-	    
-	    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
-		fseek(fp, nodeshdr.hdrsize, SEEK_SET);
-
-		while (fread(&nodes, nodeshdr.recsize, 1, fp)) {
-		    if (nodes.Session_in == S_DIR)
-			add_path(nodes.Dir_in_path);
-		    if (nodes.Session_out == S_DIR)
-			add_path(nodes.Dir_out_path);
-		    add_path(nodes.OutBox);
-		    fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
-		}
-		fclose(fp);
-	    }
-
-	    if (T_Shutdown)
-		break;
-
-	    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
-		fseek(fp, fgrouphdr.hdrsize, SEEK_SET);
-
-		while (fread(&fgroup, fgrouphdr.recsize, 1, fp)) {
-		    if (fgroup.Active)
-			add_path(fgroup.BasePath);
-		}
-		fclose(fp);
-	    }
-	    
-	    if (T_Shutdown)
-		break;
-	    
-	    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
-		fseek(fp, mgrouphdr.hdrsize, SEEK_SET);
-
-		while (fread(&mgroup, mgrouphdr.recsize, 1, fp)) {
-		    if (mgroup.Active)
-			add_path(mgroup.BasePath);
-		}
-		fclose(fp);
-	    }
-
-	    if (T_Shutdown)
-		break;
-	    
-	    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
-		fseek(fp, hatchhdr.hdrsize, SEEK_SET);
-
-		while (fread(&hatch, hatchhdr.recsize, 1, fp)) {
-		    if (hatch.Active)
-			add_path(hatch.Spec);
-		}
-		fclose(fp);
-	    }
-
-	    if (T_Shutdown)
-		break;
-	    
-	    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r"))) {
-		Syslog('d', "+ %s", temp);
-		fread(&magichdr, sizeof(magichdr), 1, fp);
-		fseek(fp, magichdr.hdrsize, SEEK_SET);
-
-		while (fread(&magic, magichdr.recsize, 1, fp)) {
-		    if (magic.Active && ((magic.Attrib == MG_COPY) || (magic.Attrib == MG_UNPACK)))
-			add_path(magic.Path);
-		}
-		fclose(fp);
-	    }
-	    free(temp);
-	    temp = NULL;
-	    Syslog('d', "All directories added");
-
-	    /*
-	     * Now update the new table with filesystems information. This must
-	     * be done before we unlock the mutex so that waiting clients get
-	     * usefull information.
-	     */
-	    update_diskstat();
-	    for (tmp = mfs; tmp; tmp = tmp->next) {
-		Syslog('+', "Found filesystem: %s type: %s status: %s", tmp->mountpoint, tmp->fstype, tmp->ro ?"RO":"RW");
-	    }
-
-	    if ((rc = pthread_mutex_unlock(&a_mutex)))
-		Syslog('!', "disk_thread() mutex_unlock failed rc=%d", rc);
+	    fclose(fp);
 	}
 
-	if ((rc = pthread_mutex_lock(&a_mutex)))
-	    Syslog('!', "disk_thread() mutex_lock failed rc=%d", rc);
-	
-	update_diskstat();
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&msgshdr, sizeof(msgshdr), 1, fp);
+	    fseek(fp, msgshdr.hdrsize, SEEK_SET);
 
-	if ((rc = pthread_mutex_unlock(&a_mutex)))
-	    Syslog('!', "disk_thread() mutex_unlock failed rc=%d", rc);
+	    while (fread(&msgs, msgshdr.recsize, 1, fp)) {
+	        if (msgs.Active)
+		    add_path(msgs.Base);
+		fseek(fp, msgshdr.syssize, SEEK_CUR);
+	    }
+	    fclose(fp);
+	}
 
-	sleep(1);
+	snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&langhdr, sizeof(langhdr), 1, fp);
+	    fseek(fp, langhdr.hdrsize, SEEK_SET);
+
+	    while (fread(&lang, langhdr.recsize, 1, fp)) {
+	        if (lang.Available) {
+		    add_path(lang.MenuPath);
+		    add_path(lang.TextPath);
+		    add_path(lang.MacroPath);
+		}
+	    }
+	    fclose(fp);
+	}
+
+	snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
+	    fseek(fp, nodeshdr.hdrsize, SEEK_SET);
+
+	    while (fread(&nodes, nodeshdr.recsize, 1, fp)) {
+	        if (nodes.Session_in == S_DIR)
+		    add_path(nodes.Dir_in_path);
+		if (nodes.Session_out == S_DIR)
+		    add_path(nodes.Dir_out_path);
+		add_path(nodes.OutBox);
+		fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+	    }
+	    fclose(fp);
+	}
+
+	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
+	    fseek(fp, fgrouphdr.hdrsize, SEEK_SET);
+
+	    while (fread(&fgroup, fgrouphdr.recsize, 1, fp)) {
+	        if (fgroup.Active)
+		    add_path(fgroup.BasePath);
+	    }
+	    fclose(fp);
+	}
+	    
+	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
+	    fseek(fp, mgrouphdr.hdrsize, SEEK_SET);
+
+	    while (fread(&mgroup, mgrouphdr.recsize, 1, fp)) {
+	        if (mgroup.Active)
+		    add_path(mgroup.BasePath);
+	    }
+	    fclose(fp);
+	}
+
+	snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
+	    fseek(fp, hatchhdr.hdrsize, SEEK_SET);
+
+	    while (fread(&hatch, hatchhdr.recsize, 1, fp)) {
+	        if (hatch.Active)
+		    add_path(hatch.Spec);
+	    }
+	    fclose(fp);
+	}
+
+	snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r"))) {
+	    Syslog('d', "+ %s", temp);
+	    fread(&magichdr, sizeof(magichdr), 1, fp);
+	    fseek(fp, magichdr.hdrsize, SEEK_SET);
+
+	    while (fread(&magic, magichdr.recsize, 1, fp)) {
+	        if (magic.Active && ((magic.Attrib == MG_COPY) || (magic.Attrib == MG_UNPACK)))
+		    add_path(magic.Path);
+	    }
+	    fclose(fp);
+	}
+	free(temp);
+	temp = NULL;
+	Syslog('d', "All directories added");
+
+	/*
+         * Now update the new table with filesystems information.
+         */
+        update_diskstat();
+	for (tmp = mfs; tmp; tmp = tmp->next) {
+	    Syslog('+', "Found filesystem: %s type: %s status: %s", tmp->mountpoint, tmp->fstype, tmp->ro ?"RO":"RW");
+	}
     }
 
-    tidy_mfslist(&mfs);
-    if (temp)
-	free(temp);
-    temp = NULL;
-    disk_run = FALSE;
-    Syslog('+', "Disk thread stopped");
-    pthread_exit(NULL);
+    update_diskstat();
+}
 
-#if defined(__NetBSD__)
-    return NULL;
-#endif
+
+
+void deinit_diskwatch()
+{
+    Syslog('d', "De-init diskwatch done");
+    tidy_mfslist(&mfs);
 }
 
 

@@ -76,6 +76,7 @@ extern int		srvchg;
 /*
  * Prototypes
  */
+void Chatlog(char *, char *, char *);
 void chat_dump(void);
 void system_msg(pid_t, char *);
 void chat_help(pid_t, int);
@@ -129,7 +130,6 @@ void system_msg(pid_t pid, char *msg)
     else
 	buffer_head = 0;
 
-//    Syslog('c', "system_msg(%d, %s) ptr=%d", pid, msg, buffer_head);
     memset(&chat_messages[buffer_head], 0, sizeof(_chat_messages));
     chat_messages[buffer_head].topid = pid;
     snprintf(chat_messages[buffer_head].fromname, 36, "Server");
@@ -207,11 +207,8 @@ int join(pid_t pid, char *channel, int sysop)
 		for (tmpu = users; tmpu; tmpu = tmpu->next) {
 		    if (tmpu->pid == pid) {
 
-			if (! lock_ibc((char *)"join 1")) {
-			    strncpy(tmpu->channel, channel, 20);
-			    tmp->users++;
-			    unlock_ibc((char *)"join 1");
-			}
+			strncpy(tmpu->channel, channel, 20);
+			tmp->users++;
 			Syslog('+', "IBC: user %s has joined channel %s", tmpu->nick, channel);
 			usrchg = TRUE;
 			srvchg = TRUE;
@@ -249,10 +246,7 @@ int join(pid_t pid, char *channel, int sysop)
 	if (tmpu->pid == pid) {
 	    if (add_channel(&channels, channel, tmpu->nick, CFG.myfqdn) == 0) {
 
-		if (! lock_ibc((char *)"join 2")) {
-		    strncpy(tmpu->channel, channel, 20);
-		    unlock_ibc((char *)"join 2");
-		}
+		strncpy(tmpu->channel, channel, 20);
 		Syslog('+', "IBC: user %s created and joined channel %s", tmpu->nick, channel);
 		usrchg = TRUE;
 		chnchg = TRUE;
@@ -318,11 +312,8 @@ int part(pid_t pid, char *reason)
 		    /*
 		     * Clean channel
 		     */
-		    if (! lock_ibc((char *)"part 1")) {
-			if (tmp->users > 0)
-			    tmp->users--;
-			unlock_ibc((char *)"part 1");
-		    }
+		    if (tmp->users > 0)
+			tmp->users--;
 		    Syslog('+', "IBC: nick %s leaves channel %s, %d user left", tmpu->nick, tmp->name, tmp->users);
 		    if (tmp->users == 0) {
 			/*
@@ -337,10 +328,7 @@ int part(pid_t pid, char *reason)
 		    /*
 		     * Update user data
 		     */
-		    if (! lock_ibc((char *)"part 2")) {
-			tmpu->channel[0] = '\0';
-			unlock_ibc((char *)"part 2");
-		    }
+		    tmpu->channel[0] = '\0';
 		    usrchg = TRUE;
 		    chnchg = TRUE;
 		    srvchg = TRUE;
@@ -436,12 +424,9 @@ void chat_connect_r(char *data, char *buf)
 	    /*
 	     * Oke, found
 	     */
-	    if (! lock_ibc((char *)"chat_connect")) {
-		tmpu->pid = atoi(pid);
-		tmpu->pointer = buffer_head;
-		tmpu->sysop = sys;
-		unlock_ibc((char *)"chat_connect");
-	    }
+	    tmpu->pid = atoi(pid);
+	    tmpu->pointer = buffer_head;
+	    tmpu->sysop = sys;
 	    usrchg = TRUE;
 	    srvchg = TRUE;
 	    Syslog('c', "Connected user %s (%s) with chatserver, sysop %s", realname, pid, sys ? "True":"False");
@@ -500,6 +485,7 @@ void chat_close_r(char *data, char *buf)
 	    return;
 	}
     }
+
     Syslog('c', "Pid %s was not connected to chatserver");
     snprintf(buf, 81, "100:1,*** ERROR - Not connected to server;");
     return;
@@ -810,15 +796,16 @@ void chat_checksysop_r(char *data, char *buf)
     pid = strtok(data, ",");
     pid = strtok(NULL, ";");
 
+
     if (reg_ispaging(pid)) {
 	Syslog('c', "Check sysopchat for pid %s, user has paged", pid);
 
-	/*
-	 * Now check if sysop is present in the sysop channel
-	 */
-	for (tmpu = users; tmpu; tmpu = tmpu->next) {
+        /*
+         * Now check if sysop is present in the sysop channel
+         */
+        for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	    if (atoi(pid) != tmpu->pid) {
-		if (strlen(tmpu->channel) && (strcasecmp(tmpu->channel, "#sysop") == 0) && tmpu->sysop) {
+	        if (strlen(tmpu->channel) && (strcasecmp(tmpu->channel, "#sysop") == 0) && tmpu->sysop) {
 		    Syslog('c', "Sending ACK on check");
 		    snprintf(buf, 20, "100:1,1;");
 		    reg_sysoptalk(pid);

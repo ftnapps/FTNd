@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - ping functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,8 +45,12 @@ int     		icmp_errs = 0;		/* ICMP error counter	*/
 extern int		internet;		/* Internet is down	*/
 extern int		rescan;			/* Master rescan flag	*/
 struct in_addr		paddr;			/* Current ping address	*/
-extern int		T_Shutdown;		/* Program shutdown	*/
-int			ping_run = FALSE;	/* Thread runnning	*/
+int			pingnr = 2;		/* Ping number		*/
+int			pingresult[2];		/* Results of pings	*/
+time_t			ping_rcvd;		/* Time ping received	*/
+time_t			ping_sent;		/* Time ping sent	*/
+time_t			ping_next;		/* Time to sent next	*/
+char			pingaddress[41];	/* Last pingaddress	*/
 
 
 
@@ -56,7 +60,6 @@ int			ping_run = FALSE;	/* Thread runnning	*/
 static int      icmp4_errcmp(char *, int, struct in_addr *, char *, int, int);
 unsigned short  get_rand16(void);
 int             ping_send(struct in_addr);
-int             ping_receive(struct in_addr);
 
 
 /* 
@@ -231,71 +234,50 @@ int ping_send(struct in_addr addr)
 
 
 /*
- *  0 = reply received Ok.
- * -1 = reply packet not for us, this is Ok.
- * -2 = destination unreachable.
- * -3 = poll/select error.
- * -4 = time exceeded.
- * -5 = wrong packetlen received.
- * -6 = no data received, this is Ok.
- * -7 = icmp parameter problem.
+ * Process received data on ping socket
  */
-int ping_receive(struct in_addr addr)
+void ping_receive(char *buf, int len)
 {
-    char                buf[1024]; 
-    int                 rc, len;
-    struct sockaddr_in	ffrom;
     struct icmphdr      icmpp;
     struct iphdr        iph;
-    socklen_t           sl;        
-    struct pollfd       pfd;
+    int			reply;
 
-    pfd.fd = ping_isocket;
-    pfd.events = POLLIN;
-    pfd.revents = 0;
-
-    /*
-     *  100 mSec is enough, this function is called at regular intervals.
-     */
-    if ((rc = poll(&pfd, 1, 100) < 0)) {
-	if (icmp_errs < ICMP_MAX_ERRS)
-	    Syslog('?', "$poll/select failed");
-	return -3; 
-    }
-
-    if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
-	sl = sizeof(ffrom);
-	if ((len = recvfrom(ping_isocket, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
-	    if (len > sizeof(struct iphdr)) {
-		memcpy(&iph, buf, sizeof(iph));
-		if (len - iph.ip_hl * 4 >= ICMP_BASEHDR_LEN) {
-		    memcpy(&icmpp, ((uint32_t *)buf)+iph.ip_hl, sizeof(icmpp));
-		    if (iph.ip_saddr == addr.s_addr && icmpp.icmp_type == ICMP_ECHOREPLY &&
-			ntohs(icmpp.icmp_id) == id && ntohs(icmpp.icmp_seq) == p_sequence) {
-			return 0;
-		    } else {
-			/* No regular echo reply. Maybe an error? */
-			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_DEST_UNREACH))
-			    return -2;
-			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_TIME_EXCEEDED))
-			    return -4;
-#ifdef __linux__
-			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_PARAMETERPROB))
-			    return -7;
-#endif
-			/*
-			 * No fatal problem, the return code will be -1 caused by other
-			 * icmp trafic on the network (packets not for us).
-			 */
-			return -1;
-		    }
-		}
-	    }
+    memcpy(&iph, buf, sizeof(iph));
+    if (len - iph.ip_hl * 4 >= ICMP_BASEHDR_LEN) {
+	memcpy(&icmpp, ((uint32_t *)buf)+iph.ip_hl, sizeof(icmpp));
+	if (iph.ip_saddr == paddr.s_addr && icmpp.icmp_type == ICMP_ECHOREPLY &&
+	    ntohs(icmpp.icmp_id) == id && ntohs(icmpp.icmp_seq) == p_sequence) {
+	    /*
+	     * Good reply
+	     */
+	    ping_rcvd = time(NULL);
+	    pingresult[pingnr - 1] = TRUE;
+	    reply = ((int)ping_rcvd - (int)ping_sent);
+	    if (reply > 10)
+		Syslog('p', "Ping: got slow reply pingnr=%d to %s in %d seconds", pingnr, pingaddress, reply);
+	    return;
 	} else {
-	    return -5; /* error */
+	    /* No regular echo reply. Maybe an error? */
+	    if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_DEST_UNREACH)) {
+		Syslog('p', "Ping: got destination unreachable");
+		return;
+	    }
+	    if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_TIME_EXCEEDED)) {
+		Syslog('p', "Ping: got time exceeded");
+		return;
+	    }
+#ifdef __linux__
+	    if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_PARAMETERPROB)) {
+		Syslog('p', "Ping: got parameter problem");
+		return;
+	    }
+#endif
+	    /*
+	     * Received packet was not for us.
+	     */
+	    return;
 	}
     }
-    return -6; /* no answer */
 }
 
 
@@ -321,28 +303,32 @@ void init_pingsocket(void)
     if (ping_isocket == STDIN_FILENO || ping_isocket == STDOUT_FILENO || ping_isocket == STDERR_FILENO) {
 	exit(MBERR_GENERAL);
     }
+
+    pingresult[0] = pingresult[1] = FALSE;
+    ping_next = ping_sent = ping_rcvd = time(NULL);
+    snprintf(pingaddress, 41, "N/A");
 }
 
 
 
 /*
- * Ping thread
+ * Called regular, but at least each second
  */
-void *ping_thread(void *dummy)
+void check_ping(void)
 {
     int		    rc = 0;
-    static int      pingnr, pingresult[2];
-    static char     pingaddress[41];
-    static time_t   pingsend;
     time_t	    now;
 
-    Syslog('+', "Starting ping thread");
-    pingresult[1] = pingresult[2] = FALSE;
-    pingnr = 2;
-    internet = FALSE;
-    ping_run = TRUE;
-
-    while (! T_Shutdown) {
+//    Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
+    now = time(NULL);
+    if ((int)now >= (int)ping_next) {
+//	Syslog('p', "Ping: time for next");
+	/*
+	 * Was previous ping received?
+	 */
+	if (pingresult[pingnr - 1] == FALSE) {
+	    Syslog('p', "Ping: timeout to %s", pingaddress);
+	}
 
 	/*
 	 * Select new address to ping
@@ -352,114 +338,74 @@ void *ping_thread(void *dummy)
 	    if (strlen(TCFG.isp_ping2)) {
 		snprintf(pingaddress, 41, "%s", TCFG.isp_ping2);
 	    } else {
-		pingresult[2] = FALSE;
+		pingresult[1] = TRUE;
 	    }
 	} else {
 	    pingnr = 1;
 	    if (strlen(TCFG.isp_ping1)) {
 		snprintf(pingaddress, 41, "%s", TCFG.isp_ping1);
 	    } else {
-		pingresult[1] = FALSE;
+		pingresult[0] = TRUE;
 	    }
 	}
 
+//	Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
+
+	ping_next = (time_t)(now + 20);
+
 	if (inet_aton(pingaddress, &paddr)) {
+	    pingresult[pingnr - 1] = FALSE;
 	    rc = ping_send(paddr);
+//	    Syslog('p', "Ping: %d sent to %s rc=%d", pingnr, pingaddress, rc);
 	    if (rc) {
 		if (icmp_errs++ < ICMP_MAX_ERRS)
 		    Syslog('?', "ping: to %s rc=%d", pingaddress, rc);
-		pingresult[pingnr] = FALSE;
-		now = time(NULL) + 10;
-
-		while ((! T_Shutdown) && (time(NULL) < now)) {
-		    sleep(1);
-		}
-		if (T_Shutdown)
-		    break;
 	    } else {
-		pingsend = time(NULL);
-
-		while (TRUE) {
-		    if (T_Shutdown)
-			break;
-
-		    if (time(NULL) >= (pingsend + 20)) {
-			pingresult[pingnr] = FALSE;
-			if (icmp_errs < ICMP_MAX_ERRS)
-			    Syslog('?', "ping: to %s timeout", pingaddress);
-			break;
-		    } else {
-			/*
-			 * Quickly eat all packets not for us, we only want our
-			 * packets and empty results (packet still underway).
-			 */
-			while ((rc = ping_receive(paddr)) == -1);
-			if (!rc) {
-			    /*
-			     * Reply received.
-			     */
-			    rc = time(NULL) - pingsend;
-			    if (rc > 10)
-				Syslog('+', "Ping: slow reply after %d seconds", rc);
-			    pingresult[pingnr] = TRUE;
-			    now = time(NULL) + 20 - rc;
-			    while ((! T_Shutdown) && (time(NULL) < now)) {
-				sleep(1);
-			    }
-			    break;
-			} else {
-			    if (rc != -6) {
-				Syslog('p', "ping: recv %s id=%d rc=%d", pingaddress, id, rc);
-				pingresult[pingnr] = FALSE;
-			    }
-			}
-		    }
-		} /* while TRUE */
-	    }
-	} else {
-	    if (icmp_errs++ < ICMP_MAX_ERRS)
-		Syslog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
-	    now = time(NULL) + 10;
-	    while ((! T_Shutdown) && (time(NULL) < now)) {
-		sleep(1);
-	    }
-	}
-
-	if (T_Shutdown)
-	    break;
-
-	/* 
-	 *  Evaluate the result of the ping test
-	 */
-	if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
-	    icmp_errs++;
-	    if (internet) {
-		Syslog('!', "Internet connection is down");
-		internet = FALSE;
-		sem_set((char *)"scanout", TRUE);
-		RemoveSema((char *)"is_inet");
-		rescan = TRUE;
-	    }
-	} else {
-	    icmp_errs = 0;
-	    if (!internet) {
-		Syslog('!', "Internet connection is up");
-		internet = TRUE;
-		sem_set((char *)"scanout", TRUE);
-		CreateSema((char *)"is_inet");
-		rescan = TRUE;
+		ping_sent = now;
+		pingresult[pingnr - 1] = FALSE;
+//		Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
+		return; // Don't check right after send
 	    }
 	}
     }
+
+//    Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
+    /* 
+     *  Evaluate the result of the ping test
+     */
+    if ((pingresult[0] == FALSE) && (pingresult[1] == FALSE)) {
+	icmp_errs++;
+	if (internet) {
+	    Syslog('!', "Internet connection is down");
+	    internet = FALSE;
+	    sem_set((char *)"scanout", TRUE);
+	    RemoveSema((char *)"is_inet");
+	    rescan = TRUE;
+	}
+    } else {
+	icmp_errs = 0;
+	if (!internet) {
+	    Syslog('!', "Internet connection is up");
+	    internet = TRUE;
+	    sem_set((char *)"scanout", TRUE);
+	    CreateSema((char *)"is_inet");
+	    rescan = TRUE;
+	}
+    }
+}
+
+
+
+void deinit_ping(void)
+{
+    int	    rc;
 
     if ((rc = close(ping_isocket))) {
 	WriteError("$ping thread error socket close");
     }
     ping_isocket = -1;
 
-    ping_run = FALSE;
     Syslog('+', "Ping thread stopped");
-    pthread_exit(NULL);
 }
 
 

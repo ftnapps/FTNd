@@ -2,9 +2,19 @@ $Id$
 
 v0.83.12	06-Feb-2006
 
+	mbselib.a:
+		On socket send error 2, abort the client program.
+
 	mbsebbs:
 		Added screen rows detection using ANSI sequences needed for
 		some terminal programs like minicom.
+
+	mbtask:
+		On shutdown also send PART and QUIT messages to all our links
+		for our own users if they are still online so that the network
+		will keep the correct state.
+		Removed all thread programming so that mbtask is now a single
+		process again. This should fix the crash problem during chat.
 
 
 v0.83.11	28-Jan-2006 - 06-Feb-2006

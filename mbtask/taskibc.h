@@ -106,9 +106,6 @@ typedef struct _nick_list {
 } nick_list;
 
 
-
-int  lock_ibc(char *);
-void unlock_ibc(char *);
 int  add_user(usr_list **, char *, char *, char *);
 void del_user(usr_list **, char *, char *);
 int  add_channel(chn_list **, char *, char *, char *);
@@ -118,7 +115,10 @@ int  do_command(char *, char *, char *);
 void send_all(const char *, ...);
 void send_at(char *, char *, char *);
 void send_nick(char *, char *, char *);
-void *ibc_thread(void *);
+void check_servers(void);
+void ibc_receiver(char *);
+void ibc_shutdown(void);
+
 
 
 #endif

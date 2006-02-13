@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE Deamon Client
  *
  *****************************************************************************
- * Copyright (C) 1993-2005
+ * Copyright (C) 1993-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -158,6 +158,9 @@ int socket_send(char *buf)
 
     if (sendto(sock, buf, strlen(buf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr)) != strlen(buf)) {
 	printf("Socket send failed error %d\n", errno);
+	if (errno == 2) {
+	    abort();
+	}
 	return -1;
     }
     return 0;

@@ -37,6 +37,7 @@
 #include "taskutil.h"
 #include "taskchat.h"
 #include "taskcomm.h"
+#include "taskibc.h"
 
 
 extern int			oserr;		/* Copy of Unix error	*/
@@ -45,8 +46,6 @@ extern struct sockaddr_un	from;		/* From socket address	*/
 extern int			fromlen;	/* From address length	*/
 extern int			logtrans;	/* Log transactions	*/
 extern int			T_Shutdown;	/* Program shutdown     */
-extern int			ibc_run;	/* Chatserver running	*/
-int				cmd_run = FALSE;/* cmd running		*/
 
 
 
@@ -288,12 +287,8 @@ char *exe_cmd(char *in)
      * 100:0;		    Ok
      */
     if (strncmp(cmd, "CPAG", 4) == 0) {
-	if (ibc_run) {
-	    if ((result = reg_page(token))) {
-		snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
-	    }
-	} else {
-	    snprintf(obuf, SS_BUFSIZE, "100:1,3;");
+	if ((result = reg_page(token))) {
+	    snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
 	}
 	Syslog('+', "%s", obuf);
 	return obuf;
@@ -347,15 +342,11 @@ char *exe_cmd(char *in)
      * 100:0;			Ok
      */
     if (strncmp(cmd, "CCON", 4) == 0) {
-	if (ibc_run) {
-	    buf = calloc(SS_BUFSIZE, sizeof(char));
-	    chat_connect_r(token, buf);
-	    snprintf(obuf, SS_BUFSIZE, "%s", buf);
-	    free(buf);
-	    return obuf;
-	} else {
-	    return ebuf;
-	}
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+        chat_connect_r(token, buf);
+        snprintf(obuf, SS_BUFSIZE, "%s", buf);
+        free(buf);
+        return obuf;
     }
     
     /*
@@ -668,7 +659,6 @@ char *exe_cmd(char *in)
 
 
 
-void do_cmd(char *);
 void do_cmd(char *cmd)
 {
     char    buf[SS_BUFSIZE];
@@ -693,61 +683,6 @@ void do_cmd(char *cmd)
 	    return;
 	sleep(1);
     }
-}
-
-
-
-/*
- * Thread that reads the command socket for new commands.
- */
-void *cmd_thread(void)
-{
-    int		    rlen, rc;
-    struct pollfd   pfd;
-    static char	    buf[2048];
-
-    Syslog('+', "Starting cmd thread");
-    cmd_run = TRUE;
-
-    while (! T_Shutdown) {
-	/*
-	 *  Poll UNIX Datagram socket until the defined timeout of one second.
-	 *  This means we listen of a MBSE BBS client program has something
-	 *  to tell.
-	 */
-	pfd.fd = sock;
-	pfd.events = POLLIN;
-	pfd.revents = 0;
-	rc = poll(&pfd, 1, 1000);
-	if (rc == -1) { 
-	    /* 
-	     *  Poll can be interrupted by a finished child so that's not a real error.
-	     */
-	    if (errno != EINTR) {
-		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd.revents);
-	    }
-	} else if (rc) {
-	    if (pfd.revents & POLLIN) {
-		/*
-		 * Process the clients request
-		 */
-		memset(&buf, 0, sizeof(buf));
-		fromlen = sizeof(from);
-		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, (struct sockaddr *)&from, &fromlen);
-		if (rlen == -1) {
-		    Syslog('?', "$recvfrom()");
-		} else {
-		    do_cmd(buf);
-		}
-	    } else {
-		Syslog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
-	    }
-	}
-    }
-
-    cmd_run = FALSE;
-    Syslog('+', "Cmd thread stopped");
-    pthread_exit(NULL);
 }
 
 

@@ -47,7 +47,7 @@ pid_t		launch(char *, char *, char *, int);
 int		runtasktype(int);
 int		checktasks(int);
 void		die(int);
-void		start_scheduler(void);
+void		start_scheduler(int);
 void		scheduler(void);
 int		locktask(char *);
 void		ulocktask(void);

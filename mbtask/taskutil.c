@@ -46,6 +46,8 @@ unsigned int		    lcrc = 0, tcrc = 1;
 int			    lcnt = 0, lchr;
 static char		    *pbuff = NULL;
 
+pthread_mutex_t l_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 
 static char *mon[] = {
     (char *)"Jan",(char *)"Feb",(char *)"Mar",
@@ -62,15 +64,13 @@ static char *mon[] = {
 
 void WriteError(const char *format, ...)
 {
-    char    *outputstr;
+    char    outputstr[1024];
     va_list va_ptr;
 
-    outputstr = calloc(10240, sizeof(char));
     va_start(va_ptr, format);
-    vsnprintf(outputstr, 10240, format, va_ptr);
+    vsnprintf(outputstr, 1024, format, va_ptr);
     va_end(va_ptr);
     Syslog('?', outputstr);
-    free(outputstr);
 }
 
 
@@ -81,12 +81,17 @@ void WriteError(const char *format, ...)
 void Syslog(int grade, const char *format, ...)
 {
     va_list	va_ptr;
-    char	outstr[1024], datestr[21];
+    char	outstr[1024], datestr[21], lname[PATH_MAX];
     int		oldmask, debug;
     FILE	*logfile = NULL, *debugfile;
-    char	*logname = NULL, *debugname;
     time_t	now;
     struct tm	ptm;
+
+    if (pthread_mutex_lock(&l_mutex)) {
+	perror("");
+	printf("Syslog mutex_lock l_nutex failed\n");
+	return;
+    }
 
     debug = isalpha(grade);
     va_start(va_ptr, format);
@@ -96,35 +101,33 @@ void Syslog(int grade, const char *format, ...)
     tcrc = StringCRC32(outstr);
     if (tcrc == lcrc) {
 	lcnt++;
+	pthread_mutex_unlock(&l_mutex);
         return;
     }
     lcrc = tcrc;
 
     if (!debug) {
-	logname = calloc(PATH_MAX, sizeof(char));
 	oldmask=umask(066);
-	snprintf(logname, PATH_MAX, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
-	logfile = fopen(logname, "a");
+	snprintf(lname, PATH_MAX, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
+	logfile = fopen(lname, "a");
 	umask(oldmask);
 	if (logfile == NULL) {
-	    printf("Cannot open logfile \"%s\"\n", logname);
-	    free(logname);
+	    printf("Can't open logfile \"%s\"\n", lname);
+	    pthread_mutex_unlock(&l_mutex);
 	    return;
 	}
     }
 
-    debugname = calloc(PATH_MAX, sizeof(char));
     oldmask=umask(066);
-    snprintf(debugname, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), CFG.debuglog);
-    debugfile = fopen(debugname, "a");
+    snprintf(lname, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), CFG.debuglog);
+    debugfile = fopen(lname, "a");
     umask(oldmask);
     if (debugfile == NULL) {
-	printf("Cannot open logfile \"%s\"\n", debugname);
-	free(debugname);
+	printf("Can't open logfile \"%s\"\n", lname);
 	if (!debug) {
-	    free(logname);
 	    fclose(logfile);
 	}
+	pthread_mutex_unlock(&l_mutex);
 	return;
     }
 	
@@ -150,10 +153,8 @@ void Syslog(int grade, const char *format, ...)
 	    fprintf(logfile, "\n");
 
 	fflush(logfile);
-	    if (fclose(logfile) != 0)
-		printf("Cannot close logfile \"%s\"\n", logname);
-
-	free(logname);
+	if (fclose(logfile) != 0)
+	    printf("Can't close mbtask.log");
     }
 
     fprintf(debugfile, "%c %s mbtask[%d] ", grade, datestr, mypid);
@@ -165,11 +166,10 @@ void Syslog(int grade, const char *format, ...)
 
     fflush(debugfile);
     if (fclose(debugfile) != 0)
-    printf("Cannot close logfile \"%s\"\n", debugname);
+	printf("Can't close logfile \"%s\"\n", CFG.debuglog);
 
     lchr = grade;
-    free(debugname);
-
+    pthread_mutex_unlock(&l_mutex);
     return;
 }
 
@@ -259,14 +259,12 @@ char *xstrcat(char *src, char *add)
 
 void CreateSema(char *sem)
 {
-    char    *temp;
+    char    temp[PATH_MAX];
     FILE    *fp;
     int	    oldmask;
 
-    temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK) == 0) {
-	free(temp);
 	return;
     }
     oldmask = umask(002);
@@ -274,7 +272,6 @@ void CreateSema(char *sem)
 	fclose(fp);
     else
         Syslog('?', "Can't create semafore %s", temp);
-    free(temp);
     umask(oldmask);
 }
 
@@ -282,18 +279,16 @@ void CreateSema(char *sem)
 
 void TouchSema(char *sem)
 {
-    char    *temp;
+    char    temp[PATH_MAX];
     FILE    *fp;
     int	    oldmask;
 
-    temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     oldmask = umask(002);
     if ((fp = fopen(temp, "w"))) {
 	fclose(fp);
     } else
         Syslog('?', "Can't touch semafore %s", temp);
-    free(temp);
     umask(oldmask);
 }
 
@@ -301,31 +296,24 @@ void TouchSema(char *sem)
 
 void RemoveSema(char *sem)
 {
-    char    *temp;
+    char    temp[PATH_MAX];
 
-    temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK)) {
-	free(temp);
 	return;
     }
     if (unlink(temp) == -1)
         Syslog('?', "Can't remove semafore %s", temp);
-    free(temp);
 }
 
 
 
 int IsSema(char *sem)
 {
-    char    *temp;
-    int	    rc;
+    char    temp[PATH_MAX];
 
-    temp = calloc(PATH_MAX, sizeof(temp));
     snprintf(temp, PATH_MAX, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
-    rc = (access(temp, F_OK) == 0);
-    free(temp);
-    return rc;
+    return (access(temp, F_OK) == 0);
 }
 
 
@@ -348,7 +336,7 @@ int file_exist(char *path, int mode)
 
 
 /*
- *    Make directory tree, the name must end with a /
+ * Make directory tree, the name must end with a /
  */
 int mkdirs(char *name, mode_t mode)
 {
