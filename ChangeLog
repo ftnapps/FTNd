@@ -1,6 +1,9 @@
 $Id$
 
-v0.83.12	06-Feb-2006
+v0.83.13	13-Feb-2006
+
+
+v0.83.12	06-Feb-2006 - 13-Feb-2006
 
 	mbselib.a:
 		On socket send error 2, abort the client program.
