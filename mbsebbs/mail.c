@@ -2825,6 +2825,8 @@ int Ext_Edit()
 	fprintf(fd,"MSGSUBJECT='%s'\n",Msg.Subject);
 	fprintf(fd,"BBSLANGUAGE='%c'\n",exitinfo.iLanguage);
 	fprintf(fd,"BBSFSEDKEYS='%d'\n",exitinfo.FSemacs);
+	fprintf(fd,"LINES='%d'\n",rows);
+	fprintf(fd,"COLUMNS='80'\n");
 	fclose(fd);
     }
 

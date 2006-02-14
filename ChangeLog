@@ -2,6 +2,10 @@ $Id$
 
 v0.83.13	13-Feb-2006
 
+	mbsebbs:
+		Writes LINES and COLUMNS environment into data.msg so that the
+		joe editor can use that.
+
 
 v0.83.12	06-Feb-2006 - 13-Feb-2006
 
