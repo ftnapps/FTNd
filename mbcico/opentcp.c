@@ -155,7 +155,7 @@ int opentcp(char *name)
     clearerr(stdin);
     clearerr(stdout);
     if (connect(fd,(struct sockaddr *)&server,sizeof(server)) == -1) {
-        Syslog('+', "Cannot connect %s",inet_ntoa(server.sin_addr));
+        Syslog('+', "$Cannot connect %s",inet_ntoa(server.sin_addr));
 	return -1;
     }
 

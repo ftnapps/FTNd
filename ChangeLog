@@ -6,6 +6,9 @@ v0.83.13	13-Feb-2006
 		Writes LINES and COLUMNS environment into data.msg so that the
 		joe editor can use that.
 
+	mbcico:
+		Added real error message for failed outgoing IP connections.
+
 
 v0.83.12	06-Feb-2006 - 13-Feb-2006
 
