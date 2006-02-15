@@ -38,25 +38,25 @@
 
 
 
-extern int	    internet;		    /* Internet status		*/
-time_t		    scfg_time = (time_t)0;  /* Servers config time	*/
-time_t		    now;		    /* Current time		*/
-ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
-srv_list	    *servers = NULL;	    /* Active servers		*/
-usr_list	    *users = NULL;	    /* Active users		*/
-chn_list	    *channels = NULL;	    /* Active channels		*/
-ban_list	    *banned = NULL;	    /* Banned users		*/
-nick_list	    *nicknames = NULL;	    /* Known nicknames		*/
-int		    callchg = FALSE;	    /* Is call state changed	*/
-int		    srvchg = FALSE;	    /* Is serverlist changed	*/
-int		    usrchg = FALSE;	    /* Is userlist changed	*/
-int		    chnchg = FALSE;	    /* Is channellist changed	*/
-int		    banchg = FALSE;	    /* Is banned users changed	*/
-int		    nickchg = FALSE;	    /* Is nicknames changed	*/
-time_t		    resettime;		    /* Time to reset all	*/
-int		    do_reset = FALSE;	    /* Reset init		*/
-int		    link_reset = FALSE;	    /* Reset one link		*/
-extern struct sockaddr_in      clientaddr_in;          /* IBC remote socket    */
+extern int		    internet;		    /* Internet status		*/
+time_t			    scfg_time = (time_t)0;  /* Servers config time	*/
+time_t			    now;		    /* Current time		*/
+ncs_list		    *ncsl = NULL;	    /* Neighbours list		*/
+srv_list		    *servers = NULL;	    /* Active servers		*/
+usr_list		    *users = NULL;	    /* Active users		*/
+chn_list		    *channels = NULL;	    /* Active channels		*/
+ban_list		    *banned = NULL;	    /* Banned users		*/
+nick_list		    *nicknames = NULL;	    /* Known nicknames		*/
+int			    callchg = FALSE;	    /* Is call state changed	*/
+int			    srvchg = FALSE;	    /* Is serverlist changed	*/
+int			    usrchg = FALSE;	    /* Is userlist changed	*/
+int			    chnchg = FALSE;	    /* Is channellist changed	*/
+int			    banchg = FALSE;	    /* Is banned users changed	*/
+int			    nickchg = FALSE;	    /* Is nicknames changed	*/
+time_t			    resettime;		    /* Time to reset all	*/
+int			    do_reset = FALSE;	    /* Reset init		*/
+int			    link_reset = FALSE;	    /* Reset one link		*/
+extern struct sockaddr_in   clientaddr_in;          /* IBC remote socket	*/
 
 
 #define	PING_PONG_LOG	1
@@ -1460,9 +1460,7 @@ int command_part(char *hostname, char *parameters)
 	}
     }
 
-//    Syslog('r', "IBC: part input server=%s nick=%s", server, nick);
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-//	Syslog('r', "IBC: part  test server=%s nick=%s name=%s", tmpu->server, tmpu->nick, tmpu->name);
 	if ((strcmp(tmpu->server, server) == 0) && ((strcmp(tmpu->nick, nick) == 0) || (strcmp(tmpu->name, nick) == 0))) {
 	    tmpu->channel[0] = '\0';
 	    if (message) {

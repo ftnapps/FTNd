@@ -46,7 +46,6 @@ unsigned int		    lcrc = 0, tcrc = 1;
 int			    lcnt = 0, lchr;
 static char		    *pbuff = NULL;
 
-pthread_mutex_t l_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 static char *mon[] = {
@@ -87,12 +86,6 @@ void Syslog(int grade, const char *format, ...)
     time_t	now;
     struct tm	ptm;
 
-    if (pthread_mutex_lock(&l_mutex)) {
-	perror("");
-	printf("Syslog mutex_lock l_nutex failed\n");
-	return;
-    }
-
     debug = isalpha(grade);
     va_start(va_ptr, format);
     vsnprintf(outstr, 1024, format, va_ptr);
@@ -101,7 +94,6 @@ void Syslog(int grade, const char *format, ...)
     tcrc = StringCRC32(outstr);
     if (tcrc == lcrc) {
 	lcnt++;
-	pthread_mutex_unlock(&l_mutex);
         return;
     }
     lcrc = tcrc;
@@ -113,7 +105,6 @@ void Syslog(int grade, const char *format, ...)
 	umask(oldmask);
 	if (logfile == NULL) {
 	    printf("Can't open logfile \"%s\"\n", lname);
-	    pthread_mutex_unlock(&l_mutex);
 	    return;
 	}
     }
@@ -127,7 +118,6 @@ void Syslog(int grade, const char *format, ...)
 	if (!debug) {
 	    fclose(logfile);
 	}
-	pthread_mutex_unlock(&l_mutex);
 	return;
     }
 	
@@ -169,7 +159,6 @@ void Syslog(int grade, const char *format, ...)
 	printf("Can't close logfile \"%s\"\n", CFG.debuglog);
 
     lchr = grade;
-    pthread_mutex_unlock(&l_mutex);
     return;
 }
 

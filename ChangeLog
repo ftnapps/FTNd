@@ -9,6 +9,10 @@ v0.83.13	13-Feb-2006
 	mbcico:
 		Added real error message for failed outgoing IP connections.
 
+	mbtask:
+		Fixed startup problem on new installations.
+		Some code cleanup.
+
 
 v0.83.12	06-Feb-2006 - 13-Feb-2006
 

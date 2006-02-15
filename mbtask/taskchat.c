@@ -71,6 +71,8 @@ extern chn_list		*channels;	    /* Connected channels	*/
 extern int		usrchg;
 extern int		chnchg;
 extern int		srvchg;
+extern int		Run_IBC;
+
 
 
 /*
@@ -393,6 +395,11 @@ void chat_connect_r(char *data, char *buf)
     usr_list	*tmpu;
 
     Syslog('c', "CCON:%s", data);
+
+    if (! Run_IBC) {
+	snprintf(buf, 200, "100:1,*** Chatserver not configured;");
+	return;
+    }
 
     if (IsSema((char *)"upsalarm")) {
 	snprintf(buf, 200, "100:1,*** Power failure, running on UPS;");

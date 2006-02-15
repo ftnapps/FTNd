@@ -45,7 +45,6 @@ extern int			sock;		/* Server socket	*/
 extern struct sockaddr_un	from;		/* From socket address	*/
 extern int			fromlen;	/* From address length	*/
 extern int			logtrans;	/* Log transactions	*/
-extern int			T_Shutdown;	/* Program shutdown     */
 
 
 

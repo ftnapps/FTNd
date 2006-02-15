@@ -401,12 +401,11 @@ void deinit_ping(void)
     int	    rc;
 
     if ((rc = close(ping_isocket))) {
-	WriteError("$ping thread error socket close");
+	WriteError("$ping loop error socket close");
     }
     ping_isocket = -1;
 
-    Syslog('+', "Ping thread stopped");
+    Syslog('+', "Ping loop stopped");
 }
-
 
 

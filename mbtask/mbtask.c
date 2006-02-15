@@ -112,16 +112,9 @@ extern int		ipmailers;		/* TCP/IP mail sessions	*/
 extern int		tosswait;		/* Toss wait timer	*/
 extern pid_t		mypid;			/* Pid of daemon	*/
 int			G_Shutdown = FALSE;	/* Global shutdown	*/
-int			T_Shutdown = FALSE;	/* Shutdown threads	*/
 int			nodaemon = FALSE;	/* Run in foreground	*/
 extern time_t		resettime;		/* IBC reset time	*/
-
-
-
-/*
- * Global thread vaiables
- */
-pthread_t	pt_ping;
+int			Run_IBC = TRUE;		/* Run IBC server	*/
 
 
 
@@ -797,12 +790,8 @@ void die(int onsig)
     /*
      * Disconnect chatservers
      */
-    ibc_shutdown();
-
-    /*
-     * Now stop the threads
-     */
-    T_Shutdown = TRUE;
+    if (Run_IBC)
+	ibc_shutdown();
 
     /*
      * Free memory
@@ -1052,24 +1041,26 @@ void start_scheduler(int port)
     /*
      * Setup IBC socket
      */
-    myaddr_in.sin_family = AF_INET;
-    myaddr_in.sin_addr.s_addr = INADDR_ANY;
-    myaddr_in.sin_port = port;
-    Syslog('+', "IBC: listen on %s, port %d", inet_ntoa(myaddr_in.sin_addr), ntohs(myaddr_in.sin_port));
+    if (Run_IBC) {
+	myaddr_in.sin_family = AF_INET;
+	myaddr_in.sin_addr.s_addr = INADDR_ANY;
+	myaddr_in.sin_port = port;
+	Syslog('+', "IBC: listen on %s, port %d", inet_ntoa(myaddr_in.sin_addr), ntohs(myaddr_in.sin_port));
 
-    ibcsock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (ibcsock == -1) {
-	WriteError("$IBC: can't create listen socket");
-	die(MBERR_INIT_ERROR);
+	ibcsock = socket(AF_INET, SOCK_DGRAM, 0);
+	if (ibcsock == -1) {
+	    WriteError("$IBC: can't create listen socket");
+	    die(MBERR_INIT_ERROR);
+	}
+
+	if (bind(ibcsock, (struct sockaddr *)&myaddr_in, sizeof(struct sockaddr_in)) == -1) {
+	    WriteError("$IBC: can't bind listen socket");
+	    die(MBERR_INIT_ERROR);
+	}
+
+	srand(getpid());
+	resettime = time(NULL) + (time_t)86400;
     }
-
-    if (bind(ibcsock, (struct sockaddr *)&myaddr_in, sizeof(struct sockaddr_in)) == -1) {
-	WriteError("$IBC: can't bind listen socket");
-	die(MBERR_INIT_ERROR);
-    }
-
-    srand(getpid());
-    resettime = time(NULL) + (time_t)86400;
 
     /*
      * The flag masterinit is set if a new config.data is created, this
@@ -1173,7 +1164,8 @@ void scheduler(void)
 		    do_cmd(buf);
 		}
 	    } 
-	    if (pfd[1].revents & POLLIN || pfd[1].revents & POLLERR || pfd[1].revents & POLLHUP || pfd[1].revents & POLLNVAL) {
+	    if ((pfd[1].revents & POLLIN || pfd[1].revents & POLLERR || 
+		 pfd[1].revents & POLLHUP || pfd[1].revents & POLLNVAL) && Run_IBC) {
 		sl = sizeof(myaddr_in);
 		memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
 		memset(&crbuf, 0, sizeof(crbuf));
@@ -1199,7 +1191,9 @@ void scheduler(void)
 	/*
 	 * Check all registered connections and semafore's
 	 */
-	check_servers();
+	if (Run_IBC)
+	    check_servers();
+
 	reg_check();
 	check_sema();
 	check_ports();
@@ -1605,24 +1599,6 @@ int main(int argc, char **argv)
     if (nodaemon)
 	printf("main config loaded\n");
 
-    if ((se = getservbyname("fido", "udp")) == NULL) {
-	fprintf(stderr, "IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat\n");
-	close(ping_isocket);
-	exit(MBERR_INIT_ERROR);
-    }
-
-    if (strlen(CFG.bbs_name) == 0) {
-	fprintf(stderr, "IBC: mbsetup 1.2.1 is empty, cannot start Internet BBS Chat\n");
-	close(ping_isocket);
-	exit(MBERR_INIT_ERROR);
-    }
-
-    if (strlen(CFG.myfqdn) == 0) {
-	fprintf(stderr, "IBC: mbsetup 1.2.10 is empty, cannot start Internet BBS Chat\n");
-	close(ping_isocket);
-	exit(MBERR_INIT_ERROR);
-    }
-
     mypid = getpid();
     if (nodaemon)
 	printf("my pid is %d\n", mypid);
@@ -1637,6 +1613,17 @@ int main(int argc, char **argv)
     load_taskcfg();
 
     status_init();
+
+    if ((se = getservbyname("fido", "udp")) == NULL) {
+	WriteError("IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat");
+	Run_IBC = FALSE;
+    } else if (strlen(CFG.bbs_name) == 0) {
+	WriteError("IBC: mbsetup 1.2.1 is empty, cannot start Internet BBS Chat");
+	Run_IBC = FALSE;
+    } else if (strlen(CFG.myfqdn) == 0) {
+	Run_IBC = FALSE;
+	WriteError("IBC: mbsetup 1.2.10 is empty, cannot start Internet BBS Chat");
+    }
 
     memset(&task, 0, sizeof(task));
     memset(&reginfo, 0, sizeof(reginfo));
@@ -1718,7 +1705,6 @@ int main(int argc, char **argv)
 		}
 		free(lockfile);
 		Syslog('+', "Starting daemon with pid %d", frk);
-		pthread_exit(NULL);
 		exit(MBERR_OK);
 	}
     }
