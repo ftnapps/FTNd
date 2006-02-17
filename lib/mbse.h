@@ -4,7 +4,7 @@
  * Purpose ...............: Global variables for MBSE BBS
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -36,12 +36,12 @@
 
 
 typedef	struct _TagRec {
-	int	Area;		/* File Area number			   */
-	int	Active;		/* Not deleted from taglist		   */
-	int	Cost;		/* Free download			   */
-	off_t	Size;		/* File Size				   */
-	char	SFile[13];	/* Short File Name			   */
-	char	LFile[81];	/* Long FIle Name			   */
+	int		Area;		/* File Area number		   */
+	int		Active;		/* Not deleted from taglist	   */
+	int		Cost;		/* Free download		   */
+	unsigned int	Size;		/* File Size			   */
+	char		SFile[13];	/* Short File Name		   */
+	char		LFile[81];	/* Long FIle Name		   */
 } _Tag;
 
 

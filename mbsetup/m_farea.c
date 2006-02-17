@@ -429,8 +429,14 @@ int EditFileRec(int Area)
 			} 
 			if (!area.Available && Available) {
 			    area.Available = TRUE;
-			    if ((fdb_area = mbsedb_OpenFDB(Area, 30)))
+			    Syslog('-', "open");
+			    if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
+				Syslog('-', "is open");
 				mbsedb_CloseFDB(fdb_area);
+				Syslog('-', "closed");
+			    } else {
+				Syslog('-', "failed to open");
+			    }
 			}
 			free(temp);
 			break;

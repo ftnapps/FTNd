@@ -839,7 +839,7 @@ struct  FILE_record {
 	char            Name[13];               /* DOS style filename       */
 	char            LName[81];              /* Long filename            */
 	char            TicArea[21];            /* Tic area file came in    */
-	off_t           Size;                   /* File Size                */
+	unsigned int	Size;                   /* File Size                */
 	unsigned int	Crc32;                  /* File CRC-32              */
 	char            Uploader[36];           /* Uploader name            */
 	int32_t		UploadDate;             /* Date/Time uploaded       */
@@ -865,7 +865,7 @@ struct	OldFILERecord {
 	char		LName[81];		/* Long filename	    */
 	char		xTicArea[9];		/* Tic area file came in    */
 	unsigned int	TicAreaCRC;		/* CRC of TIC area name	    */
-	off_t		Size;			/* File Size                */
+	unsigned int	Size;			/* File Size                */
 	unsigned int	Crc32;			/* File CRC-32		    */
 	char		Uploader[36];		/* Uploader name            */
 	int32_t		UploadDate;		/* Date/Time uploaded	    */
@@ -1979,7 +1979,7 @@ struct	_filerecord {
 	char		Group[13];		/* Group		   */
 	char		Name[13];		/* File Name		   */
 	char		LName[81];		/* Long FileName	   */
-	off_t		Size;			/* File Size		   */
+	unsigned int	Size;			/* File Size		   */
 	unsigned int	SizeKb;			/* File Size in Kb	   */
 	int32_t		Fdate;			/* File Date		   */
 	char		Origin[24];		/* Origin system	   */

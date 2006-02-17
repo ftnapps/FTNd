@@ -1,6 +1,24 @@
 $Id$
 
+	WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+		Users of 64 bit systems should backup the files database and
+		all download directories before attempting to use 0.83.13.
+		This will upgrade the files database on 64 bit systems, but
+		also copied databases from 64 to 32 bit systems.
+
+		Alan and Rolf, please report the results of the upgrade.
+
+
 v0.83.13	13-Feb-2006
+
+	upgrade:
+		Start mbsetup and leave. If files databases need to be fixed
+		it will then be done.
+
+	mbselib.a:
+		Fixed another 32/64 bit issue in the files databases and added
+		automatic correction if detected.
 
 	mbsebbs:
 		Writes LINES and COLUMNS environment into data.msg so that the

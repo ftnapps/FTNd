@@ -42,10 +42,10 @@
  */
 struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
 {
-    char	    *temp;
+    char	    *temp, *temp2;
     struct _fdbarea *fdb_area = NULL;
     int		    Tries = 0;
-    FILE	    *fp;
+    FILE	    *fp, *fp2;
 
     temp = calloc(PATH_MAX, sizeof(char));
     fdb_area = malloc(sizeof(struct _fdbarea));	    /* Will be freed by CloseFDB */
@@ -86,6 +86,36 @@ struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
 	return NULL;
     }
 
+    if ((fdbhdr.hdrsize == sizeof(fdbhdr)) && (fdbhdr.recsize == (sizeof(fdb) + 4))) {
+	Syslog('+', "Files area %d database 64/32 bit alignment error, fixing...", Area);
+	temp2 = calloc(PATH_MAX, sizeof(char));
+	snprintf(temp2, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("MBSE_ROOT"), Area);
+	if ((fp2 = fopen(temp2, "w+"))) {
+	    fdbhdr.recsize = (sizeof(fdb));
+	    fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp2);
+	    fdbhdr.recsize = sizeof(fdb) + 4;
+	    while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+		/*
+		 * Shift 4 bytes
+		 */
+		memmove(&fdb.Crc32, &fdb.Uploader, sizeof(fdb) - 179);
+		fwrite(&fdb, sizeof(fdb), 1, fp2);
+	    }
+	    fclose(fp2);
+	    fclose(fp);
+	    unlink(temp);
+	    rename(temp2, temp);
+	    if ((fp = fopen(temp, "r+"))) {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
+	    } else {
+		WriteError("$Can't reopen %s", temp);
+	    }
+	} else {
+	    WriteError("$Can't create %s", temp2);
+	}
+	free(temp2);
+    }
+
     /*
      * Fix attributes if needed
      */
@@ -93,8 +123,9 @@ struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
     free(temp);
 
     if ((fdbhdr.hdrsize != sizeof(fdbhdr)) || (fdbhdr.recsize != sizeof(fdb))) {
-        WriteError("Files database header in area %d is corrupt (%d:%d)", Area, fdbhdr.hdrsize, fdbhdr.recsize);
-	fclose(fdb_area->fp);
+        WriteError("Files database header in area %d is corrupt (%d:%d) [%d:%d]", Area, fdbhdr.hdrsize, fdbhdr.recsize,
+		sizeof(fdbhdr), sizeof(fdb));
+	fclose(fp);
 	return NULL;
     }
 
