@@ -50,7 +50,7 @@
  *
  */
 
-static void zputhex(int, char *);
+static void zputhex(int);
 static void zsbh32(char*, int);
 static void zsda32(char*, int, int);
 static int  zrdat32(char*,int);
@@ -61,7 +61,6 @@ static int  zrhhdr(char*);
 static int  zgethex(void);
 static int  zgeth1(void);
 static void garbitch(void);
-static inline void zsendline_s(const char *, int);
 
 #include "../config.h"
 #include "../lib/mbselib.h"
@@ -79,7 +78,6 @@ char	    *txbuf=NULL;
 static int  lastsent;		    /* Last char we sent */
 static int  Not8bit;		    /* Seven bits seen on header */
 
-static char zsendline_tab[256];
 
 extern unsigned	Baudrate;
 extern int	zmodem_requested;
@@ -128,7 +126,41 @@ char *frametypes[] = {
 };
 
 
+/***** Hack by mj ***********************************************************/
+/*
+ * Buffer for outgoing frames. Sending them with single character write()'s
+ * is a waste of processor time and causes severe performance degradation
+ * on TCP and ISDN connections.
+ */
+#define FRAME_BUFFER_SIZE       16384
+static char *frame_buffer=NULL;
+static int  frame_length = 0;
+
+#define BUFFER_CLEAR()  do { frame_length=0; } while(0)
+#define BUFFER_BYTE(c)  do { frame_buffer[frame_length++]=(c); } while(0)
+#define BUFFER_FLUSH()  do { PUT(frame_buffer, frame_length); frame_length=0; } while(0);
+
+
 /****************************************************************************/
+
+
+void get_frame_buffer(void)
+{
+    if (frame_buffer == NULL) 
+	frame_buffer=xmalloc(FRAME_BUFFER_SIZE);
+}
+
+
+
+void del_frame_buffer(void)
+{
+    if (frame_buffer == NULL)
+	return;
+
+    free(frame_buffer);
+    frame_buffer = NULL;
+}
+
 
 
 /*
@@ -141,17 +173,19 @@ void zsbhdr(int type, char *shdr)
 
     Syslog('z', "zsbhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
 
+    BUFFER_CLEAR();
+
     if (type == ZDATA)
 	for (n = Znulls; --n >=0; )
-	    PUTCHAR(0);
+	    BUFFER_BYTE(0);
 
-    PUTCHAR(ZPAD); 
-    PUTCHAR(ZDLE);
+    BUFFER_BYTE(ZPAD); 
+    BUFFER_BYTE(ZDLE);
 
     if ((Crc32t = Txfcs32))
 	zsbh32(shdr, type);
     else {
-	PUTCHAR(ZBIN);
+	BUFFER_BYTE(ZBIN);
 	zsendline(type);
 	crc = updcrc16(type, 0);
 
@@ -164,8 +198,7 @@ void zsbhdr(int type, char *shdr)
         zsendline(crc);
     }
 
-    if (type != ZDATA)
-	fflush(stdout);
+    BUFFER_FLUSH();
 }
 
 
@@ -178,7 +211,7 @@ void zsbh32(char *shdr, int type)
     register int	    n;
     register unsigned int   crc;
 
-    PUTCHAR(ZBIN32); 
+    BUFFER_BYTE(ZBIN32); 
     zsendline(type);
     crc = 0xFFFFFFFFL; 
     crc = updcrc32(type, crc);
@@ -203,44 +236,41 @@ void zshhdr(int type, char *shdr)
 {
     register int	    n;
     register unsigned short crc;
-    char		    s[30];
-    size_t		    len;
 
     Syslog('z', "zshhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
 
-    s[0]=ZPAD;
-    s[1]=ZPAD;
-    s[2]=ZDLE;
-    s[3]=ZHEX;
-    zputhex(type & 0x7f, s+4);
-    len = 6;
+    BUFFER_CLEAR();
+
+    BUFFER_BYTE(ZPAD); 
+    BUFFER_BYTE(ZPAD); 
+    BUFFER_BYTE(ZDLE);
+    BUFFER_BYTE(ZHEX);
+
+    zputhex(type & 0x7f);
     Crc32t = 0;
 
     crc = updcrc16((type & 0x7f), 0);
     for (n=4; --n >= 0; ++shdr) {
-	zputhex(*shdr, s+len);
-	len += 2;
+	zputhex(*shdr);
 	crc = updcrc16((0377 & *shdr), crc);
     }
     crc = updcrc16(0,updcrc16(0,crc));
-    zputhex((int)(crc>>8), s+len); 
-    zputhex((int)(crc & 0xff), s+len+2);
-    len += 4;
+    zputhex((int)(crc>>8)); 
+    zputhex((int)(crc & 0xff));
 
     /*
      * Make it printable on remote machine
      */
-    s[len++]=015;
-    s[len++]=0212;
+    BUFFER_BYTE(015); 
+    BUFFER_BYTE(0212);
 
     /*
      * Uncork the remote in case a fake XOFF has stopped data flow
      */
     if (type != ZFIN && type != ZACK)
-	s[len++]=021;
+	BUFFER_BYTE(021);
 
-    PUT(s, len);
-    fflush(stdout);
+    BUFFER_FLUSH();
 }
 
 
@@ -253,6 +283,8 @@ void zsdata(register char *buf, int length, int frameend)
 {
     register unsigned short crc;
 
+    BUFFER_CLEAR();
+
     if (Crc32t)
 	zsda32(buf, length, frameend);
     else {
@@ -262,8 +294,8 @@ void zsdata(register char *buf, int length, int frameend)
 	    zsendline(*buf); 
 	    crc = updcrc16((0377 & *buf), crc);
 	}
-	PUTCHAR(ZDLE); 
-        PUTCHAR(frameend);
+	BUFFER_BYTE(ZDLE); 
+        BUFFER_BYTE(frameend);
         crc = updcrc16(frameend, crc);
 
         crc = updcrc16(0,updcrc16(0,crc));
@@ -271,45 +303,40 @@ void zsdata(register char *buf, int length, int frameend)
         zsendline(crc);
     }
 
-    if (frameend == ZCRCW) {
-	PUTCHAR(XON);
-	fflush(stdout);
-    }
+    if (frameend == ZCRCW)
+	BUFFER_BYTE(XON);
+
+    BUFFER_FLUSH();
 }
 
 
 
 void zsda32(register char *buf, int length, int frameend)
 {
-    int		    c, i;
+    int		    c;
     unsigned int    crc;
 
     Syslog('z', "zsdat32: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
 
     crc = 0xFFFFFFFFL;
-    zsendline_s(buf, length);
     for (;--length >= 0; ++buf) {
 	c = *buf & 0377;
+	zsendline(*buf);
 	crc = updcrc32(c, crc);
     }
-    PUTCHAR(ZDLE); 
-    PUTCHAR(frameend);
+    BUFFER_BYTE(ZDLE); 
+    BUFFER_BYTE(frameend);
     crc = updcrc32(frameend, crc);
 
     crc = ~crc;
-    for (i=4; --i >= 0;) {
-	c = (int) crc;
-	if (c & 0140)
-	    PUTCHAR(lastsent = c);
-	else
-	    zsendline(c);
-	crc >>= 8;
+    for (c=4; --c >= 0;) {
+	zsendline((int)crc);  crc >>= 8;
     }
 
-    if (frameend == ZCRCW) {
-	PUTCHAR(XON);
-	fflush(stdout);
-    }
+//    if (frameend == ZCRCW) {
+//	BUFFER_BYTE(XON);
+//	fflush(stdout);
+  //  }
 }
 
 
@@ -405,7 +432,7 @@ crcfoo:
 				    goto crcfoo;
 				crc = updcrc32(c, crc);
 				if (crc != 0xDEBB20E3) {
-				    Syslog('+', "Zmodem zrdat32: Bad CRC");
+				    Syslog('+', "Zmodem zrdat32: Bad CRC %08x should be 0xDEBB20E3", crc);
 				    return TERROR;
 				}
 				Rxcount = length - (end - buf);
@@ -449,15 +476,16 @@ void garbitch(void)
  */
 int zgethdr(char *shdr)
 {
-    register int    c, n, cancount;
-    int		    Zrwindow = 1400;
-    
+    register int    c, n, cancount, tmcount;
+//    int		    Zrwindow = 1400;
+    int		    Zrwindow = 1024;
+
     n = Zrwindow + Baudrate;
     Rxframeind = Rxtype = 0;
 
 startover:
     cancount = 5;
-
+    tmcount = 5;
 again:
     /*
      * Return immediate ERROR if ZCRCW sequence seen 
@@ -468,18 +496,23 @@ again:
 	switch(c) {
 	case 021: 
 	case 0221:	goto again;
-	case HANGUP:
-	case TIMEOUT:	goto fifi;
+	case HANGUP:	goto fifi;
+	case TIMEOUT:	Syslog('z', "zgethdr: got TIMEOUT %d", tmcount);
+			if (--tmcount <= 0) {
+			    c = TERROR;
+			    goto fifi;
+			}
+			goto startover;
 	case CAN:	
 gotcan:
-			Syslog('z', "zgethdr: got CAN");
+			Syslog('z', "zgethdr: got CAN %d", cancount);
 			if (--cancount <= 0) {
 			    c = ZCAN; 
 			    goto fifi;
 			}
-			switch (c = GETCHAR(Rxtimeout)) {
+			switch (c = GETCHAR(1)) {
 			    case TIMEOUT:   goto again;
-			    case ZCRCW:	    switch (GETCHAR(Rxtimeout)) {
+			    case ZCRCW:	    switch (GETCHAR(1)) {
 						case TIMEOUT:	c = TERROR; 
 								goto fifi;
 						case HANGUP:	goto fifi;
@@ -669,7 +702,7 @@ int zrhhdr(char *shdr)
 	return TERROR;
     }
 	
-    switch (c = GETCHAR(Rxtimeout)) {
+    switch (c = GETCHAR(2)) {
 	case 0215:  Not8bit = c;
 		    /* **** FALL THRU TO **** */
 	case 015:   /* Throw away possible cr/lf */
@@ -690,13 +723,14 @@ int zrhhdr(char *shdr)
 /*
  * Send a byte as two hex digits
  */
-void zputhex(int c, char *pos)
+void zputhex(int c)
 {
     static char	digits[]	= "0123456789abcdef";
 
     Syslog('z', "zputhex: %02x", c);
-    pos[0] = digits[(c & 0xF0) >> 4];
-    pos[1] = digits[c & 0xF];
+
+    BUFFER_BYTE(digits[(c&0xF0)>>4]);
+    BUFFER_BYTE(digits[(c)&0xF]);
 }
 
 
@@ -707,112 +741,38 @@ void zputhex(int c, char *pos)
  */
 void zsendline(int c)
 {
-    switch(zsendline_tab[(unsigned) (c&=0377)]) {
-	case 0: 
-		PUTCHAR(lastsent = c); 
-		break;
-	case 1:
-		PUTCHAR(ZDLE);
-		c ^= 0100;
-		PUTCHAR(lastsent = c);
-		break;
-	case 2:
-		if ((lastsent & 0177) != '@') {
-		    PUTCHAR(lastsent = c);
-		} else {
-		    PUTCHAR(ZDLE);
-		    c ^= 0100;
-		    PUTCHAR(lastsent = c);
-		}
-		break;
-    }
-}
-
-
-
-static inline void zsendline_s(const char *s, int count) 
-{
-    const char	*end = s + count;
-
-    while (s != end) {
-	int	    last_esc = 0;
-	const char  *t = s;
-
-	while (t != end) {
-	    last_esc = zsendline_tab[(unsigned) ((*t) & 0377)];
-	    if (last_esc) 
-		break;
-	    t++;
-	}
-	if (t != s) {
-	    PUT((char *)s, (t-s));
-	    lastsent = t[-1];
-	    s = t;
-	}
-	if (last_esc) {
-	    int c = *s;
-	    switch (last_esc) {
-		case 0: 
-			PUTCHAR(lastsent = c); 
+    /* Quick check for non control characters */
+    if (c & 0140)
+	BUFFER_BYTE(lastsent = c);
+    else {
+	switch (c &= 0377) {
+	    case ZDLE:
+			BUFFER_BYTE(ZDLE);
+			BUFFER_BYTE (lastsent = (c ^= 0100));
 			break;
-		case 1:
-			PUTCHAR(ZDLE);
+	    case 015:
+	    case 0215:
+			if (!Zctlesc && (lastsent & 0177) != '@')
+			    goto sendit;
+			/* **** FALL THRU TO **** */
+	    case 020:
+	    case 021:
+	    case 023:
+	    case 0220:
+	    case 0221:
+	    case 0223:
+			BUFFER_BYTE(ZDLE);
 			c ^= 0100;
-			PUTCHAR(lastsent = c);
+sendit:
+			BUFFER_BYTE(lastsent = c);
 			break;
-		case 2:
-			if ((lastsent & 0177) != '@') {
-			    PUTCHAR(lastsent = c);
-			} else {
-			    PUTCHAR(ZDLE);
+	    default:
+			if (Zctlesc && ! (c & 0140)) {
+			    BUFFER_BYTE(ZDLE);
 			    c ^= 0100;
-			    PUTCHAR(lastsent = c);
+			
 			}
-			break;
-	    }
-	    s++;
-	}
-    }
-}
-
-
-
-void zsendline_init(void)
-{
-    int	    i;
-
-    Syslog('z', "zsendline_init()");
-
-    for (i = 0; i < 256; i++) {   
-	if (i & 0140)
-	    zsendline_tab[i]=0;
-	else {
-	    switch(i) {
-		case ZDLE:
-		case XOFF: /* ^Q */
-		case XON: /* ^S */
-		case (XOFF | 0200):
-		case (XON | 0200):
-				    zsendline_tab[i]=1;
-				    break;
-		case 020: /* ^P */
-		case 0220:
-				    zsendline_tab[i]=1;
-				    break;
-		case 015:
-		case 0215:
-				    if (Zctlesc)
-					zsendline_tab[i]=1;
-				    else
-					zsendline_tab[i]=2;
-				    break;
-		default:
-				    if (Zctlesc)
-					zsendline_tab[i]=1;
-				    else
-					zsendline_tab[i]=0;
-    
-	    }
+			BUFFER_BYTE(lastsent = c);
 	}
     }
 }

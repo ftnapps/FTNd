@@ -4,7 +4,7 @@
  * Purpose ...............: Zmodem receive
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -87,8 +87,9 @@ int zmrcvfiles(int want1k, int wantg)
 
     Syslog('+', "%s: start receive", protname());
 
+    get_frame_buffer();
+
     Rxtimeout = 10;
-    zsendline_init();
     if (secbuf == NULL) 
 	secbuf = malloc(MAXBLOCK+1);
     tryzhdrtype = ZRINIT;

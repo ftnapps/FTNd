@@ -145,7 +145,8 @@ enum zm_type_enum {
 
 enum zm_type_enum protocol;
 
-
+void	get_frame_buffer(void);
+void	del_frame_buffer(void);
 void	zsbhdr(int, char *);
 void	zshhdr(int, char *);
 void	zsdata(register char *, int, int);
@@ -157,7 +158,6 @@ void	zsendline(int);
 int	zdlread(void);
 void	stohdr(int);
 int	rclhdr(register char *);
-void	zsendline_init(void);
 char	*protname(void);
 void	purgeline(int);
 void	canit(int);

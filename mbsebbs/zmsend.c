@@ -4,7 +4,7 @@
  * Purpose ...............: Zmodem sender
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -88,15 +88,18 @@ int zmsndfiles(down_list *lst, int try8)
     down_list	*tmpf;
 
     Syslog('+', "Zmodem: start Zmodem%s send", try8 ? "-8K":"");
+
+    get_frame_buffer();
+
     use8k = try8;
     protocol = ZM_ZMODEM;
-    zsendline_init();
     Rxtimeout = 60;
 
     if ((rc = initsend())) {
 	if (txbuf)
 	    free(txbuf);
 	txbuf = NULL;
+	del_frame_buffer();
 	return abs(rc);
     }
 
@@ -128,6 +131,7 @@ int zmsndfiles(down_list *lst, int try8)
     if (txbuf)
 	free(txbuf);
     txbuf = NULL;
+    del_frame_buffer();
     io_mode(0, 1);
 
     Syslog('z', "Zmodem: send rc=%d", maxrc);
@@ -258,14 +262,14 @@ int getzrxinit(void)
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
-			{
-			    int old = Zctlesc;
+//			{
+//			    int old = Zctlesc;
 			    Zctlesc |= Rxflags & TESCCTL;
-			    /* update table - was initialised to not escape */
-			    if (Zctlesc && !old)
-			    	zsendline_init();
-			}
-			
+//			    /* update table - was initialised to not escape */
+//			    if (Zctlesc && !old)
+//			    	zsendline_init();
+//			}
+
 			Rxbuflen = (0377 & Rxhdr[ZP0])+((0377 & Rxhdr[ZP1])<<8);
 			if ( !(Rxflags & CANFDX))
 			    Txwindow = 0;
@@ -428,6 +432,7 @@ again:
 			 * Suppress zcrcw request otherwise triggered by
 			 * lastyunc==bytcnt
 			 */
+			Syslog('z', "got ZRPOS %d", Rxpos);
 			if (Rxpos > 0)
 			    skipsize = Rxpos;
 			if (fseek(in, Rxpos, 0))
