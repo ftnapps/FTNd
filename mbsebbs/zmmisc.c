@@ -50,7 +50,7 @@
  *
  */
 
-static void zputhex(int);
+static void zputhex(int, char *);
 static void zsbh32(char*, int);
 static void zsda32(char*, int, int);
 static int  zrdat32(char*,int);
@@ -74,10 +74,10 @@ static inline void zsendline_s(const char *, int);
  * Original zm.c timing was in tenths of seconds, but our current ttyio driver
  * does timing in whole seconds.
  */ 
-int Rxtimeout = 10;      /* Seconds to wait for something */
-char *txbuf=NULL;
-static int lastsent;		/* Last char we sent */
-static int Not8bit;		/* Seven bits seen on header */
+int	    Rxtimeout = 10;	    /* Seconds to wait for something, receiver */
+char	    *txbuf=NULL;
+static int  lastsent;		    /* Last char we sent */
+static int  Not8bit;		    /* Seven bits seen on header */
 
 static char zsendline_tab[256];
 
@@ -199,41 +199,47 @@ void zsbh32(char *shdr, int type)
 /*
  * Send ZMODEM HEX header hdr of type type
  */
-void zshhdr(int type, register char *shdr)
+void zshhdr(int type, char *shdr)
 {
     register int	    n;
     register unsigned short crc;
+    char		    s[30];
+    size_t		    len;
 
     Syslog('z', "zshhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
 
-    PUTCHAR(ZPAD); 
-    PUTCHAR(ZPAD); 
-    PUTCHAR(ZDLE);
-    PUTCHAR(ZHEX);
-    zputhex(type & 0x7f);
+    s[0]=ZPAD;
+    s[1]=ZPAD;
+    s[2]=ZDLE;
+    s[3]=ZHEX;
+    zputhex(type & 0x7f, s+4);
+    len = 6;
     Crc32t = 0;
 
     crc = updcrc16((type & 0x7f), 0);
     for (n=4; --n >= 0; ++shdr) {
-	zputhex(*shdr); 
+	zputhex(*shdr, s+len);
+	len += 2;
 	crc = updcrc16((0377 & *shdr), crc);
     }
     crc = updcrc16(0,updcrc16(0,crc));
-    zputhex(((int)(crc>>8))); 
-    zputhex(crc);
+    zputhex((int)(crc>>8), s+len); 
+    zputhex((int)(crc & 0xff), s+len+2);
+    len += 4;
 
     /*
      * Make it printable on remote machine
      */
-    PUTCHAR(015); 
-    PUTCHAR(0212);
+    s[len++]=015;
+    s[len++]=0212;
 
     /*
      * Uncork the remote in case a fake XOFF has stopped data flow
      */
     if (type != ZFIN && type != ZACK)
-	PUTCHAR(021);
+	s[len++]=021;
 
+    PUT(s, len);
     fflush(stdout);
 }
 
@@ -247,11 +253,10 @@ void zsdata(register char *buf, int length, int frameend)
 {
     register unsigned short crc;
 
-    Syslog('z', "zsdata: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
-
     if (Crc32t)
 	zsda32(buf, length, frameend);
     else {
+	Syslog('z', "zsdata: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
 	crc = 0;
 	for (;--length >= 0; ++buf) {
 	    zsendline(*buf); 
@@ -276,8 +281,10 @@ void zsdata(register char *buf, int length, int frameend)
 
 void zsda32(register char *buf, int length, int frameend)
 {
-    register int	    c;
-    register unsigned int   crc;
+    int		    c, i;
+    unsigned int    crc;
+
+    Syslog('z', "zsdat32: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
 
     crc = 0xFFFFFFFFL;
     zsendline_s(buf, length);
@@ -290,8 +297,12 @@ void zsda32(register char *buf, int length, int frameend)
     crc = updcrc32(frameend, crc);
 
     crc = ~crc;
-    for (c=4; --c >= 0;) {
-	zsendline((int)crc);  
+    for (i=4; --i >= 0;) {
+	c = (int) crc;
+	if (c & 0140)
+	    PUTCHAR(lastsent = c);
+	else
+	    zsendline(c);
 	crc >>= 8;
     }
 
@@ -679,12 +690,13 @@ int zrhhdr(char *shdr)
 /*
  * Send a byte as two hex digits
  */
-void zputhex(register int c)
+void zputhex(int c, char *pos)
 {
     static char	digits[]	= "0123456789abcdef";
 
-    PUTCHAR(digits[(c&0xF0)>>4]);
-    PUTCHAR(digits[(c)&0xF]);
+    Syslog('z', "zputhex: %02x", c);
+    pos[0] = digits[(c & 0xF0) >> 4];
+    pos[1] = digits[c & 0xF];
 }
 
 
@@ -813,6 +825,7 @@ int zgethex(void)
     register int c;
 
     c = zgeth1();
+    Syslog('z', "zgethex: %02x", c);
     return c;
 }
 

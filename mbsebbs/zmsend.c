@@ -75,7 +75,7 @@ struct timezone	tz;
 static int use8k = FALSE;
 extern unsigned int	sentbytes;
 extern int Rxhlen;
-
+extern int  Rxtimeout;
 extern char *txbuf;
 extern char *frametypes[];
 
@@ -91,6 +91,7 @@ int zmsndfiles(down_list *lst, int try8)
     use8k = try8;
     protocol = ZM_ZMODEM;
     zsendline_init();
+    Rxtimeout = 60;
 
     if ((rc = initsend())) {
 	if (txbuf)
@@ -239,11 +240,13 @@ static int sendzfile(char *rn)
  */
 int getzrxinit(void)
 {
-    int	n;
+    int		n, timeouts = 0;
+    int		old_timeout = Rxtimeout;
 
-    Syslog('z', "getzrxinit");
-    for (n=10; --n>=0; ) {
-		
+    Rxtimeout = 10;
+    for (n = 10; --n >= 0; ) {
+	Syslog('z', "getzrxinit n=%d", n);
+
 	switch (zgethdr(Rxhdr)) {
 	    case ZCHALLENGE:	/* Echo receiver's challenge numbr */
 			stohdr(Rxpos);
@@ -286,10 +289,13 @@ int getzrxinit(void)
 			Syslog('z', "Txwindow = %u Txwspac = %d", Txwindow, Txwspac);
 
 			Lztrans = 0;
+			Rxtimeout = old_timeout;
 
 			return (sendzsinit());
 	    case ZCAN:
 	    case TIMEOUT:
+			if (timeouts++==0)
+			    continue;
 			return TERROR;
 	    case HANGUP:
 			return HANGUP;
@@ -322,7 +328,8 @@ int sendzsinit(void)
 	    Txhdr[ZF0] |= TESCCTL; zshhdr(ZSINIT, Txhdr);
 	} else
 	    zsbhdr(ZSINIT, Txhdr);
-	zsdata(Myattn, ZATTNLEN, ZCRCW);
+//	zsdata(Myattn, ZATTNLEN, ZCRCW);
+	zsdata(Myattn, 1 + strlen(Myattn), ZCRCW);
 	c = zgethdr(Rxhdr);
 	switch (c) {
 	    case ZCAN:	    return TERROR;

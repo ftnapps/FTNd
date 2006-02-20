@@ -23,6 +23,9 @@ v0.83.13	13-Feb-2006
 	mbsebbs:
 		Writes LINES and COLUMNS environment into data.msg so that the
 		joe editor can use that.
+		Changed zmodem transmitter timeout to 60 seconds and changed
+		the zmodem init fase so that clients that don't start automatic
+		have a chance to start the transfer.
 
 	mbcico:
 		Added real error message for failed outgoing IP connections.
