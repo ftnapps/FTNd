@@ -28,6 +28,9 @@ v0.83.13	13-Feb-2006
 		have a chance to start the transfer.
 		The zmodem transmitter now uses buffered output.
 
+	mbmsg:
+		With the post function the right time is now used.
+
 	mbcico:
 		Added real error message for failed outgoing IP connections.
 

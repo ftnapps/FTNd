@@ -4,7 +4,7 @@
  * Purpose ...............: Post a message from a file.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -182,8 +182,7 @@ int Post(char *To, int Area, char *Subj, char *File, char *Flavor)
 
     snprintf(Msg.Subject, 101, "%s", Subj);
     snprintf(Msg.FromAddress, 101, "%s", aka2str(msgs.Aka));
-    Msg.Written = time(NULL);
-    Msg.Arrived = time(NULL);
+    Msg.Written = Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
     Msg.Local = TRUE;
 
     if (strchr(Flavor, 'c'))

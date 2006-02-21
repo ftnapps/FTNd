@@ -97,10 +97,6 @@ mbfido:
 mbcico:
 	L: Implement binkp option ND and NDA.
 
-mbmsg:
-	N: The UTC time in the message isn't properly converted to
-	   localtime when the message is processed.
-
 mbnntp:
 	N: fetched mail doesn't get the status Rcvd if it was for the user.
 
