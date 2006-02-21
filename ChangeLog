@@ -35,6 +35,10 @@ v0.83.13	13-Feb-2006
 		Fixed startup problem on new installations.
 		Some code cleanup.
 
+	mbsetup:
+		When a filearea was moved to another path the symlinks were not
+		moved to the new path.
+
 
 v0.83.12	06-Feb-2006 - 13-Feb-2006
 

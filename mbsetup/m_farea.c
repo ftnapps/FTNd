@@ -4,7 +4,7 @@
  * Purpose ...............: File Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -261,210 +261,231 @@ void FileScreen(void)
  */
 int EditFileRec(int Area)
 {
-	FILE		*fil;
-	char		mfile[PATH_MAX], *temp, tpath[65], frpath[81], topath[81];
-	int		offset;
-	unsigned int	crc, crc1;
-	int		Available, files, rc, Force = FALSE, count;
-	DIR		*dp;
-	struct dirent	*de;
-	struct stat	stb;
-	struct _fdbarea	*fdb_area = NULL;
+    FILE		*fil;
+    char		mfile[PATH_MAX], *temp, tpath[65], frpath[PATH_MAX], topath[PATH_MAX], *lnpath;
+    unsigned int	crc, crc1;
+    int			Available, files, rc, Force = FALSE, count, offset;
+    DIR			*dp;
+    struct dirent	*de;
+    struct stat		stb;
+    struct _fdbarea	*fdb_area = NULL;
+    struct FILE_record  f_db;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit File Area");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit File Area");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    snprintf(mfile, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&areahdr, sizeof(areahdr), 1, fil);
-	offset = areahdr.hdrsize + ((Area -1) * areahdr.recsize);
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    fread(&areahdr, sizeof(areahdr), 1, fil);
+    offset = areahdr.hdrsize + ((Area -1) * areahdr.recsize);
+    if (fseek(fil, offset, 0) != 0) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&area, areahdr.recsize, 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&area, crc, areahdr.recsize);
-	FileScreen();
+    fread(&area, areahdr.recsize, 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&area, crc, areahdr.recsize);
+    FileScreen();
 
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str( 6,16,44, area.Name);
-		show_str( 7,16,64, area.Path);
-		show_sec( 8,16, area.DLSec);
-		show_sec( 9,16, area.UPSec);
-		show_sec(10,16, area.LTSec);
-		show_bool(11,16, area.Available);
-		show_bool(12,16, area.New);
-		show_bool(13,16, area.Dupes);
-		show_bool(14,16, area.Free);
-		show_bool(15,16, area.DirectDL);
-		show_bool(16,16, area.PwdUP);
-		show_bool(17,16, area.FileFind);
+    for (;;) {
+	set_color(WHITE, BLACK);
+	show_str( 6,16,44, area.Name);
+	show_str( 7,16,64, area.Path);
+	show_sec( 8,16, area.DLSec);
+	show_sec( 9,16, area.UPSec);
+	show_sec(10,16, area.LTSec);
+	show_bool(11,16, area.Available);
+	show_bool(12,16, area.New);
+	show_bool(13,16, area.Dupes);
+	show_bool(14,16, area.Free);
+	show_bool(15,16, area.DirectDL);
+	show_bool(16,16, area.PwdUP);
+	show_bool(17,16, area.FileFind);
 
-		show_bool(12,44, area.AddAlpha);
-		show_bool(13,44, area.FileReq);
-		show_str(14,44,12, area.BbsGroup);
-		show_str(15,44,12, area.NewGroup);
-		show_int(16,44, area.Age);
-		show_str(17,44,20, (char *)"********************");
+	show_bool(12,44, area.AddAlpha);
+	show_bool(13,44, area.FileReq);
+	show_str(14,44,12, area.BbsGroup);
+	show_str(15,44,12, area.NewGroup);
+	show_int(16,44, area.Age);
+	show_str(17,44,20, (char *)"********************");
 
-		show_int(12,73, area.DLdays);
-		show_int(13,73, area.FDdays);
-		show_int(14,73, area.MoveArea);
-		show_str(15,73, 5, area.Archiver);
-		show_int(16,73, area.Upload);
+	show_int(12,73, area.DLdays);
+	show_int(13,73, area.FDdays);
+	show_int(14,73, area.MoveArea);
+	show_str(15,73, 5, area.Archiver);
+	show_int(16,73, area.Upload);
 
-		switch(select_menu(23)) {
-		case 0: crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&area, crc1, areahdr.recsize);
-			if (crc != crc1) {
-				if (Force || yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						working(2, 0, 0);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&area, areahdr.recsize, 1, fil);
-					fclose(fil);
-					FileUpdated = 1;
-					Syslog('+', "Updated file area %d", Area);
-					working(6, 0, 0);
-				}
+	switch(select_menu(23)) {
+	    case 0: crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&area, crc1, areahdr.recsize);
+		    if (crc != crc1) {
+			if (Force || yes_no((char *)"Record is changed, save") == 1) {
+			    working(1, 0, 0);
+			    if ((fil = fopen(mfile, "r+")) == NULL) {
+				working(2, 0, 0);
+				return -1;
+			    }
+			    fseek(fil, offset, 0);
+			    fwrite(&area, areahdr.recsize, 1, fil);
+			    fclose(fil);
+			    FileUpdated = 1;
+			    Syslog('+', "Updated file area %d", Area);
+			    working(6, 0, 0);
 			}
-			IsDoing("Browsing Menu");
-			return 0;
-		case 1:	E_STR(  6,16,44, area.Name,      "The ^name^ for this area")
-		case 2:	strcpy(tpath, area.Path);
-			strcpy(area.Path, edit_pth(7,16,64, area.Path, (char *)"The ^path^ for the files in this area", 0775));
-			if (strlen(tpath) && strlen(area.Path) && strcmp(tpath, area.Path) && strcmp(tpath, CFG.ftp_base)) {
-			    if ((dp = opendir(tpath)) == NULL) {
-				WriteError("Can't open directory %s", tpath);
-			    } else {
-				working(5, 0, 0);
-				count = 0;
-				Syslog('+', "Moving files from %s to %s", tpath, area.Path);
-				while ((de = readdir(dp))) {
-				    snprintf(frpath, 81, "%s/%s", tpath, de->d_name);
-				    snprintf(topath, 81, "%s/%s", area.Path, de->d_name);
-				    if (stat(frpath, &stb) == 0) {
-					if (S_ISREG(stb.st_mode)) {
-					    rc = file_mv(frpath, topath);
-					    if (rc)
-						WriteError("mv %s to %s rc=%d", frpath, topath, rc);
-					    else
-						count++;
-					    Nopper();
+		    }
+		    IsDoing("Browsing Menu");
+		    return 0;
+	    case 1: E_STR(  6,16,44, area.Name,      "The ^name^ for this area")
+	    case 2: strcpy(tpath, area.Path);
+		    strcpy(area.Path, edit_pth(7,16,64, area.Path, (char *)"The ^path^ for the files in this area", 0775));
+		    if (strlen(tpath) && strlen(area.Path) && strcmp(tpath, area.Path) && strcmp(tpath, CFG.ftp_base)) {
+			if ((dp = opendir(tpath)) == NULL) {
+			    WriteError("Can't open directory %s", tpath);
+			} else {
+			    working(5, 0, 0);
+			    count = 0;
+			    Syslog('+', "Moving files from %s to %s", tpath, area.Path);
+			    lnpath = calloc(PATH_MAX, sizeof(char));
+			    while ((de = readdir(dp))) {
+				snprintf(frpath, PATH_MAX, "%s/%s", tpath, de->d_name);
+			        snprintf(topath, PATH_MAX, "%s/%s", area.Path, de->d_name);
+			        if (lstat(frpath, &stb) == 0) {
+				    if (S_ISREG(stb.st_mode)) {
+				        /*
+				         * The real files, also files.bbs, index.html etc.
+				         */
+				        rc = file_mv(frpath, topath);
+				        if (rc)
+					    WriteError("mv %s to %s rc=%d", frpath, topath, rc);
+					else
+					    count++;
+					Nopper();
+				    }
+				    if (S_ISLNK(stb.st_mode)) {
+				        /*
+				         * The linked LFN
+				         */
+				        if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
+					    while (fread(&f_db, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+					        if (strcmp(f_db.LName, de->d_name) == 0) {
+						    /*
+						     * Got the symlink to the LFN
+						     */
+						    unlink(frpath);
+						    snprintf(lnpath, PATH_MAX, "%s/%s", area.Path, f_db.Name);
+						    if (symlink(lnpath, topath)) {
+						        WriteError("$symlink(%s, %s)", lnpath, topath);
+						    }
+						    break;
+						}
+					    }
+					    mbsedb_CloseFDB(fdb_area);
 					}
 				    }
 				}
-				closedir(dp);
-				if ((rc = rmdir(tpath)))
-				    WriteError("rmdir %s rc=%d", tpath, rc);
-				Force = TRUE;
-				FileForced = TRUE;
-				Syslog('+', "Moved %d files", count);
 			    }
+			    closedir(dp);
+			    free(lnpath);
+			    if ((rc = rmdir(tpath)))
+			        WriteError("rmdir %s rc=%d", tpath, rc);
+			    Force = TRUE;
+			    FileForced = TRUE;
+			    Syslog('+', "Moved %d files", count);
 			}
-			break;
-		case 3:	E_SEC(  8,16,    area.DLSec,     "8.4.3  DOWNLOAD SECURITY", FileScreen)
-		case 4:	E_SEC(  9,16,    area.UPSec,     "8.4.4  UPLOAD SECURITY", FileScreen)
-		case 5:	E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
-		case 6:	Available = edit_bool(11, 16, area.Available, (char *)"Is this area ^available^");
-			temp = calloc(PATH_MAX, sizeof(char));
-			snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
-			if (area.Available && !Available) {
+		    }
+		    break;
+	    case 3: E_SEC(  8,16,    area.DLSec,     "8.4.3  DOWNLOAD SECURITY", FileScreen)
+	    case 4: E_SEC(  9,16,    area.UPSec,     "8.4.4  UPLOAD SECURITY", FileScreen)
+	    case 5: E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
+	    case 6: Available = edit_bool(11, 16, area.Available, (char *)"Is this area ^available^");
+		    temp = calloc(PATH_MAX, sizeof(char));
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+		    if (area.Available && !Available) {
+		        /*
+		         * Attempt to disable this area, but check first.
+		         */
+		        if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
+	    		    fseek(fdb_area->fp, 0, SEEK_END);
+			    files = ((ftell(fdb_area->fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
+			    if (files) {
+			        errmsg("There are stil %d files in this area", files);
+			        Available = TRUE;
+			    }
+			    mbsedb_CloseFDB(fdb_area);
+			}
+		        if (!Available) {
+			    if (yes_no((char *)"Are you sure you want to delete this area") == 0)
+			        Available = TRUE;
+			}
+		        if (!Available) {
 			    /*
-			     * Attempt to disable this area, but check first.
+			     * Make it so
 			     */
-			    if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
-	    			fseek(fdb_area->fp, 0, SEEK_END);
-				files = ((ftell(fdb_area->fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
-				if (files) {
-				    errmsg("There are stil %d files in this area", files);
-				    Available = TRUE;
-				}
-				mbsedb_CloseFDB(fdb_area);
+			    unlink(temp);
+			    if (strlen(area.Path) && strcmp(area.Path, CFG.ftp_base)) {
+			        /*
+			         * Erase file in path if path is set and not the default
+			         * FTP base path
+			         */
+			        snprintf(temp, PATH_MAX, "-rf %s", area.Path);
+			        execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+			        rmdir(area.Path);
 			    }
-			    if (!Available) {
-				if (yes_no((char *)"Are you sure you want to delete this area") == 0)
-				    Available = TRUE;
-			    }
-			    if (!Available) {
-				/*
-				 * Make it so
-				 */
-				unlink(temp);
-				if (strlen(area.Path) && strcmp(area.Path, CFG.ftp_base)) {
-				    /*
-				     * Erase file in path if path is set and not the default
-				     * FTP base path
-				     */
-				    snprintf(temp, PATH_MAX, "-rf %s", area.Path);
-				    execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-				    rmdir(area.Path);
-				}
-				memset(&area, 0, sizeof(area));
-				/*
-				 * Fill in default values
-				 */
-				area.New      = TRUE;
-				area.Dupes    = TRUE;
-				area.FileFind = TRUE;
-				area.AddAlpha = TRUE;
-				area.FileReq  = TRUE;
-				strcpy(area.Path, CFG.ftp_base);
-				Syslog('+', "Removed file area %d", Area);
-			    }
-			    area.Available = Available;
-			    FileScreen();
-			} 
-			if (!area.Available && Available) {
-			    area.Available = TRUE;
-			    Syslog('-', "open");
-			    if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
-				Syslog('-', "is open");
-				mbsedb_CloseFDB(fdb_area);
-				Syslog('-', "closed");
-			    } else {
-				Syslog('-', "failed to open");
-			    }
+			    memset(&area, 0, sizeof(area));
+			    /*
+			     * Fill in default values
+			     */
+			    area.New      = TRUE;
+			    area.Dupes    = TRUE;
+			    area.FileFind = TRUE;
+			    area.AddAlpha = TRUE;
+			    area.FileReq  = TRUE;
+			    strcpy(area.Path, CFG.ftp_base);
+			    Syslog('+', "Removed file area %d", Area);
 			}
-			free(temp);
-			break;
-		case 7:	E_BOOL(12,16,    area.New,       "Include this area in ^new files^ check")
-		case 8:	E_BOOL(13,16,    area.Dupes,     "Check this area for ^duplicates^ during upload")
-		case 9: E_BOOL(14,16,    area.Free,      "Are all files ^free^ in this area")
-		case 10:E_BOOL(15,16,    area.DirectDL,  "Allow ^direct download^ from this area")
-		case 11:E_BOOL(16,16,    area.PwdUP,     "Allow ^password^ on uploads")
-		case 12:E_BOOL(17,16,    area.FileFind,  "Search this area for ^filefind^ requests")
-		case 13:E_BOOL(12,44,    area.AddAlpha,  "Add new files ^alphabetic^ or at the end")
-		case 14:E_BOOL(13,44,    area.FileReq,   "Allow ^file requests^ from this area")
-		case 15:strcpy(area.BbsGroup, PickFGroup((char *)"8.4.15"));
-			FileScreen();
-			break;
-		case 16:strcpy(area.NewGroup, PickNGroup((char *)"8.4.16"));
-			FileScreen();
-			break;
-		case 17:E_INT( 16,44,    area.Age,       "The ^minimum age^ to access this area")
-		case 18:E_STR( 17,44,20, area.Password,  "The ^password^ to access this area")
-		case 19:E_INT( 12,73,    area.DLdays,    "The not ^downloaded days^ to move/kill files")
-		case 20:E_INT( 13,73,    area.FDdays,    "The ^file age^ in days to move/kill files")
-		case 21:E_INT( 14,73,    area.MoveArea,  "The ^area to move^ files to, 0 is kill")
-		case 22:strcpy(area.Archiver, PickArchive((char *)"8.4"));
-			FileScreen();
-			break;
-		case 23:E_INT( 16,73,    area.Upload,    "The ^upload^ area, 0 if upload in this area")
-		}
+		        area.Available = Available;
+		        FileScreen();
+		    } 
+		    if (!area.Available && Available) {
+		        area.Available = TRUE;
+		        if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
+			    mbsedb_CloseFDB(fdb_area);
+			}
+		    }
+		    free(temp);
+		    break;
+	    case 7: E_BOOL(12,16,    area.New,       "Include this area in ^new files^ check")
+	    case 8: E_BOOL(13,16,    area.Dupes,     "Check this area for ^duplicates^ during upload")
+	    case 9: E_BOOL(14,16,    area.Free,      "Are all files ^free^ in this area")
+	    case 10:E_BOOL(15,16,    area.DirectDL,  "Allow ^direct download^ from this area")
+	    case 11:E_BOOL(16,16,    area.PwdUP,     "Allow ^password^ on uploads")
+	    case 12:E_BOOL(17,16,    area.FileFind,  "Search this area for ^filefind^ requests")
+	    case 13:E_BOOL(12,44,    area.AddAlpha,  "Add new files ^alphabetic^ or at the end")
+	    case 14:E_BOOL(13,44,    area.FileReq,   "Allow ^file requests^ from this area")
+	    case 15:strcpy(area.BbsGroup, PickFGroup((char *)"8.4.15"));
+		    FileScreen();
+		    break;
+	    case 16:strcpy(area.NewGroup, PickNGroup((char *)"8.4.16"));
+		    FileScreen();
+		    break;
+	    case 17:E_INT( 16,44,    area.Age,       "The ^minimum age^ to access this area")
+	    case 18:E_STR( 17,44,20, area.Password,  "The ^password^ to access this area")
+	    case 19:E_INT( 12,73,    area.DLdays,    "The not ^downloaded days^ to move/kill files")
+	    case 20:E_INT( 13,73,    area.FDdays,    "The ^file age^ in days to move/kill files")
+	    case 21:E_INT( 14,73,    area.MoveArea,  "The ^area to move^ files to, 0 is kill")
+	    case 22:strcpy(area.Archiver, PickArchive((char *)"8.4"));
+		    FileScreen();
+		    break;
+	    case 23:E_INT( 16,73,    area.Upload,    "The ^upload^ area, 0 if upload in this area")
 	}
+    }
 }
 
 
