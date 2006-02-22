@@ -92,7 +92,6 @@
 #ifdef	HAVE_BZLIB_H
 #include <bzlib.h>
 #endif
-#include <pthread.h>
 #if !defined(__ppc__)
 #include <sys/poll.h>
 #endif
