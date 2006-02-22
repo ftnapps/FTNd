@@ -15,8 +15,8 @@ MAJOR="0"
 MINOR="83"
 REVISION="13"
 VERSION="$MAJOR.$MINOR.$REVISION"
-COPYRIGHT="Copyright (C) 1997-2005 Michiel Broek, All Rights Reserved"
-SHORTRIGHT="Copyright (C) 1997-2005 M. Broek"
+COPYRIGHT="Copyright (C) 1997-2006 Michiel Broek, All Rights Reserved"
+SHORTRIGHT="Copyright (C) 1997-2006 M. Broek"
 GROUP="bbs"
 OWNER="mbse"
 ROWNER="`id -un root`"
@@ -190,34 +190,6 @@ if test "$result" = "yes"; then
   LIBS="$LIBS -lbz2"
   AC_CHECK_HEADERS(bzlib.h,BZLIBSUP=Yes,BZLIBSUP=No)
 fi
-
-dnl
-dnl The last library to add, according to Sun the -lpthread must be the
-dnl very last library specified on the gcc command line.
-dnl
-
-dnl
-dnl On NetBSD we need to add the pkg dirs for posix threads
-dnl
-dnl if test "$SYSTEM" = "NetBSD"; then
-dnl     CFLAGS="$CFLAGS `pthread-config --cflags`"
-dnl     LDFLAGS="$LDFLAGS `pthread-config --ldflags`"
-dnl fi
-
-
-dnl
-dnl For FreeBSD and OpenBSD we need -pthread for gcc and don't need libpthread
-dnl
-dnl if test "$SYSTEM" = "FreeBSD" || test "$SYSTEM" = "OpenBSD"; then
-dnl     CFLAGS="-pthread $CFLAGS"
-dnl else
-dnl     AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
-dnl     if test "$result" = "yes"; then
-dnl         LIBS="$LIBS -lpthread"
-dnl     fi
-dnl fi
-
-
 
 dnl
 dnl Checks for header files.
