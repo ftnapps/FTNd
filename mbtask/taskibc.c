@@ -567,7 +567,7 @@ void send_at(char *cmd, char *nick, char *param)
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    sprintf(buf, "%s %s@%s %s\r\n", cmd, nick, tnsl->myname, param);
+	    snprintf(buf, 512, "%s %s@%s %s\r\n", cmd, nick, tnsl->myname, param);
 	    send_msg(tnsl, buf);
 	}
     }
@@ -582,7 +582,7 @@ void send_nick(char *nick, char *name, char *realname)
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    sprintf(buf, "NICK %s %s %s %s\r\n", nick, name, tnsl->myname, realname);
+	    snprintf(buf, 512, "NICK %s %s %s %s\r\n", nick, name, tnsl->myname, realname);
 	    send_msg(tnsl, buf);
 	}
     }

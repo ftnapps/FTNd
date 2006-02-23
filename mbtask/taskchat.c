@@ -304,7 +304,7 @@ int part(pid_t pid, char *reason)
 		    chat_msg(tmpu->channel, NULL, buf);
 		    if (strcasecmp(tmp->name, (char *)"#sysop")) {
 			if (reason && strlen(reason)) {
-			    sprintf(buf, "%s %s", tmp->name, reason);
+			    snprintf(buf, 81, "%s %s", tmp->name, reason);
 			    send_at((char *)"PART", tmpu->nick, buf);
 			} else {
 			    send_at((char *)"PART", tmpu->nick, tmp->name);

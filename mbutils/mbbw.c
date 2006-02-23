@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
     bwname = xstrcpy(argv[1]);
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s.INF", bwname);
+    snprintf(temp, PATH_MAX, "%s.INF", bwname);
 
     if ((fp = fopen(temp, "r"))) {
 	printf("---- %s.INF -------------------------------------------------------\n", bwname);
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	fclose(fp);
     }
     
-    sprintf(temp, "%s.MIX", bwname);
+    snprintf(temp, PATH_MAX, "%s.MIX", bwname);
     if ((fp = fopen(temp, "r"))) {
 	printf("---- %s.MIX -------------------------------------------------------\n\n", bwname);
 	printf("  Area  Total  Pers.   FTI ptr\n");
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 	fclose(fp);
     }
 
-    sprintf(temp, "%s.FTI", bwname);
+    snprintf(temp, PATH_MAX, "%s.FTI", bwname);
     pos = 0;
     if ((fp = fopen(temp, "r"))) {
 	printf("---- %s.FTI -------------------------------------------------------\n\n", bwname);
