@@ -6,11 +6,13 @@ $Id$
 		all download directories before attempting to use 0.83.13.
 		This will upgrade the files database on 64 bit systems, but
 		also copied databases from 64 to 32 bit systems.
+		Some *BSD systems are updated too!
 
-		Alan and Rolf, please report the results of the upgrade.
+		Rolf, please report the results of the upgrade.
 
+v0.83.14	23-Feb-2006
 
-v0.83.13	13-Feb-2006
+v0.83.13	13-Feb-2006 - 23-Feb-2006
 
 	upgrade:
 		Start mbsetup and leave. If files databases need to be fixed
