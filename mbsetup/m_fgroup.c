@@ -4,7 +4,7 @@
  * Purpose ...............: Setup FGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -425,7 +425,7 @@ int EditFGrpRec(int Area)
 		case 6: E_STR( 11,16,12,fgroup.AreaFile,   "The name of the ^Areas File^ from the uplink (case sensitive)")
 		case 7: E_BOOL(12,16,   fgroup.FileGate,   "Is the areas file in ^filegate.zxx^ format")
 		case 8: E_STR( 13,16,14,fgroup.Banner,     "The ^banner^ to add to the archives")
-		case 9: strcpy(fgroup.Convert, PickArchive((char *)"10.1.9"));
+		case 9: strcpy(fgroup.Convert, PickArchive((char *)"10.1.9", FALSE));
 			FgScreen();
 			break;
 		case 10:strncpy(fgroup.BbsGroup, PickFGroup((char *)"8.4.17"), 12);

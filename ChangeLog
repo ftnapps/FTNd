@@ -12,6 +12,10 @@ $Id$
 
 v0.83.14	23-Feb-2006
 
+	mbsetup:
+		Added archiver selection for nodes in node setup.
+
+
 v0.83.13	13-Feb-2006 - 23-Feb-2006
 
 	upgrade:

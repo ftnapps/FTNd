@@ -480,7 +480,7 @@ int EditFileRec(int Area)
 	    case 19:E_INT( 12,73,    area.DLdays,    "The not ^downloaded days^ to move/kill files")
 	    case 20:E_INT( 13,73,    area.FDdays,    "The ^file age^ in days to move/kill files")
 	    case 21:E_INT( 14,73,    area.MoveArea,  "The ^area to move^ files to, 0 is kill")
-	    case 22:strcpy(area.Archiver, PickArchive((char *)"8.4"));
+	    case 22:strcpy(area.Archiver, PickArchive((char *)"8.4", FALSE));
 		    FileScreen();
 		    break;
 	    case 23:E_INT( 16,73,    area.Upload,    "The ^upload^ area, 0 if upload in this area")

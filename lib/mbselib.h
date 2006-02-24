@@ -1738,6 +1738,7 @@ struct	_nodes {
 	char		Ct_remark[65];		/* Remark		    */
 
 	securityrec	Security;		/* Security flags	    */
+	char            Archiver[6];            /* Archiver to use          */
 };
 
 

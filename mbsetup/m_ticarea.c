@@ -4,7 +4,7 @@
  * Purpose ...............: TIC Areas Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -959,7 +959,7 @@ int EditTicRec(int Area)
 			tic.Aka = CFG.aka[tmp];
 		    SetTicScreen();
 		    break;
-	    case 9: strcpy(tic.Convert, PickArchive((char *)"10.2.9"));
+	    case 9: strcpy(tic.Convert, PickArchive((char *)"10.2.9", FALSE));
 		    SetTicScreen();
 		    break;
 	    case 10:E_STR(15,16,14, tic.Banner,   "The ^banner^ to put in the file archives");

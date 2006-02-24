@@ -95,7 +95,7 @@ m_fdb.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h screen.h mu
 m_global.o: ../config.h ../paths.h ../lib/mbselib.h screen.h mutil.h ledit.h m_node.h m_marea.h m_ticarea.h m_new.h m_fgroup.h m_mgroup.h m_limits.h m_global.h
 m_magic.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_ticarea.h m_global.h m_magic.h
 m_mgroup.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_node.h m_marea.h m_mgroup.h
-m_node.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h grlist.h stlist.h m_global.h m_lang.h m_ticarea.h m_marea.h m_node.h
+m_node.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h grlist.h stlist.h m_global.h m_lang.h m_ticarea.h m_marea.h m_archive.h m_node.h
 m_task.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_task.h
 m_users.o: ../config.h ../lib/mbselib.h ../lib/users.h screen.h mutil.h ledit.h m_lang.h m_global.h m_archive.h m_protocol.h m_users.h
 screen.o: ../config.h ../lib/mbselib.h screen.h

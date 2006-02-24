@@ -4,7 +4,7 @@
  * Purpose ...............: Edit Users
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -403,7 +403,7 @@ int EditUsrRec2(void)
                     clr_index();
                     Screen2();
                     break;
-            case 12:strcpy(temp, PickArchive((char *)"15"));
+            case 12:strcpy(temp, PickArchive((char *)"15", TRUE));
                     if (strlen(temp) != 0)
                         strcpy(usrconfig.Archiver, temp);
                     clr_index();

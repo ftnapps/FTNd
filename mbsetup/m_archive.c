@@ -710,71 +710,79 @@ void InitArchive(void)
 
 
 
-char *PickArchive(char *shdr)
+char *PickArchive(char *shdr, int mailmode)
 {
-	static	char Arch[6] = "";
-	int	records, i, x, y;
-	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	int	offset;
+    static char Arch[6] = "";
+    int		records, i, y, o = 0;
+    char	pick[12];
+    FILE	*fil;
+    char	temp[PATH_MAX];
+    int		offset;
 
 
-	clr_index();
-	working(1, 0, 0);
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return Arch;
-	}
-
-	records = CountArchive();
-	if (records == -1) {
-		working(2, 0, 0);
-		return Arch;
-	}
-
-
-	clr_index();
-	set_color(WHITE, BLACK);
-	snprintf(temp, 81, "%s.  ARCHIVER SELECT", shdr);
-	mbse_mvprintw( 5, 4, temp);
-	set_color(CYAN, BLACK);
-	if (records != 0) {
-		snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-		if ((fil = fopen(temp, "r")) != NULL) {
-			fread(&archiverhdr, sizeof(archiverhdr), 1, fil);
-			x = 2;
-			y = 7;
-			set_color(CYAN, BLACK);
-			for (i = 1; i <= records; i++) {
-				offset = sizeof(archiverhdr) + ((i - 1) * archiverhdr.recsize);
-				fseek(fil, offset, 0);
-				fread(&archiver, archiverhdr.recsize, 1, fil);
-				if (i == 11) {
-					x = 41;
-					y = 7;
-				}
-				if (archiver.available)
-					set_color(CYAN, BLACK);
-				else
-					set_color(LIGHTBLUE, BLACK);
-				snprintf(temp, 81, "%3d.  %-32s", i, archiver.comment);
-				temp[37] = 0;
-				mbse_mvprintw(y, x, temp);
-				y++;
-			}
-			strcpy(pick, select_pick(records, 20));
-
-			if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-				offset = sizeof(archiverhdr) + ((atoi(pick) - 1) * archiverhdr.recsize);
-				fseek(fil, offset, 0);
-				fread(&archiver, archiverhdr.recsize, 1, fil);
-				strcpy(Arch, archiver.name);
-			}
-			fclose(fil);
-		}
-	}
+    clr_index();
+    working(1, 0, 0);
+    if (config_read() == -1) {
+	working(2, 0, 0);
 	return Arch;
+    }
+
+    records = CountArchive();
+    if (records == -1) {
+	working(2, 0, 0);
+	return Arch;
+    }
+
+    if (records != 0) {
+	snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	if ((fil = fopen(temp, "r")) != NULL) {
+	    fread(&archiverhdr, sizeof(archiverhdr), 1, fil);
+
+	    for (;;) {
+		clr_index();
+		set_color(WHITE, BLACK);
+		snprintf(temp, 81, "%s.  ARCHIVER SELECT", shdr);
+		mbse_mvprintw( 5, 4, temp);
+		set_color(CYAN, BLACK);
+		y = 7;
+		for (i = 1; i <= 10; i++) {
+		    if ((o + i) <= records) {
+			offset = sizeof(archiverhdr) + (((o + i) - 1) * archiverhdr.recsize);
+			fseek(fil, offset, 0);
+			fread(&archiver, archiverhdr.recsize, 1, fil);
+			if (mailmode && archiver.available && strlen(archiver.marc))
+			    set_color(CYAN, BLACK);
+			else if (! mailmode && archiver.available && strlen(archiver.farc))
+			    set_color(CYAN, BLACK);
+			else
+			    set_color(LIGHTBLUE, BLACK);
+			snprintf(temp, 81, "%3d.  %-5s  %-32s", o+i, archiver.name, archiver.comment);
+			mbse_mvprintw(y, 2, temp);
+			y++;
+		    }
+		}
+		strcpy(pick, select_pick(records, 10));
+
+		if (strncmp(pick, "N", 1) == 0)
+		    if ((o + 10) < records)
+			o = o + 10;
+
+		if (strncmp(pick, "P", 1) == 0)
+		    if ((o - 10) >= 0)
+			 o = o - 10;
+	    
+		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+		    offset = sizeof(archiverhdr) + ((atoi(pick) - 1) * archiverhdr.recsize);
+		    fseek(fil, offset, 0);
+		    fread(&archiver, archiverhdr.recsize, 1, fil);
+		    strcpy(Arch, archiver.name);
+		    break;
+		}
+	    }
+	    fclose(fil);
+	}
+    }
+    return Arch;
 }
 
 

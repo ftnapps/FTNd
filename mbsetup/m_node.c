@@ -39,6 +39,7 @@
 #include "m_lang.h"
 #include "m_ticarea.h"
 #include "m_marea.h"
+#include "m_archive.h"
 #include "m_node.h"
 
 
@@ -153,6 +154,9 @@ int OpenNoderec(void)
 			 */
 			nodes.Security.level = 1;
 			nodes.Security.flags = 1;
+		    }
+		    if (strlen(nodes.Archiver) == 0) {
+			snprintf(nodes.Archiver, 6, (char *)"ZIP");
 		    }
 		}
 		fwrite(&nodes, sizeof(nodes), 1, fout);
@@ -435,31 +439,44 @@ void E_UplMgr(void)
 void E_Mail(void);
 void E_Mail(void)
 {
-    clr_index();
-    set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "7.4  EDIT NODE - MAIL PROCESSING");
-    set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.   PKT password");
-    mbse_mvprintw( 8, 6, "2.   Check PKT pwd");
-    mbse_mvprintw( 9, 6, "3.   Mail forward");
-    mbse_mvprintw(10, 6, "4.   ARCmail comp.");
-    mbse_mvprintw(11, 6, "5.   ARCmail a..z");
+    char    temp[6];
+    int	    show = TRUE;
 
     for (;;) {
+	if (show) {
+	    clr_index();
+	    set_color(WHITE, BLACK);
+	    mbse_mvprintw( 5, 6, "7.4  EDIT NODE - MAIL PROCESSING");
+	    set_color(CYAN, BLACK);
+	    mbse_mvprintw( 7, 6, "1.   PKT password");
+	    mbse_mvprintw( 8, 6, "2.   Check PKT pwd");
+	    mbse_mvprintw( 9, 6, "3.   Mail forward");
+	    mbse_mvprintw(10, 6, "4.   ARCmail comp.");
+	    mbse_mvprintw(11, 6, "5.   ARCmail a..z");
+	    mbse_mvprintw(12, 6, "6.   Archiver");
+	    show = FALSE;
+	}
+
 	set_color(WHITE, BLACK);
 	show_str(  7,25,15, (char *)"***************");
 	show_bool( 8,25,    nodes.MailPwdCheck);
 	show_bool( 9,25,    nodes.MailFwd);
 	show_bool(10,25,    nodes.ARCmailCompat);
 	show_bool(11,25,    nodes.ARCmailAlpha);
+	show_str( 12,25, 5, nodes.Archiver);
 
-	switch(select_menu(5)) {
+	switch(select_menu(6)) {
 	    case 0: return;
 	    case 1: E_STR(  7,25,15, nodes.Epasswd,       "The ^Mail (.pkt)^ password^ for this node")
 	    case 2: E_BOOL( 8,25,    nodes.MailPwdCheck,  "Check the ^mail PKT^ password")
 	    case 3: E_BOOL( 9,25,    nodes.MailFwd,       "^Forward^ echomail for this node")
 	    case 4: E_BOOL(10,25,    nodes.ARCmailCompat, "Use ^ARCmail 0.60^ file naming convention for out of zone mail")
 	    case 5: E_BOOL(11,25,    nodes.ARCmailAlpha,  "Allow ^0..9 and a..z^ filename extensions for ARCmail archives")
+	    case 6: strcpy(temp, PickArchive((char *)"7.4", TRUE));
+		    if (strlen(temp) != 0)
+			strcpy(nodes.Archiver, temp);
+		    show = TRUE;
+		    break;
 	}
     }
 }
