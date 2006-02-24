@@ -4,7 +4,7 @@
  * Purpose ...............: Mail and file queue operations
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -265,14 +265,14 @@ void flush_dir(char *ndir)
     closedir(dp);
     sort_fdlist(&fdl);
 
-    if (getarchiver((char *)"ZIP")) {
+    if (getarchiver(nodes.Archiver)) {
 	flavor = 'f';
 	if (nodes.Crash)
 	    flavor = 'c';
 	if (nodes.Hold)
 	    flavor = 'h';
     } else {
-	WriteError("Archiver ZIP not found");
+	WriteError("Archiver %s not found", nodes.Archiver);
 	if (noden.domain)
 	    free(noden.domain);
 	free(temp);
@@ -374,7 +374,7 @@ void flush_dir(char *ndir)
 	}
 
 	if (first) {
-	    Syslog('+', "Pack ARCmail for %s via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
+	    Syslog('+', "Pack ARCmail for %s via %s with %s", aka2str(nodenr), ascfnode(&noden, 0x1f), nodes.Archiver);
 	    if (!do_quiet) {
 		printf("\rAdding ARCmail for %s                      ", ascfnode(&noden, 0x1f));
 		fflush(stdout);
@@ -386,15 +386,8 @@ void flush_dir(char *ndir)
 	if (execute_str(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 	    unlink(fname);
 	} else {
-	    WriteError("Create ARCmail failed, trying again after sync()");
-	    sync();
-	    sleep(1);
-	    if (execute_str(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
-		unlink(fname);
-	    } else {
-		WriteError("Can't add %s to ARCmail archive", fname);
-		Attach = FALSE;
-	    }
+	    WriteError("Can't add %s to ARCmail archive", fname);
+	    Attach = FALSE;
 	}
 
 	/*

@@ -12,6 +12,9 @@ $Id$
 
 v0.83.14	23-Feb-2006
 
+	mbfido:
+		Uses archiver from the setup to pack mail for a node.
+
 	mbsetup:
 		Added archiver selection for nodes in node setup.
 
