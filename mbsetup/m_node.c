@@ -313,6 +313,7 @@ int AppendNoderec(void)
 	nodes.Security.level = 1;
 	nodes.Security.flags = 1;
 	nodes.Language = 'E';
+	snprintf(nodes.Archiver, 6, "ZIP");
 	fwrite(&nodes, sizeof(nodes), 1, fil);
 	memset(&group, 0, 13);
 	for (i = 1; i <= CFG.tic_groups; i++)
