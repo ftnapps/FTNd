@@ -54,6 +54,8 @@ mbsebbs:
 
 
 mbfido:
+	N: Add use of different archivers for packing mail.
+
 	W: Check all .flo files for dead attachments.
 
 	W: Check all .flo files for to old attachments.
@@ -121,6 +123,8 @@ mbsetup:
 	   too high outbound stats and the outbound is scanned multiple times.
 
 	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
+
+	N: Add setup for archiver in nodessetup.
 
 	W: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.
