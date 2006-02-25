@@ -12,6 +12,9 @@ $Id$
 
 v0.83.14	23-Feb-2006
 
+	upgrade:
+		Start and stop mbsetup, this will upgrade the nodes settings.
+
 	mbfido:
 		Uses archiver from the setup to pack mail for a node.
 
