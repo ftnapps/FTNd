@@ -770,13 +770,22 @@ char *PickArchive(char *shdr, int mailmode)
 		if (strncmp(pick, "P", 1) == 0)
 		    if ((o - 10) >= 0)
 			 o = o - 10;
-	    
+    
+		if (strncmp(pick, "-", 1) == 0) {
+		    break;
+		}
+
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
 		    offset = sizeof(archiverhdr) + ((atoi(pick) - 1) * archiverhdr.recsize);
 		    fseek(fil, offset, 0);
 		    fread(&archiver, archiverhdr.recsize, 1, fil);
-		    strcpy(Arch, archiver.name);
-		    break;
+		    if ((mailmode && archiver.available && strlen(archiver.marc)) ||
+			(! mailmode && archiver.available && strlen(archiver.farc))) {
+			strcpy(Arch, archiver.name);
+			break;
+		    } else {
+			working(2, 0, 0);
+		    }
 		}
 	    }
 	    fclose(fil);

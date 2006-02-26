@@ -222,6 +222,7 @@ static int sendzfile(char *rn)
 	    (unsigned int)st.st_size, (int)st.st_mtime + (int)(st.st_mtime % 2), st.st_mode);
     bufl = strlen(txbuf);
     *(strchr(txbuf,' ')) = '\0'; /*hope no blanks in filename*/
+    Syslog('z', "txbuf \"%s\"", printable(txbuf, 0));
 
     Eofseen = 0;
     rc = zsendfile(txbuf,bufl);

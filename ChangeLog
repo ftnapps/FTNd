@@ -20,6 +20,8 @@ v0.83.14	23-Feb-2006
 
 	mbsetup:
 		Added archiver selection for nodes in node setup.
+		In archiver select added checks for valid archivers and allowed
+		escape without selecting an archiver.
 
 
 v0.83.13	13-Feb-2006 - 23-Feb-2006
