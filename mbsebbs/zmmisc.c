@@ -77,7 +77,7 @@ int	    Rxtimeout = 10;	    /* Seconds to wait for something, receiver */
 char	    *txbuf=NULL;
 static int  lastsent;		    /* Last char we sent */
 static int  Not8bit;		    /* Seven bits seen on header */
-
+static char zsendline_tab[256];
 
 extern unsigned	Baudrate;
 extern int	zmodem_requested;
@@ -171,7 +171,8 @@ void zsbhdr(int type, char *shdr)
     register int	    n;
     register unsigned short crc;
 
-    Syslog('z', "zsbhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
+    Crc32t = Txfcs32;
+    Syslog('z', "zsbh%s: %s %lx", Crc32t ? "32":"dr", frametypes[type+FTOFFSET], rclhdr(shdr));
 
     BUFFER_CLEAR();
 
@@ -182,7 +183,7 @@ void zsbhdr(int type, char *shdr)
     BUFFER_BYTE(ZPAD); 
     BUFFER_BYTE(ZDLE);
 
-    if ((Crc32t = Txfcs32))
+    if (Crc32t)
 	zsbh32(shdr, type);
     else {
 	BUFFER_BYTE(ZBIN);
@@ -321,7 +322,10 @@ void zsda32(register char *buf, int length, int frameend)
     crc = 0xFFFFFFFFL;
     for (;--length >= 0; ++buf) {
 	c = *buf & 0377;
-	zsendline(*buf);
+	if (c & 0140)
+	    BUFFER_BYTE(lastsent = c);
+	else	
+	    zsendline(c);
 	crc = updcrc32(c, crc);
     }
     BUFFER_BYTE(ZDLE); 
@@ -332,11 +336,6 @@ void zsda32(register char *buf, int length, int frameend)
     for (c=4; --c >= 0;) {
 	zsendline((int)crc);  crc >>= 8;
     }
-
-//    if (frameend == ZCRCW) {
-//	BUFFER_BYTE(XON);
-//	fflush(stdout);
-  //  }
 }
 
 
@@ -477,7 +476,6 @@ void garbitch(void)
 int zgethdr(char *shdr)
 {
     register int    c, n, cancount, tmcount;
-//    int		    Zrwindow = 1400;
     int		    Zrwindow = 1024;
 
     n = Zrwindow + Baudrate;
@@ -737,42 +735,65 @@ void zputhex(int c)
 
 /*
  * Send character c with ZMODEM escape sequence encoding.
- *  Escape XON, XOFF. Escape CR following @ (Telenet net escape)
+ * Escape XON, XOFF. Escape CR following @ (Telenet net escape)
  */
 void zsendline(int c)
 {
-    /* Quick check for non control characters */
-    if (c & 0140)
-	BUFFER_BYTE(lastsent = c);
-    else {
-	switch (c &= 0377) {
-	    case ZDLE:
-			BUFFER_BYTE(ZDLE);
-			BUFFER_BYTE (lastsent = (c ^= 0100));
-			break;
-	    case 015:
-	    case 0215:
-			if (!Zctlesc && (lastsent & 0177) != '@')
-			    goto sendit;
-			/* **** FALL THRU TO **** */
-	    case 020:
-	    case 021:
-	    case 023:
-	    case 0220:
-	    case 0221:
-	    case 0223:
-			BUFFER_BYTE(ZDLE);
-			c ^= 0100;
-sendit:
-			BUFFER_BYTE(lastsent = c);
-			break;
-	    default:
-			if (Zctlesc && ! (c & 0140)) {
-			    BUFFER_BYTE(ZDLE);
-			    c ^= 0100;
-			
-			}
-			BUFFER_BYTE(lastsent = c);
+    switch(zsendline_tab[(unsigned) (c&=0377)]) {
+	case 0:	BUFFER_BYTE(lastsent = c);
+		break;
+	case 1:	BUFFER_BYTE(ZDLE);
+		c ^= 0100;
+		BUFFER_BYTE(lastsent = c);
+		break;
+	case 2:	if ((lastsent & 0177) != '@') {
+		    BUFFER_BYTE(lastsent = c);
+		} else {
+		    BUFFER_BYTE(ZDLE);
+		    c ^= 0100;
+		    BUFFER_BYTE(lastsent = c);
+		}
+		break;
+    }
+}
+
+
+
+void zsendline_init(void)
+{
+    int	    i;
+
+    Syslog('z', "zendline_init() Zctlesc=%d", Zctlesc);
+
+    for (i = 0; i < 256; i++) {
+	if (i & 0140)
+	    zsendline_tab[i] = 0;
+	else {
+	    switch(i) {
+		case ZDLE:
+		case XOFF: /* ^Q */
+		case XON: /* ^S */
+		case (XOFF | 0200):
+		case (XON | 0200):
+				    zsendline_tab[i]=1;
+				    break;
+		case 020: /* ^P */
+		case 0220:
+				    zsendline_tab[i]=1;
+				    break;
+		case 015:
+		case 0215:
+				    if (Zctlesc)
+					zsendline_tab[i]=1;
+				    else
+					zsendline_tab[i]=2;
+				    break;
+		default:
+				    if (Zctlesc)
+					zsendline_tab[i]=1;
+				    else
+					zsendline_tab[i]=0;
+	    }
 	}
     }
 }

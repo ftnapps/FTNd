@@ -134,7 +134,7 @@ char Rxhdr[ZMAXHLEN];	/* Received header */
 char Txhdr[ZMAXHLEN];	/* Transmitted header */
 char Attn[ZATTNLEN+1];  /* Attention string rx sends to tx on err */
 char *Altcan;           /* Alternate canit string */
-char Zsendmask[33];     /* Additional control characters to mask */
+//char Zsendmask[33];     /* Additional control characters to mask */
 int  Zctlesc;
 
 enum zm_type_enum {
@@ -159,6 +159,7 @@ int	zdlread(void);
 void	stohdr(int);
 int	rclhdr(register char *);
 char	*protname(void);
+void	zsendline_init(void);
 void	purgeline(int);
 void	canit(int);
 

@@ -47,7 +47,6 @@ static int zfilbuf(void);
 static int zsendfile(char*,int);
 static int zsendfdata(void);
 static int getinsync(int);
-void initzsendmsk(char *);
 
 static FILE *in;
 static int Eofseen;		/* EOF seen on input set by zfilbuf */
@@ -90,6 +89,7 @@ int zmsndfiles(down_list *lst, int try8)
     Syslog('+', "Zmodem: start Zmodem%s send", try8 ? "-8K":"");
 
     get_frame_buffer();
+    zsendline_init();
 
     use8k = try8;
     protocol = ZM_ZMODEM;
@@ -263,13 +263,13 @@ int getzrxinit(void)
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
-//			{
-//			    int old = Zctlesc;
+			{
+			    int old = Zctlesc;
 			    Zctlesc |= Rxflags & TESCCTL;
-//			    /* update table - was initialised to not escape */
-//			    if (Zctlesc && !old)
-//			    	zsendline_init();
-//			}
+			    /* update table - was initialised to not escape */
+			    if (Zctlesc && !old)
+			    	zsendline_init();
+			}
 
 			Rxbuflen = (0377 & Rxhdr[ZP0])+((0377 & Rxhdr[ZP1])<<8);
 			if ( !(Rxflags & CANFDX))
@@ -333,7 +333,6 @@ int sendzsinit(void)
 	    Txhdr[ZF0] |= TESCCTL; zshhdr(ZSINIT, Txhdr);
 	} else
 	    zsbhdr(ZSINIT, Txhdr);
-//	zsdata(Myattn, ZATTNLEN, ZCRCW);
 	zsdata(Myattn, 1 + strlen(Myattn), ZCRCW);
 	c = zgethdr(Rxhdr);
 	switch (c) {
@@ -504,7 +503,7 @@ gotack:
 	 */
 	if (TCHECK()) {
 	    c = GETCHAR(1);
-	    Syslog('z', "zsendfdata(): check getchar(1)=%d", c);
+	    Syslog('z', "zsendfdata(): 1 check getchar(1)=%d %c", c, c);
 	    if (c < 0) {
 		return c;
 	    } else switch (c) {
@@ -557,6 +556,7 @@ to:
 	 */
 	if (TCHECK()) {
 	    c = GETCHAR(1);
+	    Syslog('z', "zsendfdata(): 2 check getchar(1)=%d %c", c, c);
 	    if (c < 0) {
 		return c;
 	    } else switch (c) {
@@ -665,24 +665,6 @@ int getinsync(int flag)
 	    default:	    zsbhdr(ZNAK, Txhdr);
 			    continue;
 	}
-    }
-}
-
-
-
-/*
- * Set additional control chars to mask in Zsendmask
- * according to bit array stored in char array at p
- */
-void initzsendmsk(register char *p)
-{
-    int	c;
-
-    for (c = 0; c < 33; ++c) {
-        if (p[c>>3] & (1 << (c & 7))) {
-            Zsendmask[c] = 1;
-            Syslog('z', "Zmodem: Escaping %02o", c);
-        }
     }
 }
 
