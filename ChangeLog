@@ -21,6 +21,11 @@ v0.83.14	23-Feb-2006
 	mbsebbs:
 		Added Change archiver menu.
 		Added crontrol-U0 to display current archiver.
+		Changes to OLR ASCII download:
+		- area files are named after area tag if possible, dots are
+		  replaced by underscores and extension is .text.
+		- If available each message now has a msgid in the header.
+		- Added a .info file with control information.
 
 	mbsetup:
 		Added archiver selection for nodes in node setup.

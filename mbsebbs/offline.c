@@ -68,6 +68,7 @@ char		*newtear = NULL;
 typedef struct	_msg_high {
 	struct	_msg_high	*next;
 	unsigned int		Area;
+	char			Tag[60];
 	unsigned int		LastMsg;
 	unsigned int		Personal;
 } msg_high;
@@ -79,7 +80,7 @@ typedef struct	_msg_high {
  */
 void		AddArc(char *, char *);
 void		tidy_high(msg_high **);
-void		fill_high(msg_high **, unsigned int, unsigned int, unsigned int);
+void		fill_high(msg_high **, unsigned int, char *, unsigned int, unsigned int);
 void		UpdateLR(msg_high *, FILE *);
 void		Add_Kludges(fidoaddr, int, char *);
 int		OLR_Prescan(void);
@@ -91,7 +92,7 @@ void		QWK_Fetch(void);
 float		IEEToMSBIN(float);
 float		MSBINToIEE(float);
 char		*StripSpaces(char *, int);
-unsigned int	ASCII_PackArea(unsigned int, int);
+unsigned int	ASCII_PackArea(unsigned int, int, char *);
 
 
 
@@ -126,13 +127,14 @@ void tidy_high(msg_high **hdp)
 /*
  *  Add an area to the array
  */
-void fill_high(msg_high **hdp, unsigned int Area, unsigned int Last, unsigned int Pers)
+void fill_high(msg_high **hdp, unsigned int Area, char *tag, unsigned int Last, unsigned int Pers)
 {
     msg_high *tmp;
 
     tmp = (msg_high *)malloc(sizeof(msg_high));
     tmp->next = *hdp;
     tmp->Area = Area;
+    snprintf(tmp->Tag, 51, "%s", tag);
     tmp->LastMsg = Last;
     tmp->Personal = Pers;
     *hdp = tmp;
@@ -1338,7 +1340,7 @@ void OLR_DownBW()
 			if (Start < Msg_Highest()) {
 			    Syslog('m', "First %lu, Last %lu, Start %lu", Msg_Lowest(), Msg_Highest(), Start);
 			    High = BlueWave_PackArea(Start, Area);
-			    fill_high(&mhl, Area, High, Personal);
+			    fill_high(&mhl, Area, msgs.Tag, High, Personal);
 			}
 		    }
 		    Syslog('+', "Area %-20s %5ld (%ld personal)", msgs.QWKname, Current, Personal);
@@ -2005,7 +2007,7 @@ void OLR_DownQWK(void)
 		    if (Start < Msg_Highest()) {
 			Syslog('m', "First %lu, Last %lu, Start %lu", Msg_Lowest(), Msg_Highest(), Start);
 			High = QWK_PackArea(Start, Area);
-			fill_high(&mhl, Area, High, Personal);
+			fill_high(&mhl, Area, msgs.Tag, High, Personal);
 		    }
 		}
 		Syslog('+', "Area %-20s %5ld (%ld personal)", msgs.QWKname, Current, Personal);
@@ -2640,10 +2642,9 @@ void OLR_DownASCII(void)
 {
     struct  tm      *tp;
     time_t          Now;
-    char            Pktname[32], *Work, *Temp, *cwd = NULL;
-    int		    Area = 0;
-    int             rc = 0;
-    FILE            *fp = NULL, *tf, *mf, *af;
+    char            Pktname[32], *Work, *Temp, *cwd = NULL, Atag[60], Kinds[12];
+    int		    Area = 0, i, rc = 0;
+    FILE            *fp = NULL, *tf, *mf, *af, *inf;
     unsigned int    Start, High;
     msg_high        *tmp, *mhl = NULL;
 
@@ -2689,15 +2690,62 @@ void OLR_DownASCII(void)
 	return;
     }
 
+    snprintf(Atag, 9, CFG.bbsid);
+    tl(Atag);
+    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s.info", CFG.bbs_usersdir, exitinfo.Name, Atag);
+    if ((inf = fopen(Temp, "a+")) == NULL) {
+	WriteError("$Can't create %s", Temp);
+	fclose(tf);
+	fclose(fp);
+	fclose(mf);
+	return;
+    }
+
     Area = 0;
     DrawBar(Pktname);
     fseek(mf, sizeof(msgshdr), SEEK_SET);
     fseek(tf, 0, SEEK_SET);
 
+
     while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
 	fseek(mf, msgshdr.syssize, SEEK_CUR);
 	fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
 	Area++;
+
+	if (msgs.Active && Access(exitinfo.Security, msgs.RDSec)) {
+	    if (strlen(msgs.Tag))
+		snprintf(Atag, 51, msgs.Tag);
+	    else
+		snprintf(Atag, 51, "%d", Area);
+	    switch (msgs.Type) {
+		case LOCALMAIL:	snprintf(Temp, 81, "Local");
+				break;
+		case NETMAIL:	snprintf(Temp, 81, "Net");
+				break;
+		case ECHOMAIL:	snprintf(Temp, 81, "Echo");
+				break;
+		case NEWS:	snprintf(Temp, 81, "News");
+				break;
+		case LIST:	snprintf(Temp, 81, "List");
+				break;
+	    }
+	    switch (msgs.MsgKinds) {
+		case BOTH:	snprintf(Kinds, 12, "PvtPub");
+				break;
+		case PRIVATE:	snprintf(Kinds, 12, "Pvt");
+				break;
+		case PUBLIC:	snprintf(Kinds, 12, "Pub");
+				break;
+		case RONLY:	snprintf(Kinds, 12, "RO");
+				break;
+		case FTNMOD:	snprintf(Kinds, 12, "FtnMod");
+				break;
+		case USEMOD:	snprintf(Kinds, 12, "UseMod");
+				break;
+	    }			
+	    fprintf(inf, "Area %s,%s,%s,%s,%s\n", Atag, Temp, Kinds, olrtagrec.Tagged ?"S":"U", msgs.Name);
+	}
+
 	if (olrtagrec.Tagged) {
 	    if (Msg_Open(msgs.Base)) {
 		Current = Personal = 0;
@@ -2711,8 +2759,17 @@ void OLR_DownASCII(void)
 		    if (Start > Msg_Highest())
 			Start = Msg_Highest();
 		    if (Start < Msg_Highest()) {
-			High = ASCII_PackArea(Start, Area);
-			fill_high(&mhl, Area, High, Personal);
+			if (strlen(msgs.Tag))
+			    snprintf(Atag, 60, "%s_%s", CFG.bbsid, msgs.Tag);
+			else
+			    snprintf(Atag, 60, "%s_%d", CFG.bbsid, Area);
+			for (i = 0; i < strlen(Atag); i++) {
+			    if (Atag[i] == '.')
+				Atag[i] = '_';
+			    Atag[i] = tolower(Atag[i]);
+			}
+			High = ASCII_PackArea(Start, Area, Atag);
+			fill_high(&mhl, Area, Atag, High, Personal);
 		    }
 		}
 		Syslog('+', "Area %-20s %5ld (%ld personal)", msgs.QWKname, Current, Personal);
@@ -2720,38 +2777,45 @@ void OLR_DownASCII(void)
 	    }
 	}
     }
+    fclose(inf);
 
-    if (Total) {
-	Enter(1);
-	/*        Packing with */
-	PUTSTR((char *)Language(446));
-	PUTCHAR(' ');
-	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-	if ((af = fopen(Temp, "r")) != NULL) {
-	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
-	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
-		if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
-		    Syslog('+', "Archiver %s", archiver.comment);
-		    PUTSTR(archiver.comment);
-		    PUTCHAR(' ');
-		    cwd = getcwd(cwd, PATH_MAX);
-		    chdir(Work);
-		    alarm_on();
+    /*
+     * In ASCII mode we allways download, even if there are no messages
+     * packed. However we do have a .info file for the user.
+     */
+    Enter(1);
+    /*        Packing with */
+    PUTSTR((char *)Language(446));
+    PUTCHAR(' ');
+    snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    if ((af = fopen(Temp, "r")) != NULL) {
+        fread(&archiverhdr, sizeof(archiverhdr), 1, af);
+        while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
+	    if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
+	        Syslog('+', "Archiver %s", archiver.comment);
+	        PUTSTR(archiver.comment);
+	        PUTCHAR(' ');
+	        cwd = getcwd(cwd, PATH_MAX);
+	        chdir(Work);
+	        alarm_on();
 
-		    for (tmp = mhl; tmp; tmp = tmp->next) {
-			snprintf(Temp, PATH_MAX, "%03d.TXT", tmp->Area);
-			AddArc(Temp, Pktname);
-		    }
-		    chdir(cwd);
-		    free(cwd);
-		    cwd = NULL;
-		    snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
-		    rc = DownloadDirect(Temp, FALSE);
-		    unlink(Temp);
+		snprintf(Temp, PATH_MAX, "%s.info", CFG.bbsid);
+		tl(Temp);
+		AddArc(Temp, Pktname);
+		
+	        for (tmp = mhl; tmp; tmp = tmp->next) {
+		    snprintf(Temp, PATH_MAX, "%s.text", tmp->Tag);
+		    AddArc(Temp, Pktname);
 		}
+	        chdir(cwd);
+	        free(cwd);
+	        cwd = NULL;
+	        snprintf(Temp, PATH_MAX, "%s/%s/tmp/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+	        rc = DownloadDirect(Temp, FALSE);
+	        unlink(Temp);
 	    }
-	    fclose(af);
 	}
+	fclose(af);
     }
 
     if (rc) {
@@ -2780,7 +2844,7 @@ void OLR_DownASCII(void)
 /*
  * Pack messages in one mail area
  */
-unsigned int ASCII_PackArea(unsigned int ulLast, int Area)
+unsigned int ASCII_PackArea(unsigned int ulLast, int Area, char *Atag)
 {
     FILE            *fp;
     char            *Work, *Temp, *Text, msg[81];
@@ -2795,7 +2859,7 @@ unsigned int ASCII_PackArea(unsigned int ulLast, int Area)
     Work = calloc(PATH_MAX, sizeof(char));
     snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-    snprintf(Temp, PATH_MAX, "%s/%03d.TXT", Work, Area);
+    snprintf(Temp, PATH_MAX, "%s/%s.text", Work, Atag);
     if ((fp = fopen(Temp, "a+")) != NULL) {
 	if (Msg_Next(&Number)) {
 	    do {
@@ -2815,15 +2879,28 @@ unsigned int ASCII_PackArea(unsigned int ulLast, int Area)
 		}
 
                 if (Pack) {
-		    fprintf (fp, "\n==============================================\n    Msg. #%d of %d (%s)\n", 
+		    fprintf (fp, "===============================================================================\n");
+		    fprintf (fp, "  Msg: #%d of %d (%s)\n", 
 			    Number, Msg_Number(), msgs.Name);
 		    tp = localtime(&Msg.Written);
-		    fprintf (fp, "   Date: %d %s %d %2d:%02d\n", tp->tm_mday, 
+		    fprintf (fp, " Date: %d %s %d %2d:%02d\n", tp->tm_mday, 
 						GetMonth(tp->tm_mon + 1), tp->tm_year, tp->tm_hour, tp->tm_min);
-		    fprintf (fp, "   From: %s\n", Msg.From);
+		    fprintf (fp, " From: %s\n", Msg.From);
 		    if (Msg.To[0])
-			fprintf (fp, "     To: %s\n", Msg.To);
-		    fprintf (fp, "Subject: %s\n----------------------------------------------\n", Msg.Subject);
+			fprintf (fp, "   To: %s\n", Msg.To);
+		    fprintf (fp, " Subj: %s\n", Msg.Subject);
+		    /*
+		     * If present, add the msgid
+		     */
+		    if ((Text = (char *)MsgText_First()) != NULL) {
+			do {
+			    if (strncmp(Text, "\001MSGID: ", 8) == 0) {
+				fprintf (fp, "Msgid: %s\n", Text+8);
+				break;
+			    }
+			} while ((Text = (char *)MsgText_Next()) != NULL);
+		    }
+		    fprintf (fp, "-------------------------------------------------------------------------------\n");
 		    Current++;
 		    Total++;
 
