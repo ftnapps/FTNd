@@ -31,6 +31,9 @@ install:
 	L: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf. Is this still a problem?
 
+mbtask:
+	U: Handle printf line characters safe in chat messages.
+
 mbsebbs:
 	W: OLR, implement file requests.
 
