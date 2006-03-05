@@ -84,10 +84,10 @@
 83	change.c			|Please enter the correct date format
 84	misc.c				|Todays Callers to 
 85	misc.c				|#    User Name           Device  TimeOn  Calls  Location
-86	.c				|
-87	.c				|
-88	.c				|
-89	.c				|
+86	change.c			|Can't open archiver file.
+87	change.c			|Select your preferred archiver
+88	change.c			|Select Archiver (Enter to Quit): 
+89	change.c			|Archiver now set to:
 90	.c				|
 91	.c				|
 92	.c				|

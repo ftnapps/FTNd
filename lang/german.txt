@@ -84,10 +84,10 @@ JN|Moechten Sie in den Menues "Hot-Keys" verwenden? [J/n]:
 |Bitte verwenden Sie das vorgegebene Datumsformat
 |Logins heute bis 
 |#    Benutzername        Leitg.  TimeOn  Anrufe Ort
-|Safe Cracker Door
-|Um fortzufahren druecken Sie bitte eine Taste: 
-|Im Safe liegt ...
-|Bitte geben Sie drei Zahlen ein - von 1 bis 
+|Can't open archiver file.
+|Select your preferred archiver
+|Select Archiver (Enter to Quit): 
+|Archiver now set to:
 |Bitte geben Sie drei Kombinationen ein.
 |1. Zahl: 
 |Bitte versuchen Sie es erneut! Verwenden Sie Zahlen groesser 0 und kleiner 

@@ -84,10 +84,10 @@ ON|Voulez vous les menus Hot-Keyed ? [O/n]:
 |Veuillez entrer la date au format correct
 |Appels d'aujourd'hui pour
 |#    User Name           Device  TimeOn  Calls  Location
-|Safe Cracker Door
-|Pressez une touche pour continuer: 
-|Dans le coffre, il y a ...
-|Entrez 3 chiffres de 1 à  
+|Can't open archiver file.
+|Select your preferred archiver
+|Select Archiver (Enter to Quit):
+|Archiver now set to:
 |Entrez trois combinaisons.
 |1er chiffre: 
 |Essayez encore! Le chiffre doit être compris entre zéro et  

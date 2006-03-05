@@ -84,27 +84,27 @@ YN|Would you like Hot-Keyed menus? [Y/n]:
 |Please enter the correct date format
 |Todays Callers to 
 |#    User Name           Device  TimeOn  Calls  Location
-|Safe Cracker Door
-|Please press a key to continue: 
-|In the safe lies ...
-|Please enter three numbers consisting from 1 to 
-|Please enter three combinations.
-|1st digit: 
-|Please try again! You must input a number greater than Zero and less than 
-|2nd digit: 
-|3rd digit: 
-| Left: 
-|Right: 
-YN|Attempt to open safe with this combination [Y/n]: 
-|You have won the following...
-|Sorry - You didn't open the safe!
-|The safe code was:
-YN|Do you want to try again ? [Y/n]: 
-YN|Do you want to open the safe ? [Y/n]: 
-|THE SAFE IS CURRENTLY LOCKED
-|has cracked the safe.
-|The safe will remain locked until the sysop rewards the user.
-|Maximum trys per day Exceeded!
+|Can't open archiver file.
+|Select your preferred archiver 
+|Select Archiver (Enter to Quit): 
+|Archiver now set to:
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |Edit message signature
 |The FROM, TO and SUBJECT fields are optional.
 |   From: 

@@ -4,7 +4,7 @@
  * Purpose ...............: Display and handle the menus.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -657,6 +657,10 @@ void DoMenu(int Type)
 
 	case 321:
 		Chg_Charset();
+		break;
+
+	case 322:
+		Chg_Archiver();
 		break;
 
 	case 401:

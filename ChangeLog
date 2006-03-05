@@ -18,10 +18,21 @@ v0.83.14	23-Feb-2006
 	mbfido:
 		Uses archiver from the setup to pack mail for a node.
 
+	mbsebbs:
+		Added Change archiver menu.
+		Added crontrol-U0 to display current archiver.
+
 	mbsetup:
 		Added archiver selection for nodes in node setup.
 		In archiver select added checks for valid archivers and allowed
 		escape without selecting an archiver.
+		Added selection of archiver select menu.
+
+	lang:
+		New prompts 86, 87, 88 and 89.
+
+	examples:
+		Updated Engish menus and txtfiles.
 
 
 v0.83.13	13-Feb-2006 - 23-Feb-2006

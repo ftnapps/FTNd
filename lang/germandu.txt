@@ -84,10 +84,10 @@ JN|Moechtest Du Menues mit "Hot-Keys" verwenden? [<J>a/<n>ein]:
 |Bitte verwende das vorgegebene Datumsformat
 |Logins heute bis 
 |#    User Name           Leitg.  TimeOn  Calls  Ort
-|Safe Cracker Door
-|Um fortzufahren druecke bitte eine Taste: 
-|Im Safe liegt ...
-|Bitte gib drei Zahlen ein - von 1 bis 
+|Can't open archiver file.
+|Select your preferred archiver
+|Select Archiver (Enter to Quit): 
+|Archiver now set to:
 |Bitte gib Deine Kombination ein.
 |1. Zahl: 
 |Bitte versuche es erneut! Verwende Zahlen groesser 0 und kleiner 

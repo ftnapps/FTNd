@@ -84,27 +84,27 @@ JN|Wilt U sneltoets menus? [J/n]:
 |Geef het juiste datum formaat
 |Bellers vandaag bij 
 |#    Gebruiker           Poort   Tijd    Keren  Woonplaats
-|Kluis kraker programma
-|Druk een toets om verder te gaan: 
-|In de kluis ligt ...
-|Geef drie nummers tussen 1 en 
-|Geef drie kombinaties.
-|Eerste cijfer: 
-|Probeer opnieuw! U moet een nummer geven groter dan 0 en kleiner dan 
-|Tweede cijfer: 
-|Derde cijfer : 
-| Links: 
-|Rechts: 
-JN|Proberen de kluis met deze kombinatie te openenen [J/n]: 
-|U hebt het volgende gewonnen ...
-|Spijtig - U hebt de kluis niet geopend!
-|De cijferkombinatie was:
-JN|Wilt U het opnieuw proberen ? [J/n]: 
-JN|Wilt U de kluis openenen ? [J/n]: 
-|DE KLUIS ZIT NU OP SLOT
-|heeft de kluis grkraakt.
-|De kluis blijft op slot tot de sysop de gebruiker beloond heeft.
-|Maximaal aantal pogingen perdag bereikt!
+|Kan archiver file niet openenen.
+|Kies je favourite archiver
+|Kies archiver (Enter is Stop): 
+|Archiver is nu:
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |Wijzig berichten handtekening
 |De VAN, AAN en ONDERWERP velden zijn opties.
 |      Van: 

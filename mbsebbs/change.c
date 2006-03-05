@@ -4,7 +4,7 @@
  * Purpose ...............: Change user settings
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -800,6 +800,98 @@ void Chg_DOB()
     Syslog('+', "New DOB %s", exitinfo.sDateOfBirth);
     WriteExitinfo();
     free(temp);
+}
+
+
+
+/*
+ * Change default archiver.
+ */
+void Chg_Archiver()
+{
+    FILE    *fp;
+    int	    Found = FALSE;
+    char    *temp;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    ReadExitinfo();
+    Syslog('+', "Old archiver %s", exitinfo.Archiver);
+
+    while(TRUE) {
+	snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+
+	if ((fp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    /* Can't open archiver file. */
+	    Enter(1);
+	    PUTSTR((char *) Language(86));
+	    Enter(2);
+	    Pause();
+	    free(temp);
+	    return;
+	}
+	fread(&archiverhdr, sizeof(archiverhdr), 1, fp);
+
+	Enter(1);
+	/* Select your preferred archiver */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(87));
+	Enter(2);
+	while (fread(&archiver, archiverhdr.recsize, 1, fp) == 1) {
+	    if (archiver.available && strlen(archiver.marc) && strlen(archiver.farc)) {
+		colour(LIGHTBLUE, BLACK);
+		snprintf(temp, 81, "%-6s", archiver.name);
+		PUTSTR(temp);
+		colour(WHITE, BLACK);
+		snprintf(temp, 81, "%s\r\n", archiver.comment);
+		PUTSTR(temp);
+	    }
+	}
+
+	Enter(1);
+	/* Select Archiver (Enter to Quit): */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(88));
+
+	alarm_on();
+	memset(temp, 0, PATH_MAX);
+	GetstrC(temp, 5);
+	if (strlen(temp) == 0) {
+	    free(temp);
+	    return;
+	}
+
+	Found = FALSE;
+	fseek(fp, archiverhdr.hdrsize, SEEK_SET);
+	while (fread(&archiver, archiverhdr.recsize, 1, fp) == 1) {
+	    if (archiver.available && strlen(archiver.marc) && strlen(archiver.farc)) {
+		if (strcasecmp(archiver.name, temp) == 0) {
+		    /* Valid input, set new archiver */
+		    Found = TRUE;
+		    break;
+		}
+	    }
+	}
+	fclose(fp);
+
+	if (Found)
+	    break;
+
+	Enter(2);
+	/* Invalid selection, please try again! */
+	pout(LIGHTGREEN, BLACK, (char *) Language(265));
+	Enter(2);
+	/* Loop for new attempt */
+    }
+
+    strncpy(exitinfo.Archiver, archiver.name, 6);
+    /* Archiver now set to: */
+    snprintf(temp, 81, "%s %s", Language(89), exitinfo.Archiver);
+    colour(WHITE, BLACK);
+    PUTSTR(temp);
+    Syslog('+', "New archiver %s", exitinfo.Archiver);
+    WriteExitinfo();
+    free(temp);
+    Enter(2);
+    Pause();
 }
 
 

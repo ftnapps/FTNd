@@ -84,10 +84,10 @@ SN|¨Queres men£s r pidos? [S/n]:
 |Teclea o formato de data correcto
 |Hoxe chamaron a 
 |#    Usr. Nombre         Puerto  Tiempo  Llams  Localidad
-|Xogo de Rouba-la Caixa Forte
-|Pulsa unha tecla para seguir: 
-|Na caixa hay ...
-|Teclea tres n£meros de 1 a 
+|Can't open archiver file.
+|Select your preferred archiver
+|Select Archiver (Enter to Quit): 
+|Archiver now set to:
 |Teclea tres combinaci¢ns.
 |1§ dixito: 
 |­Repite! Debe ser un n£mero maior que cero e menor que  

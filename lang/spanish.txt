@@ -84,10 +84,10 @@ SN|¨Quieres men£s r pidos? [S/n]:
 |Teclee el formato de fecha correcto
 |Hoy llamaron a 
 |#    Usr. Nombre         Puerto  Tiempo  Llams  Localidad
-|Juego de Robar la Caja Fuerte
-|Pulse una tecla para seguir: 
-|En la caja hay ...
-|Teclee tres n£meros de 1 a 
+|Can't open archiver file.
+|Select your preferred archiver
+|Select Archiver (Enter to Quit): 
+|Archiver now set to:
 |Teclee tres combinaciones.
 |1er digito: 
 |­Repita! Debe ser un n£mero mayor que cero y menor que  

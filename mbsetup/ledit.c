@@ -4,7 +4,7 @@
  * Purpose ...............: Line Editor
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -2224,6 +2224,7 @@ char *getmenutype(int val)
 		case 319:	return (char *)"Change .signature file";
 		case 320:	return (char *)"Change OLR Extended Info";
 		case 321:	return (char *)"Change character set";
+		case 322:	return (char *)"Change archiver";
 
 		case 401:	return (char *)"Add oneliner";
 		case 402:	return (char *)"List oneliners";
