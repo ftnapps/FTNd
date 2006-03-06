@@ -89,7 +89,7 @@ int  add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 void del_router(srv_list **, char *);
 int  send_msg(ncs_list *, const char *, ...);
-void broadcast(char *, const char *, ...);
+void broadcast(char *, char *);
 void check_servers(void);
 int  command_pass(char *, char *);
 int  command_server(char *, char *);
@@ -538,19 +538,13 @@ void del_router(srv_list **fap, char *name)
 /*
  * Send a message to all servers
  */
-void send_all(const char *format, ...)
+void send_all(char *msg)
 {
     ncs_list	*tnsl;
-    char	buf[512];
-    va_list	va_ptr;
-
-    va_start(va_ptr, format);
-    vsnprintf(buf, 512, format, va_ptr);
-    va_end(va_ptr);
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    send_msg(tnsl, buf);
+	    send_msg(tnsl, msg);
 	}
     }
 }
@@ -563,12 +557,20 @@ void send_all(const char *format, ...)
 void send_at(char *cmd, char *nick, char *param)
 {
     ncs_list	*tnsl;
-    char	buf[512];
+    char	*p;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    snprintf(buf, 512, "%s %s@%s %s\r\n", cmd, nick, tnsl->myname, param);
-	    send_msg(tnsl, buf);
+	    p = xstrcpy(cmd);
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, nick);
+	    p = xstrcat(p, (char *)"@");
+	    p = xstrcat(p, tnsl->myname);
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, param);
+	    p = xstrcat(p, (char *)"\r\n");
+	    send_msg(tnsl, p);
+	    free(p);
 	}
     }
 }
@@ -578,12 +580,21 @@ void send_at(char *cmd, char *nick, char *param)
 void send_nick(char *nick, char *name, char *realname)
 {
     ncs_list    *tnsl;
-    char        buf[512];
+    char        *p;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    snprintf(buf, 512, "NICK %s %s %s %s\r\n", nick, name, tnsl->myname, realname);
-	    send_msg(tnsl, buf);
+	    p = xstrcpy((char *)"NICK ");
+	    p = xstrcat(p, nick);
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, name);
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, tnsl->myname);
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, realname);
+	    p = xstrcat(p, (char *)"\r\n");
+	    send_msg(tnsl, p);
+	    free(p);
 	}
     }
 }
@@ -593,19 +604,13 @@ void send_nick(char *nick, char *name, char *realname)
 /*
  * Broadcast a message to all servers except the originating server
  */
-void broadcast(char *origin, const char *format, ...)
+void broadcast(char *origin, char *msg)
 {
     ncs_list    *tnsl;
-    va_list     va_ptr;
-    char	buf[512];
 
-    va_start(va_ptr, format);
-    vsnprintf(buf, 512, format, va_ptr);
-    va_end(va_ptr);
-    
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if ((tnsl->state == NCS_CONNECT) && (strcmp(origin, tnsl->server))) {
-	    send_msg(tnsl, buf);
+	    send_msg(tnsl, msg);
 	}
     }
 }
@@ -640,7 +645,7 @@ int send_msg(ncs_list *tnsl, const char *format, ...)
 
 void check_servers(void)
 {
-    char	    *errmsg, scfgfn[PATH_MAX];
+    char	    *errmsg, *p, scfgfn[PATH_MAX];
     FILE	    *fp;
     ncs_list	    *tnsl, **tmp;
     srv_list	    *srv;
@@ -736,13 +741,19 @@ void check_servers(void)
 		    Remove = TRUE;
 		    Syslog('r', "IBC: Remove server %s", tnsl->server);
 		    if (tnsl->state == NCS_CONNECT) {
+			p = calloc(512, sizeof(char));
 			if (local_reset) {
-			    broadcast(tnsl->server, "SQUIT %s Reset connection\r\n", tnsl->server);
-			    send_msg(tnsl, "SQUIT %s Your system connection is reset\r\n", tnsl->myname);
+			    snprintf(p, 512, "SQUIT %s Reset connection\r\n", tnsl->server);
+			    broadcast(tnsl->server, p);
+			    snprintf(p, 512, "SQUIT %s Your system connection is reset\r\n", tnsl->myname);
+			    send_msg(tnsl, p);
 			} else {
-			    broadcast(tnsl->server, "SQUIT %s Removed from configuration\r\n", tnsl->server);
-			    send_msg(tnsl, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
+			    snprintf(p, 512, "SQUIT %s Removed from configuration\r\n", tnsl->server);
+			    broadcast(tnsl->server, p);
+			    snprintf(p, 512, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
+			    send_msg(tnsl, p);
 			}
+			free(p);
 			del_router(&servers, tnsl->server);
 		    }
 		    if (tnsl->socket != -1) {
@@ -941,7 +952,10 @@ void check_servers(void)
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					tnsl->halfdead = 0;
-					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
+					p = calloc(81, sizeof(char));
+					snprintf(p, 81, "SQUIT %s Connection died\r\n", tnsl->server);
+					broadcast(tnsl->server, p);
+					free(p);
 					callchg = TRUE;
 					srvchg = TRUE;
 					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
@@ -959,7 +973,10 @@ void check_servers(void)
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					tnsl->halfdead = 0;
-					broadcast(tnsl->server, "SQUIT %s Connection died\r\n", tnsl->server);
+					p = calloc(81, sizeof(char));
+					snprintf(p, 81, "SQUIT %s Connection died\r\n", tnsl->server);
+					broadcast(tnsl->server, p);
+					free(p);
 					callchg = TRUE;
 					srvchg = TRUE;
 					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
@@ -1063,7 +1080,7 @@ int command_server(char *hostname, char *parameters)
     srv_list	    *ta;
     usr_list	    *tmp;
     chn_list	    *tmpc;
-    char	    *name, *hops, *id, *prod, *vers, *fullname;
+    char	    *p, *name, *hops, *id, *prod, *vers, *fullname;
     unsigned int    token;
     int		    ihops, found = FALSE;
 
@@ -1096,7 +1113,10 @@ int command_server(char *hostname, char *parameters)
 	 * In that case, the session is authorized.
 	 */
 	if (tnsl->token == token) {
-	    broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    p = calloc(512, sizeof(char));
+	    snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    broadcast(tnsl->server, p);
+	    free(p);
 	    system_shout("* New server: %s, %s", name, fullname);
 	    tnsl->gotserver = TRUE;
 	    callchg = TRUE;
@@ -1145,7 +1165,10 @@ int command_server(char *hostname, char *parameters)
     if (found && tnsl->gotpass) {
 	send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 	send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
-	broadcast(tnsl->server, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	p = calloc(512, sizeof(char));
+	snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	broadcast(tnsl->server, p);
+	free(p);
 	system_shout("* New server: %s, %s", name, fullname);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
@@ -1185,7 +1208,10 @@ int command_server(char *hostname, char *parameters)
 	* Got a message about a server that is not our neighbour, could be a relayed server.
 	*/
 	if (add_server(&servers, name, ihops, prod, vers, fullname, hostname)) {
-	    broadcast(hostname, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    p = calloc(512, sizeof(char));
+	    snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    broadcast(hostname, p);
+	    free(p);
 	    srvchg = TRUE;
 	    Syslog('+', "IBC: new relay server %s: %s", name, fullname);
 	    system_shout("* New server: %s, %s", name, fullname);
@@ -1202,7 +1228,7 @@ int command_server(char *hostname, char *parameters)
 int command_squit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char        *name, *message;
+    char        *p, *name, *message;
     
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1227,7 +1253,10 @@ int command_squit(char *hostname, char *parameters)
     }
 
     system_shout("* Server %s disconnected: %s", name, message);
-    broadcast(hostname, "SQUIT %s %s\r\n", name, message);
+    p = calloc(512, sizeof(char));
+    snprintf(p, 512, "SQUIT %s %s\r\n", name, message);
+    broadcast(hostname, p);
+    free(p);
     srvchg = TRUE;
     return 0;
 }
@@ -1237,7 +1266,7 @@ int command_squit(char *hostname, char *parameters)
 int command_user(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char	*name, *server, *realname;
+    char	*p, *name, *server, *realname;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1255,7 +1284,10 @@ int command_user(char *hostname, char *parameters)
     }
     
     if (add_user(&users, server, name, realname) == 0) {
-	broadcast(hostname, "USER %s@%s %s\r\n", name, server, realname);
+	p = calloc(512, sizeof(char));
+	snprintf(p, 512, "USER %s@%s %s\r\n", name, server, realname);
+	broadcast(hostname, p);
+	free(p);
 	system_shout("* New user %s@%s (%s)", name, server, realname);
     }
     return 0;
@@ -1266,7 +1298,7 @@ int command_user(char *hostname, char *parameters)
 int command_quit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char	*name, *server, *message;
+    char	*p, *name, *server, *message;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1289,7 +1321,10 @@ int command_quit(char *hostname, char *parameters)
 	system_shout("* User %s is leaving", name);
     }
     del_user(&users, server, name);
-    broadcast(hostname, "QUIT %s@%s %s\r\n", name, server, parameters);
+    p = calloc(512, sizeof(char));
+    snprintf(p, 512, "QUIT %s@%s %s\r\n", name, server, parameters);
+    broadcast(hostname, p);
+    free(p);
     return 0;
 }
 
@@ -1299,7 +1334,7 @@ int command_nick(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     usr_list	*tmp;
-    char        *nick, *name, *server, *realname;
+    char        *p, *nick, *name, *server, *realname;
     int		found;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
@@ -1350,7 +1385,10 @@ int command_nick(char *hostname, char *parameters)
 	return 404;
     }
 
-    broadcast(hostname, "NICK %s %s %s %s\r\n", nick, name, server, realname);
+    p = calloc(512, sizeof(char));
+    snprintf(p, 512, "NICK %s %s %s %s\r\n", nick, name, server, realname);
+    broadcast(hostname, p);
+    free(p);
     return 0;
 }
 
@@ -1361,7 +1399,7 @@ int command_join(char *hostname, char *parameters)
     ncs_list    *tnsl;
     chn_list    *tmp;
     usr_list	*tmpu;
-    char        *nick, *server, *channel, msg[81];
+    char        *p, *nick, *server, *channel, msg[81];
     int         found;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
@@ -1413,7 +1451,10 @@ int command_join(char *hostname, char *parameters)
 	}
     }
 
-    broadcast(hostname, "JOIN %s@%s %s\r\n", nick, server, channel);
+    p = calloc(512, sizeof(char));
+    snprintf(p, 512, "JOIN %s@%s %s\r\n", nick, server, channel);
+    broadcast(hostname, p);
+    free(p);
     chnchg = TRUE;
     return 0;
 }
@@ -1425,7 +1466,7 @@ int command_part(char *hostname, char *parameters)
     ncs_list    *tnsl;
     chn_list    *tmp;
     usr_list    *tmpu;
-    char        *nick, *server, *channel, *message, msg[81];
+    char        *p, *nick, *server, *channel, *message, msg[81];
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1475,10 +1516,19 @@ int command_part(char *hostname, char *parameters)
 	}
     }
 
-    if (message)
-	broadcast(hostname, "PART %s@%s %s %s\r\n", nick, server, channel, message);
-    else
-	broadcast(hostname, "PART %s@%s %s\r\n", nick, server, channel);
+    p = xstrcpy((char *)"PART ");
+    p = xstrcat(p, nick);
+    p = xstrcat(p, (char *)"@");
+    p = xstrcat(p, server);
+    p = xstrcat(p, (char *)" ");
+    p = xstrcat(p, channel);
+    if (message) {
+	p = xstrcat(p, (char *)" ");
+	p = xstrcat(p, message);
+    }
+    p = xstrcat(p, (char *)"\r\n");
+    broadcast(hostname, p);
+    free(p);
     return 0;
 }
 
@@ -1488,7 +1538,7 @@ int command_topic(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     chn_list    *tmp;
-    char        *channel, *topic, msg[81];
+    char        *p, *channel, *topic, msg[81];
 		        
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1515,7 +1565,13 @@ int command_topic(char *hostname, char *parameters)
 	}
     }
 
-    broadcast(hostname, "TOPIC %s %s\r\n", channel, topic);
+    p = xstrcpy((char *)"TOPIC ");
+    p = xstrcat(p, channel);
+    p = xstrcat(p, (char *)" ");
+    p = xstrcat(p, topic);
+    p = xstrcat(p, (char *)"\r\n");
+    broadcast(hostname, p);
+    free(p);
     return 0;
 }
 
@@ -1525,7 +1581,7 @@ int command_privmsg(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     chn_list    *tmp;
-    char	*channel, *msg;
+    char	*p, *channel, *msg;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -1550,7 +1606,13 @@ int command_privmsg(char *hostname, char *parameters)
 	if (strcmp(tmp->name, channel) == 0) {
 	    tmp->lastmsg = now;
 	    chat_msg(channel, NULL, msg);
-	    broadcast(hostname, "PRIVMSG %s %s\r\n", channel, msg);
+	    p = xstrcpy((char *)"PRIVMSG ");
+	    p = xstrcat(p, channel);
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, msg);
+	    p = xstrcat(p, (char *)"\r\n");
+	    broadcast(hostname, p);
+	    free(p);
 	    return 0;
 	}
     }
@@ -1743,6 +1805,7 @@ void ibc_shutdown(void)
 {
     ncs_list	*tnsl;
     usr_list	*usrp;
+    char	*p;
 
     Syslog('r', "IBC: start shutdown connections");
 
@@ -1751,13 +1814,17 @@ void ibc_shutdown(void)
 	    /*
 	     * Our user, still connected
 	     */
+	    p = calloc(512, sizeof(char));
 	    if (strlen(usrp->channel) && strcmp(usrp->channel, "#sysop")) {
 		/*
 		 * In a channel
 		 */
-		broadcast((char *)"foobar", "PART %s@%s %s System shutdown\r\n", usrp->nick, usrp->server, usrp->channel);
+		snprintf(p, 512, "PART %s@%s %s System shutdown\r\n", usrp->nick, usrp->server, usrp->channel);
+		broadcast((char *)"foobar", p);
 	    }
-	    broadcast((char *)"foobar", "QUIT %s@%s System shutdown\r\n", usrp->nick, usrp->server);
+	    snprintf(p, 512, "QUIT %s@%s System shutdown\r\n", usrp->nick, usrp->server);
+	    broadcast((char *)"foobar", p);
+	    free(p);
 	}
     }
 

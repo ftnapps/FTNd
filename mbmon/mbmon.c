@@ -556,7 +556,7 @@ void Chat(int sysop)
 {
     int		    curpos = 0, width, stop = FALSE, data, rc;
     unsigned char   ch = 0;
-    char	    sbuf[81], resp[128], *sysop_name, *name;
+    char	    *p, sbuf[81], resp[128], *sysop_name, *name;
     static char	    buf[200];
 
     clr_index();
@@ -667,7 +667,14 @@ void Chat(int sysop)
 		putchar(7);
 	    }
 	} else if ((ch == '\r') && curpos) {
-	    snprintf(buf, 200, "CPUT:2,%d,%s;", mypid, clencode(sbuf));
+	    snprintf(buf, 12, "%d", mypid);
+	    p = xstrcpy((char *)"CPUT:2,");
+	    p = xstrcat(p, buf);
+	    p = xstrcat(p, (char *)",");
+	    p = xstrcat(p, clencode(sbuf));
+	    p = xstrcat(p, (char *)";");
+	    strncpy(buf, p, 200);
+	    free(p);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
 		if (strncmp(buf, "100:2,", 6) == 0) {

@@ -374,7 +374,7 @@ char *exe_cmd(char *in)
     if (strncmp(cmd, "CPUT", 4) == 0) {
 	buf = calloc(SS_BUFSIZE, sizeof(char));
 	chat_put_r(token, buf);
-	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	strncpy(obuf, buf, SS_BUFSIZE);
 	free(buf);
 	return obuf;
     }
@@ -390,7 +390,7 @@ char *exe_cmd(char *in)
     if (strncmp(cmd, "CGET", 4) == 0) {
 	buf = calloc(SS_BUFSIZE, sizeof(char));
 	chat_get_r(token, buf);
-	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	strncpy(obuf, buf, SS_BUFSIZE);
 	free(buf);
 	return obuf;
     }

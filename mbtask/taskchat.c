@@ -134,7 +134,7 @@ void system_msg(pid_t pid, char *msg)
 
     memset(&chat_messages[buffer_head], 0, sizeof(_chat_messages));
     chat_messages[buffer_head].topid = pid;
-    snprintf(chat_messages[buffer_head].fromname, 36, "Server");
+    strncpy(chat_messages[buffer_head].fromname, "Server", 36);
     strncpy(chat_messages[buffer_head].message, msg, 80);
     chat_messages[buffer_head].posted = time(NULL);
 }
@@ -281,7 +281,7 @@ int join(pid_t pid, char *channel, int sysop)
  */
 int part(pid_t pid, char *reason)
 {
-    char	buf[81];
+    char	buf[81], *p;
     chn_list	*tmp;
     usr_list	*tmpu;
 
@@ -303,12 +303,13 @@ int part(pid_t pid, char *reason)
 		    snprintf(buf, 81, "%s has left channel %s, %d users left", tmpu->nick, tmp->name, tmp->users -1);
 		    chat_msg(tmpu->channel, NULL, buf);
 		    if (strcasecmp(tmp->name, (char *)"#sysop")) {
+			p = xstrcpy(tmp->name);
 			if (reason && strlen(reason)) {
-			    snprintf(buf, 81, "%s %s", tmp->name, reason);
-			    send_at((char *)"PART", tmpu->nick, buf);
-			} else {
-			    send_at((char *)"PART", tmpu->nick, tmp->name);
+			    p = xstrcat(p, (char *)" ");
+			    p = xstrcat(p, reason);
 			}
+			send_at((char *)"PART", tmpu->nick, p);
+			free(p);
 		    }
 
 		    /*
@@ -366,20 +367,26 @@ void chat_cleanuser(pid_t pid)
  */
 void chat_msg(char *channel, char *nick, char *msg)
 {
-    char	buf[81];
+    char	*p;
     usr_list	*tmpu;
 
     if (nick == NULL)
-	snprintf(buf, 81, "%s", msg);
-    else
-	snprintf(buf, 81, "<%s> %s", nick, msg);
-    Chatlog((char *)"+", channel, buf);
+	p = xstrcpy(msg);
+    else {
+	p = xstrcpy((char *)"<");
+	p = xstrcat(p, nick);
+	p = xstrcat(p, (char *)"> ");
+	p = xstrcat(p, msg);
+    }
+    Chatlog((char *)"+", channel, p);
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
 	if (strlen(tmpu->channel) && (strcmp(tmpu->channel, channel) == 0)) {
-	    system_msg(tmpu->pid, buf);
+	    system_msg(tmpu->pid, p);
 	}
     }
+
+    free(p);
 }
 
 
@@ -502,7 +509,7 @@ void chat_close_r(char *data, char *buf)
 
 void chat_put_r(char *data, char *buf)
 {
-    char	*pid, *msg, *cmd, *mbuf, *flags, temp[81];
+    char	*p, *pid, *msg, *cmd, *mbuf, *flags, temp[81];
     int		first, count, owner = FALSE, found;
     usr_list	*tmpu, *tmp;
     chn_list	*tmpc;
@@ -681,7 +688,13 @@ void chat_put_r(char *data, char *buf)
 				    } else {
 					strncpy(tmpc->topic, cmd, 54);
 					snprintf(mbuf, 200, "Topic set to \"%s\"", cmd);
-					send_all("TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
+					p = xstrcpy((char *)"TOPIC ");
+					p = xstrcat(p, tmpc->name);
+					p = xstrcat(p, (char *)" ");
+					p = xstrcat(p, tmpc->topic);
+					p = xstrcat(p, (char *)"\r\n");
+					send_all(p);
+					free(p);
 				    }
 				} else {
 				    snprintf(mbuf, 200, "** You are not the channel owner");
@@ -717,8 +730,17 @@ void chat_put_r(char *data, char *buf)
 		/*
 		 * Send message to all links but not the #sysop channel
 		 */
-		if (strcmp(tmpu->channel, "#sysop"))
-		    send_all("PRIVMSG %s <%s> %s\r\n", tmpu->channel, tmpu->nick, msg);
+		if (strcmp(tmpu->channel, "#sysop")) {
+		    p = xstrcpy((char *)"PRIVMSG ");
+		    p = xstrcat(p, tmpu->channel);
+		    p = xstrcat(p, (char *)" <");
+		    p = xstrcat(p, tmpu->nick);
+		    p = xstrcat(p, (char *)"> ");
+		    p = xstrcat(p, msg);
+		    p = xstrcat(p, (char *)"\r\n");
+		    send_all(p);
+		    free(p);
+		}
 	    }
 	    goto ack;
 	}
@@ -751,7 +773,7 @@ hangup:
  */
 void chat_get_r(char *data, char *buf)
 {
-    char	*pid;
+    char	*pid, *p;
     usr_list	*tmpu;
 
     if (IsSema((char *)"upsalarm")) {
@@ -778,7 +800,12 @@ void chat_get_r(char *data, char *buf)
 		    /*
 		     * Message is for us
 		     */
-		    snprintf(buf, 200, "100:2,0,%s;", clencode(chat_messages[tmpu->pointer].message));
+//		    snprintf(buf, 200, "100:2,0,%s;", clencode(chat_messages[tmpu->pointer].message));
+		    p = xstrcpy((char *)"100:2,0,");
+		    p = xstrcat(p, clencode(chat_messages[tmpu->pointer].message));
+		    p = xstrcat(p, (char *)";");
+		    strncpy(buf, p, 200);
+		    free(p);
 		    return;
 		}
 	    }
