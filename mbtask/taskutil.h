@@ -22,6 +22,7 @@ typedef struct  _srv_auth {
  *  Function prototypes
  */
 void		WriteError(const char *, ...);
+void		Syslogp(int, char *);
 void		Syslog(int, const char *, ...);
 int		ulog(char *, char *, char *, char *, char*);
 char            *xstrcpy(char *);

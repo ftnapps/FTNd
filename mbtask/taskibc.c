@@ -88,7 +88,7 @@ void tidy_servers(srv_list **);
 int  add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 void del_router(srv_list **, char *);
-int  send_msg(ncs_list *, const char *, ...);
+int  send_msg(ncs_list *, char *);
 void broadcast(char *, char *);
 void check_servers(void);
 int  command_pass(char *, char *);
@@ -620,21 +620,24 @@ void broadcast(char *origin, char *msg)
 /*
  * Send message to a server
  */
-int send_msg(ncs_list *tnsl, const char *format, ...)
+int send_msg(ncs_list *tnsl, char *msg)
 {
-    char	buf[512];
-    va_list     va_ptr;
+    char	*p;
 	
-    va_start(va_ptr, format);
-    vsnprintf(buf, 512, format, va_ptr);
-    va_end(va_ptr);
-
 #ifndef	PING_PONG_LOG
-    if (strcmp(buf, "PING\r\n") && strcmp(buf, "PONG\r\n"))
+    if (strcmp(msg, "PING\r\n") && strcmp(msg, "PONG\r\n")) {
 #endif
-	Syslog('r', "IBC: > %s: %s", tnsl->server, printable(buf, 0));
+	p = xstrcpy((char *)"IBC: > ");
+	p = xstrcat(p, tnsl->server);
+	p = xstrcat(p, (char *)": ");
+	p = xstrcat(p, printable(msg, 0));
+	Syslogp('r', p);
+	free(p);
+#ifndef PING_PONG_LOG
+    }
+#endif
 
-    if (sendto(tnsl->socket, buf, strlen(buf), 0, (struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
+    if (sendto(tnsl->socket, msg, strlen(msg), 0, (struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
 	Syslog('!', "$IBC: can't send message");
 	return -1;
     }
@@ -908,9 +911,13 @@ void check_servers(void)
 					break;
 				    }
 				    tnsl->token = gettoken();
-				    send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
-				    send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
+				    p = calloc(512, sizeof(char));
+				    snprintf(p, 512, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+				    send_msg(tnsl, p);
+				    snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
 					    VERSION, CFG.bbs_name);
+				    send_msg(tnsl, p);
+				    free(p);
 				    tnsl->action = now + (time_t)10;
 				    tnsl->state = NCS_WAITPWD;
 				    callchg = TRUE;
@@ -988,12 +995,12 @@ void check_servers(void)
 				     */
 				    if (((int)now - (int)tnsl->last) > 120) {
 					Syslog('r', "IBC: sending 3rd PING at 120 seconds");
-					send_msg(tnsl, "PING\r\n");
+					send_msg(tnsl, (char *)"PING\r\n");
 				    } else if (((int)now - (int)tnsl->last) > 90) {
 					Syslog('r', "IBC: sending 2nd PING at 90 seconds");
-					send_msg(tnsl, "PING\r\n");
+					send_msg(tnsl, (char *)"PING\r\n");
 				    } else if (((int)now - (int)tnsl->last) > 60) {
-					send_msg(tnsl, "PING\r\n");
+					send_msg(tnsl, (char *)"PING\r\n");
 				    }
 				    tnsl->action = now + (time_t)10;
 				    break;
@@ -1044,12 +1051,12 @@ int command_pass(char *hostname, char *parameters)
     lnk = strtok(NULL, " \0");
 
     if (strcmp(passwd, "0100") == 0) {
-	send_msg(tnsl, "414 PASS: Got empty password\r\n");
+	send_msg(tnsl, (char *)"414 PASS: Got empty password\r\n");
 	return 414;
     }
 
     if (version == NULL) {
-	send_msg(tnsl, "400 PASS: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 PASS: Not enough parameters\r\n");
 	return 400;
     }
 
@@ -1059,7 +1066,7 @@ int command_pass(char *hostname, char *parameters)
     }
 
     if (tnsl->state == NCS_CONNECT) {
-	send_msg(tnsl, "401: PASS: Already registered\r\n");
+	send_msg(tnsl, (char *)"401: PASS: Already registered\r\n");
 	tnsl->halfdead++;   /* Count them   */
 	srvchg = TRUE;
 	return 401;
@@ -1100,7 +1107,7 @@ int command_server(char *hostname, char *parameters)
     }
 
     if (fullname == NULL) {
-	send_msg(tnsl, "400 SERVER: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 SERVER: Not enough parameters\r\n");
 	return 400;
     }
 
@@ -1129,25 +1136,42 @@ int command_server(char *hostname, char *parameters)
 	     */
 	    for (ta = servers; ta; ta = ta->next) {
 		if (ta->hops) {
-		    send_msg(tnsl, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
+		    p = calloc(512, sizeof(char));
+		    snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
+		    send_msg(tnsl, p);
+		    free(p);
 		}
 	    }
 	    /*
 	     * Send all known users, nicknames and join channels
 	     */
 	    for (tmp = users; tmp; tmp = tmp->next) {
-		send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
-		if (strcmp(tmp->name, tmp->nick))
-		    send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
-		if (strlen(tmp->channel))
-		    send_msg(tnsl, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
+		p = calloc(512, sizeof(char));
+		snprintf(p, 512, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
+		send_msg(tnsl, p);
+		if (strcmp(tmp->name, tmp->nick)) {
+		    snprintf(p, 512, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
+		    send_msg(tnsl, p);
+		}
+		if (strlen(tmp->channel)) {
+		    snprintf(p, 512, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
+		    send_msg(tnsl, p);
+		}
+		free(p);
 	    }
 	    /*
 	     * Send all known channel topics
 	     */
 	    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
-		if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0))
-		    send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
+		if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
+		    p = xstrcpy((char *)"TOPIC ");
+		    p = xstrcat(p, tmpc->name);
+		    p = xstrcat(p, (char *)" ");
+		    p = xstrcat(p, tmpc->topic);
+		    p = xstrcat(p, (char *)"\r\n");
+		    send_msg(tnsl, p);
+		    free(p);
+		}
 	    }
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	    return 0;
@@ -1163,12 +1187,13 @@ int command_server(char *hostname, char *parameters)
      * valid PASS command.
      */
     if (found && tnsl->gotpass) {
-	send_msg(tnsl, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
-	send_msg(tnsl, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
 	p = calloc(512, sizeof(char));
+	snprintf(p, 512, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+	send_msg(tnsl, p);
+	snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
+	send_msg(tnsl, p);
 	snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	broadcast(tnsl->server, p);
-	free(p);
 	system_shout("* New server: %s, %s", name, fullname);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
@@ -1179,7 +1204,8 @@ int command_server(char *hostname, char *parameters)
 	 */
 	for (ta = servers; ta; ta = ta->next) {
 	    if (ta->hops) {
-		send_msg(tnsl, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
+		snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
+		send_msg(tnsl, p);
 	    }
 	}
 	/*
@@ -1187,15 +1213,28 @@ int command_server(char *hostname, char *parameters)
 	 * If the user is one of our own and has set a channel topic, send it.
 	 */
 	for (tmp = users; tmp; tmp = tmp->next) {
-	    send_msg(tnsl, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
-	    if (strcmp(tmp->name, tmp->nick))
-		send_msg(tnsl, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
-	    if (strlen(tmp->channel))
-		send_msg(tnsl, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
+	    snprintf(p, 512, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
+	    send_msg(tnsl, p);
+	    if (strcmp(tmp->name, tmp->nick)) {
+		snprintf(p, 512, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
+		send_msg(tnsl, p);
+	    }
+	    if (strlen(tmp->channel)) {
+		snprintf(p, 512, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
+		send_msg(tnsl, p);
+	    }
 	}
+	free(p);
 	for (tmpc = channels; tmpc; tmpc = tmpc->next) {
-	    if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0))
-		send_msg(tnsl, "TOPIC %s %s\r\n", tmpc->name, tmpc->topic);
+	    if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
+		p = xstrcpy((char *)"TOPIC ");
+		p = xstrcat(p, tmpc->name);
+		p = xstrcat(p, (char *)" ");
+		p = xstrcat(p, tmpc->topic);
+		p = xstrcat(p, (char *)"\r\n");
+		send_msg(tnsl, p);
+		free(p);
+	    }
 	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	srvchg = TRUE;
@@ -1279,7 +1318,7 @@ int command_user(char *hostname, char *parameters)
     realname = strtok(NULL, "\0");
 
     if (realname == NULL) {
-	send_msg(tnsl, "400 USER: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 USER: Not enough parameters\r\n");
 	return 400;
     }
     
@@ -1311,7 +1350,7 @@ int command_quit(char *hostname, char *parameters)
     message = strtok(NULL, "\0");
 
     if (server == NULL) {
-	send_msg(tnsl, "400 QUIT: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 QUIT: Not enough parameters\r\n");
 	return 400;
     }
 
@@ -1349,12 +1388,15 @@ int command_nick(char *hostname, char *parameters)
     realname = strtok(NULL, "\0");
 
     if (realname == NULL) {
-	send_msg(tnsl, "400 NICK: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 NICK: Not enough parameters\r\n");
 	return 1;
     }
 
     if (strlen(nick) > 9) {
-	send_msg(tnsl, "402 %s: Erroneous nickname\r\n", nick);
+	p = calloc(81, sizeof(char));
+	snprintf(p, 81, "402 %s: Erroneous nickname\r\n", nick);
+	send_msg(tnsl, p);
+	free(p);
 	return 402;
     }
     
@@ -1368,7 +1410,10 @@ int command_nick(char *hostname, char *parameters)
 	}
     }
     if (found) {
-	send_msg(tnsl, "403 %s: Nickname is already in use\r\n", nick);
+	p = calloc(81, sizeof(char));
+	snprintf(p, 81, "403 %s: Nickname is already in use\r\n", nick);
+	send_msg(tnsl, p);
+	free(p);
 	return 403;
     }
 
@@ -1381,7 +1426,10 @@ int command_nick(char *hostname, char *parameters)
 	}
     }
     if (!found) {
-	send_msg(tnsl, "404 %s@%s: Can't change nick\r\n", name, server);
+	p = calloc(81, sizeof(char));
+	snprintf(p, 81, "404 %s@%s: Can't change nick\r\n", name, server);
+	send_msg(tnsl, p);
+	free(p);
 	return 404;
     }
 
@@ -1413,12 +1461,15 @@ int command_join(char *hostname, char *parameters)
     channel = strtok(NULL, "\0");
 
     if (channel == NULL) {
-	send_msg(tnsl, "400 JOIN: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 JOIN: Not enough parameters\r\n");
 	return 400;
     }
 
     if (strlen(channel) > 20) {
-	send_msg(tnsl, "402 %s: Erroneous channelname\r\n", nick);
+	p = calloc(81, sizeof(char));
+	snprintf(p, 81, "402 %s: Erroneous channelname\r\n", nick);
+	send_msg(tnsl, p);
+	free(p);
 	return 402;
     }
 
@@ -1480,7 +1531,7 @@ int command_part(char *hostname, char *parameters)
     message = strtok(NULL, "\0");
 
     if (channel == NULL) {
-	send_msg(tnsl, "400 PART: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 PART: Not enough parameters\r\n");
 	return 400;
     }
 
@@ -1550,7 +1601,7 @@ int command_topic(char *hostname, char *parameters)
     topic = strtok(NULL, "\0");
 
     if (topic == NULL) {
-	send_msg(tnsl, "400 TOPIC: Not enough parameters\r\n");
+	send_msg(tnsl, (char *)"400 TOPIC: Not enough parameters\r\n");
 	return 400;
     }
 
@@ -1593,12 +1644,12 @@ int command_privmsg(char *hostname, char *parameters)
     msg = strtok(NULL, "\0");
 
     if (msg == NULL) {
-	send_msg(tnsl, "412 PRIVMSG: No text to send\r\n");
+	send_msg(tnsl, (char *)"412 PRIVMSG: No text to send\r\n");
 	return 412;
     }
 
     if (channel[0] != '#') {
-	send_msg(tnsl, "499 PRIVMSG: Not for a channel\r\n"); // FIXME: also check users
+	send_msg(tnsl, (char *)"499 PRIVMSG: Not for a channel\r\n"); // FIXME: also check users
 	return 499;
     }
 
@@ -1617,7 +1668,10 @@ int command_privmsg(char *hostname, char *parameters)
 	}
     }
 
-    send_msg(tnsl, "409 %s: Cannot sent to channel\r\n", channel);
+    p = calloc(81, sizeof(char));
+    snprintf(p, 81, "409 %s: Cannot sent to channel\r\n", channel);
+    send_msg(tnsl, p);
+    free(p);
     return 409;
 }
 
@@ -1626,7 +1680,8 @@ int command_privmsg(char *hostname, char *parameters)
 int do_command(char *hostname, char *command, char *parameters)
 {
     ncs_list    *tnsl;
-    
+    char	*p;
+
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
 	    break;
@@ -1637,7 +1692,7 @@ int do_command(char *hostname, char *command, char *parameters)
      * First the commands that don't have parameters
      */
     if (! strcmp(command, (char *)"PING")) {
-	send_msg(tnsl, "PONG\r\n");
+	send_msg(tnsl, (char *)"PONG\r\n");
 	return 0;
     }
     if (! strcmp(command, (char *)"PONG")) {
@@ -1656,7 +1711,10 @@ int do_command(char *hostname, char *command, char *parameters)
      * Commands with parameters
      */
     if (parameters == NULL) {
-	send_msg(tnsl, "400 %s: Not enough parameters\r\n", command);
+	p = calloc(81, sizeof(char));
+	snprintf(p, 81, "400 %s: Not enough parameters\r\n", command);
+	send_msg(tnsl, p);
+	free(p);
 	return 400;
     }
 
@@ -1691,7 +1749,10 @@ int do_command(char *hostname, char *command, char *parameters)
 	return command_privmsg(hostname, parameters);
     }
 
-    send_msg(tnsl, "413 %s: Unknown command\r\n", command);
+    p = calloc(81, sizeof(char));
+    snprintf(p, 81, "413 %s: Unknown command\r\n", command);
+    send_msg(tnsl, p);
+    free(p);
     return 413;
 }
 
@@ -1828,11 +1889,14 @@ void ibc_shutdown(void)
 	}
     }
 
+    p = calloc(512, sizeof(char));
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
-	    send_msg(tnsl, "SQUIT %s System shutdown\r\n", tnsl->myname);
+	    snprintf(p, 512, "SQUIT %s System shutdown\r\n", tnsl->myname);
+	    send_msg(tnsl, p);
 	}
     }
+    free(p);
 
     tidy_servers(&servers);
 }

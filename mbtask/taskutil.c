@@ -80,16 +80,28 @@ void WriteError(const char *format, ...)
 void Syslog(int grade, const char *format, ...)
 {
     va_list	va_ptr;
-    char	outstr[1024], datestr[21], lname[PATH_MAX];
-    int		oldmask, debug;
+    char	outstr[1024];
+
+    va_start(va_ptr, format);
+    vsnprintf(outstr, 1024, format, va_ptr);
+    va_end(va_ptr);
+    Syslogp(grade, outstr);
+}
+
+
+
+/*
+ * Logging without string formatting
+ */
+void Syslogp(int grade, char *outstr)
+{
+    char	datestr[21], lname[PATH_MAX];
+    int		i, oldmask, debug;
     FILE	*logfile = NULL, *debugfile;
     time_t	now;
     struct tm	ptm;
 
     debug = isalpha(grade);
-    va_start(va_ptr, format);
-    vsnprintf(outstr, 1024, format, va_ptr);
-    va_end(va_ptr);
 
     tcrc = StringCRC32(outstr);
     if (tcrc == lcrc) {
@@ -136,7 +148,14 @@ void Syslog(int grade, const char *format, ...)
 
     if (!debug) {
 	fprintf(logfile, "%c %s mbtask[%d] ", grade, datestr, mypid);
-	fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
+	for (i = *outstr == '$' ? 1 : 0; i < strlen(outstr); i++) {
+	    if (iscntrl(outstr[i])) {
+		fputc('^', logfile);
+		fputc(outstr[i] + 64, logfile);
+	    } else {
+		fputc(outstr[i], logfile);
+	    }
+	}
 	if (*outstr == '$')
 	    fprintf(logfile, ": %s\n", strerror(errno));
 	else
@@ -148,7 +167,14 @@ void Syslog(int grade, const char *format, ...)
     }
 
     fprintf(debugfile, "%c %s mbtask[%d] ", grade, datestr, mypid);
-    fprintf(debugfile, *outstr == '$' ? outstr+1 : outstr);
+    for (i = *outstr == '$' ? 1 : 0; i < strlen(outstr); i++) {
+	if (iscntrl(outstr[i])) {
+	    fputc('^', debugfile);
+	    fputc(outstr[i] + 64, debugfile);
+	} else {
+	    fputc(outstr[i], debugfile);
+	}
+    }
     if (*outstr == '$')
 	fprintf(debugfile, ": %s\n", strerror(errno));
     else

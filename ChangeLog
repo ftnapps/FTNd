@@ -38,6 +38,7 @@ v0.83.14	23-Feb-2006
 
 	mbtask:
 		Safer code for chat.
+		Added unformatted logging.
 
 	lang:
 		New prompts 86, 87, 88 and 89.

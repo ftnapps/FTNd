@@ -270,7 +270,6 @@ int join(pid_t pid, char *channel, int sysop)
      */
     snprintf(buf, 81, "*** Cannot create chat channel %s, no free channels", channel);
     system_msg(pid, buf);
-    Syslog('+', "%s", buf);
     return FALSE;
 }
 
@@ -800,7 +799,6 @@ void chat_get_r(char *data, char *buf)
 		    /*
 		     * Message is for us
 		     */
-//		    snprintf(buf, 200, "100:2,0,%s;", clencode(chat_messages[tmpu->pointer].message));
 		    p = xstrcpy((char *)"100:2,0,");
 		    p = xstrcat(p, clencode(chat_messages[tmpu->pointer].message));
 		    p = xstrcat(p, (char *)";");
