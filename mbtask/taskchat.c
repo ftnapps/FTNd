@@ -508,7 +508,7 @@ void chat_close_r(char *data, char *buf)
 
 void chat_put_r(char *data, char *buf)
 {
-    char	*p, *pid, *msg, *cmd, *mbuf, *flags, temp[81];
+    char	*p, *q, *pid, *msg, *cmd, *mbuf, *flags, temp[81];
     int		first, count, owner = FALSE, found;
     usr_list	*tmpu, *tmp;
     chn_list	*tmpc;
@@ -588,8 +588,13 @@ void chat_put_r(char *data, char *buf)
 			    system_msg(tmpu->pid, mbuf);
 			}
 			first = FALSE;
-			snprintf(mbuf, 200, "%3d %-20s %-54s", tmpc->users, tmpc->name, tmpc->topic);
-			system_msg(tmpu->pid, mbuf);
+			q = calloc(81, sizeof(char));
+			snprintf(q, 81, "%3d %-20s ", tmpc->users, tmpc->name);
+			p = xstrcpy(q);
+			p = xstrcat(p, tmpc->topic);
+			system_msg(tmpu->pid, p);
+			free(p);
+			free(q);
 		    }
 		    if (first) {
 			snprintf(mbuf, 200, "No active channels to list");

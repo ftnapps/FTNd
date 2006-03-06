@@ -480,8 +480,8 @@ void Showline(int y, int x, char *msg)
     int     i, done = FALSE;
 
     if (strlen(msg)) {
+	mbse_locate(y, x);
 	if (msg[0] == '<') {
-	    mbse_locate(y, x);
 	    mbse_colour(LIGHTCYAN, BLACK);
 	    putchar('<');
 	    mbse_colour(LIGHTBLUE, BLACK);
@@ -504,10 +504,12 @@ void Showline(int y, int x, char *msg)
 	    } else {
 		mbse_colour(LIGHTMAGENTA, BLACK);
 	    }
-	    mbse_mvprintw(y, x, msg);
+	    for (i = 0; i < strlen(msg); i++)
+		putchar(msg[i]);
 	} else {
 	    mbse_colour(GREEN, BLACK);
-	    mbse_mvprintw(y, x, msg);
+	    for (i = 0; i < strlen(msg); i++)
+		putchar(msg[i]);
 	}
     }
 }
@@ -537,7 +539,8 @@ void DispMsg(char *msg)
 	for (i = 0; i <= rsize; i++) {
 	    mbse_locate(i+4,1);
 	    clrtoeol();
-	    snprintf(rbuf[i], 81, "%s", rbuf[i+1]);
+	    strncpy(rbuf[i], rbuf[i+1], 81);
+//	    snprintf(rbuf[i], 81, "%s", rbuf[i+1]);
 	    Showline(i+4, 1, rbuf[i]);
 	}
     } else {

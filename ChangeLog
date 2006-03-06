@@ -29,6 +29,7 @@ v0.83.14	23-Feb-2006
 
 	mbmon:
 		Better user input checking in chat.
+		Safer display in chat.
 
 	mbsetup:
 		Added archiver selection for nodes in node setup.
