@@ -1,16 +1,11 @@
 $Id$
 
-	WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
 
-		Users of 64 bit systems should backup the files database and
-		all download directories before attempting to use 0.83.13.
-		This will upgrade the files database on 64 bit systems, but
-		also copied databases from 64 to 32 bit systems.
-		Some *BSD systems are updated too!
 
-		Rolf, please report the results of the upgrade.
+v0.83.15	05-Mar-2006
 
-v0.83.14	23-Feb-2006
+
+v0.83.14	23-Feb-2006 - 05-Mar-2006.
 
 	upgrade:
 		Start and stop mbsetup, this will upgrade the nodes settings.
