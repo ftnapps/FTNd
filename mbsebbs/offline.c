@@ -2701,6 +2701,18 @@ void OLR_DownASCII(void)
 	return;
     }
 
+    /*
+     * Write generic bbs info
+     */
+    fprintf(inf, "BBS %s\n", CFG.bbs_name);
+    for (i = 0; i < 40; i++) {
+	if (CFG.akavalid[i])
+	    fprintf(inf, "Aka %s\n", aka2str(CFG.aka[i]));
+    }
+    fprintf(inf, "Domain %s\n", CFG.sysdomain);
+    fprintf(inf, "Version mbsebbs v%s\n", VERSION);
+    fprintf(inf, "\n");
+
     Area = 0;
     DrawBar(Pktname);
     fseek(mf, sizeof(msgshdr), SEEK_SET);
@@ -2850,7 +2862,7 @@ unsigned int ASCII_PackArea(unsigned int ulLast, int Area, char *Atag)
     char            *Work, *Temp, *Text, msg[81];
     unsigned int    Number;
     int             Pack = FALSE;
-    struct tm       *tp;
+    time_t	    now;
 
     Number = ulLast;
     Current = Personal = 0L;
@@ -2879,35 +2891,53 @@ unsigned int ASCII_PackArea(unsigned int ulLast, int Area, char *Atag)
 		}
 
                 if (Pack) {
-		    fprintf (fp, "===============================================================================\n");
-		    fprintf (fp, "  Msg: #%d of %d (%s)\n", 
-			    Number, Msg_Number(), msgs.Name);
-		    tp = localtime(&Msg.Written);
-		    fprintf (fp, " Date: %d %s %d %2d:%02d\n", tp->tm_mday, 
-						GetMonth(tp->tm_mon + 1), tp->tm_year, tp->tm_hour, tp->tm_min);
-		    fprintf (fp, " From: %s\n", Msg.From);
-		    if (Msg.To[0])
-			fprintf (fp, "   To: %s\n", Msg.To);
-		    fprintf (fp, " Subj: %s\n", Msg.Subject);
+		    fprintf(fp, "#@ olrmsg\n");
+//		    fprintf(fp, "  Msg: #%d of %d (%s)\n", Number, Msg_Number(), msgs.Name);
+//		    tp = localtime(&Msg.Written);
+//		    fprintf(fp, " Date: %d %s %d %2d:%02d\n", tp->tm_mday, 
+//						GetMonth(tp->tm_mon + 1), tp->tm_year, tp->tm_hour, tp->tm_min);
+		    now = (time_t)Msg.Written;
+		    fprintf(fp, "Date: %s\n", rfcdate(now));
+		    fprintf(fp, "From: %s\n", Msg.From);
+		    if (strlen(Msg.FromAddress))
+			fprintf(fp, "From-ftn: %s\n", Msg.FromAddress);
+		    fprintf(fp, "Subject: %s\n", Msg.Subject);
+		    if (Msg.To[0]) {
+			fprintf (fp, "To: %s\n", Msg.To);
+			if (strlen(Msg.ToAddress))
+			    fprintf(fp, "To-ftn: %s\n", Msg.ToAddress);
+		    }
+
 		    /*
-		     * If present, add the msgid
+		     * If present, add the msgid, origin line and reply.
 		     */
 		    if ((Text = (char *)MsgText_First()) != NULL) {
 			do {
 			    if (strncmp(Text, "\001MSGID: ", 8) == 0) {
-				fprintf (fp, "Msgid: %s\n", Text+8);
-				break;
+				fprintf(fp, "Message-ID: %s\n", Text+8);
+			    }
+			    if (strncmp(Text, "\001REPLY: ", 8) == 0) {
+				fprintf(fp, "In-Reply-To: %s\n", Text+8);
+			    }
+			    if (strncmp(Text, " * Origin: ", 11) == 0) {
+				fprintf(fp, "Organisation: %s\n", Text+11);
 			    }
 			} while ((Text = (char *)MsgText_Next()) != NULL);
 		    }
-		    fprintf (fp, "-------------------------------------------------------------------------------\n");
+		    fprintf(fp, "\n");
 		    Current++;
 		    Total++;
 
+		    /*
+		     * Add message body
+		     */
 		    if ((Text = (char *)MsgText_First()) != NULL) {
 			do {
-			    if (Text[0] != 0x01 && strncmp(Text, "SEEN-BY: ", 9))
+			    if (Text[0] != 0x01 && strncmp(Text, "SEEN-BY: ", 9) && strncmp(Text, " * Origin: ", 11)) {
+				if (strcmp(Text, "#@ olrmsg") == 0)
+				    fprintf(fp, "-");
 				fprintf(fp, "%s\n", Text);
+			    }
 			} while ((Text = (char *)MsgText_Next()) != NULL);
 		    }
 

@@ -1,8 +1,13 @@
 $Id$
 
 
+v0.83.16	13-Mar-2006
 
-v0.83.15	05-Mar-2006
+v0.83.15	05-Mar-2006 - 13-Mar-2006
+
+	mbsebbs:
+		Upgraded ASCII OLR download to the latest discussions.
+		Made some minor changes in internal zmodem.
 
 
 v0.83.14	23-Feb-2006 - 05-Mar-2006.

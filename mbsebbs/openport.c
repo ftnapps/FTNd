@@ -55,15 +55,6 @@ int			hanged_up = 0;
 unsigned		Baudrate = 2400;
 int			current_mode = -1;
 
-/* Next is on compile commandline in lrzsz */
-#define NFGVMIN 1
-#define HOWMANY 255
-
-#if defined(HOWMANY) && HOWMANY  > 255
-#ifndef NFGVMIN
-Howmany must be 255 or less
-#endif
-#endif
 
 
 static struct {
@@ -202,34 +193,13 @@ int io_mode(int fd, int n)
 		}
 		tty = oldtty;
 
-		tty.c_iflag = BRKINT|IXON;
-
-		tty.c_oflag = 0;        /* Transparent output */
-
-		tty.c_cflag &= ~PARENB; /* Disable parity */
-		tty.c_cflag |= (CS8 & CRTSCTS);     /* Set character size = 8 and xon/xoff */
-#ifdef READCHECK
-		tty.c_lflag = protocol==ZM_ZMODEM ? 0 : ISIG;
-		tty.c_cc[VINTR] = protocol==ZM_ZMODEM ? -1 : 030;       /* Interrupt char */
-#else
+		tty.c_iflag = 0;	/* Transparant input	*/
+		tty.c_oflag = 0;        /* Transparent output	*/
+		tty.c_cflag &= ~(CSIZE | CSTOPB | PARENB | PARODD);	    /* Disable parity and all character sizes	*/
+		tty.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
 		tty.c_lflag = 0;
-		tty.c_cc[VINTR] = protocol==ZM_ZMODEM ? 03 : 030;       /* Interrupt char */
-#endif
-#ifdef _POSIX_VDISABLE
-		if (((int) _POSIX_VDISABLE)!=(-1)) {
-		    tty.c_cc[VQUIT] = _POSIX_VDISABLE;              /* Quit char */
-		} else {
-		    tty.c_cc[VQUIT] = -1;                   /* Quit char */
-		}
-#else
-		tty.c_cc[VQUIT] = -1;                   /* Quit char */
-#endif
-#ifdef NFGVMIN
 		tty.c_cc[VMIN] = 1;
-#else
-		tty.c_cc[VMIN] = 3;      /* This many chars satisfies reads */
-#endif
-		tty.c_cc[VTIME] = 1;    /* or in this many tenths of seconds */
+		tty.c_cc[VTIME] = 0;
 
 		tcsetattr(fd,TCSADRAIN,&tty);
 
@@ -347,8 +317,8 @@ int io_mode(int fd, int n)
 
 		tty.c_iflag = IGNBRK;
 		if (n == 3) { /* with flow control */
-		    tty.c_iflag |= IXOFF;
-		    tty.c_cflag |= CRTSCTS;
+		    tty.c_iflag |= IXOFF;	/* Enable XON/XOFF flow control on input */
+//		    tty.c_cflag |= CRTSCTS;	/* hardware flowcontrol	*/
 		}
 
 
@@ -357,19 +327,12 @@ int io_mode(int fd, int n)
 		 * no signal generating chars, and no extended chars (^V, 
 		 * ^O, ^R, ^W).
 		 */
-		tty.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
-		tty.c_oflag = 0;        /* Transparent output */
-
-		tty.c_cflag &= ~(PARENB);       /* Same baud rate, disable parity */
-		/* Set character size = 8 */
-		tty.c_cflag &= ~(CSIZE);
-		tty.c_cflag |= CS8;     
-#ifdef NFGVMIN
-		tty.c_cc[VMIN] = 1; /* This many chars satisfies reads */
-#else
-		tty.c_cc[VMIN] = HOWMANY; /* This many chars satisfies reads */
-#endif
-		tty.c_cc[VTIME] = 1;    /* or in this many tenths of seconds */
+		tty.c_lflag = 0;	/* Transparant input	*/
+		tty.c_oflag = 0;        /* Transparent output	*/
+		tty.c_cflag &= ~(CSIZE | CSTOPB | PARENB | PARODD);     /* Same baud rate, disable parity */
+		tty.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
+		tty.c_cc[VMIN] = 1;		    /* This many chars satisfies reads */
+		tty.c_cc[VTIME] = 0;
 		tcsetattr(fd,TCSADRAIN,&tty);
 		Baudrate = getspeed(cfgetospeed(&tty));
 		Syslog('t', "Baudrate = %d", Baudrate);

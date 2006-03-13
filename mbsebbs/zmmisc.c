@@ -763,7 +763,7 @@ void zsendline_init(void)
 {
     int	    i;
 
-    Syslog('z', "zendline_init() Zctlesc=%d", Zctlesc);
+    Syslog('z', "zsendline_init() Zctlesc=%d", Zctlesc);
 
     for (i = 0; i < 256; i++) {
 	if (i & 0140)
@@ -796,6 +796,7 @@ void zsendline_init(void)
 	    }
 	}
     }
+//    zsendline_tab[255] = 1; /* IAC */
 }
 
 
