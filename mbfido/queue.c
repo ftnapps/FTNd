@@ -107,7 +107,7 @@ void flush_dir(char *ndir)
 
     if (!SearchNode(nodenr)) {
 	/*
-	 * Node not known, blank noderecord and fill in some details
+	 * Node not in setup, blank noderecord and fill in some details
 	 * so that we are able to send mail crash or immediate.
 	 */
 	Syslog('+', "Node %s not in setup, using default settings", aka2str(nodenr));
@@ -116,6 +116,7 @@ void flush_dir(char *ndir)
 	nodes.Aka[0].net   = noden.net;
 	nodes.Aka[0].node  = noden.node;
 	nodes.Aka[0].point = noden.point;
+	snprintf(nodes.Archiver, 6, (char *)"ZIP");
     }
 
     /*

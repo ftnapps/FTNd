@@ -195,7 +195,7 @@ int io_mode(int fd, int n)
 
 		tty.c_iflag = 0;	/* Transparant input	*/
 		tty.c_oflag = 0;        /* Transparent output	*/
-		tty.c_cflag &= ~(CSIZE | CSTOPB | PARENB | PARODD);	    /* Disable parity and all character sizes	*/
+		tty.c_cflag &= ~( CSIZE | CSTOPB | PARENB | PARODD);    /* Disable parity and all character sizes	*/
 		tty.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
 		tty.c_lflag = 0;
 		tty.c_cc[VMIN] = 1;
@@ -318,7 +318,7 @@ int io_mode(int fd, int n)
 		tty.c_iflag = IGNBRK;
 		if (n == 3) { /* with flow control */
 		    tty.c_iflag |= IXOFF;	/* Enable XON/XOFF flow control on input */
-//		    tty.c_cflag |= CRTSCTS;	/* hardware flowcontrol	*/
+		    tty.c_cflag |= CRTSCTS;	/* hardware flowcontrol	*/
 		}
 
 
@@ -329,7 +329,7 @@ int io_mode(int fd, int n)
 		 */
 		tty.c_lflag = 0;	/* Transparant input	*/
 		tty.c_oflag = 0;        /* Transparent output	*/
-		tty.c_cflag &= ~(CSIZE | CSTOPB | PARENB | PARODD);     /* Same baud rate, disable parity */
+		tty.c_cflag &= ~( CSIZE | CSTOPB | PARENB | PARODD);     /* Same baud rate, disable parity */
 		tty.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
 		tty.c_cc[VMIN] = 1;		    /* This many chars satisfies reads */
 		tty.c_cc[VTIME] = 0;

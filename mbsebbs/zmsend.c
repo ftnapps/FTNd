@@ -132,7 +132,7 @@ int zmsndfiles(down_list *lst, int try8)
 	free(txbuf);
     txbuf = NULL;
     del_frame_buffer();
-    io_mode(0, 1);
+//    io_mode(0, 1);
 
     Syslog('z', "Zmodem: send rc=%d", maxrc);
     return (maxrc < 2)?0:maxrc;
@@ -144,7 +144,7 @@ static int initsend(void)
 {
     Syslog('z', "Zmodem: initsend");
 
-    io_mode(0, 1);
+//    io_mode(0, 1);
     PUTSTR((char *)"rz\r");
     stohdr(0L);
     zshhdr(ZRQINIT, Txhdr);
@@ -259,6 +259,9 @@ int getzrxinit(void)
 			continue;
 	    case ZCOMMAND:		/* They didn't see out ZRQINIT */
 			/* A receiver cannot send a command */
+			Syslog('z', "getzrxinit got ZCOMMAND");
+			stohdr(0L);
+			zshhdr(ZACK, Txhdr);
 			continue;
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
@@ -275,7 +278,7 @@ int getzrxinit(void)
 			if ( !(Rxflags & CANFDX))
 			    Txwindow = 0;
 			Syslog('z', "Zmodem: Remote allowed Rxbuflen=%d", Rxbuflen);
-			io_mode(0, 2); /* Set cbreak, XON/XOFF, etc. */
+//			io_mode(0, 2); /* Set cbreak, XON/XOFF, etc. */
 
 			/* Set initial subpacket length */
 			if (blklen < 1024) {	/* Command line override? */
@@ -333,6 +336,7 @@ int sendzsinit(void)
 	    Txhdr[ZF0] |= TESCCTL; zshhdr(ZSINIT, Txhdr);
 	} else
 	    zsbhdr(ZSINIT, Txhdr);
+	Syslog('z', "sendzsinit Myattn \"%s\"", printable(Myattn, 0));
 	zsdata(Myattn, 1 + strlen(Myattn), ZCRCW);
 	c = zgethdr(Rxhdr);
 	switch (c) {
@@ -480,7 +484,8 @@ gotack:
 			    return ZSKIP;
 	    case ZSKIP:	    fclose(in);
 			    return c;
-	    case ZACK:	    break;	// Possible bug, added 23-08-99
+	    case ZACK:	    Syslog('z', "zmsend: got ZACK");
+			    break;	// Possible bug, added 23-08-99
 	    case ZRPOS:	    blklen = ((blklen >> 2) > 64) ? (blklen >> 2) : 64;
 			    goodblks = 0;
 			    goodneeded = ((goodneeded << 1) > 16) ? 16 : goodneeded << 1;
