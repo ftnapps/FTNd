@@ -513,7 +513,7 @@ int zsendfdata(void)
     int	    newcnt;
     int	    tcount = 0;
     int	    junkcount; /* Counts garbage chars received by TX */
-    int	    maxblklen, goodblks = 0, goodneeded = 8;
+    int	    maxblklen;
 
     if (use8k)
 	maxblklen = 8192;
@@ -524,8 +524,8 @@ int zsendfdata(void)
     junkcount = 0;
     Beenhereb4 = 0;
 somemore:
-//    if (0) {
     if (setjmp(intrjmp)) {
+	Syslog('z', "zsendfdata() at label somemore");
 waitack:
 	junkcount = 0;
 	c = getinsync(0);
@@ -574,7 +574,6 @@ gotack:
 	    }
 	}
     }
-//to:
 
     signal(SIGINT, onintr);
     newcnt = Rxbuflen;
