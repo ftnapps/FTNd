@@ -52,7 +52,7 @@ struct tchars oldtch, tch;
 #endif
 
 int			hanged_up = 0;
-unsigned		Baudrate = 2400;
+unsigned		Baudrate = 9600;    /* Default, set by first io_mode() call */
 int			current_mode = -1;
 
 
@@ -188,26 +188,29 @@ int io_mode(int fd, int n)
 #ifdef USE_TERMIOS
 	case 2:
 		if (!did0) {
-		    did0 = TRUE;
 		    tcgetattr(fd,&oldtty);
 		}
 		tty = oldtty;
 
-		tty.c_iflag = 0;	/* Transparant input	*/
-		tty.c_oflag = 0;        /* Transparent output	*/
-		tty.c_cflag &= ~( CSIZE | CSTOPB | PARENB | PARODD);    /* Disable parity and all character sizes	*/
-		tty.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
-		tty.c_lflag = 0;
-		tty.c_cc[VMIN] = 1;
-		tty.c_cc[VTIME] = 0;
+		tty.c_iflag = BRKINT | IXON;
+		tty.c_oflag = 0;		    /* Transparent output	*/
+		tty.c_cflag &= ~( CSIZE | PARENB ); /* Disable parity and all character sizes	*/
+		tty.c_cflag |= CS8 | CREAD;
+		tty.c_lflag = (protocol == ZM_ZMODEM) ? 0 : ISIG;
+		tty.c_cc[VINTR] = (protocol == ZM_ZMODEM) ? -1:030; /* Interrupt char */
+		tty.c_cc[VQUIT] = -1;		    /* Quit char */
+		tty.c_cc[VMIN] = 3;		    /* This many chars satisfies reads */
+		tty.c_cc[VTIME] = 1;
 
 		tcsetattr(fd,TCSADRAIN,&tty);
-
+		did0 = TRUE;
+                Baudrate = getspeed(cfgetospeed(&tty));
+		Syslog('t', "Baudrate = %d", Baudrate);
+				
 		return 0;
 	case 1:
 	case 3:
 		if (!did0) {
-		    did0 = TRUE;
 		    tcgetattr(fd,&oldtty);
 #ifdef __linux__
                     Syslog('t', "iflag%s%s%s%s%s%s%s%s%s%s%s%s%s",
@@ -313,37 +316,37 @@ int io_mode(int fd, int n)
 			    (oldtty.c_lflag & NOFLSH) ? " NOFLSH":"");
 #endif
 		}
+
 		tty = oldtty;
 
-		tty.c_iflag = IGNBRK;
-		if (n == 3) { /* with flow control */
-		    tty.c_iflag |= IXOFF;	/* Enable XON/XOFF flow control on input */
-		    tty.c_cflag |= CRTSCTS;	/* hardware flowcontrol	*/
-		}
-
+		tty.c_iflag = n==3 ? (IXON|IXOFF) : IXOFF;
 
 		/* 
 		 * Setup raw mode: no echo, noncanonical (no edit chars),
 		 * no signal generating chars, and no extended chars (^V, 
 		 * ^O, ^R, ^W).
 		 */
-		tty.c_lflag = 0;	/* Transparant input	*/
-		tty.c_oflag = 0;        /* Transparent output	*/
-		tty.c_cflag &= ~( CSIZE | CSTOPB | PARENB | PARODD);     /* Same baud rate, disable parity */
-		tty.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
-		tty.c_cc[VMIN] = 1;		    /* This many chars satisfies reads */
-		tty.c_cc[VTIME] = 0;
+		tty.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
+//		tty.c_lflag = 0;		    /* Transparant input	*/
+		tty.c_oflag = 0;		    /* Transparent output	*/
+
+		tty.c_cflag &= ~( CSIZE | PARENB ); /* Same baud rate, disable parity */
+		tty.c_cflag |= CS8;
+		tty.c_cc[VMIN] = 2;		    /* This many chars satisfies reads */
+		tty.c_cc[VTIME] = 1;
 		tcsetattr(fd,TCSADRAIN,&tty);
 		Baudrate = getspeed(cfgetospeed(&tty));
 		Syslog('t', "Baudrate = %d", Baudrate);
+		did0 = TRUE;
+
 		return 0;
 	case 0:
 		if (!did0)
 		    return -1;
-		tcdrain (fd); /* wait until everything is sent */
-		tcflush (fd,TCIOFLUSH); /* flush input queue */
-		tcsetattr (fd,TCSADRAIN,&oldtty);
-		tcflow (fd,TCOON); /* restart output */
+		tcdrain (fd);			    /* wait until everything is sent */
+		tcflush (fd,TCIOFLUSH); 	    /* flush input queue */
+		tcsetattr (fd,TCSADRAIN,&oldtty);   /* Restore */
+		tcflow (fd,TCOON);		    /* restart output */
 
 		return 0;
 #endif
@@ -383,7 +386,7 @@ void sendbrk(void)
 
     if (isatty(0)) {
 #ifdef USE_TERMIOS
-	tcsendbreak(0, 0);
+	tcsendbreak(0, 200);
 #endif
 #ifdef USE_TERMIO
 	ioctl(0, TCSBRK, 0);

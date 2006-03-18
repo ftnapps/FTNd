@@ -88,7 +88,6 @@ int zmrcvfiles(int want1k, int wantg)
     Syslog('+', "%s: start receive", protname());
 
     get_frame_buffer();
-    zsendline_init();
 
     Rxtimeout = 10;
     if (secbuf == NULL) 

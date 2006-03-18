@@ -47,6 +47,7 @@ static int zfilbuf(void);
 static int zsendfile(char*,int);
 static int zsendfdata(void);
 static int getinsync(int);
+void initzsendmsk(char *p);
 
 static FILE *in;
 static int Eofseen;		/* EOF seen on input set by zfilbuf */
@@ -61,14 +62,23 @@ static int blkopt;		/* Override value for zmodem blklen */
 static int errors;
 static int Lastsync;
 static int bytcnt;
+static int maxbytcnt;
 static int Lrxpos=0;
 static int Lztrans=0;
 static int Lzmanag=0;
 static int Lskipnocor=0;
 static int Lzconv=0;
 static int Beenhereb4;
-static char Myattn[]={0};
+static int Canseek = 1; /* 1: Can seek 0: only rewind -1: neither (pipe) */
+/*
+ * Attention string to be executed by receiver to interrupt streaming data
+ *  when an error is detected.  A pause (0336) may be needed before the
+ *  ^C (03) or after it.
+ */
+static char Myattn[]={ 0 };	
 static int skipsize;
+static jmp_buf intrjmp;	    /* For the interrupt on RX CAN */
+
 struct timeval	starttime, endtime;
 struct timezone	tz;
 static int use8k = FALSE;
@@ -81,6 +91,16 @@ extern char *frametypes[];
 extern unsigned	Baudrate;
 
 
+/* Called when ZMODEM gets an interrupt (^X) */
+void onintr(int );
+void onintr(int c)
+{
+    signal(SIGINT, SIG_IGN);
+    Syslog('z', "Zmodem: got signal interrupt");
+    longjmp(intrjmp, -1);
+}
+
+
 int zmsndfiles(down_list *lst, int try8)
 {
     int		rc, maxrc = 0;
@@ -89,12 +109,12 @@ int zmsndfiles(down_list *lst, int try8)
     Syslog('+', "Zmodem: start Zmodem%s send", try8 ? "-8K":"");
 
     get_frame_buffer();
-    zsendline_init();
 
     use8k = try8;
     protocol = ZM_ZMODEM;
     Rxtimeout = 60;
-
+    bytcnt = maxbytcnt = -1;
+    
     if ((rc = initsend())) {
 	if (txbuf)
 	    free(txbuf);
@@ -132,7 +152,7 @@ int zmsndfiles(down_list *lst, int try8)
 	free(txbuf);
     txbuf = NULL;
     del_frame_buffer();
-//    io_mode(0, 1);
+    io_mode(0, 1);
 
     Syslog('z', "Zmodem: send rc=%d", maxrc);
     return (maxrc < 2)?0:maxrc;
@@ -144,7 +164,7 @@ static int initsend(void)
 {
     Syslog('z', "Zmodem: initsend");
 
-//    io_mode(0, 1);
+    io_mode(0, 1);
     PUTSTR((char *)"rz\r");
     stohdr(0L);
     zshhdr(ZRQINIT, Txhdr);
@@ -266,19 +286,19 @@ int getzrxinit(void)
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
-			{
-			    int old = Zctlesc;
-			    Zctlesc |= Rxflags & TESCCTL;
-			    /* update table - was initialised to not escape */
-			    if (Zctlesc && !old)
-			    	zsendline_init();
+			Zctlesc |= Rxflags & TESCCTL;
+			if (Rxhdr[ZF1] & ZRRQQQ) {      /* Escape ctrls */
+			    initzsendmsk(Rxhdr + ZRPXQQ);
+			    Syslog('z', "Zmodem: requested ZRPXQQ");
 			}
 
 			Rxbuflen = (0377 & Rxhdr[ZP0])+((0377 & Rxhdr[ZP1])<<8);
 			if ( !(Rxflags & CANFDX))
 			    Txwindow = 0;
-			Syslog('z', "Zmodem: Remote allowed Rxbuflen=%d", Rxbuflen);
-//			io_mode(0, 2); /* Set cbreak, XON/XOFF, etc. */
+			Syslog('z', "Zmodem: Rxbuflen=%d", Rxbuflen);
+
+			signal(SIGINT, SIG_IGN);
+			io_mode(0, 2); /* Set cbreak, XON/XOFF, etc. */
 
 			/* Set initial subpacket length */
 			if (blklen < 1024) {	/* Command line override? */
@@ -287,6 +307,8 @@ int getzrxinit(void)
 			    if (Baudrate > 1200)
 				blklen = 512;
 			    if (Baudrate  > 2400)
+				blklen = 1024;
+			    if (Baudrate < 300)
 				blklen = 1024;
 			}
 			if (Rxbuflen && blklen>Rxbuflen)
@@ -337,7 +359,8 @@ int sendzsinit(void)
 	} else
 	    zsbhdr(ZSINIT, Txhdr);
 	Syslog('z', "sendzsinit Myattn \"%s\"", printable(Myattn, 0));
-	zsdata(Myattn, 1 + strlen(Myattn), ZCRCW);
+//	zsdata(Myattn, 1 + strlen(Myattn), ZCRCW);
+	zsdata(Myattn, ZATTNLEN, ZCRCW);
 	c = zgethdr(Rxhdr);
 	switch (c) {
 	    case ZCAN:	    return TERROR;
@@ -375,9 +398,12 @@ int zfilbuf(void)
  */
 int zsendfile(char *buf, int blen)
 {
-    int	c;
+    int	c, i, m, n;
     register unsigned int crc = -1;
     int lastcrcrq = -1;
+    int lastcrcof = -1;
+    int	l;
+    char    *p;
 
     Syslog('z', "zsendfile %s (%d)", buf, blen);
     for (errors=0; ++errors<11;) {
@@ -414,15 +440,42 @@ again:
 	    case ZNAK:
 			continue;
 	    case ZCRC:
-			if (Rxpos != lastcrcrq) {
+			l = Rxhdr[9] & 0377;
+			l = (l<<8) + (Rxhdr[8] & 0377);
+			l = (l<<8) + (Rxhdr[7] & 0377);
+			l = (l<<8) + (Rxhdr[6] & 0377);
+			if (Rxpos != lastcrcrq || l != lastcrcof) {
 			    lastcrcrq = Rxpos;
 			    crc = 0xFFFFFFFFL;
-			    fseek(in, 0L, 0);
-			    while (((c = getc(in)) != EOF) && --lastcrcrq)
-				crc = updcrc32(c, crc);
-			    crc = ~crc;
-			    clearerr(in);	/* Clear possible EOF */
-			    lastcrcrq = Rxpos;
+//			    fseek(in, 0L, 0);
+//			    while (((c = getc(in)) != EOF) && --lastcrcrq)
+//				crc = updcrc32(c, crc);
+//			    crc = ~crc;
+//			    clearerr(in);	/* Clear possible EOF */
+//			    lastcrcrq = Rxpos;
+
+			    if (Canseek >= 0) {
+				fseek(in, bytcnt = l, 0);  i = 0;
+				Syslog('z', "Zmodem: CRC32 on %ld bytes", Rxpos);
+				do {
+				    /* No rx timeouts! */
+				    if (--i < 0) {
+					i = 32768L/blklen;
+					PUTCHAR(SYN);
+					fflush(stdout);
+				    }
+				    bytcnt += m = n = zfilbuf();
+				    if (bytcnt > maxbytcnt)
+					maxbytcnt = bytcnt;
+				    for (p = txbuf; --m >= 0; ++p) {
+					c = *p & 0377;
+					crc = updcrc32(c, crc);
+				    }
+				    Syslog('z', "bytcnt=%d crc=%08X", bytcnt, crc);
+				} while (n && bytcnt < lastcrcrq);
+				crc = ~crc;
+				clearerr(in);   /* Clear possible EOF */
+			    }
 			}
 			stohdr(crc);
 			zsbhdr(ZCRC, Txhdr);
@@ -441,7 +494,7 @@ again:
 			    skipsize = Rxpos;
 			if (fseek(in, Rxpos, 0))
 			    return TERROR;
-			Lastsync = (bytcnt = Txpos = Lrxpos = Rxpos) -1;
+			Lastsync = (maxbytcnt = bytcnt = Txpos = Lrxpos = Rxpos) -1;
 			return zsendfdata();
 	}
     }
@@ -471,7 +524,8 @@ int zsendfdata(void)
     junkcount = 0;
     Beenhereb4 = 0;
 somemore:
-    if (0) {
+//    if (0) {
+    if (setjmp(intrjmp)) {
 waitack:
 	junkcount = 0;
 	c = getinsync(0);
@@ -486,18 +540,18 @@ gotack:
 			    return c;
 	    case ZACK:	    Syslog('z', "zmsend: got ZACK");
 			    break;	// Possible bug, added 23-08-99
-	    case ZRPOS:	    blklen = ((blklen >> 2) > 64) ? (blklen >> 2) : 64;
+	    case ZRPOS:	    /* blklen = ((blklen >> 2) > 64) ? (blklen >> 2) : 64;
 			    goodblks = 0;
 			    goodneeded = ((goodneeded << 1) > 16) ? 16 : goodneeded << 1;
-			    Syslog('z', "zmsend: blocklen now %d", blklen);
+			    Syslog('z', "zmsend: blocklen now %d", blklen); */
 			    break;
-	    case TIMEOUT:   /* Put back here 08-09-1999 mb */
-			    Syslog('z', "zmsend: zsendfdata TIMEOUT");
-			    goto to;
-	    case HANGUP:    /* New, added 08-09-1999 mb */
-			    Syslog('z', "zmsend: zsendfdata HANGUP");
-			    fclose(in);
-			    return c;
+//	    case TIMEOUT:   /* Put back here 08-09-1999 mb */
+//			    Syslog('z', "zmsend: zsendfdata TIMEOUT");
+//			    goto to;
+//	    case HANGUP:    /* New, added 08-09-1999 mb */
+//			    Syslog('z', "zmsend: zsendfdata HANGUP");
+//			    fclose(in);
+//			    return c;
 	}
 
 	/*
@@ -520,7 +574,9 @@ gotack:
 	    }
 	}
     }
-to:
+//to:
+
+    signal(SIGINT, onintr);
     newcnt = Rxbuflen;
     Txwcnt = 0;
     stohdr(Txpos);
@@ -544,12 +600,14 @@ to:
 	alarm_on();
 	zsdata(txbuf, n, e);
 	bytcnt = Txpos += n;
+	if (bytcnt > maxbytcnt)
+	    maxbytcnt = bytcnt;
 
-	if ((blklen < maxblklen) && (++goodblks > goodneeded)) {
-	    blklen = ((blklen << 1) < maxblklen) ? blklen << 1 : maxblklen;
-	    goodblks = 0;
-	    Syslog('z', "zmsend: blocklen now %d", blklen);
-	}
+//	if ((blklen < maxblklen) && (++goodblks > goodneeded)) {
+//	    blklen = ((blklen << 1) < maxblklen) ? blklen << 1 : maxblklen;
+//	    goodblks = 0;
+//	    Syslog('z', "zmsend: blocklen now %d", blklen);
+//	}
 
 	if (e == ZCRCW)
 	    goto waitack;
@@ -591,7 +649,8 @@ to:
 	    Syslog('z', "window = %ld", tcount);
 	}
     } while (!Eofseen);
-
+    signal(SIGINT, SIG_IGN);
+    
     for (;;) {
 	stohdr(Txpos);
 	zsbhdr(ZEOF, Txhdr);
@@ -599,6 +658,7 @@ egotack:
 	switch (getinsync(0)) {
 	    case ZACK:	    Syslog('z', "zsendfdata() ZACK");
 			    goto egotack;	// continue in old source
+	    case ZNAK:	    continue;
 	    case ZRPOS:	    goto somemore;
 	    case ZRINIT:    fclose(in);
 			    return OK;
@@ -630,10 +690,17 @@ int getinsync(int flag)
 	    case ZCAN:
 	    case ZABORT:
 	    case ZFIN:
-	    case TERROR:
+	/*    case TERROR:  */
 	    case TIMEOUT:   Syslog('+', "Zmodem: Got %s sending data", frametypes[c+FTOFFSET]);
 			    return TERROR;
-	    case ZRPOS:	    /* ************************************* */
+	    case ZRPOS:	    if (Rxpos > bytcnt) {
+				Syslog('z', "Zmodem: getinsync: Rxpos=%lx bytcnt=%lx Maxbytcnt=%lx",
+					    Rxpos, bytcnt, maxbytcnt);
+				if (Rxpos > maxbytcnt)
+				    Syslog('+', "Nonstandard Protocol at %lX", Rxpos);
+				return ZRPOS;
+			    }				
+			    /* ************************************* */
 			    /*  If sending to a buffered modem, you  */
 			    /*   might send a break at this point to */
 			    /*   dump the modem's buffer.		 */
@@ -667,8 +734,27 @@ int getinsync(int flag)
 	    case ZRINIT:    return c;
 	    case ZSKIP:	    Syslog('+', "Zmodem: File skipped by receiver request");
 			    return c;
+	    case TERROR:
 	    default:	    zsbhdr(ZNAK, Txhdr);
 			    continue;
+	}
+    }
+}
+
+
+
+/*
+ * Set additional control chars to mask in Zsendmask
+ * according to bit array stored in char array at p
+ */
+void initzsendmsk(char *p)
+{
+    int	    c;
+
+    for (c = 0; c < 33; ++c) {
+	if (p [c >> 3] & (1 << (c & 7))) {
+	    Zsendmask[c] = 1;
+	    Syslog('z', "Zmodem: escaping %02o", c);
 	}
     }
 }
