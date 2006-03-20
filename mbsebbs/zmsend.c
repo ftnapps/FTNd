@@ -234,15 +234,13 @@ static int sendzfile(char *rn)
 	return 1;
     }
 
-    Syslog('+', "Zmodem: send \"%s\"", MBSE_SS(rn));
-    Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned int)st.st_size, rfcdate(st.st_mtime));
+    Syslog('+', "Zmodem: send \"%s\", %lu bytes, dated %s", MBSE_SS(rn), (unsigned int)st.st_size, rfcdate(st.st_mtime));
     gettimeofday(&starttime, &tz);
 
     snprintf(txbuf,MAXBLOCK + 1024,"%s %u %o %o 0 0 0", rn,
 	    (unsigned int)st.st_size, (int)st.st_mtime + (int)(st.st_mtime % 2), st.st_mode);
     bufl = strlen(txbuf);
     *(strchr(txbuf,' ')) = '\0'; /*hope no blanks in filename*/
-    Syslog('z', "txbuf \"%s\"", printable(txbuf, 0));
 
     Eofseen = 0;
     rc = zsendfile(txbuf,bufl);

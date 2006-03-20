@@ -5,6 +5,7 @@
 
 #define TCHECK() tty_check()
 #define FLUSHIN() tty_flushin()
+#define FLUSHOUT() tty_flushout()
 #define PUTCHAR(x) tty_putc(x)
 #define PUT(x,y) tty_put(x,y)
 #define PUTSTR(x) tty_put(x,strlen(x))
@@ -79,8 +80,9 @@ int	tty_status;
 int	tty_check(void);
 int	tty_getc(int);
 int	tty_putc(int);
-int	tty_put(char*, int);
+int	tty_put(char *, int);
+int	tty_get(char *, int, int);
 void	tty_flushin(void);
-
+void	tty_flushout(void);
 
 #endif

@@ -201,7 +201,7 @@ void zsbhdr(int type, char *shdr)
     BUFFER_FLUSH();
 
     if (type != ZDATA)
-	fflush(stdout);
+	FLUSHOUT();
 }
 
 
@@ -274,7 +274,7 @@ void zshhdr(int type, char *shdr)
 	BUFFER_BYTE(021);
 
     BUFFER_FLUSH();
-    fflush(stdout);
+    FLUSHOUT();
 }
 
 
@@ -313,7 +313,7 @@ void zsdata(register char *buf, int length, int frameend)
     BUFFER_FLUSH();
 
     if (frameend != ZCRCG)
-	fflush(stdout);
+	FLUSHOUT();
 }
 
 
@@ -488,14 +488,7 @@ startover:
     cancount = 5;
     tmcount = 5;
 again:
-    /*
-     * Return immediate ERROR if ZCRCW sequence seen 
-     */
-//    if (((c = GETCHAR(Rxtimeout)) < 0) && (c != TIMEOUT))
-//	goto fifi;
-//    else {
-//	switch(c) {
-	switch (c = GETCHAR(Rxtimeout)) {
+    switch (c = GETCHAR(Rxtimeout)) {
 	case 021: 
 	case 0221:	goto again;
 	case HANGUP:	goto fifi;
@@ -542,8 +535,7 @@ agn2:
 			Not8bit = c;
 	case ZPAD:	/* This is what we want. */
 			break;
-	}
-//    }
+    }
     cancount = 5;
 
 splat:
@@ -756,12 +748,19 @@ void zsendline(int c)
 		    BUFFER_BYTE(ZDLE);  
 		    BUFFER_BYTE(lastsent = (c ^= 0100));
 		    break;
+	case 015:
+	case 0215:
+		    if (!Zctlesc && (lastsent & 0177) != '@')
+			goto sendit;
+		    /* Fall thru */
+	case 020:
 	case 021: 
 	case 023:
 	case 0221: 
 	case 0223:
 		    BUFFER_BYTE(ZDLE);  
 		    c ^= 0100;  
+sendit:
 		    BUFFER_BYTE(lastsent = c);
 		    break;
 	default:

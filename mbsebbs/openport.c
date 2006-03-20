@@ -53,7 +53,6 @@ struct tchars oldtch, tch;
 
 int			hanged_up = 0;
 unsigned		Baudrate = 9600;    /* Default, set by first io_mode() call */
-int			current_mode = -1;
 
 
 
@@ -176,12 +175,6 @@ int io_mode(int fd, int n)
     static int	did0 = FALSE;
 
     Syslog('t', "io_mode(%d, %d) (%s)", fd, n, io_names[n]);
-    if (n == current_mode) {
-	Syslog('t', "io_mode already set");
-	return 0;
-    }
-
-    current_mode = n;
 
     switch(n) {
 
@@ -327,7 +320,6 @@ int io_mode(int fd, int n)
 		 * ^O, ^R, ^W).
 		 */
 		tty.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
-//		tty.c_lflag = 0;		    /* Transparant input	*/
 		tty.c_oflag = 0;		    /* Transparent output	*/
 
 		tty.c_cflag &= ~( CSIZE | PARENB ); /* Same baud rate, disable parity */
@@ -386,7 +378,7 @@ void sendbrk(void)
 
     if (isatty(0)) {
 #ifdef USE_TERMIOS
-	tcsendbreak(0, 200);
+	tcsendbreak(0, 0);
 #endif
 #ifdef USE_TERMIO
 	ioctl(0, TCSBRK, 0);

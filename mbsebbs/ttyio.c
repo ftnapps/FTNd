@@ -58,6 +58,7 @@ char *ttystat[]= {(char *)"Ok",
 /*
  * private r/w functions
  */
+static int tty_read(char *, int, int);
 static int tty_read(char *buf, int size, int tot)
 {
     time_t	    now;
@@ -126,8 +127,8 @@ static int tty_read(char *buf, int size, int tot)
 }
 
 
-
-int tty_put(char *buf, int size)
+int tty_write(char *, int);
+int tty_write(char *buf, int size)
 {
     int result;
 
@@ -137,14 +138,14 @@ int tty_put(char *buf, int size)
     if (result != size) {
 	if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
 	    tty_status = STAT_HANGUP;
-	    WriteError("tty_put: hanged_up flag");
+	    WriteError("tty_write: hanged_up flag");
 	} else {
 	    tty_status=STAT_ERROR;
-	    Syslog('!', "tty_put: error flag");
+	    Syslog('!', "tty_write: error flag");
 	}
     }
     if (tty_status)
-	Syslog('t', "tty_put: error %s", ttystat[tty_status]);
+	Syslog('t', "tty_write: error %s", ttystat[tty_status]);
 
     return -tty_status;
 }
@@ -184,6 +185,13 @@ void tty_flushin(void)
 }
 
 
+void tty_flushout(void)
+{
+    tcdrain(1);
+//    tcflush(1, TCOFLUSH);
+}
+
+
 
 int tty_getc(int tot)
 {
@@ -207,7 +215,41 @@ int tty_putc(int c)
 {
     char    buf = c;
 
-    return tty_put(&buf, 1);
+    return tty_write(&buf, 1);
 }
 
+
+int tty_get(char *buf, int size, int tot)
+{
+    int result=0;
+
+    if (left >= size) {
+	memcpy(buf,next,size);
+	next += size;
+	left -= size;
+	return 0;
+    }
+
+    if (left > 0) {
+	memcpy(buf,next,left);
+	buf += left;
+	next += left;
+	size -= left;
+	left=0;
+    }
+
+    while ((result=tty_read(buf,size,tot)) > 0) {
+	buf += result;
+	size -= result;
+    }
+
+    return result;
+}
+
+
+
+int tty_put(char *buf, int size)
+{
+    return tty_write(buf,size);
+}
 
