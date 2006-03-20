@@ -6,6 +6,7 @@ v0.83.16	13-Mar-2006
 	mbfido:
 		If sending crash to a node not in the setup, a default
 		archiver is now set to ZIP.
+		Accept unpacket mail for own points.
 
 
 v0.83.15	05-Mar-2006 - 13-Mar-2006

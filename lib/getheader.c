@@ -4,7 +4,7 @@
  * Purpose ...............: Read fidonet .pkt header
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -166,7 +166,7 @@ int getheader(faddr *f, faddr *t, FILE *pkt, char *pname, int session)
     for (i = 0; i < 40; i++) {
 	if ((CFG.akavalid[i]) && ((t->zone == 0) || (t->zone == CFG.aka[i].zone)) &&
 	    (t->net  == CFG.aka[i].net) && (t->node == CFG.aka[i].node) &&
-	    ((!(capword & 0x0001)) || (t->point == CFG.aka[i].point)))
+	    ((!(capword & 0x0001)) || (t->point == CFG.aka[i].point) || (t->point && !CFG.aka[i].point)))
 	    tome = TRUE;
     }
 
