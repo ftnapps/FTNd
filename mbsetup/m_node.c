@@ -498,7 +498,7 @@ void E_Files(void)
     mbse_mvprintw(11, 6, "5.   Advanced SB");
     mbse_mvprintw(12, 6, "6.   To line in TIC");
     mbse_mvprintw(13, 6, "7.   File forward");
-    mbse_mvprintw(14, 7, "8.   TIC 4d address");
+    mbse_mvprintw(14, 6, "8.   TIC 4d address");
 
     for (;;) {
 	set_color(WHITE, BLACK);
