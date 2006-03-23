@@ -498,6 +498,7 @@ void E_Files(void)
     mbse_mvprintw(11, 6, "5.   Advanced SB");
     mbse_mvprintw(12, 6, "6.   To line in TIC");
     mbse_mvprintw(13, 6, "7.   File forward");
+    mbse_mvprintw(14, 7, "8.   TIC 4d address");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -508,8 +509,9 @@ void E_Files(void)
 	show_bool(11,26,    nodes.TIC_AdvSB);
 	show_bool(12,26,    nodes.TIC_To);
 	show_bool(13,26,    nodes.FileFwd);
+	show_bool(14,26,    nodes.Tic4d);
 
-	switch(select_menu(7)) {
+	switch(select_menu(8)) {
 	    case 0: return;
 	    case 1: E_STR(  7,26,15,nodes.Fpasswd,    "The ^TIC^ files ^password^ for this node")
 	    case 2: E_BOOL( 8,26,   nodes.Message,    "Send ^messages^ with files send to this node")
@@ -518,6 +520,7 @@ void E_Files(void)
 	    case 5: E_BOOL(11,26,   nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
 	    case 6: E_BOOL(12,26,   nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
 	    case 7: E_BOOL(13,26,   nodes.FileFwd,    "^Forward TIC^ files for this node")
+	    case 8: E_BOOL(14,26,   nodes.Tic4d,      "Use ^4d addresses^ in TIC files for this node")
 	}
     }
 }
@@ -1612,6 +1615,8 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)" Advanded SB lines in .TIC", getboolean(nodes.TIC_AdvSB));
 	    fprintf(fp, "     Sent To line     %s\n", getboolean(nodes.TIC_To));
 	    add_webtable(wp, (char *)"Sent 'To' lines in .TIC", getboolean(nodes.TIC_To));
+	    fprintf(fp, "     TIC 4d addresses %s\n", getboolean(nodes.Tic4d));
+	    add_webtable(wp, (char *)"Use 4d addresses in .TIC", getboolean(nodes.Tic4d));
 	    fprintf(fp, "     Security flags   %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
 	    add_webtable(wp, (char *)"Security flags", getflag(nodes.Security.flags, nodes.Security.notflags));
 	    fprintf(wp, "<TR><TD colspan='2'>&nbsp;</TD></TR>\n");

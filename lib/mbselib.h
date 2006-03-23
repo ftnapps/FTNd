@@ -1701,8 +1701,9 @@ struct	_nodes {
 	unsigned	Dir_in_chklck	: 1;	/* Inbound check lock	    */
 	unsigned	Dir_in_waitclr	: 1;	/* Inbound wait for clear   */
 	unsigned	Dir_in_mklck	: 1;	/* Inbound create lock	    */
+	unsigned	Tic4d		: 1;	/* 4d addresses in ticfile  */
 
-						/* FTP transfers		    */
+						/* FTP transfers	    */
 	char		FTP_site[65];		/* Site name or IP address  */
 	char		FTP_user[17];		/* Username		    */
 	char		FTP_pass[17];		/* Password		    */
