@@ -1840,6 +1840,7 @@ struct	_mgroup {
 	unsigned	StartArea;		/* Start at area number    */
 	securityrec	LinkSec;		/* Default link security   */
 	int		Charset;		/* Default charaacter set  */
+	int		GoldEDgroup;		/* GoldED group number	   */
 };
 
 
