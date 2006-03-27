@@ -13,7 +13,7 @@ dnl
 PACKAGE="mbsebbs"
 MAJOR="0"
 MINOR="83"
-REVISION="16"
+REVISION="17"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2006 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2006 M. Broek"
