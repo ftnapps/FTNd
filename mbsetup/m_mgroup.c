@@ -4,7 +4,7 @@
  * Purpose ...............: Setup MGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005 
+ * Copyright (C) 1997-2006 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -41,7 +41,9 @@
 
 
 
-int	MGrpUpdated = 0;
+int		MGrpUpdated = 0;
+unsigned int	*gedgrps;
+extern int      exp_golded;
 
 
 /*
@@ -98,76 +100,87 @@ int CountMGroup(void)
 int OpenMGroup(void);
 int OpenMGroup(void)
 {
-	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
-	int	oldsize;
-	int	i;
+    FILE    *fin, *fout;
+    char    fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
+    int	    oldsize, i, record;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
-	if ((fin = fopen(fnin, "r")) != NULL) {
-		if ((fout = fopen(fnout, "w")) != NULL) {
-			MGrpUpdated = 0;
-			fread(&mgrouphdr, sizeof(mgrouphdr), 1, fin);
-			fseek(fin, 0, SEEK_SET);
-			fread(&mgrouphdr, mgrouphdr.hdrsize, 1, fin);
-			if (mgrouphdr.hdrsize != sizeof(mgrouphdr)) {
-				mgrouphdr.hdrsize = sizeof(mgrouphdr);
-				mgrouphdr.lastupd = time(NULL);
-				MGrpUpdated = 1;
-			}
+    /*
+     * Init GoldED grouptable
+     */
+    gedgrps = (unsigned int *)malloc(1001 * sizeof(unsigned int));
+    memset(gedgrps, 0, 1001 * sizeof(unsigned int));
 
-			/*
-			 * In case we are automaitc upgrading the data format
-			 * we save the old format. If it is changed, the
-			 * database must always be updated.
-			 */
-			oldsize = mgrouphdr.recsize;
-			if (oldsize != sizeof(mgroup))
-				MGrpUpdated = 1;
-			mgrouphdr.hdrsize = sizeof(mgrouphdr);
-			mgrouphdr.recsize = sizeof(mgroup);
-			fwrite(&mgrouphdr, sizeof(mgrouphdr), 1, fout);
+    snprintf(fnin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    if ((fin = fopen(fnin, "r")) != NULL) {
+	if ((fout = fopen(fnout, "w")) != NULL) {
+	    MGrpUpdated = 0;
+	    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fin);
+	    fseek(fin, 0, SEEK_SET);
+	    fread(&mgrouphdr, mgrouphdr.hdrsize, 1, fin);
+	    if (mgrouphdr.hdrsize != sizeof(mgrouphdr)) {
+		mgrouphdr.hdrsize = sizeof(mgrouphdr);
+		mgrouphdr.lastupd = time(NULL);
+		MGrpUpdated = 1;
+	    }
 
-			if (MGrpUpdated)
-			    Syslog('+', "Updated %s, format changed", fnin);
+	    /*
+	     * In case we are automaitc upgrading the data format
+	     * we save the old format. If it is changed, the
+	     * database must always be updated.
+	     */
+	    oldsize = mgrouphdr.recsize;
+	    if (oldsize != sizeof(mgroup))
+		MGrpUpdated = 1;
+	    mgrouphdr.hdrsize = sizeof(mgrouphdr);
+	    mgrouphdr.recsize = sizeof(mgroup);
+	    fwrite(&mgrouphdr, sizeof(mgrouphdr), 1, fout);
 
-			/*
-			 * The datarecord is filled with zero's before each
-			 * read, so if the format changed, the new fields
-			 * will be empty.
-			 */
-			memset(&mgroup, 0, sizeof(mgroup));
-			while (fread(&mgroup, oldsize, 1, fin) == 1) {
-				if (MGrpUpdated && !strlen(mgroup.BasePath)) {
-				    memset(&temp, 0, sizeof(temp));
-				    strcpy(temp, mgroup.Name);
-				    for (i = 0; i < strlen(temp); i++) {
-					if (isupper(temp[i]))
-					    temp[i] = tolower(temp[i]);
-					if (temp[i] == '.')
-					    temp[i] = '/';
-				    }
-				    snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
-				}
-				if (MGrpUpdated && !mgroup.LinkSec.level) {
-				    mgroup.LinkSec.level = 1;
-				    mgroup.LinkSec.flags = 1;
-				}
-				if (MGrpUpdated && (mgroup.Charset == FTNC_NONE)) {
-				    mgroup.Charset = FTNC_CP437;
-				}
-				fwrite(&mgroup, sizeof(mgroup), 1, fout);
-				memset(&mgroup, 0, sizeof(mgroup));
-			}
+	    if (MGrpUpdated)
+		Syslog('+', "Updated %s, format changed", fnin);
 
-			fclose(fin);
-			fclose(fout);
-			return 0;
-		} else
-			return -1;
-	}
-	return -1;
+	    /*
+	     * The datarecord is filled with zero's before each
+	     * read, so if the format changed, the new fields
+	     * will be empty.
+	     */
+	    memset(&mgroup, 0, sizeof(mgroup));
+	    record = 0;
+	    while (fread(&mgroup, oldsize, 1, fin) == 1) {
+		record++;
+		if (MGrpUpdated && !strlen(mgroup.BasePath)) {
+		    memset(&temp, 0, sizeof(temp));
+		    strcpy(temp, mgroup.Name);
+		    for (i = 0; i < strlen(temp); i++) {
+			if (isupper(temp[i]))
+			    temp[i] = tolower(temp[i]);
+			if (temp[i] == '.')
+			    temp[i] = '/';
+		    }
+		    snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+		}
+		if (MGrpUpdated && !mgroup.LinkSec.level) {
+		    mgroup.LinkSec.level = 1;
+		    mgroup.LinkSec.flags = 1;
+		}
+		if (MGrpUpdated && (mgroup.Charset == FTNC_NONE)) {
+		    mgroup.Charset = FTNC_CP437;
+		}
+		if (MGrpUpdated && !mgroup.GoldEDgroup) {
+		    mgroup.GoldEDgroup = record;
+		}
+		fwrite(&mgroup, sizeof(mgroup), 1, fout);
+		gedgrps[mgroup.GoldEDgroup] = 1; 
+		memset(&mgroup, 0, sizeof(mgroup));
+	    }
+
+	    fclose(fin);
+	    fclose(fout);
+	    return 0;
+	} else
+	    return -1;
+    }
+    return -1;
 }
 
 
@@ -175,55 +188,58 @@ int OpenMGroup(void)
 void CloseMGroup(int);
 void CloseMGroup(int force)
 {
-	char	fin[PATH_MAX], fout[PATH_MAX];
-	FILE	*fi, *fo;
-	st_list	*mgr = NULL, *tmp;
+    char    fin[PATH_MAX], fout[PATH_MAX];
+    FILE    *fi, *fo;
+    st_list *mgr = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    free(gedgrps);
+    snprintf(fin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
 
-	if (MGrpUpdated == 1) {
-		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
-			working(1, 0, 0);
-			fi = fopen(fout, "r");
-			fo = fopen(fin,  "w");
-			fread(&mgrouphdr, mgrouphdr.hdrsize, 1, fi);
-			fwrite(&mgrouphdr, mgrouphdr.hdrsize, 1, fo);
+    if (MGrpUpdated == 1) {
+	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
+	    working(1, 0, 0);
+	    fi = fopen(fout, "r");
+	    fo = fopen(fin,  "w");
+	    fread(&mgrouphdr, mgrouphdr.hdrsize, 1, fi);
+	    fwrite(&mgrouphdr, mgrouphdr.hdrsize, 1, fo);
 
-			while (fread(&mgroup, mgrouphdr.recsize, 1, fi) == 1)
-				if (!mgroup.Deleted)
-					fill_stlist(&mgr, mgroup.Name, ftell(fi) - mgrouphdr.recsize);
-			sort_stlist(&mgr);
+	    while (fread(&mgroup, mgrouphdr.recsize, 1, fi) == 1)
+		if (!mgroup.Deleted)
+		    fill_stlist(&mgr, mgroup.Name, ftell(fi) - mgrouphdr.recsize);
+	    sort_stlist(&mgr);
 
-			for (tmp = mgr; tmp; tmp = tmp->next) {
-				fseek(fi, tmp->pos, SEEK_SET);
-				fread(&mgroup, mgrouphdr.recsize, 1, fi);
-				fwrite(&mgroup, mgrouphdr.recsize, 1, fo);
-			}
+	    for (tmp = mgr; tmp; tmp = tmp->next) {
+	        fseek(fi, tmp->pos, SEEK_SET);
+	        fread(&mgroup, mgrouphdr.recsize, 1, fi);
+	        fwrite(&mgroup, mgrouphdr.recsize, 1, fo);
+	    }
 
-			tidy_stlist(&mgr);
-			fclose(fi);
-			fclose(fo);
-			unlink(fout);
-			chmod(fin, 0660);
-			disk_reset();
-			Syslog('+', "Updated \"mgroups.data\"");
-			if (!force)
-			    working(6, 0, 0);
-			return;
-		}
+	    tidy_stlist(&mgr);
+	    fclose(fi);
+	    fclose(fo);
+	    unlink(fout);
+	    chmod(fin, 0660);
+	    disk_reset();
+	    Syslog('+', "Updated \"mgroups.data\"");
+	    if (!force)
+	        working(6, 0, 0);
+	    exp_golded = TRUE;
+	    return;
 	}
-	chmod(fin, 0660);
-	working(1, 0, 0);
-	unlink(fout); 
+    }
+    chmod(fin, 0660);
+    working(1, 0, 0);
+    unlink(fout); 
 }
 
 
 
 int AppendMGroup(void)
 {
-    FILE	*fil;
-    char	ffile[PATH_MAX];
+    FILE    *fil;
+    char    ffile[PATH_MAX];
+    int	    i;
 
     snprintf(ffile, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "a")) != NULL) {
@@ -232,6 +248,13 @@ int AppendMGroup(void)
 	mgroup.LinkSec.level = 1;
 	mgroup.LinkSec.flags = 1;
 	mgroup.Charset = FTNC_CP437;
+	for (i = 1; i < 1000; i++) {
+	    if (gedgrps[i] == 0) {
+		gedgrps[i] = 1;
+		mgroup.GoldEDgroup = i;
+		break;
+	    }
+	}
 	fwrite(&mgroup, sizeof(mgroup), 1, fil);
 	fclose(fil);
 	MGrpUpdated = 1;
@@ -270,6 +293,7 @@ void MgScreen(void)
     mbse_mvprintw(19,26, "19. Areas");
 
     mbse_mvprintw(14,54, "20. Charset");
+    mbse_mvprintw(15,54, "21. GED grp");
 }
 
 
@@ -304,6 +328,7 @@ int EditMGrpRec(int Area)
     static int	    offset;
     static int	    i, j, tmp;
     unsigned int    crc, crc1;
+    int		    oldgrp, newgrp;
 
     clr_index();
     working(1, 0, 0);
@@ -351,8 +376,9 @@ int EditMGrpRec(int Area)
 	show_str( 19,42,12, mgroup.AreaFile);
 
 	show_charset(14,70, mgroup.Charset);
+	show_int( 15, 70,   mgroup.GoldEDgroup);
 
-	j = select_menu(20);
+	j = select_menu(21);
 	switch(j) {
 	    case 0: if (!mgroup.StartArea && strlen(mgroup.AreaFile)) {
 			errmsg("Areas file defined but no BBS start area");
@@ -428,6 +454,20 @@ int EditMGrpRec(int Area)
 		    break;
 	    case 19:E_STR( 19,42,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink (case sensitive)")
 	    case 20:mgroup.Charset = edit_charset(14, 70, mgroup.Charset);
+		    break;
+	    case 21:oldgrp = mgroup.GoldEDgroup;
+		    newgrp = edit_int(15, 70, oldgrp, (char *)"The new groupnumber for the ^GoldED groups^ (1..999)");
+		    if ((newgrp < 1) || (newgrp > 999)) {
+			errmsg("Groupnumber must be between 1 and 999");
+		    } else if (newgrp && (newgrp != oldgrp)) {
+			if (gedgrps[newgrp] == 1) {
+			    errmsg("This groupnumber is already in use");
+			} else {
+			    gedgrps[oldgrp] = 0;
+			    gedgrps[newgrp] = 1;
+			    mgroup.GoldEDgroup = newgrp;
+			}
+		    }
 		    break;
 	}
     }
@@ -698,6 +738,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Auto add/del areas", getboolean(mgroup.AutoChange));
 	    add_webtable(wp, (char *)"User add/del areas", getboolean(mgroup.UserChange));
 	    add_webtable(wp, (char *)"Default charset", getftnchrs(mgroup.Charset));
+	    add_webdigit(wp, (char *)"GoldED groupid", mgroup.GoldEDgroup);
 	    tt = (time_t)mgroup.StartDate;
 	    add_webtable(wp, (char *)"Start area date", ctime(&tt));
 	    tt = (time_t)mgroup.LastDate;
@@ -793,6 +834,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
 	fprintf(fp, "    User add/del areas %s\n", getboolean(mgroup.UserChange));
 	fprintf(fp, "    Default charset    %s\n", getftnchrs(mgroup.Charset));
+	fprintf(fp, "    GoldED groupid     %d\n", mgroup.GoldEDgroup);
 	tt = (time_t)mgroup.StartDate;
 	fprintf(fp, "    Start area date    %s",   ctime(&tt));
 	tt = (time_t)mgroup.LastDate;

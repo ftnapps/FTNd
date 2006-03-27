@@ -4,7 +4,7 @@
  * Purpose ...............: Create Message Area
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -358,8 +358,8 @@ void msged_areas(FILE *fp)
 
 void gold_areas(FILE *fp)
 {
-    char    *temp, *aka;
-    FILE    *no;
+    char    *temp, *aka, groupid[13];
+    FILE    *no, *fil;
     int     i = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
@@ -387,11 +387,39 @@ void gold_areas(FILE *fp)
 	    else
 		fprintf(fp, "AREA%d", i);
 	    fprintf(fp, " \"%s\" ", msgs.Name);
+
+	    /*
+	     * Set a default groupid
+	     */
 	    switch (msgs.Type) {
-		case LOCALMAIL  : fprintf(fp, "0 Local");       break;
-		case NETMAIL    : fprintf(fp, "N Net");         break;
-		case ECHOMAIL   : fprintf(fp, "C Echo");        break;
-		case NEWS       : fprintf(fp, "I News");        break;
+		case LOCALMAIL  : snprintf(groupid, 13, "O");   break;
+		case NETMAIL    : snprintf(groupid, 13, "N");   break;
+		case ECHOMAIL   : snprintf(groupid, 13, "C");   break;
+		case NEWS       : snprintf(groupid, 13, "I");   break;
+	    }
+	    /*
+	     * Now try to find a real groupid
+	     */
+	    if (((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS)) && strlen(msgs.Group)) {
+		snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+		if ((fil = fopen(temp, "r")) != NULL) {
+		    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
+		    while (fread(&mgroup, mgrouphdr.recsize, 1, fil) == 1) {
+			if (mgroup.Active && !strcmp(msgs.Group, mgroup.Name) && mgroup.GoldEDgroup) {
+			    snprintf(groupid, 13, "%d", mgroup.GoldEDgroup);
+			    break;
+			}
+		    }
+		    fclose(fil);
+		}
+	    }
+	    fprintf(fp, "%s ", groupid);
+
+	    switch (msgs.Type) {
+		case LOCALMAIL  : fprintf(fp, "Local");       break;
+		case NETMAIL    : fprintf(fp, "Net");         break;
+		case ECHOMAIL   : fprintf(fp, "Echo");        break;
+		case NEWS       : fprintf(fp, "News");        break;
 	    }
 	    aka = xstrcpy(strtok(aka2str(msgs.Aka), "@"));
 	    fprintf(fp, " JAM %s %s ", msgs.Base, aka);

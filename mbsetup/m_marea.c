@@ -1780,57 +1780,88 @@ void msged_areas(FILE *fp)
 }
 
 
-
+/*
+ * AREADEF Syntax: Echoid "Description" Groupid Type Format Path or board Aka (Attributes) "Origin"
+ */
 void gold_areas(FILE *fp)
 {
-	char	*temp, *aka;
-	FILE	*no;
-	int	i = 0;
+    char    *temp, *aka, groupid[13];
+    FILE    *no, *fil;
+    int	    i = 0;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return;
-
-	fread(&msgshdr, sizeof(msgshdr), 1, no);
-	fseek(no, 0, SEEK_SET);
-	fread(&msgshdr, msgshdr.hdrsize, 1, no);
-
-	fprintf(fp, "; Message Areas\n;\n");
-	fprintf(fp, "AREASCAN *\n");
-	fprintf(fp, "AREATYPEORDER Net Email Echo News Local\n");
-
-	while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
-
-		i++;
-		if (msgs.Active) {
-			fprintf(fp, "AREADEF ");
-			if (strlen(msgs.Tag))
-				fprintf(fp, "%s", msgs.Tag);
-			else
-				fprintf(fp, "AREA%d", i);
-			fprintf(fp, " \"%s\" ", msgs.Name);
-			switch (msgs.Type) {
-				case LOCALMAIL	: fprintf(fp, "0 Local");	break;
-				case NETMAIL	: fprintf(fp, "N Net");   	break;
-				case ECHOMAIL	: fprintf(fp, "C Echo");	break;
-				case NEWS	: fprintf(fp, "I News");	break;
-			}
-			aka = xstrcpy(strtok(aka2str(msgs.Aka), "@"));
-			fprintf(fp, " JAM %s %s ", msgs.Base, aka);
-			free(aka);
-			if (msgs.Type == NETMAIL)
-				fprintf(fp, "(Loc Pvt)");
-			else
-				fprintf(fp, "(Loc)");
-			fprintf(fp, " \"%s\"\n", msgs.Origin);
-		}
-		fseek(no, msgshdr.syssize, SEEK_CUR);
-	}
-
-	fclose(no);
+    temp = calloc(PATH_MAX, sizeof(char));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
-	fprintf(fp, "\n");
+	return;
+    }
+
+    fread(&msgshdr, sizeof(msgshdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&msgshdr, msgshdr.hdrsize, 1, no);
+
+    fprintf(fp, "; Message Areas\n;\n");
+    fprintf(fp, "AREASCAN *\n");
+    fprintf(fp, "AREATYPEORDER Net Email Echo News Local\n");
+
+    while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
+
+	i++;
+	if (msgs.Active) {
+	    fprintf(fp, "AREADEF ");
+	    if (strlen(msgs.Tag))
+		fprintf(fp, "%s", msgs.Tag);
+	    else
+		fprintf(fp, "AREA%d", i);
+	    fprintf(fp, " \"%s\" ", msgs.Name);
+	    /*
+	     * Set a default groupid
+	     */
+	    switch (msgs.Type) {
+		case LOCALMAIL	: snprintf(groupid, 13, "O");	break;
+		case NETMAIL	: snprintf(groupid, 13, "N");	break;
+		case ECHOMAIL	: snprintf(groupid, 13, "C");	break;
+		case NEWS	: snprintf(groupid, 13, "I");	break;
+	    }
+	    /*
+	     * Now try to find a real groupid
+	     */
+	    if (((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS)) && strlen(msgs.Group)) {
+		snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+		if ((fil = fopen(temp, "r")) != NULL) {
+		    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
+		    while (fread(&mgroup, mgrouphdr.recsize, 1, fil) == 1) {
+			if (mgroup.Active && !strcmp(msgs.Group, mgroup.Name) && mgroup.GoldEDgroup) {
+			    snprintf(groupid, 13, "%d", mgroup.GoldEDgroup);
+			    break;
+			}
+		    }
+		    fclose(fil);
+		}
+	    }
+	    fprintf(fp, "%s ", groupid);
+
+	    switch (msgs.Type) {
+		case LOCALMAIL	: fprintf(fp, "Local");	break;
+		case NETMAIL	: fprintf(fp, "Net");   break;
+		case ECHOMAIL	: fprintf(fp, "Echo");	break;
+		case NEWS	: fprintf(fp, "News");	break;
+	    }
+	    aka = xstrcpy(strtok(aka2str(msgs.Aka), "@"));
+	    fprintf(fp, " JAM %s %s ", msgs.Base, aka);
+	    free(aka);
+	    if (msgs.Type == NETMAIL)
+		fprintf(fp, "(Loc Pvt)");
+	    else
+		fprintf(fp, "(Loc)");
+	    fprintf(fp, " \"%s\"\n", msgs.Origin);
+	}
+	fseek(no, msgshdr.syssize, SEEK_CUR);
+    }
+
+    fclose(no);
+    free(temp);
+    fprintf(fp, "\n");
 }
 
 	

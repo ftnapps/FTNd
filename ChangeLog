@@ -1,7 +1,10 @@
 $Id$
 
 
-v0.83.16	13-Mar-2006
+v0.83.17	27-Mar-2006
+
+
+v0.83.16	13-Mar-2006 - 27-Mar-2006
 
 	mbfido:
 		If sending crash to a node not in the setup, a default
@@ -9,9 +12,15 @@ v0.83.16	13-Mar-2006
 		Accept unpacket mail for own points.
 		In created ticfiles in advanced seen-by mode, setting the node
 		to 4d will add point numbers to the seen-by lines if needed.
+		When message areas are auto changed, the updated golded.inc
+		file now has the groupid numbers from the groups in echomail
+		or news areas.
 
 	mbsetup:
 		Added setup switch for tic nodes that need a 4d seen-by line.
+		When saving message areas, the golded.inc file now has the
+		groupid numbers from the groups in echomail or news areas.
+		The message groups now handle groupnumbers for golded groups.
 
 
 v0.83.15	05-Mar-2006 - 13-Mar-2006
