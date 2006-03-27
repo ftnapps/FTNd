@@ -7,6 +7,11 @@ v0.83.16	13-Mar-2006
 		If sending crash to a node not in the setup, a default
 		archiver is now set to ZIP.
 		Accept unpacket mail for own points.
+		In created ticfiles in advanced seen-by mode, setting the node
+		to 4d will add point numbers to the seen-by lines if needed.
+
+	mbsetup:
+		Added setup switch for tic nodes that need a 4d seen-by line.
 
 
 v0.83.15	05-Mar-2006 - 13-Mar-2006

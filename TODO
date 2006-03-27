@@ -94,6 +94,8 @@ mbfido:
 
 	W: Someday make retoss from bad possible (volonteers?).
 
+	N: Messages posted via nntp set a AREA:TAG in the messages.
+
 mbcico:
 	L: Implement binkp option ND and NDA.
 

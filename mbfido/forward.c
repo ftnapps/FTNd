@@ -4,7 +4,7 @@
  * Purpose ...............: File forward to a node
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -224,14 +224,23 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		    }
 
 		    if (z != tmp->addr->zone) {
-			subject = xstrcat(subject, ascfnode(tmp->addr, 0x0e));
+			if (nodes.Tic4d)
+			    subject = xstrcat(subject, ascfnode(tmp->addr, 0x0f));
+			else
+			    subject = xstrcat(subject, ascfnode(tmp->addr, 0x0e));
 			z = tmp->addr->zone;
 		    } else { 
 			if (n != tmp->addr->net) {
-			    subject = xstrcat(subject, ascfnode(tmp->addr, 0x06));
+			    if (nodes.Tic4d)
+				subject = xstrcat(subject, ascfnode(tmp->addr, 0x07));
+			    else
+				subject = xstrcat(subject, ascfnode(tmp->addr, 0x06));
 			    n = tmp->addr->net;
 			} else {
-			    subject = xstrcat(subject, ascfnode(tmp->addr, 0x02));
+			    if (nodes.Tic4d)
+				subject = xstrcat(subject, ascfnode(tmp->addr, 0x03));
+			    else
+				subject = xstrcat(subject, ascfnode(tmp->addr, 0x02));
 			}
 		    }
 		}
