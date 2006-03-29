@@ -703,7 +703,10 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
 		p_from = fido2faddr(CFG.aka[i]);
 		if (! in_list(p_from, sbl, TRUE)) {
-		    snprintf(sbe, 24, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
+		    if (CFG.aka[i].point)
+			snprintf(sbe, 24, "%u:%u/%u.%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node, CFG.aka[i].point);
+		    else
+			snprintf(sbe, 24, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
 		    fill_list(sbl, sbe, NULL);
 		}
 		tidy_faddr(p_from);
@@ -715,7 +718,10 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	 */
 	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
 	    if (tmpq->send) {
-		snprintf(sbe, 24, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+		if (CFG.aka[i].point)
+		    snprintf(sbe, 24, "%u:%u/%u.%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node, tmpq->aka.point);
+		else
+		    snprintf(sbe, 24, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
 		fill_list(sbl, sbe, NULL);
 	    }
 	}

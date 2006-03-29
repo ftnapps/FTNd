@@ -3,6 +3,10 @@ $Id$
 
 v0.83.17	27-Mar-2006
 
+	mbfido:
+		Seenby addresses in the internal tables did not store the
+		point numbers.
+
 
 v0.83.16	13-Mar-2006 - 27-Mar-2006
 
