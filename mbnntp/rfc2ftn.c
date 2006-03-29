@@ -4,7 +4,7 @@
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -396,7 +396,6 @@ int rfc2ftn(FILE *fp)
 	    return 1;
 	}
 
-	fprintf(ofp, "AREA:%s\n", msgs.Tag);
 	if ((fmsg->msgid_a == NULL) && (fmsg->msgid_n == 0)) {
 	    Syslog('n', "No Messageid from poster, creating new MSGID");
 	    fprintf(ofp, "\001MSGID: %s %08x\n", aka2str(msgs.Aka), sequencer());

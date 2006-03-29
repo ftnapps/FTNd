@@ -11,6 +11,9 @@ v0.83.17	27-Mar-2006
 	mbsetup:
 		Fixed notation of numbered groups in golded.inc.
 
+	mbnntp:
+		Removed AREA:TAG kludge from posted articles.
+
 
 v0.83.16	13-Mar-2006 - 27-Mar-2006
 
