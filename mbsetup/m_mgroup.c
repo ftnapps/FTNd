@@ -376,7 +376,8 @@ int EditMGrpRec(int Area)
 	show_str( 19,42,12, mgroup.AreaFile);
 
 	show_charset(14,70, mgroup.Charset);
-	show_int( 15, 70,   mgroup.GoldEDgroup);
+	snprintf(temp, 5, "#%03d", mgroup.GoldEDgroup);
+	show_str( 15,70, 5, temp);
 
 	j = select_menu(21);
 	switch(j) {
@@ -738,7 +739,8 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Auto add/del areas", getboolean(mgroup.AutoChange));
 	    add_webtable(wp, (char *)"User add/del areas", getboolean(mgroup.UserChange));
 	    add_webtable(wp, (char *)"Default charset", getftnchrs(mgroup.Charset));
-	    add_webdigit(wp, (char *)"GoldED groupid", mgroup.GoldEDgroup);
+	    snprintf(temp, 5, "#%03d", mgroup.GoldEDgroup);
+	    add_webtable(wp, (char *)"GoldED groupid", temp);
 	    tt = (time_t)mgroup.StartDate;
 	    add_webtable(wp, (char *)"Start area date", ctime(&tt));
 	    tt = (time_t)mgroup.LastDate;
@@ -834,7 +836,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
 	fprintf(fp, "    User add/del areas %s\n", getboolean(mgroup.UserChange));
 	fprintf(fp, "    Default charset    %s\n", getftnchrs(mgroup.Charset));
-	fprintf(fp, "    GoldED groupid     %d\n", mgroup.GoldEDgroup);
+	fprintf(fp, "    GoldED groupid     #%03d\n", mgroup.GoldEDgroup);
 	tt = (time_t)mgroup.StartDate;
 	fprintf(fp, "    Start area date    %s",   ctime(&tt));
 	tt = (time_t)mgroup.LastDate;

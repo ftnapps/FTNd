@@ -406,7 +406,7 @@ void gold_areas(FILE *fp)
 		    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 		    while (fread(&mgroup, mgrouphdr.recsize, 1, fil) == 1) {
 			if (mgroup.Active && !strcmp(msgs.Group, mgroup.Name) && mgroup.GoldEDgroup) {
-			    snprintf(groupid, 13, "%d", mgroup.GoldEDgroup);
+			    snprintf(groupid, 13, "#%03d", mgroup.GoldEDgroup);
 			    break;
 			}
 		    }
