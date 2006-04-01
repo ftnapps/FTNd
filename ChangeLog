@@ -1,7 +1,11 @@
 $Id$
 
+v0.83.18	01-Apr-2006
 
-v0.83.17	27-Mar-2006
+		Seems a good time to prepare for a stable release.
+
+
+v0.83.17	27-Mar-2006 - 01-Apr-2006
 
 	mbfido:
 		Seenby addresses in the internal tables did not store the
