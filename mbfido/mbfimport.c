@@ -43,16 +43,128 @@ extern int	do_annon;		/* Suppress announce files	    */
 extern int	do_novir;		/* Suppress virus scanning	    */
 
 
+void test_file(char *, char *, char *);
+
+
+/*
+ * Test filename in a directory case insensitive.
+ */
+void test_file(char *dirpath, char *search, char *result)
+{
+    DIR		    *dp;
+    struct dirent   *de;
+
+    result[0] = '\0';
+
+    Syslog('f', "test_file(%s, %s)", dirpath, search);
+
+    if ((dp = opendir(dirpath)) == NULL) {
+	WriteError("$Can't open directory %s", dirpath);
+	if (!do_quiet)
+	    printf("\nCan't open directory %s: %s\n", dirpath, strerror(errno));
+	die(MBERR_INIT_ERROR);
+    }
+	
+    while ((de = readdir(dp))) {
+	if (strcasecmp(de->d_name, search) == 0) {
+	    /*
+	     * Found the right file.
+	     */
+	    strncpy(result, de->d_name, 80);
+	    break;
+	}
+    }
+    closedir(dp);
+}
+
+
+
+/*
+ * Return 1 if imported, 0 if error.
+ */
+int flush_file(char *source, char *dest, char *lname, struct FILE_record f_db, int Area)
+{
+    int	    Doit, rc;
+    char    *temp2, *unarc, *tmpdir;
+
+    Syslog('f', "flush_file(%s, %s, %s, %d)", source, dest, lname, Area);
+
+    temp2  = calloc(PATH_MAX, sizeof(char));
+    tmpdir = calloc(PATH_MAX, sizeof(char));
+
+    snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+    Doit = TRUE;
+    if ((unarc = unpacker(source)) == NULL) {
+	Syslog('+', "Unknown archive format %s", source);
+	snprintf(temp2, PATH_MAX, "%s/%s", tmpdir, f_db.Name);
+	if ((rc = file_cp(source, temp2))) {
+	    WriteError("1 Can't copy file to %s, %s", temp2, strerror(rc));
+	    if (!do_quiet)
+		printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
+	    Doit = FALSE;
+	} else {
+	    if (do_novir == FALSE) {
+		if (!do_quiet) {
+		    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+		    fflush(stdout);
+		}
+		if (VirScan(tmpdir)) {
+		    Doit = FALSE;
+		}
+	    }
+	}
+    } else {
+	if (!do_quiet) {
+	    printf("Unpacking \b\b\b\b\b\b\b\b\b\b");
+	    fflush(stdout);
+	}
+	if (UnpackFile(source)) {
+	    if (do_novir == FALSE) {
+		if (!do_quiet) {
+		    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+		    fflush(stdout);
+		}
+		if (VirScan(tmpdir)) {
+		    Doit = FALSE;
+		}
+	    }
+	} else {
+	    Doit = FALSE;
+	}
+    }
+
+    rc = 0;
+    if (Doit) {
+	if (!do_quiet) {
+	    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
+	    fflush(stdout);
+	}
+	if (strcmp(f_db.Name, f_db.LName)) {
+	    if (AddFile(f_db, Area, dest, source, lname)) {
+		rc = 1;
+	    }
+	} else {
+	    if (AddFile(f_db, Area, dest, source, NULL)) {
+		rc = 1;
+	    }
+	}
+    }
+
+    free(temp2);
+    free(tmpdir);
+    return rc;
+}
+
+
+
 void ImportFiles(int Area)
 {
-    char		*pwd, *temp, *fod, *temp2, *tmpdir, *String, *token, *dest, *unarc, *lname;
+    char		*pwd, *temp, *fod, *temp2, *tmpdir, *String, *token, *dest, *lname;
     FILE		*fbbs;
-    DIR			*dp;
-    int			Append = FALSE, Files = 0, rc, i, line = 0, pos, x, y, Doit;
+    int			Append = FALSE, Files = 0, i, line = 0, pos, x, y, Doit;
     int			Imported = 0, Errors = 0, Present = FALSE;
     struct FILE_record  f_db;
     struct stat		statfile;
-    struct dirent	*de;
 
     if (!do_quiet)
 	mbse_colour(CYAN, BLACK);
@@ -113,6 +225,9 @@ void ImportFiles(int Area)
 	    die(MBERR_INIT_ERROR);
 	}
 	
+	/*
+	 * Process files.bbs
+	 */
 	while (fgets(String, 4095, fbbs) != NULL) {
 
 	    /*
@@ -128,76 +243,20 @@ void ImportFiles(int Area)
 	    }
 
 	    /*
-	     * Stop on an empty line
+	     * Skip empty lines.
 	     */
 	    if (strlen(String) == 0)
-		break;
+		continue;
 
 	    if ((String[0] != ' ') && (String[0] != '\t')) {
 		/*
 		 * New file entry, check if there has been a file that is not yet saved.
 		 */
 		if (Append && Present) {
-		    Doit = TRUE;
-		    if ((unarc = unpacker(temp)) == NULL) {
-			Syslog('+', "Unknown archive format %s", temp);
-			snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), f_db.Name);
-			if ((rc = file_cp(temp, temp2))) {
-			    WriteError("1 Can't copy file to %s, %s", temp2, strerror(rc));
-			    if (!do_quiet)
-				printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
-			    Doit = FALSE;
-			} else {
-			    if (do_novir == FALSE) {
-				if (!do_quiet) {
-				    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-				    fflush(stdout);
-				}
-				if (VirScan(tmpdir)) {
-				    Doit = FALSE;
-				}
-			    }
-			}
-		    } else {
-			if (!do_quiet) {
-			    printf("Unpacking \b\b\b\b\b\b\b\b\b\b");
-			    fflush(stdout);
-			}
-			if (UnpackFile(temp)) {
-			    if (do_novir == FALSE) {
-				if (!do_quiet) {
-				    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-				    fflush(stdout);
-				}
-				if (VirScan(tmpdir)) {
-				    Doit = FALSE;
-				}
-			    }
-			} else {
-			    Doit = FALSE;
-			}
-		    }
-		    if (Doit) {
-			if (!do_quiet) {
-			    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
-			    fflush(stdout);
-			}
-			if (strcmp(f_db.Name, f_db.LName)) {
-			    if (AddFile(f_db, Area, dest, temp, lname)) {
-				Imported++;
-			    } else {
-				Errors++;
-			    }
-			} else {
-			    if (AddFile(f_db, Area, dest, temp, NULL)) {
-				Imported++;
-			    } else {
-				Errors++;
-			    }
-			}
-		    } else {
+		    if (flush_file(temp, dest, lname, f_db, Area))
+			Imported++;
+		    else
 			Errors++;
-		    }
 		    Append = FALSE;
 		    Present = FALSE;
 		    line = 0;
@@ -221,27 +280,7 @@ void ImportFiles(int Area)
 		Present = TRUE;
 
 		token = strtok(String, " \t\r\n\0");
-
-		/*
-		 * Test filename against name on disk, first normal case,
-		 * then lowercase and finally uppercase.
-		 */
-		if ((dp = opendir(pwd)) == NULL) {
-		    WriteError("$Can't open directory %s", pwd);
-		    if (!do_quiet)
-			printf("\nCan't open directory %s: %s\n", pwd, strerror(errno));
-		    die(MBERR_INIT_ERROR);
-		}
-		while ((de = readdir(dp))) {
-		    if (strcasecmp(de->d_name, token) == 0) {
-			/*
-			 * Found the right file.
-			 */
-			strncpy(temp2, de->d_name, 80);
-			break;
-		    }
-		}
-		closedir(dp);
+		test_file(pwd, token, temp2);
 
 		if (strlen(temp2) == 0) {
 		    WriteError("Can't find file on disk, skipping: %s", token);
@@ -249,6 +288,7 @@ void ImportFiles(int Area)
 			printf("\nCan't find file on disk, skipping: %s\n", token);
 		    Append = FALSE;
 		    Present = FALSE;
+		    continue;
 		} else {
 		    /*
 		     * Check type of filename and set the right values.
@@ -400,62 +440,10 @@ void ImportFiles(int Area)
 	 * Flush the last file to the database
 	 */
 	if (Append) {
-	    Doit = TRUE;
-	    if ((unarc = unpacker(temp)) == NULL) {
-		Syslog('+', "Unknown archive format %s", temp);
-		snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), f_db.LName);
-		if ((rc = file_cp(temp, temp2))) {
-		    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
-		    Doit = FALSE;
-		} else {
-		    if (do_novir == FALSE) {
-			if (!do_quiet) {
-			    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-			    fflush(stdout);
-			}
-			if (VirScan(tmpdir)) {
-			    Doit = FALSE;
-			}
-		    }
-		}
-	    } else {
-		if (!do_quiet) {
-		    printf("Unpacking \b\b\b\b\b\b\b\b\b\b");
-		    fflush(stdout);
-		}
-		if (UnpackFile(temp)) {
-		    if (do_novir == FALSE) {
-			if (!do_quiet) {
-			    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-			    fflush(stdout);
-			}
-			if (VirScan(tmpdir)) {
-			    Doit = FALSE;
-			}
-		    }
-		} else {
-		    Doit = FALSE;
-		}
-	    }
-	    if (Doit) {
-		if (!do_quiet) {
-		    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
-		    fflush(stdout);
-		}
-		if (strcmp(f_db.Name, f_db.LName)) {
-		    if (AddFile(f_db, Area, dest, temp, lname))
-			Imported++;
-		    else
-			Errors++;
-		} else {
-		    if (AddFile(f_db, Area, dest, temp, NULL))
-			Imported++;
-		    else
-			Errors++;
-		}
-	    } else {
+	    if (flush_file(temp, dest, lname, f_db, Area))
+		Imported++;
+	    else
 		Errors++;
-	    }
 	}
 
 	clean_tmpwork();

@@ -14,6 +14,10 @@ v0.83.17	27-Mar-2006
 	mbnntp:
 		Removed AREA:TAG kludge from posted articles.
 
+	mbfile:
+		Import now skips empty lines in files.bbs.
+		Import now handles properly missing files.
+
 
 v0.83.16	13-Mar-2006 - 27-Mar-2006
 
