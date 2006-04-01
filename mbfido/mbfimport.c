@@ -288,6 +288,7 @@ void ImportFiles(int Area)
 			printf("\nCan't find file on disk, skipping: %s\n", token);
 		    Append = FALSE;
 		    Present = FALSE;
+		    Errors++;
 		    continue;
 		} else {
 		    /*
