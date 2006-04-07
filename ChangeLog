@@ -2,7 +2,9 @@ $Id$
 
 v0.83.18	01-Apr-2006
 
-		Seems a good time to prepare for a stable release.
+	mbselib.a:
+		Fixed parsing the nodelist when IBN:1.2.3.4 returned the IP
+		address 1.2.3.4 with port 1.
 
 
 v0.83.17	27-Mar-2006 - 01-Apr-2006

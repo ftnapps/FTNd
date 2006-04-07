@@ -4,7 +4,7 @@
  * Purpose ...............: Read nodelists information
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -869,7 +869,11 @@ node *getnlent(faddr *addr)
 			*r++;
 			for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
 			    if (strncmp(p, (*tmps)->flag, 3) == 0) {
-				if (atoi(r)) {
+				/*
+				 * Check for format IBN:70.66.52.252 because this is not
+				 * a port number but a dotted IP quad with default port number.
+				 */
+				if ((strchr(r, '.') == NULL) && atoi(r)) {
 				    (*tmps)->tmpport = atoi(r);
 				    Syslog('n', "getnlent: port override %s %d to %d", 
 					    (*tmpm)->name, (*tmps)->defport, (*tmps)->tmpport);
