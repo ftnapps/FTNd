@@ -96,6 +96,8 @@ mbfido:
 
 	N: Messages posted via nntp set a AREA:TAG in the messages.
 
+	W: AreaMgr %rescan should auto connect disconnected areas.
+
 mbcico:
 	L: Implement binkp option ND and NDA.
 
