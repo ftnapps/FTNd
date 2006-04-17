@@ -469,7 +469,6 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
     int		i, rc = 0;
     pid_t	pid = 0;
 
-    Syslog('r', "launch() entered");
     if (checktasks(0) >= MAXTASKS) {
 	Syslog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
 	return 0;
@@ -491,8 +490,6 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	return 0;
     }
 
-    Syslog('r', "launch() step 2");
-
     switch (pid = fork()) {
 	case -1:
 		WriteError("$Launch: error, can't fork grandchild");
@@ -504,7 +501,6 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		 */
 		msleep(150);
 
-		Syslog('r', "launch() step 3");
 		/* From Paul Vixies cron: */
 		rc = setsid(); /* It doesn't seem to help */
 		if (rc == -1)
@@ -526,7 +522,6 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
-		Syslog('r', "launch() step 4");
 		rc = execv(vector[0],vector);
 		Syslog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
 		_exit(MBERR_EXEC_FAILED);
@@ -535,7 +530,6 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		break;
     }
 
-    Syslog('r', "launch() step 5");
     /*
      *  Add it to the tasklist.
      */
@@ -709,7 +703,7 @@ int checktasks(int onsig)
  */
 void start_shutdown(int onsig)
 {
-    Syslog('s', "Trigger shutdown on signal %s", SigName[onsig]);
+    Syslog('+', "Trigger shutdown on signal %s", SigName[onsig]);
     signal(onsig, SIG_IGN);
     G_Shutdown = TRUE;
 }
@@ -1141,7 +1135,6 @@ void scheduler(void)
 	pfd[2].revents = 0;
 
 	rc = poll(pfd, 3, 1000);
-//	Syslog('s', "poll() rc=%d", rc);
         if (rc == -1) {
 	    /* 
 	     *  Poll can be interrupted by a finished child so that's not a real error.

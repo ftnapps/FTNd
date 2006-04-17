@@ -6,6 +6,9 @@ v0.83.18	01-Apr-2006
 		Fixed parsing the nodelist when IBN:1.2.3.4 returned the IP
 		address 1.2.3.4 with port 1.
 
+	mbtask:
+		Removed some debug logging.
+
 
 v0.83.17	27-Mar-2006 - 01-Apr-2006
 
