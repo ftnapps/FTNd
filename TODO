@@ -31,6 +31,11 @@ install:
 	L: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf. Is this still a problem?
 
+	N: In latest Gentoo distro's with make install the LOGNAME variable is
+	   changed to root. It seems that 'who am i' gives the right username.
+	   Rewrite the checks to make the install script work again on these
+	   systems.
+
 mbsebbs:
 	W: OLR, implement file requests.
 
