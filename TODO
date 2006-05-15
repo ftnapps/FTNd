@@ -99,8 +99,6 @@ mbfido:
 
 	W: Someday make retoss from bad possible (volonteers?).
 
-	N: Messages posted via nntp set a AREA:TAG in the messages.
-
 	W: AreaMgr %rescan should auto connect disconnected areas.
 
 mbcico:
