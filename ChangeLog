@@ -11,6 +11,10 @@ v0.83.18	01-Apr-2006
 		Fixed a small bug.
 		Code cleanup.
 
+	mbsebbs:
+		Fixed logging of wrong file after upload.
+
+
 
 v0.83.17	27-Mar-2006 - 01-Apr-2006
 

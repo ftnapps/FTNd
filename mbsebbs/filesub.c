@@ -1015,9 +1015,11 @@ int Addfile(char *File, int AreaNum, int fileid)
 		free(Desc[i]);
 	}
 
-	mbsedb_InsertFDB(fdb_area, fdb, area.AddAlpha);
-	mbsedb_CloseFDB(fdb_area);
 
+	/*
+	 * Log upload before adding to the filebase, after insert the fdb record
+	 * is overwritten.
+	 */
 	snprintf(temp, PATH_MAX, "%s/log/uploads.log", getenv("MBSE_ROOT"));
 	if ((pPrivate = fopen(temp, "a+")) == NULL)
 	    WriteError("$Can't open %s", temp);
@@ -1034,6 +1036,9 @@ int Addfile(char *File, int AreaNum, int fileid)
 
 	    fclose(pPrivate);
 	}
+
+	mbsedb_InsertFDB(fdb_area, fdb, area.AddAlpha);
+	mbsedb_CloseFDB(fdb_area);
 
 	Enter(1);
 	/* Your upload time has been returned to you. Thank you for your upload! */
