@@ -430,16 +430,17 @@ void sem_status_r(char *data, char *buf)
 
 void sem_create_r(char *data, char *buf)
 {
-    char    	*cnt, *sem;
+    char   *sem;
 
-    cnt = strtok(data, ",");
-    sem = strtok(NULL, ";");
+    strtok(data, ",");
+    sem = xstrcpy(strtok(NULL, ";"));
 
     if (sem_set(sem, TRUE))
 	snprintf(buf, 40, "100:0;");
     else
 	snprintf(buf, 40, "200:1,16;");
 
+    free(sem);
     return;
 }
 
@@ -447,16 +448,17 @@ void sem_create_r(char *data, char *buf)
 
 void sem_remove_r(char *data, char *buf)
 {
-    char    	*cnt, *sem;
+    char    *sem;
 
-    cnt = strtok(data, ",");
-    sem = strtok(NULL, ";");
+    strtok(data, ",");
+    sem = xstrcpy(strtok(NULL, ";"));
 
     if (sem_set(sem, FALSE))
 	snprintf(buf, 40, "100:0;");
     else
 	snprintf(buf, 40, "200:1,16;");
 
+    free(sem);
     return;
 }
 

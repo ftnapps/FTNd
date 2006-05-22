@@ -1778,7 +1778,7 @@ void ibc_receiver(char *crbuf)
     }
 
     /*
-     * First check fr a fixed IP address.
+     * First check for a fixed IP address.
      */
     inlist = FALSE;
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {

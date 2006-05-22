@@ -47,17 +47,17 @@ int			ipmailers = 0;		/* TCP/IP mail sessions	*/
  *
  * Search for a pid.
  */
-int reg_find(char *);
-int reg_find(char *pids)
+int reg_find(pid_t);
+int reg_find(pid_t pids)
 {
     int	i;
 
     for (i = 0; i < MAXCLIENT; i++) {
-	if ((int)reginfo[i].pid == atoi(pids))
+	if (reginfo[i].pid == pids)
 	    return i;
     }
 
-    Syslog('?', "Panic, pid %s not found", pids);
+    WriteError("Panic, pid %d not found", (int)pids);
     return -1;
 }
 
@@ -70,12 +70,13 @@ int reg_find(char *pids)
 
 int reg_newcon(char *data)
 {
-    char    *cnt, *pid, *tty, *uid, *prg, *city;
+    char    *tty, *uid, *prg, *city;
     int	    retval;
+    pid_t   pid;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ",");
-    tty = strtok(NULL, ",");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ","));
+    tty = xstrcpy(strtok(NULL, ","));
     uid = xstrcpy(cldecode(strtok(NULL, ",")));
     prg = xstrcpy(cldecode(strtok(NULL, ",")));
     city = xstrcpy(cldecode(strtok(NULL, ";")));
@@ -83,39 +84,38 @@ int reg_newcon(char *data)
     /*
      * Abort if no empty record is found 
      */
-    if ((retval = reg_find((char *)"0")) == -1) {
+    if ((retval = reg_find((pid_t)0)) == -1) {
 	Syslog('?', "Maximum clients (%d) reached", MAXCLIENT);
-	free(uid);
-	free(prg);
-	free(city);
-	return -1;
+	retval = -1;
+    } else {
+	memset((char *)&reginfo[retval], 0, sizeof(reg_info));
+	reginfo[retval].pid = pid;
+	strncpy((char *)&reginfo[retval].tty, tty, 6);
+	strncpy((char *)&reginfo[retval].uname, uid, 35);
+	strncpy((char *)&reginfo[retval].prg, prg, 14); 
+	strncpy((char *)&reginfo[retval].city, city, 35);
+	strcpy((char *)&reginfo[retval].doing, "-"); 
+	reginfo[retval].started = (int)time(NULL); 
+	reginfo[retval].lastcon = (int)time(NULL);
+	reginfo[retval].altime = 600;
+
+	/*
+	 * Everyone says do not disturb, unless the flag
+	 * is cleared by the owner of this process.
+	 */
+	reginfo[retval].silent = 1;
+
+	stat_inc_clients();
+	if (strcmp(prg, (char *)"mbcico") == 0)
+	    mailers++;
+	Syslog('-', "Registered client pgm \"%s\", pid %d, slot %d, mailers %d, TCP/IP %d", 
+		prg, (int)pid, retval, mailers, ipmailers);
     }
 
-    memset((char *)&reginfo[retval], 0, sizeof(reg_info));
-    reginfo[retval].pid = atoi(pid);
-    strncpy((char *)&reginfo[retval].tty, tty, 6);
-    strncpy((char *)&reginfo[retval].uname, uid, 35);
-    strncpy((char *)&reginfo[retval].prg, prg, 14); 
-    strncpy((char *)&reginfo[retval].city, city, 35);
-    strcpy((char *)&reginfo[retval].doing, "-"); 
-    reginfo[retval].started = (int)time(NULL); 
-    reginfo[retval].lastcon = (int)time(NULL);
-    reginfo[retval].altime = 600;
-
-    /*
-     * Everyone says do not disturb, unless the flag
-     * is cleared by the owner of this process.
-     */
-    reginfo[retval].silent = 1;
-
-    stat_inc_clients();
-    if (strcmp(prg, (char *)"mbcico") == 0)
-	mailers++;
-    Syslog('-', "Registered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
-		prg, pid, retval, mailers, ipmailers);
     free(uid);
     free(prg);
     free(city);
+    free(tty);
     return retval;
 }
 
@@ -123,23 +123,24 @@ int reg_newcon(char *data)
 
 int reg_closecon(char *data)
 {
-    char    *cnt, *pid;
+    pid_t   pid;
     int	    rec;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ";");
-    if ((rec = reg_find(pid)) == -1)
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
+    if ((rec = reg_find(pid)) == -1) {
 	return -1;
+    }
 
     if (strcmp(reginfo[rec].prg, (char *)"mbcico") == 0)
 	mailers--;
     if (reginfo[rec].istcp)
 	ipmailers--;
     if ((strcmp(reginfo[rec].prg, (char *)"mbsebbs") == 0) || (strcmp(reginfo[rec].prg, (char *)"mbmon") == 0))
-	chat_cleanuser(atoi(pid));
+	chat_cleanuser(pid);
 
-    Syslog('-', "Unregistered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
-		reginfo[rec].prg, pid, rec, mailers, ipmailers);
+    Syslog('-', "Unregistered client pgm \"%s\", pid %d, slot %d, mailers %d, TCP/IP %d", 
+		reginfo[rec].prg, (int)pid, rec, mailers, ipmailers);
     memset(&reginfo[rec], 0, sizeof(reg_info)); 
     stat_dec_clients();
     return 0;
@@ -202,11 +203,12 @@ void reg_check(void)
  */
 int reg_doing(char *data)
 {
-    char    *cnt, *pid, *line;
+    char    *line;
     int	    rec;
+    pid_t   pid;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ",");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ","));
     line = xstrcpy(cldecode(strtok(NULL, ";")));
 
     if ((rec = reg_find(pid)) == -1) {
@@ -227,19 +229,20 @@ int reg_doing(char *data)
  */
 int reg_ip(char *data)
 {
-    char    *cnt, *pid;
+    pid_t   pid;
     int	    rec;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ";");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
 
-    if ((rec = reg_find(pid)) == -1)
+    if ((rec = reg_find(pid)) == -1) {
 	return -1;
+    }
 
     reginfo[rec].istcp = TRUE;
     reginfo[rec].lastcon = (int)time(NULL);
     ipmailers++;
-    Syslog('?', "TCP/IP session registered (%s), now %d sessions", pid, ipmailers);
+    Syslog('?', "TCP/IP session registered (%d), now %d sessions", (int)pid, ipmailers);
     return 0;
 }
 
@@ -250,14 +253,16 @@ int reg_ip(char *data)
  */
 int reg_nop(char *data)
 {
-    char    *cnt, *pid;
+    pid_t   pid;
     int	    rec;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ";");
-    if ((rec = reg_find(pid)) == -1)
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
+    
+    if ((rec = reg_find(pid)) == -1) {
 	return -1;
-
+    }
+    
     reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
@@ -269,30 +274,31 @@ int reg_nop(char *data)
  */
 int reg_timer(int Set, char *data)
 {
-    char    *pid;
+    pid_t   pid;
     int	    cnt, rec, val;
 
     cnt = atoi(strtok(data, ","));
     if (Set) {
 	if (cnt != 2)
 	    return -1;
-	pid = strtok(NULL, ",");
+	pid = (pid_t)atoi(strtok(NULL, ","));
 	val = atoi(strtok(NULL, ";"));
 	if (val < 600)
 	    val = 600;
     } else {
 	if (cnt != 1)
 	    return -1;
-	pid = strtok(NULL, ";");
+	pid = (pid_t)atoi(strtok(NULL, ";"));
 	val = 600;
     }
 
-    if ((rec = reg_find(pid)) == -1)
+    if ((rec = reg_find(pid)) == -1) {
 	return -1;
+    }
 
     reginfo[rec].altime = val;
     reginfo[rec].lastcon = (int)time(NULL);
-    Syslog('r', "Set timeout value for %d to %d", reginfo[rec].pid, val);
+    Syslog('r', "Set timeout value for %d to %d", (int)pid, val);
     return 0;
 }
 
@@ -303,18 +309,22 @@ int reg_timer(int Set, char *data)
  */
 int reg_tty(char *data)
 {
-    char    *cnt, *pid, *tty;
+    char    *tty;
     int	    rec;
+    pid_t   pid;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ",");
-    tty = strtok(NULL, ";");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ","));
+    tty = xstrcpy(strtok(NULL, ";"));
 
-    if ((rec = reg_find(pid)) == -1)
+    if ((rec = reg_find(pid)) == -1) {
+	free(tty);
 	return -1;
-
+    }
+    
     strncpy((char *)&reginfo[rec].tty, tty, 6);
     reginfo[rec].lastcon = (int)time(NULL);
+    free(tty);
     return 0;
 }
 
@@ -325,17 +335,18 @@ int reg_tty(char *data)
  */
 int reg_silent(char *data)
 {
-    char    *cnt, *pid, *line;
-    int	    rec;
+    int	    rec, line;
+    pid_t   pid;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ",");
-    line = strtok(NULL, ";");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ","));
+    line = atoi(strtok(NULL, ";"));
 
-    if ((rec = reg_find(pid)) == -1)
+    if ((rec = reg_find(pid)) == -1) {
 	return -1;
-
-    reginfo[rec].silent = atoi(line);
+    }
+    
+    reginfo[rec].silent = line;
     reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
@@ -347,11 +358,12 @@ int reg_silent(char *data)
  */
 int reg_user(char *data)
 {
-    char    *cnt, *pid, *user, *city;
+    char    *user, *city;
     int	    rec;
+    pid_t   pid;
 
-    cnt  = strtok(data, ",");
-    pid  = strtok(NULL, ",");
+    strtok(data, ",");
+    pid  = (pid_t)atoi(strtok(NULL, ","));
     user = xstrcpy(cldecode(strtok(NULL, ",")));
     city = xstrcpy(cldecode(strtok(NULL, ";")));
 
@@ -376,11 +388,11 @@ int reg_user(char *data)
  */
 int reg_sysop(char *data)
 {
-    char    *cnt, *pid;
+    pid_t   pid;
     int	    rec;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ",");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ","));
     sysop_present = atoi(strtok(NULL, ";"));
  
     if ((rec = reg_find(pid)) != -1) {
@@ -398,13 +410,14 @@ int reg_sysop(char *data)
  */
 void reg_ipm_r(char *data, char *buf)
 {
-    char	*cnt, *pid, *name, *msg;
-    int		rec;
+    char    *name, *msg;
+    int	    rec;
+    pid_t   pid;
 
     buf[0] = '\0';
     snprintf(buf, SS_BUFSIZE, "100:0;");
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ";");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
 
     if ((rec = reg_find(pid)) == -1)
 	return;
@@ -437,10 +450,10 @@ void reg_ipm_r(char *data, char *buf)
  */
 int reg_spm(char *data)
 {
-    char    *cnt, *from, *too, *txt, *logm;
+    char    *from, *too, *txt, *logm;
     int	    i;
 
-    cnt  = strtok(data, ",");
+    strtok(data, ",");
     from = xstrcpy(cldecode(strtok(NULL, ",")));
     too  = xstrcpy(cldecode(strtok(NULL, ",")));
     txt  = xstrcpy(cldecode(strtok(NULL, ";")));
@@ -588,14 +601,15 @@ void get_reginfo_r(int first, char *buf)
  */
 int reg_page(char *data)
 {
-    char    *cnt, *pid, *reason;
+    char    *reason;
     int     i, rec;
-	        
-    cnt    = strtok(data, ",");
-    pid    = strtok(NULL, ",");
+    pid_t   pid;
+
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ","));
     reason = xstrcpy(cldecode(strtok(NULL, ";")));
 
-    Syslog('+', "reg_page: pid=%d, reason=\"%s\"", pid, reason);
+    Syslog('+', "reg_page: pid=%d, reason=\"%s\"", (int)pid, reason);
 
     if (!sysop_present) {
 	free(reason);
@@ -607,7 +621,7 @@ int reg_page(char *data)
      * If so, mark sysop busy.
      */
     for (i = 1; i < MAXCLIENT; i++) {
-	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].paging || reginfo[i].haspaged)) {
+	if (reginfo[i].pid && (reginfo[i].pid != pid) && (reginfo[i].paging || reginfo[i].haspaged)) {
 	    free(reason);
 	    return 1;
 	}
@@ -634,13 +648,13 @@ int reg_page(char *data)
  */
 int reg_cancel(char *data)
 {
-    char    *cnt, *pid;
+    pid_t   pid;
     int     rec;
 
-    cnt = strtok(data, ",");
-    pid = strtok(NULL, ";");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
 
-    Syslog('+', "reg_cancel: pid=%s", pid);
+    Syslog('+', "reg_cancel: pid=%d", (int)pid);
 
     if ((rec = reg_find(pid)) == -1)
 	return -1;
@@ -649,6 +663,7 @@ int reg_cancel(char *data)
 	reginfo[rec].paging = FALSE;
 	reginfo[rec].haspaged = TRUE;
     }
+
     reginfo[rec].lastcon = (int)time(NULL);
     return 0;
 }
@@ -681,7 +696,7 @@ void reg_checkpage_r(char *data, char *buf)
 /*
  * Check if this user has paged or is paging
  */
-int reg_ispaging(char *pid)
+int reg_ispaging(pid_t pid)
 {
     int	    rec;
     
@@ -696,7 +711,7 @@ int reg_ispaging(char *pid)
 /*
  * Mark that this user is now talking to the sysop
  */
-void reg_sysoptalk(char *pid)
+void reg_sysoptalk(pid_t pid)
 {
     int	    rec;
 

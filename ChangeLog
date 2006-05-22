@@ -8,6 +8,8 @@ v0.83.18	01-Apr-2006
 
 	mbtask:
 		Removed some debug logging.
+		Fixed a small bug.
+		Code cleanup.
 
 
 v0.83.17	27-Mar-2006 - 01-Apr-2006

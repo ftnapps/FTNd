@@ -242,14 +242,13 @@ void checkdir(char *boxpath, faddr *fa, char flavor)
 
 
 /*
- * Scan outbound, the call status is set in three counters: internet,
- * ISDN and POTS (analogue modems).
+ * Scan outbound, the call status is set in three counters: internet, ISDN and POTS (analogue modems).
  * For all systems the CM and Txx flags are checked and for official
- * FidoNet nodes the Zone Mail Hour wich belongs to the destination
- * zone.
- * All nodes are qualified, if there is a way to call them or not on
- * this moment.
+ * FidoNet nodes the Zone Mail Hour wich belongs to the destination zone.
+ * All nodes are qualified if there is a way to call them or not on this moment.
  * The method how to call a node is decided as well.
+ *
+ * On success, return 0.
  */
 int outstat()
 {

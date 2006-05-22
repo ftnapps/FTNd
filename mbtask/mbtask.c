@@ -1097,7 +1097,7 @@ void scheduler(void)
     struct passwd	*pw;
     int			rlen, rc, running = 0, i, found, call_work = 0, len;
     static int		LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70, call_entry = MAXTASKS;
-    char		*cmd = NULL, opts[41], port[21], crbuf[512];
+    char		*cmd = NULL, *opts, port[21], crbuf[512];
     static char		doing[32], buf[2048];
     time_t		now;
     struct tm		tm, utm;
@@ -1110,7 +1110,7 @@ void scheduler(void)
     socklen_t		sl;
     struct sockaddr_in	ffrom;
 
-    Syslog('+', "Starting scheduler thread");
+    Syslog('+', "Starting scheduler loop");
     pw = getpwuid(getuid());
 
     /*
@@ -1120,7 +1120,7 @@ void scheduler(void)
 	/*
 	 * Poll UNIX Datagram socket and IBC UDP socket until the defined 
 	 * timeout of one second.
-	 * This means we listen of a MBSE BBS client program has something
+	 * This means we listen if a MBSE BBS client program has something
 	 * to tell. Timeout is one second, after the timeout the rest of the
 	 * mainloop is executed.
 	 */
@@ -1146,19 +1146,22 @@ void scheduler(void)
         } else if (rc) {
 	    if (pfd[0].revents & POLLIN) {
 		/*
-		 * Process the clients request
+		 * Process the clients request for mbtask commands.
 		 */
 		memset(&buf, 0, sizeof(buf));
 		fromlen = sizeof(from);
 		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, (struct sockaddr *)&from, &fromlen);
 		if (rlen == -1) {
-		    Syslog('?', "$recvfrom() for command receiver");
+		    WriteError("$recvfrom() for command receiver");
 		} else {
 		    do_cmd(buf);
 		}
 	    } 
 	    if ((pfd[1].revents & POLLIN || pfd[1].revents & POLLERR || 
 		 pfd[1].revents & POLLHUP || pfd[1].revents & POLLNVAL) && Run_IBC) {
+		/*
+		 * IBC chat command received.
+		 */
 		sl = sizeof(myaddr_in);
 		memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
 		memset(&crbuf, 0, sizeof(crbuf));
@@ -1169,6 +1172,9 @@ void scheduler(void)
 		}
 	    }
 	    if (pfd[2].revents & POLLIN || pfd[2].revents & POLLERR || pfd[2].revents & POLLHUP || pfd[2].revents & POLLNVAL) {
+		/*
+		 * Ping reply received.
+		 */
 		sl = sizeof(ffrom);
 		if ((len = recvfrom(ping_isocket, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
 		    ping_receive(buf, len);
@@ -1490,6 +1496,7 @@ void scheduler(void)
 			    default:	    port[0] = '\0';
 					    break;
 			}
+			opts = calloc(41, sizeof(char));
 			if (calllist[call_entry].addr.point) {
 			    snprintf(opts, 41, "%sp%u.f%u.n%u.z%u.%s", port, calllist[call_entry].addr.point, 
 				    calllist[call_entry].addr.node, calllist[call_entry].addr.net, 
@@ -1504,6 +1511,7 @@ void scheduler(void)
 			    calllist[call_entry].calling = TRUE;
 			running = checktasks(0);
 			rescan = TRUE;
+			free(opts);
 			free(cmd);
 			cmd = NULL;
 		    }
@@ -1703,7 +1711,7 @@ int main(int argc, char **argv)
     }
 
     /*
-     *  Not reached
+     *  Not reached in daemon mode.
      */
     return 0;
 }

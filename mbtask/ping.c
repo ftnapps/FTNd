@@ -316,13 +316,11 @@ void init_pingsocket(void)
  */
 void check_ping(void)
 {
-    int		    rc = 0;
-    time_t	    now;
+    int	    rc = 0;
+    time_t  now;
 
-//    Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
     now = time(NULL);
     if ((int)now >= (int)ping_next) {
-//	Syslog('p', "Ping: time for next");
 	/*
 	 * Was previous ping received?
 	 */
@@ -349,27 +347,22 @@ void check_ping(void)
 	    }
 	}
 
-//	Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
-
 	ping_next = (time_t)(now + 20);
 
 	if (inet_aton(pingaddress, &paddr)) {
 	    pingresult[pingnr - 1] = FALSE;
 	    rc = ping_send(paddr);
-//	    Syslog('p', "Ping: %d sent to %s rc=%d", pingnr, pingaddress, rc);
 	    if (rc) {
 		if (icmp_errs++ < ICMP_MAX_ERRS)
 		    Syslog('?', "ping: to %s rc=%d", pingaddress, rc);
 	    } else {
 		ping_sent = now;
 		pingresult[pingnr - 1] = FALSE;
-//		Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
 		return; // Don't check right after send
 	    }
 	}
     }
 
-//    Syslog('p', "Ping: 1=%s 2=%s nr=%d", pingresult[0] ? "TRUE":"FALSE", pingresult[1] ? "TRUE":"FALSE", pingnr);
     /* 
      *  Evaluate the result of the ping test
      */

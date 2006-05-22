@@ -54,8 +54,8 @@ int	reg_sysop(char *);		    /* Registrate sysop presence    */
 int	reg_page(char *);		    /* Page sysop for chat	    */
 int	reg_cancel(char *);		    /* Cancel sysop page	    */
 void	reg_checkpage_r(char *, char *);    /* Check paging status	    */
-int	reg_ispaging(char *);		    /* Check if user with pid paged */
-void	reg_sysoptalk(char *);		    /* Is now talking to the sysop  */
+int	reg_ispaging(pid_t);		    /* Check if user with pid paged */
+void	reg_sysoptalk(pid_t);		    /* Is now talking to the sysop  */
 
 #endif
 

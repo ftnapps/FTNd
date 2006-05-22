@@ -395,10 +395,11 @@ void chat_msg(char *channel, char *nick, char *msg)
  */
 void chat_connect_r(char *data, char *buf)
 {
-    char	*pid, *realname, *nick, *temp;
+    char	*realname, *nick, *temp;
     int		count = 0, sys = FALSE;
     srv_list	*sl;
     usr_list	*tmpu;
+    pid_t	pid;
 
     Syslog('c', "CCON:%s", data);
 
@@ -420,8 +421,8 @@ void chat_connect_r(char *data, char *buf)
     /*
      * Register with IBC
      */
-    pid = strtok(data, ",");			    /* Should be 3  */
-    pid = strtok(NULL, ",");			    /* The pid      */
+    strtok(data, ",");				    /* Should be 3  */
+    pid = (pid_t)atoi(strtok(NULL, ","));	    /* The pid      */
     realname = xstrcpy(cldecode(strtok(NULL, ",")));/* Username     */
     nick = xstrcpy(cldecode(strtok(NULL, ",")));    /* Nickname     */
     sys = atoi(strtok(NULL, ";"));		    /* Sysop flag   */
@@ -437,7 +438,7 @@ void chat_connect_r(char *data, char *buf)
 	    /*
 	     * Oke, found
 	     */
-	    tmpu->pid = atoi(pid);
+	    tmpu->pid = pid;
 	    tmpu->pointer = buffer_head;
 	    tmpu->sysop = sys;
 	    usrchg = TRUE;
@@ -479,27 +480,27 @@ void chat_connect_r(char *data, char *buf)
 
 void chat_close_r(char *data, char *buf)
 {
-    char	*pid;
+    pid_t	pid;
     usr_list	*tmpu;
 
     Syslog('c', "CCLO:%s", data);
-    pid = strtok(data, ",");
-    pid = strtok(NULL, ";");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
  
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if (tmpu->pid == atoi(pid)) {
+	if (tmpu->pid == pid) {
 	    /*
 	     * Remove from IBC network
 	     */
 	    send_at((char *)"QUIT", tmpu->name, (char *)"Leaving chat");
 	    del_user(&users, CFG.myfqdn, tmpu->name);
-	    Syslog('c', "Closing chat for pid %s", pid);
+	    Syslog('c', "Closing chat for pid %d", (int)pid);
 	    snprintf(buf, 81, "100:0;");
 	    return;
 	}
     }
 
-    Syslog('c', "Pid %s was not connected to chatserver");
+    Syslog('c', "Pid %d was not connected to chatserver", (int)pid);
     snprintf(buf, 81, "100:1,*** ERROR - Not connected to server;");
     return;
 }
@@ -508,10 +509,11 @@ void chat_close_r(char *data, char *buf)
 
 void chat_put_r(char *data, char *buf)
 {
-    char	*p, *q, *pid, *msg, *cmd, *mbuf, *flags, temp[81];
+    char	*p, *q, *msg, *cmd, *mbuf, *flags, temp[81];
     int		first, count, owner = FALSE, found;
     usr_list	*tmpu, *tmp;
     chn_list	*tmpc;
+    pid_t	pid;
 
     if (IsSema((char *)"upsalarm")) {
 	snprintf(buf, 81, "100:2,1,*** Power alarm, running on UPS;");
@@ -523,13 +525,13 @@ void chat_put_r(char *data, char *buf)
 	return;
     }
 	
-    pid = strtok(data, ",");
-    pid = strtok(NULL, ",");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ","));
     msg = xstrcpy(cldecode(strtok(NULL, ";")));
     mbuf = calloc(200, sizeof(char));
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if (tmpu->pid == atoi(pid)) {
+	if (tmpu->pid == pid) {
 	    if (msg[0] == '/') {
 		/*
 		 * A command, process this but first se if we are in a channel
@@ -545,7 +547,7 @@ void chat_put_r(char *data, char *buf)
 		    Syslog('c', "IBC: process command, in channel %s and we are %sthe owner", tmpu->channel, owner ? "":"not ");
 		}
 		if (strncasecmp(msg, "/help", 5) == 0) {
-		    chat_help(atoi(pid), owner);
+		    chat_help(pid, owner);
 		    goto ack;
 		} else if (strncasecmp(msg, "/echo", 5) == 0) {
 		    snprintf(mbuf, 200, "%s", msg);
@@ -777,8 +779,9 @@ hangup:
  */
 void chat_get_r(char *data, char *buf)
 {
-    char	*pid, *p;
+    char	*p;
     usr_list	*tmpu;
+    pid_t	pid;
 
     if (IsSema((char *)"upsalarm")) {
 	snprintf(buf, 200, "100:2,1,*** Power failure, running on UPS;");
@@ -790,11 +793,11 @@ void chat_get_r(char *data, char *buf)
 	return;
     }
 
-    pid = strtok(data, ",");
-    pid = strtok(NULL, ";");
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
 
     for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if (atoi(pid) == tmpu->pid) {
+	if (pid == tmpu->pid) {
 	    while (tmpu->pointer != buffer_head) {
 		if (tmpu->pointer < MAXMESSAGES)
 		    tmpu->pointer++;
@@ -827,12 +830,11 @@ void chat_get_r(char *data, char *buf)
  */
 void chat_checksysop_r(char *data, char *buf)
 {
-    char	*pid;
+    pid_t	pid;
     usr_list	*tmpu;
-
-    pid = strtok(data, ",");
-    pid = strtok(NULL, ";");
-
+    
+    strtok(data, ",");
+    pid = (pid_t)atoi(strtok(NULL, ";"));
 
     if (reg_ispaging(pid)) {
 	Syslog('c', "Check sysopchat for pid %s, user has paged", pid);
@@ -841,7 +843,7 @@ void chat_checksysop_r(char *data, char *buf)
          * Now check if sysop is present in the sysop channel
          */
         for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	    if (atoi(pid) != tmpu->pid) {
+	    if (pid != tmpu->pid) {
 	        if (strlen(tmpu->channel) && (strcasecmp(tmpu->channel, "#sysop") == 0) && tmpu->sysop) {
 		    Syslog('c', "Sending ACK on check");
 		    snprintf(buf, 20, "100:1,1;");

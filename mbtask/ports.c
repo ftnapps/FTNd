@@ -113,7 +113,7 @@ void load_ports()
     FILE	    *fp;
     pp_list	    new;
     int		    stdflag;
-    char	    *p, *q, *capflags;
+    char	    *p, *q, *capflags = NULL;
     nodelist_modem  **tmpm;
     
     tidy_portlist(&pl);
@@ -165,12 +165,14 @@ void load_ports()
 	    fill_portlist(&pl, &new);
 	    if (capflags)
 		free(capflags);
+	    capflags = NULL;
 	}
     }
 
     fclose(fp);
     tty_time = file_time(ttyfn);
-    Syslog('+', "Detected %d modem port%s and %d ISDN port%s", 
+    if (pots_lines || isdn_lines)
+	Syslog('+', "Detected %d modem port%s and %d ISDN port%s", 
 		    pots_lines, (pots_lines == 1)?"":"s", isdn_lines, (isdn_lines == 1)?"":"s");
 }
 

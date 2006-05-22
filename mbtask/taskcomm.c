@@ -61,8 +61,8 @@ int userlog(char *param)
     int		rc;
 
     lfn[0] = '\0';
-    strcpy(token, strtok(param, ","));
-    strcpy(token, strtok(NULL, ","));
+    strncpy(token, strtok(param, ","), 14);
+    strncpy(token, strtok(NULL, ","), 14);
     snprintf(lfn, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), token);
     prname = strtok(NULL, ",");
     prpid  = strtok(NULL, ",");
@@ -90,18 +90,18 @@ char *exe_cmd(char *in)
     int		result;
     char	*buf;
 
-    strcpy(ibuf, in);
+    strncpy(ibuf, in, SS_BUFSIZE);
     strncpy(cmd, ibuf, 4);
-    token[0] = '\0';
-    strcpy(ebuf, "200:1,Syntax error;");
+//    token[0] = '\0';
+    strncpy(ebuf, "200:1,Syntax error;", 19);
 
     /*
      * Split the commandline after the colon so we can give the
      * options directly to the actual functions. Also set a default
      * and most used answer.
      */
-    strcpy(token, &ibuf[5]);
-    strcpy(obuf, "100:0;");
+    strncpy(token, &ibuf[5], SS_BUFSIZE);
+    strncpy(obuf, "100:0;", SS_BUFSIZE);
 
 
     /*
@@ -496,13 +496,13 @@ char *exe_cmd(char *in)
      *  GDST:0;		Obsolete!
      *  100:n,data1,..,data10;
      */
-    if (strncmp(cmd, "GDST", 4) == 0) {
-        buf = calloc(SS_BUFSIZE, sizeof(char));
-	disk_getfs_r(buf);
-	snprintf(obuf, SS_BUFSIZE, "%s", buf);
-	free(buf);
-	return obuf;
-    }
+//    if (strncmp(cmd, "GDST", 4) == 0) {
+//        buf = calloc(SS_BUFSIZE, sizeof(char));
+//	disk_getfs_r(buf);
+//	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+//	free(buf);
+//	return obuf;
+//    }
 
     /*
      *  GSYS:0;

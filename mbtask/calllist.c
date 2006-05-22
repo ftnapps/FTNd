@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - calllist
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -56,11 +56,12 @@ extern struct taskrec	TCFG;
 
 
 /*
- * Check the actual list of nodes to call.
+ * Check the actual list of nodes to call. 
+ * Returns number of systems to call.
  */
 int check_calllist(void)
 {
-    int		    i, found, call_work;
+    int		    i, found, call_work = 0;
     struct _alist   *tmp;
     char	    *buf;
 
@@ -88,7 +89,6 @@ int check_calllist(void)
     }
 
     if (pots_calls || isdn_calls || inet_calls) {
-	call_work = 0;
 	for (tmp = alist; tmp; tmp = tmp->next) {
 	    if ((((tmp->callmode == CM_INET) && TCFG.max_tcp && internet) ||
 		 ((tmp->callmode == CM_ISDN) && isdn_lines) || ((tmp->callmode == CM_POTS) && pots_lines)) &&
