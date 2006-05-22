@@ -491,7 +491,6 @@ void diskwatch(void)
         temp = calloc(PATH_MAX, sizeof(char ));
         snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&areahdr, sizeof(areahdr), 1, fp);
 	    fseek(fp, areahdr.hdrsize, SEEK_SET);
 
@@ -505,7 +504,6 @@ void diskwatch(void)
 
 	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	    fseek(fp, msgshdr.hdrsize, SEEK_SET);
 
@@ -519,7 +517,6 @@ void diskwatch(void)
 
 	snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&langhdr, sizeof(langhdr), 1, fp);
 	    fseek(fp, langhdr.hdrsize, SEEK_SET);
 
@@ -535,7 +532,6 @@ void diskwatch(void)
 
 	snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
 	    fseek(fp, nodeshdr.hdrsize, SEEK_SET);
 
@@ -552,7 +548,6 @@ void diskwatch(void)
 
 	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
 	    fseek(fp, fgrouphdr.hdrsize, SEEK_SET);
 
@@ -565,7 +560,6 @@ void diskwatch(void)
 	    
 	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
 	    fseek(fp, mgrouphdr.hdrsize, SEEK_SET);
 
@@ -578,7 +572,6 @@ void diskwatch(void)
 
 	snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
 	    fseek(fp, hatchhdr.hdrsize, SEEK_SET);
 
@@ -591,7 +584,6 @@ void diskwatch(void)
 
 	snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
         if ((fp = fopen(temp, "r"))) {
-	    Syslog('d', "+ %s", temp);
 	    fread(&magichdr, sizeof(magichdr), 1, fp);
 	    fseek(fp, magichdr.hdrsize, SEEK_SET);
 
@@ -603,7 +595,6 @@ void diskwatch(void)
 	}
 	free(temp);
 	temp = NULL;
-	Syslog('d', "All directories added");
 
 	/*
          * Now update the new table with filesystems information.
@@ -612,9 +603,9 @@ void diskwatch(void)
 	for (tmp = mfs; tmp; tmp = tmp->next) {
 	    Syslog('+', "Found filesystem: %s type: %s status: %s", tmp->mountpoint, tmp->fstype, tmp->ro ?"RO":"RW");
 	}
+    } else {
+	update_diskstat();
     }
-
-    update_diskstat();
 }
 
 
