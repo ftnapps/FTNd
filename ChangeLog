@@ -1,6 +1,10 @@
 $Id$
 
-v0.83.18	01-Apr-2006
+
+v0.83.19	23-May-2006
+
+
+v0.83.18	01-Apr-2006 - 23-May-2006
 
 	nodelist.a:
 		Fixed parsing the nodelist when IBN:1.2.3.4 returned the IP
