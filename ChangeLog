@@ -10,6 +10,7 @@ v0.83.18	01-Apr-2006
 		Removed some debug logging.
 		Fixed a small bug.
 		Code cleanup.
+		Some changes to Launch code again.
 
 	mbsebbs:
 		Fixed logging of wrong file after upload.

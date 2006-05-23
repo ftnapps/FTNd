@@ -465,7 +465,7 @@ int msleep(int msecs)
 pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 {
     static char buf[PATH_MAX]; 
-    char	*vector[16];
+    static char	*vector[16];
     int		i, rc = 0;
     pid_t	pid = 0;
 
@@ -473,7 +473,9 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	Syslog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
 	return 0;
     }
-    memset(vector, 0, sizeof(vector));
+//    memset(vector, 0, sizeof(vector));
+    for (i = 0; i < 16; i++)
+	vector[i] = NULL;
     
     if (opts == NULL)
 	snprintf(buf, PATH_MAX, "%s", cmd);
@@ -485,11 +487,16 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
     while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
     vector[15] = NULL;
 
+    for (i = 0; i < 16; i++)
+	if (vector[i])
+	    Syslog('l', "Launch: i=%d vector=\"%s\"", i, vector[i]);
+
     if (file_exist(vector[0], X_OK)) {
 	Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
 	return 0;
     }
 
+    Syslog('l', "Launch: b4 fork()");
     switch (pid = fork()) {
 	case -1:
 		WriteError("$Launch: error, can't fork grandchild");
@@ -500,6 +507,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		 * before the main process sees it ever started.
 		 */
 		msleep(150);
+		Syslog('l', "Launch: child process");
 
 		/* From Paul Vixies cron: */
 		rc = setsid(); /* It doesn't seem to help */
@@ -529,6 +537,8 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		/* grandchild's daddy's process */
 		break;
     }
+
+    Syslog('l', "Launch: parent process");
 
     /*
      *  Add it to the tasklist.
