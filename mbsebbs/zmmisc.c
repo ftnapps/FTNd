@@ -722,8 +722,6 @@ void zputhex(int c)
 {
     static char	digits[]	= "0123456789abcdef";
 
-    Syslog('z', "zputhex: %02x", c);
-
     BUFFER_BYTE(digits[(c&0xF0)>>4]);
     BUFFER_BYTE(digits[(c)&0xF]);
 }
@@ -779,7 +777,6 @@ int zgethex(void)
     register int c;
 
     c = zgeth1();
-    Syslog('z', "zgethex: %02x", c);
     return c;
 }
 

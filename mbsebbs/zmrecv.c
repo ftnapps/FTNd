@@ -284,7 +284,6 @@ int rzfile(void)
     n = 20;
 
     for (;;) {
-	Syslog('z', "rxbytes %ld", rxbytes);
 	stohdr(rxbytes);
 	zshhdr(ZRPOS, Txhdr);
 nxthdr:

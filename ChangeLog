@@ -14,7 +14,7 @@ v0.83.18	01-Apr-2006
 
 	mbsebbs:
 		Fixed logging of wrong file after upload.
-
+		Removed some zmodem debug logging.
 
 
 v0.83.17	27-Mar-2006 - 01-Apr-2006
