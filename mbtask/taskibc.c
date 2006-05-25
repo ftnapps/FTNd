@@ -1020,8 +1020,6 @@ int command_server(char *hostname, char *parameters)
     unsigned int    token;
     int		    i, j, ihops, found = FALSE;
 
-    Syslog('c', "IBC: cmd_server(%s, %s)", hostname, parameters);
-
     name = strtok(parameters, " \0");
     hops = strtok(NULL, " \0");
     token = atoi(strtok(NULL, " \0"));
@@ -1030,14 +1028,15 @@ int command_server(char *hostname, char *parameters)
     fullname = strtok(NULL, "\0");
     ihops = atoi(hops) + 1;
 
+    /*
+     * Check if this is our neighbour server
+     */
     for (i = 0; i < MAXIBC_NCS; i++) {
 	if (strcmp(ncs_list[i].server, name) == 0) {
 	    found = TRUE;
 	    break;
 	}
     }
-
-    Syslog('c', "IBC: found=%s slot=%d", found ?"True":"False", i);
 
     if (found && fullname == NULL) {
 	send_msg(i, (char *)"400 SERVER: Not enough parameters\r\n");
@@ -1050,7 +1049,6 @@ int command_server(char *hostname, char *parameters)
 	 * remote is the same as the token we sent.
 	 * In that case, the session is authorized.
 	 */
-	Syslog('c', "IBC: we are in calling state");
 	if (ncs_list[i].token == token) {
 	    p = calloc(512, sizeof(char));
 	    snprintf(p, 512, "SERVER %s %d %d %s %s %s\r\n", name, ihops, token, prod, vers, fullname);
@@ -1123,7 +1121,6 @@ int command_server(char *hostname, char *parameters)
      * valid PASS command.
      */
     if (found && ncs_list[i].gotpass) {
-	Syslog('c', "IBC: we are in waiting state");
 	p = calloc(512, sizeof(char));
 	snprintf(p, 512, "PASS %s 0100 %s\r\n", ncs_list[i].passwd, ncs_list[i].compress ? "Z":"");
 	send_msg(i, p);
