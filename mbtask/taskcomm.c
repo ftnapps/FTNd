@@ -289,7 +289,6 @@ char *exe_cmd(char *in)
 	if ((result = reg_page(token))) {
 	    snprintf(obuf, SS_BUFSIZE, "100:1,%d;", result);
 	}
-	Syslog('+', "%s", obuf);
 	return obuf;
     }
 

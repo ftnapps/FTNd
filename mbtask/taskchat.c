@@ -844,7 +844,7 @@ void chat_checksysop_r(char *data, char *buf)
     pid = (pid_t)atoi(strtok(NULL, ";"));
 
     if (reg_ispaging(pid)) {
-	Syslog('c', "Check sysopchat for pid %s, user has paged", pid);
+	Syslog('c', "Check sysopchat for pid %d, user has paged", pid);
 
         /*
          * Now check if sysop is present in the sysop channel

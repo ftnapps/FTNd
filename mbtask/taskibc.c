@@ -1016,13 +1016,13 @@ int command_pass(int slot, char *hostname, char *parameters)
 
 int command_server(char *hostname, char *parameters)
 {
-    char	    *p, *name, *hops, *id, *prod, *vers, *fullname;
+    char	    *p, *name, *hops, *prod, *vers, *fullname;
     unsigned int    token;
     int		    i, j, ihops, found = FALSE;
 
     name = strtok(parameters, " \0");
     hops = strtok(NULL, " \0");
-    id = strtok(NULL, " \0");
+    token = atoi(strtok(NULL, " \0"));
     prod = strtok(NULL, " \0");
     vers = strtok(NULL, " \0");
     fullname = strtok(NULL, "\0");
@@ -1040,17 +1040,16 @@ int command_server(char *hostname, char *parameters)
 	return 400;
     }
 
-    token = atoi(id);
-
     if (found && ncs_list[i].token) {
 	/*
 	 * We are in calling state, so we expect the token from the
 	 * remote is the same as the token we sent.
 	 * In that case, the session is authorized.
 	 */
+	Syslog('c', "IBC: we are in calling state");
 	if (ncs_list[i].token == token) {
 	    p = calloc(512, sizeof(char));
-	    snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    snprintf(p, 512, "SERVER %s %d %d %s %s %s\r\n", name, ihops, token, prod, vers, fullname);
 	    broadcast(ncs_list[i].server, p);
 	    free(p);
 	    system_shout("* New server: %s, %s", name, fullname);
@@ -1120,12 +1119,13 @@ int command_server(char *hostname, char *parameters)
      * valid PASS command.
      */
     if (found && ncs_list[i].gotpass) {
+	Syslog('c', "IBC: we are in waiting state");
 	p = calloc(512, sizeof(char));
 	snprintf(p, 512, "PASS %s 0100 %s\r\n", ncs_list[i].passwd, ncs_list[i].compress ? "Z":"");
 	send_msg(i, p);
 	snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  ncs_list[i].myname, token, VERSION, CFG.bbs_name);
 	send_msg(i, p);
-	snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", name, ihops, prod, vers, fullname);
 	broadcast(ncs_list[i].server, p);
 	system_shout("* New server: %s, %s", name, fullname);
 	ncs_list[i].gotserver = TRUE;
@@ -1185,7 +1185,7 @@ int command_server(char *hostname, char *parameters)
 	*/
 	if (add_server(name, ihops, prod, vers, fullname, hostname)) {
 	    p = calloc(512, sizeof(char));
-	    snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
+	    snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", name, ihops, prod, vers, fullname);
 	    broadcast(hostname, p);
 	    free(p);
 	    srvchg = TRUE;
