@@ -1030,8 +1030,7 @@ int command_server(char *hostname, char *parameters)
     fullname = strtok(NULL, "\0");
     ihops = atoi(hops) + 1;
 
-    for (i = 0; i < MAXIBC_SRV; i++) {
-	Syslog('c', "IBC: test %d \"%s\" \"%s\"", i, ncs_list[i].server, name);
+    for (i = 0; i < MAXIBC_NCS; i++) {
 	if (strcmp(ncs_list[i].server, name) == 0) {
 	    found = TRUE;
 	    break;
