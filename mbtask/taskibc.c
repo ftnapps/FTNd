@@ -1031,13 +1031,14 @@ int command_server(char *hostname, char *parameters)
     ihops = atoi(hops) + 1;
 
     for (i = 0; i < MAXIBC_SRV; i++) {
+	Syslog('c', "IBC: test %d \"%s\" \"%s\"", i, ncs_list[i].server, name);
 	if (strcmp(ncs_list[i].server, name) == 0) {
 	    found = TRUE;
 	    break;
 	}
     }
 
-    Syslog('c', "IBC: found=%s", found ?"True":"False");
+    Syslog('c', "IBC: found=%s slot=%d", found ?"True":"False", i);
 
     if (found && fullname == NULL) {
 	send_msg(i, (char *)"400 SERVER: Not enough parameters\r\n");
