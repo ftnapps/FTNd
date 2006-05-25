@@ -88,9 +88,6 @@ static status_r	status;			/* Status data			*/
 extern double	Load;			/* System Load			*/
 extern int	Processing;		/* Is system running		*/
 
-extern srv_list         *servers;           /* Connected servers        */
-extern usr_list         *users;             /* Connected users          */
-extern chn_list         *channels;          /* Connected channels       */
 
 
 /************************************************************************
@@ -293,17 +290,17 @@ void stat_inc_cerr()
 
 void stat_status_r(char *buf)
 {
-    int		srvcnt = 0, chncnt = 0, usrcnt = 0;
-    srv_list	*tmps;
-    chn_list	*tmpc;
-    usr_list	*tmpu;
+    int		i, srvcnt = 0, chncnt = 0, usrcnt = 0;
 
-    for (tmps = servers; tmps; tmps = tmps->next)
-	srvcnt++;
-    for (tmpc = channels; tmpc; tmpc = tmpc->next)
-	chncnt++;
-    for (tmpu = users; tmpu; tmpu = tmpu->next)
-	usrcnt++;
+    for (i = 0; i < MAXIBC_SRV; i++)
+	if (strlen(srv_list[i].server))
+	    srvcnt++;
+    for (i = 0; i < MAXIBC_CHN; i++)
+	if (strlen(chn_list[i].server))
+	    chncnt++;
+    for (i = 0; i < MAXIBC_USR; i++)
+	if (strlen(usr_list[i].server))
+	    usrcnt++;
     snprintf(buf, SS_BUFSIZE, "100:23,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%2.2f,%u,%d,%d,%d;",
 	status.start, status.laststart, status.daily,
 	status.startups, status.clients, 

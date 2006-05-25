@@ -41,10 +41,6 @@
 extern int		    internet;		    /* Internet status		*/
 time_t			    scfg_time = (time_t)0;  /* Servers config time	*/
 time_t			    now;		    /* Current time		*/
-ncs_list		    *ncsl = NULL;	    /* Neighbours list		*/
-srv_list		    *servers = NULL;	    /* Active servers		*/
-usr_list		    *users = NULL;	    /* Active users		*/
-chn_list		    *channels = NULL;	    /* Active channels		*/
 ban_list		    *banned = NULL;	    /* Banned users		*/
 nick_list		    *nicknames = NULL;	    /* Known nicknames		*/
 int			    callchg = FALSE;	    /* Is call state changed	*/
@@ -82,147 +78,157 @@ static char *mon[] = {
 /*
  * Internal prototypes
  */
-void fill_ncslist(ncs_list **, char *, char *, char *, int, unsigned int);
+void fill_ncslist(char *, char *, char *, int, unsigned int);
 void dump_ncslist(void);
-void tidy_servers(srv_list **);
-int  add_server(srv_list **, char *, int, char *, char *, char *, char *);
-void del_server(srv_list **, char *);
-void del_router(srv_list **, char *);
-int  send_msg(ncs_list *, char *);
+int  add_server(char *, int, char *, char *, char *, char *);
+void del_server(char *);
+void del_router(char *);
+int  send_msg(int, char *);
 void broadcast(char *, char *);
 void check_servers(void);
-int  command_pass(char *, char *);
+int  command_pass(int, char *, char *);
 int  command_server(char *, char *);
-int  command_squit(char *, char *);
-int  command_user(char *, char *);
-int  command_quit(char *, char *);
-int  command_nick(char *, char *);
-int  command_join(char *, char *);
-int  command_part(char *, char *);
-int  command_topic(char *, char *);
-int  command_privmsg(char *, char *);
+int  command_squit(int, char *, char *);
+int  command_user(int, char *, char *);
+int  command_quit(int, char *, char *);
+int  command_nick(int, char *, char *);
+int  command_join(int, char *, char *);
+int  command_part(int, char *, char *);
+int  command_topic(int, char *, char *);
+int  command_privmsg(int, char *, char *);
 
 
 
 /*
- * Add a server to the serverlist
+ * Add a server to the neighbour serverlist
  */
-void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd, int dyndns, unsigned int crc)
+void fill_ncslist(char *server, char *myname, char *passwd, int dyndns, unsigned int crc)
 {
-    ncs_list	*tmp, *ta;
+    int	    i;
 
-    tmp = (ncs_list *)malloc(sizeof(ncs_list));
-    memset(tmp, 0, sizeof(tmp));
-    tmp->next = NULL;
-    strncpy(tmp->server, server, 63);
-    strncpy(tmp->resolved, server, 63);
-    strncpy(tmp->myname, myname, 63);
-    strncpy(tmp->passwd, passwd, 15);
-    tmp->state = NCS_INIT;
-    tmp->action = now;
-    tmp->last = (time_t)0;
-    tmp->version = 0;
-    tmp->remove = FALSE;
-    tmp->socket = -1;
-    tmp->token = 0;
-    tmp->gotpass = FALSE;
-    tmp->gotserver = FALSE;
-    tmp->dyndns = dyndns;
-    tmp->halfdead = 0;
-    tmp->crc = crc;
-
-    if (*fdp == NULL) {
-	*fdp = tmp;
-    } else {
-	for (ta = *fdp; ta; ta = ta->next) {
-	    if (ta->next == NULL) {
-		ta->next = (ncs_list *)tmp;
-		break;
-	    }
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strlen(ncs_list[i].server) == 0) {
+	    strncpy(ncs_list[i].server, server, 63);
+	    strncpy(ncs_list[i].resolved, server, 63);
+	    strncpy(ncs_list[i].myname, myname, 63);
+	    strncpy(ncs_list[i].passwd, passwd, 15);
+	    ncs_list[i].state = NCS_INIT;
+	    ncs_list[i].action = now;
+	    ncs_list[i].last = (time_t)0;
+	    ncs_list[i].version = 0;
+	    ncs_list[i].remove = FALSE;
+	    ncs_list[i].socket = -1;
+	    ncs_list[i].token = 0;
+	    ncs_list[i].gotpass = FALSE;
+	    ncs_list[i].gotserver = FALSE;
+	    ncs_list[i].dyndns = dyndns;
+	    ncs_list[i].halfdead = 0;
+	    ncs_list[i].crc = crc;
+	    return;
 	}
     }
+
+    WriteError("IBC: ncs_list is full");
 }
 
 
 
 void dump_ncslist(void)
 {   
-    ncs_list	*tmp;
-    srv_list	*srv;
-    usr_list	*usrp;
-    chn_list	*chnp;
     char	temp1[128], temp2[128], buf[21];
     struct tm	ptm;
     time_t	tnow;
+    int		i, first;
 
     if (!callchg && !srvchg && !usrchg && !chnchg && !banchg && !nickchg)
 	return;
 
     if (callchg) {
-	if (ncsl) {
-	    Syslog('r', "IBC: Server                         State   Del Pwd Srv Dyn 1/2 Next action");
-	    Syslog('r', "IBC: ------------------------------ ------- --- --- --- --- --- -----------");
-	    for (tmp = ncsl; tmp; tmp = tmp->next) {
-		snprintf(temp1, 30, "%s", tmp->server);
-		Syslog('r', "IBC: %-30s %-7s %s %s %s %s %3d %d", temp1, ncsstate[tmp->state], 
-		    tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
-		    tmp->gotserver ? "yes":"no ", tmp->dyndns ? "yes":"no ",
-		    tmp->halfdead, (int)tmp->action - (int)now);
+	first = FALSE;
+	for (i = 0; i < MAXIBC_NCS; i++) {
+	    if (strlen(ncs_list[i].server)) {
+		if (! first) {
+		    Syslog('r', "IBC: Idx Server                         State   Del Pwd Srv Dyn 1/2 Next action");
+		    Syslog('r', "IBC: --- ------------------------------ ------- --- --- --- --- --- -----------");
+		    first = TRUE;
+		}
+		snprintf(temp1, 30, "%s", ncs_list[i].server);
+		Syslog('r', "IBC: %3d %-30s %-7s %s %s %s %s %3d %d", i, temp1, ncsstate[ncs_list[i].state], 
+		    ncs_list[i].remove ? "yes":"no ", ncs_list[i].gotpass ? "yes":"no ", 
+		    ncs_list[i].gotserver ? "yes":"no ", ncs_list[i].dyndns ? "yes":"no ",
+		    ncs_list[i].halfdead, (int)ncs_list[i].action - (int)now);
 	    }
-	} else {
+	} 
+	if (! first) {
 	    Syslog('r', "IBC: No servers configured");
 	}
     }
 
     if (srvchg) {
-	if (servers) {
-	    Syslog('+', "IBC: Server                    Router                     Hops Users Connect time");
-	    Syslog('+', "IBC: ------------------------- ------------------------- ----- ----- --------------------");
-	    for (srv = servers; srv; srv = srv->next) {
-		snprintf(temp1, 25, "%s", srv->server);
-		snprintf(temp2, 25, "%s", srv->router);
-		tnow = (time_t)srv->connected;
+	first = FALSE;
+	for (i = 0; i < MAXIBC_SRV; i++) {
+	    if (strlen(srv_list[i].server)) {
+		if (! first) {
+		    Syslog('+', "IBC: Idx Server                    Router                     Hops Users Connect time");
+		    Syslog('+', "IBC: --- ------------------------- ------------------------- ----- ----- --------------------");
+		    first = TRUE;
+		}
+		snprintf(temp1, 25, "%s", srv_list[i].server);
+		snprintf(temp2, 25, "%s", srv_list[i].router);
+		tnow = (time_t)srv_list[i].connected;
 		localtime_r(&tnow, &ptm);
 		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
-		Syslog('+', "IBC: %-25s %-25s %5d %5d %s", temp1, temp2, srv->hops, srv->users, buf);
+		Syslog('+', "IBC: %3d %-25s %-25s %5d %5d %s", i, temp1, temp2, srv_list[i].hops, srv_list[i].users, buf);
 	    }
-	} else {
+	} 
+	if (! first) {
 	    Syslog('+', "IBC: Servers list is empty");
 	}
     }
     
     if (usrchg) {
-	if (users) {
-	    Syslog('+', "IBC: Server               User                 Name/Nick Channel       Sys Connect time");
-	    Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
-	    for (usrp = users; usrp; usrp = usrp->next) {
-		snprintf(temp1, 20, "%s", usrp->server);
-		snprintf(temp2, 20, "%s", usrp->realname);
-		tnow = (time_t)usrp->connected;
+	first = FALSE;
+	for (i = 0; i < MAXIBC_USR; i++) {
+	    if (strlen(usr_list[i].server)) {
+		if (! first) {
+		    Syslog('+', "IBC: Idx Server               User             Name/Nick Channel       Sys Connect time");
+		    Syslog('+', "IBC: --- -------------------- ---------------- --------- ------------- --- --------------------");
+		    first = TRUE;
+		}
+		snprintf(temp1, 20, "%s", usr_list[i].server);
+		snprintf(temp2, 16, "%s", usr_list[i].realname);
+		tnow = (time_t)usr_list[i].connected;
 		localtime_r(&tnow, &ptm);
 		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
-		Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", temp1, temp2, usrp->nick, usrp->channel,
-		    usrp->sysop ? "yes":"no ", buf);
+		Syslog('+', "IBC: %3d %-20s %-16s %-9s %-13s %s %s", i, temp1, temp2, usr_list[i].nick, usr_list[i].channel,
+		    usr_list[i].sysop ? "yes":"no ", buf);
 	    }
-	} else {
+	} 
+	if (! first) {
 	    Syslog('+', "IBC: Users list is empty");
 	}
     }
 
     if (chnchg) {
-	if (channels) {
-	    Syslog('+', "IBC: Channel              Owner     Topic                               Usr Created");
-	    Syslog('+', "IBC: -------------------- --------- ----------------------------------- --- --------------------");
-	    for (chnp = channels; chnp; chnp = chnp->next) {
-		tnow = (time_t)chnp->created;
+	first = FALSE;
+	for (i = 0; i < MAXIBC_CHN; i++) {
+	    if (strlen(chn_list[i].server)) {
+		if (! first) {
+		    Syslog('+', "IBC: Idx Channel              Owner     Topic                           Usr Created");
+		    Syslog('+', "IBC: --- -------------------- --------- ------------------------------- --- --------------------");
+		    first = TRUE;
+		}
+		tnow = (time_t)chn_list[i].created;
 		localtime_r(&tnow, &ptm);
 		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
-		Syslog('+', "IBC: %-20s %-9s %-35s %3d %s", chnp->name, chnp->owner, chnp->topic, chnp->users, buf);
+		Syslog('+', "IBC: %3d %-20s %-9s %-31s %3d %s", i, chn_list[i].name, 
+			chn_list[i].owner, chn_list[i].topic, chn_list[i].users, buf);
 	    }
-	} else {
+	} 
+	if (! first) {
 	    Syslog('+', "IBC: Channels list is empty");
 	}
     }
@@ -237,41 +243,27 @@ void dump_ncslist(void)
 
 
 
-void tidy_servers(srv_list ** fdp)
-{
-    srv_list *tmp, *old;
-
-    for (tmp = *fdp; tmp; tmp = old) {
-	old = tmp->next;
-	free(tmp);
-    }
-    *fdp = NULL;
-}
-
-
-
 /*
  * Add one user to the userlist. Returns:
  *  0 = Ok
  *  1 = User already registered.
+ *  2 = Too many users.
  */
-int add_user(usr_list **fap, char *server, char *name, char *realname)
+int add_user(char *server, char *name, char *realname)
 {
-    usr_list    *tmp, *ta;
-    srv_list	*sl;
-    int		Found = FALSE;
+    int	    i, j, Found = FALSE;
 
     Syslog('r', "IBC: add_user (%s, %s, %s)", server, name, realname);
 
-    for (ta = *fap; ta; ta = ta->next) {
-	if ((strcmp(ta->server, server) == 0) && (strcmp(ta->realname, realname) == 0)) {
+    for (j = 0; j < MAXIBC_USR; j++) {
+	if ((strcmp(usr_list[j].server, server) == 0) && (strcmp(usr_list[j].realname, realname) == 0)) {
 	    Syslog('-', "IBC: add_user(%s, %s, %s), already registered", server, name, realname);
 	    return 1;
 	}
     }
 
-    for (sl = servers; sl; sl = sl->next) {
-	if (strcmp(sl->server, server) == 0) {
+    for (i = 0; i < MAXIBC_SRV; i++) {
+	if (strcmp(srv_list[i].server, server) == 0) {
 	    Found = TRUE;
 	    break;
 	}
@@ -281,35 +273,22 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 	return 1;
     }
 
-    tmp = (usr_list *)malloc(sizeof(usr_list));
-    memset(tmp, 0, sizeof(usr_list));
-    tmp->next = NULL;
-    strncpy(tmp->server, server, 63);
-    strncpy(tmp->name, name, 9);
-    strncpy(tmp->nick, name, 9);
-    strncpy(tmp->realname, realname, 36);
-    tmp->connected = now;
-
-    if (*fap == NULL) {
-	*fap = tmp;
-    } else {
-	for (ta = *fap; ta; ta = ta->next) {
-	    if (ta->next == NULL) {
-		ta->next = (usr_list *)tmp;
-		break;
-	    }
-	}
-    }
-
-    for (sl = servers; sl; sl = sl->next) {
-	if (strcmp(sl->server, server) == 0) {
-	    sl->users++;
+    for (j = 0; j < MAXIBC_USR; j++) {
+	if (strlen(usr_list[j].server) == 0) {
+	    strncpy(usr_list[j].server, server, 63);
+	    strncpy(usr_list[j].name, name, 9);
+	    strncpy(usr_list[j].nick, name, 9);
+	    strncpy(usr_list[j].realname, realname, 36);
+	    usr_list[j].connected = now;
+	    srv_list[i].users++;
 	    srvchg = TRUE;
+	    usrchg = TRUE;
+	    return 0;
 	}
     }
 
-    usrchg = TRUE;
-    return 0;
+    Syslog('-', "IBC: add_user(%s, %s, %s), user list is full", server, name, realname);
+    return 2;
 }
 
 
@@ -317,43 +296,31 @@ int add_user(usr_list **fap, char *server, char *name, char *realname)
 /*
  * Delete one user. If name == NULL then delete all users of a server.
  */
-void del_user(usr_list **fap, char *server, char *name)
+void del_user(char *server, char *name)
 {
-    usr_list    **tmp, *tmpa;
-    srv_list	*sl;
-    int		count = 0;
+    int	    i, count = 0;
 
     Syslog('r', "IBC: deluser (%s, %s)", server, printable(name, 0));
 
-    if (*fap == NULL)
-	return;
-
-    tmp = fap;
-    while (*tmp) {
-	if (name && (strcmp((*tmp)->server, server) == 0) && (strcmp((*tmp)->name, name) == 0)) {
-	    Syslog('r', "IBC: removed user %s from %s", (*tmp)->name, (*tmp)->server);
-	    tmpa = *tmp;
-	    *tmp=(*tmp)->next;
-	    free(tmpa);
+    for (i = 0; i < MAXIBC_USR; i++) {
+	if (name && (strcmp(usr_list[i].server, server) == 0) && (strcmp(usr_list[i].name, name) == 0)) {
+	    Syslog('r', "IBC: removed user %s from %s slot %d", name, server, i);
+	    memset(&usr_list[i], 0, sizeof(_usr_list));
 	    usrchg = TRUE;
 	    count++;
-	} else if ((name == NULL) && (strcmp((*tmp)->server, server) == 0)) {
-	    Syslog('r', "IBC: removed user %s from %s", (*tmp)->name, (*tmp)->server);
-	    tmpa = *tmp;
-	    *tmp=(*tmp)->next;
-	    free(tmpa);
+	} else if ((name == NULL) && (strcmp(usr_list[i].server, server) == 0)) {
+	    Syslog('r', "IBC: removed user %s from %s slot %d", usr_list[i].name, usr_list[i].server, i);
+	    memset(&usr_list[i], 0, sizeof(_usr_list));
 	    usrchg = TRUE;
 	    count++;
-	} else {
-	    tmp = &((*tmp)->next);
 	}
     }
 
-    for (sl = servers; sl; sl = sl->next) {
-	if ((strcmp(sl->server, server) == 0) && sl->users) {
-	    sl->users -= count;
-	    if (sl->users < 0)
-		sl->users = 0;	/* Just in case, nothing is perfect */
+    for (i = 0; i < MAXIBC_SRV; i++) {
+	if ((strcmp(srv_list[i].server, server) == 0) && srv_list[i].users) {
+	    srv_list[i].users -= count;
+	    if (srv_list[i].users < 0)
+		srv_list[i].users = 0;	/* Just in case, nothing is perfect */
 	    srvchg = TRUE;
 	}
     }
@@ -362,80 +329,66 @@ void del_user(usr_list **fap, char *server, char *name)
 
 
 /*
- * Add channel with owner.
+ * Add channel with owner, returns:
+ *   0 = Success
+ *   1 = Already registered
+ *   2 = Too many channels
  */
-int add_channel(chn_list **fap, char *name, char *owner, char *server)
+int add_channel(char *name, char *owner, char *server)
 {
-    chn_list    *tmp, *ta;
+    int	    i;
 
     Syslog('r', "IBC: add_channel (%s, %s, %s)", name, owner, server);
 
-    for (ta = *fap; ta; ta = ta->next) {
-	if ((strcmp(ta->name, name) == 0) && (strcmp(ta->owner, owner) == 0) && (strcmp(ta->server, server) == 0)) {
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if ((strcmp(chn_list[i].name, name) == 0) && (strcmp(chn_list[i].owner, owner) == 0) && 
+		(strcmp(chn_list[i].server, server) == 0)) {
 	    Syslog('-', "IBC: add_channel(%s, %s, %s), already registered", name, owner, server);
 	    return 1;
 	}
     }
 
-    tmp = (chn_list *)malloc(sizeof(chn_list));
-    memset(tmp, 0, sizeof(chn_list));
-    tmp->next = NULL;
-    strncpy(tmp->name, name, 20);
-    strncpy(tmp->owner, owner, 9);
-    strncpy(tmp->server, server, 63);
-    tmp->users = 1;
-    tmp->created = now;
-
-    if (*fap == NULL) {
-	*fap = tmp;
-    } else {
-	for (ta = *fap; ta; ta = ta->next) {
-	    if (ta->next == NULL) {
-		ta->next = (chn_list *)tmp;
-		break;
-	    }
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if (strlen(chn_list[i].server) == 0) {
+	    strncpy(chn_list[i].name, name, 20);
+	    strncpy(chn_list[i].owner, owner, 9);
+	    strncpy(chn_list[i].server, server, 63);
+	    chn_list[i].users = 1;
+	    chn_list[i].created = now;
+	    chnchg = TRUE;
+	    return 0;
 	}
     }
 
-    chnchg = TRUE;
-    return 0;
+    Syslog('-', "IBC: add_channel(%s, %s, %s), too many channels", name, owner, server);
+    return 2;
 }
 
 
 
-void del_channel(chn_list **fap, char *name)
+void del_channel(char *name)
 {
-    chn_list    **tmp, *tmpa;
+    int	    i;
 	        
     Syslog('r', "IBC: del_channel %s", name);
 
-    if (*fap == NULL)
-	return;
-
-    tmp = fap;
-    while (*tmp) {
-	if (strcmp((*tmp)->name, name) == 0) {
-	    tmpa = *tmp;
-	    *tmp=(*tmp)->next;
-	    free(tmpa);
-	    chnchg = TRUE;
-	} else {
-	    tmp = &((*tmp)->next);
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if (strcmp(chn_list[i].name, name) == 0) {
+	    memset(&chn_list[i], 0, sizeof(_chn_list));
 	}
     }
 }
 
 
 
-int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname, char *router)
+int add_server(char *name, int hops, char *prod, char *vers, char *fullname, char *router)
 {
-    srv_list	*tmp, *ta;
-    int		haverouter = FALSE;
+    int	    i, haverouter = FALSE;
 
     Syslog('r', "IBC: add_server %s %d %s %s \"%s\" %s", name, hops, prod, vers, fullname, router);
  
-    for (ta = *fdp; ta; ta = ta->next) {
-	if (strcmp(ta->server, name) == 0) {
+    for (i = 0; i < MAXIBC_SRV; i++) {
+	if (strlen(srv_list[i].server) && (strcmp(srv_list[i].server, name) == 0)) {
 	    Syslog('r', "IBC: duplicate, ignore");
 	    return 0;
 	}
@@ -445,8 +398,8 @@ int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
      * If name <> router it's a remote server, then check if we have a router in our list.
      */
     if (strcmp(name, router) && hops) {
-	for (ta = *fdp; ta; ta = ta->next) {
-	    if (strcmp(ta->server, router) == 0) {
+	for (i = 0; i < MAXIBC_SRV; i++) {
+	    if (strcmp(srv_list[i].server, router) == 0) {
 		haverouter = TRUE;
 		break;
 	    }
@@ -457,31 +410,23 @@ int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 	}
     }
 
-    tmp = (srv_list *)malloc(sizeof(srv_list));
-    memset(tmp, 0, sizeof(tmp));
-    tmp->next = NULL;
-    strncpy(tmp->server, name, 63);
-    strncpy(tmp->router, router, 63);
-    strncpy(tmp->prod, prod, 20);
-    strncpy(tmp->vers, vers, 20);
-    strncpy(tmp->fullname, fullname, 35);
-    tmp->connected = now;
-    tmp->users = 0;
-    tmp->hops = hops;
-
-    if (*fdp == NULL) {
-	*fdp = tmp;
-    } else {
-	for (ta = *fdp; ta; ta = ta->next) {
-	    if (ta->next == NULL) {
-		ta->next = (srv_list *)tmp;
-		break;
-	    }
+    for (i = 0; i < MAXIBC_SRV; i++) {
+	if (strlen(srv_list[i].server) == 0) {
+	    strncpy(srv_list[i].server, name, 63);
+	    strncpy(srv_list[i].router, router, 63);
+	    strncpy(srv_list[i].prod, prod, 20);
+	    strncpy(srv_list[i].vers, vers, 20);
+	    strncpy(srv_list[i].fullname, fullname, 35);
+	    srv_list[i].connected = now;
+	    srv_list[i].users = 0;
+	    srv_list[i].hops = hops;
+	    srvchg = TRUE;
+	    return 1;
 	}
     }
 
-    srvchg = TRUE;
-    return 1;
+    Syslog('!', "IBC: Can't add server, no free slot");
+    return 0;
 }
 
 
@@ -489,22 +434,17 @@ int  add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 /*
  * Delete server.
  */
-void del_server(srv_list **fap, char *name)
+void del_server(char *name)
 {
-    srv_list	*ta, *tan;
-    
+    int	    i;
+
     Syslog('r', "IBC: delserver %s", name);
 
-    if (*fap == NULL)
-	return;
-
-    for (ta = *fap; ta; ta = ta->next) {
-	while ((tan = ta->next) && (strcmp(tan->server, name) == 0)) {
-	    ta->next = tan->next;
-	    free(tan);
+    for (i = 0; i < MAXIBC_SRV; i++) {
+	if (strcmp(srv_list[i].server, name) == 0) {
+	    memset(&srv_list[i], 0, sizeof(_srv_list));
 	    srvchg = TRUE;
 	}
-	ta->next = tan;
     }
 }
 
@@ -513,23 +453,18 @@ void del_server(srv_list **fap, char *name)
 /*  
  * Delete router.
  */ 
-void del_router(srv_list **fap, char *name)
+void del_router(char *name)
 {   
-    srv_list	*ta, *tan;
+    int	    i;
     
     Syslog('r', "IBC: delrouter %s", name);
 
-    if (*fap == NULL)
-	return;
-
-    for (ta = *fap; ta; ta = ta->next) {
-	while ((tan = ta->next) && (strcmp(tan->router, name) == 0)) {
-	    del_user(&users, tan->server, NULL);
-	    ta->next = tan->next;
-	    free(tan);
+    for (i = 0; i < MAXIBC_SRV; i++) {
+	if (strcmp(srv_list[i].router, name) == 0) {
+	    del_user(srv_list[i].server, NULL);
+	    memset(&srv_list[i], 0, sizeof(_srv_list));
 	    srvchg = TRUE;
 	}
-	ta->next = tan;
     }
 }
 
@@ -540,11 +475,11 @@ void del_router(srv_list **fap, char *name)
  */
 void send_all(char *msg)
 {
-    ncs_list	*tnsl;
+    int	    i;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (tnsl->state == NCS_CONNECT) {
-	    send_msg(tnsl, msg);
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strlen(ncs_list[i].server) && (ncs_list[i].state == NCS_CONNECT)) {
+	    send_msg(i, msg);
 	}
     }
 }
@@ -555,21 +490,21 @@ void send_all(char *msg)
  * Send command message to each connected neighbour server and use the correct own fqdn.
  */
 void send_at(char *cmd, char *nick, char *param)
-{
-    ncs_list	*tnsl;
-    char	*p;
+{   
+    int	    i;
+    char    *p;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (tnsl->state == NCS_CONNECT) {
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strlen(ncs_list[i].server) && (ncs_list[i].state == NCS_CONNECT)) {
 	    p = xstrcpy(cmd);
 	    p = xstrcat(p, (char *)" ");
 	    p = xstrcat(p, nick);
 	    p = xstrcat(p, (char *)"@");
-	    p = xstrcat(p, tnsl->myname);
+	    p = xstrcat(p, ncs_list[i].myname);
 	    p = xstrcat(p, (char *)" ");
 	    p = xstrcat(p, param);
 	    p = xstrcat(p, (char *)"\r\n");
-	    send_msg(tnsl, p);
+	    send_msg(i, p);
 	    free(p);
 	}
     }
@@ -579,21 +514,21 @@ void send_at(char *cmd, char *nick, char *param)
 
 void send_nick(char *nick, char *name, char *realname)
 {
-    ncs_list    *tnsl;
-    char        *p;
+    int	    i;
+    char    *p;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (tnsl->state == NCS_CONNECT) {
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strlen(ncs_list[i].server) && (ncs_list[i].state == NCS_CONNECT)) {
 	    p = xstrcpy((char *)"NICK ");
 	    p = xstrcat(p, nick);
 	    p = xstrcat(p, (char *)" ");
 	    p = xstrcat(p, name);
 	    p = xstrcat(p, (char *)" ");
-	    p = xstrcat(p, tnsl->myname);
+	    p = xstrcat(p, ncs_list[i].myname);
 	    p = xstrcat(p, (char *)" ");
 	    p = xstrcat(p, realname);
 	    p = xstrcat(p, (char *)"\r\n");
-	    send_msg(tnsl, p);
+	    send_msg(i, p);
 	    free(p);
 	}
     }
@@ -606,11 +541,11 @@ void send_nick(char *nick, char *name, char *realname)
  */
 void broadcast(char *origin, char *msg)
 {
-    ncs_list    *tnsl;
+    int	    i;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if ((tnsl->state == NCS_CONNECT) && (strcmp(origin, tnsl->server))) {
-	    send_msg(tnsl, msg);
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strlen(ncs_list[i].server) && (ncs_list[i].state == NCS_CONNECT) && (strcmp(origin, ncs_list[i].server))) {
+	    send_msg(i, msg);
 	}
     }
 }
@@ -620,7 +555,7 @@ void broadcast(char *origin, char *msg)
 /*
  * Send message to a server
  */
-int send_msg(ncs_list *tnsl, char *msg)
+int send_msg(int slot, char *msg)
 {
     char	*p;
 	
@@ -628,7 +563,7 @@ int send_msg(ncs_list *tnsl, char *msg)
     if (strcmp(msg, "PING\r\n") && strcmp(msg, "PONG\r\n")) {
 #endif
 	p = xstrcpy((char *)"IBC: > ");
-	p = xstrcat(p, tnsl->server);
+	p = xstrcat(p, ncs_list[slot].server);
 	p = xstrcat(p, (char *)": ");
 	p = xstrcat(p, printable(msg, 0));
 	Syslogp('r', p);
@@ -637,7 +572,8 @@ int send_msg(ncs_list *tnsl, char *msg)
     }
 #endif
 
-    if (sendto(tnsl->socket, msg, strlen(msg), 0, (struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
+    if (sendto(ncs_list[slot].socket, msg, strlen(msg), 0, 
+		(struct sockaddr *)&ncs_list[slot].servaddr_in, sizeof(struct sockaddr_in)) == -1) {
 	Syslog('!', "$IBC: can't send message");
 	return -1;
     }
@@ -650,10 +586,8 @@ void check_servers(void)
 {
     char	    *errmsg, *p, scfgfn[PATH_MAX];
     FILE	    *fp;
-    ncs_list	    *tnsl, **tmp;
-    srv_list	    *srv;
-    int		    j, inlist, Remove, local_reset, conf_changed;
-    int		    a1, a2, a3, a4;
+    int		    i, j, inlist, Remove, local_reset, conf_changed;
+    int		    a1, a2, a3, a4, users = 0, channels = 0;
     unsigned int    crc;
     struct servent  *se;
     struct hostent  *he;
@@ -671,7 +605,13 @@ void check_servers(void)
     }
 
     local_reset = conf_changed = FALSE;
-    if ((users == NULL) && (channels == NULL) && do_reset) {
+    for (i = 0; i < MAXIBC_USR; i++)
+	if (strlen(usr_list[i].server))
+	    users++;
+    for (i = 0; i < MAXIBC_CHN; i++)
+	if (strlen(chn_list[i].server))
+	    channels++;
+    if (!users && !channels && do_reset) {
 	Syslog('+', "IBC: no channels and users, performing reset");
 	local_reset = TRUE;
 	do_reset = FALSE;
@@ -687,19 +627,20 @@ void check_servers(void)
      */
     if (conf_changed || local_reset || link_reset) {
 
-	if (servers == NULL) {
+	if (strlen(srv_list[0].server) == 0) {
 	    /*
 	     * First add this server name to the servers database.
 	     */
-	    add_server(&servers, CFG.myfqdn, 0, (char *)"mbsebbs", (char *)VERSION, CFG.bbs_name, (char *)"none");
+	    add_server(CFG.myfqdn, 0, (char *)"mbsebbs", (char *)VERSION, CFG.bbs_name, (char *)"none");
 	}
 
 	/*
 	 * Local reset, make all crc's invalid so the connections will restart.
 	 */
 	if (local_reset) {
-	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next)
-		tnsl->crc--;
+	    for (i = 0; i < MAXIBC_NCS; i++)
+		if (strlen(ncs_list[i].server))
+		    ncs_list[i].crc--;
 	}
 	
 	if (link_reset) {
@@ -713,25 +654,27 @@ void check_servers(void)
             /*
 	     * Check for neighbour servers to delete
 	     */
-	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-		fseek(fp, ibcsrvhdr.hdrsize, SEEK_SET);
-		inlist = FALSE;
-		while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
-		    crc = 0xffffffff;
-		    crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
-		    if ((strcmp(tnsl->server, ibcsrv.server) == 0) && ibcsrv.Active && (tnsl->crc == crc)) {
-			inlist = TRUE;
+	    for (i = 0; i < MAXIBC_NCS; i++) {
+		if (strlen(ncs_list[i].server)) {
+		    fseek(fp, ibcsrvhdr.hdrsize, SEEK_SET);
+		    inlist = FALSE;
+		    while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fp)) {
+			crc = 0xffffffff;
+			crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
+			if ((strcmp(ncs_list[i].server, ibcsrv.server) == 0) && ibcsrv.Active && (ncs_list[i].crc == crc)) {
+			    inlist = TRUE;
+			}
 		    }
-		}
-		if (!inlist) {
-		    if (local_reset || link_reset)
-			Syslog('+', "IBC: server %s connection reset", tnsl->server);
-		    else
-			Syslog('+', "IBC: server %s configuration changed or removed", tnsl->server);
-		    tnsl->remove = TRUE;
-		    tnsl->action = now;
-		    srvchg = TRUE;
-		    callchg = TRUE;
+		    if (!inlist) {
+			if (local_reset || link_reset)
+			    Syslog('+', "IBC: server %s connection reset", ncs_list[i].server);
+			else
+			    Syslog('+', "IBC: server %s configuration changed or removed", ncs_list[i].server);
+			ncs_list[i].remove = TRUE;
+			ncs_list[i].action = now;
+			srvchg = TRUE;
+			callchg = TRUE;
+		    }
 		}
 	    }
 
@@ -739,31 +682,31 @@ void check_servers(void)
 	     * Start removing servers
 	     */
 	    Remove = FALSE;
-	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-		if (tnsl->remove) {
+	    for (i = 0; i < MAXIBC_NCS; i++) {
+		if (ncs_list[i].remove) {
 		    Remove = TRUE;
-		    Syslog('r', "IBC: Remove server %s", tnsl->server);
-		    if (tnsl->state == NCS_CONNECT) {
+		    Syslog('r', "IBC: Remove server %s", ncs_list[i].server);
+		    if (ncs_list[i].state == NCS_CONNECT) {
 			p = calloc(512, sizeof(char));
 			if (local_reset) {
-			    snprintf(p, 512, "SQUIT %s Reset connection\r\n", tnsl->server);
-			    broadcast(tnsl->server, p);
-			    snprintf(p, 512, "SQUIT %s Your system connection is reset\r\n", tnsl->myname);
-			    send_msg(tnsl, p);
+			    snprintf(p, 512, "SQUIT %s Reset connection\r\n", ncs_list[i].server);
+			    broadcast(ncs_list[i].server, p);
+			    snprintf(p, 512, "SQUIT %s Your system connection is reset\r\n", ncs_list[i].myname);
+			    send_msg(i, p);
 			} else {
-			    snprintf(p, 512, "SQUIT %s Removed from configuration\r\n", tnsl->server);
-			    broadcast(tnsl->server, p);
-			    snprintf(p, 512, "SQUIT %s Your system is removed from configuration\r\n", tnsl->myname);
-			    send_msg(tnsl, p);
+			    snprintf(p, 512, "SQUIT %s Removed from configuration\r\n", ncs_list[i].server);
+			    broadcast(ncs_list[i].server, p);
+			    snprintf(p, 512, "SQUIT %s Your system is removed from configuration\r\n", ncs_list[i].myname);
+			    send_msg(i, p);
 			}
 			free(p);
-			del_router(&servers, tnsl->server);
+			del_router(ncs_list[i].server);
 		    }
-		    if (tnsl->socket != -1) {
-			Syslog('r', "IBC: Closing socket %d", tnsl->socket);
-			shutdown(tnsl->socket, SHUT_WR);
-			tnsl->socket = -1;
-			tnsl->state = NCS_HANGUP;
+		    if (ncs_list[i].socket != -1) {
+			Syslog('r', "IBC: Closing socket %d", ncs_list[i].socket);
+			shutdown(ncs_list[i].socket, SHUT_WR);
+			ncs_list[i].socket = -1;
+			ncs_list[i].state = NCS_HANGUP;
 		    }
 		    callchg = TRUE;
 		    srvchg = TRUE;
@@ -780,16 +723,11 @@ void check_servers(void)
 	     */
 	    if (Remove) {
 		Syslog('r', "IBC: Starting remove list");
-		tmp = &ncsl;
-		while (*tmp) {
-		    if ((*tmp)->remove) {
-		        Syslog('r', "do %s", (*tmp)->server);
-		        tnsl = *tmp;
-		        *tmp = (*tmp)->next;
-		        free(tnsl);
+		for (i = 0; i < MAXIBC_NCS; i++) {
+		    if (ncs_list[i].remove) {
+		        Syslog('r', "do %s", ncs_list[i].server);
+			memset(&ncs_list[i], 0, sizeof(_ncs_list));
 		        callchg = TRUE;
-		    } else {
-		        tmp = &((*tmp)->next);
 		    }
 		}
 	    }
@@ -807,22 +745,22 @@ void check_servers(void)
 		 */
 		if (ibcsrv.Active && strlen(ibcsrv.myname) && strlen(ibcsrv.server) && strlen(ibcsrv.passwd)) {
 		    inlist = FALSE;
-		    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-			if (strcmp(tnsl->server, ibcsrv.server) == 0) {
+		    for (i = 0; i < MAXIBC_NCS; i++) {
+			if (strcmp(ncs_list[i].server, ibcsrv.server) == 0) {
 			    inlist = TRUE;
 			}
 		    }
-		    for (srv = servers; srv; srv = srv->next) {
-			if ((strcmp(srv->server, ibcsrv.server) == 0) && (strcmp(srv->router, ibcsrv.server))) {
+		    for (j = 0; j < MAXIBC_SRV; j++) {
+			if ((strcmp(srv_list[j].server, ibcsrv.server) == 0) && (strcmp(srv_list[j].router, ibcsrv.server))) {
 			    inlist = TRUE;
 			    Syslog('+', "IBC: can't add new configured server %s: already connected via %s", 
-				    ibcsrv.server, srv->router);
+				    ibcsrv.server, srv_list[j].router);
 			}
 		    }
 		    if (!inlist ) {
 			crc = 0xffffffff;
 			crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
-			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd, ibcsrv.Dyndns, crc);
+			fill_ncslist(ibcsrv.server, ibcsrv.myname, ibcsrv.passwd, ibcsrv.Dyndns, crc);
 			srvchg = TRUE;
 			callchg = TRUE;
 			Syslog('+', "IBC: new configured Internet BBS Chatserver: %s", ibcsrv.server);
@@ -838,10 +776,14 @@ void check_servers(void)
     /*
      * Check if we need to make state changes
      */
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (((int)tnsl->action - (int)now) <= 0) {
-	    switch (tnsl->state) {
-		case NCS_INIT:	    Syslog('r', "IBC: %s init", tnsl->server);
+    for (i = 0; i < MAXIBC_NCS; i++) {
+
+	if (strlen(ncs_list[i].server) == 0)
+	    continue;
+
+	if (((int)ncs_list[i].action - (int)now) <= 0) {
+	    switch (ncs_list[i].state) {
+		case NCS_INIT:	    Syslog('r', "IBC: %s init", ncs_list[i].server);
 
 				    /*
 				     * If Internet is available, setup the connection.
@@ -851,16 +793,16 @@ void check_servers(void)
 					 * Get IP address for the hostname, set default next action
 					 * to 60 seconds.
 					 */
-					tnsl->action = now + (time_t)60;
-					memset(&tnsl->servaddr_in, 0, sizeof(struct sockaddr_in));
+					ncs_list[i].action = now + (time_t)60;
+					memset(&ncs_list[i].servaddr_in, 0, sizeof(struct sockaddr_in));
 					se = getservbyname("fido", "udp");
-					tnsl->servaddr_in.sin_family = AF_INET;
-					tnsl->servaddr_in.sin_port = se->s_port;
+					ncs_list[i].servaddr_in.sin_family = AF_INET;
+					ncs_list[i].servaddr_in.sin_port = se->s_port;
 					
-					if (sscanf(tnsl->server,"%d.%d.%d.%d",&a1,&a2,&a3,&a4) == 4)
-					    tnsl->servaddr_in.sin_addr.s_addr = inet_addr(tnsl->server);
-					else if ((he = gethostbyname(tnsl->server)))
-					    memcpy(&tnsl->servaddr_in.sin_addr, he->h_addr, he->h_length);
+					if (sscanf(ncs_list[i].server,"%d.%d.%d.%d",&a1,&a2,&a3,&a4) == 4)
+					    ncs_list[i].servaddr_in.sin_addr.s_addr = inet_addr(ncs_list[i].server);
+					else if ((he = gethostbyname(ncs_list[i].server)))
+					    memcpy(&ncs_list[i].servaddr_in.sin_addr, he->h_addr, he->h_length);
 					else {
 					    switch (h_errno) {
 						case HOST_NOT_FOUND:    errmsg = (char *)"Authoritative: Host not found"; break;
@@ -868,19 +810,19 @@ void check_servers(void)
 						case NO_RECOVERY:       errmsg = (char *)"Non recoverable errors"; break;
 						default:                errmsg = (char *)"Unknown error"; break;
 					    }
-					    Syslog('!', "IBC: no IP address for %s: %s", tnsl->server, errmsg);
-					    tnsl->action = now + (time_t)120;
-					    tnsl->state = NCS_FAIL;
+					    Syslog('!', "IBC: no IP address for %s: %s", ncs_list[i].server, errmsg);
+					    ncs_list[i].action = now + (time_t)120;
+					    ncs_list[i].state = NCS_FAIL;
 					    callchg = TRUE;
 					    break;
 					}
 					
-					if (tnsl->socket == -1) {
-					    tnsl->socket = socket(AF_INET, SOCK_DGRAM, 0);
-					    if (tnsl->socket == -1) {
-						Syslog('!', "$IBC: can't create socket for %s", tnsl->server);
-						tnsl->state = NCS_FAIL;
-						tnsl->action = now + (time_t)120;
+					if (ncs_list[i].socket == -1) {
+					    ncs_list[i].socket = socket(AF_INET, SOCK_DGRAM, 0);
+					    if (ncs_list[i].socket == -1) {
+						Syslog('!', "$IBC: can't create socket for %s", ncs_list[i].server);
+						ncs_list[i].state = NCS_FAIL;
+						ncs_list[i].action = now + (time_t)120;
 						callchg = TRUE;
 						break;
 					    }
@@ -889,12 +831,12 @@ void check_servers(void)
 					    Syslog('r', "IBC: socket reused");
 					}
 
-					Syslog('r', "IBC: socket %d", tnsl->socket);
-					tnsl->state = NCS_CALL;
-					tnsl->action = now + (time_t)1;
+					Syslog('r', "IBC: socket %d", ncs_list[i].socket);
+					ncs_list[i].state = NCS_CALL;
+					ncs_list[i].action = now + (time_t)1;
 					callchg = TRUE;
 				    } else {
-					tnsl->action = now + (time_t)10;
+					ncs_list[i].action = now + (time_t)10;
 				    }
 				    break;
 				    
@@ -902,24 +844,24 @@ void check_servers(void)
 				     * In this state we accept PASS and SERVER commands from
 				     * the remote with the same token as we have sent.
 				     */
-				    Syslog('r', "IBC: %s call", tnsl->server);
-				    if (strlen(tnsl->passwd) == 0) {
-					Syslog('!', "IBC: no password configured for %s", tnsl->server);
-					tnsl->state = NCS_FAIL;
-					tnsl->action = now + (time_t)300;
+				    Syslog('r', "IBC: %s call", ncs_list[i].server);
+				    if (strlen(ncs_list[i].passwd) == 0) {
+					Syslog('!', "IBC: no password configured for %s", ncs_list[i].server);
+					ncs_list[i].state = NCS_FAIL;
+					ncs_list[i].action = now + (time_t)300;
 					callchg = TRUE;
 					break;
 				    }
-				    tnsl->token = gettoken();
+				    ncs_list[i].token = gettoken();
 				    p = calloc(512, sizeof(char));
-				    snprintf(p, 512, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
-				    send_msg(tnsl, p);
-				    snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
+				    snprintf(p, 512, "PASS %s 0100 %s\r\n", ncs_list[i].passwd, ncs_list[i].compress ? "Z":"");
+				    send_msg(i, p);
+				    snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  ncs_list[i].myname, ncs_list[i].token, 
 					    VERSION, CFG.bbs_name);
-				    send_msg(tnsl, p);
+				    send_msg(i, p);
 				    free(p);
-				    tnsl->action = now + (time_t)10;
-				    tnsl->state = NCS_WAITPWD;
+				    ncs_list[i].action = now + (time_t)10;
+				    ncs_list[i].state = NCS_WAITPWD;
 				    callchg = TRUE;
 				    break;
 				    
@@ -927,24 +869,24 @@ void check_servers(void)
 				     * This state can be left by before the timeout is reached
 				     * by a reply from the remote if the connection is accepted.
 				     */
-				    Syslog('r', "IBC: %s waitpwd", tnsl->server);
-				    tnsl->token = 0;
-				    tnsl->state = NCS_CALL;
+				    Syslog('r', "IBC: %s waitpwd", ncs_list[i].server);
+				    ncs_list[i].token = 0;
+				    ncs_list[i].state = NCS_CALL;
 				    while (TRUE) {
 					j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
 					if ((j > (CFG.dialdelay / 10)) && (j > 9))
 					    break;
 				    }
 				    Syslog('r', "IBC: next call in %d %d seconds", CFG.dialdelay, j);
-				    tnsl->action = now + (time_t)j;
+				    ncs_list[i].action = now + (time_t)j;
 				    callchg = TRUE;
 				    break;
 
 		case NCS_CONNECT:   /*
 				     * In this state we check if the connection is still alive
 				     */
-				    j = (int)now - (int)tnsl->last;
-				    if (tnsl->halfdead > 5) {
+				    j = (int)now - (int)ncs_list[i].last;
+				    if (ncs_list[i].halfdead > 5) {
 					/*
 					 * Halfdead means 5 times received a PASS while we are in
 					 * connected state. This means the other side "thinks" it's
@@ -952,76 +894,76 @@ void check_servers(void)
 					 * temporary internet problems. 
 					 * Reset our side of the connection.
 					 */
-					Syslog('+', "IBC: server %s connection is half dead", tnsl->server);
-					tnsl->state = NCS_DEAD;
-					tnsl->action = now + (time_t)60;    // 1 minute delay before calling again.
-					tnsl->gotpass = FALSE;
-					tnsl->gotserver = FALSE;
-					tnsl->token = 0;
-					tnsl->halfdead = 0;
+					Syslog('+', "IBC: server %s connection is half dead", ncs_list[i].server);
+					ncs_list[i].state = NCS_DEAD;
+					ncs_list[i].action = now + (time_t)60;    // 1 minute delay before calling again.
+					ncs_list[i].gotpass = FALSE;
+					ncs_list[i].gotserver = FALSE;
+					ncs_list[i].token = 0;
+					ncs_list[i].halfdead = 0;
 					p = calloc(81, sizeof(char));
-					snprintf(p, 81, "SQUIT %s Connection died\r\n", tnsl->server);
-					broadcast(tnsl->server, p);
+					snprintf(p, 81, "SQUIT %s Connection died\r\n", ncs_list[i].server);
+					broadcast(ncs_list[i].server, p);
 					free(p);
 					callchg = TRUE;
 					srvchg = TRUE;
-					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
-					del_router(&servers, tnsl->server);
+					system_shout("*** NETWORK SPLIT, lost connection with server %s", ncs_list[i].server);
+					del_router(ncs_list[i].server);
 					break;
 				    }
-				    if (((int)now - (int)tnsl->last) > 130) {
+				    if (((int)now - (int)ncs_list[i].last) > 130) {
 					/*
 					 * Missed 3 PING replies
 					 */
-					Syslog('+', "IBC: server %s connection is dead", tnsl->server);
-					tnsl->state = NCS_DEAD;
-					tnsl->action = now + (time_t)120;    // 2 minutes delay before calling again.
-					tnsl->gotpass = FALSE;
-					tnsl->gotserver = FALSE;
-					tnsl->token = 0;
-					tnsl->halfdead = 0;
+					Syslog('+', "IBC: server %s connection is dead", ncs_list[i].server);
+					ncs_list[i].state = NCS_DEAD;
+					ncs_list[i].action = now + (time_t)120;    // 2 minutes delay before calling again.
+					ncs_list[i].gotpass = FALSE;
+					ncs_list[i].gotserver = FALSE;
+					ncs_list[i].token = 0;
+					ncs_list[i].halfdead = 0;
 					p = calloc(81, sizeof(char));
-					snprintf(p, 81, "SQUIT %s Connection died\r\n", tnsl->server);
-					broadcast(tnsl->server, p);
+					snprintf(p, 81, "SQUIT %s Connection died\r\n", ncs_list[i].server);
+					broadcast(ncs_list[i].server, p);
 					free(p);
 					callchg = TRUE;
 					srvchg = TRUE;
-					system_shout("*** NETWORK SPLIT, lost connection with server %s", tnsl->server);
-					del_router(&servers, tnsl->server);
+					system_shout("*** NETWORK SPLIT, lost connection with server %s", ncs_list[i].server);
+					del_router(ncs_list[i].server);
 					break;
 				    }
 				    /*
 				     * Ping at 60, 90 and 120 seconds
 				     */
-				    if (((int)now - (int)tnsl->last) > 120) {
+				    if (((int)now - (int)ncs_list[i].last) > 120) {
 					Syslog('r', "IBC: sending 3rd PING at 120 seconds");
-					send_msg(tnsl, (char *)"PING\r\n");
-				    } else if (((int)now - (int)tnsl->last) > 90) {
+					send_msg(i, (char *)"PING\r\n");
+				    } else if (((int)now - (int)ncs_list[i].last) > 90) {
 					Syslog('r', "IBC: sending 2nd PING at 90 seconds");
-					send_msg(tnsl, (char *)"PING\r\n");
-				    } else if (((int)now - (int)tnsl->last) > 60) {
-					send_msg(tnsl, (char *)"PING\r\n");
+					send_msg(i, (char *)"PING\r\n");
+				    } else if (((int)now - (int)ncs_list[i].last) > 60) {
+					send_msg(i, (char *)"PING\r\n");
 				    }
-				    tnsl->action = now + (time_t)10;
+				    ncs_list[i].action = now + (time_t)10;
 				    break;
 
-		case NCS_HANGUP:    Syslog('r', "IBC: %s hangup => call", tnsl->server);
-				    tnsl->action = now + (time_t)1;
-				    tnsl->state = NCS_CALL;
+		case NCS_HANGUP:    Syslog('r', "IBC: %s hangup => call", ncs_list[i].server);
+				    ncs_list[i].action = now + (time_t)1;
+				    ncs_list[i].state = NCS_CALL;
 				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
 
-		case NCS_DEAD:	    Syslog('r', "IBC: %s dead -> call", tnsl->server);
-				    tnsl->action = now + (time_t)1;
-				    tnsl->state = NCS_CALL;
+		case NCS_DEAD:	    Syslog('r', "IBC: %s dead -> call", ncs_list[i].server);
+				    ncs_list[i].action = now + (time_t)1;
+				    ncs_list[i].state = NCS_CALL;
 				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
 
-		case NCS_FAIL:	    Syslog('r', "IBC: %s fail => init", tnsl->server);
-				    tnsl->action = now + (time_t)1;
-				    tnsl->state = NCS_INIT;
+		case NCS_FAIL:	    Syslog('r', "IBC: %s fail => init", ncs_list[i].server);
+				    ncs_list[i].action = now + (time_t)1;
+				    ncs_list[i].state = NCS_INIT;
 				    callchg = TRUE;
 				    srvchg = TRUE;
 				    break;
@@ -1034,48 +976,41 @@ void check_servers(void)
 
 
 
-int command_pass(char *hostname, char *parameters)
+int command_pass(int slot, char *hostname, char *parameters)
 {
-    ncs_list	*tnsl;
-    char	*passwd, *version, *lnk;
+    char    *passwd, *version, *lnk;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
-
-    tnsl->gotpass = FALSE;
+    ncs_list[slot].gotpass = FALSE;
     passwd = strtok(parameters, " \0");
     version = strtok(NULL, " \0");
     lnk = strtok(NULL, " \0");
 
     if (strcmp(passwd, "0100") == 0) {
-	send_msg(tnsl, (char *)"414 PASS: Got empty password\r\n");
+	send_msg(slot, (char *)"414 PASS: Got empty password\r\n");
 	return 414;
     }
 
     if (version == NULL) {
-	send_msg(tnsl, (char *)"400 PASS: Not enough parameters\r\n");
+	send_msg(slot, (char *)"400 PASS: Not enough parameters\r\n");
 	return 400;
     }
 
-    if (strcmp(passwd, tnsl->passwd)) {
+    if (strcmp(passwd, ncs_list[slot].passwd)) {
 	Syslog('!', "IBC: got bad password %s from %s", passwd, hostname);
 	return 0;
     }
 
-    if (tnsl->state == NCS_CONNECT) {
-	send_msg(tnsl, (char *)"401: PASS: Already registered\r\n");
-	tnsl->halfdead++;   /* Count them   */
+    if (ncs_list[slot].state == NCS_CONNECT) {
+	send_msg(slot, (char *)"401: PASS: Already registered\r\n");
+	ncs_list[slot].halfdead++;   /* Count them   */
 	srvchg = TRUE;
 	return 401;
     }
 
-    tnsl->gotpass = TRUE;
-    tnsl->version = atoi(version);
+    ncs_list[slot].gotpass = TRUE;
+    ncs_list[slot].version = atoi(version);
     if (lnk && strchr(lnk, 'Z'))
-	tnsl->compress = TRUE;
+	ncs_list[slot].compress = TRUE;
     return 0;
 }
 
@@ -1083,13 +1018,9 @@ int command_pass(char *hostname, char *parameters)
 
 int command_server(char *hostname, char *parameters)
 {
-    ncs_list	    *tnsl;
-    srv_list	    *ta;
-    usr_list	    *tmp;
-    chn_list	    *tmpc;
     char	    *p, *name, *hops, *id, *prod, *vers, *fullname;
     unsigned int    token;
-    int		    ihops, found = FALSE;
+    int		    i, j, ihops, found = FALSE;
 
     name = strtok(parameters, " \0");
     hops = strtok(NULL, " \0");
@@ -1099,85 +1030,89 @@ int command_server(char *hostname, char *parameters)
     fullname = strtok(NULL, "\0");
     ihops = atoi(hops) + 1;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, name) == 0) {
+    for (i = 0; i < MAXIBC_SRV; i++) {
+	if (strcmp(ncs_list[i].server, name) == 0) {
 	    found = TRUE;
 	    break;
 	}
     }
 
-    if (fullname == NULL) {
-	send_msg(tnsl, (char *)"400 SERVER: Not enough parameters\r\n");
+    if (found && fullname == NULL) {
+	send_msg(i, (char *)"400 SERVER: Not enough parameters\r\n");
 	return 400;
     }
 
     token = atoi(id);
 
-    if (found && tnsl->token) {
+    if (found && ncs_list[i].token) {
 	/*
 	 * We are in calling state, so we expect the token from the
 	 * remote is the same as the token we sent.
 	 * In that case, the session is authorized.
 	 */
-	if (tnsl->token == token) {
+	if (ncs_list[i].token == token) {
 	    p = calloc(512, sizeof(char));
 	    snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
-	    broadcast(tnsl->server, p);
+	    broadcast(ncs_list[i].server, p);
 	    free(p);
 	    system_shout("* New server: %s, %s", name, fullname);
-	    tnsl->gotserver = TRUE;
+	    ncs_list[i].gotserver = TRUE;
 	    callchg = TRUE;
 	    srvchg = TRUE;
-	    tnsl->state = NCS_CONNECT;
-	    tnsl->action = now + (time_t)10;
-	    Syslog('+', "IBC: connected with neighbour server: %s", tnsl->server);
+	    ncs_list[i].state = NCS_CONNECT;
+	    ncs_list[i].action = now + (time_t)10;
+	    Syslog('+', "IBC: connected with neighbour server: %s", ncs_list[i].server);
 	    /*
 	     * Send all already known servers
 	     */
-	    for (ta = servers; ta; ta = ta->next) {
-		if (ta->hops) {
+	    for (j = 0; j < MAXIBC_SRV; j++) {
+		if (strlen(srv_list[j].server) && srv_list[j].hops) {
 		    p = calloc(512, sizeof(char));
-		    snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
-		    send_msg(tnsl, p);
+		    snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", srv_list[j].server, 
+			    srv_list[j].hops, srv_list[j].prod, srv_list[j].vers, srv_list[j].fullname);
+		    send_msg(i, p);
 		    free(p);
 		}
 	    }
 	    /*
 	     * Send all known users, nicknames and join channels
 	     */
-	    for (tmp = users; tmp; tmp = tmp->next) {
-		p = calloc(512, sizeof(char));
-		snprintf(p, 512, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
-		send_msg(tnsl, p);
-		if (strcmp(tmp->name, tmp->nick)) {
-		    snprintf(p, 512, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
-		    send_msg(tnsl, p);
+	    for (j = 0; j < MAXIBC_USR; j++) {
+		if (strlen(usr_list[j].server)) {
+		    p = calloc(512, sizeof(char));
+		    snprintf(p, 512, "USER %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].realname);
+		    send_msg(i, p);
+		    if (strcmp(usr_list[j].name, usr_list[j].nick)) {
+			snprintf(p, 512, "NICK %s %s %s %s\r\n", usr_list[j].nick, 
+				usr_list[j].name, usr_list[j].server, usr_list[j].realname);
+			send_msg(i, p);
+		    }
+		    if (strlen(usr_list[j].channel)) {
+			snprintf(p, 512, "JOIN %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].channel);
+			send_msg(i, p);
+		    }
+		    free(p);
 		}
-		if (strlen(tmp->channel)) {
-		    snprintf(p, 512, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
-		    send_msg(tnsl, p);
-		}
-		free(p);
 	    }
 	    /*
 	     * Send all known channel topics
 	     */
-	    for (tmpc = channels; tmpc; tmpc = tmpc->next) {
-		if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
+	    for (j = 0; j < MAXIBC_CHN; j++) {
+		if (strlen(chn_list[j].topic) && (strcmp(chn_list[j].server, CFG.myfqdn) == 0)) {
 		    p = xstrcpy((char *)"TOPIC ");
-		    p = xstrcat(p, tmpc->name);
+		    p = xstrcat(p, chn_list[j].name);
 		    p = xstrcat(p, (char *)" ");
-		    p = xstrcat(p, tmpc->topic);
+		    p = xstrcat(p, chn_list[j].topic);
 		    p = xstrcat(p, (char *)"\r\n");
-		    send_msg(tnsl, p);
+		    send_msg(i, p);
 		    free(p);
 		}
 	    }
-	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
+	    add_server(ncs_list[i].server, ihops, prod, vers, fullname, hostname);
 	    return 0;
 	}
-	Syslog('r', "IBC: call collision with %s", tnsl->server);
-	tnsl->state = NCS_WAITPWD; /* Experimental, should fix state when state was connect while it wasn't. */
+	Syslog('r', "IBC: call collision with %s", ncs_list[i].server);
+	ncs_list[i].state = NCS_WAITPWD; /* Experimental, should fix state when state was connect while it wasn't. */
 	return 0;
     }
 
@@ -1186,57 +1121,59 @@ int command_server(char *hostname, char *parameters)
      * messages and set the session to connected if we got a
      * valid PASS command.
      */
-    if (found && tnsl->gotpass) {
+    if (found && ncs_list[i].gotpass) {
 	p = calloc(512, sizeof(char));
-	snprintf(p, 512, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
-	send_msg(tnsl, p);
-	snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
-	send_msg(tnsl, p);
+	snprintf(p, 512, "PASS %s 0100 %s\r\n", ncs_list[i].passwd, ncs_list[i].compress ? "Z":"");
+	send_msg(i, p);
+	snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  ncs_list[i].myname, token, VERSION, CFG.bbs_name);
+	send_msg(i, p);
 	snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
-	broadcast(tnsl->server, p);
+	broadcast(ncs_list[i].server, p);
 	system_shout("* New server: %s, %s", name, fullname);
-	tnsl->gotserver = TRUE;
-	tnsl->state = NCS_CONNECT;
-	tnsl->action = now + (time_t)10;
-	Syslog('+', "IBC: connected with neighbour server: %s", tnsl->server);
+	ncs_list[i].gotserver = TRUE;
+	ncs_list[i].state = NCS_CONNECT;
+	ncs_list[i].action = now + (time_t)10;
+	Syslog('+', "IBC: connected with neighbour server: %s", ncs_list[i].server);
 	/*
 	 * Send all already known servers
 	 */
-	for (ta = servers; ta; ta = ta->next) {
-	    if (ta->hops) {
-		snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
-		send_msg(tnsl, p);
+	for (j = 0; j < MAXIBC_SRV; j++) {
+	    if (strlen(srv_list[j].server) && srv_list[j].hops) {
+		snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", srv_list[j].server, 
+			srv_list[j].hops, srv_list[j].prod, srv_list[j].vers, srv_list[j].fullname);
+		send_msg(i, p);
 	    }
 	}
 	/*
 	 * Send all known users. If a user is in a channel, send a JOIN.
 	 * If the user is one of our own and has set a channel topic, send it.
 	 */
-	for (tmp = users; tmp; tmp = tmp->next) {
-	    snprintf(p, 512, "USER %s@%s %s\r\n", tmp->name, tmp->server, tmp->realname);
-	    send_msg(tnsl, p);
-	    if (strcmp(tmp->name, tmp->nick)) {
-		snprintf(p, 512, "NICK %s %s %s %s\r\n", tmp->nick, tmp->name, tmp->server, tmp->realname);
-		send_msg(tnsl, p);
+	for (j = 0; j < MAXIBC_USR; j++) {
+	    snprintf(p, 512, "USER %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].realname);
+	    send_msg(i, p);
+	    if (strcmp(usr_list[j].name, usr_list[j].nick)) {
+		snprintf(p, 512, "NICK %s %s %s %s\r\n", usr_list[j].nick, 
+			usr_list[j].name, usr_list[j].server, usr_list[j].realname);
+		send_msg(i, p);
 	    }
-	    if (strlen(tmp->channel)) {
-		snprintf(p, 512, "JOIN %s@%s %s\r\n", tmp->name, tmp->server, tmp->channel);
-		send_msg(tnsl, p);
+	    if (strlen(usr_list[j].channel)) {
+		snprintf(p, 512, "JOIN %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].channel);
+		send_msg(i, p);
 	    }
 	}
 	free(p);
-	for (tmpc = channels; tmpc; tmpc = tmpc->next) {
-	    if (strlen(tmpc->topic) && (strcmp(tmpc->server, CFG.myfqdn) == 0)) {
+	for (j = 0; j < MAXIBC_CHN; j++) {
+	    if (strlen(chn_list[j].topic) && (strcmp(chn_list[j].server, CFG.myfqdn) == 0)) {
 		p = xstrcpy((char *)"TOPIC ");
-		p = xstrcat(p, tmpc->name);
+		p = xstrcat(p, chn_list[j].name);
 		p = xstrcat(p, (char *)" ");
-		p = xstrcat(p, tmpc->topic);
+		p = xstrcat(p, chn_list[j].topic);
 		p = xstrcat(p, (char *)"\r\n");
-		send_msg(tnsl, p);
+		send_msg(i, p);
 		free(p);
 	    }
 	}
-	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
+	add_server(ncs_list[i].server, ihops, prod, vers, fullname, hostname);
 	srvchg = TRUE;
 	callchg = TRUE;
 	return 0;
@@ -1246,7 +1183,7 @@ int command_server(char *hostname, char *parameters)
        /*
 	* Got a message about a server that is not our neighbour, could be a relayed server.
 	*/
-	if (add_server(&servers, name, ihops, prod, vers, fullname, hostname)) {
+	if (add_server(name, ihops, prod, vers, fullname, hostname)) {
 	    p = calloc(512, sizeof(char));
 	    snprintf(p, 512, "SERVER %s %d %s %s %s %s\r\n", name, ihops, id, prod, vers, fullname);
 	    broadcast(hostname, p);
@@ -1264,31 +1201,24 @@ int command_server(char *hostname, char *parameters)
 
 
 
-int command_squit(char *hostname, char *parameters)
+int command_squit(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    char        *p, *name, *message;
+    char    *p, *name, *message;
     
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
-
     name = strtok(parameters, " \0");
     message = strtok(NULL, "\0");
 
-    if (strcmp(name, tnsl->server) == 0) {
+    if (strcmp(name, ncs_list[slot].server) == 0) {
 	Syslog('+', "IBC: disconnect neighbour server %s: %s", name, message);
-	tnsl->state = NCS_HANGUP;
-	tnsl->action = now + (time_t)120;	// 2 minutes delay before calling again.
-	tnsl->gotpass = FALSE;
-	tnsl->gotserver = FALSE;
-	tnsl->token = 0;
-	del_router(&servers, name);
+	ncs_list[slot].state = NCS_HANGUP;
+	ncs_list[slot].action = now + (time_t)120;	// 2 minutes delay before calling again.
+	ncs_list[slot].gotpass = FALSE;
+	ncs_list[slot].gotserver = FALSE;
+	ncs_list[slot].token = 0;
+	del_router(name);
     } else {
 	Syslog('+', "IBC: disconnect relay server %s: %s", name, message);
-	del_server(&servers, name);
+	del_server(name);
     }
 
     system_shout("* Server %s disconnected: %s", name, message);
@@ -1302,27 +1232,20 @@ int command_squit(char *hostname, char *parameters)
 
 
 
-int command_user(char *hostname, char *parameters)
+int command_user(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    char	*p, *name, *server, *realname;
+    char    *p, *name, *server, *realname;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
-	
     name = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
     realname = strtok(NULL, "\0");
 
     if (realname == NULL) {
-	send_msg(tnsl, (char *)"400 USER: Not enough parameters\r\n");
+	send_msg(slot, (char *)"400 USER: Not enough parameters\r\n");
 	return 400;
     }
     
-    if (add_user(&users, server, name, realname) == 0) {
+    if (add_user(server, name, realname) == 0) {
 	p = calloc(512, sizeof(char));
 	snprintf(p, 512, "USER %s@%s %s\r\n", name, server, realname);
 	broadcast(hostname, p);
@@ -1334,23 +1257,16 @@ int command_user(char *hostname, char *parameters)
 
 
 
-int command_quit(char *hostname, char *parameters)
+int command_quit(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    char	*p, *name, *server, *message;
-
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
+    char    *p, *name, *server, *message;
 
     name = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
     message = strtok(NULL, "\0");
 
     if (server == NULL) {
-	send_msg(tnsl, (char *)"400 QUIT: Not enough parameters\r\n");
+	send_msg(slot, (char *)"400 QUIT: Not enough parameters\r\n");
 	return 400;
     }
 
@@ -1359,7 +1275,7 @@ int command_quit(char *hostname, char *parameters)
     } else {
 	system_shout("* User %s is leaving", name);
     }
-    del_user(&users, server, name);
+    del_user(server, name);
     p = calloc(512, sizeof(char));
     snprintf(p, 512, "QUIT %s@%s %s\r\n", name, server, parameters);
     broadcast(hostname, p);
@@ -1369,18 +1285,10 @@ int command_quit(char *hostname, char *parameters)
 
 
 
-int command_nick(char *hostname, char *parameters)
+int command_nick(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    usr_list	*tmp;
-    char        *p, *nick, *name, *server, *realname;
-    int		found;
-
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
+    char    *p, *nick, *name, *server, *realname;
+    int	    i, found;
 
     nick = strtok(parameters, " \0");
     name = strtok(NULL, " \0");
@@ -1388,14 +1296,14 @@ int command_nick(char *hostname, char *parameters)
     realname = strtok(NULL, "\0");
 
     if (realname == NULL) {
-	send_msg(tnsl, (char *)"400 NICK: Not enough parameters\r\n");
+	send_msg(slot, (char *)"400 NICK: Not enough parameters\r\n");
 	return 1;
     }
 
     if (strlen(nick) > 9) {
 	p = calloc(81, sizeof(char));
 	snprintf(p, 81, "402 %s: Erroneous nickname\r\n", nick);
-	send_msg(tnsl, p);
+	send_msg(slot, p);
 	free(p);
 	return 402;
     }
@@ -1403,8 +1311,8 @@ int command_nick(char *hostname, char *parameters)
     // FIXME: check 1st char is alpha, rest alpha/digit
 
     found = FALSE;
-    for (tmp = users; tmp; tmp = tmp->next) {
-	if ((strcmp(tmp->name, nick) == 0) || (strcmp(tmp->nick, nick) == 0)) {
+    for (i = 0; i < MAXIBC_USR; i++) {
+	if ((strcmp(usr_list[i].name, nick) == 0) || (strcmp(usr_list[i].nick, nick) == 0)) {
 	    found = TRUE;
 	    break;
 	}
@@ -1412,14 +1320,15 @@ int command_nick(char *hostname, char *parameters)
     if (found) {
 	p = calloc(81, sizeof(char));
 	snprintf(p, 81, "403 %s: Nickname is already in use\r\n", nick);
-	send_msg(tnsl, p);
+	send_msg(slot, p);
 	free(p);
 	return 403;
     }
 
-    for (tmp = users; tmp; tmp = tmp->next) {
-	if ((strcmp(tmp->server, server) == 0) && (strcmp(tmp->realname, realname) == 0) && (strcmp(tmp->name, name) == 0)) {
-	    strncpy(tmp->nick, nick, 9);
+    for (i = 0; i < MAXIBC_USR; i++) {
+	if ((strcmp(usr_list[i].server, server) == 0) && 
+		(strcmp(usr_list[i].realname, realname) == 0) && (strcmp(usr_list[i].name, name) == 0)) {
+	    strncpy(usr_list[i].nick, nick, 9);
 	    found = TRUE;
 	    Syslog('+', "IBC: user %s set nick to %s", name, nick);
 	    usrchg = TRUE;
@@ -1428,7 +1337,7 @@ int command_nick(char *hostname, char *parameters)
     if (!found) {
 	p = calloc(81, sizeof(char));
 	snprintf(p, 81, "404 %s@%s: Can't change nick\r\n", name, server);
-	send_msg(tnsl, p);
+	send_msg(slot, p);
 	free(p);
 	return 404;
     }
@@ -1442,33 +1351,24 @@ int command_nick(char *hostname, char *parameters)
 
 
 
-int command_join(char *hostname, char *parameters)
+int command_join(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    chn_list    *tmp;
-    usr_list	*tmpu;
     char        *p, *nick, *server, *channel, msg[81];
-    int         found;
-
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-        }
-    }
+    int		i, found;
 
     nick = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
     channel = strtok(NULL, "\0");
 
     if (channel == NULL) {
-	send_msg(tnsl, (char *)"400 JOIN: Not enough parameters\r\n");
+	send_msg(slot, (char *)"400 JOIN: Not enough parameters\r\n");
 	return 400;
     }
 
     if (strlen(channel) > 20) {
 	p = calloc(81, sizeof(char));
 	snprintf(p, 81, "402 %s: Erroneous channelname\r\n", nick);
-	send_msg(tnsl, p);
+	send_msg(slot, p);
 	free(p);
 	return 402;
     }
@@ -1479,22 +1379,23 @@ int command_join(char *hostname, char *parameters)
     }
 
     found = FALSE;
-    for (tmp = channels; tmp; tmp = tmp->next) {
-	if (strcmp(tmp->name, channel) == 0) {
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if (strcmp(chn_list[i].name, channel) == 0) {
 	    found = TRUE;
-	    tmp->users++;
+	    chn_list[i].users++;
 	    break;
 	}
     }
     if (!found) {
 	Syslog('+', "IBC: create channel %s owned by %s@%s", channel, nick, server);
-	add_channel(&channels, channel, nick, server);
+	add_channel(channel, nick, server);
 	system_shout("* New channel %s created by %s@%s", channel, nick, server);
     }
 
-    for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if ((strcmp(tmpu->server, server) == 0) && ((strcmp(tmpu->nick, nick) == 0) || (strcmp(tmpu->name, nick) == 0))) {
-	    strncpy(tmpu->channel, channel, 20);
+    for (i = 0; i < MAXIBC_USR; i++) {
+	if ((strcmp(usr_list[i].server, server) == 0) && 
+		((strcmp(usr_list[i].nick, nick) == 0) || (strcmp(usr_list[i].name, nick) == 0))) {
+	    strncpy(usr_list[i].channel, channel, 20);
 	    Syslog('+', "IBC: user %s joined channel %s", nick, channel);
 	    usrchg = TRUE;
 	    snprintf(msg, 81, "* %s@%s has joined %s", nick, server, channel);
@@ -1512,18 +1413,10 @@ int command_join(char *hostname, char *parameters)
 
 
 
-int command_part(char *hostname, char *parameters)
+int command_part(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    chn_list    *tmp;
-    usr_list    *tmpu;
     char        *p, *nick, *server, *channel, *message, msg[81];
-
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
+    int		i;
 
     nick = strtok(parameters, "@\0");
     server = strtok(NULL, " \0");
@@ -1531,7 +1424,7 @@ int command_part(char *hostname, char *parameters)
     message = strtok(NULL, "\0");
 
     if (channel == NULL) {
-	send_msg(tnsl, (char *)"400 PART: Not enough parameters\r\n");
+	send_msg(slot, (char *)"400 PART: Not enough parameters\r\n");
 	return 400;
     }
 
@@ -1540,21 +1433,22 @@ int command_part(char *hostname, char *parameters)
 	return 0;
     }
 
-    for (tmp = channels; tmp; tmp = tmp->next) {
-	if (strcmp(tmp->name, channel) == 0) {
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if (strcmp(chn_list[i].name, channel) == 0) {
 	    chnchg = TRUE;
-	    tmp->users--;
-	    if (tmp->users == 0) {
+	    chn_list[i].users--;
+	    if (chn_list[i].users == 0) {
 		Syslog('+', "IBC: deleted empty channel %s", channel);
-		del_channel(&channels, channel);
+		del_channel(channel);
 	    }
 	    break;
 	}
     }
 
-    for (tmpu = users; tmpu; tmpu = tmpu->next) {
-	if ((strcmp(tmpu->server, server) == 0) && ((strcmp(tmpu->nick, nick) == 0) || (strcmp(tmpu->name, nick) == 0))) {
-	    tmpu->channel[0] = '\0';
+    for (i = 0; i < MAXIBC_USR; i++) {
+	if ((strcmp(usr_list[i].server, server) == 0) && 
+		((strcmp(usr_list[i].nick, nick) == 0) || (strcmp(usr_list[i].name, nick) == 0))) {
+	    usr_list[i].channel[0] = '\0';
 	    if (message) {
 		Syslog('+', "IBC: user %s left channel %s: %s", nick, channel, message);
 		snprintf(msg, 81, "* %s@%s has left channel %s: %s", nick, server, channel, message);
@@ -1585,32 +1479,25 @@ int command_part(char *hostname, char *parameters)
 
 
 
-int command_topic(char *hostname, char *parameters)
+int command_topic(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    chn_list    *tmp;
-    char        *p, *channel, *topic, msg[81];
-		        
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
+    char    *p, *channel, *topic, msg[81];
+    int	    i;
 
     channel = strtok(parameters, " \0");
     topic = strtok(NULL, "\0");
 
     if (topic == NULL) {
-	send_msg(tnsl, (char *)"400 TOPIC: Not enough parameters\r\n");
+	send_msg(slot, (char *)"400 TOPIC: Not enough parameters\r\n");
 	return 400;
     }
 
-    for (tmp = channels; tmp; tmp = tmp->next) {
-	if (strcmp(tmp->name, channel) == 0) {
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if (strcmp(chn_list[i].name, channel) == 0) {
 	    chnchg = TRUE;
-	    strncpy(tmp->topic, topic, 54);
+	    strncpy(chn_list[i].topic, topic, 54);
 	    Syslog('+', "IBC: channel %s topic: %s", channel, topic);
-	    snprintf(msg, 81, "* Channel topic is now: %s", tmp->topic);
+	    snprintf(msg, 81, "* Channel topic is now: %s", chn_list[i].topic);
 	    chat_msg(channel, NULL, msg);
 	    break;
 	}
@@ -1628,34 +1515,27 @@ int command_topic(char *hostname, char *parameters)
 
 
 
-int command_privmsg(char *hostname, char *parameters)
+int command_privmsg(int slot, char *hostname, char *parameters)
 {
-    ncs_list    *tnsl;
-    chn_list    *tmp;
-    char	*p, *channel, *msg;
-
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
-
+    char    *p, *channel, *msg;
+    int	    i;
+    
     channel = strtok(parameters, " \0");
     msg = strtok(NULL, "\0");
 
     if (msg == NULL) {
-	send_msg(tnsl, (char *)"412 PRIVMSG: No text to send\r\n");
+	send_msg(slot, (char *)"412 PRIVMSG: No text to send\r\n");
 	return 412;
     }
 
     if (channel[0] != '#') {
-	send_msg(tnsl, (char *)"499 PRIVMSG: Not for a channel\r\n"); // FIXME: also check users
+	send_msg(slot, (char *)"499 PRIVMSG: Not for a channel\r\n"); // FIXME: also check users
 	return 499;
     }
 
-    for (tmp = channels; tmp; tmp = tmp->next) {
-	if (strcmp(tmp->name, channel) == 0) {
-	    tmp->lastmsg = now;
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if (strcmp(chn_list[i].name, channel) == 0) {
+	    chn_list[i].lastmsg = now;
 	    chat_msg(channel, NULL, msg);
 	    p = xstrcpy((char *)"PRIVMSG ");
 	    p = xstrcat(p, channel);
@@ -1670,7 +1550,7 @@ int command_privmsg(char *hostname, char *parameters)
 
     p = calloc(81, sizeof(char));
     snprintf(p, 81, "409 %s: Cannot sent to channel\r\n", channel);
-    send_msg(tnsl, p);
+    send_msg(slot, p);
     free(p);
     return 409;
 }
@@ -1679,29 +1559,36 @@ int command_privmsg(char *hostname, char *parameters)
 
 int do_command(char *hostname, char *command, char *parameters)
 {
-    ncs_list    *tnsl;
-    char	*p;
+    char    *p;
+    int	    i, found = FALSE;
 
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strcmp(ncs_list[i].server, hostname) == 0) {
+	    found = TRUE;
 	    break;
 	}
+    }
+
+    if (! found) {
+	Syslog('!', "IBC: got a command from unknown %s", hostname);
+	return 0;
     }
 
     /*
      * First the commands that don't have parameters
      */
     if (! strcmp(command, (char *)"PING")) {
-	send_msg(tnsl, (char *)"PONG\r\n");
+	send_msg(i, (char *)"PONG\r\n");
 	return 0;
     }
+
     if (! strcmp(command, (char *)"PONG")) {
 	/*
 	 * Just accept, but reset halfdead counter.
 	 */
-	if (tnsl->halfdead) {
+	if (ncs_list[i].halfdead) {
 	    Syslog('r', "IBC: Reset halfdead counter");
-	    tnsl->halfdead = 0;
+	    ncs_list[i].halfdead = 0;
 	    srvchg = TRUE;
 	}
 	return 0;
@@ -1713,45 +1600,45 @@ int do_command(char *hostname, char *command, char *parameters)
     if (parameters == NULL) {
 	p = calloc(81, sizeof(char));
 	snprintf(p, 81, "400 %s: Not enough parameters\r\n", command);
-	send_msg(tnsl, p);
+	send_msg(i, p);
 	free(p);
 	return 400;
     }
 
     if (! strcmp(command, (char *)"PASS")) {
-	return command_pass(hostname, parameters);
+	return command_pass(i, hostname, parameters);
     } 
     if (! strcmp(command, (char *)"SERVER")) {
 	return command_server(hostname, parameters);
     } 
     if (! strcmp(command, (char *)"SQUIT")) {
-	return command_squit(hostname, parameters);
+	return command_squit(i, hostname, parameters);
     } 
     if (! strcmp(command, (char *)"USER")) {
-	return command_user(hostname, parameters);
+	return command_user(i, hostname, parameters);
     } 
     if (! strcmp(command, (char *)"QUIT")) {
-	return command_quit(hostname, parameters);
+	return command_quit(i, hostname, parameters);
     } 
     if (! strcmp(command, (char *)"NICK")) {
-	return command_nick(hostname, parameters);
+	return command_nick(i, hostname, parameters);
     }
     if (! strcmp(command, (char *)"JOIN")) {
-	return command_join(hostname, parameters);
+	return command_join(i, hostname, parameters);
     }
     if (! strcmp(command, (char *)"PART")) {
-	return command_part(hostname, parameters);
+	return command_part(i, hostname, parameters);
     } 
     if (! strcmp(command, (char *)"TOPIC")) {
-	return command_topic(hostname, parameters);
+	return command_topic(i, hostname, parameters);
     }
     if (! strcmp(command, (char *)"PRIVMSG")) {
-	return command_privmsg(hostname, parameters);
+	return command_privmsg(i, hostname, parameters);
     }
 
     p = calloc(81, sizeof(char));
     snprintf(p, 81, "413 %s: Unknown command\r\n", command);
-    send_msg(tnsl, p);
+    send_msg(i, p);
     free(p);
     return 413;
 }
@@ -1762,8 +1649,7 @@ void ibc_receiver(char *crbuf)
 {
     struct hostent  *hp, *tp;
     struct in_addr  in;
-    int             inlist;
-    ncs_list        *tnsl;
+    int             inlist, i;
     char            *hostname, *command, *parameters, *ipaddress;
 
     hp = gethostbyaddr((char *)&clientaddr_in.sin_addr, sizeof(struct in_addr), clientaddr_in.sin_family);
@@ -1781,8 +1667,8 @@ void ibc_receiver(char *crbuf)
      * First check for a fixed IP address.
      */
     inlist = FALSE;
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strcmp(ncs_list[i].server, hostname) == 0) {
 	    inlist = TRUE;
 	    break;
 	}
@@ -1792,9 +1678,9 @@ void ibc_receiver(char *crbuf)
 	 * Check for dynamic dns address
 	 */
 	ipaddress = xstrcpy(inet_ntoa(clientaddr_in.sin_addr));
-	for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	    if (tnsl->dyndns) {
-		tp = gethostbyname(tnsl->server);
+	for (i = 0; i < MAXIBC_NCS; i++) {
+	    if (strlen(ncs_list[i].server) && ncs_list[i].dyndns) {
+		tp = gethostbyname(ncs_list[i].server);
 		if (tp != NULL) {
 		    memcpy(&in, tp->h_addr, tp->h_length);
 		    if (strcmp(inet_ntoa(in), ipaddress) == 0) {
@@ -1802,11 +1688,11 @@ void ibc_receiver(char *crbuf)
 			 * Test if the backresolved dynamic DNS name is changed, but exclude the
 			 * initial value which is the same as the real server name.
 			 */
-			if (strcmp(tnsl->resolved, hostname) && strcmp(tnsl->resolved, tnsl->server)) {
+			if (strcmp(ncs_list[i].resolved, hostname) && strcmp(ncs_list[i].resolved, ncs_list[i].server)) {
 			    Syslog('r', "IBC: GrepThiz old resolved %s new resolved %s state %s", 
-					tnsl->resolved, hostname, ncsstate[tnsl->state]);
-			    Syslog('+', "IBC: server %s resolved FQDN changed, restarting", tnsl->server);
-			    tnsl->crc--;
+					ncs_list[i].resolved, hostname, ncsstate[ncs_list[i].state]);
+			    Syslog('+', "IBC: server %s resolved FQDN changed, restarting", ncs_list[i].server);
+			    ncs_list[i].crc--;
 			    link_reset = TRUE;
 			    /*
 			     * This would be the moment to reset this neighbour
@@ -1818,11 +1704,11 @@ void ibc_receiver(char *crbuf)
 			 * FQDN to the one from the setup, so we continue to use the
 			 * dynamic FQDN.
 			 */
-			if (strcmp(tnsl->resolved, hostname))
-			    Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", hostname, tnsl->server);
-			strncpy(tnsl->resolved, hostname, 63);
+			if (strcmp(ncs_list[i].resolved, hostname))
+			    Syslog('r', "IBC: setting '%s' to dynamic dns '%s'", hostname, ncs_list[i].server);
+			strncpy(ncs_list[i].resolved, hostname, 63);
 			inlist = TRUE;
-			hostname = tnsl->server;
+			hostname = ncs_list[i].server;
 			break;
 		    }
 		}
@@ -1835,12 +1721,12 @@ void ibc_receiver(char *crbuf)
 	return;
     }
 
-    if (tnsl->state == NCS_INIT) {
+    if (ncs_list[i].state == NCS_INIT) {
 	Syslog('r', "IBC: message received from %s while in init state, dropped", hostname);
 	return;
     }
 
-    tnsl->last = now;
+    ncs_list[i].last = now;
     crbuf[strlen(crbuf) -2] = '\0';
 #ifndef PING_PONG_LOG
     if (strcmp(crbuf, (char *)"PING") && strcmp(crbuf, (char *)"PONG"))
@@ -1862,42 +1748,47 @@ void ibc_receiver(char *crbuf)
 
 
 
+void ibc_init(void)
+{
+    memset(&ncs_list, 0, sizeof(ncs_list));
+    memset(&srv_list, 0, sizeof(srv_list));
+}
+
+
+
 void ibc_shutdown(void)
 {
-    ncs_list	*tnsl;
-    usr_list	*usrp;
-    char	*p;
+    char    *p;
+    int	    i;
 
     Syslog('r', "IBC: start shutdown connections");
 
-    for (usrp = users; usrp; usrp = usrp->next) {
-	if (strcmp(usrp->server, CFG.myfqdn) == 0) {
+    for (i = 0; i < MAXIBC_USR; i++) {
+	if (strcmp(usr_list[i].server, CFG.myfqdn) == 0) {
 	    /*
 	     * Our user, still connected
 	     */
 	    p = calloc(512, sizeof(char));
-	    if (strlen(usrp->channel) && strcmp(usrp->channel, "#sysop")) {
+	    if (strlen(usr_list[i].channel) && strcmp(usr_list[i].channel, "#sysop")) {
 		/*
 		 * In a channel
 		 */
-		snprintf(p, 512, "PART %s@%s %s System shutdown\r\n", usrp->nick, usrp->server, usrp->channel);
+		snprintf(p, 512, "PART %s@%s %s System shutdown\r\n", usr_list[i].nick, usr_list[i].server, usr_list[i].channel);
 		broadcast((char *)"foobar", p);
 	    }
-	    snprintf(p, 512, "QUIT %s@%s System shutdown\r\n", usrp->nick, usrp->server);
+	    snprintf(p, 512, "QUIT %s@%s System shutdown\r\n", usr_list[i].nick, usr_list[i].server);
 	    broadcast((char *)"foobar", p);
 	    free(p);
 	}
     }
 
     p = calloc(512, sizeof(char));
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (tnsl->state == NCS_CONNECT) {
-	    snprintf(p, 512, "SQUIT %s System shutdown\r\n", tnsl->myname);
-	    send_msg(tnsl, p);
+    for (i = 0; i < MAXIBC_NCS; i++) {
+	if (strlen(ncs_list[i].server) && ncs_list[i].state == NCS_CONNECT) {
+	    snprintf(p, 512, "SQUIT %s System shutdown\r\n", ncs_list[i].myname);
+	    send_msg(i, p);
 	}
     }
     free(p);
-
-    tidy_servers(&servers);
 }
 

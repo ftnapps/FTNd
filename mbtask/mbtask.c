@@ -1645,6 +1645,7 @@ int main(int argc, char **argv)
     load_ports();
     check_ports();
     chat_init();
+    ibc_init();
 
     /*
      * Now that init is complete and this program is locked, it is

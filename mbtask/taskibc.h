@@ -3,12 +3,16 @@
 
 /* $Id$ */
 
+#define MAXIBC_NCS      20                  /* Maximum Neighbour ChatServers    */
+#define MAXIBC_SRV      100                 /* Maximum Servers in chatnetwork   */
+#define MAXIBC_USR      100                 /* Maximum Users in chatnetwork     */
+#define MAXIBC_CHN      100                 /* Maximum Channels in chatnetwork  */
+
 
 /*
  * Linked list of neighbour chatservers
  */
-typedef struct _ncs_list {
-    struct _ncs_list	*next;
+typedef struct _ncs_rec {
     char		server[64];	    /* Server address		*/
     char		resolved[64];	    /* Resolved server address	*/
     char		myname[64];	    /* My server address	*/
@@ -27,15 +31,16 @@ typedef struct _ncs_list {
     unsigned int	token;		    /* Server token		*/
     int			halfdead;	    /* Halfdead connect count	*/
     unsigned int	crc;		    /* CRC value of record	*/
-} ncs_list;
+} _ncs_list;
+
+_ncs_list		ncs_list[MAXIBC_NCS];
 
 
 
 /*
  * Database with servers
  */
-typedef struct _srv_list {
-    struct _srv_list	*next;
+typedef struct _srv_rec {
     char		server[64];	    /* FQDN of the server	*/
     char		router[64];	    /* Route to this server	*/
     int			hops;		    /* Howmany hops away	*/
@@ -44,15 +49,16 @@ typedef struct _srv_list {
     char		vers[21];	    /* Version string		*/
     char		fullname[37];	    /* Full BBS name		*/
     int			users;		    /* Users in chat		*/
-} srv_list;
+} _srv_list;
+
+_srv_list		srv_list[MAXIBC_SRV];
 
 
 
 /*
  * Database with users
  */
-typedef struct _usr_list {
-    struct _usr_list	*next;
+typedef struct _usr_rec {
     char		server[64];	    /* FQDN of users server	*/
     char		name[10];	    /* Users unix name		*/
     char		nick[10];	    /* Users nick name		*/
@@ -62,15 +68,16 @@ typedef struct _usr_list {
     unsigned		sysop	    : 1;    /* User is a sysop		*/
     pid_t		pid;		    /* Users pid if local	*/
     int			pointer;	    /* Users message pointer	*/
-} usr_list;
+} _usr_list;
+
+_usr_list		usr_list[MAXIBC_USR];
 
 
 
 /*
  * Database with channels
  */
-typedef struct _chn_list {
-    struct _chn_list	*next;
+typedef struct _chn_rec {
     char		server[64];	    /* Originating server	*/
     char		name[21];	    /* Channel name		*/
     char		topic[55];	    /* Channel topic		*/
@@ -78,7 +85,9 @@ typedef struct _chn_list {
     time_t		created;	    /* Channel created		*/
     time_t		lastmsg;	    /* Last message in channel	*/
     int			users;		    /* Users in channel		*/
-} chn_list;
+} _chn_list;
+
+_chn_list		chn_list[MAXIBC_CHN];
 
 
 
@@ -106,10 +115,10 @@ typedef struct _nick_list {
 } nick_list;
 
 
-int  add_user(usr_list **, char *, char *, char *);
-void del_user(usr_list **, char *, char *);
-int  add_channel(chn_list **, char *, char *, char *);
-void del_channel(chn_list **, char *);
+int  add_user(char *, char *, char *);
+void del_user(char *, char *);
+int  add_channel(char *, char *, char *);
+void del_channel(char *);
 int  do_command(char *, char *, char *);
 
 void send_all(char *);
@@ -117,8 +126,8 @@ void send_at(char *, char *, char *);
 void send_nick(char *, char *, char *);
 void check_servers(void);
 void ibc_receiver(char *);
+void ibc_init(void);
 void ibc_shutdown(void);
-
 
 
 #endif
