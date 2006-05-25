@@ -1020,6 +1020,8 @@ int command_server(char *hostname, char *parameters)
     unsigned int    token;
     int		    i, j, ihops, found = FALSE;
 
+    Syslog('c', "IBC: cmd_server(%s, %s)", hostname, parameters);
+
     name = strtok(parameters, " \0");
     hops = strtok(NULL, " \0");
     token = atoi(strtok(NULL, " \0"));
@@ -1034,6 +1036,8 @@ int command_server(char *hostname, char *parameters)
 	    break;
 	}
     }
+
+    Syslog('c', "IBC: found=%s", found ?"True":"False");
 
     if (found && fullname == NULL) {
 	send_msg(i, (char *)"400 SERVER: Not enough parameters\r\n");
