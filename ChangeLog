@@ -1,7 +1,14 @@
 $Id$
 
 
+	WARNING!!! Latest version is unstable...  VERY UNSTABLE!!!
+
+
 v0.83.19	23-May-2006
+
+	mbtask:
+		Changed dynamic arrays to static arrays in the chatserver
+		which may prevent mbtask crashes.
 
 
 v0.83.18	01-Apr-2006 - 23-May-2006
