@@ -3,10 +3,11 @@
 
 /* $Id$ */
 
-#define MAXIBC_NCS      20                  /* Maximum Neighbour ChatServers    */
-#define MAXIBC_SRV      100                 /* Maximum Servers in chatnetwork   */
-#define MAXIBC_USR      100                 /* Maximum Users in chatnetwork     */
-#define MAXIBC_CHN      100                 /* Maximum Channels in chatnetwork  */
+#define MAXIBC_NCS      50                  /* Maximum Neighbour ChatServers    */
+#define MAXIBC_SRV      200                 /* Maximum Servers in chatnetwork   */
+#define MAXIBC_USR      500                 /* Maximum Users in chatnetwork     */
+#define MAXIBC_CHN      200                 /* Maximum Channels in chatnetwork  */
+
 
 
 /*
@@ -92,27 +93,27 @@ _chn_list		chn_list[MAXIBC_CHN];
 
 
 /*
- * Database with banned users
+ * Database with banned users (not yet in use)
  */
-typedef struct _ban_list {
-    struct _ban_list	*next;
-    char		name[10];	    /* Users name		*/
-    char		server[64];	    /* Users server		*/
-    char		channel[21];	    /* Users banned channel	*/
-    time_t		kicked;		    /* Users banned time	*/
-} ban_list;
+//typedef struct _ban_rec {
+//    char		server[64];	    /* Users server             */
+//    char		name[10];	    /* Users name		*/
+//    char		channel[21];	    /* Users banned channel	*/
+//    time_t		kicked;		    /* Users banned time	*/
+//} _ban_list;
 
 
 
 /*
- * Database with nicknames
+ * Database with nicknames (not yet in use)
  */
-typedef struct _nick_list {
-    struct _nick_list	*next;
-    char		nick[10];	    /* Nickname			*/
-    char		server[64];	    /* Originating server	*/
-    time_t		lastused;   	    /* Last used time		*/
-} nick_list;
+//typedef struct _nick_rec {
+//    char		server[64];	    /* Originating server       */
+//    char		nick[10];	    /* Nickname			*/
+//    time_t		lastused;   	    /* Last used time		*/
+//} _nick_list;
+
+
 
 
 int  add_user(char *, char *, char *);

@@ -549,8 +549,6 @@ void chat_put_r(char *data, char *buf)
 			    owner = TRUE;
 			}
 		    }
-		    Syslog('c', "IBC: process command, in channel %s and we are %sthe owner", 
-			    usr_list[i].channel, owner ? "":"not ");
 		}
 		if (strncasecmp(msg, "/help", 5) == 0) {
 		    chat_help(pid, owner);

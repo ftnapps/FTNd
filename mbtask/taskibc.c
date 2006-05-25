@@ -41,8 +41,6 @@
 extern int		    internet;		    /* Internet status		*/
 time_t			    scfg_time = (time_t)0;  /* Servers config time	*/
 time_t			    now;		    /* Current time		*/
-ban_list		    *banned = NULL;	    /* Banned users		*/
-nick_list		    *nicknames = NULL;	    /* Known nicknames		*/
 int			    callchg = FALSE;	    /* Is call state changed	*/
 int			    srvchg = FALSE;	    /* Is serverlist changed	*/
 int			    usrchg = FALSE;	    /* Is userlist changed	*/
@@ -169,8 +167,8 @@ void dump_ncslist(void)
 	for (i = 0; i < MAXIBC_SRV; i++) {
 	    if (strlen(srv_list[i].server)) {
 		if (! first) {
-		    Syslog('+', "IBC: Idx Server                    Router                     Hops Users Connect time");
-		    Syslog('+', "IBC: --- ------------------------- ------------------------- ----- ----- --------------------");
+		    Syslog('+', "IBC: Idx Server                    Router                    Hops User Connect time");
+		    Syslog('+', "IBC: --- ------------------------- ------------------------- ---- ---- --------------------");
 		    first = TRUE;
 		}
 		snprintf(temp1, 25, "%s", srv_list[i].server);
@@ -179,7 +177,7 @@ void dump_ncslist(void)
 		localtime_r(&tnow, &ptm);
 		snprintf(buf, 21, "%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
-		Syslog('+', "IBC: %3d %-25s %-25s %5d %5d %s", i, temp1, temp2, srv_list[i].hops, srv_list[i].users, buf);
+		Syslog('+', "IBC: %3d %-25s %-25s %4d %4d %s", i, temp1, temp2, srv_list[i].hops, srv_list[i].users, buf);
 	    }
 	} 
 	if (! first) {
@@ -1149,16 +1147,18 @@ int command_server(char *hostname, char *parameters)
 	 * If the user is one of our own and has set a channel topic, send it.
 	 */
 	for (j = 0; j < MAXIBC_USR; j++) {
-	    snprintf(p, 512, "USER %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].realname);
-	    send_msg(i, p);
-	    if (strcmp(usr_list[j].name, usr_list[j].nick)) {
-		snprintf(p, 512, "NICK %s %s %s %s\r\n", usr_list[j].nick, 
+	    if (strlen(usr_list[j].server)) {
+		snprintf(p, 512, "USER %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].realname);
+		send_msg(i, p);
+		if (strcmp(usr_list[j].name, usr_list[j].nick)) {
+		    snprintf(p, 512, "NICK %s %s %s %s\r\n", usr_list[j].nick, 
 			usr_list[j].name, usr_list[j].server, usr_list[j].realname);
-		send_msg(i, p);
-	    }
-	    if (strlen(usr_list[j].channel)) {
-		snprintf(p, 512, "JOIN %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].channel);
-		send_msg(i, p);
+		    send_msg(i, p);
+		}
+		if (strlen(usr_list[j].channel)) {
+		    snprintf(p, 512, "JOIN %s@%s %s\r\n", usr_list[j].name, usr_list[j].server, usr_list[j].channel);
+		    send_msg(i, p);
+		}
 	    }
 	}
 	free(p);
@@ -1288,7 +1288,7 @@ int command_quit(int slot, char *hostname, char *parameters)
 int command_nick(int slot, char *hostname, char *parameters)
 {
     char    *p, *nick, *name, *server, *realname;
-    int	    i, found;
+    int	    i, found, nickerror = FALSE;
 
     nick = strtok(parameters, " \0");
     name = strtok(NULL, " \0");
@@ -1300,7 +1300,25 @@ int command_nick(int slot, char *hostname, char *parameters)
 	return 1;
     }
 
+    /*
+     * Check nickname syntax, max 9 characters, first is alpha, rest alpha or digits.
+     */
     if (strlen(nick) > 9) {
+	nickerror = TRUE;
+    }
+    if (! nickerror) {
+	if (! isalpha(nick[0]))
+	    nickerror = TRUE;
+    }
+    if (! nickerror) {
+	for (i = 1; i < strlen(nick); i++) {
+	    if (! isalnum(nick[i])) {
+		nickerror = TRUE;
+		break;
+	    }
+	}
+    }
+    if (nickerror) {
 	p = calloc(81, sizeof(char));
 	snprintf(p, 81, "402 %s: Erroneous nickname\r\n", nick);
 	send_msg(slot, p);
@@ -1308,8 +1326,6 @@ int command_nick(int slot, char *hostname, char *parameters)
 	return 402;
     }
     
-    // FIXME: check 1st char is alpha, rest alpha/digit
-
     found = FALSE;
     for (i = 0; i < MAXIBC_USR; i++) {
 	if ((strcmp(usr_list[i].name, nick) == 0) || (strcmp(usr_list[i].nick, nick) == 0)) {
@@ -1752,6 +1768,8 @@ void ibc_init(void)
 {
     memset(&ncs_list, 0, sizeof(ncs_list));
     memset(&srv_list, 0, sizeof(srv_list));
+    memset(&usr_list, 0, sizeof(usr_list));
+    memset(&chn_list, 0, sizeof(chn_list));
 }
 
 
@@ -1763,12 +1781,12 @@ void ibc_shutdown(void)
 
     Syslog('r', "IBC: start shutdown connections");
 
+    p = calloc(512, sizeof(char));
     for (i = 0; i < MAXIBC_USR; i++) {
 	if (strcmp(usr_list[i].server, CFG.myfqdn) == 0) {
 	    /*
 	     * Our user, still connected
 	     */
-	    p = calloc(512, sizeof(char));
 	    if (strlen(usr_list[i].channel) && strcmp(usr_list[i].channel, "#sysop")) {
 		/*
 		 * In a channel
@@ -1778,11 +1796,9 @@ void ibc_shutdown(void)
 	    }
 	    snprintf(p, 512, "QUIT %s@%s System shutdown\r\n", usr_list[i].nick, usr_list[i].server);
 	    broadcast((char *)"foobar", p);
-	    free(p);
 	}
     }
 
-    p = calloc(512, sizeof(char));
     for (i = 0; i < MAXIBC_NCS; i++) {
 	if (strlen(ncs_list[i].server) && ncs_list[i].state == NCS_CONNECT) {
 	    snprintf(p, 512, "SQUIT %s System shutdown\r\n", ncs_list[i].myname);
