@@ -186,7 +186,7 @@ void ShowLastcaller(void)
 void system_moni(void)
 {
     int	    ch, y, eof;
-    char    *cnt, buf[128];
+    char    *cnt, buf[128], *t;
     time_t  start, now;
 
     clr_index();
@@ -225,8 +225,12 @@ void system_moni(void)
 			mbse_mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
 			mbse_mvprintw(y,14, (char *)"%.8s", cldecode(strtok(NULL, ",")));
 			mbse_mvprintw(y,23, (char *)"%.8s", cldecode(strtok(NULL, ",")));
-			mbse_mvprintw(y,32, (char *)"%.15s", cldecode(strtok(NULL, ",")));
-			mbse_mvprintw(y,48, (char *)"%.26s", strtok(NULL, ","));
+			t = strtok(NULL, ",");
+			Syslog('-', "%s", t);
+			Syslog('-', "%s", cldecode(t));
+			mbse_mvprintw(y,32, (char *)"%.15s", t);
+//			mbse_mvprintw(y,32, (char *)"%.15s", cldecode(strtok(NULL, ",")));
+			mbse_mvprintw(y,48, (char *)"%.26s", cldecode(strtok(NULL, ",")));
 			start = atoi(strtok(NULL, ";"));
 			now = time(NULL);
 			mbse_mvprintw(y,75, (char *)"%s", t_elapsed(start, now));
