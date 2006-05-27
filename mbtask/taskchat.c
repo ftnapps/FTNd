@@ -463,8 +463,8 @@ void chat_connect_r(char *data, char *buf)
 	    system_msg(usr_list[i].pid, temp);
 	    for (j = 0; j < MAXIBC_SRV; j++) {
 		if (strlen(srv_list[j].server)) {
-		    snprintf(temp, 200, "  %s (%d user%s)", srv_list[j].fullname, 
-			    srv_list[j].users, (srv_list[j].users == 1) ? "":"s");
+		    snprintf(temp, 200, "  %d user%s at '%s'",
+			    srv_list[j].users, (srv_list[j].users == 1) ? " ":"s", srv_list[j].fullname);
 		    system_msg(usr_list[i].pid, temp);
 		    count += srv_list[j].users;
 		}
