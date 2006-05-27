@@ -283,6 +283,27 @@ int add_user(char *server, char *name, char *realname)
 }
 
 
+/*
+ * Delete user from channel
+ */
+void del_userchannel(char *channel)
+{
+    int	    i;
+
+    for (i = 0; i < MAXIBC_CHN; i++) {
+	if (strcmp(chn_list[i].name, channel) == 0) {
+	    chnchg = TRUE;
+	    chn_list[i].users--;
+	    if (chn_list[i].users == 0) {
+		Syslog('+', "IBC: deleted empty channel %s", channel);
+		del_channel(channel);
+	    }
+	    break;
+	}
+    }
+}
+
+
 
 /*
  * Delete one user. If name == NULL then delete all users of a server.
@@ -293,11 +314,15 @@ void del_user(char *server, char *name)
 
     for (i = 0; i < MAXIBC_USR; i++) {
 	if (name && (strcmp(usr_list[i].server, server) == 0) && (strcmp(usr_list[i].name, name) == 0)) {
+	    if (strlen(usr_list[i].channel))
+		del_userchannel(usr_list[i].channel);
 	    Syslog('r', "IBC: del_user(%s, %s) from slot %d", server, printable(name, 0), i);
 	    memset(&usr_list[i], 0, sizeof(_usr_list));
 	    usrchg = TRUE;
 	    count++;
 	} else if ((name == NULL) && (strcmp(usr_list[i].server, server) == 0)) {
+	    if (strlen(usr_list[i].channel))
+		del_userchannel(usr_list[i].channel);
 	    Syslog('r', "IBC: del_user(%s, %s) user %s from slot %d", server, printable(name, 0), usr_list[i].name, i);
 	    memset(&usr_list[i], 0, sizeof(_usr_list));
 	    usrchg = TRUE;
@@ -1442,17 +1467,7 @@ int command_part(int slot, char *hostname, char *parameters)
 	return 0;
     }
 
-    for (i = 0; i < MAXIBC_CHN; i++) {
-	if (strcmp(chn_list[i].name, channel) == 0) {
-	    chnchg = TRUE;
-	    chn_list[i].users--;
-	    if (chn_list[i].users == 0) {
-		Syslog('+', "IBC: deleted empty channel %s", channel);
-		del_channel(channel);
-	    }
-	    break;
-	}
-    }
+    del_userchannel(channel);
 
     for (i = 0; i < MAXIBC_USR; i++) {
 	if ((strcmp(usr_list[i].server, server) == 0) && 
