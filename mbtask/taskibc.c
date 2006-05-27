@@ -291,9 +291,10 @@ void del_userchannel(char *channel)
     int	    i;
 
     for (i = 0; i < MAXIBC_CHN; i++) {
-	if (strcmp(chn_list[i].name, channel) == 0) {
+	if (strcmp(chn_list[i].name, channel) == 0 && chn_list[i].users) {
 	    chnchg = TRUE;
 	    chn_list[i].users--;
+	    Syslog('r', "IBC: del_userchannel(%s), %d users left", channel, chn_list[i].users);
 	    if (chn_list[i].users == 0) {
 		Syslog('+', "IBC: deleted empty channel %s", channel);
 		del_channel(channel);
