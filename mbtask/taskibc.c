@@ -461,6 +461,7 @@ void del_server(char *name)
     for (i = 0; i < MAXIBC_SRV; i++) {
 	if (strcmp(srv_list[i].server, name) == 0) {
 	    Syslog('r', "IBC: del_server(%s), slot %d", name, i);
+	    del_user(srv_list[i].server, NULL);
 	    memset(&srv_list[i], 0, sizeof(_srv_list));
 	    srvchg = TRUE;
 	}
