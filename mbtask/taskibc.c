@@ -231,12 +231,7 @@ void dump_ncslist(void)
 	}
     }
 
-    callchg = FALSE;
-    srvchg = FALSE;
-    usrchg = FALSE;
-    chnchg = FALSE;
-    banchg = FALSE;
-    nickchg = FALSE;
+    callchg = srvchg = usrchg = chnchg = banchg = nickchg = FALSE;
 }
 
 
@@ -251,11 +246,9 @@ int add_user(char *server, char *name, char *realname)
 {
     int	    i, j, Found = FALSE;
 
-    Syslog('r', "IBC: add_user (%s, %s, %s)", server, name, realname);
-
     for (j = 0; j < MAXIBC_USR; j++) {
 	if ((strcmp(usr_list[j].server, server) == 0) && (strcmp(usr_list[j].realname, realname) == 0)) {
-	    Syslog('-', "IBC: add_user(%s, %s, %s), already registered", server, name, realname);
+	    Syslog('!', "IBC: add_user(%s, %s, %s), already registered", server, name, realname);
 	    return 1;
 	}
     }
@@ -267,7 +260,7 @@ int add_user(char *server, char *name, char *realname)
 	}
     }
     if (!Found) {
-	Syslog('-', "IBC: add_user(%s, %s, %s), unknown server", server, name, realname);
+	Syslog('!', "IBC: add_user(%s, %s, %s), unknown server", server, name, realname);
 	return 1;
     }
 
@@ -279,13 +272,13 @@ int add_user(char *server, char *name, char *realname)
 	    strncpy(usr_list[j].realname, realname, 36);
 	    usr_list[j].connected = now;
 	    srv_list[i].users++;
-	    srvchg = TRUE;
-	    usrchg = TRUE;
+	    srvchg = usrchg = TRUE;
+	    Syslog('r', "IBC: add_user (%s, %s, %s) slot=%d", server, name, realname, i);
 	    return 0;
 	}
     }
 
-    Syslog('-', "IBC: add_user(%s, %s, %s), user list is full", server, name, realname);
+    WriteError("IBC: add_user(%s, %s, %s), user list is full", server, name, realname);
     return 2;
 }
 
@@ -298,22 +291,23 @@ void del_user(char *server, char *name)
 {
     int	    i, count = 0;
 
-    Syslog('r', "IBC: deluser (%s, %s)", server, printable(name, 0));
-
     for (i = 0; i < MAXIBC_USR; i++) {
 	if (name && (strcmp(usr_list[i].server, server) == 0) && (strcmp(usr_list[i].name, name) == 0)) {
-	    Syslog('r', "IBC: removed user %s from %s slot %d", name, server, i);
+	    Syslog('r', "IBC: del_user(%s, %s) from slot %d", server, printable(name, 0), i);
 	    memset(&usr_list[i], 0, sizeof(_usr_list));
 	    usrchg = TRUE;
 	    count++;
 	} else if ((name == NULL) && (strcmp(usr_list[i].server, server) == 0)) {
-	    Syslog('r', "IBC: removed user %s from %s slot %d", usr_list[i].name, usr_list[i].server, i);
+	    Syslog('r', "IBC: del_user(%s, %s) user %s from slot %d", server, printable(name, 0), usr_list[i].name, i);
 	    memset(&usr_list[i], 0, sizeof(_usr_list));
 	    usrchg = TRUE;
 	    count++;
 	}
     }
 
+    /*
+     * Update users list of the server
+     */
     for (i = 0; i < MAXIBC_SRV; i++) {
 	if ((strcmp(srv_list[i].server, server) == 0) && srv_list[i].users) {
 	    srv_list[i].users -= count;
@@ -336,12 +330,10 @@ int add_channel(char *name, char *owner, char *server)
 {
     int	    i;
 
-    Syslog('r', "IBC: add_channel (%s, %s, %s)", name, owner, server);
-
     for (i = 0; i < MAXIBC_CHN; i++) {
 	if ((strcmp(chn_list[i].name, name) == 0) && (strcmp(chn_list[i].owner, owner) == 0) && 
 		(strcmp(chn_list[i].server, server) == 0)) {
-	    Syslog('-', "IBC: add_channel(%s, %s, %s), already registered", name, owner, server);
+	    Syslog('!', "IBC: add_channel(%s, %s, %s), already registered", name, owner, server);
 	    return 1;
 	}
     }
@@ -354,11 +346,12 @@ int add_channel(char *name, char *owner, char *server)
 	    chn_list[i].users = 1;
 	    chn_list[i].created = now;
 	    chnchg = TRUE;
+	    Syslog('r', "IBC: add_channel (%s, %s, %s) slot=%d", name, owner, server, i);
 	    return 0;
 	}
     }
 
-    Syslog('-', "IBC: add_channel(%s, %s, %s), too many channels", name, owner, server);
+    WriteError("IBC: add_channel(%s, %s, %s), too many channels", name, owner, server);
     return 2;
 }
 
@@ -368,10 +361,9 @@ void del_channel(char *name)
 {
     int	    i;
 	        
-    Syslog('r', "IBC: del_channel %s", name);
-
     for (i = 0; i < MAXIBC_CHN; i++) {
 	if (strcmp(chn_list[i].name, name) == 0) {
+	    Syslog('r', "IBC: del_channel(%s), slot=%d", name, i);
 	    memset(&chn_list[i], 0, sizeof(_chn_list));
 	}
     }
@@ -379,15 +371,18 @@ void del_channel(char *name)
 
 
 
+/*
+ * Add a server to the list, returns
+ *  0 = error
+ *  1 = success
+ */
 int add_server(char *name, int hops, char *prod, char *vers, char *fullname, char *router)
 {
     int	    i, haverouter = FALSE;
 
-    Syslog('r', "IBC: add_server %s %d %s %s \"%s\" %s", name, hops, prod, vers, fullname, router);
- 
     for (i = 0; i < MAXIBC_SRV; i++) {
 	if (strlen(srv_list[i].server) && (strcmp(srv_list[i].server, name) == 0)) {
-	    Syslog('r', "IBC: duplicate, ignore");
+	    Syslog('r', "IBC: add_server %s %d %s %s \"%s\" %s, duplicate, ignore", name, hops, prod, vers, fullname, router);
 	    return 0;
 	}
     }
@@ -403,7 +398,7 @@ int add_server(char *name, int hops, char *prod, char *vers, char *fullname, cha
 	    }
 	}
 	if (! haverouter) {
-	    Syslog('-', "IBC: no router for server %s, ignore", name);
+	    Syslog('r', "IBC: add_server %s %d %s %s \"%s\" %s, no router, ignore", name, hops, prod, vers, fullname, router);
 	    return 0;
 	}
     }
@@ -419,11 +414,12 @@ int add_server(char *name, int hops, char *prod, char *vers, char *fullname, cha
 	    srv_list[i].users = 0;
 	    srv_list[i].hops = hops;
 	    srvchg = TRUE;
+	    Syslog('r', "IBC: add_server %s %d %s %s \"%s\" %s, slot=%d", name, hops, prod, vers, fullname, router, i);
 	    return 1;
 	}
     }
 
-    Syslog('!', "IBC: Can't add server, no free slot");
+    WriteError("IBC: add_server %s %d %s %s \"%s\" %s, serverlist full", name, hops, prod, vers, fullname, router);
     return 0;
 }
 
@@ -436,10 +432,9 @@ void del_server(char *name)
 {
     int	    i;
 
-    Syslog('r', "IBC: delserver %s", name);
-
     for (i = 0; i < MAXIBC_SRV; i++) {
 	if (strcmp(srv_list[i].server, name) == 0) {
+	    Syslog('r', "IBC: del_server(%s), slot %d", name, i);
 	    memset(&srv_list[i], 0, sizeof(_srv_list));
 	    srvchg = TRUE;
 	}
@@ -455,10 +450,9 @@ void del_router(char *name)
 {   
     int	    i;
     
-    Syslog('r', "IBC: delrouter %s", name);
-
     for (i = 0; i < MAXIBC_SRV; i++) {
 	if (strcmp(srv_list[i].router, name) == 0) {
+	    Syslog('r', "IBC: del_router(%s) slot %d", name, i);
 	    del_user(srv_list[i].server, NULL);
 	    memset(&srv_list[i], 0, sizeof(_srv_list));
 	    srvchg = TRUE;
@@ -572,7 +566,7 @@ int send_msg(int slot, char *msg)
 
     if (sendto(ncs_list[slot].socket, msg, strlen(msg), 0, 
 		(struct sockaddr *)&ncs_list[slot].servaddr_in, sizeof(struct sockaddr_in)) == -1) {
-	Syslog('!', "$IBC: can't send message");
+	WriteError("$IBC: can't send message");
 	return -1;
     }
     return 0;
@@ -723,7 +717,7 @@ void check_servers(void)
 		Syslog('r', "IBC: Starting remove list");
 		for (i = 0; i < MAXIBC_NCS; i++) {
 		    if (ncs_list[i].remove) {
-		        Syslog('r', "do %s", ncs_list[i].server);
+		        Syslog('r', " do %s", ncs_list[i].server);
 			memset(&ncs_list[i], 0, sizeof(_ncs_list));
 		        callchg = TRUE;
 		    }
@@ -781,15 +775,11 @@ void check_servers(void)
 
 	if (((int)ncs_list[i].action - (int)now) <= 0) {
 	    switch (ncs_list[i].state) {
-		case NCS_INIT:	    Syslog('r', "IBC: %s init", ncs_list[i].server);
-
-				    /*
-				     * If Internet is available, setup the connection.
-				     */
-				    if (internet) {
+		case NCS_INIT:	    if (internet) {
 					/*
-					 * Get IP address for the hostname, set default next action
-					 * to 60 seconds.
+					 * Internet is available, setup the connection.
+					 * Get IP address for the hostname.
+					 * Set default next action to 60 seconds.
 					 */
 					ncs_list[i].action = now + (time_t)60;
 					memset(&ncs_list[i].servaddr_in, 0, sizeof(struct sockaddr_in));
@@ -824,16 +814,18 @@ void check_servers(void)
 						callchg = TRUE;
 						break;
 					    }
-					    Syslog('r', "IBC: socket created");
+					    Syslog('r', "IBC: socket %d created for %s", ncs_list[i].socket, ncs_list[i].server);
 					} else {
-					    Syslog('r', "IBC: socket reused");
+					    Syslog('r', "IBC: socket %d reused for %s", ncs_list[i].socket, ncs_list[i].server);
 					}
 
-					Syslog('r', "IBC: socket %d", ncs_list[i].socket);
 					ncs_list[i].state = NCS_CALL;
 					ncs_list[i].action = now + (time_t)1;
 					callchg = TRUE;
 				    } else {
+					/*
+					 * No internet, just wait
+					 */
 					ncs_list[i].action = now + (time_t)10;
 				    }
 				    break;
