@@ -628,7 +628,7 @@ void Chat(int sysop)
 		    strncpy(resp, cldecode(strtok(NULL, ";")), 81);  /* The message	    */
 		    DispMsg(resp);
 		    if (rc == 1) {
-			Syslog('+', "Chat server error: %s", resp);
+			Syslog('+', "Chat server message: %s", resp);
 			stop = TRUE;
 			data = FALSE;
 		    }

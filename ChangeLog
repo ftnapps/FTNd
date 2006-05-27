@@ -3,6 +3,10 @@ $Id$
 
 v0.83.20	27-May-2006
 
+	mbmon:
+		Fixed a text message.
+
+
 v0.83.19	23-May-2006 - 27-May-2006
 
 	mbtask:
