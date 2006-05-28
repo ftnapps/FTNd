@@ -388,9 +388,10 @@ void del_channel(char *name)
     int	    i;
 	        
     for (i = 0; i < MAXIBC_CHN; i++) {
-	if (strcmp(chn_list[i].name, name) == 0) {
+	if (strlen(chn_list[i].server) && (strcmp(chn_list[i].name, name) == 0)) {
 	    Syslog('r', "IBC: del_channel(%s), slot=%d", name, i);
 	    memset(&chn_list[i], 0, sizeof(_chn_list));
+	    return;
 	}
     }
 }
