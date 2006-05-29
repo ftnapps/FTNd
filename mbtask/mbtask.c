@@ -117,6 +117,8 @@ extern time_t		resettime;		/* IBC reset time	*/
 int			Run_IBC = TRUE;		/* Run IBC server	*/
 
 
+void logtasks(void);
+
 
 /*
  *  Load main configuration, if it doesn't exist, create it.
@@ -473,7 +475,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	Syslog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
 	return 0;
     }
-//    memset(vector, 0, sizeof(vector));
+
     for (i = 0; i < 16; i++)
 	vector[i] = NULL;
     
@@ -554,6 +556,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	    task[i].running = TRUE;
 	    task[i].rc = 0;
 	    task[i].tasktype = tasktype;
+	    logtasks();
 	    break;
 	}
     }
@@ -585,23 +588,18 @@ int runtasktype(int tasktype)
 
 
 
-/*
- * Signal handler for finished tasks
- */
-void taskdie(int);
-void taskdie(int onsig)
+void logtasks(void)
 {
-    int	    i, status;
-
-    for (i = 0; i < MAXTASKS; i++) {
-	if (strlen(task[i].name)) {
-	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
-	    if (task[i].rc) {
-		task[i].running = FALSE;
-		task[i].status = status;
-		Syslog('t', "taskdie() set task %d got signal, rc=%d, status=%d", i, task[i].rc, status);
-	    }
-	}
+    int	    i, first = TRUE;
+    
+    if (first) {
+	first = FALSE;
+	Syslog('t', "Task             Type      pid stat    rc");
+	Syslog('t', "---------------- ------- ----- ---- -----");
+	for (i = 0; i < MAXTASKS; i++)
+	    if (strlen(task[i].name))
+		Syslog('t', "%-16s %s %5d %s %5d", task[i].name, callmode(task[i].tasktype),
+			    task[i].pid, task[i].running?"runs":"stop", task[i].rc);
     }
 }
 
@@ -614,7 +612,7 @@ void taskdie(int onsig)
  */
 int checktasks(int onsig)
 {
-    int	i, j, rc, count = 0, first = TRUE;
+    int	i, j, rc, count = 0, status;
 
     for (i = 0; i < MAXTASKS; i++) {
 	if (strlen(task[i].name)) {
@@ -626,18 +624,22 @@ int checktasks(int onsig)
 		    Syslog('+', "%s to %s (pid %d) failed", SigName[onsig], task[i].name, task[i].pid);
 	    }
 
+	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
+	    task[i].status = status;
+
 	    /*
-	     * If task was set not running by taskdie(), handle status
+	     * If task was set not running, handle status
 	     */
-	    if (task[i].running) {
-		count++;
-	    } else {
+	    if (task[i].rc) {
+		task[i].running = FALSE;
+		
 		/*
 		 * If a mailer call is finished, set the global rescan flag.
 		 */
 		if (task[i].tasktype == CM_POTS || task[i].tasktype == CM_ISDN || task[i].tasktype == CM_INET)
 		    rescan = TRUE;
 		ptimer = PAUSETIME;
+
 		/*
 		 * If a nodelist compiler is ready, reload the nodelists configuration
 		 */
@@ -646,53 +648,53 @@ int checktasks(int onsig)
 		    initnl();
 		}
 
-		if (first) {
-		    first = FALSE;
-		    Syslog('t', "Task             Type      pid stat");
-		    Syslog('t', "---------------- ------- ----- ----");
-		    for (j = 0; j < MAXTASKS; j++)
-			if (strlen(task[j].name))
-			    Syslog('t', "%-16s %s %5d %s", task[j].name, callmode(task[j].tasktype), 
-				task[j].pid, task[j].running?"runs":"stop");
-		}
-
-		switch (task[i].rc) {
-		    case -1:
-			    if (errno == ECHILD)
-				Syslog('+', "Task %d \"%s\" is ready", i, task[i].name);
+		logtasks();
+	    }
+	    
+	    switch (task[i].rc) {
+	        case -1:
+		        if (errno == ECHILD)
+			    Syslog('+', "Task %d \"%s\" is ready", i, task[i].name);
+			else
+			    Syslog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
+			break;
+		case 0:
+		        /*	 
+		         * Update last known status when running.	 
+		         */	     
+		        task[i].status = status;    
+		        count++;
+		        break;
+		default:
+		        if (WIFEXITED(task[i].status)) {
+			    rc = WEXITSTATUS(task[i].status);
+			    if (rc)
+			        Syslog('+', "Task %s is ready, error=%d", task[i].name, rc);
 			    else
-				Syslog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
-			    break;
-		    case 0:
-			    break;
-		    default:
-			    if (WIFEXITED(task[i].status)) {
-				rc = WEXITSTATUS(task[i].status);
-				if (rc)
-				    Syslog('+', "Task %s is ready, error=%d", task[i].name, rc);
-				else
-				    Syslog('+', "Task %s is ready", task[i].name);
-			    } else if (WIFSIGNALED(task[i].status)) {
-				rc = WTERMSIG(task[i].status);
-				/*
-				 * Here we don't report an error number, on FreeBSD WIFSIGNALED
-				 * seems true while there's nothing wrong.
-				 */
-				Syslog('+', "Task %s terminated", task[i].name);
-			    } else if (WIFSTOPPED(task[i].status)) {
-				rc = WSTOPSIG(task[i].status);
-				Syslog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
-			    } else {
-				Syslog('+', "FIXME: 1");
-			    }
-			    break;
-		}
+			        Syslog('+', "Task %s is ready", task[i].name);
+			} else if (WIFSIGNALED(task[i].status)) {
+			    rc = WTERMSIG(task[i].status);
+			    /*
+			     * Here we don't report an error number, on FreeBSD WIFSIGNALED
+			     * seems true while there's nothing wrong.
+			     */
+			    Syslog('+', "Task %s terminated", task[i].name);
+			} else if (WIFSTOPPED(task[i].status)) {
+			    rc = WSTOPSIG(task[i].status);
+			    Syslog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
+			}
+			break;
+	    }
 
-		for (j = 0; j < MAXTASKS; j++) {
-		    if (calllist[j].taskpid == task[i].pid) {
-			calllist[j].calling = FALSE;
-			calllist[j].taskpid = 0;
-			rescan = TRUE;
+	    /*
+	     * Remove finished task from the list
+	     */
+	    if (!task[i].running) {
+	        for (j = 0; j < MAXTASKS; j++) {
+		   if (calllist[j].taskpid == task[i].pid) {
+		        calllist[j].calling = FALSE;
+		        calllist[j].taskpid = 0;
+		        rescan = TRUE;
 		    }
 		}
 		memset(&task[i], 0, sizeof(onetask));
@@ -1128,11 +1130,9 @@ void scheduler(void)
      */
     do {
 	/*
-	 * Poll UNIX Datagram socket and IBC UDP socket until the defined 
-	 * timeout of one second.
-	 * This means we listen if a MBSE BBS client program has something
-	 * to tell. Timeout is one second, after the timeout the rest of the
-	 * mainloop is executed.
+	 * Poll UNIX Datagram socket and IBC UDP socket until the defined timeout of one second.
+	 * This means we listen if a MBSE BBS client program has something to tell us.
+	 * Timeout is one second, after the timeout the rest of the mainloop is executed.
 	 */
 	pfd[0].fd = sock;
 	pfd[0].events = POLLIN;
@@ -1560,8 +1560,8 @@ int main(int argc, char **argv)
             signal(i, (void (*))die);
 	else if ((i == SIGINT) || (i == SIGTERM))
 	    signal(i, (void (*))start_shutdown);
-	else if (i == SIGCHLD)
-	    signal(i, (void (*))taskdie);
+	else
+	    signal(i, SIG_IGN);
     }
 
     /*

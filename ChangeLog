@@ -11,6 +11,8 @@ v0.83.20	27-May-2006
 		Registration info for the clients was send double coded.
 		Delete users from channel when a server disconnects.
 		Delete users from a server when server disconnects.
+		Check for stopped tasks reverted to the old method without
+		signal handlers.
 
 
 v0.83.19	23-May-2006 - 27-May-2006
