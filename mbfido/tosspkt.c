@@ -221,10 +221,12 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 	    FirstLine = FALSE;
     } /* end of checking kludges */
 
-    if (echomail) {
-	Syslog('-', "Echo area %s from %s subj \"%s\" size %d", msgs.Tag, f->name, subj, size);
-    } else {
-	Syslog('-', "Net from %s subj \"%s\" size %d", f->name, subj, size);
+    if (size >= 32768) {
+	if (echomail) {
+	    Syslog('!', "WARNING: Echo area %s from \"%s\" subj \"%s\" size %d", msgs.Tag, f->name, subj, size);
+	} else {
+	    Syslog('!', "WARNING: Net from \"%s\" subj \"%s\" size %d", f->name, subj, size);
+	}
     }
 
     if (echomail) {

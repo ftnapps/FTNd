@@ -14,6 +14,9 @@ v0.83.20	27-May-2006
 		Check for stopped tasks reverted to the old method without
 		signal handlers.
 
+	mbfido:
+		Added warning log for messages >= 32768 bytes.
+
 
 v0.83.19	23-May-2006 - 27-May-2006
 
