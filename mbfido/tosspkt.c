@@ -222,9 +222,9 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
     } /* end of checking kludges */
 
     if (echomail) {
-	Syslog('-', "Echomail area %s subj %s size %d", msgs.Tag, subj, size);
+	Syslog('-', "Echo area %s from %s subj \"%s\" size %d", msgs.Tag, f->name, subj, size);
     } else {
-	Syslog('-', "Netmail from %s subj %s size %d", f->name, subj, size);
+	Syslog('-', "Net from %s subj \"%s\" size %d", f->name, subj, size);
     }
 
     if (echomail) {
