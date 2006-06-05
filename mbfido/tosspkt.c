@@ -141,7 +141,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 	int flags, int cost, FILE *fp, unsigned int tzone)
 {
     char	*buf, *marea = NULL;
-    int		echomail = FALSE, rc = 0, bad = 0, Known = FALSE, FirstLine;
+    int		echomail = FALSE, rc = 0, bad = 0, Known = FALSE, FirstLine, size = 0;
     sysconnect	Link;
 
     if (CFG.slow_util && do_quiet)
@@ -174,6 +174,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
     FirstLine = TRUE;
     while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL) {
 
+	size += strlen(buf);
 	Striplf(buf);
 
 	/*
@@ -219,6 +220,12 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 	if (*buf != '\001')
 	    FirstLine = FALSE;
     } /* end of checking kludges */
+
+    if (echomail) {
+	Syslog('-', "Echomail area %s subj %s size %d", msgs.Tag, subj, size);
+    } else {
+	Syslog('-', "Netmail from %s subj %s size %d", f->name, subj, size);
+    }
 
     if (echomail) {
 	if (bad) {
@@ -319,7 +326,7 @@ int TossPkt(char *fn)
 int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 {
     char	    buf[MAX_LINE_LENGTH +1], *orig = NULL, *p, *l, *r, *subj = NULL;
-    int		    tmp, rc, maxrc = 0, result, flags, cost, size = 0;
+    int		    tmp, rc, maxrc = 0, result, flags, cost;
     static faddr    f, t;
     faddr	    *o;
     time_t	    mdate = 0L;
@@ -431,7 +438,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
     while (aread(buf,sizeof(buf)-1,pkt)) {
 
 	fputs(buf, fp);
-	size += strlen(buf);
 
 	/*
 	 * Extract info from Origin line if found.
@@ -462,8 +468,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 		orig = xstrcpy(p);
 	}
     }
-
-    Syslog('m', "message size %d", size);
 
     rc = importmsg(p_from, &f, &t, orig, subj, mdate, flags, cost, fp, p_to->zone);
     if (rc)
