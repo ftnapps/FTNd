@@ -558,6 +558,8 @@ void reg_fre_r(char *buf)
  */
 void get_reginfo_r(int first, char *buf)
 {
+    char    *u, *p, *c, *d;
+
     snprintf(buf, SS_BUFSIZE, "100:0;");
 
     /*
@@ -575,11 +577,17 @@ void get_reginfo_r(int first, char *buf)
 	    return;
 
 	if ((int)reginfo[entrypos].pid != 0) {
+	    u = xstrcpy(clencode(reginfo[entrypos].uname));
+	    p = xstrcpy(clencode(reginfo[entrypos].prg));
+	    c = xstrcpy(clencode(reginfo[entrypos].city));
+	    d = xstrcpy(clencode(reginfo[entrypos].doing));
 	    snprintf(buf, SS_BUFSIZE, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
 				reginfo[entrypos].pid, reginfo[entrypos].tty,
-				reginfo[entrypos].uname, reginfo[entrypos].prg, 
-				reginfo[entrypos].city, reginfo[entrypos].doing, 
-				reginfo[entrypos].started);
+				u, p, c, d, reginfo[entrypos].started);
+	    free(u);
+	    free(p);
+	    free(c);
+	    free(d);
 	    return;
 	}
     }

@@ -4,7 +4,7 @@
  * Purpose ...............: Client/Server communications
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -102,8 +102,6 @@ char *xstrcat(char *src, char *add)
 
 void InitClient(char *user, char *myname, char *where, char *logfname, int loggr, char *err, char *mgr, char *debug)
 {
-    char    *u, *w;
-
     if ((getenv("MBSE_ROOT")) == NULL) {
 	printf("Could not get the MBSE_ROOT environment variable\n");
 	printf("Please set the environment variable ie:\n");
@@ -126,14 +124,10 @@ void InitClient(char *user, char *myname, char *where, char *logfname, int loggr
      * some communications with the mbsed server.
      */
     mypid = getpid();
-    u = xstrcpy(clencode(user));
-    w = xstrcpy(clencode(where));
-    if (socket_connect(u, myname, w) == -1) {
+    if (socket_connect(user, myname, where) == -1) {
         printf("PANIC: cannot access socket\n");
         exit(MBERR_INIT_ERROR);
     }
-    free(w);
-    free(u);
 }
 
 
