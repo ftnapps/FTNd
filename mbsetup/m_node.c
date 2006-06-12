@@ -1143,7 +1143,12 @@ int EditNodeRec(int Area)
 	mbse_mvprintw(17, 6, "11.  Statistics");
 
 	switch(select_menu(11)) {
-	case 0:	crc1 = 0xffffffff;
+	case 0:	if (((nodes.Session_out == S_DIR) && (strlen(nodes.Dir_out_path) == 0)) ||
+		    ((nodes.Session_in == S_DIR) && (strlen(nodes.Dir_in_path) == 0))) {
+		    errmsg((char *)"Set a path for directory sessions screen 7.8");
+		    break;
+		}
+		crc1 = 0xffffffff;
 		crc1 = upd_crc32((char *)&nodes, crc1, nodeshdr.recsize);
 		if ((crc != crc1) || GrpChanged) {
 		    if (yes_no((char *)"Record is changed, save") == 1) {
