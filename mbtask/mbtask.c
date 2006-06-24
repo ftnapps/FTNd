@@ -1003,6 +1003,7 @@ void start_scheduler(int port)
     
     if (nodaemon)
 	printf("init fidonet\n");
+
     InitFidonet();
     if (nodaemon)
         printf("done\n");
@@ -1137,14 +1138,20 @@ void scheduler(void)
 	pfd[0].fd = sock;
 	pfd[0].events = POLLIN;
 	pfd[0].revents = 0;
-	pfd[1].fd = ibcsock;
+	pfd[1].fd = ping_isocket;
 	pfd[1].events = POLLIN;
 	pfd[1].revents = 0;
-	pfd[2].fd = ping_isocket;
-	pfd[2].events = POLLIN;
-	pfd[2].revents = 0;
+	if (Run_IBC) {
+	    pfd[2].fd = ibcsock;
+	    pfd[2].events = POLLIN;
+	    pfd[2].revents = 0;
+	}
 
-	rc = poll(pfd, 3, 1000);
+	if (Run_IBC)
+	    rc = poll(pfd, 3, 1000);
+	else
+	    rc = poll(pfd, 2, 1000);
+
         if (rc == -1) {
 	    /* 
 	     *  Poll can be interrupted by a finished child so that's not a real error.
@@ -1152,6 +1159,8 @@ void scheduler(void)
 	    if (errno != EINTR) {
 		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd[0].revents);
 		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, ibcsock, pfd[1].revents);
+		if (Run_IBC)
+		    Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, ping_isocket, pfd[2].revents);
 	    }
         } else if (rc) {
 	    if (pfd[0].revents & POLLIN) {
@@ -1166,9 +1175,20 @@ void scheduler(void)
 		} else {
 		    do_cmd(buf);
 		}
+	    }
+	    if (pfd[1].revents & POLLIN || pfd[1].revents & POLLERR || pfd[1].revents & POLLHUP || pfd[1].revents & POLLNVAL) {
+		/*
+		 * Ping reply received.
+		 */
+		sl = sizeof(ffrom);
+		if ((len = recvfrom(ping_isocket, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
+		    ping_receive(buf, len);
+		} else {
+		    WriteError("$recvfrom() for ping receiver");
+		}
 	    } 
-	    if ((pfd[1].revents & POLLIN || pfd[1].revents & POLLERR || 
-		 pfd[1].revents & POLLHUP || pfd[1].revents & POLLNVAL) && Run_IBC) {
+	    if (Run_IBC && (pfd[2].revents & POLLIN || pfd[2].revents & POLLERR || 
+		 pfd[2].revents & POLLHUP || pfd[2].revents & POLLNVAL)) {
 		/*
 		 * IBC chat command received.
 		 */
@@ -1179,17 +1199,6 @@ void scheduler(void)
 		    ibc_receiver(crbuf);
 		} else {
 		    WriteError("$recvfrom() for IBC receiver");
-		}
-	    }
-	    if (pfd[2].revents & POLLIN || pfd[2].revents & POLLERR || pfd[2].revents & POLLHUP || pfd[2].revents & POLLNVAL) {
-		/*
-		 * Ping reply received.
-		 */
-		sl = sizeof(ffrom);
-		if ((len = recvfrom(ping_isocket, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
-		    ping_receive(buf, len);
-		} else {
-		    WriteError("$recvfrom() for ping receiver");
 		}
 	    }
 	}
@@ -1540,7 +1549,7 @@ int main(int argc, char **argv)
 {
     struct passwd   *pw;
     char	    *lockfile;
-    int             i;
+    int             i, chatport = 0;
     pid_t           frk;
     FILE            *fp;
     struct servent  *se;
@@ -1628,12 +1637,15 @@ int main(int argc, char **argv)
     if ((se = getservbyname("fido", "udp")) == NULL) {
 	WriteError("IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat");
 	Run_IBC = FALSE;
-    } else if (strlen(CFG.bbs_name) == 0) {
-	WriteError("IBC: mbsetup 1.2.1 is empty, cannot start Internet BBS Chat");
-	Run_IBC = FALSE;
-    } else if (strlen(CFG.myfqdn) == 0) {
-	Run_IBC = FALSE;
-	WriteError("IBC: mbsetup 1.2.10 is empty, cannot start Internet BBS Chat");
+    } else {
+	chatport = se->s_port;
+	if (strlen(CFG.bbs_name) == 0) {
+	    WriteError("IBC: mbsetup 1.2.1 is empty, cannot start Internet BBS Chat");
+	    Run_IBC = FALSE;
+	} else if (strlen(CFG.myfqdn) == 0) {
+	    Run_IBC = FALSE;
+	    WriteError("IBC: mbsetup 1.2.10 is empty, cannot start Internet BBS Chat");
+	}
     }
 
     memset(&task, 0, sizeof(task));
@@ -1660,7 +1672,7 @@ int main(int argc, char **argv)
 	 */
 	mypid = getpid();
 	printf("init complete, starting scheduler ...\n");
-	start_scheduler(se->s_port);
+	start_scheduler(chatport);
     } else {
 	/*
 	 * Server initialization is complete. Now we can fork the 
@@ -1701,7 +1713,7 @@ int main(int argc, char **argv)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		mypid = getpid();
-		start_scheduler(se->s_port);
+		start_scheduler(chatport);
 		/* Not reached */
 	default:
 		/*

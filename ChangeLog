@@ -7,6 +7,10 @@ v0.83.21	10-Jun-2006
 		In nodes setup added check for paths when directory sessions
 		are selected.
 
+	mbtask:
+		Fixed a crash when there is no /etc/services udp port for the
+		chatserver.
+
 
 v0.83.20	27-May-2006 - 10-Jun-2006
 
