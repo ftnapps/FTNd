@@ -5,7 +5,7 @@
 include ../Makefile.global
 
 SRCS		= mball.c dlcount.c mblang.c mbstat.c mbtoberep.c mbuser.c mbbw.c
-HDRS		= mball.h dlcount.h mbstat.h mbuser.h mbbw.h
+HDRS		= mball.h dlcount.h mbstat.h mbuser.h
 MBALL_OBJS	= mball.o dlcount.o
 MBALL_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
 MBLANG_OBJS	= mblang.o
