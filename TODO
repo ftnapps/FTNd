@@ -123,20 +123,18 @@ mbnntp:
 
 	N: Lastread pointers are not updated.
 
-mbfile:
-	N: Empty lines in files.bbs stops import.
-
 mbaff:
 	W: Rewrite filefind search algorithm.
 
 mbsetup:
-	N: Add a check for double areatag names.
+	N: Add a check for double areatag names. See MySQL plan.
 
 	N: Use some sort of sorting for the system aka's and make sure the
 	   main aka with zone's is listed first. Having zone's mixed gives
 	   too high outbound stats and the outbound is scanned multiple times.
 
 	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
+	   See MySQL plan.
 
 	W: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.
