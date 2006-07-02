@@ -16,6 +16,9 @@ $Id$
 		 X = Will not be done unless it's really needed.
 
 everything:
+	U: For changed su versions, use 'who am i' to check if we are mbse
+	   su to root.
+
 	W: Implement IPv6.
 
 	N: In BSO the i flavor should have been d flavor.
@@ -26,6 +29,12 @@ everything:
 	L: Add personal message area.
 
 	N: The ttyinfo.tty field is too short for NetBSD.
+
+	W: Implement topic groups for file and message areas, with access level
+	   control.
+
+	W: Switch to MySQL as database backend. This can also solve some other
+	   limitations. A php API should be added too.
 
 install:
 	L: On some (unsupported) distro's with xinetd the installation script
