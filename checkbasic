@@ -12,6 +12,13 @@
 if [ "`grep mbse: /etc/passwd`" != "" ]; then
   if [ "`grep bbs: /etc/group`" != "" ]; then
     if [ -n "$MBSE_ROOT" ]; then
+      if [ "$LOGNAME" = "root" ]; then
+	#
+	# Newer su versions change logname when su to root without
+	# environment change. Try to fix LOGNAME variable.
+	#
+	export LOGNAME="`who am i | awk -F ' ' '{ print $1 }'`"
+      fi
       if [ "$LOGNAME" = "mbse" ]; then
         #
 	# Looks good, normal mbse user and environment is set.
@@ -39,5 +46,5 @@ else
   echo "    Make sure you are root and type ./SETUP.sh and"
   echo "    read the file INSTALL for instructions."
 fi
-
+exit 1
 

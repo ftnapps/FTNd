@@ -3,6 +3,10 @@ $Id$
 
 v0.83.21	10-Jun-2006
 
+	install:
+		The checkbasic script uses more tricks to see if you are mbse
+		su to root before install.
+
 	mbsetup:
 		In nodes setup added check for paths when directory sessions
 		are selected.
