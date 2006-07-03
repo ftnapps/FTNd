@@ -1,7 +1,10 @@
 $Id$
 
 
-v0.83.21	10-Jun-2006
+v0.83.22	03-Jul-2006
+
+
+v0.83.21	10-Jun-2006 - 03-Jul-2006
 
 	install:
 		The checkbasic script uses more tricks to see if you are mbse

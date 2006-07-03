@@ -35,7 +35,7 @@ If anything goes wrong with this script, look at the output of
 the file SETUP.log that is created by this script in this
 directory. If you can't get this script to run on your system,
 mail this logfile to Michiel Broek at 2:280/2802 or email it
-to mbroek@mbse.dds.nl
+to mbroek@mbse.eu
 
 EOF
 
@@ -497,7 +497,7 @@ if [ -f /etc/xinetd.conf ]; then
 cat << EOF >> $XINET
 #:MBSE BBS services are defined here.
 #
-# Author: Michiel Broek <mbse@mbse.dds.nl>, 27-Sep-2004
+# Author: Michiel Broek <mbse@mbse.eu>, 27-Sep-2004
 
 service binkp
 {

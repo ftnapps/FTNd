@@ -116,7 +116,7 @@ void cr(void)
     rs(a);
     wl(a);
     ls(a);
-    pout(WHITE, BLACK, (char *)"Available from http://www.mbse.dds.nl or 2:280/2802                         ");
+    pout(WHITE, BLACK, (char *)"Available from http://www.mbse.eu or 2:280/2802                             ");
     rs(a);
     wl(a);
     ls(a);
