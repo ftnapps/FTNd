@@ -132,8 +132,6 @@ int opentcp(char *name)
 	return -1;
     }
 
-Syslog('-', "1");
-
     signal(SIGPIPE, sigpipe);
     signal(SIGHUP, linedrop);
 
@@ -144,7 +142,6 @@ Syslog('-', "1");
     close(0);
     close(1);
 
-Syslog('-', "2");
     if ((fd = socket(AF_INET,SOCK_STREAM,0)) != 0) {
         WriteError("$Cannot create socket (got %d, expected 0)", fd);
         open("/dev/null",O_RDONLY);
