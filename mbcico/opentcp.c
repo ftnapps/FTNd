@@ -125,11 +125,14 @@ int opentcp(char *name)
 	    case HOST_NOT_FOUND:    errmsg = (char *)"Authoritative: Host not found"; break;
 	    case TRY_AGAIN:	    errmsg = (char *)"Non-Authoritive: Host not found"; break;
 	    case NO_RECOVERY:	    errmsg = (char *)"Non recoverable errors"; break;
+	    case NO_ADDRESS:	    errmsg = (char *)"Host has no IP address"; break;
 	    default:		    errmsg = (char *)"Unknown error"; break;
 	}
 	Syslog('+', "No IP address for %s: %s\n", name, errmsg);
 	return -1;
     }
+
+Syslog('-', "1");
 
     signal(SIGPIPE, sigpipe);
     signal(SIGHUP, linedrop);
@@ -141,6 +144,7 @@ int opentcp(char *name)
     close(0);
     close(1);
 
+Syslog('-', "2");
     if ((fd = socket(AF_INET,SOCK_STREAM,0)) != 0) {
         WriteError("$Cannot create socket (got %d, expected 0)", fd);
         open("/dev/null",O_RDONLY);
