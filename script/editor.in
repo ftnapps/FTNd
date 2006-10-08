@@ -16,14 +16,14 @@ function alarma
 export JOETERM=ansi.sys
 
 ## Read variables from data.msg
-. ~/data.msg
+. $HOME/data.msg
 
 ## Read time left from door.sys
 TIME=`head -n19 ~/door.sys  |tail -n1  |tr -d "[:cntrl:]"`
 
 ## Set preferred editor and parameters
 EDITOR=@joebin@/bbsjoe
-PARAM="~/edit.msg"
+PARAM="$HOME/edit.msg"
 
 # Using joe with emacs keys:
 # You can make a bbsjmacsrc file with emacs keys and put it
