@@ -19,7 +19,7 @@ export JOETERM=ansi.sys
 . $HOME/data.msg
 
 ## Read time left from door.sys
-TIME=`head -n19 ~/door.sys  |tail -n1  |tr -d "[:cntrl:]"`
+TIME=`head -n19 $HOME/door.sys  |tail -n1  |tr -d "[:cntrl:]"`
 
 ## Set preferred editor and parameters
 EDITOR=@joebin@/bbsjoe

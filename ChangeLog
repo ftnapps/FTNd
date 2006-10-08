@@ -1,5 +1,10 @@
 $Id$
 
+v0.91.0		08-Oct-2006
+
+	script:
+		Fixed problems with newer joe editor versions.
+
 
 v0.90.0		06-Nov-2005 - 23-Jul-2006
 
