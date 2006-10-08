@@ -53,9 +53,7 @@ mbsebbs:
 	N: Translate characterset of messages to the users preferred 
            characterset. This is partly done for testing.
 
-	N: Joe 3.3 doesn't work with mbsebbs, some locking problem.
-
-	N: Implement kermit protocol, external versions don't work right.
+	W: Implement kermit protocol, external versions don't work right.
 
 
 mbfido:
