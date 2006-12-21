@@ -37,6 +37,8 @@ everything:
 	   limitations. A php API should be added too.
 
 mbsebbs:
+	U: Remove $HOME/.quote during hangup/logoff.
+
 	W: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
