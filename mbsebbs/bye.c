@@ -4,7 +4,7 @@
  * Purpose ...............: Hangup functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2006
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -140,10 +140,22 @@ void Good_Bye(int onsig)
     sleep(1);
 
     /*
-     * Start shutting down this session
+     * Start shutting down this session, cleanup some files.
      */
     socket_shutdown(mypid);
     snprintf(temp, PATH_MAX, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    unlink(temp);
+
+    snprintf(temp, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    unlink(temp);
+
+    snprintf(temp, PATH_MAX, "%s/%s/data.msg", CFG.bbs_usersdir, exitinfo.Name);
+    unlink(temp);
+
+    snprintf(temp, PATH_MAX, "%s/%s/door.sys", CFG.bbs_usersdir, exitinfo.Name);
+    unlink(temp);
+
+    snprintf(temp, PATH_MAX, "%s/%s/door32.sys", CFG.bbs_usersdir, exitinfo.Name);
     unlink(temp);
 
     snprintf(temp, PATH_MAX, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);

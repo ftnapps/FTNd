@@ -1,6 +1,13 @@
 $Id$
 
-v0.91.0		08-Oct-2006
+v0.91.1		22-Dec-2006
+
+	mbsebbs:
+		Remove some private user files from the users home directory
+		during logoff.
+
+
+v0.91.0		08-Oct-2006 - 22-Dec-2006
 
 	script:
 		Fixed problems with newer joe editor versions.

@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.91.0 TODO list.
+			MBSE BBS V0.91.1 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -37,8 +37,6 @@ everything:
 	   limitations. A php API should be added too.
 
 mbsebbs:
-	U: Remove $HOME/.quote during hangup/logoff.
-
 	W: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
