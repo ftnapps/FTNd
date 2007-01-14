@@ -5,7 +5,7 @@
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -2807,7 +2807,6 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
 	return;
     }
 #endif
-    Syslog('+', "Binkp: compressor select internal error");
 }
 
 

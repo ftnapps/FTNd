@@ -1,5 +1,12 @@
 $Id$
 
+v0.91.2		14-Jan-2007
+
+	mbcico:
+		If no suitable compressor found for binkp transfers then don't
+		complain.
+
+
 v0.91.1		22-Dec-2006
 
 	mbsebbs:
