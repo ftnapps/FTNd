@@ -4,7 +4,7 @@
  * Purpose ...............: BinkleyTerm outbound naming
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -74,6 +74,13 @@ char *prepbuf(faddr *addr)
 	    domain = xstrcpy(addr->domain);
 	} else {
 	    domain = xstrcpy(GetFidoDomain(addr->zone));
+	}
+
+	/*
+	 * If we got a 2d address, add the default zone.
+	 */
+	if (addr->zone == 0 ) {
+	    addr->zone = CFG.aka[0].zone;
 	}
 
 	if ((domain != NULL) && (strlen(CFG.aka[0].domain) != 0) && (strcasecmp(domain,CFG.aka[0].domain) != 0)) {
