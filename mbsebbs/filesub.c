@@ -479,7 +479,7 @@ int ScanDirect(char *fn)
 
 	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
-	    if (virscan.available && file_exist(virscan.scanner, X_OK)) {
+	    if (virscan.available && (file_exist(virscan.scanner, X_OK) == 0)) {
 				      /* Scanning */               /* with */
 		snprintf(msg, 81, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 		pout(CFG.TextColourF, CFG.TextColourB, msg);
@@ -617,7 +617,7 @@ int ScanArchive(char *fn, char *ftype)
 	fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
 	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
-	    if (virscan.available && file_exist(virscan.scanner, X_OK)) {
+	    if (virscan.available && (file_exist(virscan.scanner, X_OK) == 0)) {
 				    /* Scanning */		   /* with */
 		snprintf(msg, 81, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 		pout(CFG.TextColourF, CFG.TextColourB, msg);

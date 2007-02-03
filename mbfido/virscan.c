@@ -63,7 +63,7 @@ int VirScan(char *path)
 
     while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 	if (virscan.available) {
-	    if (file_exist(virscan.scanner, X_OK)) {
+	    if (file_exist(virscan.scanner, X_OK) == 0) {
 	    	has_scan = TRUE;
 	    } else {
 		Syslog('+', "Warning: virusscanner %s marked active but not present", virscan.comment);
@@ -90,7 +90,7 @@ int VirScan(char *path)
     
     fseek(fp, virscanhdr.hdrsize, SEEK_SET);
     while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
-        if (virscan.available && file_exist(virscan.scanner, X_OK)) {
+        if (virscan.available && (file_exist(virscan.scanner, X_OK) ==0)) {
 	    Altime(3600);
 	    vrc = execute_str(virscan.scanner, virscan.options, (char *)NULL, (char *)"/dev/null", stdlog, errlog);
 	    if (file_size(stdlog)) {
