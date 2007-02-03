@@ -9,6 +9,13 @@ v0.91.2		14-Jan-2007
 	mbselib:
 		Fixed commandline address parsing if a 2d address was given.
 
+	mbfido:
+		Check if active marked virusscanner is really present on the
+		system.
+
+	mbsebbs:
+		Check if active marked virusscanner is really present on the
+		system.
 
 
 v0.91.1		22-Dec-2006

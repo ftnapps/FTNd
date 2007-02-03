@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for virusses
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -62,8 +62,13 @@ int VirScan(char *path)
     fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
 
     while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
-	if (virscan.available)
-	    has_scan = TRUE;
+	if (virscan.available) {
+	    if (file_exist(virscan.scanner, X_OK)) {
+	    	has_scan = TRUE;
+	    } else {
+		Syslog('+', "Warning: virusscanner %s marked active but not present", virscan.comment);
+	    }
+	}
     }
     if (!has_scan) {
 	Syslog('+', "No active virus scanners, skipping scan");
@@ -85,7 +90,7 @@ int VirScan(char *path)
     
     fseek(fp, virscanhdr.hdrsize, SEEK_SET);
     while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
-        if (virscan.available) {
+        if (virscan.available && file_exist(virscan.scanner, X_OK)) {
 	    Altime(3600);
 	    vrc = execute_str(virscan.scanner, virscan.options, (char *)NULL, (char *)"/dev/null", stdlog, errlog);
 	    if (file_size(stdlog)) {

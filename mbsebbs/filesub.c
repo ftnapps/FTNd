@@ -4,7 +4,7 @@
  * Purpose ...............: All the file sub functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -479,7 +479,7 @@ int ScanDirect(char *fn)
 
 	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
-	    if (virscan.available) {
+	    if (virscan.available && file_exist(virscan.scanner, X_OK)) {
 				      /* Scanning */               /* with */
 		snprintf(msg, 81, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 		pout(CFG.TextColourF, CFG.TextColourB, msg);
@@ -617,7 +617,7 @@ int ScanArchive(char *fn, char *ftype)
 	fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
 	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
-	    if (virscan.available) {
+	    if (virscan.available && file_exist(virscan.scanner, X_OK)) {
 				    /* Scanning */		   /* with */
 		snprintf(msg, 81, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 		pout(CFG.TextColourF, CFG.TextColourB, msg);
