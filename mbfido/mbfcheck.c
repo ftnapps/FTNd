@@ -545,7 +545,7 @@ void CheckArea(int Area)
 		    }
 		    if (lstat(fn, &stb) == 0) {
 			if (unlink(fn) == 0) {
-			    Syslog('-', "%s dead link removed from disk", fn);
+			    Syslog('!', "%s dead link removed from disk", fn);
 			    iErrors++;
 			} else {
 			    WriteError("$%s link not in fdb, cannot delete", fn);
