@@ -1,6 +1,12 @@
 $Id$
 
-v0.91.2		14-Jan-2007
+v0.91.3		11-Feb-2007
+
+	mbuser:
+		Set default editor on erased records.
+
+
+v0.91.2		14-Jan-2007 - 11-Feb-2007
 
 	mbcico:
 		If no suitable compressor found for binkp transfers then don't

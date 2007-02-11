@@ -4,7 +4,7 @@
  * Purpose ...............: User Pack Util
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -344,6 +344,10 @@ void UserPack(int days, int level, int pack)
 		 * Blank the deleted records for reuse.
 		 */
 		memset(&usr, 0, sizeof(usr));
+		if (strlen(CFG.externaleditor))
+		    usr.MsgEditor = EXTEDIT;
+		else
+		    usr.MsgEditor = FSEDIT;
 		fwrite(&usr, sizeof(usr), 1, fout);
 		delete++;
 		updated = TRUE;
