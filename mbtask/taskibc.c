@@ -810,7 +810,7 @@ void check_servers(void)
 					 * Set default next action to 60 seconds.
 					 */
 					ncs_list[i].action = now + (time_t)60;
-					memset(&ncs_list[i].servaddr_in, 0, sizeof(struct sockaddr_in));
+// Gives SIGBUS on Sparc		memset(&ncs_list[i].servaddr_in, 0, sizeof(struct sockaddr_in));
 					se = getservbyname("fido", "udp");
 					ncs_list[i].servaddr_in.sin_family = AF_INET;
 					ncs_list[i].servaddr_in.sin_port = se->s_port;

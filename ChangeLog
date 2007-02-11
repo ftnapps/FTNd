@@ -11,6 +11,7 @@ v0.91.3		11-Feb-2007
 
 	mbtask:
 		Some code cleanup.
+		Fixed s SIGBUS on Sparc/NetBSD systems.
 
 	mbsebbs:
 		Some debuglog cleanup.
