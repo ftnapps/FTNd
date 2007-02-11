@@ -4,7 +4,7 @@
  * Purpose ...............: Main startup
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 	    PUTSTR((char *)"\x1b[H");		    /* home cursor */
 	    PUTSTR((char *)"\xC");		    /* clear screen (in case not ANSI) */
 	    PUTSTR((char *)"\r");		    /* Move cursor left (in case previous char printed) */
-	    PUTSTR((char *)"Loading MBSE BBS ..."); /* Let the use think something is happening	*/
+	    PUTSTR((char *)"Loading MBSE BBS ..."); /* Let the user think something is happening	*/
 	    Enter(1);
 
 	    memset(&temp, 0, sizeof(temp));
@@ -369,11 +369,6 @@ int main(int argc, char **argv)
 	PUTSTR(temp);
 	Enter(1);
     }
-
-    /*
-     * Some debugging for me
-     */
-    Syslog('b', "setlocale(LC_ALL, NULL) returns \"%s\"", printable(setlocale(LC_ALL, NULL), 0));
 
     snprintf(sMailbox, 21, "mailbox");
     colour(LIGHTGRAY, BLACK);

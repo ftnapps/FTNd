@@ -3,7 +3,7 @@
  * $Id$
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -205,109 +205,6 @@ int io_mode(int fd, int n)
 	case 3:
 		if (!did0) {
 		    tcgetattr(fd,&oldtty);
-#ifdef __linux__
-                    Syslog('t', "iflag%s%s%s%s%s%s%s%s%s%s%s%s%s",
-                            (oldtty.c_iflag & IGNBRK) ? " IGNBRK":"",
-                            (oldtty.c_iflag & BRKINT) ? " BRKINT":"",
-                            (oldtty.c_iflag & IGNPAR) ? " IGNPAR":"",
-                            (oldtty.c_iflag & PARMRK) ? " PARMRK":"",
-                            (oldtty.c_iflag & INPCK)  ? " INPCK":"",
-                            (oldtty.c_iflag & ISTRIP) ? " ISTRIP":"",
-                            (oldtty.c_iflag & INLCR)  ? " INLCR":"",
-                            (oldtty.c_iflag & IGNCR)  ? " IGNCR":"",
-                            (oldtty.c_iflag & ICRNL)  ? " ICRNL":"",
-                            (oldtty.c_iflag & IXON)   ? " IXON":"",
-                            (oldtty.c_iflag & IXOFF)  ? " IXOFF":"",
-                            (oldtty.c_iflag & IXANY)  ? " IXANY":"",
-                            (oldtty.c_iflag & IMAXBEL)? " IMAXBEL":"");
-                    Syslog('t', "oflag%s%s%s%s%s",
-                            (oldtty.c_oflag & OPOST)  ? " OPOST":"",
-                            (oldtty.c_oflag & ONLCR)  ? " ONLCR":"",
-                            (oldtty.c_oflag & OCRNL)  ? " OCRNL":"",
-                            (oldtty.c_oflag & ONOCR)  ? " ONOCR":"",
-                            (oldtty.c_oflag & ONLRET) ? " ONLRET":"");
-                    Syslog('t', "cflag%s%s%s%s%s%s%s%s%s%s%s",
-                            (oldtty.c_cflag & CS5)    ? " CS5":"",
-                            (oldtty.c_cflag & CS6)    ? " CS6":"",
-                            (oldtty.c_cflag & CS7)    ? " CS7":"",
-                            (oldtty.c_cflag & CS8)    ? " CS8":"",
-                            (oldtty.c_cflag & CSTOPB) ? " CSTOPB":"",
-                            (oldtty.c_cflag & CREAD)  ? " CREAD":"",
-                            (oldtty.c_cflag & PARENB) ? " PARENB":"",
-                            (oldtty.c_cflag & PARODD) ? " PARODD":"",
-                            (oldtty.c_cflag & HUPCL)  ? " HUPCL":"",
-                            (oldtty.c_cflag & CLOCAL) ? " CLOCAL":"",
-                            (oldtty.c_cflag & CRTSCTS) ? " CRTSCTS":"");
-                    Syslog('t', "lflag%s%s%s%s%s%s%s%s%s%s%s%s%s",
-                            (oldtty.c_lflag & ECHOKE) ? " ECHOKE":"",
-                            (oldtty.c_lflag & ECHOE)  ? " ECHOE":"",
-                            (oldtty.c_lflag & ECHO)   ? " ECHO":"",
-                            (oldtty.c_lflag & ECHONL) ? " ECHONL":"",
-                            (oldtty.c_lflag & ECHOPRT)? " ECHOPRT":"",
-                            (oldtty.c_lflag & ECHOCTL)? " ECHOCTL":"",
-                            (oldtty.c_lflag & ISIG)   ? " ISIG":"",
-                            (oldtty.c_lflag & ICANON) ? " ICANON":"",
-                            (oldtty.c_lflag & IEXTEN) ? " IEXTEN":"",
-                            (oldtty.c_lflag & TOSTOP) ? " TOSTOP":"",
-                            (oldtty.c_lflag & FLUSHO) ? " FLUSHO":"",
-                            (oldtty.c_lflag & PENDIN) ? " PENDIN":"",
-                            (oldtty.c_lflag & NOFLSH) ? " NOFLSH":"");
-#else
-		    Syslog('t', "iflag%s%s%s%s%s%s%s%s%s%s%s%s%s",
-			    (oldtty.c_iflag & IGNBRK) ? " IGNBRK":"",
-			    (oldtty.c_iflag & BRKINT) ? " BRKINT":"",
-			    (oldtty.c_iflag & IGNPAR) ? " IGNPAR":"",
-			    (oldtty.c_iflag & PARMRK) ? " PARMRK":"",
-			    (oldtty.c_iflag & INPCK)  ? " INPCK":"",
-			    (oldtty.c_iflag & ISTRIP) ? " ISTRIP":"",
-			    (oldtty.c_iflag & INLCR)  ? " INLCR":"",
-			    (oldtty.c_iflag & IGNCR)  ? " IGNCR":"",
-			    (oldtty.c_iflag & ICRNL)  ? " ICRNL":"",
-			    (oldtty.c_iflag & IXON)   ? " IXON":"",
-			    (oldtty.c_iflag & IXOFF)  ? " IXOFF":"",
-			    (oldtty.c_iflag & IXANY)  ? " IXANY":"",
-			    (oldtty.c_iflag & IMAXBEL)? " IMAXBEL":"");
-		    Syslog('t', "oflag%s%s%s%s%s%s%s",
-			    (oldtty.c_oflag & OPOST)  ? " OPOST":"",
-			    (oldtty.c_oflag & ONLCR)  ? " ONLCR":"",
-			    (oldtty.c_oflag & OCRNL)  ? " OCRNL":"",
-			    (oldtty.c_oflag & OXTABS) ? " OXTABS":"",
-			    (oldtty.c_oflag & ONOEOT) ? " ONOEOT":"",
-			    (oldtty.c_oflag & ONOCR)  ? " ONOCR":"",
-			    (oldtty.c_oflag & ONLRET) ? " ONLRET":"");
-		    Syslog('t', "cflag%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-			    (oldtty.c_cflag & CS5)    ? " CS5":"",
-			    (oldtty.c_cflag & CS6)    ? " CS6":"",
-			    (oldtty.c_cflag & CS7)    ? " CS7":"",
-			    (oldtty.c_cflag & CS8)    ? " CS8":"",
-			    (oldtty.c_cflag & CSTOPB) ? " CSTOPB":"",
-			    (oldtty.c_cflag & CREAD)  ? " CREAD":"",
-			    (oldtty.c_cflag & PARENB) ? " PARENB":"",
-			    (oldtty.c_cflag & PARODD) ? " PARODD":"",
-			    (oldtty.c_cflag & HUPCL)  ? " HUPCL":"",
-			    (oldtty.c_cflag & CLOCAL) ? " CLOCAL":"",
-			    (oldtty.c_cflag & CCTS_OFLOW) ? " CCTS_OFLOW":"",
-			    (oldtty.c_cflag & CRTSCTS) ? " CRTSCTS":"",
-			    (oldtty.c_cflag & CRTS_IFLOW) ? " CRTS_IFLOW":"",
-			    (oldtty.c_cflag & MDMBUF) ? " MDMBUF":"");
-		    Syslog('t', "lflag%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-			    (oldtty.c_lflag & ECHOKE) ? " ECHOKE":"",
-			    (oldtty.c_lflag & ECHOE)  ? " ECHOE":"",
-			    (oldtty.c_lflag & ECHO)   ? " ECHO":"",
-			    (oldtty.c_lflag & ECHONL) ? " ECHONL":"",
-			    (oldtty.c_lflag & ECHOPRT)? " ECHOPRT":"",
-			    (oldtty.c_lflag & ECHOCTL)? " ECHOCTL":"",
-			    (oldtty.c_lflag & ISIG)   ? " ISIG":"",
-			    (oldtty.c_lflag & ICANON) ? " ICANON":"",
-			    (oldtty.c_lflag & ALTWERASE)? " ALTWERASE":"",
-			    (oldtty.c_lflag & IEXTEN) ? " IEXTEN":"",
-			    (oldtty.c_lflag & EXTPROC)? " EXTPROC":"",
-			    (oldtty.c_lflag & TOSTOP) ? " TOSTOP":"",
-			    (oldtty.c_lflag & FLUSHO) ? " FLUSHO":"",
-			    (oldtty.c_lflag & NOKERNINFO)? " NOKERNINFO":"",
-			    (oldtty.c_lflag & PENDIN) ? " PENDIN":"",
-			    (oldtty.c_lflag & NOFLSH) ? " NOFLSH":"");
-#endif
 		}
 
 		tty = oldtty;
@@ -328,7 +225,6 @@ int io_mode(int fd, int n)
 		tty.c_cc[VTIME] = 1;
 		tcsetattr(fd,TCSADRAIN,&tty);
 		Baudrate = getspeed(cfgetospeed(&tty));
-		Syslog('t', "Baudrate = %d", Baudrate);
 		did0 = TRUE;
 
 		return 0;
