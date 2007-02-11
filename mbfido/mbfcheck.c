@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Check filebase
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -533,7 +533,7 @@ void CheckArea(int Area)
     			(strncmp(de->d_name, "index", 5)) &&
     			(strncmp(de->d_name, "readme", 6))) {
     		    snprintf(fn, PATH_MAX, "%s/%s", area.Path, de->d_name);
-    		    if (stat(fn, &stb) == 0)
+    		    if (stat(fn, &stb) == 0) {
     		        if (S_ISREG(stb.st_mode)) {
     			    if (unlink(fn) == 0) {
     			        Syslog('!', "%s not in fdb, deleted from disk", fn);
@@ -542,6 +542,15 @@ void CheckArea(int Area)
     			        WriteError("$%s not in fdb, cannot delete", fn);
     			    }
     			}
+		    }
+		    if (lstat(fn, &stb) == 0) {
+			if (unlink(fn) == 0) {
+			    Syslog('-', "%s dead link removed from disk", fn);
+			    iErrors++;
+			} else {
+			    WriteError("$%s link not in fdb, cannot delete", fn);
+			}
+		    }
     		}
     	    }
     	}
