@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -489,16 +489,11 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
     while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
     vector[15] = NULL;
 
-    for (i = 0; i < 16; i++)
-	if (vector[i])
-	    Syslog('l', "Launch: i=%d vector=\"%s\"", i, vector[i]);
-
     if (file_exist(vector[0], X_OK)) {
-	Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
+	WriteError("Launch: can't execute %s, command not found", vector[0]);
 	return 0;
     }
 
-    Syslog('l', "Launch: b4 fork()");
     switch (pid = fork()) {
 	case -1:
 		WriteError("$Launch: error, can't fork grandchild");
@@ -509,38 +504,35 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		 * before the main process sees it ever started.
 		 */
 		msleep(150);
-		Syslog('l', "Launch: child process");
 
 		/* From Paul Vixies cron: */
 		rc = setsid(); /* It doesn't seem to help */
 		if (rc == -1)
-		    Syslog('?', "$Launch: setsid()");
+		    WriteError("$Launch: setsid()");
 
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
-		    Syslog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
+		    WriteError("$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		close(1);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
-		    Syslog('?', "$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
+		    WriteError("$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		close(2);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
-		    Syslog('?', "$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
+		    WriteError("$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
 		rc = execv(vector[0],vector);
-		Syslog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
+		WriteError("$Launch: execv \"%s\" failed, returned %d", cmd, rc);
 		_exit(MBERR_EXEC_FAILED);
 	default:
 		/* grandchild's daddy's process */
 		break;
     }
-
-    Syslog('l', "Launch: parent process");
 
     /*
      *  Add it to the tasklist.

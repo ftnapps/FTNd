@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Daemon
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -92,7 +92,6 @@ char *exe_cmd(char *in)
 
     strncpy(ibuf, in, SS_BUFSIZE);
     strncpy(cmd, ibuf, 4);
-//    token[0] = '\0';
     strncpy(ebuf, "200:1,Syntax error;", 19);
 
     /*
