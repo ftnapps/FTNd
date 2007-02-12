@@ -68,7 +68,7 @@ void MacroVars( const char *codes, const char *fmt, ...)
                         break;
 	}
         dieselrc = diesel(tmp1,tmp2);
-	if (dieselrc) {
+	if (dieselrc || (fmt[j] == 's')) {
 	    Syslog('!', "MacroVars error %d argument %d, macro %c type %c", dieselrc, j, codes[j], fmt[j]);
 //	    if (fmt[j] == 's')
 //		Syslogp('!', printable(va_arg(ap, char *), 0));
