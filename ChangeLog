@@ -16,6 +16,9 @@ v0.91.3		11-Feb-2007
 	mbsebbs:
 		Some debuglog cleanup.
 
+	nbsetup:
+		In generated html sitedocs fixed link from node to tic areas.
+
 
 
 v0.91.2		14-Jan-2007 - 11-Feb-2007

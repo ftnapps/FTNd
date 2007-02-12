@@ -4,7 +4,7 @@
  * Purpose ...............: Nodes Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1782,7 +1782,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 				    fprintf(wp, "<TBODY>\n");
 				}
 				refs++;
-				fprintf(wp, "<TR><TD><A HREF=\"tic_%s.html\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n",
+				fprintf(wp, "<TR><TD><A HREF=\"ticarea_%s.html\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n",
 					tic.Name, tic.Name, temp, tic.Comment);
 			    }
 			}
