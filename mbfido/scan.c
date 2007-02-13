@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for outgoing mail.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -819,7 +819,8 @@ void ExportNet(unsigned int MsgNum, int UUCPgate)
 	    } while ((p = (char *)MsgText_Next()) != NULL);
         }
     }
-    Syslog('m', " netmail is %sempt", empty ? "":"not ");
+    if (empty)
+    	Syslog('m', " netmail is empty");
     
     /*
      *  Check if this a netmail to our own local UUCP gate.
@@ -1124,7 +1125,6 @@ void ExportEmail(unsigned int MsgNum)
     if (Msg_Read(MsgNum, 79)) {
 	if ((p = (char *)MsgText_First()) != NULL) {
 	    do {
-		printf("\"%s\"\n",  printable(p, 0));
 		Syslogp('m', printable(p, 0));
 		/*
 		 *  GoldED places ^A characters in front of the RFC headers, 

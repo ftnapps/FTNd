@@ -16,6 +16,7 @@ v0.91.3		11-Feb-2007
 
 	mbfido:
 		Don't crash on empty ticfiles.
+		Fixed log message for scanned netmail.
 
 	mbtask:
 		Some code cleanup.
