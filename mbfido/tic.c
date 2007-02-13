@@ -4,7 +4,7 @@
  * Purpose ...............: Process .tic files
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -157,16 +157,8 @@ int Tic()
     /*
      * Handle the array with orphaned and bad crc ticfiles.
      */
-//  Syslog('f', "start tidy_orphans()");
     Now = time(NULL);
     for (tmp = opl; tmp; tmp = tmp->next) {
-//	if (first) {
-//	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
-//	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
-//	    first = FALSE;
-//	}
-//	Syslog('f', "%-12s %-20s %-12s %s %s %s", tmp->TicName, tmp->Area, tmp->FileName,
-//		tmp->Orphaned ? "Yes" : "No ", tmp->BadCRC ? "Yes" : "No ", tmp->Purged ? "Yes":"No ");
 
 	/*
 	 * Bad CRC and not marked purged are real crc errors.
@@ -216,7 +208,7 @@ int Tic()
 
 
 /*
- * Returns 1 if error, 0 if ok.
+ * Returns > 0 if error, 0 if ok.
  */
 int LoadTic(char *inb, char *tfn, orphans **opl)
 {
@@ -390,6 +382,19 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
 	}
     }
     fclose(tfp);
+
+    /*
+     * Do some basic checks on the loaded ticfile.
+     */
+    if ( (strlen(TIC.TicIn.File) == 0) || (strlen(TIC.TicIn.Area) == 0) ||
+	 (strlen(TIC.TicIn.From) == 0) || (strlen(TIC.TicIn.Origin) == 0)) {
+	WriteError("TIC file %s misses important information", TIC.TicName);
+	tidy_falist(&sbl);
+	mover(TIC.TicName);
+	tic_in++;
+	tic_bad++;
+	return 1;
+    }
 
     if (TIC.TicIn.TotLDesc) {
 	/*

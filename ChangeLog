@@ -14,6 +14,9 @@ v0.91.3		11-Feb-2007
 		The check filebase command now also removes dead symlinks from
 		the download directories.
 
+	mbfido:
+		Don't crash on empty ticfiles.
+
 	mbtask:
 		Some code cleanup.
 		Fixed s SIGBUS on Sparc/NetBSD systems.
@@ -21,7 +24,7 @@ v0.91.3		11-Feb-2007
 	mbsebbs:
 		Some debuglog cleanup.
 
-	nbsetup:
+	mbsetup:
 		In generated html sitedocs fixed link from node to tic areas.
 
 
