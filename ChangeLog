@@ -3,7 +3,9 @@ $Id$
 v0.91.3		11-Feb-2007
 
 	mbselib:
-		Extra logging activated in MacroVars.
+		Added coding and decoding to strings that are processed by the
+		diesel macroprocessor.  EXPERIMENTAL IS UNDER TEST !!!
+		Fixed a compile warning in the diesel code.
 
 	mbuser:
 		Set default editor on erased records.

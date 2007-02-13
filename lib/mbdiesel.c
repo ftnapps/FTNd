@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS functions for TURBODIESEL
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -52,7 +52,7 @@ void MacroVars( const char *codes, const char *fmt, ...)
         switch (fmt[j]) {
 	    case 's':   /* string */
                         vs = va_arg(ap, char *);
-                        snprintf(tmp1, MAXSTR -1, "@(setvar,%c,\"%s\")",codes[j],vs);
+                        snprintf(tmp1, MAXSTR -1, "@(setvar,%c,\"%s\")",codes[j], clencode(vs));
                         break;
 	    case 'd':   /* int */
                         vd = va_arg(ap, int);
@@ -62,18 +62,15 @@ void MacroVars( const char *codes, const char *fmt, ...)
                         vc = va_arg(ap, int);
                         snprintf(tmp1, MAXSTR -1, "@(setvar,%c,%c)",codes[j],vc);
                         break;
-            case 'f':   /* char */
+            case 'f':   /* float */
                         vf = va_arg(ap, double);
                         snprintf(tmp1, MAXSTR -1, "@(setvar,%c,%f)",codes[j],vf);
                         break;
 	}
         dieselrc = diesel(tmp1,tmp2);
-	if (dieselrc || (fmt[j] == 's')) {
+	if (dieselrc) {
 	    Syslog('!', "MacroVars error %d argument %d, macro %c type %c", dieselrc, j, codes[j], fmt[j]);
-//	    if (fmt[j] == 's')
-//		Syslogp('!', printable(va_arg(ap, char *), 0));
 	    Syslogp('!', printable(tmp1, 0));
-	    Syslogp('!', printable(tmp2, 0));
 	}
     }
     va_end(ap);
@@ -101,7 +98,8 @@ void MacroClear(void)
 char *ParseMacro( const char *line, int *dieselrc)
 {
     static char	res[MAXSTR];
-    char	*tmp1, *tmp2, *tmp3, *i;
+    const char	*i;
+    char	*tmp1, *tmp2, *tmp3;
     int		j, l;
     char	code;
 
@@ -117,7 +115,7 @@ char *ParseMacro( const char *line, int *dieselrc)
 
     tmp1[0]='\0';
 
-    for ( i=line ; i[0] != '\0'; i++){
+    for (i = line; i[0] != '\0'; i++) {
 	if ( (i[0] == '@') && isalpha(i[1]) ){
 	    l=2;
 	    i++;
@@ -180,6 +178,8 @@ char *ParseMacro( const char *line, int *dieselrc)
     }
     if ((res[0] == '@') && (res[1] =='!' ))
 	res[0]='\0';
+
+    cldecode(res);
     return res;
 }
 

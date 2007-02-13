@@ -4,7 +4,7 @@
  * Purpose ...............: Client/Server communications
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -530,7 +530,7 @@ char *clencode(char *s)
 	return s;
     }
     for (p = s, q = buf; *p != '\0';) {
-	if ((! isascii(*p)) || (*p == ',') || (*p == ';')) {
+	if ((! isascii(*p)) || (*p == ',') || (*p == ';') || (*p == '"')) {
 	    *q++ = '\\';
 	    *q++ = Base16Code[(*p >> 4) & 0x0f];
 	    *q++ = Base16Code[*p & 0x0f];
