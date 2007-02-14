@@ -4,7 +4,7 @@
  * Purpose ...............: Nodelist Compiler
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -388,14 +388,30 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
     FILE	    *nl;
     struct _nlidx   ndx;
     struct _nlusr   udx;
+    struct stat	    stb;
+
+    Syslog('+', "Compiling \"%s\" (%d)", nlname, filenr);
+    IsDoing("Compile NL %d", filenr +1);
+
+    if (stat(fullpath(nlname), &stb) == 0) {
+	if (stb.st_mode != 0100664) {
+	    if (chmod(fullpath(nlname), 0664) == 0) {
+		Syslog('!', "Fixed filemode nodelist %s to 0664", nlname);
+	    } else {
+		/*
+		 * Abort this list, if we cannot set the right permissions then
+		 * netmail for bbs users doesn't work.
+		 */
+		WriteError("Can't set mode 0644 on nodelist %s", nlname);
+		return MBERR_INIT_ERROR;
+	    }
+	}
+    }
 
     if ((nl = fopen(fullpath(nlname), "r")) == NULL) {
 	WriteError("$Can't open %s", fullpath(nlname));
 	return MBERR_INIT_ERROR;
     }
-
-    Syslog('+', "Compiling \"%s\" (%d)", nlname, filenr);
-    IsDoing("Compile NL %d", filenr +1);
 
     memset(&ndx, 0, sizeof(ndx));
     ndx.type = NL_NODE;

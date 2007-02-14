@@ -25,6 +25,9 @@ v0.91.3		11-Feb-2007
 	mbsebbs:
 		Some debuglog cleanup.
 
+	mbindex:
+		Check nodelist permissions and try to correct them.
+
 	mbsetup:
 		In generated html sitedocs fixed link from node to tic areas.
 
