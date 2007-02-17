@@ -55,6 +55,7 @@
 alias	ascii		us-ascii
 alias	vt100		us-ascii
 alias	latin-1		iso-8859-1
+alias	latin-9		iso-8859-1
 alias	amiga		iso-8859-1
 alias	ibmpc		cp437
 alias	pc-8		cp437
