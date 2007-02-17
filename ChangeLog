@@ -1,9 +1,27 @@
 $Id$
 
+
 v0.91.4		17-Feb-2007
 
 	upgrade:
-		Start mbsetup, enter global setup, save and exit mbsetup.
+		Because some directories will be moved, a special upgrade
+		procedure is needed. Take the following steps:
+		1. Don't install the new source yet and make a backup!
+		2. In the source topdir run "make clean".
+		3. Install the new source.
+		4. Build new source, "./configure" and "make".
+		5. Run "./mbsetup/mbsetup", enter global setup and leave with
+		   save. this should move all your existing language files to
+		   the new directory structure.
+		6. "su", run "make install" and restart the bbs.
+		7. "exit".
+		If you didn't do steps 1 and 2 (automatic updates) and you
+		installed the source over the old source you have some
+		extra files in the lang subdir of the source. No big deal.
+		If you didn't run steps 5 then the new language paths have
+		the default files from source and not your own. Your own files
+		are then still under ~/english/*.* ~/dutch/*.* etc. Move the
+		contents of these subdirs into ~/share/int/menus/en/* etc.
 
 	mbselib:
 		Moved default language paths into ~/share/int
