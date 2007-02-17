@@ -4,7 +4,7 @@
  * Purpose ...............: Display ANSI/ASCII textfiles
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -251,16 +251,16 @@ int DisplayFile(char *filename)
      */
     pFileName = NULL;
     if (exitinfo.GraphMode) {
-	snprintf(newfile, PATH_MAX, "%s/%s.ans", lang.TextPath, filename);
+	snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.ans", getenv("MBSE_ROOT"), lang.lc, filename);
 	if ((pFileName = fopen(newfile, "rb")) == NULL) {
-	    snprintf(newfile, PATH_MAX, "%s/%s.ans", CFG.bbs_txtfiles, filename);
+	    snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.ans", getenv("MBSE_ROOT"), CFG.deflang, filename);
 	    pFileName = fopen(newfile, "rb");
 	}
     }
     if (pFileName == NULL) {
-	snprintf(newfile, PATH_MAX, "%s/%s.asc", lang.TextPath, filename);
+	snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.asc", getenv("MBSE_ROOT"), lang.lc, filename);
 	if ((pFileName = fopen(newfile, "rb")) == NULL) {
-	    snprintf(newfile, PATH_MAX, "%s/%s.asc", CFG.bbs_txtfiles, filename);
+	    snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.asc", getenv("MBSE_ROOT"), CFG.deflang, filename);
 	    if ((pFileName = fopen(newfile, "rb")) == NULL) {
 		free(sFileName);
 		free(tmp);

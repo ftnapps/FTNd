@@ -6,7 +6,7 @@
  *                          does a lot of checking in general.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -529,18 +529,18 @@ void user(void)
      */
     st.st_mtime = 0;
     if (exitinfo.GraphMode) {
-	snprintf(temp, PATH_MAX, "%s/onceonly.ans", lang.TextPath);
+	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), lang.lc);
 	stat(temp, &st);
 	if (st.st_mtime == 0) {
-	    snprintf(temp, PATH_MAX, "%s/onceonly.ans", CFG.bbs_txtfiles);
+	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), CFG.deflang);
 	    stat(temp, &st);
 	}
     }
     if (st.st_mtime == 0) {
-	snprintf(temp, PATH_MAX, "%s/onceonly.asc", lang.TextPath);
+	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.asc", getenv("MBSE_ROOT"), lang.lc);
 	stat(temp, &st);
 	if (st.st_mtime == 0) {
-	    snprintf(temp, PATH_MAX, "%s/onceonly.asc", CFG.bbs_txtfiles);
+	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.asc", getenv("MBSE_ROOT"), CFG.deflang);
 	    stat(temp, &st);
 	}
     }

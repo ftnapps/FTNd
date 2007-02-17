@@ -4,7 +4,7 @@
  * Purpose ...............: Language functions.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -103,7 +103,7 @@ void Set_Language(int iLanguage)
     fread(&langhdr, sizeof(langhdr), 1, pLang);
     while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
 	if ((lang.LangKey[0] == iLanguage) && (lang.Available)) {
-	    strcpy(CFG.current_language, lang.Filename);
+	    strcpy(current_language, lang.lc);
 	    break;
 	}
     }
@@ -126,7 +126,7 @@ void InitLanguage()
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/etc/%s", getenv("MBSE_ROOT"), CFG.current_language);
+    snprintf(temp, PATH_MAX, "%s/share/int/language.%s", getenv("MBSE_ROOT"), current_language);
     if ((pLang = fopen(temp, "rb")) == NULL) {
 	WriteError("$FATAL: Can't open %s", temp);
 	ExitClient(MBERR_INIT_ERROR);
@@ -148,7 +148,7 @@ void InitLanguage()
     }
 
     fclose(pLang);
-    Syslog('b', "%d language lines read (%s)", iLang, CFG.current_language);
+    Syslog('b', "%d language lines read (%s)", iLang, current_language);
     free(temp);
 }
 

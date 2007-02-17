@@ -384,7 +384,7 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
     
 	    while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
 		if ((lang.LangKey[0] == Language) && (lang.Available)) {
-		    snprintf(temp, PATH_MAX -1, "%s/%s", lang.MacroPath, filename);
+		    snprintf(temp, PATH_MAX -1, "%s/share/int/macro/%s/%s", getenv("MBSE_ROOT"), lang.lc, filename);
 		    break;
 		}
 	    }
@@ -403,7 +403,7 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
      */
     if (fi == NULL) {
 	Syslog('-', "Macro file \"%s\" for language %c not found, trying default", filename, Language);
-	snprintf(temp, PATH_MAX -1, "%s/%s", CFG.bbs_macros, filename);
+	snprintf(temp, PATH_MAX -1, "%s/share/int/macro/%s/%s", getenv("MBSE_ROOT"), CFG.deflang, filename);
 	fi = fopen(temp,"r");
     }
 

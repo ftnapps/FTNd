@@ -4,7 +4,7 @@
  * Purpose ...............: Give status of all filesystems
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -472,8 +472,6 @@ void diskwatch(void)
         tidy_mfslist(&mfs);
 
         add_path(getenv("MBSE_ROOT"));
-        add_path(CFG.bbs_menus);
-        add_path(CFG.bbs_txtfiles);
         add_path(CFG.alists_path);
         add_path(CFG.req_magic);
         add_path(CFG.bbs_usersdir);
@@ -482,7 +480,6 @@ void diskwatch(void)
         add_path(CFG.pinbound);
         add_path(CFG.outbound);
         add_path(CFG.ftp_base);
-        add_path(CFG.bbs_macros);
         add_path(CFG.out_queue);
         add_path(CFG.rulesdir);
         add_path(CFG.tmailshort);
@@ -522,9 +519,12 @@ void diskwatch(void)
 
 	    while (fread(&lang, langhdr.recsize, 1, fp)) {
 	        if (lang.Available) {
-		    add_path(lang.MenuPath);
-		    add_path(lang.TextPath);
-		    add_path(lang.MacroPath);
+		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+		    add_path(temp);
+		    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("MBSE_ROOT"), lang.lc);
+		    add_path(temp);
+		    snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("MBSE_ROOT"), lang.lc);
+		    add_path(temp);
 		}
 	    }
 	    fclose(fp);

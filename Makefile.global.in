@@ -14,6 +14,7 @@ BINDIR		= @prefix@/bin
 ETCDIR		= @prefix@/etc
 DOCDIR		= @prefix@/doc
 VARDIR		= @prefix@/var
+INTDIR		= @prefix@/share/int
 OWNER		= @OWNER@
 GROUP		= @GROUP@
 ROWNER		= @ROWNER@

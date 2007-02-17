@@ -1,6 +1,27 @@
 $Id$
 
-v0.91.3		11-Feb-2007
+v0.91.4		17-Feb-2007
+
+	upgrade:
+		Start mbsetup, enter global setup, save and exit mbsetup.
+
+	mbselib:
+		Moved default language paths into ~/share/int
+
+	mbsebbs:
+		Moved default language paths into ~/share/int
+
+	mbsetup:
+		Moved default language paths into ~/share/int
+
+	mbtask:
+		Moved default language paths into ~/share/int
+
+	lang:
+		Renamed language files and changed installation paths.
+
+
+v0.91.3		11-Feb-2007 - 17-Feb-2007
 
 	mbselib:
 		Added coding and decoding to strings that are processed by the

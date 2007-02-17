@@ -4,41 +4,40 @@
 
 include ../Makefile.global
 
-OTHER		= Makefile README Language.xref
-SDAT		= english.txt  dutch.txt  spanish.txt  galego.txt  german.txt  germandu.txt  french.txt chinese.txt
-LDAT		= english.lang dutch.lang spanish.lang galego.lang german.lang germandu.lang french.lang chinese.lang
+OTHER		= Makefile README Language.xref germandu.txt
+SDAT		= source.en   source.nl   source.es   source.gl   source.de   source.fr   source.zh 
+LDAT		= language.en language.nl language.es language.gl language.de language.fr language.zh 
+
 
 all:		${LDAT}
 
 clean:
-		rm -f core filelist Makefile.bak *.lang
+		rm -f core filelist Makefile.bak language.*
 
 install: ${LDAT}
-		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${LDAT} ${ETCDIR}
+		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${LDAT} ${INTDIR}
 
-english.lang:	english.txt
-		../mbutils/mblang english.lang english.txt
+language.en:	source.en
+		../mbutils/mblang language.en source.en
 
-dutch.lang:	dutch.txt
-		../mbutils/mblang dutch.lang dutch.txt
+language.nl:	source.nl
+		../mbutils/mblang language.nl source.nl
 
-spanish.lang:	spanish.txt
-		../mbutils/mblang spanish.lang spanish.txt
+language.es:	source.es
+		../mbutils/mblang language.es source.es
 
-galego.lang:	galego.txt
-		../mbutils/mblang galego.lang galego.txt
+language.gl:	source.gl
+		../mbutils/mblang language.gl source.gl
 
-german.lang:	german.txt
-		../mbutils/mblang german.lang german.txt
+language.de:	source.de
+		../mbutils/mblang language.de source.de
 
-germandu.lang:	germandu.txt
-		../mbutils/mblang germandu.lang germandu.txt
+language.fr:	source.fr
+		../mbutils/mblang language.fr source.fr
 
-french.lang:	french.txt
-		../mbutils/mblang french.lang french.txt
+language.zh:	source.zh
+		../mbutils/mblang language.zh source.zh
 
-chinese.lang:	chinese.txt
-		../mbutils/mblang chinese.lang chinese.txt
 
 filelist:	Makefile
 		BASE=`pwd`; \

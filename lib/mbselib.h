@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS main library header
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -963,14 +963,14 @@ struct	sysconfig {
 						/* FileNames		    */
 	char		error_log[15];		/* Name of Error Log	    */
 	char		default_menu[15];	/* Default Menu		    */
-	char		current_language[15];	/* Default Language	    */
+	char		xcurrent_language[15];	/* Default Language	    */
 	char		chat_log[15];		/* Chat Logfile		    */
 	char		welcome_logo[15];	/* Welcome Logofile	    */
 
 						/* Paths		    */
 	char		rnewspath[65];		/* Path to rnews	    */
-	char		bbs_menus[65];		/* Default Menus	    */
-	char		bbs_txtfiles[65];	/* Default Textfiles	    */
+	char		xbbs_menus[65];
+	char		xbbs_txtfiles[65];
 	char		nntpnode[65];		/* NNTP server		    */
 	char		msgs_path[65];		/* Path to *.msg area	    */
 	char		alists_path[65];	/* Area lists storage	    */
@@ -1088,7 +1088,7 @@ struct	sysconfig {
 	char		xCallScript[51];
 
 						/* Mail Options		    */
-	char		xquotestr[11];		/* Quote String		    */
+	char		deflang[11];		/* Default language	    */
 
 	int		xMaxTimeBalance;	/* Obsolete Time Bank Door  */
 	int		xMaxTimeWithdraw;
@@ -1238,7 +1238,7 @@ struct	sysconfig {
 	int		nntpdupes;		/* NNTP dupes database size */
 	int		newsfeed;		/* Newsfeed mode	    */
 	int		maxarticles;		/* Default max articles	    */
-	char		bbs_macros[65];		/* Default macros path	    */
+	char		xbbs_macros[65];
 	char		out_queue[65];		/* Outbound queue path	    */
 
 	char		mgrlog[15];		/* Area/File-mgr logfile    */
@@ -1412,13 +1412,14 @@ struct	languagehdr {
 struct language {
 	char		Name[30];		/* Name of Language        */
 	char		LangKey[2];		/* Language Key            */
-	char		MenuPath[81];		/* Path of menu directory  */
-	char		TextPath[81];		/* Path of text files      */
+	char		xMenuPath[81];		/* Path of menu directory  */
+	char		xTextPath[81];		/* Path of text files      */
 	unsigned	Available	: 1;	/* Availability of Language*/
 	unsigned	Deleted		: 1;	/* Language is deleted	   */
-	char		Filename[81];		/* Path of language file   */
+	char		xFilename[81];		/* Path of language file   */
 	securityrec	Security;		/* Security level	   */
-	char		MacroPath[81];		/* Path to the macro files */
+	char		xMacroPath[81];		/* Path to the macro files */
+	char		lc[10];			/* ISO language code	   */
 };
 
 

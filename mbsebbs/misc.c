@@ -4,7 +4,7 @@
  * Purpose ...............: Misc functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -118,7 +118,7 @@ void DisplayLogo()
     temp = calloc(PATH_MAX, sizeof(char));
     sString = calloc(1024, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/%s", CFG.bbs_txtfiles, CFG.welcome_logo);
+    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/%s", getenv("MBSE_ROOT"), CFG.deflang, CFG.welcome_logo);
     if ((pLogo = fopen(temp,"rb")) == NULL)
 	WriteError("$DisplayLogo: Can't open %s", temp);
     else {

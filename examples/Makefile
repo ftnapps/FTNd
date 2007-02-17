@@ -32,44 +32,44 @@ help:
 		@echo "You may replace the word english above with spanish galego german dutch"
 
 english-menus:
-		@tar xfC menus-en.tar ${PREFIX}/english/menus
+		@tar xfC menus-en.tar ${PREFIX}/share/int/menus/en
 		@echo "Installed default English menus"
 
 english-txtfiles:
-		@tar xfC txtfiles-en.tar ${PREFIX}/english/txtfiles
+		@tar xfC txtfiles-en.tar ${PREFIX}/share/int/txtfiles/en
 		@echo "Installed default English txtfiles"
 
 english-macros:
-		@tar xfC templates-en.tar ${PREFIX}/english/macro
+		@tar xfC templates-en.tar ${PREFIX}/share/int/macro/en
 		@echo "Installed default English macro files"
 
 english:	english-menus english-macros english-txtfiles
 
 
 spanish-menus:
-		@tar xfC menus-es.tar ${PREFIX}/spanish/menus
+		@tar xfC menus-es.tar ${PREFIX}/share/int/menus/es
 		@echo "Installed default Spanish menus"
 
 spanish-txtfiles:
-		@tar xfC txtfiles-es.tar ${PREFIX}/spanish/txtfiles
+		@tar xfC txtfiles-es.tar ${PREFIX}/share/int/txtfiles/es
 		@echo "Installed default Spanish txtfiles"
 
 spanish-macros:
-		@tar xfC templates-es.tar ${PREFIX}/spanish/macro
+		@tar xfC templates-es.tar ${PREFIX}/share/int/macro/es
 		@echo "Installed default Spanish macro files"
 
 spanish:	spanish-menus spanish-txtfiles spanish-macros
 
 
 german-macros:
-		@tar xfC templates-de.tar ${PREFIX}/german/macro
+		@tar xfC templates-de.tar ${PREFIX}/share/int/macro/de
 		@echo "Installed default German macro files"
 
 german:		german-macros
 
 
 dutch-macros:
-		@tar xfC templates-nl.tar ${PREFIX}/dutch/macro
+		@tar xfC templates-nl.tar ${PREFIX}/share/int/macro/nl
 		@echo "Installed default Dutch macro files"
 
 dutch:		dutch-macros
@@ -91,14 +91,14 @@ install:
 			${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 footer.txt ${ETCDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 footer.txt ${ETCDIR}" ; \
 		fi
-		@if [ ! -f ${PREFIX}/english/menus/main.mnu ];    then ${MAKE} -s english-menus ;    fi
-		@if [ ! -f ${PREFIX}/english/txtfiles/main.ans ]; then ${MAKE} -s english-txtfiles ; fi
-		@if [ ! -f ${PREFIX}/english/macro/html.tic ];    then ${MAKE} -s english-macros ;   fi
-		@if [ ! -f ${PREFIX}/spanish/menus/main.mnu ];    then ${MAKE} -s spanish-menus ;    fi
-		@if [ ! -f ${PREFIX}/spanish/txtfiles/main.ans ]; then ${MAKE} -s spanish-txtfiles ; fi
-		@if [ ! -f ${PREFIX}/spanish/macro/html.tic ];    then ${MAKE} -s spanish-macros ;   fi
-		@if [ ! -f ${PREFIX}/german/macro/html.tic ];     then ${MAKE} -s german-macros ;    fi
-		@if [ ! -f ${PREFIX}/dutch/macro/html.tic ];      then ${MAKE} -s dutch-macros ;     fi
+		@if [ ! -f ${PREFIX}/share/int/menus/en/main.mnu ];    then ${MAKE} -s english-menus ;    fi
+		@if [ ! -f ${PREFIX}/share/int/txtfiles/en/main.ans ]; then ${MAKE} -s english-txtfiles ; fi
+		@if [ ! -f ${PREFIX}/share/int/macro/en/html.tic ];    then ${MAKE} -s english-macros ;   fi
+		@if [ ! -f ${PREFIX}/share/int/menus/es/main.mnu ];    then ${MAKE} -s spanish-menus ;    fi
+		@if [ ! -f ${PREFIX}/share/int/txtfiles/es/main.ans ]; then ${MAKE} -s spanish-txtfiles ; fi
+		@if [ ! -f ${PREFIX}/share/int/macro/es/html.tic ];    then ${MAKE} -s spanish-macros ;   fi
+		@if [ ! -f ${PREFIX}/share/int/macro/es/html.tic ];    then ${MAKE} -s german-macros ;    fi
+		@if [ ! -f ${PREFIX}/share/int/macro/es/html.tic ];    then ${MAKE} -s dutch-macros ;     fi
 
 clean:
 		rm -f *.h~ *.c~ core filelist Makefile.bak

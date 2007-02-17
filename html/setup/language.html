@@ -14,14 +14,14 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 09-Sep-2005</h5></div>
+<div align='right'><h5>Last update 17-Feb-2007</h5></div>
 <div align='center'><H1>MBSE BBS Setup - BBS Setup - Language Setup.</H1></div>
 
 <H3>Language introduction.</H3>
 <P>
-You need to define at least one language, this is the default language. 
-The paths to the BBS menus and Txtfiles for the default language 
-must be exactly the same as defined in the global setup, menus 1.3.1 and 1.3.2<br>
+You need to define at least one language, this is the default language.
+The ISO language code of the dfeault language needs to be the same as in the
+global setup 1.5.24 and should be set to <b>en</b>.
 I did this so you can make your 
 own local languages next to the default languages. If something is not 
 present in your local language, the BBS will fall back to the default
@@ -29,6 +29,19 @@ language. It is therefore wise to name all menus, macro templates and
 textfiles the same for all languages used.
 When you setup the languages for the first time, entries for English, Dutch,
 Spanish, Galego, German, French and Chinese languages are created.
+<p>
+And important note about the ISO code, don't change this. And if you do,
+then you <em>must</em> change the directory name under <code>/opt/mbse/share/int</code>
+to the same name as the code here. For example for the <b>en</b> code the system
+expects the following paths and files:
+<p>
+<pre>
+/opt/mbse/share/int/language.en
+/opt/mbse/share/int/menus/en/*.mnu
+/opt/mbse/share/int/txtfiles/en/*.ans
+/opt/mbse/share/int/txtfiles/en/*.asc
+/opt/mbse/share/int/macro/en/*
+</pre>
 <P>&nbsp;<p>
 
 <H3>Language setup.</H3>
@@ -36,11 +49,8 @@ Spanish, Galego, German, French and Chinese languages are created.
 <pre>
 <strong>Select      </strong>The letter to select this language.
 <strong>Name        </strong>The name of this language.
-<strong>Menupath    </strong>The path to the menu files.
-<strong>Textpath    </strong>The path to the ANSI and ASCII textfiles.
-<strong>Macropath   </strong>The path to the macro templates.
+<strong>ISO code    </strong>The 2 letter ISO code of the language.
 <strong>Available   </strong>If this language is available.
-<strong>Datafile    </strong>The name of the language datafile in ~/etc
 <strong>Security    </strong>The minimum security level to select this language.
 <strong>Deleted     </strong>If this language must be deleted.
 </pre>

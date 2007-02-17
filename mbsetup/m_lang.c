@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Languages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -43,15 +43,12 @@ int	LangUpdated = 0;
 
 
 void AddLang(char *, char *, char *, FILE *);
-void AddLang(char *Name, char *Key, char *Path, FILE *fil)
+void AddLang(char *Name, char *Key, char *lc, FILE *fil)
 {
     memset(&lang, 0, sizeof(lang));
     snprintf(lang.Name,      30, "%s", Name);
     snprintf(lang.LangKey,    2, "%s", Key);
-    snprintf(lang.MenuPath,  81, "%s/%s/menus", getenv("MBSE_ROOT"), Path);
-    snprintf(lang.TextPath,  81, "%s/%s/txtfiles", getenv("MBSE_ROOT"), Path);
-    snprintf(lang.MacroPath, 81, "%s/%s/macro", getenv("MBSE_ROOT"), Path);
-    snprintf(lang.Filename,  81, "%s.lang", Path);
+    snprintf(lang.lc,        10, "%s", lc);
     lang.Available = TRUE;
     fwrite(&lang, sizeof(lang), 1, fil);
 }
@@ -79,13 +76,13 @@ int CountLanguage(void)
 	    /*
 	     *  Setup default records
 	     */
-	    AddLang((char *)"English",    (char *)"E", (char *)"english", fil);	count++;
-	    AddLang((char *)"Nederlands", (char *)"N", (char *)"dutch",   fil);	count++;
-	    AddLang((char *)"Spanish",    (char *)"S", (char *)"spanish", fil);	count++;
-	    AddLang((char *)"Galego",     (char *)"G", (char *)"galego",  fil); count++;
-	    AddLang((char *)"Deutsch",    (char *)"D", (char *)"german",  fil); count++;
-	    AddLang((char *)"French",     (char *)"F", (char *)"french",  fil); count++;
-	    AddLang((char *)"Chinese",    (char *)"C", (char *)"chinese", fil); count++;
+	    AddLang((char *)"English",    (char *)"E", (char *)"en", fil);	count++;
+	    AddLang((char *)"Nederlands", (char *)"N", (char *)"nl", fil);	count++;
+	    AddLang((char *)"Spanish",    (char *)"S", (char *)"es", fil);	count++;
+	    AddLang((char *)"Galego",     (char *)"G", (char *)"gl", fil);	count++;
+	    AddLang((char *)"Deutsch",    (char *)"D", (char *)"de", fil);	count++;
+	    AddLang((char *)"French",     (char *)"F", (char *)"fr", fil);	count++;
+	    AddLang((char *)"Chinese",    (char *)"C", (char *)"zh", fil);	count++;
 	    
 	    fclose(fil);
 	    chmod(ffile, 0640);
@@ -100,6 +97,80 @@ int CountLanguage(void)
     fclose(fil);
 
     return count;
+}
+
+
+
+void UpgradeLanguage(char *name, char *lc)
+{
+    char    *temp;
+    int	    rc;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    snprintf(temp, PATH_MAX, "%s/share/foo", getenv("MBSE_ROOT"));
+    mkdirs(temp, 0770);
+    snprintf(temp, PATH_MAX, "%s/share/int/foo", getenv("MBSE_ROOT"));
+    mkdirs(temp, 0770);
+
+    if (strstr(lang.xMenuPath, name)) {
+	snprintf(lang.lc, 10, "%s", lc);
+
+	/*
+	 * Now build old and new paths of the language files.
+	 */
+	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lc);
+	if (strcmp(lang.xMenuPath, temp)) {
+	    mkdirs(temp, 0770);
+	    rc = rename(lang.xMenuPath, temp);
+	    if (rc) {
+		WriteError("$Can't move %s to %s", lang.xMenuPath, temp);
+	    } else {
+		Syslog('+', "Moved %s to %s", lang.xMenuPath, temp);
+		snprintf(lang.xMenuPath, PATH_MAX, temp);
+	    }
+	} else {
+	    Syslog('+', "%s already upgraded", temp);
+	}
+
+	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("MBSE_ROOT"), lc);
+	if (strcmp(lang.xTextPath, temp)) {
+	    mkdirs(temp, 0770);
+	    rc = rename(lang.xTextPath, temp);
+	    if (rc) {
+		WriteError("$Can't move %s to %s", lang.xTextPath, temp);
+	    } else {
+		Syslog('+', "Moved %s to %s", lang.xTextPath, temp);
+		snprintf(lang.xTextPath, PATH_MAX, temp);
+	    }
+	} else {
+	    Syslog('+', "%s already upgraded", temp);
+	}
+
+	snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("MBSE_ROOT"), lc);
+        if (strcmp(lang.xMacroPath, temp)) {
+	    mkdirs(temp, 0770);
+	    rc = rename(lang.xMacroPath, temp);
+	    if (rc) {
+		WriteError("$Can't move %s to %s", lang.xMacroPath, temp);
+	    } else {
+		Syslog('+', "Moved %s to %s", lang.xMacroPath, temp);
+		snprintf(lang.xMacroPath, PATH_MAX, temp);
+	    }
+	} else {
+	    Syslog('+', "%s already upgraded", temp);
+	}
+
+	snprintf(temp, PATH_MAX, "%s/%s", getenv("MBSE_ROOT"), name);
+	rc = rmdir(temp);
+	if (rc) {
+	    WriteError("$Can't remove %s", temp);
+	} else {
+	    Syslog('+', "Removed directory %s", temp);
+	}
+
+    }
+
+    free(temp);
 }
 
 
@@ -143,6 +214,25 @@ int OpenLanguage(void)
 			 */
 			memset(&lang, 0, sizeof(lang));
 			while (fread(&lang, oldsize, 1, fin) == 1) {
+				if (strlen(lang.lc) == 0) {
+				    if (strstr(lang.xMenuPath, (char *)"english")) {
+					UpgradeLanguage((char *)"english", (char *)"en");
+				    } else if (strstr(lang.xMenuPath, (char *)"german")) {
+					UpgradeLanguage((char *)"german", (char *)"de");
+				    } else if (strstr(lang.xMenuPath, (char *)"dutch")) {
+					UpgradeLanguage((char *)"dutch", (char *)"nl");
+				    } else if (strstr(lang.xMenuPath, (char *)"spanish")) {
+					UpgradeLanguage((char *)"spanish", (char *)"es");
+				    } else if (strstr(lang.xMenuPath, (char *)"galego")) {
+					UpgradeLanguage((char *)"galego", (char *)"gl");
+				    } else if (strstr(lang.xMenuPath, (char *)"french")) {
+					UpgradeLanguage((char *)"french", (char *)"fr");
+				    } else if (strstr(lang.xMenuPath, (char *)"chinese")) {
+					UpgradeLanguage((char *)"chinese", (char *)"zh");
+				    } else {
+					WriteError("Unknown language \"%s\", please update manually", lang.Name);
+				    }
+				}
 				fwrite(&lang, sizeof(lang), 1, fout);
 				memset(&lang, 0, sizeof(lang));
 			}
@@ -232,13 +322,10 @@ void s_lang(void)
 	set_color(CYAN, BLACK);
 	mbse_mvprintw( 7, 2, "1.  Select");
 	mbse_mvprintw( 8, 2, "2.  Name");
-	mbse_mvprintw( 9, 2, "3.  Menupath");
-	mbse_mvprintw(10, 2, "4.  Textpath");
-	mbse_mvprintw(11, 2, "5.  Macropath");
-	mbse_mvprintw(12, 2, "6.  Available");
-	mbse_mvprintw(13, 2, "7.  Datafile");
-	mbse_mvprintw(14, 2, "8.  Security");
-	mbse_mvprintw(15, 2, "9.  Deleted");
+	mbse_mvprintw( 9, 2, "3.  ISO name");
+	mbse_mvprintw(10, 2, "4.  Available");
+	mbse_mvprintw(11, 2, "5.  Security");
+	mbse_mvprintw(12, 2, "6.  Deleted");
 }
 
 
@@ -281,15 +368,12 @@ int EditLangRec(int Area)
 		set_color(WHITE, BLACK);
 		show_str(  7,16, 1, lang.LangKey);
 		show_str(  8,16,30, lang.Name);
-		show_str(  9,16,64, lang.MenuPath);
-		show_str( 10,16,64, lang.TextPath);
-		show_str( 11,16,64, lang.MacroPath);
-		show_bool(12,16,    lang.Available);
-		show_str( 13,16,24, lang.Filename);
-		show_sec( 14,16,    lang.Security);
-		show_bool(15,16,    lang.Deleted);
+		show_str(  9,16,64, lang.lc);
+		show_bool(10,16,    lang.Available);
+		show_sec( 11,16,    lang.Security);
+		show_bool(12,16,    lang.Deleted);
 
-		j = select_menu(9);
+		j = select_menu(6);
 		switch(j) {
 		case 0:	crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&lang, crc1, sizeof(lang));
@@ -311,13 +395,10 @@ int EditLangRec(int Area)
 			return 0;
 		case 1:	E_UPS(  7,16,1, lang.LangKey,  "The ^Key^ to select this language")
 		case 2:	E_STR(  8,16,30,lang.Name,     "The ^name^ of this language")
-		case 3:	E_PTH(  9,16,64,lang.MenuPath, "The ^Menus Path^ of this language", 0755)
-		case 4:	E_PTH( 10,16,64,lang.TextPath, "The ^Textfile path^ of this language", 0755)
-		case 5:	E_PTH( 11,16,64,lang.MacroPath,"The ^Macro template path^ if this language", 0755)
-		case 6:	E_BOOL(12,16,   lang.Available,"Is this language ^available^")
-		case 7:	E_STR( 13,16,24,lang.Filename, "The ^Filename^ (without path) of the language datafile")
-		case 8:	E_SEC( 14,16,   lang.Security, "8.2. LANGUAGE SECURITY", s_lang)
-		case 9: E_BOOL(15,16,   lang.Deleted,  "Is this language record ^Deleted^")
+		case 3:	E_STR(  9,16,10,lang.lc,       "The ^ISO name^ of this language")
+		case 4:	E_BOOL(10,16,   lang.Available,"Is this language ^available^")
+		case 5:	E_SEC( 11,16,   lang.Security, "8.2. LANGUAGE SECURITY", s_lang)
+		case 6: E_BOOL(12,16,   lang.Deleted,  "Is this language record ^Deleted^")
 		}
 	}
 
@@ -501,7 +582,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	    
     while ((fread(&lang, langhdr.recsize, 1, no)) == 1) {
 
-	if (j == 5) {
+	if (j == 6) {
 	    page = newpage(fp, page);
 	    fprintf(fp, "\n");
 	    j = 0;
@@ -518,16 +599,14 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Language key", lang.LangKey);
 	    add_webtable(wp, (char *)"Language name", lang.Name);
 	    add_webtable(wp, (char *)"Available", getboolean(lang.Available));
-	    add_webtable(wp, (char *)"Menu path", lang.MenuPath);
-	    add_webtable(wp, (char *)"Textfiles path", lang.TextPath);
-	    add_webtable(wp, (char *)"Macrofiles path", lang.MacroPath);
-	    add_webtable(wp, (char *)"Language file", lang.Filename);
+	    add_webtable(wp, (char *)"ISO name", lang.lc);
 	    web_secflags(wp, (char *)"Security level", lang.Security);
 	    fprintf(wp, "</TBODY>\n");
             fprintf(wp, "</TABLE>\n");
             fprintf(wp, "<HR>\n");
             fprintf(wp, "<H3>Menu files</H3>\n");
-	    if ((dp = opendir(lang.MenuPath))) {
+	    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+	    if ((dp = opendir(temp))) {
 		while ((de = readdir(dp))) {
 		    if (de->d_name[0] != '.') {
 			fprintf(wp, "%s<BR>\n", de->d_name);
@@ -537,7 +616,8 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Text files</H3>\n");
-	    if ((dp = opendir(lang.TextPath))) {
+	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("MBSE_ROOT"), lang.lc);
+	    if ((dp = opendir(temp))) {
 		while ((de = readdir(dp))) {
 		    if (de->d_name[0] != '.') {
 			fprintf(wp, "%s<BR>\n", de->d_name);
@@ -547,7 +627,8 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Macro template files</H3>\n");
-	    if ((dp = opendir(lang.MacroPath))) {
+	    snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("MBSE_ROOT"), lang.lc);
+	    if ((dp = opendir(temp))) {
 		while ((de = readdir(dp))) {
 		    if (de->d_name[0] != '.') {
 			fprintf(wp, "%s<BR>\n", de->d_name);
@@ -561,10 +642,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "     Language key     %s\n", lang.LangKey);
 	fprintf(fp, "     Language name    %s\n", lang.Name);
 	fprintf(fp, "     Available        %s\n", getboolean(lang.Available));
-	fprintf(fp, "     Menu path        %s\n", lang.MenuPath);
-	fprintf(fp, "     Textfiles path   %s\n", lang.TextPath);
-	fprintf(fp, "     Macrofiles path  %s\n", lang.MacroPath);
-	fprintf(fp, "     Language file    %s\n", lang.Filename);
+	fprintf(fp, "     ISO name         %s\n", lang.lc);
 	fprintf(fp, "     Security level   %s\n", get_secstr(lang.Security));
 	fprintf(fp, "\n\n");
 	j++;

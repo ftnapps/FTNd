@@ -158,7 +158,7 @@ void load_maincfg(void)
         snprintf(CFG.logfile, 15, "system.log");
         snprintf(CFG.error_log, 15, "error.log");
         snprintf(CFG.default_menu, 15, "main.mnu");
-        snprintf(CFG.current_language, 15, "english.lang");
+        snprintf(CFG.deflang, 10, "en");
         snprintf(CFG.chat_log, 15, "chat.log");
         snprintf(CFG.welcome_logo, 15, "logo.asc");
 	snprintf(CFG.mgrlog, 15, "manager.log");
@@ -167,9 +167,6 @@ void load_maincfg(void)
         /*
          * Fill Global defaults
          */
-        snprintf(CFG.bbs_menus, 65, "%s/english/menus", getenv("MBSE_ROOT"));
-        snprintf(CFG.bbs_txtfiles, 65, "%s/english/txtfiles", getenv("MBSE_ROOT"));
-	snprintf(CFG.bbs_macros, 65, "%s/english/macro", getenv("MBSE_ROOT"));
         snprintf(CFG.bbs_usersdir, 65, "%s/home", getenv("MBSE_ROOT"));
         snprintf(CFG.nodelists, 65, "%s/var/nodelist", getenv("MBSE_ROOT"));
         snprintf(CFG.inbound, 65, "%s/var/unknown", getenv("MBSE_ROOT"));

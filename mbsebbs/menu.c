@@ -4,7 +4,7 @@
  * Purpose ...............: Display and handle the menus.
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -107,9 +107,9 @@ void menu()
 	 * Open menufile, first users language menu, if it fails
 	 * try to open the default menu.
 	 */
-	snprintf(sMenuPathFileName, PATH_MAX, "%s/%s", lang.MenuPath, Menus[MenuLevel]);
+	snprintf(sMenuPathFileName, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("MBSE_ROOT"), lang.lc, Menus[MenuLevel]);
 	if ((pMenuFile = fopen(sMenuPathFileName, "r")) == NULL) {
-	    snprintf(sMenuPathFileName, PATH_MAX, "%s/%s", CFG.bbs_menus, Menus[MenuLevel]);
+	    snprintf(sMenuPathFileName, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("MBSE_ROOT"), CFG.deflang, Menus[MenuLevel]);
 	    pMenuFile = fopen(sMenuPathFileName,"r");
 	    if (pMenuFile != NULL)
 		Syslog('b', "Menu %s (Default)", Menus[MenuLevel]);

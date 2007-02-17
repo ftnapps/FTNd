@@ -56,46 +56,14 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/log
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/tmp
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/home
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/chinese
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/chinese/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/chinese/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/chinese/macro
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/dutch
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/dutch/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/dutch/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/dutch/macro
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/english
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/english/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/english/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/english/macro
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}/share
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}/share/doc
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}/share/doc/html
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}/share/doc/tags
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/de
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/en
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/es
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/fr
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/gl
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/it
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/nl
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/spanish
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/spanish/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/spanish/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/spanish/macro
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/galego
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/galego/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/galego/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/galego/macro
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/german
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/german/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/german/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/german/macro
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/french
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/french/txtfiles
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/french/menus
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/french/macro
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/menus
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/macro
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/int/txtfiles
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp/pub
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp/pub/local
@@ -146,6 +114,12 @@ install:
 			echo; echo "If there is nothing important in ${PREFIX}/doc" ; \
 			echo "you may remove that obsolete directory." ; \
 		fi
+		@for d in de en es fr gl it nl; do \
+		    if [ -d ${PREFIX}/share/int/$$d ] ; then \
+		    	rmdir ${PREFIX}/share/int/$$d ; \
+			echo "Removed directory ${PREFIX}/share/int/$$d" ; \
+		    fi ; \
+		done
 		@rm -rf ${PREFIX}/sema
 		@rm -rf ${PREFIX}/tmp/arc
 

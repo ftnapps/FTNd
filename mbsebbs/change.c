@@ -4,7 +4,7 @@
  * Purpose ...............: Change user settings
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -111,7 +111,7 @@ int Chg_Language(int NewMode)
 	while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
 	    strcpy(lang.LangKey,tu(lang.LangKey));
 	    if ((lang.LangKey[0] == iLang) && (lang.Available)) {
-		strcpy(CFG.current_language, lang.Filename);
+		strcpy(current_language, lang.lc);
 		iFoundLang = TRUE;
 		break;
 	    }
@@ -126,7 +126,7 @@ int Chg_Language(int NewMode)
 	    Enter(2);
 	} else {
 	    exitinfo.iLanguage = iLang;
-	    strcpy(CFG.current_language, lang.Filename);
+	    strcpy(current_language, lang.lc);
 	    Free_Language();
 	    InitLanguage();
 

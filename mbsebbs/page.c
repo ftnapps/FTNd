@@ -5,7 +5,7 @@
  * Todo ..................: Implement new config settings.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -289,7 +289,7 @@ void PageReason()
     temp = calloc(PATH_MAX, sizeof(char));
     String = calloc(81, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/page.asc", CFG.bbs_txtfiles);
+    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/page.asc", getenv("MBSE_ROOT"), CFG.deflang);
     if ((Page = fopen(temp, "r")) != NULL) {
 
 	while (( fgets(String, 80 ,Page)) != NULL)

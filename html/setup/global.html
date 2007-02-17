@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 16-Nov-2005</h5></div>
+<div align="right"><h5>Last update 17-Feb-2007</h5></div>
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 
 In this setup you can edit all global settings for MBSE BBS. All sections will
@@ -62,7 +62,6 @@ a chat network.
 <strong>Debug logfile     </strong>The name of the debug logfile
 <strong>Mgr logfile       </strong>The name of the area-/filemgr logfile
 <strong>Default menu      </strong>The name of the default main menu
-<strong>Default language  </strong>The name of the default language
 <strong>Chat logfile      </strong>The name of the logfile for chatting
 <strong>Welcome logo      </strong>The name of the BBS logo ANSI file
 </pre>
@@ -71,19 +70,16 @@ a chat network.
 <h3>1.4. Edit Global Paths</H3>
 <P>
 <pre>
-<strong>BBS Menus         </strong>The path to the default menus
-<strong>Txtfiles          </strong>The path to the default ANSI and ASCII textfiles
-<strong>Macro's           </strong>The path to the default macro templates
 <strong>Home dirs         </strong>The path to the users home directories
 <strong>FTP base          </strong>The FTP base path, ie. /opt/mbse/ftp/pub
 <strong>Arealists         </strong>The path where area lists and filebone lists are stored
 <strong>Ext. edit         </strong>The full path and filename to the external editor
 <strong>Rules dir         </strong>The path to the directory to store area rules
-
 <strong>Magic's           </strong>Where the magic filerequests are kept
 <strong>DOS path          </strong>The DOS drive and path
 <strong>Unix path         </strong>The Translated DOS path in real
 <strong>LeaveCase         </strong>Leave outbound .flo filenames as is, No forces to uppercase
+
 <strong>Nodelists         </strong>The path to the nodelist directory
 <strong>Inbound           </strong>The unprotected fidonet inbound
 <strong>Prot inb.         </strong>The (password) protected fidonet inbound
@@ -136,6 +132,7 @@ files.
 <strong>Simult. logins    </strong>Maximum simultaneous logins allowed, 0 is unlimited, 1 is adviced.
 <strong>Child priority    </strong>Subproces nice priority, 0=high, 15=low CPU load.
 <strong>Filesystem sync   </strong>Call sync before and after execute.
+<strong>Default language  </strong>Default language (English).
 </pre>
 The minimum diskspace setting is to prevent that files get corrupted if your filesystem
 is full. All drives are checked except CD-roms and floppies and the /boot directory if that
@@ -153,6 +150,10 @@ mount filesystems synchronous. If this setting is No on asynchronous filesystems
 mail and files can get corrupted. XxxxBSD systems use synchronous directory
 updates and don't need this switch. If you don't know what all this is about,
 leave this to the default setting.
+<p>
+Choice of default language. English is the best choice because that is the only 
+language that is complete in the default installation. In the user setup another 
+language may be used, the language set here is then used as a backup.
 <p>
 
 <h3>1.6. User flag Descriptions.</h3>

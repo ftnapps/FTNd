@@ -4,7 +4,7 @@
  * Purpose ...............: Global Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -42,6 +42,7 @@
 #include "m_mgroup.h"
 #include "m_limits.h"
 #include "m_global.h"
+#include "m_lang.h"
 
 
 char	    *some_fn;
@@ -187,9 +188,8 @@ void e_filenames(void)
     mbse_mvprintw( 9, 6, "3.   Debug logfile");
     mbse_mvprintw(10, 6, "4.   Mgr logfile");
     mbse_mvprintw(11, 6, "5.   Default Menu");
-    mbse_mvprintw(12, 6, "6.   Default Language");
-    mbse_mvprintw(13, 6, "7.   Chat Logfile");
-    mbse_mvprintw(14, 6, "8.   Welcome Logo");
+    mbse_mvprintw(12, 6, "6.   Chat Logfile");
+    mbse_mvprintw(13, 6, "7.   Welcome Logo");
     
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -198,20 +198,18 @@ void e_filenames(void)
 	show_str( 9,28,14, CFG.debuglog);
 	show_str(10,28,14, CFG.mgrlog);
 	show_str(11,28,14, CFG.default_menu);
-	show_str(12,28,14, CFG.current_language);
-	show_str(13,28,14, CFG.chat_log);
-	show_str(14,28,14, CFG.welcome_logo);
+	show_str(12,28,14, CFG.chat_log);
+	show_str(13,28,14, CFG.welcome_logo);
 
-	switch(select_menu(8)) {
+	switch(select_menu(7)) {
 	    case 0: return;
 	    case 1: E_STR( 7,28,14, CFG.logfile,          "The name of the ^system^ logfile.")
 	    case 2: E_STR( 8,28,14, CFG.error_log,        "The name of the ^errors^ logfile.")
 	    case 3: E_STR( 9,28,14, CFG.debuglog,         "The name of the ^debug^ logfile.")
 	    case 4: E_STR(10,28,14, CFG.mgrlog,           "The name of the ^area-/filemgr^ logfile.")
 	    case 5: E_STR(11,28,14, CFG.default_menu,     "The name of the ^default^ (top) ^menu^.")
-	    case 6: E_STR(12,28,14, CFG.current_language, "The name of the ^default language^.")
-	    case 7: E_STR(13,28,14, CFG.chat_log,         "The name of the ^chat^ logfile.")
-	    case 8: E_STR(14,28,14, CFG.welcome_logo,     "The name of the ^BBS logo^ file.")
+	    case 6: E_STR(12,28,14, CFG.chat_log,         "The name of the ^chat^ logfile.")
+	    case 7: E_STR(13,28,14, CFG.welcome_logo,     "The name of the ^BBS logo^ file.")
 	}
     }
 }
@@ -222,60 +220,48 @@ void e_global2(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 4, 6, "1.4   EDIT GLOBAL PATHS - 2");
+    mbse_mvprintw( 4, 6, "1.4 EDIT GLOBAL PATHS - 2");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 6, 2, "1.  Magic's");
-    mbse_mvprintw( 7, 2, "2.  DOS path");
-    mbse_mvprintw( 8, 2, "3.  Unix path");
-    mbse_mvprintw( 9, 2, "4.  LeaveCase");
-    mbse_mvprintw(10, 2, "5.  Nodelists");
-    mbse_mvprintw(11, 2, "6.  Inbound");
-    mbse_mvprintw(12, 2, "7.  Prot inb.");
-    mbse_mvprintw(13, 2, "8.  Outbound");
-    mbse_mvprintw(14, 2, "9.  Out queue");
-    mbse_mvprintw(15, 2, "10. *.msgs");
-    mbse_mvprintw(16, 2, "11. Bad TIC's");
-    mbse_mvprintw(17, 2, "12. TIC queue");
-    mbse_mvprintw(18, 2, "13. TMail DOS");
-    mbse_mvprintw(19, 2, "14. TMail Win");
+    mbse_mvprintw( 6, 2, "1.  Nodelists");
+    mbse_mvprintw( 7, 2, "2.  Inbound");
+    mbse_mvprintw( 8, 2, "3.  Prot inb.");
+    mbse_mvprintw( 9, 2, "4.  Outbound");
+    mbse_mvprintw(10, 2, "5.  Out queue");
+    mbse_mvprintw(11, 2, "6.  *.msgs");
+    mbse_mvprintw(12, 2, "7.  Bad TIC's");
+    mbse_mvprintw(13, 2, "8.  TIC queue");
+    mbse_mvprintw(14, 2, "9.  TMail DOS");
+    mbse_mvprintw(15, 2, "10. TMail Win");
     
     for (;;) {
         set_color(WHITE, BLACK);
-        show_str( 6,16,64, CFG.req_magic);
-        show_str( 7,16,64, CFG.dospath);
-        show_str( 8,16,64, CFG.uxpath);
-        show_bool(9,16,    CFG.leavecase);
-        show_str(10,16,64, CFG.nodelists);
-	show_str(11,16,64, CFG.inbound);
-	show_str(12,16,64, CFG.pinbound);
-	show_str(13,16,64, CFG.outbound);
-	show_str(14,16,64, CFG.out_queue);
-	show_str(15,16,64, CFG.msgs_path);
-	show_str(16,16,64, CFG.badtic);
-	show_str(17,16,64, CFG.ticout);
-	show_str(18,16,64, CFG.tmailshort);
-	show_str(19,16,64, CFG.tmaillong);
+        show_str( 6,16,64, CFG.nodelists);
+	show_str( 7,16,64, CFG.inbound);
+	show_str( 8,16,64, CFG.pinbound);
+	show_str( 9,16,64, CFG.outbound);
+	show_str(10,16,64, CFG.out_queue);
+	show_str(11,16,64, CFG.msgs_path);
+	show_str(12,16,64, CFG.badtic);
+	show_str(13,16,64, CFG.ticout);
+	show_str(14,16,64, CFG.tmailshort);
+	show_str(15,16,64, CFG.tmaillong);
 
-        switch (select_menu(14)) {
+        switch (select_menu(10)) {
             case 0: return;
-            case 1: E_PTH( 6,16,64, CFG.req_magic,  "The path to the ^magic filerequest^ files.", 0750)
-            case 2: E_STR( 7,16,64, CFG.dospath,    "The translated ^DOS^ drive and path, empty disables translation")
-            case 3: E_PTH( 8,16,64, CFG.uxpath,     "The translated ^Unix^ path.", 0750)
-            case 4: E_BOOL(9,16,    CFG.leavecase,  "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
-	    case 5: E_PTH(10,16,64, CFG.nodelists,  "The path to the ^nodelists^.", 0750)
-	    case 6: E_PTH(11,16,64, CFG.inbound,    "The path to the ^inbound^ for unknown systems.", 0750)
-	    case 7: E_PTH(12,16,64, CFG.pinbound,   "The path to the ^nodelists^ for protected systems.", 0750)
-	    case 8: E_PTH(13,16,64, CFG.outbound,   "The path to the base ^outbound^ directory.", 0750)
-	    case 9: E_PTH(14,16,64, CFG.out_queue,  "The path to the ^temp outbound queue^ directory.", 0750)
-	    case 10:E_PTH(15,16,64, CFG.msgs_path,  "The path to the ^*.msgs^ directory.", 0750)
-	    case 11:E_PTH(16,16,64, CFG.badtic,     "The path to the ^bad tic files^.", 0750)
-	    case 12:E_PTH(17,16,64, CFG.ticout,     "The path to the ^outgoing TIC^ files.", 0750)
-	    case 13:if (strlen(CFG.tmailshort) == 0)
+	    case 1: E_PTH( 6,16,64, CFG.nodelists,  "The path to the ^nodelists^.", 0750)
+	    case 2: E_PTH( 7,16,64, CFG.inbound,    "The path to the ^inbound^ for unknown systems.", 0750)
+	    case 3: E_PTH( 8,16,64, CFG.pinbound,   "The path to the ^nodelists^ for protected systems.", 0750)
+	    case 4: E_PTH( 9,16,64, CFG.outbound,   "The path to the base ^outbound^ directory.", 0750)
+	    case 5: E_PTH(10,16,64, CFG.out_queue,  "The path to the ^temp outbound queue^ directory.", 0750)
+	    case 6: E_PTH(11,16,64, CFG.msgs_path,  "The path to the ^*.msgs^ directory.", 0750)
+	    case 7: E_PTH(12,16,64, CFG.badtic,     "The path to the ^bad tic files^.", 0750)
+	    case 8: E_PTH(13,16,64, CFG.ticout,     "The path to the ^outgoing TIC^ files.", 0750)
+	    case 9: if (strlen(CFG.tmailshort) == 0)
 			snprintf(CFG.tmailshort, 65, "%s/var/tmail/short", getenv("MBSE_ROOT"));
-		    E_PTH(18,16,64, CFG.tmailshort, "The ^T-Mail 8.3 basepath^ (blank = disable)", 0770)
-	    case 14:if (strlen(CFG.tmaillong) == 0)
+		    E_PTH(14,16,64, CFG.tmailshort, "The ^T-Mail 8.3 basepath^ (blank = disable)", 0770)
+	    case 10:if (strlen(CFG.tmaillong) == 0)
 			snprintf(CFG.tmaillong, 65, "%s/var/tmail/long", getenv("MBSE_ROOT"));
-		    E_PTH(19,16,64, CFG.tmaillong,  "The ^T-Mail long basepath^ (blank = disable)", 0770)
+		    E_PTH(15,16,64, CFG.tmaillong,  "The ^T-Mail long basepath^ (blank = disable)", 0770)
         }
     }
 }
@@ -286,17 +272,18 @@ void s_global(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 4, 6, "1.4   EDIT GLOBAL PATHS");
+    mbse_mvprintw( 4, 6, "1.4 EDIT GLOBAL PATHS");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 6, 2, "1.  BBS menus");
-    mbse_mvprintw( 7, 2, "2.  Txtfiles");
-    mbse_mvprintw( 8, 2, "3.  Macro's");
-    mbse_mvprintw( 9, 2, "4.  Home dirs");
-    mbse_mvprintw(10, 2, "5.  Ftp base");
-    mbse_mvprintw(11, 2, "6.  Arealists");
-    mbse_mvprintw(12, 2, "7.  Ext. edit");
-    mbse_mvprintw(13, 2, "8.  Rules dir");
-    mbse_mvprintw(14, 2, "9.  Next Screen");
+    mbse_mvprintw( 6, 2, "1.  Home dirs");
+    mbse_mvprintw( 7, 2, "2.  Ftp base");
+    mbse_mvprintw( 8, 2, "3.  Arealists");
+    mbse_mvprintw( 9, 2, "4.  Ext. edit");
+    mbse_mvprintw(10, 2, "5.  Rules dir");
+    mbse_mvprintw(11, 2, "6.  Magic's");
+    mbse_mvprintw(12, 2, "7.  DOS path");
+    mbse_mvprintw(13, 2, "8.  Unix path");
+    mbse_mvprintw(14, 2, "9.  LeaveCase");
+    mbse_mvprintw(15, 2, "10. Next Screen");
 }
 
 
@@ -307,26 +294,28 @@ void e_global(void)
 
     for (;;) {
 	set_color(WHITE, BLACK);
-	show_str( 6,16,64, CFG.bbs_menus);
-	show_str( 7,16,64, CFG.bbs_txtfiles);
-	show_str( 8,16,64, CFG.bbs_macros);
-	show_str( 9,16,64, CFG.bbs_usersdir);
-        show_str(10,16,64, CFG.ftp_base);
-	show_str(11,16,64, CFG.alists_path);
-	show_str(12,16,64, CFG.externaleditor);
-	show_str(13,16,64, CFG.rulesdir);
+	show_str(  6,16,64, CFG.bbs_usersdir);
+        show_str(  7,16,64, CFG.ftp_base);
+	show_str(  8,16,64, CFG.alists_path);
+	show_str(  9,16,64, CFG.externaleditor);
+	show_str( 10,16,64, CFG.rulesdir);
+        show_str( 11,16,64, CFG.req_magic);
+	show_str( 12,16,64, CFG.dospath);
+	show_str( 13,16,64, CFG.uxpath);
+	show_bool(14,16,    CFG.leavecase);
 
-	switch (select_menu(9)) {
+	switch (select_menu(10)) {
 	    case 0: return;
-	    case 1: E_PTH( 6,16,64, CFG.bbs_menus,      "The path to the ^default menus^.", 0750)
-	    case 2: E_PTH( 7,16,64, CFG.bbs_txtfiles,   "The path to the ^default textfiles^.", 0750)
-	    case 3: E_PTH( 8,16,64, CFG.bbs_macros,     "The path to the ^default macro templates^.", 0750)
-	    case 4: E_PTH( 9,16,64, CFG.bbs_usersdir,   "The path to the ^users home^ directories.", 0770)
-            case 5: E_PTH(10,16,64, CFG.ftp_base,       "The ^FTP home^ directory to strip of the real directory", 0750)
-	    case 6: E_PTH(11,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.", 0750)
-	    case 7: E_STR(12,16,64, CFG.externaleditor, "The full path and filename to the ^external msg editor^ (blank=disable)")
-	    case 8: E_PTH(13,16,64, CFG.rulesdir,       "The path where the ^arearules^ are stored", 0750)
-	    case 9: e_global2();
+	    case 1: E_PTH(  6,16,64, CFG.bbs_usersdir,   "The path to the ^users home^ directories.", 0770)
+            case 2: E_PTH(  7,16,64, CFG.ftp_base,       "The ^FTP home^ directory to strip of the real directory", 0750)
+	    case 3: E_PTH(  8,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.", 0750)
+	    case 4: E_STR(  9,16,64, CFG.externaleditor, "The full path and filename to the ^external msg editor^ (blank=disable)")
+	    case 5: E_PTH( 10,16,64, CFG.rulesdir,       "The path where the ^arearules^ are stored", 0750)
+	    case 6: E_PTH( 11,16,64, CFG.req_magic,      "The path to the ^magic filerequest^ files.", 0750)
+	    case 7: E_STR( 12,16,64, CFG.dospath,        "The translated ^DOS^ drive and path, empty disables translation")
+	    case 8: E_PTH( 13,16,64, CFG.uxpath,         "The translated ^Unix^ path.", 0750)
+	    case 9: E_BOOL(14,16,    CFG.leavecase,      "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
+	    case 10:e_global2();
 		    s_global();
 		    break;
 	}
@@ -365,6 +354,7 @@ void b_screen(void)
     mbse_mvprintw(15,37, "21.  Simult. logins");
     mbse_mvprintw(16,37, "22.  Child priority");
     mbse_mvprintw(17,37, "23.  Filesystem sync");
+    mbse_mvprintw(18,37, "24.  Default language");
 
     set_color(WHITE, BLACK);
     show_bool( 7,24, CFG.exclude_sysop);
@@ -391,6 +381,7 @@ void b_screen(void)
     show_int( 15,59, CFG.max_logins);
     show_int( 16,59, CFG.priority);
     show_bool(17,59, CFG.do_sync);
+    show_str( 18,59, 10, CFG.deflang);
 }
 
 
@@ -400,7 +391,7 @@ void e_bbsglob(void)
     b_screen();
 
     for (;;) {
-	switch(select_menu(23)) {
+	switch(select_menu(24)) {
 	    case 0: return;
 	    case 1: E_BOOL( 7,24, CFG.exclude_sysop,         "^Exclude^ sysop from lists.")
 	    case 2: E_BOOL( 8,24, CFG.iConnectString,        "Show ^connect string^ at logon")
@@ -426,6 +417,10 @@ void e_bbsglob(void)
 	    case 21:E_INT( 15,59, CFG.max_logins,            "Maximum ^simultaneous logins^ allowed, 0 means unlimited")
 	    case 22:E_IRC( 16,59, CFG.priority, 0, 15,       "Subproces ^nice priority^, 0=high, 15=low CPU load")
 	    case 23:E_BOOL(17,59, CFG.do_sync,               "Call ^sync^ before and after execute, use Yes on GNU/Linux")
+	    case 24:PickLanguage((char *)"1.5.24");
+		    snprintf(CFG.deflang, 10, "%s", lang.lc);
+		    b_screen();
+		    break;
 	}
     }
 }
@@ -1456,14 +1451,9 @@ void global_menu(void)
     crc = 0xffffffff;
     crc = upd_crc32((char *)&CFG, crc, sizeof(CFG));
 
-    if (strlen(CFG.bbs_macros) == 0) {
-	snprintf(CFG.bbs_macros, 65, "%s/english/macro", getenv("MBSE_ROOT"));
-	 Syslog('+', "Main config, upgraded default macro path");
-    }
-
     if (strlen(CFG.out_queue) == 0) {
 	snprintf(CFG.out_queue, 65, "%s/var/queue", getenv("MBSE_ROOT"));
-	 Syslog('+', "Main config, upgraded for new queue");
+	Syslog('+', "Main config, upgraded for new queue");
     }
 
     if (strlen(CFG.mgrlog) == 0) {
@@ -1506,6 +1496,11 @@ void global_menu(void)
     }
     free(temp);
     
+    if (strlen(CFG.deflang) == 0) {
+	snprintf(CFG.deflang, 10, "%s", (char *)"en");
+	Syslog('+', "Main config, upgraded default language to \"en\"");
+    }
+
     if (!CFG.is_upgraded) {
 	CFG.priority = 15;
 #ifdef __linux__
@@ -1813,7 +1808,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"Debug logfile", CFG.debuglog);
     add_webtable(wp, (char *)"Manager logfile", CFG.mgrlog);
     add_webtable(wp, (char *)"Default menu", CFG.default_menu);
-    add_webtable(wp, (char *)"Default language", CFG.current_language);
     add_webtable(wp, (char *)"Chat logfile", CFG.chat_log);
     add_webtable(wp, (char *)"Welcome logo", CFG.welcome_logo);
     fprintf(wp, "</TBODY>\n");
@@ -1826,7 +1820,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "      Debug logfile    %s\n", CFG.debuglog);
     fprintf(fp, "      Manager logfile  %s\n", CFG.mgrlog);
     fprintf(fp, "      Default menu     %s\n", CFG.default_menu);
-    fprintf(fp, "      Default language %s\n", CFG.current_language);
     fprintf(fp, "      Chat logfile     %s\n", CFG.chat_log);
     fprintf(fp, "      Welcome logo     %s\n", CFG.welcome_logo);
 
@@ -1834,9 +1827,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
     fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
     fprintf(wp, "<TBODY>\n");
-    add_webtable(wp, (char *)"Menufiles", CFG.bbs_menus);
-    add_webtable(wp, (char *)"Textfiles", CFG.bbs_txtfiles);
-    add_webtable(wp, (char *)"Macro templates", CFG.bbs_macros);
     add_webtable(wp, (char *)"Users homedirs", CFG.bbs_usersdir);
     add_webtable(wp, (char *)"Nodelists", CFG.nodelists);
     add_webtable(wp, (char *)"Unsafe inbound", CFG.inbound);
@@ -1858,9 +1848,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     addtoc(fp, toc, 1, 5, page, (char *)"Pathnames");
-    fprintf(fp, "      Menufiles        %s\n", CFG.bbs_menus);
-    fprintf(fp, "      Textfiles        %s\n", CFG.bbs_txtfiles);
-    fprintf(fp, "      Macros           %s\n", CFG.bbs_macros);
     fprintf(fp, "      Users homedirs   %s\n", CFG.bbs_usersdir);
     fprintf(fp, "      Nodelists        %s\n", CFG.nodelists);
     fprintf(fp, "      Unsafe inbound   %s\n", CFG.inbound);

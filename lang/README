@@ -6,9 +6,9 @@ $Id$
 
 This directory contains the language sources for MBSE BBS. The file
 Language.xref is only a reference file with linenumbers and source
-references. The files english.txt, dutch.txt and italian.txt are the 
-real language sources. The resulting files dutch.lang, english.lang
-and italian.lang are placed in the ~/etc directory where the bbs 
+references. The files source.en, source.nl and source.de are the 
+real language sources. The resulting files language.nl, language.en
+and language.de are placed in the ~/share/int directory where the bbs 
 will expect them to be.
 
 If you make your own language files, use Language.xref as a guide.
@@ -29,12 +29,15 @@ Michiel.
 
 Current language maintainters:
 
-english		Michiel Broek <mbroek@users.sourceforge.net>
-dutch		Michiel Broek <mbroek@users.sourceforge.net>
-italian		Vacant
-spanisch	Redy Rodriguez <redy@users.sourceforge.net>
-galego		Redy Rodriguez <redy@users.sourceforge.net>
-german		Harald Wuensch <Harald.Wuensch@gecits-eu.com>
-germandu	Malte Tychsen <2:240/9350@fidonet>
-french		Francois Thunus <2:270/24@fidonet>
+en		Michiel Broek <mbroek@users.sourceforge.net>
+nl		Michiel Broek <mbroek@users.sourceforge.net>
+es		Redy Rodriguez <redy@users.sourceforge.net>
+gl		Redy Rodriguez <redy@users.sourceforge.net>
+de		Harald Wuensch <Harald.Wuensch@gecits-eu.com>
+germandu	Malte Tychsen <2:240/9350@fidonet> (alternative german).
+fr		Francois Thunus <2:270/24@fidonet>
+
+If you want to use the germandu language instead of the default german
+language then run "mblang germandu.txt language.de" and install the
+file laguage.de in /opt/mbse/share/int.
 

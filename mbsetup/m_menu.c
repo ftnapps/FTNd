@@ -4,7 +4,7 @@
  * Purpose ...............: Edit BBS menus
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -316,10 +316,10 @@ void EditMenu(char *Name)
     IsDoing("Edit Menu");
     working(1, 0, 0);
 
-    snprintf(mtemp, PATH_MAX, "%s/%s.tmp", lang.MenuPath, Name);
+    snprintf(mtemp, PATH_MAX, "%s/share/int/menus/%s/%s.tmp", getenv("MBSE_ROOT"), lang.lc, Name);
     tmp = fopen(mtemp, "w+");
 
-    snprintf(temp, PATH_MAX, "%s/%s.mnu", lang.MenuPath, Name);
+    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s.mnu", getenv("MBSE_ROOT"), lang.lc, Name);
     if ((fil = fopen(temp, "r")) != NULL) {
 	while (fread(&menus, sizeof(menus), 1, fil) == 1) {
 	    fwrite(&menus, sizeof(menus), 1, tmp);
@@ -378,7 +378,7 @@ void EditMenu(char *Name)
 	    if (MenuUpdated) {
 		if (yes_no((char *)"Menu is changed, save changes") == 1) {
 		    working(1, 0, 0);
-		    snprintf(temp, PATH_MAX, "%s/%s.mnu", lang.MenuPath, Name);
+		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s.mnu", getenv("MBSE_ROOT"), lang.lc, Name);
 		    if ((fil = fopen(temp, "w+")) == NULL) {
 			working(2, 0, 0);
 		    } else {
@@ -497,7 +497,7 @@ void EditMenus(void)
     DIR	    *dp;
     FILE    *fil;
     struct  dirent *de;
-    char    menuname[50][11], temp[81], pick[12], *p;
+    char    menuname[50][11], temp[PATH_MAX], pick[12], *p;
 
     Syslog('+', "Start menu edit");
     memset(&menuname, 0, sizeof(menuname));
@@ -508,7 +508,9 @@ void EditMenus(void)
     for (;;) {
 	clr_index();
 	mcount = 0;
-	if ((dp = opendir(lang.MenuPath)) != NULL) {
+
+	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+	if ((dp = opendir(temp)) != NULL) {
 	    working(1, 0, 0);
 	
 	    while ((de = readdir(dp))) {
@@ -551,7 +553,9 @@ void EditMenus(void)
 	    memset(&temp, 0, sizeof(temp));
 	    strcpy(temp, edit_str(LINES -3, 22, 10, temp, (char *)"Enter a new ^menu^ name without extension"));
 	    if (strlen(temp)) {
-		p = xstrcpy(lang.MenuPath);
+		p = xstrcpy(getenv("MBSE_ROOT"));
+		p = xstrcat(p, (char *)"/share/int/menus/");
+		p = xstrcat(p, lang.lc);
 		p = xstrcat(p, (char *)"/");
 		p = xstrcat(p, temp);
 		p = xstrcat(p, (char *)".mnu");
@@ -606,12 +610,13 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 	fprintf(ip, "<H3>BBS Menus for %s</H3>\n", lang.Name);
 	fprintf(ip, "<UL>\n");
 
-	if ((dp = opendir(lang.MenuPath)) != NULL) {
+	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+	if ((dp = opendir(temp)) != NULL) {
 	    while ((de = readdir(dp))) {
 		if (de->d_name[0] != '.') {
 		    j = 0;
 		    fprintf(ip, "<LI><A HREF=\"menu_%s_%s.html\">%s</A></LI>\n", lang.LangKey, de->d_name, de->d_name);
-		    snprintf(temp, PATH_MAX, "%s/%s", lang.MenuPath, de->d_name);
+		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("MBSE_ROOT"), lang.lc, de->d_name);
 		    fprintf(fp, "\n    MENU %s (%s)\n\n", de->d_name, lang.Name);
 		    if ((mn = fopen(temp, "r")) != NULL) {
 			snprintf(temp, 81, "menu_%s_%s.html", lang.LangKey, de->d_name);

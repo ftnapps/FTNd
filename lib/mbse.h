@@ -4,7 +4,7 @@
  * Purpose ...............: Global variables for MBSE BBS
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -108,6 +108,6 @@ struct	tm *l_date;		/* Structure for Date			   */
 time_t	ltime;
 time_t	Time_Now;
 
-
+char	current_language[10];	/* Current language of the user		   */
 
 #endif
