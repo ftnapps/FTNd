@@ -255,3 +255,7 @@
 
 /* Define if you have the <crypt.h> header file. */
 #undef HAVE_CRYPT_H
+
+/* Define if you have the <iconv.h> header file. */
+#undef HAVE_ICONV_H
+
