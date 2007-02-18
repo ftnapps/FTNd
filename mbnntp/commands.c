@@ -236,6 +236,8 @@ void command_abhs(char *buf)
 	    if (strlen(Msg.Replyid))
 		send_nntp("References: %s", make_msgid(Msg.Replyid));
 
+	    Syslog('n', "charset=\"%s\"", MBSE_SS(charset));
+
 	    /*
 	     * Send RFC 2045 Multipurpose Internet Mail Extensions (MIME) header.
 	     * Order is: 1. Charset defined in the FTN message
