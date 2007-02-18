@@ -343,6 +343,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (fmsg->to)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
 
+    Syslog('m', "rfc2ftn: charset in: %s charset out: %s", charset,getrfcchrs(msgs.Charset));
 #ifndef	USE_EXPERIMENT
     /*
      * Setup charset conversion

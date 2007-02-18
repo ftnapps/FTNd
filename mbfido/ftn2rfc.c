@@ -693,6 +693,8 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	Syslog('m', "Prepare is ready");
     }
 
+    Syslog('m', "ftn2rfc: charset in: %s charset out: %s", charset, getrfcchrs(msgs.Charset));
+
 #ifndef	USE_EXPERIMENT
     /*
      * Setup charset conversion
