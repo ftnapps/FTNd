@@ -78,6 +78,10 @@ extern	int	most_debug;
  *  Internal functions
  */
 int	needputrfc(rfcmsg *, int);
+#ifdef	USE_EXPERIMENT
+int		use_iconv = FALSE;
+iconv_t		iconv_s;
+#endif
 
 
 
@@ -349,6 +353,19 @@ int rfc2ftn(FILE *fp, faddr *recipient)
      * Setup charset conversion
      */
     charset_set_in_out(charset,getrfcchrs(msgs.Charset));
+#endif
+#ifdef USE_EXPERIMENT
+    if (strcmp(charset,getrfcchrs(msgs.Charset)) == 0) {
+	Syslog('m', "rfc2ftn: no need for iconv");
+    } else {
+    	iconv_s = iconv_open(getrfcchrs(msgs.Charset), charset);
+    	if (iconv_s != (iconv_t)-1) {
+	    Syslog('m', "rfc2ftn: activated iconv");
+	    use_iconv = TRUE;
+	} else {
+	    Syslog('+', "rfc2ftn: iconv_open(%s, %s) failed", getrfcchrs(msgs.Charset), charset);
+    	}
+    }
 #endif
 
     do {
@@ -750,6 +767,16 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     } while (needsplit);
 
     Syslog('m', "rfc2ftn: out of splitloop");
+
+#ifdef	USE_EXPERIMENT
+    if (use_iconv) {
+	if (iconv_close(iconv_s))
+	    WriteError("$rfc2ftn: iconv_close()");
+	else
+	    Syslog('m', "rfc2ftn: inconv_close() success");
+	use_iconv = FALSE;
+    }
+#endif
 
     free(temp);
     if (charset)

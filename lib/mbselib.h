@@ -97,6 +97,10 @@
 #endif
 #include <locale.h>
 #include <langinfo.h>
+#ifdef HAVE_ICONV_H
+#include <iconv.h>
+#endif
+
 
 /* used to use #elif, but native braindead hpux 9.00 c compiler didn't 
  *  * understand it */
