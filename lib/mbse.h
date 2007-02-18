@@ -109,5 +109,11 @@ time_t	ltime;
 time_t	Time_Now;
 
 char	current_language[10];	/* Current language of the user		   */
+#ifdef	USE_EXPERIMENT
+int	utf8 = TRUE;
+#else
+int	utf8 = FALSE;
+#endif
+
 
 #endif
