@@ -19,6 +19,9 @@ everything:
 	U: For changed su versions, use 'who am i' to check if we are mbse
 	   su to root.
 
+	N: Fix adding messages if there are deleted messages in a jam area.
+	   Currently messages with the del flag set are overwritten.
+
 	W: Implement IPv6.
 
 	N: In BSO the i flavor should have been d flavor.
