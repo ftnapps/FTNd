@@ -4,7 +4,7 @@
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -83,7 +83,9 @@ int	needputrfc(rfcmsg *, int);
 
 int charwrite(char *s, FILE *fp)
 {
+#ifndef	USE_EXPERIMENT
     char    *o;
+#endif
     
     if ((strlen(s) >= 3) && (strncmp(s,"---",3) == 0) && (s[3] != '-')) {
 	putc('-',fp);
@@ -91,11 +93,15 @@ int charwrite(char *s, FILE *fp)
     }
     
     while (*s) {
+#ifdef	USE_EXPERIMENT
+	putc(*s, fp);
+#else
 	o = s;
 	if (s[0] &0x080) {
 	    o = charset_map_c(s[0], 0);
 	}
 	putc(*o, fp);
+#endif
 	s++;
     }
     return 0;
@@ -337,10 +343,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (fmsg->to)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
 
+#ifndef	USE_EXPERIMENT
     /*
      * Setup charset conversion
      */
     charset_set_in_out(charset,getrfcchrs(msgs.Charset));
+#endif
 
     do {
 	Syslog('m', "rfc2ftn: split loop, splitpart = %d", splitpart);

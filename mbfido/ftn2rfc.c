@@ -4,7 +4,7 @@
  * Purpose ...............: Gate netmail->email or echomail->news
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -693,10 +693,12 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	Syslog('m', "Prepare is ready");
     }
 
+#ifndef	USE_EXPERIMENT
     /*
      * Setup charset conversion
      */
     charset_set_in_out(charset, getrfcchrs(msgs.Charset));
+#endif
 
     if (newsmode) {
 	/*

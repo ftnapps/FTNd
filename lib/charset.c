@@ -4,7 +4,7 @@
  * Purpose ...............: Characterset functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "mbselib.h"
 
+#ifndef USE_EXPERIMENT
 
 #define BUF_APPEND(d,s)   str_append(d,sizeof(d),s)
 
@@ -105,6 +106,7 @@ char *str_copy(char *d, size_t n, char *s)
 
 #define BUF_COPY(d,s)   str_copy  (d,sizeof(d),s)
 
+#endif
 
 char *getftnchrs(int val)
 {
@@ -202,6 +204,7 @@ char *getchrsdesc(int val)
 }
 
 
+#ifndef USE_EXPERIMENT
 
 /*
  * Alloc new CharsetTable and put into linked list
@@ -481,4 +484,5 @@ int charset_set_in_out(char *in, char *out)
     return FALSE;
 }
 
+#endif
 

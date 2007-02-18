@@ -1,7 +1,15 @@
 $Id$
 
 
-v0.91.4		17-Feb-2007
+v0.91.5		18-Feb-2007
+
+	WARNING: do not configure with --enable-experiment this will break!
+	You own the pieces and the troubles, you have been warned.
+
+
+
+
+v0.91.4		17-Feb-2007 - 18-Feb-2007
 
 	upgrade:
 		Because some directories will be moved, a special upgrade

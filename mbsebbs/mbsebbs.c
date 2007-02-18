@@ -371,6 +371,13 @@ int main(int argc, char **argv)
 	Enter(1);
     }
 
+    /*
+     * Some debugging for me
+     */
+    Syslog('b', "setlocale(LANG, NULL) returns \"%s\"", printable(setlocale(LANG, NULL), 0));
+    Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
+    Syslog('b', "setlocale(LC_ALL, NULL) returns \"%s\"", printable(setlocale(LC_ALL, NULL), 0));
+
     snprintf(sMailbox, 21, "mailbox");
     colour(LIGHTGRAY, BLACK);
     user();

@@ -79,7 +79,11 @@ extern int	rows;
 /*
  *  Internal prototypes
  */
+#ifdef	USE_EXPERIMENT
+void    ShowMsgHdr(void);		/* Show message header              */
+#else
 void	ShowMsgHdr(int Conv);		/* Show message header		    */
+#endif
 int	Read_a_Msg(unsigned int Num, int);/* Read a message		    */
 int	Export_a_Msg(unsigned int Num);/* Export message to homedir	    */
 int	ReadPanel(void);		/* Read panel bar		    */
@@ -893,13 +897,20 @@ int Save_Msg(int IsReply, faddr *Dest)
 /* 
  * Show message header screen top for reading messages.
  */
+#ifdef	USE_EXPERIMENT
+void ShowMsgHdr(void)
+#else
 void ShowMsgHdr(int Conv)
+#endif
 {
     static char	Buf1[35], Buf2[35], Buf3[81];
     char	msg[81];
     struct tm	*tm;
     time_t	now;
-    int		color, i;
+    int		color;
+#ifndef	USE_EXPERIMENT
+    int		i;
+#endif
 
     Buf1[0] = '\0';
     Buf2[0] = '\0';
@@ -987,6 +998,9 @@ void ShowMsgHdr(int Conv)
 
     /* Subject : */
     pout(YELLOW, BLACK, (char *) Language(210));
+#ifdef	USE_EXPERIMENT
+    pout(GREEN, BLACK, Msg.Subject);
+#else
     colour(GREEN, BLACK);
 
     if (Conv) {
@@ -999,6 +1013,7 @@ void ShowMsgHdr(int Conv)
     } else {
 	PUTSTR(Msg.Subject);
     }
+#endif
     Enter(1);
 
     colour(CFG.HiliteF, CFG.HiliteB);
@@ -1171,8 +1186,11 @@ int Export_a_Msg(unsigned int Num)
 int Read_a_Msg(unsigned int Num, int UpdateLR)
 {
     char	*p = NULL, *fn, *charset = NULL, *charsin = NULL, *charsout = NULL;
-    int		i, ShowMsg = TRUE, UseIconv = FALSE;
+    int		ShowMsg = TRUE, UseIconv = FALSE;
     lastread	LR;
+#ifndef	USE_EXPERIMENT
+    int		i;
+#endif
 
     LastNum = Num;
     iLineCount = 7;
@@ -1270,6 +1288,7 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
     /*
      * Try to setup charset mapping if the charactersets are different.
      */
+#ifndef	USE_EXPERIMENT
     if (charsin && charsout && strcmp(charsout, charsin)) {
 	UseIconv = charset_set_in_out(charsin, charsout);
     }
@@ -1277,6 +1296,9 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
      * Show message header with charset mapping if needed.
      */
     ShowMsgHdr(UseIconv);
+#else
+    ShowMsgHdr();
+#endif
 
     /*
      * Show message text
@@ -1297,6 +1319,10 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 		    if (strchr(p, '>') != NULL)
 			if ((strlen(p) - strlen(strchr(p, '>'))) < 10)
 			    colour(CFG.HiliteF, CFG.HiliteB);
+#ifdef	USE_EXPERIMENT
+		    PUTSTR(p);
+		    Enter(1);
+#else
 		    if (UseIconv) {
 			/*
 			 * Try to translate character sets
@@ -1309,6 +1335,7 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 			PUTSTR(p);
 			Enter(1);
 		    }
+#endif
 
 		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE, UseIconv))
 			break;
@@ -1975,7 +2002,11 @@ int CheckLine(int FG, int BG, int Email, int Conv)
 	if (Email)
 	    ShowEmailHdr();
 	else
+#ifdef	USE_EXPERIMENT
+	    ShowMsgHdr();
+#else
 	    ShowMsgHdr(Conv);
+#endif
 	colour(FG, BG);
     }
     return FALSE;

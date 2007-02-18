@@ -5,7 +5,7 @@
  * Author ................: Martin Junius, for Fidogate
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek                FIDO:   2:280/2802
  * Beekmansbos 10
@@ -60,6 +60,9 @@
 
 #include "../config.h"
 #include "mbselib.h"
+
+#ifndef	USE_EXPERIMENT
+
 #include "mbcharsetc.h"
 
 
@@ -385,4 +388,15 @@ int main(int argc, char **argv)
     
     exit(ret);
 }
+
+#else
+
+
+int main(int argc, char **argv)
+{
+    printf("program disabled by configure option\n");
+    exit(0);
+}
+
+#endif
 

@@ -2578,6 +2578,8 @@ int  create_tmpwork(void);	    /* Create tmp workdir		*/
  *  Charset mapping
  */
 
+#ifndef USE_EXPERIMENT
+
 #define MAX_CHARSET_NAME        16
 #define MAX_CHARSET_IN          128
 #define MAX_CHARSET_OUT         4
@@ -2599,11 +2601,16 @@ typedef struct st_charset_table {
     struct st_charset_table *next;
 } CharsetTable;
 
+#endif
+
 
 char    *getftnchrs(int);               /* Return FTN characterset name     */
 char	*getrfcchrs(int);		/* Return RFC characterset name	    */
 char	*getlocale(int);		/* Return locale name		    */
 char    *getchrsdesc(int);              /* Return characterset description  */
+
+#ifndef USE_EXPERIMENT
+
 CharsetTable *charset_table_new(void);	/* Add table to linked list	    */
 CharsetAlias *charset_alias_new(void);	/* Add alias to linked list	    */
 int charset_write_bin(char *);		/* Save charset.bin		    */
@@ -2614,6 +2621,7 @@ char *charset_alias_fsc(char *);	/* Search FSC alias		    */
 char *charset_alias_rfc(char *);	/* Search RFC alias		    */
 int charset_set_in_out(char *, char *);	/* Setup mapping		    */
 
+#endif
 
 
 /****************************************************************************

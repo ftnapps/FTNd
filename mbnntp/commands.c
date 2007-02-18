@@ -3,7 +3,7 @@
  * $Id$
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -51,8 +51,10 @@ extern char         *ttystat[];
 
 void send_xlat(char *);
 
+#ifndef	USE_EXPERIMENT
 static CharsetAlias *charset_alias_list;
 static CharsetTable *charset_table_list;
+#endif
 
 #define	POST_MAXSIZE	10000
 
@@ -63,12 +65,16 @@ static CharsetTable *charset_table_list;
  */
 void send_xlat(char *inp)
 {
-    char    *xl, temp[1024];
+    char    temp[1024];
     int     i;
+#ifndef	USE_EXPERIMENT
+    char    *xl;
+#endif
 
     memset(&temp, 0, sizeof(temp));
     
     for (i = 0; i < strlen(inp); i++) {
+#ifndef	USE_EXPERIMENT
 	if (inp[i] & 0x80) {
 	    if ((xl = charset_map_c(inp[i], FALSE))) {
 		while (*xl) {
@@ -80,6 +86,9 @@ void send_xlat(char *inp)
 	} else {
 	    temp[i] = inp[i];
 	}
+#else
+	temp[i] = inp[i];
+#endif
     }
 
     Syslog('n', "> \"%s\"", printable(temp, 0));
@@ -116,7 +125,10 @@ void command_abhs(char *buf)
 {
     char	    *p, *cmd, *opt, *subj, *charset = NULL;
     unsigned int    art = 0L;
-    int		    i, found;
+    int		    found;
+#ifndef	USE_EXPERIMENT
+    int		    i;
+#endif
 
     Syslog('+', "%s", buf);
     cmd = strtok(buf, " \0");
@@ -195,6 +207,7 @@ void command_abhs(char *buf)
 		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
+#ifndef	USE_EXPERIMENT
 	if (charset) {
 	    if ((charset_alias_list == NULL) || (charset_table_list == NULL))
 		charset_read_bin();
@@ -205,7 +218,8 @@ void command_abhs(char *buf)
 		}
 	    }
 	}
-	
+#endif
+
 //	We don't do translation to the users charset, the news reader must do that.
 //	charset_set_in_out(getrfcchrs(msgs.Charset),getrfcchrs(usercharset));
 
@@ -231,8 +245,10 @@ void command_abhs(char *buf)
 	     */
 	    send_nntp("MIME-Version: 1.0");
 	    if (charset) {
+#ifndef USE_EXPERIMENT
 		send_nntp("Content-Type: text/plain; charset=%s", charset_alias_rfc(charset));
 	    } else if (msgs.Charset != FTNC_NONE) {
+#endif
 		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(msgs.Charset));
 	    } else if (usercharset != FTNC_NONE) {
 		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(usercharset));
