@@ -61,6 +61,8 @@
 #include "../config.h"
 #include "mbselib.h"
 
+#define PROGRAM "mbcharsetc"
+
 #ifndef	USE_EXPERIMENT
 
 #include "mbcharsetc.h"
@@ -69,7 +71,6 @@
 char *str_copy(char *, size_t, char *);
 
 #define strieq(a,b)  (strcasecmp ((a),(b)) == 0)
-#define	PROGRAM	"mbcharsetc"
 #define BUFFERSIZE  (32*1024) /* Global buffer */
 #define BUF_COPY(d,s)   str_copy  (d,sizeof(d),s)
 
@@ -363,6 +364,7 @@ int compile_map(char *in, char *out)
 }
 
 
+#endif
 
 void usage(void)
 {
@@ -378,25 +380,23 @@ int main(int argc, char **argv)
 {
     int	    ret = MBERR_OK;
     char    *name_in, *name_out;
- 
+#ifdef	USE_EXPERIMENT
+    FILE    *fp;
+#endif
+
     if (argc != 3)
 	usage();
 
     name_in = argv[1];
     name_out = argv[2];
+#ifdef	USE_EXPERIMENT
+    fp = fopen(name_out, "a");
+    fclose(fp);
+#else
     ret = compile_map(name_in, name_out);
-    
+#endif
+
     exit(ret);
 }
 
-#else
-
-
-int main(int argc, char **argv)
-{
-    printf("program disabled by configure option\n");
-    exit(0);
-}
-
-#endif
 
