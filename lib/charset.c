@@ -66,20 +66,20 @@ struct _charalias charalias[] = {
  * search from rfc -> ftn, best ftn kludge should be on top.
  */
 struct _charmap charmap[] = {
-    {FTNC_LATIN_1, (char *)"LATIN-1 2", (char *)"iso-8859-1",  (char *)"LATIN1",    (char *)"ISO-8859-1",  (char *)"en_US"},
-    {FTNC_CP437,   (char *)"CP437 2",   (char *)"iso-8859-1",  (char *)"CP437",     (char *)"ISO-8859-1",  (char *)"en_US"},
-    {FTNC_CP865,   (char *)"CP865 2",   (char *)"iso-8859-1",  (char *)"CP865",     (char *)"ISO-8859-1",  (char *)"sv_SE"},
-    {FTNC_MAC,     (char *)"MAC",       (char *)"Macintosh",   (char *)"MACINTOSH", (char *)"ISO-8859-1",  (char *)"en_US"},
-    {FTNC_CP850,   (char *)"CP850 2",   (char *)"iso-8859-1",  (char *)"CP850",     (char *)"ISO-8859-1",  (char *)"en_US"},
-    {FTNC_LATIN_2, (char *)"LATIN-2 2", (char *)"iso-8859-2",  (char *)"LATIN2",    (char *)"ISO-8859-2",  (char *)"cs_CZ"},
-    {FTNC_CP852,   (char *)"CP852 2",   (char *)"iso-8859-2",  (char *)"CP852",     (char *)"ISO-8859-2",  (char *)"cs_CZ"},
-    {FTNC_CP895,   (char *)"CP895 2",   (char *)"iso-8859-2",  (char *)"CP895",     (char *)"ISO-8859-2",  (char *)"cs_CZ"},
-    {FTNC_LATIN_5, (char *)"LATIN-5 2", (char *)"iso-8859-5",  (char *)"LATIN5",    (char *)"ISO-8859-5",  (char *)"turks"},
-    {FTNC_CP866,   (char *)"CP866 2",   (char *)"iso-8859-5",  (char *)"CP866",     (char *)"ISO-8859-5",  (char *)"ru_RU"},
-    {FTNC_LATIN_9, (char *)"LATIN-9 2", (char *)"iso-8859-15", (char *)"LATIN9",    (char *)"ISO-8859-15", (char *)"en_US"},
-    {FTNC_KOI8_R,  (char *)"KOI8-R 2",  (char *)"koi8-r",      (char *)"KOI8-R",    (char *)"KOI8-R",      (char *)"ru_RUi.koi8r"},
-    {FTNC_CP936,   (char *)"CP936 2",   (char *)"hz-gb-2312",  (char *)"GB2312",    (char *)"GB2312",      (char *)"zh_CN.gbk"},
-    {FTNC_NONE,    NULL,                NULL,                  NULL,                NULL,                  NULL}
+    {FTNC_LATIN_1,(char *)"LATIN-1 2",(char *)"iso-8859-1", (char *)"LATIN1",   (char *)"ISO-8859-1", (char *)"en_US",       (char *)"ISO 8859-1 (Western European)"},
+    {FTNC_CP437,  (char *)"CP437 2",  (char *)"iso-8859-1", (char *)"CP437",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 437 (Western European) (ANSI terminal)"},
+    {FTNC_CP865,  (char *)"CP865 2",  (char *)"iso-8859-1", (char *)"CP865",    (char *)"ISO-8859-1", (char *)"sv_SE",       (char *)"IBM codepage 865 (Nordic)"},
+    {FTNC_MAC,    (char *)"MAC",      (char *)"Macintosh",  (char *)"MACINTOSH",(char *)"ISO-8859-1", (char *)"en_US",       (char *)"MacIntosh character set"},
+    {FTNC_CP850,  (char *)"CP850 2",  (char *)"iso-8859-1", (char *)"CP850",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 850 (Latin-1)"},
+    {FTNC_LATIN_2,(char *)"LATIN-2 2",(char *)"iso-8859-2", (char *)"LATIN2",   (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"ISO 8859-2 (Eastern European)"},
+    {FTNC_CP852,  (char *)"CP852 2",  (char *)"iso-8859-2", (char *)"CP852",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 852 (Czech, Latin-1)"},
+    {FTNC_CP895,  (char *)"CP895 2",  (char *)"iso-8859-2", (char *)"CP895",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 895 (Czech, Kamenicky)"},
+    {FTNC_LATIN_5,(char *)"LATIN-5 2",(char *)"iso-8859-5", (char *)"LATIN5",   (char *)"ISO-8859-5", (char *)"turks",       (char *)"ISO 8859-5 (Turkish)"},
+    {FTNC_CP866,  (char *)"CP866 2",  (char *)"iso-8859-5", (char *)"CP866",    (char *)"ISO-8859-5", (char *)"ru_RU",       (char *)"IBM codepage 866 (Russian)"},
+    {FTNC_LATIN_9,(char *)"LATIN-9 2",(char *)"iso-8859-15",(char *)"LATIN9",   (char *)"ISO-8859-15",(char *)"en_US",       (char *)"ISO 8859-1 (Western European EURO)"},
+    {FTNC_KOI8_R, (char *)"KOI8-R 2", (char *)"koi8-r",     (char *)"KOI8-R",   (char *)"KOI8-R",     (char *)"ru_RUi.koi8r",(char *)"Unix codepage KOI8-R (Russian)"},
+    {FTNC_CP936,  (char *)"CP936 2",  (char *)"hz-gb-2312", (char *)"GB2312",   (char *)"GB2312",     (char *)"zh_CN.gbk",   (char *)"IBM codepage 936 (Chinese, GBK)"},
+    {FTNC_NONE,   NULL,               NULL,                 NULL,               NULL,                 NULL,                  (char *)"ERROR"}
 };
 
 
@@ -174,6 +174,7 @@ char *getftnchrs(int val)
         case FTNC_LATIN_1:  return (char *)"LATIN-1 2";
         case FTNC_LATIN_2:  return (char *)"LATIN-2 2";
         case FTNC_LATIN_5:  return (char *)"LATIN-5 2";
+	case FTNC_LATIN_9:  return (char *)"LATIN-9 2";
         case FTNC_MAC:      return (char *)"MAC 2";
 	case FTNC_KOI8_R:   return (char *)"KOI8-R 2";
 	case FTNC_CP936:    return (char *)"CP936 2";
@@ -196,6 +197,7 @@ char *getrfcchrs(int val)
 	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
 	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
 	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
+	case FTNC_LATIN_9:  return (char *)"iso-8859-15";
 	case FTNC_MAC:      return (char *)"Macintosh";
 	case FTNC_KOI8_R:   return (char *)"koi8-r";
 	case FTNC_CP936:    return (char *)"hz-gb-2312";
@@ -226,6 +228,7 @@ char *getlocale(int val)
 	case FTNC_CP852:    return (char *)"cs_CZ";
 	case FTNC_CP895:    return (char *)"cs_CZ";
 	case FTNC_LATIN_1:  return (char *)"en_US";
+	case FTNC_LATIN_9:  return (char *)"en_US";
 	case FTNC_LATIN_2:  return (char *)"cs_CZ";
 	case FTNC_MAC:	    return (char *)"en_US";
 	case FTNC_KOI8_R:   return (char *)"ru_RU.koi8r";
@@ -247,6 +250,7 @@ char *getchrsdesc(int val)
 	case FTNC_CP852:    return (char *)"IBM codepage 852 (Czech, Latin-1)";
 	case FTNC_CP895:    return (char *)"IBM codepage 895 (Czech, Kamenicky)";
         case FTNC_LATIN_1:  return (char *)"ISO 8859-1 (Western European)";
+	case FTNC_LATIN_9:  return (char *)"ISO 8859-1 (Western European EURO)";
         case FTNC_LATIN_2:  return (char *)"ISO 8859-2 (Eastern European)";
         case FTNC_LATIN_5:  return (char *)"ISO 8859-5 (Turkish)";
 	case FTNC_MAC:      return (char *)"MacIntosh character set";

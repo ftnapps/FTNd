@@ -429,9 +429,7 @@ struct icmp_filter {
 
 /*****************************************************************************
  *
- *  Supported character sets, only level 2 are defined. Several Level 1
- *  character sets are supported but only for translating from, so these
- *  are not defined.
+ *  Supported character sets, only level 2 are defined.
  */
 #define FTNC_NONE		0	/* Undefined			    */
 #define	FTNC_CP437		1	/* IBM CP 437 (Western Europe)	    */
@@ -447,23 +445,24 @@ struct icmp_filter {
 #define	FTNC_KOI8_R		11	/* Unix koi8-r			    */
 #define	FTNC_CP936		12	/* IBM CP 936 (Chinese, GBK)	    */
 #define	FTNC_LATIN_9		13	/* ISO 8859-15 (West Europe EURO    */
-#define FTNC_MAXCHARS		12	/* Highest charset number	    */
+#define FTNC_MAXCHARS		13	/* Highest charset number	    */
 
 
 
 extern struct _charalias {
-    char *alias;
-    char *ftnkludge;
+    char 	*alias;
+    char 	*ftnkludge;
 } charalias[];
 
 
 extern struct _charmap {
-    int  ftncidx;
-    char *ftnkludge;
-    char *rfcname;
-    char *ic_ftn;
-    char *ic_rfc;
-    char *lang;
+    int		ftncidx;
+    char 	*ftnkludge;
+    char 	*rfcname;
+    char 	*ic_ftn;
+    char 	*ic_rfc;
+    char 	*lang;
+    char 	*desc;
 } charmap[];
 
 
