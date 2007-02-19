@@ -446,6 +446,7 @@ struct icmp_filter {
 #define	FTNC_CP895		10	/* IBM CP 895 (Czech, Kamenicky)    */
 #define	FTNC_KOI8_R		11	/* Unix koi8-r			    */
 #define	FTNC_CP936		12	/* IBM CP 936 (Chinese, GBK)	    */
+#define	FTNC_LATIN_9		13	/* ISO 8859-15 (West Europe EURO    */
 #define FTNC_MAXCHARS		12	/* Highest charset number	    */
 
 
@@ -457,6 +458,7 @@ extern struct _charalias {
 
 
 extern struct _charmap {
+    int  ftncidx;
     char *ftnkludge;
     char *rfcname;
     char *ic_ftn;

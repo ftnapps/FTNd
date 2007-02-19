@@ -38,25 +38,25 @@
  * them).
  */
 struct _charalias charalias[] = {
-{(char *)"ASCII",           (char *)"US-ASCII"},
-{(char *)"VT100",           (char *)"US-ASCII"},
-{(char *)"AMIGA",           (char *)"CP437"},
-{(char *)"IBMPC",           (char *)"CP437"},
-{(char *)"PC-8",            (char *)"CP437"},
-{(char *)"CP850",           (char *)"CP437"},
-{(char *)"MACINTOSH",       (char *)"MAC"},
-{(char *)"ALT",             (char *)"CP866"},
-{(char *)"X-ALT",           (char *)"CP866"},
-{(char *)"X-CP866",         (char *)"CP866"},
-{(char *)"+7_FIDO",         (char *)"CP866"},
-{(char *)"KOI8-U",          (char *)"KOI8-R"},
-{(char *)"IBM-878",         (char *)"KOI8-R"},
-{(char *)"CP878",           (char *)"KOI8-R"},
-{(char *)"IBM-915",         (char *)"ISO-8859-1"},
-{(char *)"X-CP1251",        (char *)"CP1251"},
-{(char *)"GBK",             (char *)"CP936"},
-{(char *)"HZ-GB-2312",      (char *)"CP936"},
-{NULL,                      NULL}
+    {(char *)"ASCII",           (char *)"US-ASCII"},
+    {(char *)"VT100",           (char *)"US-ASCII"},
+    {(char *)"AMIGA",           (char *)"CP437"},
+    {(char *)"IBMPC",           (char *)"CP437"},
+    {(char *)"PC-8",            (char *)"CP437"},
+    {(char *)"CP850",           (char *)"CP437"},
+    {(char *)"MACINTOSH",       (char *)"MAC"},
+    {(char *)"ALT",             (char *)"CP866"},
+    {(char *)"X-ALT",           (char *)"CP866"},
+    {(char *)"X-CP866",         (char *)"CP866"},
+    {(char *)"+7_FIDO",         (char *)"CP866"},
+    {(char *)"KOI8-U",          (char *)"KOI8-R"},
+    {(char *)"IBM-878",         (char *)"KOI8-R"},
+    {(char *)"CP878",           (char *)"KOI8-R"},
+    {(char *)"IBM-915",         (char *)"ISO-8859-1"},
+    {(char *)"X-CP1251",        (char *)"CP1251"},
+    {(char *)"GBK",             (char *)"CP936"},
+    {(char *)"HZ-GB-2312",      (char *)"CP936"},
+    {NULL,                      NULL}
 };
 
 
@@ -66,19 +66,20 @@ struct _charalias charalias[] = {
  * search from rfc -> ftn, best ftn kludge should be on top.
  */
 struct _charmap charmap[] = {
-{(char *)"LATIN-1 2",       (char *)"iso-8859-1",   (char *)"LATIN1",       (char *)"ISO-8859-1",   (char *)"en_US"},
-{(char *)"CP437 2",         (char *)"iso-8859-1",   (char *)"CP437",        (char *)"ISO-8859-1",   (char *)"en_US"},
-{(char *)"CP865 2",         (char *)"iso-8859-1",   (char *)"CP865",        (char *)"ISO-8859-1",   (char *)"sv_SE"},
-{(char *)"MAC",             (char *)"Macintosh",    (char *)"MACINTOSH",    (char *)"ISO-8859-1",   (char *)"en_US"},
-{(char *)"LATIN-2 2",       (char *)"iso-8859-2",   (char *)"LATIN2",       (char *)"ISO-8859-2",   (char *)"cs_CZ"},
-{(char *)"CP852 2",         (char *)"iso-8859-2",   (char *)"CP852",        (char *)"ISO-8859-2",   (char *)"cs_CZ"},
-{(char *)"CP895 2",         (char *)"iso-8859-2",   (char *)"CP895",        (char *)"ISO-8859-2",   (char *)"cs_CZ"},
-{(char *)"LATIN-5 2",       (char *)"iso-8859-5",   (char *)"LATIN5",       (char *)"ISO-8859-5",   (char *)"turks"},
-{(char *)"CP866 2",         (char *)"iso-8859-5",   (char *)"CP866",        (char *)"ISO-8859-5",   (char *)"ru_RU"},
-{(char *)"LATIN-9 2",       (char *)"iso-8859-15",  (char *)"LATIN9",       (char *)"ISO-8859-15",  (char *)"en_US"},
-{(char *)"KOI8-R 2",        (char *)"koi8-r",       (char *)"KOI8-R",       (char *)"KOI8-R",       (char *)"ru_RUi.koi8r"},
-{(char *)"CP936 2",         (char *)"hz-gb-2312",   (char *)"GB2312",       (char *)"GB2312",       (char *)"zh_CN.gbk"},
-{NULL,                      NULL,                   NULL,                   NULL,                   NULL}
+    {FTNC_LATIN_1, (char *)"LATIN-1 2", (char *)"iso-8859-1",  (char *)"LATIN1",    (char *)"ISO-8859-1",  (char *)"en_US"},
+    {FTNC_CP437,   (char *)"CP437 2",   (char *)"iso-8859-1",  (char *)"CP437",     (char *)"ISO-8859-1",  (char *)"en_US"},
+    {FTNC_CP865,   (char *)"CP865 2",   (char *)"iso-8859-1",  (char *)"CP865",     (char *)"ISO-8859-1",  (char *)"sv_SE"},
+    {FTNC_MAC,     (char *)"MAC",       (char *)"Macintosh",   (char *)"MACINTOSH", (char *)"ISO-8859-1",  (char *)"en_US"},
+    {FTNC_CP850,   (char *)"CP850 2",   (char *)"iso-8859-1",  (char *)"CP850",     (char *)"ISO-8859-1",  (char *)"en_US"},
+    {FTNC_LATIN_2, (char *)"LATIN-2 2", (char *)"iso-8859-2",  (char *)"LATIN2",    (char *)"ISO-8859-2",  (char *)"cs_CZ"},
+    {FTNC_CP852,   (char *)"CP852 2",   (char *)"iso-8859-2",  (char *)"CP852",     (char *)"ISO-8859-2",  (char *)"cs_CZ"},
+    {FTNC_CP895,   (char *)"CP895 2",   (char *)"iso-8859-2",  (char *)"CP895",     (char *)"ISO-8859-2",  (char *)"cs_CZ"},
+    {FTNC_LATIN_5, (char *)"LATIN-5 2", (char *)"iso-8859-5",  (char *)"LATIN5",    (char *)"ISO-8859-5",  (char *)"turks"},
+    {FTNC_CP866,   (char *)"CP866 2",   (char *)"iso-8859-5",  (char *)"CP866",     (char *)"ISO-8859-5",  (char *)"ru_RU"},
+    {FTNC_LATIN_9, (char *)"LATIN-9 2", (char *)"iso-8859-15", (char *)"LATIN9",    (char *)"ISO-8859-15", (char *)"en_US"},
+    {FTNC_KOI8_R,  (char *)"KOI8-R 2",  (char *)"koi8-r",      (char *)"KOI8-R",    (char *)"KOI8-R",      (char *)"ru_RUi.koi8r"},
+    {FTNC_CP936,   (char *)"CP936 2",   (char *)"hz-gb-2312",  (char *)"GB2312",    (char *)"GB2312",      (char *)"zh_CN.gbk"},
+    {FTNC_NONE,    NULL,                NULL,                  NULL,                NULL,                  NULL}
 };
 
 
