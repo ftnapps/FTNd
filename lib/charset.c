@@ -66,6 +66,7 @@ struct _charalias charalias[] = {
  * search from rfc -> ftn, best ftn kludge should be on top.
  */
 struct _charmap charmap[] = {
+    {FTNC_NONE,   (char *)"Undef",    (char *)"iso-8859-1", (char *)"Undef",    (char *)"ISO-8859-1", (char *)"C",           (char *)"Undefined"},
     {FTNC_LATIN_1,(char *)"LATIN-1 2",(char *)"iso-8859-1", (char *)"LATIN1",   (char *)"ISO-8859-1", (char *)"en_US",       (char *)"ISO 8859-1 (Western European)"},
     {FTNC_CP437,  (char *)"CP437 2",  (char *)"iso-8859-1", (char *)"CP437",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 437 (Western European) (ANSI terminal)"},
     {FTNC_CP865,  (char *)"CP865 2",  (char *)"iso-8859-1", (char *)"CP865",    (char *)"ISO-8859-1", (char *)"sv_SE",       (char *)"IBM codepage 865 (Nordic)"},
@@ -79,7 +80,7 @@ struct _charmap charmap[] = {
     {FTNC_LATIN_9,(char *)"LATIN-9 2",(char *)"iso-8859-15",(char *)"LATIN9",   (char *)"ISO-8859-15",(char *)"en_US",       (char *)"ISO 8859-1 (Western European EURO)"},
     {FTNC_KOI8_R, (char *)"KOI8-R 2", (char *)"koi8-r",     (char *)"KOI8-R",   (char *)"KOI8-R",     (char *)"ru_RUi.koi8r",(char *)"Unix codepage KOI8-R (Russian)"},
     {FTNC_CP936,  (char *)"CP936 2",  (char *)"hz-gb-2312", (char *)"GB2312",   (char *)"GB2312",     (char *)"zh_CN.gbk",   (char *)"IBM codepage 936 (Chinese, GBK)"},
-    {FTNC_NONE,   NULL,               NULL,                 NULL,               NULL,                 NULL,                  (char *)"ERROR"}
+    {FTNC_ERROR,  NULL,               NULL,                 NULL,               NULL,                 NULL,                  (char *)"ERROR"}
 };
 
 
@@ -107,6 +108,73 @@ static CharsetTable *charset_table_last = NULL;
 static CharsetTable *charset_table_used = NULL;
 
 
+#endif
+
+
+/*
+ * Returns index of charset or -1 if not found.
+ */
+int find_ftn_charset(char *ftnkludge)
+{   
+    static int  i;
+    int         j;
+    char        *ftn, *cmp;
+
+    Syslog('n', "find_ftn_charset(%s)", ftnkludge);
+
+    ftn = calloc(80, sizeof(char));
+    cmp = calloc(80, sizeof(char));
+
+    snprintf(ftn, 80, "%s", ftnkludge);
+
+    for (i = 0; i < strlen(ftn); i++) {
+	if (ftn[i] == ' ') {
+	    ftn[i] = '\0';
+	    break;
+	}
+    }
+    for (i = 0; charalias[i].alias; i++) {
+	if (strcasecmp(ftn, charalias[i].alias) == 0)
+	    break;
+    }
+
+    if (charalias[i].alias == NULL) {
+	Syslog('n', "no alias found");
+    } else {
+	Syslog('n', "found alias %s", charalias[i].ftnkludge);
+	snprintf(ftn, 80, "%s", charalias[i].ftnkludge);
+    }
+
+    /*
+     * Now search real entry
+     */
+    for (i = 0; charmap[i].ftnkludge; i++) {
+	snprintf(cmp, 80, "%s", charmap[i].ftnkludge);
+	for (j = 0; j < strlen(cmp); j++) {
+	    if (cmp[j] == ' ') {
+		cmp[j] = '\0';
+		break;
+	    }
+	}
+	if (strcasecmp(ftn, cmp) == 0)
+	    break;
+    }
+
+    free(ftn);
+    free(cmp);
+
+    if (charmap[i].ftnkludge == NULL) {
+	WriteError("find_ftn_charset(%s) not found", ftnkludge);
+	return -1;
+    }
+
+    Syslog('n', "get_rfc_charset(%s) result %d", ftnkludge, i);
+    return i;
+}
+
+
+
+#ifndef	USE_EXPERIMENT
 
 
 /*
@@ -161,48 +229,37 @@ char *str_copy(char *d, size_t n, char *s)
 
 #endif
 
+
 char *getftnchrs(int val)
 {
-    switch (val) {
-        case FTNC_NONE:     return (char *)"Undefined";
-        case FTNC_CP437:    return (char *)"CP437 2";
-        case FTNC_CP850:    return (char *)"CP850 2";
-        case FTNC_CP865:    return (char *)"CP865 2";
-        case FTNC_CP866:    return (char *)"CP866 2";
-	case FTNC_CP852:    return (char *)"CP852 2";
-	case FTNC_CP895:    return (char *)"CP895 2";
-        case FTNC_LATIN_1:  return (char *)"LATIN-1 2";
-        case FTNC_LATIN_2:  return (char *)"LATIN-2 2";
-        case FTNC_LATIN_5:  return (char *)"LATIN-5 2";
-	case FTNC_LATIN_9:  return (char *)"LATIN-9 2";
-        case FTNC_MAC:      return (char *)"MAC 2";
-	case FTNC_KOI8_R:   return (char *)"KOI8-R 2";
-	case FTNC_CP936:    return (char *)"CP936 2";
-        default:            return (char *)"LATIN-1 2";
+    int		i;
+    static char	kludge[20];
+
+    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
+	if (val == charmap[i].ftncidx) {
+	    snprintf(kludge, 20, "%s", charmap[i].ftnkludge);
+	    return kludge;
+	}
     }
+
+    return (char *)"LATIN-1 2";
 }
 
 
 
 char *getrfcchrs(int val)
 {
-    switch (val) {
-	case FTNC_NONE:     return (char *)"iso-8859-1";
-	case FTNC_CP437:    return (char *)"cp437";
-	case FTNC_CP850:    return (char *)"cp850";
-	case FTNC_CP865:    return (char *)"cp865";
-	case FTNC_CP866:    return (char *)"cp866";
-	case FTNC_CP852:    return (char *)"cp852";
-	case FTNC_CP895:    return (char *)"cp895";
-	case FTNC_LATIN_1:  return (char *)"iso-8859-1";
-	case FTNC_LATIN_2:  return (char *)"iso-8859-2";
-	case FTNC_LATIN_5:  return (char *)"iso-8859-5";
-	case FTNC_LATIN_9:  return (char *)"iso-8859-15";
-	case FTNC_MAC:      return (char *)"Macintosh";
-	case FTNC_KOI8_R:   return (char *)"koi8-r";
-	case FTNC_CP936:    return (char *)"hz-gb-2312";
-	default:            return (char *)"iso-8859-1";
+    int		i;
+    static char	rfcname[20];
+
+    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
+	if (val == charmap[i].ftncidx) {
+	    snprintf(rfcname, 20, "%s", charmap[i].rfcname);
+	    return rfcname;
+	}
     }
+
+    return (char *)"iso-8859-1";
 }
 
 
@@ -219,45 +276,34 @@ char *getrfcchrs(int val)
  */
 char *getlocale(int val)
 {
-    switch (val) {
-	case FTNC_NONE:	    return (char *)"C";
-	case FTNC_CP437:    return (char *)"en_US";
-	case FTNC_CP850:    return (char *)"en_US";
-	case FTNC_CP865:    return (char *)"sv_SE";
-	case FTNC_CP866:    return (char *)"ru_RU";
-	case FTNC_CP852:    return (char *)"cs_CZ";
-	case FTNC_CP895:    return (char *)"cs_CZ";
-	case FTNC_LATIN_1:  return (char *)"en_US";
-	case FTNC_LATIN_9:  return (char *)"en_US";
-	case FTNC_LATIN_2:  return (char *)"cs_CZ";
-	case FTNC_MAC:	    return (char *)"en_US";
-	case FTNC_KOI8_R:   return (char *)"ru_RU.koi8r";
-	case FTNC_CP936:    return (char *)"zh_CN.gbk";
-	default:	    return (char *)"C";
+    int		i;
+    static char	langc[20];
+
+    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
+	if (val == charmap[i].ftncidx) {
+	    snprintf(langc, 20, "%s", charmap[i].lang);
+	    return langc;
+	}
     }
+
+    return (char *)"C";
 }
 
 
 
 char *getchrsdesc(int val)
 {
-    switch (val) {
-        case FTNC_NONE:     return (char *)"Undefined";
-        case FTNC_CP437:    return (char *)"IBM codepage 437 (Western European) (ANSI terminal)";
-        case FTNC_CP850:    return (char *)"IBM codepage 850 (Latin-1)";
-        case FTNC_CP865:    return (char *)"IBM codepage 865 (Nordic)";
-        case FTNC_CP866:    return (char *)"IBM codepage 866 (Russian)";
-	case FTNC_CP852:    return (char *)"IBM codepage 852 (Czech, Latin-1)";
-	case FTNC_CP895:    return (char *)"IBM codepage 895 (Czech, Kamenicky)";
-        case FTNC_LATIN_1:  return (char *)"ISO 8859-1 (Western European)";
-	case FTNC_LATIN_9:  return (char *)"ISO 8859-1 (Western European EURO)";
-        case FTNC_LATIN_2:  return (char *)"ISO 8859-2 (Eastern European)";
-        case FTNC_LATIN_5:  return (char *)"ISO 8859-5 (Turkish)";
-	case FTNC_MAC:      return (char *)"MacIntosh character set";
-	case FTNC_KOI8_R:   return (char *)"Unix codepage KOI8-R (Russian)";
-	case FTNC_CP936:    return (char *)"IBM codepage 936 (Chinese, GBK)";
-        default:            return (char *)"ERROR";
+    int		i;
+    static char	desc[60];
+
+    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
+	if (val == charmap[i].ftncidx) {
+	    snprintf(desc, 60, "%s", charmap[i].desc);
+	    return desc;
+	}
     }
+
+    return (char *)"ERROR";
 }
 
 

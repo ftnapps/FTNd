@@ -431,6 +431,7 @@ struct icmp_filter {
  *
  *  Supported character sets, only level 2 are defined.
  */
+#define	FTNC_ERROR		-1	/* Error entry			    */
 #define FTNC_NONE		0	/* Undefined			    */
 #define	FTNC_CP437		1	/* IBM CP 437 (Western Europe)	    */
 #define	FTNC_CP850		2	/* IBM CP 850 (Latin-1)		    */
@@ -446,7 +447,6 @@ struct icmp_filter {
 #define	FTNC_CP936		12	/* IBM CP 936 (Chinese, GBK)	    */
 #define	FTNC_LATIN_9		13	/* ISO 8859-15 (West Europe EURO    */
 #define FTNC_MAXCHARS		13	/* Highest charset number	    */
-
 
 
 extern struct _charalias {
@@ -2624,7 +2624,7 @@ typedef struct st_charset_table {
 
 #endif
 
-
+int	find_ftn_charset(char *);	/* Return FTN charset index	    */
 char    *getftnchrs(int);               /* Return FTN characterset name     */
 char	*getrfcchrs(int);		/* Return RFC characterset name	    */
 char	*getlocale(int);		/* Return locale name		    */
