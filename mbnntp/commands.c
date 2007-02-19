@@ -41,8 +41,11 @@
 
 #ifndef	USE_NEWSGATE
 
-unsigned int	article = 0L;	    /* Current article	    */
-char		currentgroup[81];   /* Current newsgroup    */
+unsigned int	article = 0L;	    /* Current article	    	*/
+char		currentgroup[81];   /* Current newsgroup    	*/
+int		use_iconv;	    /* Use iconv translation	*/
+iconv_t		iconv_s;	    /* Struct for iconv		*/
+
 
 extern unsigned int	sentbytes;
 extern unsigned int	rcvdbytes;
@@ -51,10 +54,6 @@ extern char         *ttystat[];
 
 void send_xlat(char *);
 
-#ifndef	USE_EXPERIMENT
-static CharsetAlias *charset_alias_list;
-static CharsetTable *charset_table_list;
-#endif
 
 #define	POST_MAXSIZE	10000
 
@@ -90,6 +89,7 @@ void send_xlat(char *inp)
 #endif
     }
 
+    Syslog('n', "i \"%s\"", printable(inp, 0));
     Syslog('n', "> \"%s\"", printable(temp, 0));
     PUTSTR(temp);
     PUTSTR((char *)"\r\n");
@@ -125,13 +125,11 @@ void command_abhs(char *buf)
     char	    *p, *cmd, *opt, *subj, *charset = NULL;
     unsigned int    art = 0L;
     int		    found, charindex;
-#ifndef	USE_EXPERIMENT
-    int		    i;
-#endif
 
     Syslog('+', "%s", buf);
     cmd = strtok(buf, " \0");
     opt = strtok(NULL, " \0");
+    use_iconv = FALSE;
 
     IsDoing("Retrieve");
 
@@ -206,18 +204,6 @@ void command_abhs(char *buf)
 		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
-#ifndef	USE_EXPERIMENT
-	if (charset) {
-	    if ((charset_alias_list == NULL) || (charset_table_list == NULL))
-		charset_read_bin();
-	    for (i = 0; i < strlen(charset); i++) {
-		if (charset[i] == ' ') {
-		    charset[i] = '\0';
-		    break;
-		}
-	    }
-	}
-#endif
 	Syslog('n', "1 charset=\"%s\"", printable(charset, 0));
 
 	if (charset == NULL) {
@@ -233,8 +219,12 @@ void command_abhs(char *buf)
 	Syslog('n', "2 charset=\"%s\"", printable(charset, 0));
 	charindex = find_ftn_charset(charset);
 
-	if (charindex != -1) {
+	if (charindex != FTNC_ERROR) {
 	    Syslog('n', "setup iconv for %s to %s", charmap[charindex].ic_ftn, charmap[charindex].ic_rfc);
+	    iconv_s = iconv_open(charmap[charindex].ic_rfc, charmap[charindex].ic_ftn);
+	    if (iconv_s != (iconv_t)-1) {
+		use_iconv = TRUE;
+	    }
 	}
 
 
@@ -262,14 +252,8 @@ void command_abhs(char *buf)
 	     *           4. Default us-ascii.
 	     */
 	    send_nntp("MIME-Version: 1.0");
-	    if (charset) {
-#ifndef USE_EXPERIMENT
-		send_nntp("Content-Type: text/plain; charset=%s", charset_alias_rfc(charset));
-	    } else if (msgs.Charset != FTNC_NONE) {
-#endif
-		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(msgs.Charset));
-	    } else if (usercharset != FTNC_NONE) {
-		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(usercharset));
+	    if (charindex != FTNC_ERROR) {
+		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(charindex));
 	    } else {
 		send_nntp("Content-Type: text/plain; charset=us-ascii; format=fixed");
 	    }
@@ -319,6 +303,11 @@ void command_abhs(char *buf)
     } else {
 	send_nntp("503 Could not retrieve message");
 	return;
+    }
+
+    if (use_iconv) {
+	iconv_close(iconv_s);
+	use_iconv = FALSE;
     }
 }
 
