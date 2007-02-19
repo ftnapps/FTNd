@@ -61,6 +61,70 @@ static CharsetTable *charset_table_list;
 
 
 /*
+ * Returns index of charset or -1 if not found.
+ */
+int find_ftn_charset(char *ftnkludge)
+{
+    static int	i;
+    int	    	j;
+    char	*ftn, *cmp;
+
+    Syslog('n', "find_ftn_charset(%s)", ftnkludge);
+
+    ftn = calloc(80, sizeof(char));
+    cmp = calloc(80, sizeof(char));
+
+    snprintf(ftn, 80, "%s", ftnkludge);
+
+    for (i = 0; i < strlen(ftn); i++) {
+	if (ftn[i] == ' ') {
+	    ftn[i] = '\0';
+	    break;
+	}
+    }
+
+    for (i = 0; charalias[i].alias; i++) {
+	if (strcasecmp(ftn, charalias[i].alias) == 0)
+	    break;
+    }
+
+    if (charalias[i].alias == NULL) {
+	Syslog('n', "no alias found");
+    } else {
+	Syslog('n', "found alias %s", charalias[i].ftnkludge);
+	snprintf(ftn, 80, "%s", charalias[i].ftnkludge);
+    }
+
+    /*
+     * Now search real entry
+     */
+    for (i = 0; charmap[i].ftnkludge; i++) {
+	snprintf(cmp, 80, "%s", charmap[i].ftnkludge);
+	for (j = 0; j < strlen(cmp); j++) {
+	    if (cmp[j] == ' ') {
+		cmp[j] = '\0';
+		break;
+	    }
+	}
+	if (strcasecmp(ftn, cmp) == 0)
+	    break;
+    }
+
+    free(ftn);
+    free(cmp);
+
+    if (charmap[i].ftnkludge == NULL) {
+	WriteError("find_ftn_charset(%s) not found", ftnkludge);
+	return -1;
+    }
+
+    Syslog('n', "get_rfc_charset(%s) result %d", ftnkludge, i);
+    return i;
+}
+
+
+
+/*
  * Safe sending to the client with charset translation.
  */
 void send_xlat(char *inp)
@@ -125,7 +189,7 @@ void command_abhs(char *buf)
 {
     char	    *p, *cmd, *opt, *subj, *charset = NULL;
     unsigned int    art = 0L;
-    int		    found;
+    int		    found, charindex;
 #ifndef	USE_EXPERIMENT
     int		    i;
 #endif
@@ -219,6 +283,25 @@ void command_abhs(char *buf)
 	    }
 	}
 #endif
+	Syslog('n', "1 charset=\"%s\"", printable(charset, 0));
+
+	if (charset == NULL) {
+	    if (msgs.Charset != FTNC_NONE) {
+		charset = xstrcpy(getrfcchrs(msgs.Charset));
+	    } else if (usercharset != FTNC_NONE) {
+		charset = xstrcpy(getrfcchrs(msgs.Charset));
+	    } else {
+		charset = xstrcpy((char *)"CP437");
+	    }
+	}
+
+	Syslog('n', "2 charset=\"%s\"", printable(charset, 0));
+	charindex = find_ftn_charset(charset);
+
+	if (charindex != -1) {
+	    Syslog('n', "setup iconv for %s to %s", charmap[charindex].ic_ftn, charmap[charindex].ic_rfc);
+	}
+
 
 //	We don't do translation to the users charset, the news reader must do that.
 //	charset_set_in_out(getrfcchrs(msgs.Charset),getrfcchrs(usercharset));
@@ -235,8 +318,6 @@ void command_abhs(char *buf)
 	    send_nntp("Message-ID: %s", make_msgid(Msg.Msgid));
 	    if (strlen(Msg.Replyid))
 		send_nntp("References: %s", make_msgid(Msg.Replyid));
-
-	    Syslog('n', "charset=\"%s\"", MBSE_SS(charset));
 
 	    /*
 	     * Send RFC 2045 Multipurpose Internet Mail Extensions (MIME) header.

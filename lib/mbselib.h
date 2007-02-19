@@ -449,6 +449,22 @@ struct icmp_filter {
 #define FTNC_MAXCHARS		12	/* Highest charset number	    */
 
 
+
+extern struct _charalias {
+    char *alias;
+    char *ftnkludge;
+} charalias[];
+
+
+extern struct _charmap {
+    char *ftnkludge;
+    char *rfcname;
+    char *ic_ftn;
+    char *ic_rfc;
+    char *lang;
+} charmap[];
+
+
 /*****************************************************************************
  *
  *  Global typedefs.
