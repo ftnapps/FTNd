@@ -138,6 +138,8 @@ install:
 			echo "Removed directory ${PREFIX}/share/int/$$d" ; \
 		    fi ; \
 		done
+		@rm -f ${PREFIX}/etc/charset.bin
+		@rm -f ${PREFIX}/bin/mbcharsetc
 		@rm -rf ${PREFIX}/sema
 		@rm -rf ${PREFIX}/tmp/arc
 

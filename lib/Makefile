@@ -45,7 +45,7 @@ HDRS		= ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
 OTHER		= Makefile README ftscprod.010 mkprod.awk \
 		  README.diesel README.macro Diesel.doc nodelist.conf
 TARGET		= libmbse.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a \
-		  libnodelist.a mbcharsetc charset.bin
+		  libnodelist.a
 SLIBS		= ../lib/libmbse.a
 
 #############################################################################
