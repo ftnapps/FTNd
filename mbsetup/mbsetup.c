@@ -384,7 +384,6 @@ void initdatabases(void)
     InitRoute();
     InitFDB();
     InitIBC();
-
     if (!init) {
 	clr_index();
     }

@@ -63,35 +63,32 @@ void send_xlat(char *);
  */
 void send_xlat(char *inp)
 {
-    char    temp[1024];
-    int     i;
-#ifndef	USE_EXPERIMENT
-    char    *xl;
-#endif
+    char    	temp[1024];
+    size_t	rc, inSize, outSize;
 
-    memset(&temp, 0, sizeof(temp));
-    
-    for (i = 0; i < strlen(inp); i++) {
-#ifndef	USE_EXPERIMENT
-	if (inp[i] & 0x80) {
-	    if ((xl = charset_map_c(inp[i], FALSE))) {
-		while (*xl) {
-		    temp[i] = *xl++;
-		    if (*xl)
-			i++;
-		}
-	    }
-	} else {
-	    temp[i] = inp[i];
+    if (use_iconv) {
+
+	inSize = strlen(inp);
+	outSize = sizeof(temp);
+	char* in = inp;
+	char* out = temp;
+	memset(&temp, 0, sizeof(temp));
+
+	rc = iconv(iconv_s, &in, &inSize, &out, &outSize);
+	if (rc == -1) {
+	    WriteError("$iconv(%s)", printable(inp, 0));
+	    strncpy(temp, inp, 1023);
 	}
-#else
-	temp[i] = inp[i];
-#endif
+
+	if (strcmp(inp, temp))
+    	    Syslog('n', "i \"%s\"", printable(inp, 0));
+    	Syslog('n', "> \"%s\"", printable(temp, 0));
+    	PUTSTR(temp);
+    } else {
+	Syslog('n', "> \"%s\"", printable(inp, 0));
+	PUTSTR(inp);
     }
 
-    Syslog('n', "i \"%s\"", printable(inp, 0));
-    Syslog('n', "> \"%s\"", printable(temp, 0));
-    PUTSTR(temp);
     PUTSTR((char *)"\r\n");
     FLUSHOUT();
     sentbytes += (strlen(temp) + 2);
@@ -183,7 +180,7 @@ void command_abhs(char *buf)
 	return;
     }
 
-    if (Msg_Read(art, 75)) {
+    if (Msg_Read(art, 80)) {
 
 	if (strcasecmp(cmd, "ARTICLE") == 0)
 	    send_nntp("220 %ld %s Article retrieved - Head and body follow", art, make_msgid(Msg.Msgid));
@@ -208,9 +205,9 @@ void command_abhs(char *buf)
 
 	if (charset == NULL) {
 	    if (msgs.Charset != FTNC_NONE) {
-		charset = xstrcpy(getrfcchrs(msgs.Charset));
+		charset = xstrcpy(getftnchrs(msgs.Charset));
 	    } else if (usercharset != FTNC_NONE) {
-		charset = xstrcpy(getrfcchrs(msgs.Charset));
+		charset = xstrcpy(getftnchrs(msgs.Charset));
 	    } else {
 		charset = xstrcpy((char *)"CP437");
 	    }
@@ -220,16 +217,17 @@ void command_abhs(char *buf)
 	charindex = find_ftn_charset(charset);
 
 	if (charindex != FTNC_ERROR) {
-	    Syslog('n', "setup iconv for %s to %s", charmap[charindex].ic_ftn, charmap[charindex].ic_rfc);
-	    iconv_s = iconv_open(charmap[charindex].ic_rfc, charmap[charindex].ic_ftn);
+	    Syslog('n', "iconv_open(UTF-8, %s)", charmap[charindex].ic_ftn);
+//	    Syslog('n', "iconv_open(%s, %s)", charmap[charindex].ic_rfc, charmap[charindex].ic_ftn);
+//	    Syslog('n', "setlocale() result %s", MBSE_SS(setlocale(LC_CTYPE, charmap[charindex].lang)));
+	    iconv_s = iconv_open("UTF-8", charmap[charindex].ic_ftn);
+//	    iconv_s = iconv_open(charmap[charindex].ic_rfc, charmap[charindex].ic_ftn);
 	    if (iconv_s != (iconv_t)-1) {
 		use_iconv = TRUE;
+	    } else {
+		WriteError("$iconv_open(UTF-8, %s)", charmap[charindex].ic_ftn);
 	    }
 	}
-
-
-//	We don't do translation to the users charset, the news reader must do that.
-//	charset_set_in_out(getrfcchrs(msgs.Charset),getrfcchrs(usercharset));
 
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {
 
@@ -252,12 +250,13 @@ void command_abhs(char *buf)
 	     *           4. Default us-ascii.
 	     */
 	    send_nntp("MIME-Version: 1.0");
-	    if (charindex != FTNC_ERROR) {
-		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(charindex));
-	    } else {
-		send_nntp("Content-Type: text/plain; charset=us-ascii; format=fixed");
-	    }
-	    send_nntp("Content-Transfer-Encoding: 8bit");
+//	    if (charindex != FTNC_ERROR) {
+//		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(charindex));
+//	    } else {
+//		send_nntp("Content-Type: text/plain; charset=us-ascii; format=fixed");
+//	    }
+//	    send_nntp("Content-Transfer-Encoding: 8bit");
+	    send_nntp("Content-Type: text/plain; charset=utf-8");
 
 	    send_nntp("X-FTN-From: %s <%s>", Msg.From, Msg.FromAddress);
 	    if (strlen(Msg.To))
