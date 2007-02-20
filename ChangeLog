@@ -6,6 +6,9 @@ v0.91.5		18-Feb-2007
 	WARNING: do not configure with --enable-experiment this will break!
 	You own the pieces and the troubles, you have been warned.
 
+	Even BETTER: Do not use at all, currently there is unfinished code
+	and some things don't work right now.
+	FSP-1030 Unicode character set in FidoNet messages.
 
 
 

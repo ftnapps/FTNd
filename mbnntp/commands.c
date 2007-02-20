@@ -43,8 +43,6 @@
 
 unsigned int	article = 0L;	    /* Current article	    	*/
 char		currentgroup[81];   /* Current newsgroup    	*/
-int		use_iconv;	    /* Use iconv translation	*/
-iconv_t		iconv_s;	    /* Struct for iconv		*/
 
 
 extern unsigned int	sentbytes;
@@ -64,30 +62,14 @@ void send_xlat(char *);
 void send_xlat(char *inp)
 {
     char    	temp[1024];
-    size_t	rc, inSize, outSize;
 
-    if (use_iconv) {
-
-	inSize = strlen(inp);
-	outSize = sizeof(temp);
-	char* in = inp;
-	char* out = temp;
-	memset(&temp, 0, sizeof(temp));
-
-	rc = iconv(iconv_s, &in, &inSize, &out, &outSize);
-	if (rc == -1) {
-	    WriteError("$iconv(%s)", printable(inp, 0));
-	    strncpy(temp, inp, 1023);
-	}
-
-	if (strcmp(inp, temp))
-    	    Syslog('n', "i \"%s\"", printable(inp, 0));
-    	Syslog('n', "> \"%s\"", printable(temp, 0));
-    	PUTSTR(temp);
-    } else {
-	Syslog('n', "> \"%s\"", printable(inp, 0));
-	PUTSTR(inp);
-    }
+    memset(&temp, 0, sizeof(temp));
+    strncat(temp, chartran(inp), sizeof(temp) -1);
+    
+    if (strcmp(inp, temp))
+    	Syslog('n', "i \"%s\"", printable(inp, 0));
+    Syslog('n', "> \"%s\"", printable(temp, 0));
+    PUTSTR(temp);
 
     PUTSTR((char *)"\r\n");
     FLUSHOUT();
@@ -126,7 +108,6 @@ void command_abhs(char *buf)
     Syslog('+', "%s", buf);
     cmd = strtok(buf, " \0");
     opt = strtok(NULL, " \0");
-    use_iconv = FALSE;
 
     IsDoing("Retrieve");
 
@@ -217,16 +198,7 @@ void command_abhs(char *buf)
 	charindex = find_ftn_charset(charset);
 
 	if (charindex != FTNC_ERROR) {
-	    Syslog('n', "iconv_open(UTF-8, %s)", charmap[charindex].ic_ftn);
-//	    Syslog('n', "iconv_open(%s, %s)", charmap[charindex].ic_rfc, charmap[charindex].ic_ftn);
-//	    Syslog('n', "setlocale() result %s", MBSE_SS(setlocale(LC_CTYPE, charmap[charindex].lang)));
-	    iconv_s = iconv_open("UTF-8", charmap[charindex].ic_ftn);
-//	    iconv_s = iconv_open(charmap[charindex].ic_rfc, charmap[charindex].ic_ftn);
-	    if (iconv_s != (iconv_t)-1) {
-		use_iconv = TRUE;
-	    } else {
-		WriteError("$iconv_open(UTF-8, %s)", charmap[charindex].ic_ftn);
-	    }
+	    chartran_init(charmap[charindex].ic_ftn, (char *)"UTF-8");
 	}
 
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {
@@ -250,12 +222,6 @@ void command_abhs(char *buf)
 	     *           4. Default us-ascii.
 	     */
 	    send_nntp("MIME-Version: 1.0");
-//	    if (charindex != FTNC_ERROR) {
-//		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(charindex));
-//	    } else {
-//		send_nntp("Content-Type: text/plain; charset=us-ascii; format=fixed");
-//	    }
-//	    send_nntp("Content-Transfer-Encoding: 8bit");
 	    send_nntp("Content-Type: text/plain; charset=utf-8");
 
 	    send_nntp("X-FTN-From: %s <%s>", Msg.From, Msg.FromAddress);
@@ -298,15 +264,11 @@ void command_abhs(char *buf)
 	    }
 	}
 	send_nntp(".");
+	chartran_close();
 	return;
     } else {
 	send_nntp("503 Could not retrieve message");
 	return;
-    }
-
-    if (use_iconv) {
-	iconv_close(iconv_s);
-	use_iconv = FALSE;
     }
 }
 

@@ -265,7 +265,7 @@ int chartran_init(char *fromset, char *toset)
 
     if (strcmp(fromset, (char *)"UTF-8")) {
 	cd1 = iconv_open("UTF-8", fromset);
-	if (cd1 != (iconv_t)-1) {
+	if (cd1 == (iconv_t)-1) {
 	    WriteError("$chartran_init(%s, %s): iconv_open(UTF-8, %s) error", fromset, toset, fromset);
 	    return -1;
 	}
@@ -313,12 +313,76 @@ void chartran_close(void)
 char *chartran(char *input)
 {
     static char	outbuf[1024];
+    static char	temp[4096];
+    size_t	rc, inSize, outSize;
+    char	*in, *out;
 
     memset(&outbuf, 0, sizeof(outbuf));
-    strncat(outbuf, input, sizeof(outbuf) -1);
+
+    /*
+     * Transparant
+     */
+    if (!use_tran1 && !use_tran2) {
+	strncpy(outbuf, input, sizeof(outbuf) -1);
+	return outbuf;
+    }
+
+    /*
+     * Translate to UTF-8
+     */
+    if (use_tran1 && !use_tran2) {
+	inSize = strlen(input);
+	outSize = sizeof(outbuf);
+	in = input;
+	out = outbuf;
+	rc = iconv(cd1, &in, &inSize, &out, &outSize);
+	if (rc == -1) {
+	    WriteError("$iconv(%s) cd1", printable(input, 0));
+	    strncpy(outbuf, input, sizeof(outbuf) -1);
+	}
+	return outbuf;
+    }
+
+    /*
+     * Translate from UTF-8
+     */
+    if (!use_tran1 && use_tran2) {
+	inSize = strlen(input);
+	outSize = sizeof(outbuf);
+	in = input;
+	out = outbuf;
+	rc = iconv(cd2, &in, &inSize, &out, &outSize);
+	if (rc == -1) {
+	    WriteError("$iconv(%s) cd2", printable(input, 0));
+	    strncpy(outbuf, input, sizeof(outbuf) -1);
+	}
+	return outbuf;
+    }
+
+    /*
+     * Double translation via UTF-8
+     */
+    inSize = strlen(input);
+    outSize = sizeof(temp);
+    in = input;
+    out = temp;
+    rc = iconv(cd1, &in, &inSize, &out, &outSize);
+    if (rc == -1) {
+	WriteError("$iconv(%s) cd1", printable(input, 0));
+	strncpy(outbuf, input, sizeof(outbuf) -1);
+	return outbuf;
+    }
+    inSize = strlen(temp);
+    outSize = sizeof(outbuf);
+    in = temp;
+    out = outbuf;
+    rc = iconv(cd2, &in, &inSize, &out, &outSize);
+    if (rc == -1) {
+	WriteError("$iconv(%s) cd2", printable(temp, 0));
+	strncpy(outbuf, input, sizeof(outbuf) -1);
+    }
 
     return outbuf;
 }
-
 
 
