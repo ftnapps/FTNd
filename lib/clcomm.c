@@ -579,8 +579,9 @@ char *cldecode(char *s)
 
 char *printable(char *s, int l)
 {
-    int	    len;
-    char    *p;
+    int		    len;
+    char	    *p;
+    unsigned char   c;
 
     if (pbuff) 
 	free(pbuff);
@@ -602,7 +603,14 @@ char *printable(char *s, int l)
     pbuff=(char*)xmalloc(len*3+1);
     p=pbuff;
     while (len--) {
-	if (isprint(*(unsigned char*)s))
+	/*
+	 * Don't use isprint to check if a character is printable because we
+	 * don't want some current locale to have some influence on this
+	 * conversion. Just filer low ascii values.
+	 */
+	c = *(unsigned char*)s;
+//	if (isprint(*(unsigned char*)s))
+	if ((c >= 32) && (c < 128))
 	    *p++=*s;
 	else 
 	    switch (*s) {

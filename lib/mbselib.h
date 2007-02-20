@@ -429,7 +429,7 @@ struct icmp_filter {
 
 /*****************************************************************************
  *
- *  Supported character sets, only level 2 are defined.
+ *  Supported character sets.
  */
 #define	FTNC_ERROR		-1	/* Error entry			    */
 #define FTNC_NONE		0	/* Undefined			    */
@@ -446,7 +446,8 @@ struct icmp_filter {
 #define	FTNC_KOI8_R		11	/* Unix koi8-r			    */
 #define	FTNC_CP936		12	/* IBM CP 936 (Chinese, GBK)	    */
 #define	FTNC_LATIN_9		13	/* ISO 8859-15 (West Europe EURO    */
-#define FTNC_MAXCHARS		13	/* Highest charset number	    */
+#define	FTNC_UTF8		14	/* UTF-8			    */
+#define FTNC_MAXCHARS		14	/* Highest charset number	    */
 
 
 extern struct _charalias {
@@ -2598,51 +2599,14 @@ int  create_tmpwork(void);	    /* Create tmp workdir		*/
  *
  *  Charset mapping
  */
-
-#ifndef USE_EXPERIMENT
-
-#define MAX_CHARSET_NAME        16
-#define MAX_CHARSET_IN          128
-#define MAX_CHARSET_OUT         4
-
-#define CHARSET_FILE_ALIAS      'A'     /* Id for binary file */
-#define CHARSET_FILE_TABLE      'T'     /* Id for binary file */
-
-
-typedef struct st_charset_alias {
-    char alias[MAX_CHARSET_NAME];       /* Alias charset name */
-    char name[MAX_CHARSET_NAME];        /* Real charset name */
-    struct st_charset_alias *next;
-} CharsetAlias;
-
-typedef struct st_charset_table {
-    char in[MAX_CHARSET_NAME];          /* Input charset name */
-    char out[MAX_CHARSET_NAME];         /* Output charset name */
-    char map[MAX_CHARSET_IN][MAX_CHARSET_OUT];
-    struct st_charset_table *next;
-} CharsetTable;
-
-#endif
-
 int	find_ftn_charset(char *);	/* Return FTN charset index	    */
 char    *getftnchrs(int);               /* Return FTN characterset name     */
 char	*getrfcchrs(int);		/* Return RFC characterset name	    */
 char	*getlocale(int);		/* Return locale name		    */
 char    *getchrsdesc(int);              /* Return characterset description  */
-
-#ifndef USE_EXPERIMENT
-
-CharsetTable *charset_table_new(void);	/* Add table to linked list	    */
-CharsetAlias *charset_alias_new(void);	/* Add alias to linked list	    */
-int charset_write_bin(char *);		/* Save charset.bin		    */
-int charset_read_bin(void);		/* Load ~/etc/charset.bin	    */
-char *charset_qpen(int, int);		/* Convert to MIME quoted-printable */
-char *charset_map_c(int, int);		/* map single character		    */
-char *charset_alias_fsc(char *);	/* Search FSC alias		    */
-char *charset_alias_rfc(char *);	/* Search RFC alias		    */
-int charset_set_in_out(char *, char *);	/* Setup mapping		    */
-
-#endif
+int	chartran_init(char *, char *);	/* Initialize chartran		    */
+void	chartran_close(void);		/* Deinit chartran		    */
+char	*chartran(char *);		/* Translate string		    */
 
 
 /****************************************************************************
