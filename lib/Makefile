@@ -35,9 +35,6 @@ MBINET_HDRS	= mbinet.h
 DIESEL_SRCS	= diesel.c mbdiesel.c
 DIESEL_HDRS	= diesel.h
 DIESEL_OBJS	= diesel.o mbdiesel.o
-CHC_SRCS	= mbcharsetc.c
-CHC_HDRS	= mbcharsetc.h
-CHC_OBJS	= mbcharsetc.o
 OTHER_HDRS	= bluewave.h mbse.h users.h
 SRCS		= ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${MBINET_SRCS} \
 		  ${DIESEL_SRCS} ${NODELIST_SRCS} ${CHC_SRCS}
@@ -45,7 +42,6 @@ OBJS		= ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJS} \
 		  ${DIESEL_OBJS} ${NODELIST_OBJS} ${CHC_OBJS}
 HDRS		= ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
 		  ${DIESEL_HDRS} ${NODELIST_HDRS} ${CHC_HDRS} ${OTHER_HDRS}
-MAPS		= charset.map russian.map
 OTHER		= Makefile README ftscprod.010 mkprod.awk \
 		  README.diesel README.macro Diesel.doc nodelist.conf
 TARGET		= libmbse.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a \
@@ -86,16 +82,8 @@ libnodelist.a:	${NODELIST_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 
-mbcharsetc:	${CHC_OBJS} ${SLIBS}
-		${CC} -o mbcharsetc ${CHC_OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
-
-charset.bin:	mbcharsetc ${MAPS}
-		./mbcharsetc charset.map charset.bin
-
 install:	all
 		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 nodelist.conf ${ETCDIR}
-		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0751 mbcharsetc ${BINDIR}
-		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 charset.bin   ${ETCDIR}
 
 clean:
 		rm -f ${TARGET} *.o *.h~ *.c~ ftscprod.c core filelist Makefile.bak
@@ -187,6 +175,5 @@ smtp.o: ../config.h mbselib.h mbinet.h
 diesel.o: ../config.h mbselib.h diesel.h
 mbdiesel.o: ../config.h mbselib.h diesel.h
 nodelist.o: ../config.h mbselib.h nodelist.h
-mbcharsetc.o: ../config.h mbselib.h mbcharsetc.h
 ftscprod.o: ../config.h mbselib.h
 # End of generated dependencies
