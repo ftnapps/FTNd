@@ -4,7 +4,7 @@
  * Purpose ...............: Edit Users
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -286,15 +286,14 @@ void Screen2(void)
 
 	mbse_mvprintw( 7,63, "14. Language");
 	mbse_mvprintw( 8,63, "15. Hotkeys");
-	mbse_mvprintw( 9,63, "16. Color");
-	mbse_mvprintw(10,63, "17. Silent");
-	mbse_mvprintw(11,63, "18. CLS");
-	mbse_mvprintw(12,63, "19. More");
-	mbse_mvprintw(13,63, "20. Editor");
-	mbse_mvprintw(14,63, "21. MailScan");
-	mbse_mvprintw(15,63, "22. ShowNews");
-	mbse_mvprintw(16,63, "23. NewFiles");
-	mbse_mvprintw(17,63, "24. Emacs");
+	mbse_mvprintw( 9,63, "16. Silent");
+	mbse_mvprintw(10,63, "17. CLS");
+	mbse_mvprintw(11,63, "18. More");
+	mbse_mvprintw(12,63, "19. Editor");
+	mbse_mvprintw(13,63, "20. MailScan");
+	mbse_mvprintw(14,63, "21. ShowNews");
+	mbse_mvprintw(15,63, "22. NewFiles");
+	mbse_mvprintw(16,63, "23. Emacs");
 }
 
 
@@ -321,15 +320,14 @@ void Fields2(void)
 	snprintf(temp, 4, "%c",usrconfig.iLanguage);
 	show_str(  7,76,1, temp);
 	show_bool( 8,76,   usrconfig.HotKeys);
-	show_bool( 9,76,   usrconfig.GraphMode);
-	show_bool(10,76,   usrconfig.DoNotDisturb);
-	show_bool(11,76,   usrconfig.Cls);
-	show_bool(12,76,   usrconfig.More);
-	show_msgeditor(13,76, usrconfig.MsgEditor);
-	show_bool(14,76,   usrconfig.MailScan);
-	show_bool(15,76,   usrconfig.ieNEWS);
-	show_bool(16,76,   usrconfig.ieFILE);
-	show_bool(17,76,   usrconfig.FSemacs);
+	show_bool( 9,76,   usrconfig.DoNotDisturb);
+	show_bool(10,76,   usrconfig.Cls);
+	show_bool(11,76,   usrconfig.More);
+	show_msgeditor(12,76, usrconfig.MsgEditor);
+	show_bool(13,76,   usrconfig.MailScan);
+	show_bool(14,76,   usrconfig.ieNEWS);
+	show_bool(15,76,   usrconfig.ieFILE);
+	show_bool(16,76,   usrconfig.FSemacs);
 }
 
 
@@ -342,7 +340,7 @@ int EditUsrRec2(void)
     Screen2();
     for (;;) {
         Fields2();
-        j = select_menu(24);
+        j = select_menu(23);
         switch(j) {
             case 0: return 0;
             case 1: E_STR( 6,17,35,usrconfig.sHandle,  "The ^Handle^ of this user")
@@ -416,16 +414,15 @@ int EditUsrRec2(void)
 		    Screen2();
 		    break;
             case 15:E_BOOL( 8,76,usrconfig.HotKeys,      "Is user using ^HotKeys^ for menus")
-            case 16:E_BOOL( 9,76,usrconfig.GraphMode,    "Is user using ^ANSI^ colors")
-            case 17:E_BOOL(10,76,usrconfig.DoNotDisturb, "User will not be ^disturbed^")
-            case 18:E_BOOL(11,76,usrconfig.Cls,          "Send ^ClearScreen code^ to users terminal")
-            case 19:E_BOOL(12,76,usrconfig.More,         "User uses the ^More prompt^")
-            case 20:usrconfig.MsgEditor = edit_msgeditor(13,76,usrconfig.MsgEditor);
+            case 16:E_BOOL( 9,76,usrconfig.DoNotDisturb, "User will not be ^disturbed^")
+            case 17:E_BOOL(10,76,usrconfig.Cls,          "Send ^ClearScreen code^ to users terminal")
+            case 18:E_BOOL(11,76,usrconfig.More,         "User uses the ^More prompt^")
+            case 19:usrconfig.MsgEditor = edit_msgeditor(12,76,usrconfig.MsgEditor);
 		    break;
-            case 21:E_BOOL(14,76,usrconfig.MailScan,     "Don't check for ^new mail^")
-            case 22:E_BOOL(15,76,usrconfig.ieNEWS,       "Show ^News Bulletins^ when logging in")
-            case 23:E_BOOL(16,76,usrconfig.ieFILE,       "Show ^New Files^ when logging in")
-            case 24:E_BOOL(17,76,usrconfig.FSemacs,      "Use ^Emacs^ or Wordstart shorcut keys in FS editor")
+            case 20:E_BOOL(13,76,usrconfig.MailScan,     "Don't check for ^new mail^")
+            case 21:E_BOOL(14,76,usrconfig.ieNEWS,       "Show ^News Bulletins^ when logging in")
+            case 22:E_BOOL(15,76,usrconfig.ieFILE,       "Show ^New Files^ when logging in")
+            case 23:E_BOOL(16,76,usrconfig.FSemacs,      "Use ^Emacs^ or Wordstart shorcut keys in FS editor")
         }
     }
 }
@@ -734,7 +731,6 @@ void users_doc(void)
 	    snprintf(temp, 4, "%c", usrconfig.iLanguage);
 	    add_webtable(wp, (char *)"Language", temp);
 	    add_webtable(wp, (char *)"Use hotkeys", getboolean(usrconfig.HotKeys));
-	    add_webtable(wp, (char *)"ANSI mode", getboolean(usrconfig.GraphMode));
 	    add_webtable(wp, (char *)"Do not disturb", getboolean(usrconfig.DoNotDisturb));
 	    add_webtable(wp, (char *)"Clear Screen", getboolean(usrconfig.Cls));
 	    add_webtable(wp, (char *)"More prompt", getboolean(usrconfig.More));

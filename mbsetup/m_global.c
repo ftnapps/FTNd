@@ -435,21 +435,20 @@ void s_newuser(void)
 	set_color(CYAN, BLACK);
 	mbse_mvprintw( 7, 6, "1.    Access level");  
 	mbse_mvprintw( 8, 6, "2.    Cap. Username");
-	mbse_mvprintw( 9, 6, "3.    Ask ANSI");
-	mbse_mvprintw(10, 6, "4.    Ask Sex");
-	mbse_mvprintw(11, 6, "5.    Ask Voicephone");
-	mbse_mvprintw(12, 6, "6.    Ask Dataphone");
-	mbse_mvprintw(13, 6, "7.    Telephone scan");
-	mbse_mvprintw(14, 6, "8.    Ask Handle");
-	mbse_mvprintw(15, 6, "9.    Ask Birth date");
-	mbse_mvprintw(16, 6, "10.   Ask Location");
+	mbse_mvprintw( 9, 6, "3.    Ask Sex");
+	mbse_mvprintw(10, 6, "4.    Ask Voicephone");
+	mbse_mvprintw(11, 6, "5.    Ask Dataphone");
+	mbse_mvprintw(12, 6, "6.    Telephone scan");
+	mbse_mvprintw(13, 6, "7.    Ask Handle");
+	mbse_mvprintw(14, 6, "8.    Ask Birth date");
+	mbse_mvprintw(15, 6, "9..   Ask Location");
 	
-	mbse_mvprintw( 8,46, "11.   Ask Hot-Keys");
-	mbse_mvprintw( 9,46, "12.   One word names");
-	mbse_mvprintw(10,46, "13.   Ask Address");
-	mbse_mvprintw(11,46, "14.   Give email");
-	mbse_mvprintw(12,46, "15.   Do Newmail");
-	mbse_mvprintw(13,46, "16.   Do newfiles");
+	mbse_mvprintw( 8,46, "10.   Ask Hot-Keys");
+	mbse_mvprintw( 9,46, "11.   One word names");
+	mbse_mvprintw(10,46, "12.   Ask Address");
+	mbse_mvprintw(11,46, "13.   Give email");
+	mbse_mvprintw(12,46, "14.   Do Newmail");
+	mbse_mvprintw(13,46, "15.   Do newfiles");
 }
 
 
@@ -461,14 +460,13 @@ void e_newuser(void)
 		set_color(WHITE, BLACK);
 		show_sec(  7,28, CFG.newuser_access);
 		show_bool( 8,28, CFG.iCapUserName);
-		show_bool( 9,28, CFG.iAnsi);
-		show_bool(10,28, CFG.iSex);
-		show_bool(11,28, CFG.iVoicePhone);
-		show_bool(12,28, CFG.iDataPhone);
-		show_bool(13,28, CFG.iTelephoneScan);
-		show_bool(14,28, CFG.iHandle);
-		show_bool(15,28, CFG.iDOB);
-		show_bool(16,28, CFG.iLocation);
+		show_bool( 9,28, CFG.iSex);
+		show_bool(10,28, CFG.iVoicePhone);
+		show_bool(11,28, CFG.iDataPhone);
+		show_bool(12,28, CFG.iTelephoneScan);
+		show_bool(13,28, CFG.iHandle);
+		show_bool(14,28, CFG.iDOB);
+		show_bool(15,28, CFG.iLocation);
 
 		show_bool( 8,68, CFG.iHotkeys);
 		show_bool( 9,68, CFG.iOneName);
@@ -477,27 +475,26 @@ void e_newuser(void)
 		show_asktype(12,68, CFG.AskNewmail);
 		show_asktype(13,68, CFG.AskNewfiles);
 
-		switch(select_menu(16)) {
+		switch(select_menu(15)) {
 		case 0:	return;
 		case 1: E_SEC(  7,28, CFG.newuser_access, "1.7.1 NEWUSER SECURITY", s_newuser)
 		case 2:	E_BOOL( 8,28, CFG.iCapUserName, "^Capitalize^ username")
-		case 3:	E_BOOL( 9,28, CFG.iAnsi, "Ask user if he wants ^ANSI^ colors")
-		case 4:	E_BOOL(10,28, CFG.iSex, "Ask users ^sex^")
-		case 5:	E_BOOL(11,28, CFG.iVoicePhone, "Ask users ^Voice^ phone number")
-		case 6:	E_BOOL(12,28, CFG.iDataPhone, "Ask users ^Data^ phone number")
-		case 7:	E_BOOL(13,28, CFG.iTelephoneScan, "Perform ^Telephone^ number scan")
-		case 8:	E_BOOL(14,28, CFG.iHandle, "Ask users ^handle^")
-		case 9:	E_BOOL(15,28, CFG.iDOB, "Ask users ^Date of Birth^")
-		case 10:E_BOOL(16,28, CFG.iLocation, "Ask users ^Location^")
+		case 3:	E_BOOL( 9,28, CFG.iSex, "Ask users ^sex^")
+		case 4:	E_BOOL(10,28, CFG.iVoicePhone, "Ask users ^Voice^ phone number")
+		case 5:	E_BOOL(11,28, CFG.iDataPhone, "Ask users ^Data^ phone number")
+		case 6:	E_BOOL(12,28, CFG.iTelephoneScan, "Perform ^Telephone^ number scan")
+		case 7:	E_BOOL(13,28, CFG.iHandle, "Ask users ^handle^")
+		case 8:	E_BOOL(14,28, CFG.iDOB, "Ask users ^Date of Birth^")
+		case 9: E_BOOL(15,28, CFG.iLocation, "Ask users ^Location^")
 
-		case 11:E_BOOL( 8,68, CFG.iHotkeys, "Ask user if he wants ^Hot-Keys^")
-		case 12:E_BOOL( 9,68, CFG.iOneName, "Allow ^one word^ (not in Unixmode) usernames")
-		case 13:E_BOOL(10,68, CFG.AskAddress, "Ask users ^home address^ in 3 lines")
-		case 14:E_BOOL(11,68, CFG.GiveEmail, "Give new users an ^private email^ box")
-		case 15:CFG.AskNewmail = edit_asktype(12,68,CFG.AskNewmail, 
+		case 10:E_BOOL( 8,68, CFG.iHotkeys, "Ask user if he wants ^Hot-Keys^")
+		case 11:E_BOOL( 9,68, CFG.iOneName, "Allow ^one word^ (not in Unixmode) usernames")
+		case 12:E_BOOL(10,68, CFG.AskAddress, "Ask users ^home address^ in 3 lines")
+		case 13:E_BOOL(11,68, CFG.GiveEmail, "Give new users an ^private email^ box")
+		case 14:CFG.AskNewmail = edit_asktype(12,68,CFG.AskNewmail, 
 				(char *)"Set ^new mail^ check at login, toggle wit space, Enter when done");
 			break;
-		case 16:CFG.AskNewfiles = edit_asktype(13,68,CFG.AskNewfiles, 
+		case 15:CFG.AskNewfiles = edit_asktype(13,68,CFG.AskNewfiles, 
 				(char *)"Set ^new files^ check at login, toggle wit space, Enter when done");
 			break;
 		}
@@ -1968,7 +1965,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<TBODY>\n");
     web_secflags(wp, (char *)"Access level", CFG.newuser_access);
     add_webtable(wp, (char *)"Cap. username", getboolean(CFG.iCapUserName));
-    add_webtable(wp, (char *)"Ask ANSI", getboolean(CFG.iAnsi));
     add_webtable(wp, (char *)"Ask Sex", getboolean(CFG.iSex));
     add_webtable(wp, (char *)"Ask Voicephone", getboolean(CFG.iVoicePhone));
     add_webtable(wp, (char *)"Ask Dataphone", getboolean(CFG.iDataPhone));
@@ -1990,7 +1986,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     addtoc(fp, toc, 1, 8, page, (char *)"New users defaults");
     fprintf(fp, "      Access level      %s\n", get_secstr(CFG.newuser_access));
     fprintf(fp, "      Cap. username     %s\n", getboolean(CFG.iCapUserName));
-    fprintf(fp, "      Ask ANSI          %s\n", getboolean(CFG.iAnsi));
     fprintf(fp, "      Ask Sex           %s\n", getboolean(CFG.iSex));
     fprintf(fp, "      Ask voicephone    %s\n", getboolean(CFG.iVoicePhone));
     fprintf(fp, "      Ask dataphone     %s\n", getboolean(CFG.iDataPhone));
