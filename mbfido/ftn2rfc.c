@@ -695,12 +695,10 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 
     Syslog('m', "ftn2rfc: charset in: %s charset out: %s", charset, getrfcchrs(msgs.Charset));
 
-#ifndef	USE_EXPERIMENT
     /*
      * Setup charset conversion
      */
-    charset_set_in_out(charset, getrfcchrs(msgs.Charset));
-#endif
+    chartran_init(charset, getrfcchrs(msgs.Charset), 'm');
 
     if (newsmode) {
 	/*
@@ -1546,6 +1544,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	fprintf(nfp, ".\n");
     }
 
+    chartran_close();
     if (newsgroup)
 	free(newsgroup);
     rbuf = NULL;

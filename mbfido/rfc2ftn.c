@@ -78,36 +78,20 @@ extern	int	most_debug;
  *  Internal functions
  */
 int	needputrfc(rfcmsg *, int);
-#ifdef	USE_EXPERIMENT
-int		use_iconv = FALSE;
-iconv_t		iconv_s;
-#endif
-
 
 
 int charwrite(char *s, FILE *fp)
 {
-#ifndef	USE_EXPERIMENT
-    char    *o;
-#endif
-    
+    char    temp[2048];
+
     if ((strlen(s) >= 3) && (strncmp(s,"---",3) == 0) && (s[3] != '-')) {
-	putc('-',fp);
-	putc(' ',fp);
+	 putc('-',fp);
+	 putc(' ',fp);
     }
-    
-    while (*s) {
-#ifdef	USE_EXPERIMENT
-	putc(*s, fp);
-#else
-	o = s;
-	if (s[0] &0x080) {
-	    o = charset_map_c(s[0], 0);
-	}
-	putc(*o, fp);
-#endif
-	s++;
-    }
+
+    strncpy(temp, chartran(s), sizeof(temp) -1);
+    fputs(temp, fp);
+     
     return 0;
 }
 
@@ -348,25 +332,11 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
 
     Syslog('m', "rfc2ftn: charset in: %s charset out: %s", charset,getrfcchrs(msgs.Charset));
-#ifndef	USE_EXPERIMENT
+    
     /*
      * Setup charset conversion
      */
-    charset_set_in_out(charset,getrfcchrs(msgs.Charset));
-#endif
-#ifdef USE_EXPERIMENT
-    if (strcmp(charset,getrfcchrs(msgs.Charset)) == 0) {
-	Syslog('m', "rfc2ftn: no need for iconv");
-    } else {
-    	iconv_s = iconv_open(getrfcchrs(msgs.Charset), charset);
-    	if (iconv_s != (iconv_t)-1) {
-	    Syslog('m', "rfc2ftn: activated iconv");
-	    use_iconv = TRUE;
-	} else {
-	    Syslog('+', "rfc2ftn: iconv_open(%s, %s) failed", getrfcchrs(msgs.Charset), charset);
-    	}
-    }
-#endif
+    chartran_init(charset,getrfcchrs(msgs.Charset), 'm');
 
     do {
 	Syslog('m', "rfc2ftn: split loop, splitpart = %d", splitpart);
@@ -767,16 +737,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     } while (needsplit);
 
     Syslog('m', "rfc2ftn: out of splitloop");
-
-#ifdef	USE_EXPERIMENT
-    if (use_iconv) {
-	if (iconv_close(iconv_s))
-	    WriteError("$rfc2ftn: iconv_close()");
-	else
-	    Syslog('m', "rfc2ftn: inconv_close() success");
-	use_iconv = FALSE;
-    }
-#endif
+    chartran_close();
 
     free(temp);
     if (charset)

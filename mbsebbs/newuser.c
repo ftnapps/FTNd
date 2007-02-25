@@ -5,7 +5,7 @@
  *			    BBS and unix accounts.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -197,21 +197,6 @@ int newuser(void)
     Time_Now = time(NULL);
     l_date = localtime(&Time_Now);
     ltime = time(NULL);
-
-    usrconfig.GraphMode = TRUE; /* Default set it to ANSI */
-    if (CFG.iAnsi) {
-	Enter(2);
-	/* Do you want ANSI and graphics mode [Y/n]: */
-	language(LIGHTGRAY, BLACK, 44);
-
-	alarm_on();
- 	i = toupper(getchar());
-
-	if (i == Keystroke(44, 1))
-	    usrconfig.GraphMode = FALSE;
-    }
-    exitinfo.GraphMode = usrconfig.GraphMode;
-    TermInit(exitinfo.GraphMode);
 
     if (CFG.iVoicePhone) {
 	while (1) {

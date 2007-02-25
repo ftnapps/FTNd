@@ -18,10 +18,10 @@ int		CurRow;		/* Current row in buffer		*/
 void Show_Ins(void);
 void Top_Help(void);
 void Top_Menu(void);
-void Ls(int, int);
-void Rs(int);
-void Ws(int, int);
-void Hl(int, int, char *);
+void Ls(int);
+void Rs(void);
+void Ws(int);
+void Hl(int, char *);
 void Full_Help(void);
 void Setcursor(void);
 void Beep(void);

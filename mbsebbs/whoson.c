@@ -4,7 +4,7 @@
  * Purpose ...............: Who's online functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -50,37 +50,41 @@ extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;
  */
 void WhosOn(char *OpData)
 {
-    char	    buf[128], *Heading, *Underline, *cnt, *isdoing, *location, *device;
-    char	    *fullname, *temp, msg[81];
-    int		    i, x, Start = TRUE;
+    char	    buf[128], *Heading, *cnt, *isdoing, *location, *device;
+    char	    *fullname, *temp, msg[81], wstr[128];;
+    int		    x, Start = TRUE;
     FILE	    *fp;
     struct userhdr  ushdr;
     struct userrec  us;
 
-    Underline = calloc(81, sizeof(char));
     Heading   = calloc(81, sizeof(char));
 
     WhosDoingWhat(WHOSON, NULL);
 
-    clear();
-    Enter(1);
-    colour(WHITE, BLACK);
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+
+    strcpy(wstr, clear_str());
+    strncat(wstr, (char *)"\r\n", 127);
+    strncat(wstr, colour_str(WHITE, BLACK), 127);
     /* Callers On-Line to */
     snprintf(Heading, 81, "%s%s", (char *) Language(414), CFG.bbs_name);
-    Center(Heading);
-    x = strlen(Heading);
+    strncat(wstr, Center_str(Heading), 127);
+    PUTSTR(chartran(wstr));
 
-    for(i = 0; i < x; i++)
-	snprintf(Underline, 81, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
-    colour(LIGHTRED, BLACK);
-    Center(Underline);
-    Enter(1);
+    x = strlen(Heading);
+    strcpy(wstr, colour_str(LIGHTRED, BLACK));
+    strncat(wstr, Center_str(hLine_str(x)), 127);
+    PUTSTR(chartran(wstr));
 
     /* Name                          Device   Status         Location */
-    pout(LIGHTGREEN, BLACK, (char *) Language(415));
-    Enter(1);
-    colour(GREEN, BLACK);
-    fLine(79);
+    strcpy(wstr, pout_str(LIGHTGREEN, BLACK, (char *) Language(415)));
+    strncat(wstr, (char *)"\r\n", 127);
+    PUTSTR(chartran(wstr));
+
+    strcpy(wstr, colour_str(GREEN, BLACK));
+    strncat(wstr, fLine_str(79), 127);
+    PUTSTR(chartran(wstr));
 
     while (TRUE) {
 	if (Start)
@@ -192,10 +196,11 @@ void WhosOn(char *OpData)
 	}
     }
 
-    colour(GREEN, BLACK);
-    fLine(79);
+    strcpy(wstr, colour_str(GREEN, BLACK));
+    strncat(wstr, fLine_str(79), 127);
+    PUTSTR(chartran(wstr));
 
-    free(Underline);
+    chartran_close();
     free(Heading);
     Enter(1);
 }

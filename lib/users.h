@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Users Database structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -96,7 +96,7 @@ struct	userrec {
 
 	unsigned	Hidden		: 1;	/* Hide User from Lists     */
 	unsigned	HotKeys		: 1;	/* Hot-Keys ON/OFF          */
-	unsigned	GraphMode	: 1;	/* ANSI Mode ON/OFF         */
+	unsigned	xGraphMode	: 1;
 	unsigned	Deleted		: 1;	/* Deleted Status           */
 	unsigned	NeverDelete	: 1;	/* Never Delete User        */
 	unsigned	xChat		: 1;

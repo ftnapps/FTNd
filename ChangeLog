@@ -3,12 +3,45 @@ $Id$
 
 v0.91.5		18-Feb-2007
 
-	WARNING: do not configure with --enable-experiment this will break!
-	You own the pieces and the troubles, you have been warned.
+		With this version de default internal character encoding is
+		UTF-8. BBS users who have a UTF-8 terminal can use the bbs in
+		UTF-8 mode and should have no troubles at all reading and
+		writing messages in several language encodings.
 
-	Even BETTER: Do not use at all, currently there is unfinished code
-	and some things don't work right now.
-	FSP-1030 Unicode character set in FidoNet messages.
+	upgrade:
+		In all macro files html.* change the charset to UTF-8.
+		If you still have all default macro files thein in the source
+		directory mbsebbs/examples simply run "make macros" to install
+		the updated versions.
+		Run "mbfile index -f " once to regenerate all download html
+		index pages with UTF-8 encoding. Check the error.log for
+		errors.
+
+	mbsebbs:
+		Added terminal setting UTF-8.
+		Removed setting ANSI/Textmode, allways graphic now.
+		All *.asc textfiles are now obsolete, only *.ans are valid.
+		Display ansi file converts to UTF-8 if the user has UTF-8.
+		Email and FTN mail reading now translates to the users
+		characterset using glibc iconv.
+		Changed menus lastcallers, whoson, userlist, pinfo, fsedit to
+		output UTF-8 code if the user has set that terminal setting.
+
+	mbfile:
+		The index command produces UTF-8 webpages.
+
+	mbfido:
+		The make web stat produces UTF-8 webpages.
+
+	mbnntp:
+		Reading news outputs UTF-8 coded articles.
+		TODO: test posting and fix if needed.
+
+	lang:
+		Language prompts 44, 75 and 76 are obsolete.
+
+	examples:
+		Upgraded the html macro templates to produce UTF-8 web pages.
 
 
 

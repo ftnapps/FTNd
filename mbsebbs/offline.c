@@ -4,7 +4,7 @@
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1211,8 +1211,7 @@ void OLR_DownBW()
     Inf.maxfreqs = CFG.OLR_MaxReq;
     if (exitinfo.HotKeys)
 	Inf.uflags |= le_us(INF_HOTKEYS);
-    if (exitinfo.GraphMode)
-	Inf.uflags |= le_us(INF_GRAPHICS);
+    Inf.uflags |= le_us(INF_GRAPHICS);
     if (exitinfo.OL_ExtInfo)
 	Inf.uflags |= le_us(INF_EXT_INFO);
     Inf.credits = le_us(exitinfo.Credit);

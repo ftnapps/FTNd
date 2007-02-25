@@ -14,7 +14,6 @@ void Chg_FsMsged(void);		/* Toggle Fullscreen Editor		*/
 void Chg_FsMsgedKeys(void);	/* Toggle FS editor shortcut keys	*/
 void Chg_Location(void);	/* Change location			*/
 void Chg_Address(void);		/* Change address			*/
-void Chg_Graphics(void);	/* Toggle graphics			*/
 void Chg_VoicePhone(void);	/* Change voicephone			*/
 void Chg_DataPhone(void);	/* Change dataphone			*/
 void Chg_News(void);		/* Toggle News Bulletins		*/

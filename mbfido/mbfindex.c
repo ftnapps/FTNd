@@ -39,6 +39,7 @@
 
 
 extern int	do_quiet;		/* Suppress screen output   */
+extern int	do_force;		/* Force update		    */
 int		lastfile;		/* Last file number	    */
 int		gfilepos = 0;		/* Global file position	    */
 int		TotalHtml = 0;		/* Total html files	    */
@@ -61,69 +62,23 @@ static char *months[]= {(char *)"Jan",(char *)"Feb",(char *)"Mar",
 			(char *)"Jul",(char *)"Aug",(char *)"Sep",
 			(char *)"Oct",(char *)"Nov",(char *)"Dec"};
 
-#ifdef	USE_EXPERIMENT
-
-/* 	 
- * Translation table from Hi-USA-ANSI to low ASCII and HTML codes, 	 
- */ 	 
-char htmltab[] = { 	 
-"\000\001\002\003\004\005\006\007\010\011\012\013\014\015\016\017" 	 
-"\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037" 	 
-"\040\041\042\043\044\045\046\047\050\051\052\053\054\055\056\057" 	 
-"\060\061\062\063\064\065\066\067\070\071\072\073\074\075\076\077" 	 
-"\100\101\102\103\104\105\106\107\110\111\112\113\114\115\116\117" 	 
-"\120\121\122\123\124\125\126\127\130\131\132\133\134\135\136\137" 	 
-"\140\141\142\143\144\145\146\147\150\151\152\153\154\155\156\157" 	 
-"\160\161\162\163\164\165\166\167\170\171\172\173\174\175\176\177" 	 
-"\103\374\351\342\344\340\345\143\352\353\350\357\357\354\304\305" /* done */ 	 
-"\311\346\306\364\366\362\374\371\171\326\334\244\243\245\120\146" /* done */ 	 
-"\341\355\363\372\361\321\141\157\277\055\055\275\274\241\074\076" /* done */ 	 
-"\043\043\043\174\053\053\053\053\053\043\174\043\043\053\053\053" /* done */ 	 
-"\053\053\053\053\053\053\053\053\043\043\043\043\043\075\043\053" /* done */ 	 
-"\053\053\053\053\053\053\053\053\053\053\053\043\043\043\043\043" /* done */ 	 
-"\141\102\114\156\105\157\265\370\060\060\060\157\070\330\145\156" /* doesn't look good */ 	 
-"\075\261\076\074\146\146\367\075\260\267\267\126\262\262\267\040" /* almost */ 	 
-};
-
-#endif
 
 
 /*
  * Translate a string from ANSI to safe HTML characters
  */
+/*
 char *To_Html(char *);
 char *To_Html(char *inp)
 {
-    static char	temp[256];
-    int		i;
-#ifndef	USE_EXPERIMENT
-    char	*xl;
-#endif
+    static char	temp[1024];
 
     memset(&temp, 0, sizeof(temp));
-#ifdef	USE_EXPERIMENT
-    strncpy(temp, inp, 80);
-
-    for (i = 0; i < strlen(temp); i++)
-	temp[i] = htmltab[temp[i] & 0xff];
-#else
-    for (i = 0; i < strlen(inp); i++) {
-	if (inp[i] & 0x80) {
-	    if ((xl = charset_map_c(inp[i], FALSE))) {
-		while (*xl) {
-		    temp[i] = *xl++;
-		    if (*xl)
-			i++;
-		}
-	    }
-	} else
-	    temp[i] = inp[i];
-    }
-#endif
+    strncpy(temp, chartran(inp), sizeof(temp) -1);
 
     return temp;
 }
-
+*/
 
 
 void tidy_index(Findex **);
@@ -631,13 +586,11 @@ void HtmlIndex(char *Lang)
 	fileptr = ftell(fi);
     }
 
-#ifndef	USE_EXPERIMENT
     /*
      * Setup the correct table to produce file listings for the www.
      * This make ANSI grafics look a bit nicer with browsers.
      */
-    charset_set_in_out((char *)"cp437", (char *)"iso-8859-1");
-#endif
+    chartran_init((char *)"CP437", (char *)"UTF-8", 'f');
 
     for (i = 1; i <= iAreas; i++) {
 
@@ -679,7 +632,7 @@ void HtmlIndex(char *Lang)
 		aTotal = 0;
 		last = 0L;
 
-		if (obj_time < db_time) {
+		if ((obj_time < db_time) || do_force) {
 		    /*
 		     * If not up todate
 		     */
@@ -753,9 +706,10 @@ void HtmlIndex(char *Lang)
 					snprintf(desc+k, 2, "\n");
 					k += 1;
 				    }
-				    snprintf(linebuf, 1024, "%s", To_Html(fdb.Desc[j]));
-				    html_massage(linebuf, outbuf, 1024);
-				    snprintf(desc+k, 6400 -k, "%s", outbuf);
+				    html_massage(fdb.Desc[j], linebuf, 1024);
+//				    strncpy(linebuf, fdb.Desc[j], 1024);
+				    strncpy(outbuf, chartran(linebuf), 1024);
+				    strncat(desc, outbuf, 6400 -k);
 				    k += strlen(outbuf);
 				}
 			    MacroVars("m", "s", desc);
@@ -844,6 +798,7 @@ void HtmlIndex(char *Lang)
     }
 
     fclose(pAreas);
+    chartran_close();
 
     if (!do_quiet) {
 	printf("\r                                                          \r");

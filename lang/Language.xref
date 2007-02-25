@@ -42,7 +42,7 @@
 41	newuser.c user.c		|Your passwords do not match! Try again.
 42	newuser.c change.c user.c	|Your password must contain at least 
 43	newuser.c change.c user.c	|characters! Try again.
-44	newuser.c			YN|Do you want ANSI and graphics mode [Y/n]: 
+44					|
 45	newuser.c change.c		|Please enter you Voice Number
 46	mail.c				|Message exported to your private directory as: 
 47	newuser.c change.c		|Please enter a proper phone number
@@ -73,8 +73,8 @@
 72	misc.c				|Could not find
 73	change.c			|Old Location: 
 74	change.c			|Please enter a longer location (min 
-75	change.c			|Ansi Mode turned ON
-76	change.c			|Ansi Mode turned OFF
+75					|
+76					|
 77 	mail.c				|Message doesn't exist
 78	change.c			|News bulletins turned ON
 79	change.c			|News bulletins turned OFF

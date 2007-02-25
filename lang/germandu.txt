@@ -42,7 +42,7 @@ YN|Check for new files at login [Y/n]:
 |Die Passwoerter stimmen nicht ueberein! Bitte wiederholen.
 |Dein Passwort muss mindestens 
 |Zeichen enthalten! Bitte wiederholen.
-JN|Moechtest Du den ANSI Anzeigemodus verwenden [<J>a/<n>ein]: 
+|
 |Bitte gib Deine Telefonnummer an:
 |Die Mitteilung wurde in Dein privates Verzeichnis gespeichert als: 
 |Bitte gib Deine vollstaendige Telefonnummer an:
@@ -73,8 +73,8 @@ JN|Moechtest Du Menues mit "Hot-Keys" verwenden? [<J>a/<n>ein]:
 |Unbekannt 
 |Bisheriger Ort: 
 |Bitte gib eine laengere Bezeichung fuer den Ort ein (min 
-|Ansi Modus ist jetzt EIN
-|Ansi Modus ist jetzt AUS
+|
+|
 |Die Mitteilung existiert nicht
 |System-Mitteilungen sind jetzt EIN
 |System-Mitteilungen sind jetzt AUS

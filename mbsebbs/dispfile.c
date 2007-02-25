@@ -231,63 +231,49 @@ int DisplayTextFile(char *filename)
  */
 int DisplayFile(char *filename)
 {
-    FILE	    *pFileName;
+    FILE	    *fp = NULL;
     int		    iSec = 0;
-    char	    *sFileName, *tmp, *tmp1, newfile[PATH_MAX];
-    int		    i, x;
+    char	    tmp[256], tmp1[256], buf[256], out[1024], newfile[PATH_MAX];
+    int		    x;
     unsigned char   c;
     
-    sFileName = calloc(16385, sizeof(char));
-    tmp       = calloc(PATH_MAX, sizeof(char));
-    tmp1      = calloc(PATH_MAX, sizeof(char));
-
     /*
      * Open the file in the following search order:
-     *  1 - if GraphMode -> users language .ans
-     *  2 - if GraphMode -> default language .ans
-     *  3 - users language .asc
-     *  4 - default language .asc
-     *  5 - Abort, there is no file to show.
+     *  1 - users language .ans
+     *  2 - default language .ans
+     *  3 - Abort, there is no file to show.
      */
-    pFileName = NULL;
-    if (exitinfo.GraphMode) {
-	snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.ans", getenv("MBSE_ROOT"), lang.lc, filename);
-	if ((pFileName = fopen(newfile, "rb")) == NULL) {
-	    snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.ans", getenv("MBSE_ROOT"), CFG.deflang, filename);
-	    pFileName = fopen(newfile, "rb");
-	}
-    }
-    if (pFileName == NULL) {
-	snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.asc", getenv("MBSE_ROOT"), lang.lc, filename);
-	if ((pFileName = fopen(newfile, "rb")) == NULL) {
-	    snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.asc", getenv("MBSE_ROOT"), CFG.deflang, filename);
-	    if ((pFileName = fopen(newfile, "rb")) == NULL) {
-		free(sFileName);
-		free(tmp);
-		free(tmp1);
-		return FALSE;
-	    }
+    snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.ans", getenv("MBSE_ROOT"), lang.lc, filename);
+    if ((fp = fopen(newfile, "rb")) == NULL) {
+	snprintf(newfile, PATH_MAX, "%s/share/int/txtfiles/%s/%s.ans", getenv("MBSE_ROOT"), CFG.deflang, filename);
+	if ((fp = fopen(newfile, "rb")) == NULL) {
+	    return FALSE;
 	}
     }
 
-    Syslog('B', "Displayfile %s", newfile);
+    if (utf8) {
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+    }
+    Syslog('b', "Displayfile %s %s mode", newfile, utf8? "UTF-8":"CP437");
+    memset(&out, 0, sizeof(out));
 
-    while (!feof(pFileName)) {
-	i = fread(sFileName, sizeof(char), 16384, pFileName);
+    while (fgets(buf, sizeof(buf)-1, fp)) {
 
-	for (x = 0; x < i; x++) {
-	    c = *(sFileName + x) & 0xff;
+	for (x = 0; x < strlen(buf); x++) {
+	    c = buf[x] & 0xff;
 	    switch (c) {
-		case '':  ControlCodeU(sFileName[++x]);
+		case '':  strncat(out, ControlCodeU(buf[++x]), sizeof(out)-1);
 			    break;
 
-		case '':  ControlCodeF(sFileName[++x]);
+		case '':  strncat(out, ControlCodeF(buf[++x]), sizeof(out)-1);
 			    break;
 
-		case '':  ControlCodeK(sFileName[++x]);
+		case '':  strncat(out, ControlCodeK(buf[++x]), sizeof(out)-1);
 			    break;
 
-		case '':  alarm_on();
+		case '':  PUTSTR(chartran(out));
+			    memset(&out, 0, sizeof(out));
+			    alarm_on();
 			    Readkey();
 			    break;
 
@@ -300,38 +286,45 @@ int DisplayFile(char *filename)
 			     */
 			    x++;
 			    strcpy(tmp1, "");
-			    while (*(sFileName + x) != '') {
-				snprintf(tmp, PATH_MAX, "%c", *(sFileName + x));
-				strcat(tmp1, tmp);
+			    while (buf[x] != '') {
+				snprintf(tmp, sizeof(tmp)-1, "%c", buf[x]);
+				strncat(tmp1, tmp, sizeof(tmp1)-1);
 				x++;
 			    }
 			    x++;
 			    iSec = atoi(tmp1);
-			    while ((x <= i) && (*(sFileName + x) != '')) {
-				if (exitinfo.Security.level >= iSec)
-				    PUTCHAR(*(sFileName + x));
+			    while ((x <= strlen(buf)) && buf[x] != '') {
+				if (exitinfo.Security.level >= iSec) {
+				    snprintf(tmp1, sizeof(tmp1) -1, "%c", buf[x]);
+				    strncat(out, tmp1, sizeof(out)-1);
+				}
 				x++;
 			    } 
 			    break;
 
-		case '':  sleep(1);
+		case '\r':  break;
+
+		case '\n':  strncat(out, (char *)"\r\n", sizeof(out));
 			    break;
 
-		case '\n':  Enter(1);  /* Insert <cr>, we are in raw mode */
+		case '':  PUTSTR(chartran(out));
+			    memset(&out, 0, sizeof(out));
+			    FLUSHOUT();
+			    sleep(1);
 			    break;
 
-		case '\r':  break;  /* If the file has <cr> chars (DOS), eat them */
-
-		default:    PUTCHAR(*(sFileName + x));
-
+		default:    snprintf(tmp1, sizeof(tmp1)-1, "%c", buf[x]);
+			    strncat(out, tmp1, sizeof(out));
 	    } /* switch */
 	} /* for */
-    } /* while !eof */
 
-    fclose(pFileName);
-    free(sFileName);
-    free(tmp);
-    free(tmp1);
+	PUTSTR(chartran(out));
+	memset(&out, 0, sizeof(out));
+
+    } /* while fgets */
+
+    fclose(fp);
+    chartran_close();
     return TRUE;
 }
 
@@ -352,9 +345,9 @@ int DisplayFileEnter(char *File)
 
 
 
-void ControlCodeF(int ch)
+char *ControlCodeF(int ch)
 {
-    char    temp[81];
+    static char    temp[81];
     
     /* Update user info */
     ReadExitinfo();
@@ -406,14 +399,15 @@ void ControlCodeF(int ch)
 	default:
 		snprintf(temp, 81, " ");
     }
-    PUTSTR(temp);
+
+    return temp;
 }
 
 
 
-void ControlCodeU(int ch)
+char *ControlCodeU(int ch)
 {
-    char    temp[81];
+    static char	temp[81];
     
     /*
      * Update user info
@@ -487,7 +481,7 @@ void ControlCodeU(int ch)
 		break;
 
 	case 'P':
-		snprintf(temp, 81, "%s", exitinfo.GraphMode ? (char *) Language(147) : (char *) Language(148));
+		snprintf(temp, 81, "%s", (char *) Language(147));
 		break;
 
 	case 'R':
@@ -569,15 +563,17 @@ void ControlCodeU(int ch)
 	default:
 		snprintf(temp, 81, " ");
     }
-    PUTSTR(temp);
+
+    return temp;
 }
 
 
 
-void ControlCodeK(int ch)
+char *ControlCodeK(int ch)
 {
     FILE	*pCallerLog;
-    char	sDataFile[PATH_MAX], temp[81];
+    char	sDataFile[PATH_MAX];
+    static char	temp[81];
     lastread	LR;
 
     switch (toupper(ch)) {
@@ -680,7 +676,7 @@ void ControlCodeK(int ch)
 
     }
 
-    PUTSTR(temp);
+    return temp;
 }
 
 

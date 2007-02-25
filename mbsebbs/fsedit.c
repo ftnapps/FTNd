@@ -4,7 +4,7 @@
  * Purpose ...............: FullScreen Message editor.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,6 +45,8 @@
 extern int  cols;
 extern int  rows;
 
+char	hstr[81];
+
 
 void Show_Ins(void)
 {
@@ -80,80 +82,83 @@ void Top_Menu(void)
 }
 
 
-void Ls(int a, int y)
+void Ls(int y)
 {
-    locate(y, 10);
-    PUTCHAR(a ? 179 : '|');
+    strcpy(hstr, locate_str(y, 10));
+    strncat(hstr, (char *)"\xB3", 80);
 }
 
 
-void Rs(int a)
+void Rs()
 {
-    colour(LIGHTGREEN, BLUE);
-    PUTCHAR(a ? 179 : '|');
+    strncat(hstr,  colour_str(LIGHTGREEN, BLUE), 80);
+    strncat(hstr, (char *)"\xB3", 80);
 }
 
 
-void Ws(int a, int y)
+void Ws(int y)
 {
     int	i;
 
-    Ls(a, y);
+    Ls(y);
     for (i = 0; i < 58; i++)
-	PUTCHAR(' ');
-    Rs(a);
+	strncat(hstr, (char *)" ", 80);
+    Rs();
 }
 
 
-void Hl(int a, int y, char *txt)
+void Hl(int y, char *txt)
 {
-    Ls(a, y);
-    colour(WHITE, BLUE);
-    PUTSTR(padleft(txt, 58, ' '));
-    Rs(a);
+    Ls(y);
+    strncat(hstr, colour_str(WHITE, BLUE), 80);
+    strncat(hstr, padleft(txt, 58, ' '), 80);
+    Rs();
+    PUTSTR(chartran(hstr));
 }
 
 
 void Full_Help(void)
 {
-    int	    a, i;
-
-    a = exitinfo.GraphMode;
-
-    colour(LIGHTGREEN, BLUE);
+    strcpy(hstr, colour_str(LIGHTGREEN, BLUE));
 
     /* Top row */
-    locate(1, 10);
-    PUTCHAR(a ? 213 : '+');
-    for (i = 0; i < 58; i++)
-	PUTCHAR(a ? 205 : '=');
-    PUTCHAR(a ? 184 : '+');
+    strncat(hstr, locate_str(1, 10), 80);
+    strncat(hstr, (char *)"\xDA", 80);
+    strncat(hstr, hLine_str(58), 80);
+    strncat(hstr, (char *)"\xBF", 80);
+    PUTSTR(chartran(hstr));
 
-    Ws(a, 2);
+    Ws(2);
+    PUTSTR(chartran(hstr));
 
-    Ls(a, 3);
-    colour(YELLOW, BLUE);
-    PUTSTR(padleft((char *)"                  Editor Help", 58, ' '));
-    Rs(a);
+    Ls(3);
+    strncat(hstr, colour_str(YELLOW, BLUE), 80);
+    strncat(hstr, padleft((char *)"                  Editor Help", 58, ' '), 80);
+    Rs();
+    PUTSTR(chartran(hstr));
 
-    Ws(a,  4);
-    Hl(a,  5, (char *)"Ctrl-S or LeftArrow     - Cursor left");
-    Hl(a,  6, (char *)"Ctrl-D or RightArrow    - Cursor right");
-    Hl(a,  7, (char *)"Ctrl-E or UpArrow       - Cursor up");
-    Hl(a,  8, (char *)"Ctrl-X or DownArrow     - Cursor down");
-    Hl(a,  9, (char *)"Ctrl-V or Insert        - Insert or Overwrite");
-    Hl(a, 10, (char *)"Ctrl-N                  - Insert line");
-    Hl(a, 11, (char *)"Ctrl-Y                  - Delete line");
-    Ws(a, 12);
-    Hl(a, 13, (char *)"Ctrl-L                  - Refresh screen");
-    Hl(a, 14, (char *)"Ctrl-R                  - Read from file");
-    Ws(a, 15);
+    Ws(4);
+    PUTSTR(chartran(hstr));
 
-    locate(16,10);
-    PUTCHAR(a ? 212 : '+');
-    for (i = 0; i < 58; i++)
-	PUTCHAR(a ? 205 : '=');
-    PUTCHAR(a ? 190 : '+');
+    Hl( 5, (char *)"Ctrl-S or LeftArrow     - Cursor left");
+    Hl( 6, (char *)"Ctrl-D or RightArrow    - Cursor right");
+    Hl( 7, (char *)"Ctrl-E or UpArrow       - Cursor up");
+    Hl( 8, (char *)"Ctrl-X or DownArrow     - Cursor down");
+    Hl( 9, (char *)"Ctrl-V or Insert        - Insert or Overwrite");
+    Hl(10, (char *)"Ctrl-N                  - Insert line");
+    Hl(11, (char *)"Ctrl-Y                  - Delete line");
+    Ws(12);
+    PUTSTR(chartran(hstr));
+    Hl(13, (char *)"Ctrl-L                  - Refresh screen");
+    Hl(14, (char *)"Ctrl-R                  - Read from file");
+    Ws(15);
+    PUTSTR(chartran(hstr));
+
+    strcpy(hstr, locate_str(16,10));
+    strncat(hstr, (char *)"\xC0", 80);
+    strncat(hstr, hLine_str(58), 80);
+    strncat(hstr, (char *)"\xD9", 80);
+    PUTSTR(chartran(hstr));
 }
 
 
@@ -411,6 +416,9 @@ int Fs_Edit()
     FILE	    *fd;
 
     Syslog('b', "FSEDIT: Entering FullScreen editor");
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+
     clear();
     InsMode = TRUE;
     TopVisible = 1;
@@ -700,6 +708,7 @@ int Fs_Edit()
 			    if (ch == 'A' || ch == 'S') {
 				Syslog('b', "FSEDIT: %s message (%c)", (ch == 'S' && Changed) ? "Saving" : "Aborting", ch);
 				clear();
+				chartran_close();
 				if (ch == 'S' && Changed) {
 				    Syslog('+', "FSEDIT: Message will be saved");
 				    return TRUE;
@@ -781,6 +790,7 @@ int Fs_Edit()
 	}
     }
 
+    chartran_close();
     WriteError("FsEdit(): Impossible to be here");
     return FALSE;
 }

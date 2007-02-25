@@ -1039,7 +1039,7 @@ struct	sysconfig {
 	securityrec	newuser_access;		/* New Users Access level   */
 	int		OLR_MaxMsgs;		/* OLR Max nr Msgs download */
 	unsigned	iCapUserName    : 1;	/* Capitalize Username      */
-	unsigned	iAnsi	        : 1;	/* Ask Ansi                 */
+	unsigned	xiAnsi	        : 1;
 	unsigned	iSex            : 1;	/* Ask Sex                  */
 	unsigned	iDataPhone      : 1;	/* Ask Data Phone           */
 	unsigned	iVoicePhone     : 1;	/* Ask Voice Phone          */
@@ -2604,7 +2604,9 @@ char    *getftnchrs(int);               /* Return FTN characterset name     */
 char	*getrfcchrs(int);		/* Return RFC characterset name	    */
 char	*getlocale(int);		/* Return locale name		    */
 char    *getchrsdesc(int);              /* Return characterset description  */
-int	chartran_init(char *, char *);	/* Initialize chartran		    */
+char	*get_ic_ftn(int);		/* Return iconv name FTN side	    */
+char	*get_ic_rfc(int);		/* Return iconv name RFC side	    */
+int	chartran_init(char *, char *, int);	/* Initialize chartran		    */
 void	chartran_close(void);		/* Deinit chartran		    */
 char	*chartran(char *);		/* Translate string		    */
 

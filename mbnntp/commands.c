@@ -198,7 +198,7 @@ void command_abhs(char *buf)
 	charindex = find_ftn_charset(charset);
 
 	if (charindex != FTNC_ERROR) {
-	    chartran_init(charmap[charindex].ic_ftn, (char *)"UTF-8");
+	    chartran_init(charmap[charindex].ic_ftn, (char *)"UTF-8", 'n');
 	}
 
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {

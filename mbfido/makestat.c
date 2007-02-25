@@ -4,7 +4,7 @@
  * Purpose ...............: Make Web statistics
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -133,6 +133,8 @@ void MakeStat(void)
     else
 	Lm = Miy -1;
 
+    chartran_init((char *)"CP437", (char *)"UTF-8", 'm');
+
     snprintf(name, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("Can't open %s", name);
@@ -147,9 +149,9 @@ void MakeStat(void)
 		while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
 		    if (mgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			html_massage(mgroup.Name, name, PATH_MAX -1);
+			html_massage(chartran(mgroup.Name), name, PATH_MAX -1);
 			MacroVars("b", "s", name);
-			html_massage(mgroup.Comment, name, PATH_MAX -1);
+			html_massage(chartran(mgroup.Comment), name, PATH_MAX -1);
 			MacroVars("c", "s", name);
 			MacroVars("d", "s", mgroup.UseAka.zone ? aka2str(mgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(mgroup.LastDate));
@@ -196,11 +198,11 @@ void MakeStat(void)
 			}
 			fseek(fi, fileptr, SEEK_SET);
 			MacroVars("b", "d", Area);
-			html_massage(msgs.Name, name, PATH_MAX -1);
+			html_massage(chartran(msgs.Name), name, PATH_MAX -1);
 			MacroVars("c", "s", strlen(name) ? name:"&nbsp;");
-			html_massage(msgs.Tag, name, PATH_MAX -1);
+			html_massage(chartran(msgs.Tag), name, PATH_MAX -1);
 			MacroVars("d", "s", strlen(name) ? name:"&nbsp;");
-			html_massage(msgs.Group, name, PATH_MAX -1);
+			html_massage(chartran(msgs.Group), name, PATH_MAX -1);
 			MacroVars("e", "s", strlen(name) ? name:"&nbsp;");
 			MacroVars("f", "s", adate(msgs.LastRcvd));
 			MacroVars("g", "d", msgs.Received.lweek);
@@ -238,9 +240,9 @@ void MakeStat(void)
 		while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
 		    if (fgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			html_massage(fgroup.Name, name, PATH_MAX -1);
+			html_massage(chartran(fgroup.Name), name, PATH_MAX -1);
 			MacroVars("b", "s", name);
-			html_massage(fgroup.Comment, name, PATH_MAX -1);
+			html_massage(chartran(fgroup.Comment), name, PATH_MAX -1);
 			MacroVars("c", "s", name);
 			MacroVars("d", "s", fgroup.UseAka.zone ? aka2str(fgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(fgroup.LastDate));
@@ -278,11 +280,11 @@ void MakeStat(void)
 		while ((fread(&tic, tichdr.recsize, 1, fg)) == 1) {
 		    if (tic.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			html_massage(tic.Comment, name, PATH_MAX -1);
+			html_massage(chartran(tic.Comment), name, PATH_MAX -1);
 			MacroVars("b", "s", name);
-			html_massage(tic.Name, name, PATH_MAX -1);
+			html_massage(chartran(tic.Name), name, PATH_MAX -1);
 			MacroVars("c", "s", name);
-			html_massage(tic.Group, name, PATH_MAX -1);
+			html_massage(chartran(tic.Group), name, PATH_MAX -1);
 			MacroVars("d", "s", name);
 			MacroVars("e", "s", adate(tic.LastAction));
 			MacroVars("f", "d", tic.Files.lweek);
@@ -328,7 +330,7 @@ void MakeStat(void)
 		    else
 			q = xstrcpy((char *)"Normal");
 		    MacroVars("b", "s", aka2str(nodes.Aka[0]));
-		    html_massage(nodes.Sysop, name, PATH_MAX -1);
+		    html_massage(chartran(nodes.Sysop), name, PATH_MAX -1);
 		    MacroVars("c", "s", name);
 		    MacroVars("d", "s", q);
 		    MacroVars("e", "s", p);
@@ -376,11 +378,11 @@ void MakeStat(void)
 		    if (!strcmp(hist.aka.domain, "(null)"))
 			hist.aka.domain[0] = '\0';
 		    MacroVars("c", "s", hist.aka.zone ? aka2str(hist.aka):"&nbsp;");
-		    html_massage(hist.system_name, name, PATH_MAX -1);
+		    html_massage(chartran(hist.system_name), name, PATH_MAX -1);
 		    MacroVars("d", "s", strlen(name) ? name:"&nbsp;");
-		    html_massage(hist.sysop, name, PATH_MAX -1);
+		    html_massage(chartran(hist.sysop), name, PATH_MAX -1);
 		    MacroVars("e", "s", strlen(name) ? name:"&nbsp;");
-		    html_massage(hist.location, name, PATH_MAX -1);
+		    html_massage(chartran(hist.location), name, PATH_MAX -1);
 		    MacroVars("f", "s", strlen(name) ? name:"&nbsp;");
 		    MacroVars("g", "s", strlen(hist.tty) ? hist.tty:"&nbsp;");
 		    MacroVars("h", "s", adate(hist.online));
@@ -434,6 +436,8 @@ void MakeStat(void)
 
     free(name);
     Syslog('+', "Finished making statistic HTML pages");
+
+    chartran_close();
 
     if (!do_quiet) {
 	printf("\r                                    \r");

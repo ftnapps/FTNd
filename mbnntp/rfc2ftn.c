@@ -79,27 +79,12 @@ int	needputrfc(rfcmsg *, int);
 int charwrite(char *, FILE *);
 int charwrite(char *s, FILE *fp)
 {
-#ifndef	USE_EXPERIMENT
-    char *o;
-#endif
-	
     if ((strlen(s) >= 3) && (strncmp(s,"---",3) == 0) && (s[3] != '-')) {
 	putc('-',fp);
 	putc(' ',fp);
     }
-    while (*s) {
-#ifdef	USE_EXPERIMENT
-	putc(*s, fp);
-#else
-	o=s;
-	if (s[0] &0x080) {
-	    o=charset_map_c(s[0],0);
-	}
-//	putc(*s, fp);
-	putc (*o,fp);
-#endif
-	s++;
-    }
+
+    fwrite(s, strlen(s), 1, fp);
     return 0;
 }
 
@@ -291,10 +276,7 @@ int rfc2ftn(FILE *fp)
 	charset = xstrcpy((char *)"iso-8859-1");
 	Syslog('m', "No charset, setting default to iso-8859-1");
     }
-
-#ifndef	USE_EXPERIMENT
-    charset_set_in_out(charset,getrfcchrs(msgs.Charset));
-#endif
+    chartran_init(charset,getrfcchrs(msgs.Charset), 'm');
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
@@ -804,6 +786,7 @@ int rfc2ftn(FILE *fp)
     free(temp);
     if (charset)
 	free(charset);
+    chartran_close();
     tidyrfc(msg);
     tidy_ftnmsg(fmsg);
     UpdateMsgs();

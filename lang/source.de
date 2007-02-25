@@ -42,7 +42,7 @@ JN|Beim Login nach neuen Dateien suchen [J/n]:
 |Die Passwoerter stimmen nicht ueberein! Bitte wiederholen.
 |Ihr Passwort muss mindestens 
 |Zeichen enthalten! Bitte wiederholen.
-JN|Moechten Sie den ANSI Anzeigemodus verwenden [J/n]: 
+|
 |Bitte geben Sie Ihre Telefonnummer an:
 |Die Mitteilung wurde in Ihr privates Verzeichnis gespeichert als: 
 |Bitte geben Sie eine vollstaendige Telefonnummer an:
@@ -73,8 +73,8 @@ JN|Moechten Sie in den Menues "Hot-Keys" verwenden? [J/n]:
 |Unbekannt 
 |Bisheriger Ort: 
 |Bitte geben Sie eine laengere Bezeichung fuer den Ort ein (min 
-|Ansi Modus ist jetzt EIN
-|Ansi Modus ist jetzt AUS
+|
+|
 |Die Mitteilung existiert nicht
 |System-Mitteilungen sind jetzt EIN
 |System-Mitteilungen sind jetzt AUS

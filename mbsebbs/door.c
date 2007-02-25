@@ -4,7 +4,7 @@
  * Purpose ...............: Run external door
  *
  *****************************************************************************
- * Copyright (C) 1997-2005 
+ * Copyright (C) 1997-2007 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -220,7 +220,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 	    fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys));
 	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft * 60);	/* Seconds	*/
 	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	/* Minutes	*/
-	    fprintf(fp, "%s\r\n", exitinfo.GraphMode?"GR":"NG");	/* Graphics GR,RIP,NG */
+	    fprintf(fp, "GR\r\n");		/* Graphics GR,RIP,NG */
 	    fprintf(fp, "%d\r\n", rows);
 	    fprintf(fp, "N\r\n");		/* User mode, always N	*/
 	    fprintf(fp, "\r\n");		/* Always blank		*/
@@ -285,7 +285,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 	    fprintf(fp, "%s\r\n", exitinfo.sHandle);	    /* User's handle			*/
 	    fprintf(fp, "%d\r\n", exitinfo.Security.level); /* User's security level		*/
 	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	    /* User's time left in minutes	*/
-	    fprintf(fp, "%s\r\n", exitinfo.GraphMode?"1":"0");	/* User's graphic mode		*/
+	    fprintf(fp, "1\r\n");			    /* User's graphic mode		*/
 	    fprintf(fp, "%d\r\n\032", iNode);		    /* Node number			*/
 	    fclose(fp);
 	}

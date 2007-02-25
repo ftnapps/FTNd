@@ -591,10 +591,6 @@ void DoMenu(int Type)
 		Chg_Location();
 		break;
 
-	case 304:
-		Chg_Graphics();
-		break;
-
 	case 305:
 		Chg_VoicePhone();
 		break;

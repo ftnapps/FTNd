@@ -595,33 +595,6 @@ void Chg_Address()
 
 
 
-/*
- * Toggle Graphics
- */
-void Chg_Graphics()
-{
-    ReadExitinfo();
-    Enter(2);
-
-    if (exitinfo.GraphMode) {
-	exitinfo.GraphMode = FALSE;
-	/* Ansi Mode turned OFF */
-	pout(WHITE, BLACK, (char *) Language(76));
-    } else {
-	exitinfo.GraphMode = TRUE;
-	/* Ansi Mode turned ON */
-	pout(WHITE, BLACK, (char *) Language(75));
-    }
-
-    Syslog('+', "Graphics mode now %s", exitinfo.GraphMode?"On":"Off");
-    Enter(2);
-    TermInit(exitinfo.GraphMode);
-    WriteExitinfo();
-    sleep(2);
-}
-
-
-
 void Chg_VoicePhone()
 {
     char	temp[81];
@@ -1111,6 +1084,7 @@ void Chg_Charset()
 	    Syslog('+', "New character set %s", getftnchrs(exitinfo.Charset));
 	    WriteExitinfo();
 	    setlocale(LC_CTYPE, getlocale(exitinfo.Charset));
+	    utf8 = (exitinfo.Charset == FTNC_UTF8);
 	    Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
 	    Enter(2);
 	    colour(LIGHTGREEN, BLACK);

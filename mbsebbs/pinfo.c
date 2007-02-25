@@ -4,7 +4,7 @@
  * Purpose ...............: Product information
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -38,30 +38,32 @@
 #include "ttyio.h"
 
 
-void ls(int a)
+char	pstr[256];
+
+
+void ls(void)
 {
-    PUTCHAR(a ? 179 : '|');
+    strcpy(pstr, (char *)"\xB3");
 }
 
 
 
-void rs(int a)
+void rs(void)
 {
-    colour(DARKGRAY, BLACK);
-    PUTCHAR(a ? 179 : '|');
-    Enter(1);
+    strncat(pstr, colour_str(DARKGRAY, BLACK), 255);
+    strncat(pstr, (char *)"\xB3\r\n", 255);
 }
 
 
 
-void wl(int a)
+void wl(void)
 {
     int	i;
 
-    ls(a);
+    ls();
     for(i = 0; i < 76; i++)
-	PUTCHAR(' ');
-    rs(a);
+	strncat(pstr, (char *)" ", 255);
+    rs();
 }
 
 
@@ -71,79 +73,117 @@ void wl(int a)
  */
 void cr(void)
 {
-    int	    a, i;
-    char    *string, *temp;
+    char    *temp;
 
-    a = exitinfo.GraphMode;
-
-    string     = calloc(81, sizeof(char));
     temp       = calloc(81, sizeof(char));
 
-    clear();
-    colour(DARKGRAY, BLACK);
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+
+    strncpy(pstr, clear_str(), 255);
+    strncat(pstr, colour_str(DARKGRAY, BLACK), 255);
 
     /* Print top row */
-    PUTCHAR(a ? 213 : '+');
-    for (i = 0; i < 76; i++)
-	PUTCHAR(a ? 205 : '=');
-    PUTCHAR(a ? 184 : '+');
-    Enter(1);
+    strncat(pstr, (char *)"\xDA", 255);
+    strncat(pstr, hLine_str(76), 255);
+    strncat(pstr, (char *)"\xBF\r\n", 255);
+    PUTSTR(chartran(pstr));
 
-    wl(a);
-    ls(a);
-    snprintf(temp, 81, "MBSE Bulletin Board System %s (%s-%s)", VERSION, OsName(), OsCPU());
-    pout(YELLOW, BLACK, padleft(temp, 76, ' '));
-    rs(a);
-    wl(a);
-    ls(a);
+    wl();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    snprintf(temp, 80, "MBSE Bulletin Board System %s (%s-%s)", VERSION, OsName(), OsCPU());
+    strncat(pstr, pout_str(YELLOW, BLACK, padleft(temp, 76, ' ')), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    wl();
+    PUTSTR(chartran(pstr));
+
+    ls();
     snprintf(temp, 81, "%s", COPYRIGHT);
-    pout(LIGHTCYAN, BLACK, padleft(temp, 76, ' '));
-    rs(a);
-    wl(a);
-    ls(a);
-    snprintf(temp, 81, "Compiled on %s at %s", __DATE__, __TIME__);
-    pout(LIGHTRED, BLACK, padleft(temp, 76, ' '));
-    rs(a);
-    wl(a);
-    ls(a);
-    pout(LIGHTCYAN, BLACK, (char *)"MBSE has been written and designed by Michiel Broek. Many others have given ");
-    rs(a);
-    ls(a);
-    pout(LIGHTCYAN, BLACK, (char *)"valuable time in the form of new ideas and suggestions on how to make MBSE  ");
-    rs(a);
-    ls(a);
-    pout(LIGHTCYAN, BLACK, (char *)"BBS a better BBS                                                            ");
-    rs(a);
-    wl(a);
-    ls(a);
-    pout(WHITE, BLACK, (char *)"Available from http://www.mbse.eu or 2:280/2802                             ");
-    rs(a);
-    wl(a);
-    ls(a);
-    pout(LIGHTRED, BLACK, (char *)"JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner,              ");
-    rs(a);
-    ls(a);
-    pout(LIGHTRED, BLACK, (char *)"                          Mats Birch, Mats Wallin.                          ");
-    rs(a);
-    ls(a);
-    pout(LIGHTRED, BLACK, (char *)"                          ALL RIGHTS RESERVED.                              ");
-    rs(a);
-    wl(a);
-    ls(a);
-    pout(LIGHTBLUE, BLACK,  (char *)"This is free software; released under the terms of the GNU General Public   ");
-    rs(a);
-    ls(a);
-    pout(LIGHTBLUE, BLACK,  (char *)"License as published by the Free Software Foundation.                       ");
-    rs(a);
-    wl(a);
+    strncat(pstr, pout_str(LIGHTCYAN, BLACK, padleft(temp, 76, ' ')), 255);
+    rs();
+    PUTSTR(chartran(pstr));
 
-    PUTCHAR(a ? 212 : '+');
-    for (i = 0; i < 76; i++)
-	PUTCHAR(a ? 205 : '=');
-    PUTCHAR(a ? 190 : '+');
-  
-    free(string);
+    wl();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    snprintf(temp, 81, "Compiled on %s at %s", __DATE__, __TIME__);
+    strncat(pstr, pout_str(LIGHTRED, BLACK, padleft(temp, 76, ' ')), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    wl();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTCYAN, BLACK, (char *)"MBSE has been written and designed by Michiel Broek. Many others have given "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTCYAN, BLACK, (char *)"valuable time in the form of new ideas and suggestions on how to make MBSE  "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTCYAN, BLACK, (char *)"BBS a better BBS                                                            "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+    
+    wl();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(WHITE, BLACK, (char *)"Available from http://www.mbse.eu or 2:280/2802                             "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    wl();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTRED, BLACK, (char *)"JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner,              "),
+ 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTRED, BLACK, (char *)"                          Mats Birch, Mats Wallin.                          "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTRED, BLACK, (char *)"                          ALL RIGHTS RESERVED.                              "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    wl();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTBLUE, BLACK,  (char *)"This is free software; released under the terms of the GNU General Public   "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    ls();
+    strncat(pstr, pout_str(LIGHTBLUE, BLACK,  (char *)"License as published by the Free Software Foundation.                       "), 255);
+    rs();
+    PUTSTR(chartran(pstr));
+
+    wl();
+    PUTSTR(chartran(pstr));
+
+    strcpy(pstr, (char *)"\xC0");
+    strncat(pstr, hLine_str(76), 255);
+    strncat(pstr, (char *)"\xD9\r\n", 255);
+    PUTSTR(chartran(pstr));
+
     free(temp);
+    chartran_close();
     Enter(1);
     Pause();
 }

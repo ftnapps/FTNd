@@ -42,7 +42,7 @@ YN|Check for new files at login [Y/n]:
 |Your passwords do not match! Try again.
 |Your password must contain at least 
 |characters! Try again.
-YN|Do you want ANSI and graphics mode [Y/n]: 
+|
 |Please enter you Voice Number
 |Message exported to your private directory as: 
 |Please enter a proper phone number
@@ -73,8 +73,8 @@ YN|Would you like Hot-Keyed menus? [Y/n]:
 |Could not find 
 |Old Location: 
 |Please enter a longer location (min 
-|Ansi Mode turned ON
-|Ansi Mode turned OFF
+|
+|
 |Message doesn't exist
 |News bulletins turned ON
 |News bulletins turned OFF

@@ -123,11 +123,12 @@ void DisplayLogo()
 	WriteError("$DisplayLogo: Can't open %s", temp);
     else {
 	while (Fgets(sString, 1023, pLogo) != NULL) {
-	    PUTSTR(sString);
+	    PUTSTR(chartran(sString));
 	    Enter(1);
 	}
 	fclose(pLogo);
     }
+
     free(sString);
     free(temp);
 }

@@ -246,6 +246,7 @@ void user(void)
     /*
      * Setup users favourite language.
      */
+    utf8 = (usrconfig.Charset == FTNC_UTF8);
     Set_Language(usrconfig.iLanguage);
     Free_Language();
     InitLanguage();
@@ -259,7 +260,6 @@ void user(void)
 	UserCity(mypid, usrconfig.Name, usrconfig.sLocation);
     else
 	UserCity(mypid, usrconfig.Name, (char *)"N/A");
-    TermInit(usrconfig.GraphMode);
 
     /*
      * Count simultaneous logins
@@ -528,13 +528,11 @@ void user(void)
      * file, search order is the same as in DisplayFile()
      */
     st.st_mtime = 0;
-    if (exitinfo.GraphMode) {
-	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), lang.lc);
+    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), lang.lc);
+    stat(temp, &st);
+    if (st.st_mtime == 0) {
+	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), CFG.deflang);
 	stat(temp, &st);
-	if (st.st_mtime == 0) {
-	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), CFG.deflang);
-	    stat(temp, &st);
-	}
     }
     if (st.st_mtime == 0) {
 	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.asc", getenv("MBSE_ROOT"), lang.lc);

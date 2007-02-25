@@ -9,7 +9,7 @@
 int  LC(int);				/* More prompt for reading messages */
 int  Edit_Msg(void);                    /* Edit a message                   */
 int  Ext_Edit(void);			/* External Message editor	    */
-int  CheckLine(int, int, int, int);	/* Check linecounter for read       */
+int  CheckLine(int, int, int);		/* Check linecounter for read       */
 void SysopComment(char *);		/* Comment to Sysop		    */
 void Post_Msg(void);			/* Post a message		    */
 void Read_Msgs(void);			/* Read Messages		    */

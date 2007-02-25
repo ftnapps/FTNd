@@ -42,7 +42,7 @@ YN|Check for new files at login [Y/n]:
 |­Non coinciden! Volta a empezar...
 |A password debe ter como m¡nimo 
 |caracteres. Volta a empezar...
-SN|¨Queres gr ficos ANSI [S/n]: 
+|
 |Teclea o teu n£mero de tel‚fono de VOZ
 |Mensaxe exportado ¢ teu directorio privado como: 
 |N£mero de tel‚fono incorrecto. Repite... 
@@ -73,8 +73,8 @@ SN|¨Queres men£s r pidos? [S/n]:
 |Non topo 
 |Localidade anterior : 
 |Localidade demasiado curta: (min. 
-|Modo ANSI activado
-|Modo ANSI desactivado
+|
+|
 |Non existe a mensaxe
 |Novas activadas
 |Novas desactivadas

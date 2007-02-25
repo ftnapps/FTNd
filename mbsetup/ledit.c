@@ -2207,7 +2207,6 @@ char *getmenutype(int val)
 		case 301:	return (char *)"Change transfer protocol";
 		case 302:	return (char *)"Change password";
 		case 303:	return (char *)"Change location";
-		case 304:	return (char *)"Change graphics mode";
 		case 305:	return (char *)"Change voice phone";
 		case 306:	return (char *)"Change data phone";
 		case 307:	return (char *)"Change show news bulletins";

@@ -5,7 +5,7 @@
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -79,11 +79,7 @@ extern int	rows;
 /*
  *  Internal prototypes
  */
-#ifdef	USE_EXPERIMENT
 void    ShowMsgHdr(void);		/* Show message header              */
-#else
-void	ShowMsgHdr(int Conv);		/* Show message header		    */
-#endif
 int	Read_a_Msg(unsigned int Num, int);/* Read a message		    */
 int	Export_a_Msg(unsigned int Num);/* Export message to homedir	    */
 int	ReadPanel(void);		/* Read panel bar		    */
@@ -897,20 +893,13 @@ int Save_Msg(int IsReply, faddr *Dest)
 /* 
  * Show message header screen top for reading messages.
  */
-#ifdef	USE_EXPERIMENT
 void ShowMsgHdr(void)
-#else
-void ShowMsgHdr(int Conv)
-#endif
 {
     static char	Buf1[35], Buf2[35], Buf3[81];
     char	msg[81];
     struct tm	*tm;
     time_t	now;
     int		color;
-#ifndef	USE_EXPERIMENT
-    int		i;
-#endif
 
     Buf1[0] = '\0';
     Buf2[0] = '\0';
@@ -998,22 +987,7 @@ void ShowMsgHdr(int Conv)
 
     /* Subject : */
     pout(YELLOW, BLACK, (char *) Language(210));
-#ifdef	USE_EXPERIMENT
-    pout(GREEN, BLACK, Msg.Subject);
-#else
-    colour(GREEN, BLACK);
-
-    if (Conv) {
-	/*
-	 * Try to translate character sets
-	 */
-	for (i = 0; i < strlen(Msg.Subject); i++) {
-	    PUTSTR(charset_map_c(Msg.Subject[i], FALSE));
-	}
-    } else {
-	PUTSTR(Msg.Subject);
-    }
-#endif
+    pout(GREEN, BLACK, chartran(Msg.Subject));
     Enter(1);
 
     colour(CFG.HiliteF, CFG.HiliteB);
@@ -1185,12 +1159,9 @@ int Export_a_Msg(unsigned int Num)
  */
 int Read_a_Msg(unsigned int Num, int UpdateLR)
 {
-    char	*p = NULL, *fn, *charset = NULL, *charsin = NULL, *charsout = NULL;
-    int		ShowMsg = TRUE, UseIconv = FALSE;
+    char	*p = NULL, *fn, *charset = NULL, *charsin = NULL, temp[256];
+    int		ShowMsg = TRUE;
     lastread	LR;
-#ifndef	USE_EXPERIMENT
-    int		i;
-#endif
 
     LastNum = Num;
     iLineCount = 7;
@@ -1280,25 +1251,21 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 	/*
 	 * No charset marked in the message, use the area charset
 	 */
-	charset = xstrcpy(getftnchrs(msgs.Charset));
+	charsin = xstrcpy(get_ic_ftn(msgs.Charset));
+    } else {
+	charsin = xstrcpy(get_ic_ftn(find_ftn_charset(charset)));
     }
-    charsin = xstrcpy(charset);
-    charsout = xstrcpy(getftnchrs(exitinfo.Charset));
 
+    Syslog('b', "charsets: %s -> %s", charsin, get_ic_ftn(exitinfo.Charset));
     /*
      * Try to setup charset mapping if the charactersets are different.
      */
-#ifndef	USE_EXPERIMENT
-    if (charsin && charsout && strcmp(charsout, charsin)) {
-	UseIconv = charset_set_in_out(charsin, charsout);
-    }
+    chartran_init(charsin, get_ic_ftn(exitinfo.Charset), 'b');
+    
     /*
      * Show message header with charset mapping if needed.
      */
-    ShowMsgHdr(UseIconv);
-#else
     ShowMsgHdr();
-#endif
 
     /*
      * Show message text
@@ -1311,7 +1278,7 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 		    if (Kludges) {
 			pout(LIGHTGRAY, BLACK, p);
 			Enter(1);
-			if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE, UseIconv))
+			if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
 			    break;
 		    }
 		} else {
@@ -1319,25 +1286,11 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 		    if (strchr(p, '>') != NULL)
 			if ((strlen(p) - strlen(strchr(p, '>'))) < 10)
 			    colour(CFG.HiliteF, CFG.HiliteB);
-#ifdef	USE_EXPERIMENT
-		    PUTSTR(p);
+		    strncpy(temp, chartran(p), sizeof(temp) -1);
+		    PUTSTR(temp);
 		    Enter(1);
-#else
-		    if (UseIconv) {
-			/*
-			 * Try to translate character sets
-			 */
-			for (i = 0; i < strlen(p); i++) {
-			    PUTSTR(charset_map_c(p[i], FALSE));
-			}
-			Enter(1);
-		    } else {
-			PUTSTR(p);
-			Enter(1);
-		    }
-#endif
 
-		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE, UseIconv))
+		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
 			break;
 		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);
@@ -1346,11 +1299,10 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 
     if (charset)
 	free(charset);
-    if (charsout)
-	free(charsout);
     if (charsin)
 	free(charsin);
-    
+    chartran_close();
+
     /*
      * Set the Received status on this message if it's for the user.
      */
@@ -1975,7 +1927,7 @@ void Delete_Msg()
 /*
  * Check linecounter for reading messages.
  */
-int CheckLine(int FG, int BG, int Email, int Conv)
+int CheckLine(int FG, int BG, int Email)
 {
     int	    x, z;
 
@@ -2002,11 +1954,7 @@ int CheckLine(int FG, int BG, int Email, int Conv)
 	if (Email)
 	    ShowEmailHdr();
 	else
-#ifdef	USE_EXPERIMENT
 	    ShowMsgHdr();
-#else
-	    ShowMsgHdr(Conv);
-#endif
 	colour(FG, BG);
     }
     return FALSE;

@@ -255,6 +255,7 @@ void html_massage(char *inbuf, char *outbuf, size_t size)
                         case '&':       snprintf(outptr, size, "&amp;");       break;
                         case '<':       snprintf(outptr, size, "&lt;");        break;
                         case '>':       snprintf(outptr, size, "&gt;");        break;
+/* Not needed for UTF-8 output.
                         case 160:       snprintf(outptr, size, "&nbsp;");      break;
                         case 161:       snprintf(outptr, size, "&iexcl;");     break;
                         case 162:       snprintf(outptr, size, "&cent;");      break;
@@ -351,6 +352,7 @@ void html_massage(char *inbuf, char *outbuf, size_t size)
                         case 253:       snprintf(outptr, size, "&yacute;");    break;
                         case 254:       snprintf(outptr, size, "&thorn;");     break;
                         case 255:       snprintf(outptr, size, "&yuml;");      break;
+*/
                         default:        *outptr++ = *inptr; *outptr = '\0';     break;
                 }
                 while (*outptr)
@@ -410,6 +412,18 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
     if (fi == NULL)
 	WriteError("OpenMacro(%s, %c): not found", filename, Language);
     else {
+	/*
+	 * Check macro file for update correct charset.
+	 */
+	while (fgets(linebuf, sizeof(linebuf) -1, fi)) {
+	    if (strcasestr(linebuf, (char *)"text/html")) {
+		if (! strcasestr(linebuf, (char *)"UTF-8")) {
+		    WriteError("Macro file %s doesn't define 'Content-Type' content='text/html; charset=UTF-8'", temp);
+		}
+	    }
+	}
+	rewind(fi);
+
 	snprintf(temp, PATH_MAX -1, "%s-%s", OsName(), OsCPU());
 	if (CFG.aka[0].point)
 	    snprintf(aka, 80, "%d:%d/%d.%d@%s", CFG.aka[0].zone, CFG.aka[0].net, CFG.aka[0].node, CFG.aka[0].point, CFG.aka[0].domain);

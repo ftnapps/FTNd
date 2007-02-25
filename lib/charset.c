@@ -34,6 +34,7 @@
 
 int		use_tran1 = FALSE;	/* Translate stage 1 active	*/
 int		use_tran2 = FALSE;	/* Translate stage 2 active	*/
+int		loglevel = '-';		/* Debug loglevel		*/
 iconv_t		cd1;			/* Conversion descriptor 1	*/
 iconv_t		cd2;			/* Conversion descriptor 2	*/
 
@@ -82,7 +83,7 @@ struct _charmap charmap[] = {
     {FTNC_CP850,  (char *)"CP850 2",  (char *)"iso-8859-1", (char *)"CP850",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 850 (Latin-1)"},
     {FTNC_LATIN_2,(char *)"LATIN-2 2",(char *)"iso-8859-2", (char *)"LATIN2",   (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"ISO 8859-2 (Eastern European)"},
     {FTNC_CP852,  (char *)"CP852 2",  (char *)"iso-8859-2", (char *)"CP852",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 852 (Czech, Latin-1)"},
-    {FTNC_CP895,  (char *)"CP895 2",  (char *)"iso-8859-2", (char *)"CP895",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 895 (Czech, Kamenicky)"},
+    {FTNC_CP895,  (char *)"CP895 2",  (char *)"iso-8859-2", (char *)"CP850",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 895 (Czech, Kamenicky)"},
     {FTNC_LATIN_5,(char *)"LATIN-5 2",(char *)"iso-8859-5", (char *)"LATIN5",   (char *)"ISO-8859-5", (char *)"turks",       (char *)"ISO 8859-5 (Turkish)"},
     {FTNC_CP866,  (char *)"CP866 2",  (char *)"iso-8859-5", (char *)"CP866",    (char *)"ISO-8859-5", (char *)"ru_RU",       (char *)"IBM codepage 866 (Russian)"},
     {FTNC_LATIN_9,(char *)"LATIN-9 2",(char *)"iso-8859-15",(char *)"LATIN-9",  (char *)"ISO-8859-15",(char *)"en_US",       (char *)"ISO 8859-1 (Western European EURO)"},
@@ -104,7 +105,7 @@ int find_ftn_charset(char *ftnkludge)
     int         j;
     char        *ftn, *cmp;
 
-    Syslog('n', "find_ftn_charset(%s)", ftnkludge);
+    Syslog(loglevel, "find_ftn_charset(%s)", ftnkludge);
 
     ftn = calloc(80, sizeof(char));
     cmp = calloc(80, sizeof(char));
@@ -123,7 +124,7 @@ int find_ftn_charset(char *ftnkludge)
     }
 
     if (charalias[i].alias != NULL) {
-	Syslog('n', "found alias %s", charalias[i].ftnkludge);
+	Syslog(loglevel, "found alias %s", charalias[i].ftnkludge);
 	snprintf(ftn, 80, "%s", charalias[i].ftnkludge);
     }
 
@@ -151,7 +152,7 @@ int find_ftn_charset(char *ftnkludge)
 	return FTNC_ERROR;
     }
 
-    Syslog('n', "find_ftn_charset(%s) result %d", ftnkludge, i);
+    Syslog(loglevel, "find_ftn_charset(%s) result %d", ftnkludge, i);
     return i;
 }
 
@@ -189,6 +190,46 @@ char *getrfcchrs(int val)
 	}
     }
 
+    /*
+     * Not found, return a default
+     */
+    return (char *)"iso-8859-1";
+}
+
+
+
+char *get_ic_ftn(int val)
+{
+    int         i;
+    static char ic_ftnname[20];
+    
+    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
+	if (val == charmap[i].ftncidx) {
+	    snprintf(ic_ftnname, 20, "%s", charmap[i].ic_ftn);
+	    return ic_ftnname;
+	}
+    }
+    
+    /*
+     * Not found, return a default
+     */
+    return (char *)"LATIN1";
+}
+
+
+
+char *get_ic_rfc(int val)
+{
+    int         i;
+    static char ic_rfcname[20];
+    
+    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
+	if (val == charmap[i].ftncidx) {
+	    snprintf(ic_rfcname, 20, "%s", charmap[i].ic_rfc);
+	    return ic_rfcname;
+	}
+    }
+    
     /*
      * Not found, return a default
      */
@@ -249,17 +290,19 @@ char *getchrsdesc(int val)
  * charactersets are given, the translation is off.
  * On success return 0, on error return -1 and write errorlog.
  */
-int chartran_init(char *fromset, char *toset)
+int chartran_init(char *fromset, char *toset, int logl)
 {
+    loglevel = logl;
+
     if (use_tran1 || use_tran2) {
 	WriteError("chartran_init() called while still open");
 	chartran_close();
     }
 
-    Syslog('-', "chartran_init(%s, %s)", fromset, toset);
+    Syslog(loglevel, "chartran_init(%s, %s)", fromset, toset);
 
     if (strcmp(fromset, toset) == 0) {
-	Syslog('-', "nothing to translate");
+	Syslog(loglevel, "nothing to translate");
 	return 0;
     }
 
@@ -273,10 +316,13 @@ int chartran_init(char *fromset, char *toset)
     }
 
     if (strcmp(toset, (char *)"UTF-8")) {
-	cd2 = iconv_open(toset, (char *)"UTF-8");
-	if (cd2 != (iconv_t)-1) {
-	    WriteError("$chartran_init(%s, %s): iconv_open(%s, UTF-8s) error", fromset, toset, toset);
-	    chartran_close();
+	cd2 = iconv_open(toset, "UTF-8");
+	if (cd2 == (iconv_t)-1) {
+	    WriteError("$chartran_init(%s, %s): iconv_open(%s, UTF-8) error", fromset, toset, toset);
+	    if (use_tran1) {
+		iconv_close(cd1);
+		use_tran1 = FALSE;
+	    }
 	    return -1;
 	}
 	use_tran2 = TRUE;
@@ -292,7 +338,7 @@ int chartran_init(char *fromset, char *toset)
  */
 void chartran_close(void)
 {
-    Syslog('-', "chartran_close()");
+    Syslog(loglevel, "chartran_close()");
     if (use_tran1) {
 	iconv_close(cd1);
 	use_tran1 = FALSE;
@@ -318,6 +364,7 @@ char *chartran(char *input)
     char	*in, *out;
 
     memset(&outbuf, 0, sizeof(outbuf));
+    memset(&temp, 0, sizeof(temp));
 
     /*
      * Transparant
@@ -340,6 +387,10 @@ char *chartran(char *input)
 	    WriteError("$iconv(%s) cd1", printable(input, 0));
 	    strncpy(outbuf, input, sizeof(outbuf) -1);
 	}
+	if (strcmp(input, outbuf)) {
+	    Syslog(loglevel, "i %s", printable(input, 0));
+	    Syslog(loglevel, "u %s", printable(outbuf, 0));
+	}
 	return outbuf;
     }
 
@@ -355,6 +406,10 @@ char *chartran(char *input)
 	if (rc == -1) {
 	    WriteError("$iconv(%s) cd2", printable(input, 0));
 	    strncpy(outbuf, input, sizeof(outbuf) -1);
+	}
+	if (strcmp(input, outbuf)) {
+	    Syslog(loglevel, "u %s", printable(input, 0));
+	    Syslog(loglevel, "o %s", printable(outbuf, 0));
 	}
 	return outbuf;
     }
@@ -372,6 +427,10 @@ char *chartran(char *input)
 	strncpy(outbuf, input, sizeof(outbuf) -1);
 	return outbuf;
     }
+    if (strcmp(input, temp)) {
+	Syslog(loglevel, "i %s", printable(input, 0));
+    }
+
     inSize = strlen(temp);
     outSize = sizeof(outbuf);
     in = temp;
@@ -380,6 +439,12 @@ char *chartran(char *input)
     if (rc == -1) {
 	WriteError("$iconv(%s) cd2", printable(temp, 0));
 	strncpy(outbuf, input, sizeof(outbuf) -1);
+    }
+    if (strcmp(input, temp) || strcmp(temp, outbuf)) {
+	Syslog(loglevel, "u %s", printable(temp, 0));
+    }
+    if (strcmp(temp, outbuf)) {
+	Syslog(loglevel, "o %s", printable(outbuf, 0));
     }
 
     return outbuf;

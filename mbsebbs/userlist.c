@@ -4,7 +4,7 @@
  * Purpose ...............: Display Userlist
  *
  *****************************************************************************
- * Copyright (C) 1997-2005 
+ * Copyright (C) 1997-2007 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -41,13 +41,14 @@
 
 
 extern int  rows;
+extern int  cols;
 
 
 void UserList(char *OpData)
 {                                                                        
     FILE	    *pUsrConfig;
     int		    LineCount = 2, iFoundName = FALSE, iNameCount = 0;
-    char	    *Name, *sTemp, *User, *temp, msg[81];
+    char	    ustr[128], *Name, *sTemp, *User, *temp, msg[81];
     struct userhdr  uhdr;
     struct userrec  u;
 
@@ -56,10 +57,13 @@ void UserList(char *OpData)
     sTemp = calloc(81, sizeof(char));
     User  = calloc(81, sizeof(char));
 
-    clear();
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+
+    strcpy(ustr, clear_str());
     /* User List */
-    language(WHITE, BLACK, 126);
-    Enter(1);
+    strncat(ustr, poutCR_str(WHITE, BLACK, (char *) Language(126)), 127);
+    PUTSTR(chartran(ustr));
     LineCount = 1;
 
     snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
@@ -74,16 +78,19 @@ void UserList(char *OpData)
     colour(CFG.InputColourF, CFG.InputColourB);
     alarm_on();
     GetstrC(Name, 35);
-    clear();
-
+    
+    strcpy(ustr, clear_str());
     /* Name         Location                   Last On    Calls */
-    language(WHITE, BLACK, 128);
-    Enter(1);
+    strncat(ustr, poutCR_str(WHITE, BLACK, (char *) Language(128)), 127);
+    PUTSTR(chartran(ustr));
 
-    colour(GREEN, BLACK);
-    fLine(79);
+    strcpy(ustr, colour_str(GREEN, BLACK));
+    strncat(ustr, fLine_str(cols -1), 127);
+    PUTSTR(chartran(ustr));
 
-    colour(CYAN, BLACK);
+    strcpy(ustr, colour_str(CYAN, BLACK));
+    PUTSTR(chartran(ustr));
+
     while (fread(&u, uhdr.recsize, 1, pUsrConfig) == 1) {
 	if ((strcmp(Name,"")) != 0) {
 	    if (((strcasecmp(OpData, "/H")) == 0) && strlen(u.sHandle))
@@ -150,13 +157,16 @@ void UserList(char *OpData)
 
     fclose(pUsrConfig);
 
-    colour(GREEN, BLACK);
-    fLine(79); 
+    strcpy(ustr, colour_str(GREEN, BLACK));
+    strncat(ustr, fLine_str(cols -1), 127);
+    PUTSTR(chartran(ustr));
 
     free(temp);
     free(Name);
     free(sTemp);
     free(User);
+
+    chartran_close();
 
     Pause();
 }

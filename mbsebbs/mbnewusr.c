@@ -4,7 +4,7 @@
  * Purpose ...............: New user registration
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -166,12 +166,6 @@ int main(int argc, char **argv)
 	    signal(i, SIG_IGN);
     }
 
-    /*
-     * Default set the terminal to ANSI mode. If your logo
-     * is in color, the user will see color no mather what.
-     */
-    TermInit(1);
-		
     /*
      * Now it's time to check if the bbs is open. If not, we 
      * log the user off.

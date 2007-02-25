@@ -4,7 +4,7 @@
  * Purpose ...............: Internet email
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -455,7 +455,7 @@ int Read_a_Email(unsigned int Num)
 		    if (Kludges) {
 			pout(LIGHTGRAY, BLACK, p);
 			Enter(1);
-			if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE, FALSE))
+			if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE))
 			    break;
 		    }
 		} else {
@@ -465,7 +465,7 @@ int Read_a_Email(unsigned int Num)
 			    colour(CFG.HiliteF, CFG.HiliteB);
 		    PUTSTR(p);
 		    Enter(1);
-		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE, FALSE))
+		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE))
 			break;
 		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);

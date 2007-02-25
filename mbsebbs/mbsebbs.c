@@ -215,12 +215,6 @@ int main(int argc, char **argv)
     }
 
     /*
-     * Default set the terminal to ANSI mode. If your logo
-     * is in color, the user will see color no mather what.
-     */
-    TermInit(1);
-
-    /*
      * Now it's time to check if the bbs is open. If not, we 
      * log the user off.
      */

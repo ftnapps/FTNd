@@ -42,7 +42,7 @@ YN|Check for new files at login [Y/n]:
 |Vos mots de passe ne sont pas identiques. Essayez encore.
 |Votre mot de passe doit contenir au moins
 |caractères! Essayez encore.
-ON|Voulez vous le mode graphique ANSI [O/n]: 
+|
 |Veuillez entrer votre numéro "voix"
 |Message exporté dans votre répertoire perso sous le nom: 
 |Veuillez entrer un numéro de téléphone valable:
@@ -73,8 +73,8 @@ ON|Voulez vous les menus Hot-Keyed ? [O/n]:
 |Ne peut pas trouver 
 |Ancienne ville : 
 |veuillez entrer un nom plus long (min 
-|Ansi Mode est ON
-|Ansi Mode est OFF
+|
+|
 |Message n'existe pas
 |News bulletins est ON
 |News bulletins est OFF
