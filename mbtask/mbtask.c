@@ -228,7 +228,6 @@ void load_maincfg(void)
          */
         CFG.newuser_access.level = 20;
         CFG.iCapUserName = TRUE;
-        CFG.iAnsi = TRUE;
         CFG.iDataPhone = TRUE;
         CFG.iVoicePhone = TRUE;
         CFG.iDOB = TRUE;
