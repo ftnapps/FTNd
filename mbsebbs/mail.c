@@ -1567,7 +1567,10 @@ void Reply_Msg(int IsReply)
     Enter(1);
 
     colour(CFG.HiliteF, CFG.HiliteB);
-    sLine();
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+    PUTSTR(chartran(sLine_str()));
+    chartran_close();
 
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)
 	Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));

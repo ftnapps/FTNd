@@ -697,7 +697,10 @@ void Reply_Email(int IsReply)
     Enter(1);
 
     colour(CFG.HiliteF, CFG.HiliteB);
-    sLine();
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+    PUTSTR(chartran(sLine_str()));
+    chartran_close();
     Enter(1);
 
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)

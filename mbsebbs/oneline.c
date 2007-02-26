@@ -268,7 +268,10 @@ void Oneliner_List()
     }
     Enter(1);
     colour(GREEN, BLACK);
-    sLine();
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+    PUTSTR(chartran(sLine_str()));
+    chartran_close();
 
     while (fread(&ol, olhdr.recsize, 1, pOneline) == 1) {
 	if ((SYSOP == TRUE) || (exitinfo.Security.level >= CFG.sysop_access)) {
