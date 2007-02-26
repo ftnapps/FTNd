@@ -22,6 +22,9 @@ v0.91.5		18-Feb-2007
 		terminal, so change your logo screen so that it has no ansi
 		grafics, just plain ascii with ansi color codes.
 
+	mbselib:
+		Fixed a too low memory allocation in clencode.
+
 	mbsebbs:
 		Added terminal setting UTF-8.
 		Removed setting ANSI/Textmode, allways graphic now.
@@ -41,6 +44,9 @@ v0.91.5		18-Feb-2007
 	mbnntp:
 		Reading news outputs UTF-8 coded articles.
 		TODO: test posting and fix if needed.
+
+	mbtask:
+		Fixed a too low memory allocation in clencode.
 
 	lang:
 		Language prompts 44, 75 and 76 are obsolete.
