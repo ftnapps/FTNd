@@ -383,7 +383,7 @@ void chartran_close(void)
  */
 char *chartran(char *input)
 {
-    static char	outbuf[1024];
+    static char	outbuf[4096];
     static char	temp[4096];
     size_t	rc, inSize, outSize;
     char	*in, *out;

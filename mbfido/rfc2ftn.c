@@ -126,7 +126,7 @@ int kludgewrite(char *s, FILE *fp)
 int rfc2ftn(FILE *fp, faddr *recipient)
 {
     char            sbe[128], *p, *q, *temp, *origin, newsubj[4 * (MAXSUBJ+1)], *oldsubj, *acup_a = NULL, *charset = NULL;
-    int             i, rc, newsmode, seenlen, oldnet;
+    int             i, rc, newsmode, seenlen, oldnet, chars_in = FTNC_NONE, chars_out = FTNC_NONE;
     rfcmsg          *msg = NULL, *tmsg, *tmp;
     ftnmsg          *fmsg = NULL;
     FILE            *ofp;
@@ -248,6 +248,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	charset = xstrcpy((char *)"iso-8859-1");
 	Syslog('m', "No charset, setting default to iso-8859-1");
     }
+    chars_in = find_rfc_charset(charset);
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
@@ -331,12 +332,13 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (fmsg->to)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
 
-    Syslog('m', "rfc2ftn: charset in: %s charset out: %s", charset,getrfcchrs(msgs.Charset));
+    chars_out = msgs.Charset;
+    Syslog('m', "rfc2ftn: charset in: %s charset out: %s", get_ic_rfc(chars_in), get_ic_ftn(chars_out));
     
     /*
      * Setup charset conversion
      */
-    chartran_init(charset,getrfcchrs(msgs.Charset), 'm');
+    chartran_init(get_ic_rfc(chars_in), get_ic_ftn(chars_out), 'm');
 
     do {
 	Syslog('m', "rfc2ftn: split loop, splitpart = %d", splitpart);

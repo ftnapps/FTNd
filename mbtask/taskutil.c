@@ -625,7 +625,7 @@ char *clencode(char *s)
     if (s == NULL)
 	return NULL;
 			                                    
-    if ((buf = malloc(2 * strlen(s) + 1 * sizeof(char))) == NULL) {
+    if ((buf = malloc(3 * strlen(s) + 1 * sizeof(char))) == NULL) {
 	Syslog('+', "clencode: out of memory:string too long:\"%s\"", s);
 	return s;
     }

@@ -24,7 +24,7 @@ int tracing = TRUE;		      /* Trace macro evalution */
 /*  Local variables.  */
 
 #define MAXARGS     10		      /* Maximum arguments to a macro */
-#define MAXSTR	    4096 	      /* Maximum string length */ /* Was 2560 */
+#define MAXSTR	    19200 	      /* Maximum string length */ /* Was 2560 */ /* Size full UTF-8 code filesdesc */
 #define MAXDEPTH    32		      /* Maximum recursion depth for eval */
 
 #define MACROCHAR   '@' 	      /* Macro trigger character */

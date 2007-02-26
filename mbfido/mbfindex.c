@@ -520,7 +520,7 @@ void HtmlIndex(char *Lang)
     int			AreaNr = 0, j, k, x = 0, isthumb;
     int			aTotal = 0, inArea = 0, filenr;
     char		*sAreas, *fn, *temp;
-    char		linebuf[1024], outbuf[1024], desc[6400], namebuf[1024];
+    char		linebuf[1024], outbuf[1024], desc[19200], namebuf[1024];
     time_t		last = 0L, later, db_time, obj_time;
     int			fileptr = 0, fileptr1 = 0;
     struct _fdbarea	*fdb_area = NULL;
@@ -707,9 +707,8 @@ void HtmlIndex(char *Lang)
 					k += 1;
 				    }
 				    html_massage(fdb.Desc[j], linebuf, 1024);
-//				    strncpy(linebuf, fdb.Desc[j], 1024);
 				    strncpy(outbuf, chartran(linebuf), 1024);
-				    strncat(desc, outbuf, 6400 -k);
+				    strncat(desc, outbuf, 19200 -k);
 				    k += strlen(outbuf);
 				}
 			    MacroVars("m", "s", desc);
