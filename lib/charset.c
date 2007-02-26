@@ -105,7 +105,7 @@ int find_ftn_charset(char *ftnkludge)
     int         j;
     char        *ftn, *cmp;
 
-    Syslog(loglevel, "find_ftn_charset(%s)", ftnkludge);
+    Syslog('-', "find_ftn_charset(%s)", ftnkludge);
 
     ftn = calloc(80, sizeof(char));
     cmp = calloc(80, sizeof(char));
@@ -124,7 +124,7 @@ int find_ftn_charset(char *ftnkludge)
     }
 
     if (charalias[i].alias != NULL) {
-	Syslog(loglevel, "found alias %s", charalias[i].ftnkludge);
+	Syslog('-', "found alias %s", charalias[i].ftnkludge);
 	snprintf(ftn, 80, "%s", charalias[i].ftnkludge);
     }
 
@@ -152,7 +152,7 @@ int find_ftn_charset(char *ftnkludge)
 	return FTNC_ERROR;
     }
 
-    Syslog(loglevel, "find_ftn_charset(%s) result %d", ftnkludge, i);
+    Syslog('-', "find_ftn_charset(%s) result %d", ftnkludge, i);
     return i;
 }
 
@@ -165,7 +165,7 @@ int find_rfc_charset(char *rfcname)
 {
     static int  i;
     
-    Syslog(loglevel, "find_rfc_charset(%s)", rfcname);
+    Syslog('-', "find_rfc_charset(%s)", rfcname);
     
     for (i = 0; charmap[i].rfcname; i++) {
 	if (strcasecmp(rfcname, charmap[i].rfcname) == 0)
@@ -177,7 +177,7 @@ int find_rfc_charset(char *rfcname)
 	return FTNC_ERROR;
     }
     
-    Syslog(loglevel, "find_rfc_charset(%s) result %d", rfcname, i);
+    Syslog('-', "find_rfc_charset(%s) result %d", rfcname, i);
     return i;
 }
 
@@ -185,19 +185,13 @@ int find_rfc_charset(char *rfcname)
 
 char *getftnchrs(int val)
 {
-    int		i;
     static char	kludge[20];
 
-    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
-	if (val == charmap[i].ftncidx) {
-	    snprintf(kludge, 20, "%s", charmap[i].ftnkludge);
-	    return kludge;
-	}
+    if ((val >= FTNC_NONE) && (val <= FTNC_MAXCHARS)) {
+	snprintf(kludge, 20, "%s", charmap[val].ftnkludge);
+	return kludge;
     }
 
-    /*
-     * Not found, return a default.
-     */
     return (char *)"LATIN-1 2";
 }
 
@@ -205,19 +199,13 @@ char *getftnchrs(int val)
 
 char *getrfcchrs(int val)
 {
-    int		i;
     static char	rfcname[20];
 
-    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
-	if (val == charmap[i].ftncidx) {
-	    snprintf(rfcname, 20, "%s", charmap[i].rfcname);
-	    return rfcname;
-	}
+    if ((val >= FTNC_NONE) && (val <= FTNC_MAXCHARS)) {
+	snprintf(rfcname, 20, "%s", charmap[val].rfcname);
+	return rfcname;
     }
 
-    /*
-     * Not found, return a default
-     */
     return (char *)"iso-8859-1";
 }
 
@@ -225,19 +213,13 @@ char *getrfcchrs(int val)
 
 char *get_ic_ftn(int val)
 {
-    int         i;
     static char ic_ftnname[20];
     
-    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
-	if (val == charmap[i].ftncidx) {
-	    snprintf(ic_ftnname, 20, "%s", charmap[i].ic_ftn);
-	    return ic_ftnname;
-	}
+    if ((val >= FTNC_NONE) && (val <= FTNC_MAXCHARS)) {
+	snprintf(ic_ftnname, 20, "%s", charmap[val].ic_ftn);
+	return ic_ftnname;
     }
     
-    /*
-     * Not found, return a default
-     */
     return (char *)"LATIN1";
 }
 
@@ -245,14 +227,11 @@ char *get_ic_ftn(int val)
 
 char *get_ic_rfc(int val)
 {
-    int         i;
     static char ic_rfcname[20];
     
-    for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
-	if (val == charmap[i].ftncidx) {
-	    snprintf(ic_rfcname, 20, "%s", charmap[i].ic_rfc);
-	    return ic_rfcname;
-	}
+    if ((val >= FTNC_NONE) && (val <= FTNC_MAXCHARS)) {
+	snprintf(ic_rfcname, 20, "%s", charmap[val].ic_rfc);
+	return ic_rfcname;
     }
     
     /*

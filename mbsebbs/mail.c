@@ -1247,6 +1247,9 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
     }
     free(fn);
 
+    if (charset == NULL)
+	Syslog('b', "charset is still NULL");
+
     if ((charset == NULL) && (msgs.Charset != FTNC_NONE)) {
 	/*
 	 * No charset marked in the message, use the area charset
