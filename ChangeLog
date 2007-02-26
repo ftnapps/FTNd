@@ -16,6 +16,11 @@ v0.91.5		18-Feb-2007
 		Run "mbfile index -f " once to regenerate all download html
 		index pages with UTF-8 encoding. Check the error.log for
 		errors.
+		In mbsetup menu 1.3.7 change logo.asc into logo.ans and make
+		sure you have that file. A note about the logo file, it will
+		be displayed before we know if a user ahs a utf-8 or ansi
+		terminal, so change your logo screen so that it has no ansi
+		grafics, just plain ascii with ansi color codes.
 
 	mbsebbs:
 		Added terminal setting UTF-8.

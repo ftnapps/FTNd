@@ -160,7 +160,7 @@ void load_maincfg(void)
         snprintf(CFG.default_menu, 15, "main.mnu");
         snprintf(CFG.deflang, 10, "en");
         snprintf(CFG.chat_log, 15, "chat.log");
-        snprintf(CFG.welcome_logo, 15, "logo.asc");
+        snprintf(CFG.welcome_logo, 15, "logo.ans");
 	snprintf(CFG.mgrlog, 15, "manager.log");
 	snprintf(CFG.debuglog, 15, "debug.log");
 
