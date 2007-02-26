@@ -964,7 +964,7 @@ void ShowMsgHdr(void)
     else
         color = GREEN;
     colour(color++, BLACK);
-    PUTSTR(Msg.From);
+    PUTSTR(chartran(Msg.From));
     if (iMsgAreaType != LOCALMAIL) {
 	snprintf(msg, 81, " (%s)", Msg.FromAddress);
 	pout(color, BLACK, msg);
@@ -978,7 +978,7 @@ void ShowMsgHdr(void)
     else
         color = GREEN;
     colour(color++, BLACK);
-    PUTSTR(Msg.To);
+    PUTSTR(chartran(Msg.To));
     if (iMsgAreaType == NETMAIL) {
 	snprintf(msg, 81, " (%s)", Msg.ToAddress);
 	pout(color, BLACK, msg);
@@ -1247,9 +1247,6 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
     }
     free(fn);
 
-    if (charset == NULL)
-	Syslog('b', "charset is still NULL");
-
     if ((charset == NULL) && (msgs.Charset != FTNC_NONE)) {
 	/*
 	 * No charset marked in the message, use the area charset
@@ -1259,7 +1256,6 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 	charsin = xstrcpy(get_ic_ftn(find_ftn_charset(charset)));
     }
 
-    Syslog('b', "charsets: %s -> %s", charsin, get_ic_ftn(exitinfo.Charset));
     /*
      * Try to setup charset mapping if the charactersets are different.
      */
