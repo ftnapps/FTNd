@@ -164,7 +164,6 @@ int find_ftn_charset(char *ftnkludge)
 int find_rfc_charset(char *rfcname)
 {
     static int  i;
-    int         j;
     
     Syslog(loglevel, "find_rfc_charset(%s)", rfcname);
     

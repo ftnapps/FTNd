@@ -2600,7 +2600,7 @@ int  create_tmpwork(void);	    /* Create tmp workdir		*/
  *  Charset mapping
  */
 int	find_ftn_charset(char *);	/* Return FTN charset index	    */
-int	fine_rfc_charset(char *);	/* Return RFC charset index	    */
+int	find_rfc_charset(char *);	/* Return RFC charset index	    */
 char    *getftnchrs(int);               /* Return FTN characterset name     */
 char	*getrfcchrs(int);		/* Return RFC characterset name	    */
 char	*getlocale(int);		/* Return locale name		    */
