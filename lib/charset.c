@@ -77,7 +77,7 @@ struct _charalias charalias[] = {
 struct _charmap charmap[] = {
     {FTNC_NONE,   (char *)"Undef",    (char *)"iso-8859-1", (char *)"Undef",    (char *)"ISO-8859-1", (char *)"C",           (char *)"Undefined"},
     {FTNC_LATIN_1,(char *)"LATIN-1 2",(char *)"iso-8859-1", (char *)"LATIN1",   (char *)"ISO-8859-1", (char *)"en_US",       (char *)"ISO 8859-1 (Western European)"},
-    {FTNC_CP437,  (char *)"CP437 2",  (char *)"iso-8859-1", (char *)"CP437",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 437 (Western European) (ANSI terminal)"},
+    {FTNC_CP437,  (char *)"CP437 2",  (char *)"us-ascii",   (char *)"CP437",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 437 (Western European) (ANSI terminal)"},
     {FTNC_CP865,  (char *)"CP865 2",  (char *)"iso-8859-1", (char *)"CP865",    (char *)"ISO-8859-1", (char *)"sv_SE",       (char *)"IBM codepage 865 (Nordic)"},
     {FTNC_MAC,    (char *)"MAC",      (char *)"Macintosh",  (char *)"MACINTOSH",(char *)"ISO-8859-1", (char *)"en_US",       (char *)"MacIntosh character set"},
     {FTNC_CP850,  (char *)"CP850 2",  (char *)"iso-8859-1", (char *)"CP850",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 850 (Latin-1)"},
@@ -153,6 +153,32 @@ int find_ftn_charset(char *ftnkludge)
     }
 
     Syslog(loglevel, "find_ftn_charset(%s) result %d", ftnkludge, i);
+    return i;
+}
+
+
+
+/*
+ * Returns index of charset or -1 if not found.
+ */
+int find_rfc_charset(char *rfcname)
+{
+    static int  i;
+    int         j;
+    
+    Syslog(loglevel, "find_rfc_charset(%s)", rfcname);
+    
+    for (i = 0; charmap[i].rfcname; i++) {
+	if (strcasecmp(rfcname, charmap[i].rfcname) == 0)
+	    break;
+    }
+    
+    if (charmap[i].rfcname == NULL) {
+	WriteError("find_rfc_charset(%s) not found", rfcname);
+	return FTNC_ERROR;
+    }
+    
+    Syslog(loglevel, "find_rfc_charset(%s) result %d", rfcname, i);
     return i;
 }
 
