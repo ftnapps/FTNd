@@ -245,8 +245,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     }
 
     if (charset == NULL) {
-	charset = xstrcpy((char *)"iso-8859-1");
-	Syslog('m', "No charset, setting default to iso-8859-1");
+	charset = xstrcpy((char *)"ISO-8859-1");
+	Syslog('m', "No charset, setting default to ISO-8859-1");
     }
     chars_in = find_rfc_charset(charset);
 
@@ -333,6 +333,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
 
     chars_out = msgs.Charset;
+    Syslog('m', "rfc2ftn: chars_in=%d chars_out=%d", chars_in, chars_out);
     Syslog('m', "rfc2ftn: charset in: %s charset out: %s", get_ic_rfc(chars_in), get_ic_ftn(chars_out));
     
     /*

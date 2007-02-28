@@ -273,10 +273,11 @@ int rfc2ftn(FILE *fp)
     }
 
     if (charset == NULL) {
-	charset = xstrcpy((char *)"iso-8859-1");
+	charset = xstrcpy((char *)"ISO-8859-1");
 	Syslog('m', "No charset, setting default to iso-8859-1");
     }
-    chartran_init(charset,getrfcchrs(msgs.Charset), 'm');
+
+    chartran_init(charset, get_ic_ftn(msgs.Charset), 'm');
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
