@@ -63,11 +63,8 @@ void send_xlat(char *inp)
 {
     char    	temp[1024];
 
-    memset(&temp, 0, sizeof(temp));
-    strncat(temp, chartran(inp), sizeof(temp) -1);
+    strncpy(temp, chartran(inp), sizeof(temp) -1);
     
-    if (strcmp(inp, temp))
-    	Syslog('n', "i \"%s\"", printable(inp, 0));
     Syslog('n', "> \"%s\"", printable(temp, 0));
     PUTSTR(temp);
 
@@ -190,8 +187,6 @@ void command_abhs(char *buf)
 	     */
 	    charset = xstrcpy((char *)"CP437");
 	}
-
-	Syslog('n', "2 charset=\"%s\"", printable(charset, 0));
 	charindex = find_ftn_charset(charset);
 
 	if (charindex != FTNC_ERROR) {
