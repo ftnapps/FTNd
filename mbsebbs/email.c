@@ -142,17 +142,20 @@ void ShowEmailHdr(void)
 
     /* From    : */
     pout(YELLOW, BLACK, (char *) Language(209));
-    pout(LIGHTGREEN, BLACK, Msg.From);
+    colour(LIGHTGREEN, BLACK);
+    PUTSTR(chartran(Msg.From));
     Enter(1);
 
     /* To      : */
     pout(YELLOW, BLACK, (char *) Language(208));
-    pout(LIGHTGREEN, BLACK, Msg.To);
+    colour(LIGHTGREEN, BLACK);
+    PUTSTR(chartran(Msg.To));
     Enter(1);
 
     /* Subject : */
     pout(YELLOW, BLACK, (char *) Language(210));
-    pout(LIGHTGREEN, BLACK, Msg.Subject);
+    colour(LIGHTGREEN, BLACK);
+    PUTSTR(chartran(Msg.Subject));
     Enter(1);
     
     if (Msg.Reply)
@@ -376,7 +379,7 @@ int Save_Email(int IsReply)
 
 int Read_a_Email(unsigned int Num)
 {
-    char        *p = NULL, *fn;
+    char        *p = NULL, *fn, *charset = NULL, *charsin = NULL;
     lastread    LR;
 
     LastNum = Num;
@@ -408,7 +411,6 @@ int Read_a_Email(unsigned int Num)
 	sleep(3);
 	return FALSE;
     }
-    ShowEmailHdr();
 
     /*
      * Fill Quote file in case the user wants to reply. Note that line
@@ -422,6 +424,12 @@ int Read_a_Email(unsigned int Num)
 	    if ((p = (char *)MsgText_First()) != NULL)
 		do {
 		    if (p[0] == '\001') {
+			/*
+			 * Check CHRS kludge
+			 */
+			if (strncmp(p, "\001CHRS: ", 7) == 0) {
+			    charset = xstrcpy(p + 7);
+			}
 			/*
 			 * While doing this, store the original Message-id in case
 			 * a reply will be made.
@@ -444,6 +452,19 @@ int Read_a_Email(unsigned int Num)
     }
     free(fn);
 
+    if (charset == NULL) {
+	charsin = xstrcpy((char *)"CP437");
+    } else {
+    	charsin = xstrcpy(get_ic_ftn(find_ftn_charset(charset)));
+    }}
+
+    /*
+     * Setup character translation
+     */
+    chartran_init(charsin, get_ic_ftn(exitinfo.Charset), 'b');
+
+    ShowEmailHdr();
+
     /*
      * Show message text
      */
@@ -453,7 +474,10 @@ int Read_a_Email(unsigned int Num)
 	    do {
 		if (p[0] == '\001') {
 		    if (Kludges) {
-			pout(LIGHTGRAY, BLACK, p);
+			colour(LIGHTGRAY, BLACK);
+			if (p[0] == '\001')
+			    p[0] = 'a';
+			PUTSTR(chartran(p));
 			Enter(1);
 			if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE))
 			    break;
@@ -463,7 +487,7 @@ int Read_a_Email(unsigned int Num)
 		    if (strchr(p, '>') != NULL)
 			if ((strlen(p) - strlen(strchr(p, '>'))) < 10)
 			    colour(CFG.HiliteF, CFG.HiliteB);
-		    PUTSTR(p);
+		    PUTSTR(chartran(p));
 		    Enter(1);
 		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE))
 			break;
@@ -471,6 +495,12 @@ int Read_a_Email(unsigned int Num)
 	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
     }
+
+    if (charset)
+    	free(charset);
+    if (charsin)
+    	free(charsin);
+    chartran_close();
 
     /*
      * Set the Received status on this message.
