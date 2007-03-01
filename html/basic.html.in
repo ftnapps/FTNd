@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 09-Seo-2005</h5></div>
+<div align="right"><h5>Last update 01-Mar-2007</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -40,62 +40,62 @@ some features. Here is a short list of these packages:
 MBSE BBS is default installed in <b>/opt/mbse</b>. The default filesystem
 layout looks like this:<br>
 <pre>
-/opt/mbse                      0775  Default MBSE_ROOT
-/opt/mbse/bin                  0770  Binaries
-/opt/mbse/chinese/macro        0750  Chinese macro files
-/opt/mbse/chinese/menus        0750  Chinese menu files
-/opt/mbse/chinese/txtfiles     0770  Chinese ANSI files
-/opt/mbse/dutch/macro          0750  Dutch macro files
-/opt/mbse/dutch/menus          0750  Dutch menu files
-/opt/mbse/dutch/txtfiles       0770  Dutch ANSI files
-/opt/mbse/english/macro        0750  Default english macro files
-/opt/mbse/english/menus        0750  Default english menu files
-/opt/mbse/english/txtfiles     0770  Default english ANSI files
-/opt/mbse/etc                  0770  System configuration files
-/opt/mbse/etc/dosemu           0750  DOSemu configuration files
-/opt/mbse/ftp/pub              0755  Default FTP root for download areas.
-/opt/mbse/galego/macro         0750  Galego macro files
-/opt/mbse/galego/menus         0750  Galego menu files
-/opt/mbse/galego/txtfiles      0770  Galego ANSI files
-/opt/mbse/home                 0770  Users homedirectories
-/opt/mbse/home/bbs             0770  Newuser account
-/opt/mbse/html                 0755  HTML documentation
-/opt/mbse/log                  0770  MBSE BBS logfiles
-/opt/mbse/share/doc            0750  Generated sitedocs
-/opt/mbse/share/doc/html       0750  Generated html sitedocs
-/opt/mbse/share/doc/tags       0750  Generated area tags
-/opt/mbse/share/int            0750  Base for language files
-/opt/mbse/share/int/de         0750  German
-/opt/mbse/share/int/en         0750  English
-/opt/mbse/share/int/es         0750  Spanish
-/opt/mbse/share/int/fr         0750  French
-/opt/mbse/share/int/gl         0750  Galacian
-/opt/mbse/share/int/nl         0750  Dutch
-/opt/mbse/spanish/macro        0750  Spanish macro files
-/opt/mbse/spanish/menus        0750  Spanish menu files
-/opt/mbse/spanish/txtfiles     0770  Spanish ANSI files
-/opt/mbse/tmp                  0770  Temp directory
-/opt/mbse/tmp/arc              0770  Temp archiver directory
-/opt/mbse/var                  0770  Var root
-/opt/mbse/var/arealists        0750  Areamgr arealist files
-/opt/mbse/var/badtic           0750  Bad TIC files
-/opt/mbse/var/boxes            0770  Base for nodes fileboxes
-/opt/mbse/var/bso              0770  Binkley Style Outbound directory
-/opt/mbse/var/bso/outbound     0770  Default outbound for main aka
-/opt/mbse/var/dosemu           0770  Base for DOS drives (doors)
-/opt/mbse/var/dosemu/c         0770  DOS drive C:
-/opt/mbse/var/fdb              0770  Files database
-/opt/mbse/var/inbound          0750  Protected inbound directory
-/opt/mbse/var/magic            0750  Magic filerequest names
-/opt/mbse/var/mail             0770  JAM messagebase root
-/opt/mbse/var/msgs             0770  *.msgs netmail directory
-/opt/mbse/var/nodelist         0750  Nodelists
-/opt/mbse/var/queue            0750  Queue for before outbound
-/opt/mbse/var/rules            0770  Echomail area rules files
-/opt/mbse/var/run              0770  Pid files of running programs
-/opt/mbse/var/sema             0777  Semafore files
-/opt/mbse/var/ticqueue         0750  Queue for TIC files
-/opt/mbse/var/unknown          0750  Unprotected inbound directory
+/opt/mbse                       0775  Default MBSE_ROOT
+/opt/mbse/bin                   0770  Binaries
+/opt/mbse/etc                   0770  System configuration files
+/opt/mbse/etc/dosemu            0750  DOSemu configuration files
+/opt/mbse/ftp/pub               0755  Default FTP root for download areas.
+/opt/mbse/home                  0770  Users homedirectories
+/opt/mbse/home/bbs              0770  Newuser account
+/opt/mbse/html                  0755  HTML documentation
+/opt/mbse/log                   0770  MBSE BBS logfiles
+/opt/mbse/share/doc             0750  Generated sitedocs
+/opt/mbse/share/doc/html        0750  Generated html sitedocs
+/opt/mbse/share/doc/tags        0750  Generated area tags
+/opt/mbse/share/int             0750  Base for language files
+/opt/mbse/share/int/macro/de    0750  German template macro's
+/opt/mbse/share/int/macro/en    0750  English template macro's
+/opt/mbse/share/int/macro/es    0750  Spanish template macro's
+/opt/mbse/share/int/macro/fr    0750  French template macro's
+/opt/mbse/share/int/macro/gl    0750  Galego template macro's
+/opt/mbse/share/int/macro/nl    0750  Dutch template macro's
+/opt/mbse/share/int/macro/zh    0750  Chinese template macro's
+/opt/mbse/share/int/menus/de    0750  German menu files
+/opt/mbse/share/int/menus/en    0750  English menu files
+/opt/mbse/share/int/menus/es    0750  Spanish menu files
+/opt/mbse/share/int/menus/fr    0750  French menu files
+/opt/mbse/share/int/menus/gl    0750  Galego menu files
+/opt/mbse/share/int/menus/nl    0750  Dutch menu files
+/opt/mbse/share/int/menus/zh    0750  Chinese menu files
+/opt/mbse/share/int/txtfiles/de 0750  German ansi screens
+/opt/mbse/share/int/txtfiles/en 0750  English ansi screens
+/opt/mbse/share/int/txtfiles/es 0750  Spanish ansi screens
+/opt/mbse/share/int/txtfiles/fr 0750  French ansi screens
+/opt/mbse/share/int/txtfiles/gl 0750  Galego ansi screens
+/opt/mbse/share/int/txtfiles/nl 0750  Dutch ansi screens
+/opt/mbse/share/int/txtfiles/zh 0750  Chinese ansi screens
+/opt/mbse/tmp                   0770  Temp directory
+/opt/mbse/tmp/arc               0770  Temp archiver directory
+/opt/mbse/var                   0770  Var root
+/opt/mbse/var/arealists         0750  Areamgr arealist files
+/opt/mbse/var/badtic            0750  Bad TIC files
+/opt/mbse/var/boxes             0770  Base for nodes fileboxes
+/opt/mbse/var/bso               0770  Binkley Style Outbound directory
+/opt/mbse/var/bso/outbound      0770  Default outbound for main aka
+/opt/mbse/var/dosemu            0770  Base for DOS drives (doors)
+/opt/mbse/var/dosemu/c          0770  DOS drive C:
+/opt/mbse/var/fdb               0770  Files database
+/opt/mbse/var/inbound           0750  Protected inbound directory
+/opt/mbse/var/magic             0750  Magic filerequest names
+/opt/mbse/var/mail              0770  JAM messagebase root
+/opt/mbse/var/msgs              0770  *.msgs netmail directory
+/opt/mbse/var/nodelist          0750  Nodelists
+/opt/mbse/var/queue             0750  Queue for before outbound
+/opt/mbse/var/rules             0770  Echomail area rules files
+/opt/mbse/var/run               0770  Pid files of running programs
+/opt/mbse/var/sema              0777  Semafore files
+/opt/mbse/var/ticqueue          0750  Queue for TIC files
+/opt/mbse/var/unknown           0750  Unprotected inbound directory
 </pre>
 <p>
 Don't use UMSDOS or SAMBA filesystems for the bbs, stick by the standard

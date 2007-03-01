@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 21-Jan-2002</h5></div>
+<div align='right'><h5>Last update 01-Mar-2007</h5></div>
 <div align='center'><H1>Running a BBS under Unix.</H1></div>
 
 <h3>Introduction</H3>
@@ -35,7 +35,9 @@ and to "signal" what to do next with semafore files.
 <P>
 The Unix aproach is more or less the same, but there are more differences.
 The main difference is that there is no mailer connected with the modem waiting
-for a call, instead there is a getty process watching your modem(s). Another
+for a call, instead there is a getty process watching your modem(s). And for
+internet calls, these are started via (x)inetd using standard *nix methods.
+Another
 big difference is that you don't see what's happening, there is no screen
 with the mailer or bbs picture on it. All programs run in the background. If
 you don't like that, stop now and go back to your old DOS bbs. It's just the
@@ -62,6 +64,10 @@ machine trying to deliver a fax and finally a mailer trying to establish
 an EMSI, FSC-0006 or FSC-0001 session. The mgetty program is responsible for
 starting the right client programs. How to do this is explained in the 
 installation manuals, but be sure to compile it with Fido and PPP support.
+<P>
+For internet calls, via (x)inetd mbsebbs can accept calls from connections on
+ports. For example if a connection comes in on port 24554 the mailer is started
+in binkp mode.
 <P>&nbsp;<P>
 
 <H3>A Human is calling.</H3>
@@ -163,7 +169,9 @@ performance use SCSI disks. I noticed that old 5"FH SCSI disks perform better
 for bbs usage then modern EIDE disks. This is probably caused by the fact that
 the kernel needs more time for the cheap IDE bus.
 If you want to use X11 on your bbs, you need more ram and a faster CPU or a 
-separate machine via a lan and export the display to that machine.
+separate machine via a lan and export the display to that machine. Currently the
+smallest amount of memory you need is 36 MB, and that amount is only needed if
+you use a virus scanner which needs more memory then mbse.
 <P>
 
 <A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>

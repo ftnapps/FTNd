@@ -16,7 +16,7 @@
 <BLOCKQUOTE>
 <center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
 <div align=center><h1>MBSE BBS System Guide @VERSION@</h1></div>
-<div align=right><h5>Last update 20-Jun-2005</h5></div>
+<div align=right><h5>Last update 01-Mar-2007</h5></div>
 
 
 <h3><a NAME="top"></a>Introduction</h3>
@@ -59,7 +59,6 @@
     <li><A HREF="menus/index.htm">Edit BBS menus</a>
     <li><A HREF="setup/files.html">Edit File areas</a>
     <li><A HREF="setup/protocol.html">Edit Transfer protocols</a>
-    <li><A HREF="setup/bbslist.html">Edit BBS List data</a>
     <li><A HREF="setup/oneliner.html">Edit Oneliners</a>
    </ol>
    <li><A HREF="setup/mail.html">Edit Mail setup</A>

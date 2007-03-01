@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 22-Aug-2005</h5></div>
+<div align='right'><h5>Last update 01-Mar-2007</h5></div>
 <div align='center'><H1>MBSE BBS - Known bugs.</H1></div>
 
 There are always more bugs, but these are known....
@@ -31,11 +31,12 @@ and these passwords must be the same. This is a side effect of the way FTS-0001
 handshake works, by sending a small mail packet wich contains the password.
 
 <LI>Some Linux distributions have their glibc libraries compiled wrong, that
-will cause the <b>mbtask</b> program to do nothing usefull.
+will cause the <b>mbtask</b> program to do nothing usefull. This problem seems
+to have gone away.
 
 <LI>You cannot share the JAM message bases between little-endian and big-endian
 machines using networked filesystems because the storage format doesn't specify 
-the internal byte order for different CPU's.
+the internal byte order for different CPU's. This is an error in the JAM spec.
 </UL>
 
 <A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
