@@ -128,7 +128,7 @@ whoson.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h lang
 door.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h language.h input.h timeout.h exitinfo.h whoson.h door.h term.h ttyio.h openport.h
 dispfile.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h funcs.h language.h oneline.h misc.h timeout.h timecheck.h exitinfo.h mail.h email.h input.h dispfile.h filesub.h term.h ttyio.h
 userlist.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h userlist.h language.h input.h timeout.h term.h ttyio.h
-timestats.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timestats.h funcs.h language.h input.h exitinfo.h term.h
+timestats.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timestats.h funcs.h language.h input.h exitinfo.h term.h ttyio.h
 logentry.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h logentry.h
 ymsend.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ttyio.h zmmisc.h transfer.h openport.h timeout.h term.h ymsend.h
 ymrecv.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ttyio.h timeout.h transfer.h zmmisc.h zmrecv.h ymsend.h ymrecv.h

@@ -4,7 +4,7 @@
  * Purpose ...............: Time Statistics
  *
  *****************************************************************************
- * Copyright (C) 1997-2005 
+ * Copyright (C) 1997-2007 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -38,6 +38,7 @@
 #include "input.h"
 #include "exitinfo.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 void TimeStats()
@@ -61,7 +62,10 @@ void TimeStats()
     poutCR(WHITE, BLACK, msg);
 
     colour(LIGHTRED, BLACK);
-    fLine(79);
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+    PUTSTR(chartran(fLine_str(75)));
+    chartran_close();
 
     Enter(1);
 	
