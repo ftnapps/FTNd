@@ -182,16 +182,13 @@ void command_abhs(char *buf)
 		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
-	Syslog('n', "1 charset=\"%s\"", printable(charset, 0));
 
 	if (charset == NULL) {
-	    if (msgs.Charset != FTNC_NONE) {
-		charset = xstrcpy(getftnchrs(msgs.Charset));
-	    } else if (usercharset != FTNC_NONE) {
-		charset = xstrcpy(getftnchrs(msgs.Charset));
-	    } else {
-		charset = xstrcpy((char *)"CP437");
-	    }
+	    /*
+	     * Missing CHRS kludge, must be an ancient DOS program that
+	     * created this message.
+	     */
+	    charset = xstrcpy((char *)"CP437");
 	}
 
 	Syslog('n', "2 charset=\"%s\"", printable(charset, 0));
@@ -204,7 +201,7 @@ void command_abhs(char *buf)
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {
 
 	    send_nntp("Path: MBNNTP!not-for-mail");
-	    send_nntp("From: %s <%s>", Msg.From, Msg.FromAddress);
+	    send_nntp("From: %s <%s>", chartran(Msg.From), Msg.FromAddress);
 	    send_nntp("Newsgroups: %s", currentgroup);
 	    asprintf(&subj,"Subject: %s", Msg.Subject);
 	    send_xlat(subj);
@@ -216,10 +213,6 @@ void command_abhs(char *buf)
 
 	    /*
 	     * Send RFC 2045 Multipurpose Internet Mail Extensions (MIME) header.
-	     * Order is: 1. Charset defined in the FTN message
-	     *           2. Charset of the message area
-	     *           3. Charset of the user
-	     *           4. Default us-ascii.
 	     */
 	    send_nntp("MIME-Version: 1.0");
 	    send_nntp("Content-Type: text/plain; charset=utf-8");
