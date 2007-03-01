@@ -987,7 +987,8 @@ void ShowMsgHdr(void)
 
     /* Subject : */
     pout(YELLOW, BLACK, (char *) Language(210));
-    pout(GREEN, BLACK, chartran(Msg.Subject));
+    colour(GREEN, BLACK);
+    PUTSTR(chartran(Msg.Subject));
     Enter(1);
 
     colour(CFG.HiliteF, CFG.HiliteB);
@@ -1159,7 +1160,7 @@ int Export_a_Msg(unsigned int Num)
  */
 int Read_a_Msg(unsigned int Num, int UpdateLR)
 {
-    char	*p = NULL, *fn, *charset = NULL, *charsin = NULL, temp[256];
+    char	*p = NULL, *fn, *charset = NULL, *charsin = NULL;
     int		ShowMsg = TRUE;
     lastread	LR;
 
@@ -1247,11 +1248,13 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
     }
     free(fn);
 
-    if ((charset == NULL) && (msgs.Charset != FTNC_NONE)) {
+    if (charset == NULL) {
 	/*
-	 * No charset marked in the message, use the area charset
+	 * No charset marked in the message, we are going to asume
+	 * that an ancient dos program is used with IBMPC characters.
+	 * This means CP437.
 	 */
-	charsin = xstrcpy(get_ic_ftn(msgs.Charset));
+	charsin = xstrcpy((char *)"CP437");
     } else {
 	charsin = xstrcpy(get_ic_ftn(find_ftn_charset(charset)));
     }
@@ -1275,7 +1278,10 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 	    do {
 		if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
 		    if (Kludges) {
-			pout(LIGHTGRAY, BLACK, p);
+			colour(LIGHTGRAY, BLACK);
+			if (p[0] == '\001')
+			    p[0]= 'a';		// Make it printable
+			PUTSTR(chartran(p));
 			Enter(1);
 			if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
 			    break;
@@ -1285,10 +1291,8 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
 		    if (strchr(p, '>') != NULL)
 			if ((strlen(p) - strlen(strchr(p, '>'))) < 10)
 			    colour(CFG.HiliteF, CFG.HiliteB);
-		    strncpy(temp, chartran(p), sizeof(temp) -1);
-		    PUTSTR(temp);
+		    PUTSTR(chartran(p));
 		    Enter(1);
-
 		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
 			break;
 		}
