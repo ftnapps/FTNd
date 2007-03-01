@@ -456,7 +456,7 @@ int Read_a_Email(unsigned int Num)
 	charsin = xstrcpy((char *)"CP437");
     } else {
     	charsin = xstrcpy(get_ic_ftn(find_ftn_charset(charset)));
-    }}
+    }
 
     /*
      * Setup character translation
