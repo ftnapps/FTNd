@@ -4,7 +4,7 @@
  * Purpose ...............: Message Areas Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -804,8 +804,8 @@ void MsgGlobal(void)
 	    case 11:E_STR(LINES -3, 5, 64, mfile, "Enter new ^origin^ line");
 	    case 12:mbse_mvprintw(LINES -3, 5, "Netmail reply board");
 		    E_INT(LINES -3, 25, netbrd, (char *)"The ^netmail reply^ board number")
-	    case 13:mbse_mvprintw(LINES -3, 5, "Character set to set");
-		    charset = edit_charset(LINES -3,26, charset);
+	    case 13:mbse_mvprintw(LINES -4, 6, "Character set to set");
+		    charset = edit_charset(LINES -4,27, charset);
 		    break;
 	}
 

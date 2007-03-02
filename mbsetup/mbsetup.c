@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
