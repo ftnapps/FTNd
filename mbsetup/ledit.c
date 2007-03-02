@@ -2250,6 +2250,11 @@ int edit_charset(int y, int x, int val)
 
     showhelp((char *)"Toggle ^Charset^ with spacebar, press <Enter> when done.");
     do {
+	set_color(LIGHTGRAY, BLACK);
+	mbse_locate(LINES - 3, 1);
+	clrtoeol();
+	mbse_mvprintw(LINES -3, 6, getchrsdesc(val));
+
 	set_color(YELLOW, BLUE);
 	show_charset(y, x, val);
 
@@ -2259,9 +2264,14 @@ int edit_charset(int y, int x, int val)
 	    if (val < FTNC_MAXCHARS)
 		val++;
 	    else
-		val = FTNC_NONE;
+		val = FTNC_NONE + 1;
 	}
     } while (ch != KEY_ENTER && ch != '\012');
+
+    set_color(LIGHTGRAY, BLACK);
+    mbse_locate(LINES - 3, 1);
+    clrtoeol();
+
     set_color(WHITE, BLACK);
     show_charset(y, x, val);
     return val;

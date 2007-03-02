@@ -76,18 +76,18 @@ struct _charalias charalias[] = {
 struct _charmap charmap[] = {
     {FTNC_NONE,   (char *)"Undef",    (char *)"Undef",      (char *)"Undef",    (char *)"Undef",      (char *)"C",           (char *)"Undefined"},
     {FTNC_CP437,  (char *)"CP437 2",  (char *)"us-ascii",   (char *)"CP437",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 437 (Western European) (ANSI terminal)"},
-    {FTNC_CP850,  (char *)"CP850 2",  (char *)"iso-8859-1", (char *)"CP850",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 850 (Latin-1)"},
+    {FTNC_CP850,  (char *)"CP850 2",  (char *)"iso-8859-1", (char *)"CP850",    (char *)"ISO-8859-1", (char *)"en_US",       (char *)"IBM codepage 850 (Latin-1) (ANSI terminal)"},
     {FTNC_CP865,  (char *)"CP865 2",  (char *)"iso-8859-1", (char *)"CP865",    (char *)"ISO-8859-1", (char *)"sv_SE",       (char *)"IBM codepage 865 (Nordic)"},
     {FTNC_CP866,  (char *)"CP866 2",  (char *)"iso-8859-5", (char *)"CP866",    (char *)"ISO-8859-5", (char *)"ru_RU",       (char *)"IBM codepage 866 (Russian)"},
     {FTNC_LATIN_1,(char *)"LATIN-1 2",(char *)"iso-8859-1", (char *)"LATIN1",   (char *)"ISO-8859-1", (char *)"en_US",       (char *)"ISO 8859-1 (Western European)"},
     {FTNC_LATIN_2,(char *)"LATIN-2 2",(char *)"iso-8859-2", (char *)"LATIN2",   (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"ISO 8859-2 (Eastern European)"},
     {FTNC_LATIN_5,(char *)"LATIN-5 2",(char *)"iso-8859-5", (char *)"LATIN5",   (char *)"ISO-8859-5", (char *)"turks",       (char *)"ISO 8859-5 (Turkish)"},
     {FTNC_MAC,    (char *)"MAC",      (char *)"Macintosh",  (char *)"MACINTOSH",(char *)"ISO-8859-1", (char *)"en_US",       (char *)"MacIntosh character set"},
-    {FTNC_CP852,  (char *)"CP852 2",  (char *)"iso-8859-2", (char *)"CP852",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 852 (Czech, Latin-1)"},
+    {FTNC_CP852,  (char *)"CP852 2",  (char *)"iso-8859-2", (char *)"CP852",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 852 (Czech, Latin-2)"},
     {FTNC_CP895,  (char *)"CP895 2",  (char *)"iso-8859-2", (char *)"CP850",    (char *)"ISO-8859-2", (char *)"cs_CZ",       (char *)"IBM codepage 895 (Czech, Kamenicky)"},
     {FTNC_KOI8_R, (char *)"KOI8-R 2", (char *)"koi8-r",     (char *)"KOI8-R",   (char *)"KOI8-R",     (char *)"ru_RUi.koi8r",(char *)"Unix codepage KOI8-R (Russian)"},
     {FTNC_CP936,  (char *)"CP936 2",  (char *)"hz-gb-2312", (char *)"GB2312",   (char *)"GB2312",     (char *)"zh_CN.gbk",   (char *)"IBM codepage 936 (Chinese, GBK)"},
-    {FTNC_LATIN_9,(char *)"LATIN-9 2",(char *)"iso-8859-15",(char *)"LATIN-9",  (char *)"ISO-8859-15",(char *)"en_US",       (char *)"ISO 8859-1 (Western European EURO)"},
+    {FTNC_LATIN_9,(char *)"LATIN-9 2",(char *)"iso-8859-15",(char *)"LATIN-9",  (char *)"ISO-8859-15",(char *)"en_US",       (char *)"ISO 8859-15 (Western European EURO)"},
     {FTNC_UTF8,   (char *)"UTF-8 4",  (char *)"utf-8",      (char *)"UTF-8",    (char *)"UTF-8",      (char *)"en_US.UTF-8", (char *)"Unicode UTF-8 (ISO/IEC 10646)"},
     {FTNC_ERROR,  NULL,               NULL,                 NULL,               NULL,                 NULL,                  (char *)"ERROR"}
 };
