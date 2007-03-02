@@ -466,8 +466,8 @@ void user(void)
 	Chg_Charset();
     }
 
-    setlocale(LC_CTYPE, getlocale(exitinfo.Charset)); 	 
-    Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
+//    setlocale(LC_CTYPE, getlocale(exitinfo.Charset)); 	 
+//    Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
 
     GetLastUser();
     StartTime = xstrcpy(GetLocalHM());

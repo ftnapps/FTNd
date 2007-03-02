@@ -1211,42 +1211,24 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
     }
 
     /*
-     * Fill Quote file in case the user wants to reply. Note that line
-     * wrapping is set lower then normal message read, to create room
-     * for the Quote> strings at the start of each line.
+     * Analyse this message to find the character encoding.
      */
-    fn = calloc(PATH_MAX, sizeof(char));
-    snprintf(fn, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
-    if ((qf = fopen(fn, "w")) != NULL) {
-	if (Msg_Read(Num, 75)) {
-	    if ((p = (char *)MsgText_First()) != NULL)
-		do {
-		    if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
-			/*
-			 * While we are here, check for the ^aCHRS: kludge and set the used charset.
-			 */
-			if (strncmp(p, "\001CHRS: ", 7) == 0) {
-			    charset = xstrcpy(p + 7);
-			}
-			if (strncmp(p, "\001CHARSET: ", 10) == 0) {
-			    charset = xstrcpy(p + 10);
-			}
-			if (Kludges) {
-			    if (p[0] == '\001') {
-				p[0] = 'a';
-				fprintf(qf, "^%s\n", p);
-			    } else
-				fprintf(qf, "%s\n", p);
-			}
-		    } else
-			fprintf(qf, "%s\n", p);
-		} while ((p = (char *)MsgText_Next()) != NULL);
+    if (Msg_Read(Num, 78)) {
+	if ((p = (char *)MsgText_First()) != NULL) {
+	    do {
+		if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
+		    if (strncmp(p, "\001CHRS: ", 7) == 0) {
+			charset = xstrcpy(p + 7);
+			break;
+		    }
+		    if (strncmp(p, "\001CHARSET: ", 10) == 0) {
+			charset = xstrcpy(p + 10);
+			break;
+		    }
+		}
+	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
-	fclose(qf);
-    } else {
-	WriteError("$Can't open %s", p);
     }
-    free(fn);
 
     if (charset == NULL) {
 	/*
@@ -1258,12 +1240,42 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
     } else {
 	charsin = xstrcpy(get_ic_ftn(find_ftn_charset(charset)));
     }
+    chartran_init(charsin, get_ic_ftn(exitinfo.Charset), 'b');
 
     /*
-     * Try to setup charset mapping if the charactersets are different.
+     * Fill Quote file in case the user wants to reply. Note that line
+     * wrapping is set lower then normal message read, to create room
+     * for the Quote> strings at the start of each line. The text is
+     * converted to the users local characterset so the reply can be
+     * done with the users prefered characterset.
      */
-    chartran_init(charsin, get_ic_ftn(exitinfo.Charset), 'b');
-    
+    fn = calloc(PATH_MAX, sizeof(char));
+    snprintf(fn, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    if ((qf = fopen(fn, "w")) != NULL) {
+	if (Msg_Read(Num, 75)) {
+	    if ((p = (char *)MsgText_First()) != NULL) {
+		do {
+		    if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
+			if (Kludges) {
+			    if (p[0] == '\001') {
+				p[0] = 'a';
+				fprintf(qf, "^%s\n", chartran(p));
+			    } else {
+				fprintf(qf, "%s\n", chartran(p));
+			    }
+			}
+		    } else {
+			fprintf(qf, "%s\n", chartran(p));
+		    }
+		} while ((p = (char *)MsgText_Next()) != NULL);
+	    }
+	}
+	fclose(qf);
+    } else {
+	WriteError("$Can't open %s", p);
+    }
+    free(fn);
+
     /*
      * Show message header with charset mapping if needed.
      */
