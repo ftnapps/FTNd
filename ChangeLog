@@ -36,8 +36,8 @@ v0.91.5		18-Feb-2007
 		Email and FTN mail reading now translates to the users
 		characterset using glibc iconv.
 		Changed menus lastcallers, whoson, userlist, pinfo, fsedit,
-		timestats to output UTF-8 code if the user has set that terminal
-		setting.
+		timestats, filelist to output UTF-8 code if the user has set
+		that terminal setting.
 
 	mbfile:
 		The index command produces UTF-8 webpages.

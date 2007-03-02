@@ -4,7 +4,7 @@
  * Purpose ...............: All the file functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -111,10 +111,14 @@ void File_List()
     if ((fdb_area = mbsedb_OpenFDB(iAreaNumber, 30)) == NULL)
 	return;
 
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'b');
+
     clear();
     Header();
     if (iLC(2) == 1) {
 	mbsedb_CloseFDB(fdb_area);
+	chartran_close();
 	return;
     }
 
@@ -124,11 +128,12 @@ void File_List()
 	T.Active = FALSE;
 	T.Size   = fdb.Size;
 	strncpy(T.SFile, fdb.Name, 12);
-	strncpy(T.LFile, fdb.LName, 80);
+	strncpy(T.LFile, chartran(fdb.LName), 80);
 	SetTag(T);
 
 	if (ShowOneFile() == 1) {
 	    mbsedb_CloseFDB(fdb_area);
+	    chartran_close();
 	    return;
 	}
 
@@ -150,6 +155,7 @@ void File_List()
     snprintf(temp, 81, "%s%d / %d bytes", (char *) Language(242), FileCount, FileBytes);
     pout(LIGHTCYAN, BLACK, temp);
     Enter(2);
+    chartran_close();
 
     iLineCount = 0;
     mbsedb_CloseFDB(fdb_area);
@@ -432,11 +438,14 @@ void File_RawDir(char *OpData)
 	Enter(2);
 	Pause();
     } else {
+	if (utf8)
+	    chartran_init((char *)"CP437", (char *)"UTF-8", 'b');
+
 	clear();
 	/* Filename                                   Size        Date */
 	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(261));
 	Enter(1);
-	fLine(78);
+	PUTSTR(chartran(fLine_str(78)));
 
 	while ((dp = readdir( dirp )) != NULL ) {
 	    snprintf(FileName, PATH_MAX, "%s/%s", temp, dp->d_name);
@@ -469,7 +478,7 @@ void File_RawDir(char *OpData)
 	}
 
 	colour(CFG.HiliteF, CFG.HiliteB);
-	fLine(78);
+	PUTSTR(chartran(fLine_str(78)));
 	/* Total Files: */ /* Bytes */
 	snprintf(temp2, 81, "%s %d, %d %s", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
 	pout(LIGHTGREEN, BLACK, temp2);
@@ -477,6 +486,7 @@ void File_RawDir(char *OpData)
 
 	Pause();
 	closedir(dirp);
+	chartran_close();
     }
 
     free(temp);

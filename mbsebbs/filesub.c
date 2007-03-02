@@ -172,7 +172,8 @@ void Header()
     Enter(1);
 
     colour(WHITE, BLACK);
-    fLine(79);
+    PUTSTR(chartran(fLine_str(79)));
+    iLineCount++;
 }
 
 
@@ -391,11 +392,13 @@ int ShowOneFile()
 		    else
 			fg = (int)fdb.Desc[z][3] - 48;
 		    bg = (int)fdb.Desc[z][2] - 48;
-		    snprintf(temp, 81, "    %s",fdb.Desc[z]+4);
-		    pout(fg, bg, temp);
+		    colour(fg, bg);
+		    PUTSTR((char *)"    ");
+		    PUTSTR(chartran(fdb.Desc[z]+4));
 		} else {
-		    snprintf(temp, 81, "    %s",fdb.Desc[z]);
-		    pout(CFG.FiledescF, CFG.FiledescB, temp);
+		    colour(CFG.FiledescF, CFG.FiledescB);
+		    PUTSTR((char *)"    ");
+		    PUTSTR(chartran(fdb.Desc[z]));
 		}
 		Enter(1);
 
