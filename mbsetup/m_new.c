@@ -4,7 +4,7 @@
  * Purpose ...............: Newfiles Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -74,7 +74,7 @@ int CountNewfiles(void)
 			snprintf(newfiles.Template, 15, "newfiles");
 			newfiles.Language = 'E';
 			newfiles.Active = TRUE;
-			newfiles.HiAscii = TRUE;
+			newfiles.charset = FTNC_CP437;
 			fwrite(&newfiles, sizeof(newfiles), 1, fil);
 			snprintf(group, 13, "LOCAL");
 			fwrite(&group, 13, 1, fil);
@@ -105,78 +105,85 @@ int CountNewfiles(void)
  */
 int OpenNewfiles(void)
 {
-	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	int	oldsize;
-	int	i, old_groups;
-	int	oldgroup;
-	char	group[13];
+    FILE	*fin, *fout;
+    char	*fnin, *fnout, group[13];
+    int		oldsize, i, old_groups, oldgroup;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
-	if ((fin = fopen(fnin, "r")) != NULL) {
-		if ((fout = fopen(fnout, "w")) != NULL) {
-			fread(&newfileshdr, sizeof(newfileshdr), 1, fin);
-			/*
-			 * In case we are automatic upgrading the data format
-			 * we save the old format. If it is changed, the
-			 * database must always be updated.
-			 */
-			oldsize    = newfileshdr.recsize;
-			oldgroup   = newfileshdr.grpsize;
-			old_groups = oldgroup / 13;
-			if ((oldsize != sizeof(newfiles)) || (CFG.new_groups != old_groups))
-				NewUpdated = 1;
-			else
-				NewUpdated = 0;
-			if (oldsize != sizeof(newfiles))
-			    Syslog('+', "Updated %s, format changed", fnin);
-			else if (CFG.new_groups != old_groups)
-			    Syslog('+', "Updated %s, nr of groups now %d", fnin, CFG.new_groups);
+    fnin  = calloc(PATH_MAX, sizeof(char));
+    fnout = calloc(PATH_MAX, sizeof(char));
+    snprintf(fnin,  PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	
+    if ((fin = fopen(fnin, "r")) != NULL) {
+	if ((fout = fopen(fnout, "w")) != NULL) {
+	    fread(&newfileshdr, sizeof(newfileshdr), 1, fin);
+	    /*
+	     * In case we are automatic upgrading the data format
+	     * we save the old format. If it is changed, the
+	     * database must always be updated.
+	     */
+	    oldsize    = newfileshdr.recsize;
+	    oldgroup   = newfileshdr.grpsize;
+	    old_groups = oldgroup / 13;
+	    if ((oldsize != sizeof(newfiles)) || (CFG.new_groups != old_groups))
+		NewUpdated = 1;
+	    else
+		NewUpdated = 0;
+	    if (oldsize != sizeof(newfiles))
+		Syslog('+', "Updated %s, format changed", fnin);
+	    else if (CFG.new_groups != old_groups)
+		Syslog('+', "Updated %s, nr of groups now %d", fnin, CFG.new_groups);
+	    
+	    newfileshdr.hdrsize = sizeof(newfileshdr);
+	    newfileshdr.recsize = sizeof(newfiles);
+	    newfileshdr.grpsize = CFG.new_groups * 13;
+	    fwrite(&newfileshdr, sizeof(newfileshdr), 1, fout);
 
-			newfileshdr.hdrsize = sizeof(newfileshdr);
-			newfileshdr.recsize = sizeof(newfiles);
-			newfileshdr.grpsize = CFG.new_groups * 13;
-			fwrite(&newfileshdr, sizeof(newfileshdr), 1, fout);
-
-			/*
-			 * The datarecord is filled with zero's before each
-			 * read, so if the format changed, the new fields
-			 * will be empty.
-			 */
-			memset(&newfiles, 0, sizeof(newfiles));
-			while (fread(&newfiles, oldsize, 1, fin) == 1) {
-				if (!strlen(newfiles.Template)) {
-				    snprintf(newfiles.Template, 15, "newfiles");
-				    NewUpdated = 1;
-				}
-				fwrite(&newfiles, sizeof(newfiles), 1, fout);
-				memset(&newfiles, 0, sizeof(newfiles));
-				/*
-				 * Copy the existing groups
-				 */
-				for (i = 1; i <= old_groups; i++) {
-					fread(&group, 13, 1, fin);
-					if (i <= CFG.new_groups)
-						fwrite(&group, 13, 1, fout);
-				}
-				if (old_groups < CFG.new_groups) {
-					/*
-					 * The size increased, fill with
-					 * blank records.
-					 */
-					memset(&group, 0, 13);
-					for (i = (old_groups + 1); i <= CFG.new_groups; i++)
-						fwrite(&group, 13, 1, fout);
-				}
-			}
-			fclose(fin);
-			fclose(fout);
-			return 0;
-		} else
-			return -1;
+	    /*
+	     * The datarecord is filled with zero's before each
+	     * read, so if the format changed, the new fields
+	     * will be empty.
+	     */
+	    memset(&newfiles, 0, sizeof(newfiles));
+	    while (fread(&newfiles, oldsize, 1, fin) == 1) {
+		if (!strlen(newfiles.Template)) {
+		    snprintf(newfiles.Template, 15, "newfiles");
+		    NewUpdated = 1;
+		}
+		if (newfiles.charset == FTNC_NONE) {
+		    newfiles.charset = FTNC_CP437;
+		    NewUpdated = 1;
+		}
+		fwrite(&newfiles, sizeof(newfiles), 1, fout);
+		memset(&newfiles, 0, sizeof(newfiles));
+		/*
+		 * Copy the existing groups
+		 */
+		for (i = 1; i <= old_groups; i++) {
+		    fread(&group, 13, 1, fin);
+		    if (i <= CFG.new_groups)
+			fwrite(&group, 13, 1, fout);
+		}
+		if (old_groups < CFG.new_groups) {
+		    /*
+		     * The size increased, fill with blank records.
+		     */
+		    memset(&group, 0, 13);
+		    for (i = (old_groups + 1); i <= CFG.new_groups; i++)
+			fwrite(&group, 13, 1, fout);
+		}
+	    }
+	    fclose(fin);
+	    fclose(fout);
+	    free(fnin);
+	    free(fnout);
+	    return 0;
 	}
-	return -1;
+    }
+
+    free(fnin);
+    free(fnout);
+    return -1;
 }
 
 
@@ -249,6 +256,7 @@ int AppendNewfiles(void)
 		snprintf(newfiles.From, 36, "%s", CFG.sysop_name);
 		newfiles.Language = 'E';
 		snprintf(newfiles.Template, 15, "newfiles");
+		newfiles.charset = FTNC_CP437;
 		strncpy(newfiles.Origin, CFG.origin, 50);
 		fwrite(&newfiles, sizeof(newfiles), 1, fil);
 		memset(&group, 0, 13);
@@ -280,8 +288,8 @@ void NewScreen(void)
 	mbse_mvprintw(15, 2, "9.  Aka to use");
 	mbse_mvprintw(16, 2, "10. Active");
 	mbse_mvprintw(17, 2, "11. Deleted");
-	mbse_mvprintw(16,42, "12. High ASCII");
-	mbse_mvprintw(17,42, "13. New groups");
+	mbse_mvprintw(16,42, "12. New groups");
+	mbse_mvprintw(17,42, "13. CHRS kludge");
 }
 
 
@@ -360,12 +368,12 @@ int EditNewRec(int Area)
 		show_str( 15,18,35, aka2str(newfiles.UseAka));
 		show_bool(16,18,    newfiles.Active);
 		show_bool(17,18,    newfiles.Deleted);
-		show_bool(16,58,    newfiles.HiAscii);
 		i = 0;
 		for (tmp = fgr; tmp; tmp = tmp->next)
 			if (tmp->tagged)
 				i++;
-		show_int( 17,58, i);
+		show_int( 16,58, i);
+		show_charset(17,58, newfiles.charset);
 
 		switch(select_menu(13)) {
 		case 0:
@@ -420,9 +428,10 @@ int EditNewRec(int Area)
 			break;
 		case 10:E_BOOL(16,18,    newfiles.Active,    "If this report is ^active^")
 		case 11:E_BOOL(17,18,    newfiles.Deleted,   "Is this record ^deleted^")
-		case 12:E_BOOL(16,58,    newfiles.HiAscii,   "Allow ^High ASCII^ in this report")
-		case 13:if (E_Group(&fgr, (char *)"12.13 NEWFILE GROUPS"))
+		case 12:if (E_Group(&fgr, (char *)"12.13 NEWFILE GROUPS"))
 				GrpChanged = TRUE;
+			break;
+		case 13:newfiles.charset = edit_charset(17,58, newfiles.charset);
 			break;
 		}
 	}
@@ -585,7 +594,7 @@ int new_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Language", temp);
 	    add_webtable(wp, (char *)"Aka to use", aka2str(newfiles.UseAka));
 	    add_webtable(wp, (char *)"Active", getboolean(newfiles.Active));
-	    add_webtable(wp, (char *)"Allow High ASCII", getboolean(newfiles.HiAscii));
+	    add_webtable(wp, (char *)"CHRS kludge", getftnchrs(newfiles.charset));
 	    fprintf(fp, "     Area comment      %s\n", newfiles.Comment);
 	    fprintf(fp, "     Message area      %s\n", newfiles.Area);
 	    fprintf(fp, "     Origin line       %s\n", newfiles.Origin);
@@ -595,7 +604,7 @@ int new_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "     Language          %c\n", newfiles.Language);
 	    fprintf(fp, "     Aka to use        %s\n", aka2str(newfiles.UseAka));
 	    fprintf(fp, "     Active            %s\n", getboolean(newfiles.Active));
-	    fprintf(fp, "     Allow High ASCII  %s\n", getboolean(newfiles.HiAscii));
+	    fprintf(fp, "     CHRS kludge       %s\n", getftnchrs(newfiles.charset));
 	    fprintf(fp, "\n     File groups:\n     ");
 	    groups = newfileshdr.grpsize / sizeof(group);
 	    for (i = 0; i < groups; i++) {

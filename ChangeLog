@@ -21,6 +21,9 @@ v0.91.5		18-Feb-2007
 		be displayed before we know if a user ahs a utf-8 or ansi
 		terminal, so change your logo screen so that it has no ansi
 		grafics, just plain ascii with ansi color codes.
+		Start and leave mbsetup, this will upgrade the newfiles
+		reports to set a defaults CHRS kludge CP437 2 which is good
+		for reports with ANSI blockgraphics.
 
 	mbselib:
 		Fixed a too low memory allocation in clencode.
@@ -42,12 +45,21 @@ v0.91.5		18-Feb-2007
 	mbfido:
 		The make web stat produces UTF-8 webpages.
 
+	mbaff:
+		For each newfile report there is now a CHRS kludge setting.
+		Reports will be converted to the selected charset. Origin
+		characterset is CP437 for now.
+
 	mbnntp:
 		Reading news outputs UTF-8 coded articles.
 		TODO: test posting and fix if needed.
 
 	mbtask:
 		Fixed a too low memory allocation in clencode.
+
+	mbsetup:
+		In newfiles reports the Hi-ASCII setting is gone and a CHRS
+		kludge selection is added. Defaults to CP437 2.
 
 	lang:
 		Language prompts 44, 75 and 76 are obsolete.

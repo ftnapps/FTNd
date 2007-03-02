@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -81,7 +81,10 @@ void Msg_Id(fidoaddr aka)
 
 
 
-void Msg_Pid(void)
+/*
+ * Passed charset overrides defaults
+ */
+void Msg_Pid(int charset)
 {
 	char	*temp;
 	time_t	tt;
@@ -89,7 +92,9 @@ void Msg_Pid(void)
 	temp = calloc(81, sizeof(char));
 	snprintf(temp, 81, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
 	MsgText_Add2(temp);
-	if (msgs.Charset != FTNC_NONE) {
+	if (charset != FTNC_NONE) {
+	    snprintf(temp, 81, "\001CHRS: %s", getftnchrs(charset));
+	} else if (msgs.Charset != FTNC_NONE) {
 	    snprintf(temp, 81, "\001CHRS: %s", getftnchrs(msgs.Charset));
 	} else {
 	    snprintf(temp, 81, "\001CHRS: %s", getftnchrs(FTNC_LATIN_1));

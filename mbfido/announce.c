@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -174,13 +174,15 @@ int StartMsg(void)
 
     CountPosted(newfiles.Area);
 
-    snprintf(Msg.From, 101, "%s", newfiles.From);
-    snprintf(Msg.To, 101, "%s", newfiles.Too);
+    chartran_init((char *)"CP437", get_ic_ftn(newfiles.charset), 'f');
+
+    snprintf(Msg.From, 101, "%s", chartran(newfiles.From));
+    snprintf(Msg.To, 101, "%s", chartran(newfiles.Too));
     if (MsgCount == 1) {
-	snprintf(Msg.Subject, 101, "%s", newfiles.Subject);
+	snprintf(Msg.Subject, 101, "%s", chartran(newfiles.Subject));
 	TotalSize = TotalFiles = 0;
     } else
-	snprintf(Msg.Subject, 101, "%s #%d", newfiles.Subject, MsgCount);
+	snprintf(Msg.Subject, 101, "%s #%d", chartran(newfiles.Subject), MsgCount);
     snprintf(Msg.FromAddress, 101, "%s", aka2str(newfiles.UseAka));
     Msg.Written = time(NULL);
     Msg.Arrived = time(NULL);
@@ -191,7 +193,7 @@ int StartMsg(void)
      * Start message text including kludges
      */
     Msg_Id(newfiles.UseAka);
-    Msg_Pid();
+    Msg_Pid(newfiles.charset);
     return Msg_Top(newfiles.Template, newfiles.Language, newfiles.UseAka);
 }
 
@@ -226,6 +228,8 @@ void FinishMsg(int Final, int filepos)
     Msg_AddMsg();
     Msg_UnLock();
     Syslog('+', "Posted message %ld, %d bytes", Msg.Id, Msg.Size);
+
+    chartran_close();
 
     snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "a")) != NULL) {
@@ -268,12 +272,12 @@ int Report(gr_list *ta, int filepos)
 	    break;
     }
 
-	Syslog('m', "Announce %s %s %s", T_File.Echo, T_File.Name, T_File.LName);
+	Syslog('m', "Announce %s %s %s", T_File.Echo, T_File.Name, chartran(T_File.LName));
     if ((fi = OpenMacro(newfiles.Template, newfiles.Language, FALSE)) != NULL) {
 	/*
 	 * Area block header
 	 */
-	MacroVars("GJZ", "ssd", T_File.Echo, T_File.Comment, 0);
+	MacroVars("GJZ", "ssd", T_File.Echo, chartran(T_File.Comment), 0);
 	fseek(fi, filepos, SEEK_SET);
 	Msg_Macro(fi);
 	filepos1 = ftell(fi);
@@ -296,7 +300,7 @@ int Report(gr_list *ta, int filepos)
 	    ftime = T_File.Fdate;
 	    MacroVars("sl", "ss", T_File.Name, T_File.LName);
 	    MacroVars("bk", "dd", T_File.Size, T_File.SizeKb);
-	    MacroVars("dt", "ss", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
+	    MacroVars("dt", "ss", rfcdate(ftime), chartran(T_File.LDesc[0]));
 	    Msg_Macro(fi);
 	    filepos2 = ftell(fi);
 
@@ -306,7 +310,7 @@ int Report(gr_list *ta, int filepos)
 	    for (i = 1; i < 24; i++) {
 		fseek(fi, filepos2, SEEK_SET);
 		if (strlen(T_File.LDesc[i])) {
-		    MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
+		    MacroVars("t", "s", chartran(T_File.LDesc[i]));
 		    Msg_Macro(fi);
 		} else {
 		    line = calloc(MAXSTR, sizeof(char));

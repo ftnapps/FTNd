@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -193,7 +193,7 @@ int StartReply(ff_list *ffl)
     MsgText_Add2(temp);
     Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
     free(temp);
-    Msg_Pid();
+    Msg_Pid(FTNC_NONE);
     return Msg_Top(scanmgr.template, scanmgr.Language, scanmgr.Aka);
 }
 
