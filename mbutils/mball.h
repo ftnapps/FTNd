@@ -6,9 +6,9 @@ void ProgName(void);
 void die(int);
 void Help(void);
 void MakeIndex(void);
-void MidLine(char *, FILE *, int);
-void TopBox(FILE *, int);
-void BotBox(FILE *, int);
+void MidLine(char *, FILE *, FILE *, int);
+void TopBox(FILE *, FILE *, int);
+void BotBox(FILE *, FILE *, int);
 void Masterlist(void);
 void MakeArc(void);
 

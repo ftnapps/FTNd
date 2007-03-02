@@ -50,6 +50,11 @@ v0.91.5		18-Feb-2007
 		Reports will be converted to the selected charset. Origin
 		characterset is CP437 for now.
 
+	mball:
+		Now also creates allfiles.utf and newfiles.utf with UTF-8
+		encoded text. Noth new files will also be added to the zip
+		archives.
+
 	mbnntp:
 		Reading news outputs UTF-8 coded articles.
 		TODO: test posting and fix if needed.

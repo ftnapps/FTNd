@@ -4,7 +4,7 @@
  * Purpose ...............: Creates allfiles listings
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -208,9 +208,9 @@ int main(int argc, char **argv)
 
 
 
-void MidLine(char *txt, FILE *fp, int doit)
+void MidLine(char *txt, FILE *fp, FILE *up, int doit)
 {
-    char    temp[81];
+    char    temp[256];
     int	    x, y, z;
 
     if (!doit)
@@ -219,58 +219,62 @@ void MidLine(char *txt, FILE *fp, int doit)
     z = strlen(txt);
     x = 77 - z;
     x /= 2;
-    strcpy(temp, "");
+    strcpy(temp, "\xB3");
 
     for (y = 0; y < x; y++)
 	strcat(temp, " ");
 
-    strcat(temp, txt);
-    z = strlen(temp);
-    x = 77 - z;
+    strncat(temp, txt, 255);
 
-    for (y = 0; y < x; y++)
-	strcat(temp, " ");
+    for (y = strlen(temp); y < 78; y++)
+	strncat(temp, " ", 255);
 
-    fprintf(fp, "%c", 179);
-    fprintf(fp, "%s", temp);
-    fprintf(fp, "%c\r\n", 179);
+    strncat(temp, "\xB3\r\n", 255);
+    fprintf(fp, temp);
+    fprintf(up, chartran(temp));
 }
 
 
 
-void TopBox(FILE *fp, int doit)
+void TopBox(FILE *fp, FILE *up, int doit)
 {
-    int	y;
+    int		y;
+    char	temp[256];
 	
     if (!doit)
 	return;
 
-    fprintf(fp, "\r\n%c", 213);
+    strcpy(temp, "\r\n\xDA");
     for(y = 0; y < 77; y++)
-	fprintf(fp, "%c", 205);
-    fprintf(fp, "%c\r\n", 184);
+	strncat(temp, "\xC4", 255);
+    strncat(temp, "\xBF\r\n", 255);
+    fprintf(fp, temp);
+    fprintf(up, chartran(temp));
 }
 
 
 
-void BotBox(FILE *fp, int doit)
+void BotBox(FILE *fp, FILE *up, int doit)
 {
-    int	y;
+    int		y;
+    char	temp[256];
 
     if (!doit)
 	return;
 
-    fprintf(fp, "%c", 212);
+    strcpy(temp, "\xC0");
     for (y = 0; y < 77; y++)
-	fprintf(fp, "%c", 205);
-    fprintf(fp, "%c\r\n\r\n", 190);
+	strncat(temp, "\xC4", 255);
+    strncat(temp, "\xD9\r\n\r\n", 255);
+    fprintf(fp, temp);
+    fprintf(up, chartran(temp));
 }
 
 
 
 void Masterlist()
 {
-    FILE	    *fp, *np, *pAreas, *pHeader;
+    FILE	    *fp, *np, *fu, *nu, *pAreas, *pHeader;
     int		    AreaNr = 0, z, x = 0, New;
     unsigned int    AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
     unsigned int    AllAreaFiles, AllAreaBytes, popdown, down, NewAreaFiles, NewAreaBytes;
@@ -302,15 +306,30 @@ void Masterlist()
 	fclose(fp);
 	die(MBERR_GENERAL);
     }
+    if ((fu = fopen("allfiles.ump", "a+")) == NULL) {
+	WriteError("$Can't open allfiles.ump");
+	fclose(fp);
+	fclose(np);
+	die(MBERR_GENERAL);
+    }
+    if ((nu = fopen("newfiles.ump", "a+")) == NULL) {
+	WriteError("$Can't open newfiles.ump");
+	fclose(fp);
+	fclose(np);
+	fclose(fu);
+	die(MBERR_GENERAL);
+    }
 
-    TopBox(fp, TRUE);
-    TopBox(np, TRUE);
+    chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
+
+    TopBox(fp, fu, TRUE);
+    TopBox(np, nu, TRUE);
     snprintf(temp, 81, "All available files at %s", CFG.bbs_name);
-    MidLine(temp, fp, TRUE);
+    MidLine(temp, fp, fu, TRUE);
     snprintf(temp, 81, "New available files since %d days at %s", CFG.newdays, CFG.bbs_name);
-    MidLine(temp, np, TRUE);
-    BotBox(fp, TRUE);
-    BotBox(np, TRUE);
+    MidLine(temp, np, nu, TRUE);
+    BotBox(fp, fu, TRUE);
+    BotBox(np, nu, TRUE);
 
     snprintf(temp, PATH_MAX, "%s/etc/header.txt", getenv("MBSE_ROOT"));
     if (( pHeader = fopen(temp, "r")) != NULL) {
@@ -320,6 +339,8 @@ void Masterlist()
 	    Striplf(temp);
 	    fprintf(fp, "%s\r\n", temp);
 	    fprintf(np, "%s\r\n", temp);
+	    fprintf(fu, "%s\r\n", chartran(temp));
+	    fprintf(nu, "%s\r\n", chartran(temp));
 	}
 	fclose(pHeader);
     }
@@ -370,28 +391,28 @@ void Masterlist()
 		 * If there are files to report do it.
 		 */
 		if (AllAreaFiles) {
-		    TopBox(fp, TRUE);
-		    TopBox(np, NewAreaFiles);
+		    TopBox(fp, fu, TRUE);
+		    TopBox(np, nu, NewAreaFiles);
 
 		    snprintf(temp, 81, "Area %d - %s", AreaNr, area.Name);
-		    MidLine(temp, fp, TRUE);
-		    MidLine(temp, np, NewAreaFiles);
+		    MidLine(temp, fp, fu, TRUE);
+		    MidLine(temp, np, nu, NewAreaFiles);
 
 		    snprintf(temp, 81, "File Requests allowed");
-		    MidLine(temp, fp, area.FileReq);
-		    MidLine(temp, np, area.FileReq && NewAreaFiles);
+		    MidLine(temp, fp, fu, area.FileReq);
+		    MidLine(temp, np, nu, area.FileReq && NewAreaFiles);
 
 		    snprintf(temp, 81, "%d KBytes in %d files", AllAreaBytes / 1024, AllAreaFiles);
-		    MidLine(temp, fp, TRUE);
+		    MidLine(temp, fp, fu, TRUE);
 		    snprintf(temp, 81, "%d KBytes in %d files", NewAreaBytes / 1024, NewAreaFiles);
-		    MidLine(temp, np, NewAreaFiles);
+		    MidLine(temp, np, nu, NewAreaFiles);
 		    if (popdown) {
 			snprintf(temp, 81, "Most popular file is %s", pop);
-			MidLine(temp, fp, TRUE);
+			MidLine(temp, fp, fu, TRUE);
 		    }
 
-		    BotBox(fp, TRUE);
-		    BotBox(np, NewAreaFiles);
+		    BotBox(fp, fu, TRUE);
+		    BotBox(np, nu, NewAreaFiles);
 
 		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
@@ -401,26 +422,39 @@ void Masterlist()
 				fdb.Name, (int)(fdb.Size / 1024), StrDateDMY(fdb.UploadDate), fdb.TimesDL, 
 				strlen(fdb.Uploader)?fdb.Uploader:"");
 			    fprintf(fp, "%s\r\n", temp);
-			    if (New)
+			    fprintf(fu, "%s\r\n", chartran(temp));
+			    if (New) {
 				fprintf(np, "%s\r\n", temp);
+				fprintf(nu, "%s\r\n", chartran(temp));
+			    }
+
 	
 			    for (z = 0; z < 25; z++) {
 				if (strlen(fdb.Desc[z])) {
 				    if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X')) {
 					fprintf(fp, "                         %s\r\n",fdb.Desc[z]+4);
-					if (New)
+					fprintf(fu, "                         %s\r\n",chartran(fdb.Desc[z]+4));
+					if (New) {
 					    fprintf(np, "                         %s\r\n",fdb.Desc[z]+4);
+					    fprintf(nu, "                         %s\r\n",chartran(fdb.Desc[z]+4));
+					}
 				    } else {
 					fprintf(fp, "                         %s\r\n",fdb.Desc[z]);
-					if (New)
+					fprintf(fu, "                         %s\r\n",chartran(fdb.Desc[z]));
+					if (New) {
 					    fprintf(np, "                         %s\r\n",fdb.Desc[z]);
+					    fprintf(nu, "                         %s\r\n",chartran(fdb.Desc[z]));
+					}
 				    }
 				}
 			    }
 			    if (strlen(fdb.Magic)) {
 				fprintf(fp, "                         Magic filerequest: %s\r\n", fdb.Magic);
-				if (New)
+				fprintf(fu, "                         Magic filerequest: %s\r\n", fdb.Magic);
+				if (New) {
 				    fprintf(np, "                         Magic filerequest: %s\r\n", fdb.Magic);
+				    fprintf(nu, "                         Magic filerequest: %s\r\n", fdb.Magic);
+				}
 			    }
 			}
 		    }
@@ -432,22 +466,22 @@ void Masterlist()
 
     fclose(pAreas);
 
-    TopBox(fp, TRUE);
-    TopBox(np, TRUE);
+    TopBox(fp, fu, TRUE);
+    TopBox(np, nu, TRUE);
     snprintf(temp, 81, "Total %d files, %d KBytes", AllFiles, AllKBytes);
-    MidLine(temp, fp, TRUE);
+    MidLine(temp, fp, fu, TRUE);
     snprintf(temp, 81, "Total %d files, %d KBytes", NewFiles, NewKBytes);
-    MidLine(temp, np, TRUE);
+    MidLine(temp, np, nu, TRUE);
 
-    MidLine((char *)"", fp, TRUE);
-    MidLine((char *)"", np, TRUE);
+    MidLine((char *)"", fp, fu, TRUE);
+    MidLine((char *)"", np, nu, TRUE);
 
     snprintf(temp, 81, "Created by MBSE BBS v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
-    MidLine(temp, fp, TRUE);
-    MidLine(temp, np, TRUE);
+    MidLine(temp, fp, fu, TRUE);
+    MidLine(temp, np, nu, TRUE);
 
-    BotBox(fp, TRUE);
-    BotBox(np, TRUE);
+    BotBox(fp, fu, TRUE);
+    BotBox(np, nu, TRUE);
 
     snprintf(temp, PATH_MAX, "%s/etc/footer.txt", getenv("MBSE_ROOT"));
     if(( pHeader = fopen(temp, "r")) != NULL) {
@@ -457,17 +491,26 @@ void Masterlist()
 	    Striplf(temp);
 	    fprintf(fp, "%s\r\n", temp);
 	    fprintf(np, "%s\r\n", temp);
+	    fprintf(fu, "%s\r\n", chartran(temp));
+	    fprintf(nu, "%s\r\n", chartran(temp));
 	}
 	fclose(pHeader);
     }
 
     fclose(fp);
     fclose(np);
+    fclose(fu);
+    fclose(nu);
+    chartran_close();
 
     if ((rename("allfiles.tmp", "allfiles.txt")) == 0)
 	unlink("allfiles.tmp");
     if ((rename("newfiles.tmp", "newfiles.txt")) == 0)
 	unlink("newfiles.tmp");
+    if ((rename("allfiles.ump", "allfiles.utf")) == 0)
+	unlink("allfiles.ump");
+    if ((rename("newfiles.ump", "newfiles.utf")) == 0)
+	unlink("newfiles.ump");
 
     Syslog('+', "Allfiles: %ld, %ld MBytes", AllFiles, AllKBytes / 1024);
     Syslog('+', "Newfiles: %ld, %ld MBytes", NewFiles, NewKBytes / 1024);
@@ -495,14 +538,14 @@ void MakeArc()
     Nopper();
     if (!do_quiet)
 	printf("Creating allfiles.zip\n");
-    if (!execute_str(cmd, (char *)"allfiles.zip allfiles.txt", (char *)NULL, (char *)"/dev/null", 
+    if (!execute_str(cmd, (char *)"allfiles.zip allfiles.txt allfiles.utf", (char *)NULL, (char *)"/dev/null", 
 			(char *)"/dev/null", (char *)"/dev/null") == 0)
 	WriteError("Create allfiles.zip failed");
 
     Nopper();
     if (!do_quiet)
 	printf("Creating newfiles.zip\n");
-    if (!execute_str(cmd, (char *)"newfiles.zip newfiles.txt", (char *)NULL, (char *)"/dev/null", 
+    if (!execute_str(cmd, (char *)"newfiles.zip newfiles.txt newfiles.utf", (char *)NULL, (char *)"/dev/null", 
 			(char *)"/dev/null", (char  *)"/dev/null") == 0)
 	WriteError("Create newfiles.zip failed");
 
