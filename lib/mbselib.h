@@ -1964,8 +1964,9 @@ struct	_newfiles {
 	char		Template[15];		/* Template filename	   */
 	fidoaddr	UseAka;			/* Aka to use		   */
 	unsigned	Active		: 1;	/* Active		   */
-	unsigned	HiAscii		: 1;	/* Hi-Ascii allowed	   */
+	unsigned	xHiAscii	: 1;
 	unsigned	Deleted		: 1;	/* Report is deleted	   */
+	int		charset;		/* CHRS kludge to use	   */
 };
 
 
