@@ -23,7 +23,11 @@ TIME=`head -n19 $HOME/door.sys  |tail -n1  |tr -d "[:cntrl:]"`
 
 ## Set preferred editor and parameters
 EDITOR=@joebin@/bbsjoe
-PARAM="$HOME/edit.msg"
+if [ "$UTF-8" == "Yes" ]; then
+    PARAM="-guess_utf8 $HOME/edit.msg"
+else
+    PARAM="$HOME/edit.msg"
+fi
 
 # Using joe with emacs keys:
 # You can make a bbsjmacsrc file with emacs keys and put it
