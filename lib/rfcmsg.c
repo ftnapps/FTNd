@@ -4,7 +4,7 @@
  * Purpose ...............: RFC msg
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -52,19 +52,14 @@ rfcmsg *parsrfc(FILE *fp)
 
     while (bgets(buffer, BUFSIZ-1, fp) && strcmp(buffer,"\n")) {
 	newcont = (buffer[strlen(buffer)-1] != '\n');
-	Syslog('M', "Line read: \"%s\" - %s continued", buffer,newcont?"to be":"not to be");
 	if (linecont) {
-	    Syslog('M', "this is a continuation of a long line");
 	    cur->val=xstrcat(cur->val,buffer);
 	} else {
 	    if (isspace(buffer[0])) {
 		if (strspn(buffer," \t\n") == strlen(buffer)) {
-		    Syslog('M', "breaking with blank-only line");
 		    break;
 		}
-		Syslog('M', "this is a continuation line");
 		if (!cur) {
-		    Syslog('M', "Wrong first line: \"%s\"",buffer);
 		    cur = (rfcmsg *)malloc(sizeof(rfcmsg));
 		    start = cur;
 		    cur->next = NULL;
@@ -87,7 +82,6 @@ rfcmsg *parsrfc(FILE *fp)
 		cur->key = NULL;
 		cur->val = NULL;
 		if (firstline && !strncmp(buffer,"From ",5)) {
-		    Syslog('M', "This is a uucpfrom line");
 		    cur->key=xstrcpy((char *)"X-UUCP-From");
 		    cur->val=xstrcpy(buffer+4);
 		} else if ((p=strchr(buffer,':')) && (p > buffer) && /* ':' isn't 1st chr */

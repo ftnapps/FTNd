@@ -4,7 +4,7 @@
  * Purpose ...............: Files database functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -62,7 +62,7 @@ struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
 	    return NULL;
 	}
 	msleep(250);
-	Syslog('f', "Open file area %d, try %d", Area, Tries);
+	Syslog('-', "Open file area %d, try %d", Area, Tries);
     }
     if (fp == NULL) {
 	if (errno == ENOENT) {
@@ -181,7 +181,7 @@ int mbsedb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
 	    return FALSE;
 	}
 	msleep(250);
-	Syslog('f', "FDB lock attempt %d", Tries);
+	Syslog('-', "FDB lock attempt %d", Tries);
     }
 
     if (rc) {

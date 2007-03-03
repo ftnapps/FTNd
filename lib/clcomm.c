@@ -606,10 +606,9 @@ char *printable(char *s, int l)
 	/*
 	 * Don't use isprint to check if a character is printable because we
 	 * don't want some current locale to have some influence on this
-	 * conversion. Just filer low ascii values.
+	 * conversion. Just filter low ascii values.
 	 */
 	c = *(unsigned char*)s;
-//	if (isprint(*(unsigned char*)s))
 	if ((c >= 32) && (c < 128))
 	    *p++=*s;
 	else 

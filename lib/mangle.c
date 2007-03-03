@@ -4,7 +4,7 @@
  * Purpose ...............: Mangle a unix name to DOS 8.3 filename
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -327,7 +327,6 @@ void mangle_name_83(char *s)
     /*
      * First, convert some common Unix extensions to extensions of 3
      * characters. If none fits, don't change anything now.
-     * FIXME: should be in an external file.
      */
     if (strcmp(q = s + strlen(s) - strlen(".tar.gz"), ".tar.gz") == 0) {
 	*q = '\0';

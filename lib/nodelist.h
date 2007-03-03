@@ -122,11 +122,6 @@ nodelist_service    *nl_service;
 int		initnl(void);
 void		deinitnl(void);
 node		*getnlent(faddr *);
-void		olflags(unsigned int);
-void		rqflags(unsigned int);
-void		moflags(unsigned int);
-void		diflags(unsigned int);
-void		ipflags(unsigned int);
 
 
 #endif

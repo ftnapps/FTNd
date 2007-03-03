@@ -4,7 +4,7 @@
  * Purpose ...............: Regular Expression Mask
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -78,7 +78,6 @@ char *re_mask(char *nm, int forceupper)
     }
     *q++ = '$';
     *q++ = '\0';
-//    Syslog('f', "Search mask \"%s\" => \"%s\"", nm, mask);
     return mask;
 }
 

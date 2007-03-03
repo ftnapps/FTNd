@@ -4,7 +4,7 @@
  * Purpose ...............: Magic filename handling
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -39,8 +39,6 @@ void magic_update(char *Alias, char *FileName)
 {
     char    *path;
     FILE    *fp;
-
-    Syslog('f', "magic_update(%s) with %s", Alias, FileName);
 
     if (!strlen(CFG.req_magic)) {
 	WriteError("No magic filename path configured");

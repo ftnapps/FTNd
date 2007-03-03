@@ -4,7 +4,7 @@
  * Purpose ...............: Read nodelists information
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -344,7 +344,6 @@ void deinitnl(void)
     tidy_nl_domsuf(&nl_domsuffix);
     tidy_nl_service(&nl_service);
 
-    Syslog('n', "De-init nodelists done");
     nlinitdone = FALSE;
 }
 
@@ -1140,13 +1139,8 @@ node *getnlent(faddr *addr)
     Syslog('n', "getnlent: URL     %s", printable(nodebuf.url, 0));
     Syslog('n', "getnlent: online  POTS %s CM %s, IP %s ICM %s", nodebuf.can_pots ?"Yes":"No", 
 				nodebuf.is_cm ?"Yes":"No", nodebuf.can_ip ?"Yes":"No", nodebuf.is_icm ?"Yes":"No");
-//    moflags(nodebuf.mflags);
-//    diflags(nodebuf.dflags);
-//    ipflags(nodebuf.iflags);
-//    olflags(nodebuf.oflags);
-//    rqflags(nodebuf.xflags);
     free(mydomain);
-
+    
     return &nodebuf;
 
 badsyntax:
@@ -1165,109 +1159,6 @@ retdummy:
     free(mydomain);
 
     return &nodebuf;
-}
-
-
-
-void olflags(unsigned int flags)
-{
-    char	    *t;
-    nodelist_flag   **tmpm;
-
-    t = xstrcpy((char *)"Mailer flags :");
-    for (tmpm = &nl_online; *tmpm; tmpm=&((*tmpm)->next)) {
-	if ((*tmpm)->value & flags) {
-	    t = xstrcat(t, (char *)" ");
-	    t = xstrcat(t, (*tmpm)->name);
-	}
-    }
-    Syslog('n', "%s", t);
-    free(t);
-}
-
-
-
-void rqflags(unsigned int flags)
-{
-    char	    *t;
-    nodelist_flag   **tmpm;
-    
-    t = xstrcpy((char *)"Request flags:");
-    for (tmpm = &nl_reqbits; *tmpm; tmpm=&((*tmpm)->next)) {
-	if ((*tmpm)->value & flags) {
-	    t = xstrcat(t, (char *)" ");
-	    t = xstrcat(t, (*tmpm)->name);
-	}
-    }
-    for (tmpm = &nl_request; *tmpm; tmpm=&((*tmpm)->next)) {
-	if ((*tmpm)->value == flags) {
-	    t = xstrcat(t, (char *)" (");
-	    t = xstrcat(t, (*tmpm)->name);
-	    t = xstrcat(t, (char *)")");
-	}
-    }
-    Syslog('n', "%s", t);
-    free(t);
-}
-
-
-
-void moflags(unsigned int flags)
-{
-    char	    *t;
-    nodelist_modem  **tmpm;
-
-    if (!flags)
-	return;
-    t = xstrcpy((char *)"Modem flags  :");
-    for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next)) {
-	if ((*tmpm)->mask & flags) {
-	    t = xstrcat(t, (char *)" ");
-	    t = xstrcat(t, (*tmpm)->name);
-	}
-    }
-    Syslog('n', "%s", t);
-    free(t);
-}
-
-
-
-void diflags(unsigned int flags)
-{
-    char	    *t;
-    nodelist_modem  **tmpm;
-    
-    if (!flags)
-	return;
-    t = xstrcpy((char *)"ISDN flags   :");
-    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next)) {
-	if ((*tmpm)->mask & flags) {
-	    t = xstrcat(t, (char *)" ");
-	    t = xstrcat(t, (*tmpm)->name);
-	}
-    }
-    Syslog('n', "%s", t);
-    free(t);
-}
-
-
-
-void ipflags(unsigned int flags)
-{
-    char	    *t;
-    nodelist_modem  **tmpm;
-    
-    if (!flags)
-	return;
-    t = xstrcpy((char *)"TCP/IP flags :");
-    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
-	if ((*tmpm)->mask & flags) {
-	    t = xstrcat(t, (char *)" ");
-	    t = xstrcat(t, (*tmpm)->name);
-	}
-    }
-    Syslog('n', "%s", t);
-    free(t);
 }
 
 
