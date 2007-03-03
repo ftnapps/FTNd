@@ -46,8 +46,9 @@ iconv_t		cd2;			/* Conversion descriptor 2	*/
  * them).
  */
 struct _charalias charalias[] = {
-    {(char *)"ASCII",           (char *)"US-ASCII"},
-    {(char *)"VT100",           (char *)"US-ASCII"},
+    {(char *)"ASCII",           (char *)"CP437"},
+    {(char *)"VT100",           (char *)"CP437"},
+    {(char *)"US_ASCII",	(char *)"CP437"},
     {(char *)"LATIN",		(char *)"LATIN-1"},
     {(char *)"AMIGA",           (char *)"CP437"},
     {(char *)"IBMPC",           (char *)"CP437"},
