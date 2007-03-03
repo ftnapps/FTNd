@@ -2824,7 +2824,6 @@ int Ext_Edit()
 	fprintf(fd,"BBSFSEDKEYS='%d'\n",exitinfo.FSemacs);
 	fprintf(fd,"LINES='%d'\n",rows);
 	fprintf(fd,"COLUMNS='80'\n");
-	fprintf(fd,"UTF8='%s'\n",utf8?"Yes":"No");
 	fclose(fd);
     }
 

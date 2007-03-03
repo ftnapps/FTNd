@@ -69,6 +69,10 @@ v0.91.5		18-Feb-2007
 	lang:
 		Language prompts 44, 75 and 76 are obsolete.
 
+	script:
+		Adjusted editor script to use nansi.sys if ansi.sys is not
+		available in the terminfo database.
+
 	examples:
 		Upgraded the html macro templates to produce UTF-8 web pages.
 
