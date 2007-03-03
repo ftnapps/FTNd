@@ -13,7 +13,7 @@ function alarma
 }
 
 ## Set term environmment 
-export JOETERM=ansi.sys
+export JOETERM=nansi.sys
 
 ## Read variables from data.msg
 . $HOME/data.msg
@@ -23,7 +23,7 @@ TIME=`head -n19 $HOME/door.sys  |tail -n1  |tr -d "[:cntrl:]"`
 
 ## Set preferred editor and parameters
 EDITOR=@joebin@/bbsjoe
-if [ "$UTF-8" == "Yes" ]; then
+if [ "$UTF8" == "Yes" ]; then
     PARAM="-guess_utf8 $HOME/edit.msg"
 else
     PARAM="$HOME/edit.msg"
@@ -91,7 +91,7 @@ alarma $TIME $EDITOR &
 
 ## Draw header and call editor
 echo -e "[2J[1;1H[0m[1;44m                                                                                 "
-echo -e "[1;1H[0m[1;44m$LANGAREA: [31m$AREANUM[37m [33m$AREA"
+echo -e "[1;1H[0m[1;44m$LANGAREA: [31m$AREANUM[37m [33m$AREA $UTF8 $TERM $JOETERM"
 echo -e "[2;1H[0m[1;33m$LANGFROM: [32m$MSGFROM [36m$MSGFROMADDR"
 echo -e "[3;1H[0m[1;33m$LANGTO: [0;32m$MSGTO [36m$MSGTOADDR"
 echo -e "[4;1H[0m[1;33m$LANGRE: [0;32m$MSGSUBJECT"
