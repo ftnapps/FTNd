@@ -4,7 +4,7 @@
  * Purpose ...............: Zmodem receive
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -347,7 +347,6 @@ nxthdr:
 				continue;
 			    }
 moredata:
-			    Syslog('Z', "%7ld ZMODEM%s    ", rxbytes, Crc32r?" CRC-32":"");
 			    Nopper();
 			    alarm_on();
 			    switch (c = zrdata(secbuf, MAXBLOCK)) {

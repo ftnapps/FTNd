@@ -741,7 +741,6 @@ int Test_DOB(char *DOB)
 	UserAge--;
     if (((l_date->tm_mon + 1) == month) && (l_date->tm_mday < day))
 	UserAge--; 
-    Syslog('B', "DOB: Users age %d year", UserAge);
     return TRUE;
 }
 

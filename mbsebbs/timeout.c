@@ -4,7 +4,7 @@
  * Purpose ...............: Inactivity timeout functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -117,7 +117,6 @@ void alarm_set(int val)
 {
     signal(SIGALRM, (void (*))alarm_sig);
     alarm(val);
-    Syslog('S', "Alarm set for %d seconds", val);
 }
 
 
@@ -133,6 +132,5 @@ void alarm_off()
 {
     alarm(0);
     signal(SIGALRM, SIG_IGN);
-    Syslog('S', "Alarm is off");
 }
 
