@@ -394,10 +394,10 @@ char *chartran(char *input)
 	    WriteError("$iconv(%s) cd1", printable(input, 0));
 	    strncpy(outbuf, input, sizeof(outbuf) -1);
 	}
-	if (strcmp(input, outbuf)) {
-	    Syslog(loglevel, "i %s", printable(input, 0));
-	    Syslog(loglevel, "u %s", printable(outbuf, 0));
-	}
+//	if (strcmp(input, outbuf)) {
+//	    Syslog(loglevel, "i %s", printable(input, 0));
+//	    Syslog(loglevel, "u %s", printable(outbuf, 0));
+//	}
 	return outbuf;
     }
 
@@ -414,15 +414,15 @@ char *chartran(char *input)
 	    WriteError("$iconv(%s) cd2", printable(input, 0));
 	    strncpy(outbuf, input, sizeof(outbuf) -1);
 	}
-	if (strcmp(input, outbuf)) {
-	    Syslog(loglevel, "u %s", printable(input, 0));
-	    Syslog(loglevel, "o %s", printable(outbuf, 0));
-	}
+//	if (strcmp(input, outbuf)) {
+//	    Syslog(loglevel, "u %s", printable(input, 0));
+//	    Syslog(loglevel, "o %s", printable(outbuf, 0));
+//	}
 	return outbuf;
     }
 
     /*
-     * Double translation via UTF-8
+     * Double translation with UTF-8 as the middleman.
      */
     inSize = strlen(input);
     outSize = sizeof(temp);
@@ -434,9 +434,9 @@ char *chartran(char *input)
 	strncpy(outbuf, input, sizeof(outbuf) -1);
 	return outbuf;
     }
-    if (strcmp(input, temp)) {
-	Syslog(loglevel, "i %s", printable(input, 0));
-    }
+//    if (strcmp(input, temp)) {
+//	Syslog(loglevel, "i %s", printable(input, 0));
+//    }
 
     inSize = strlen(temp);
     outSize = sizeof(outbuf);
@@ -447,12 +447,12 @@ char *chartran(char *input)
 	WriteError("$iconv(%s) cd2", printable(temp, 0));
 	strncpy(outbuf, input, sizeof(outbuf) -1);
     }
-    if (strcmp(input, temp) || strcmp(temp, outbuf)) {
-	Syslog(loglevel, "u %s", printable(temp, 0));
-    }
-    if (strcmp(temp, outbuf)) {
-	Syslog(loglevel, "o %s", printable(outbuf, 0));
-    }
+//    if (strcmp(input, temp) || strcmp(temp, outbuf)) {
+//	Syslog(loglevel, "u %s", printable(temp, 0));
+//    }
+//    if (strcmp(temp, outbuf)) {
+//	Syslog(loglevel, "o %s", printable(outbuf, 0));
+//    }
 
     return outbuf;
 }
