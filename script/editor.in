@@ -91,7 +91,7 @@ alarma $TIME $EDITOR &
 
 ## Draw header and call editor
 echo -e "[2J[1;1H[0m[1;44m                                                                                 "
-echo -e "[1;1H[0m[1;44m$LANGAREA: [31m$AREANUM[37m [33m$AREA"
+echo -e "[1;1H[0m[1;44m$LANGAREA: [31m$AREANUM[37m [33m$AREA $UTF8 $TERM $JOETERM"
 echo -e "[2;1H[0m[1;33m$LANGFROM: [32m$MSGFROM [36m$MSGFROMADDR"
 echo -e "[3;1H[0m[1;33m$LANGTO: [0;32m$MSGTO [36m$MSGTOADDR"
 echo -e "[4;1H[0m[1;33m$LANGRE: [0;32m$MSGSUBJECT"
