@@ -1,16 +1,21 @@
 $Id$
 
 
-v0.91.5		18-Feb-2007
+v0.91.6		05-Mar-2007
+
+
+v0.91.5		18-Feb-2007 - 05-Mar-2007
 
 		With this version de default internal character encoding is
 		UTF-8. BBS users who have a UTF-8 terminal can use the bbs in
 		UTF-8 mode and should have no troubles at all reading and
 		writing messages in several language encodings.
+		There is extra logging which will go away ASAP.
 
 	upgrade:
+		Compile and install this new version. 
 		In all macro files html.* change the charset to UTF-8.
-		If you still have all default macro files thein in the source
+		If you still have all default macro files then in the source
 		directory mbsebbs/examples simply run "make macros" to install
 		the updated versions.
 		Run "mbfile index -f " once to regenerate all download html
@@ -18,12 +23,12 @@ v0.91.5		18-Feb-2007
 		errors.
 		In mbsetup menu 1.3.7 change logo.asc into logo.ans and make
 		sure you have that file. A note about the logo file, it will
-		be displayed before we know if a user ahs a utf-8 or ansi
+		be displayed before we know if a user has a utf-8 or ansi
 		terminal, so change your logo screen so that it has no ansi
-		grafics, just plain ascii with ansi color codes.
-		Start and leave mbsetup, this will upgrade the newfiles
-		reports to set a defaults CHRS kludge CP437 2 which is good
-		for reports with ANSI blockgraphics.
+		grafic characters, just plain ascii with ansi color codes.
+		Start and leave mbsetup, this will upgrade the newfiles and
+		filefind reports to set a defaults CHRS kludge CP437 2 which 
+		is good for reports with ANSI blockgraphics.
 
 	mbselib:
 		Fixed a too low memory allocation in clencode.
@@ -52,7 +57,7 @@ v0.91.5		18-Feb-2007
 
 	mball:
 		Now also creates allfiles.utf and newfiles.utf with UTF-8
-		encoded text. Noth new files will also be added to the zip
+		encoded text. These new files will also be added to the zip
 		archives.
 
 	mbnntp:
@@ -75,6 +80,8 @@ v0.91.5		18-Feb-2007
 
 	examples:
 		Upgraded the html macro templates to produce UTF-8 web pages.
+		Upgraded the txtfiles examples to only have .ans screens. The
+		logo.ans screen now works on ANSI and UTF-8 terminals.
 
 
 

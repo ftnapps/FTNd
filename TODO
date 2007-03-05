@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.91.5 TODO list.
+			MBSE BBS V0.91.6 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -16,11 +16,9 @@ $Id$
 		 X = Will not be done unless it's really needed.
 
 everything:
-	U: For changed su versions, use 'who am i' to check if we are mbse
-	   su to root.
-
 	N: Fix adding messages if there are deleted messages in a jam area.
-	   Currently messages with the del flag set are overwritten.
+	   Currently messages with the del flag set are overwritten. Update,
+	   this seems not true and this problem is still being investigated.
 
 	W: Implement IPv6.
 
@@ -52,9 +50,6 @@ mbsebbs:
 	X: OLR: check qwke extensions.
 
 	N: OLR: qwk, check netmail entered from reader, fido address missing?
-
-	N: Translate characterset of messages to the users preferred 
-           characterset. This is partly done for testing.
 
 	W: Implement kermit protocol, external versions don't work right.
 
