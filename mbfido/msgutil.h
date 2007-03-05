@@ -10,7 +10,6 @@ void	Msg_Macro(FILE *);
 int	Msg_Top(char *, int, fidoaddr);
 void	Msg_Bot(fidoaddr, char *, char *);
 void	CountPosted(char *);
-char	*To_Low(char *, int);
 
 #endif
 

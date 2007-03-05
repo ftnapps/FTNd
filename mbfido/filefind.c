@@ -169,11 +169,12 @@ int StartReply(ff_list *ffl)
     }
     Msg_New();
 
+    chartran_init((char *)"CP437", get_ic_ftn(scanmgr.charset), 'f');
     temp = calloc(PATH_MAX, sizeof(char));
 
     snprintf(Msg.From, 101, "%s", CFG.sysop_name);
-    snprintf(Msg.To, 101, "%s", ffl->from);
-    snprintf(Msg.Subject, 101, "Re: %s", ffl->subject);
+    snprintf(Msg.To, 101, "%s", chartran(ffl->from));
+    snprintf(Msg.Subject, 101, "Re: %s", chartran(ffl->subject));
     snprintf(Msg.FromAddress, 101, "%s", aka2str(scanmgr.Aka));
     Msg.Written = time(NULL);
     Msg.Arrived = time(NULL);
@@ -193,7 +194,7 @@ int StartReply(ff_list *ffl)
     MsgText_Add2(temp);
     Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
     free(temp);
-    Msg_Pid(FTNC_NONE);
+    Msg_Pid(scanmgr.charset);
     return Msg_Top(scanmgr.template, scanmgr.Language, scanmgr.Aka);
 }
 
@@ -222,6 +223,8 @@ void FinishReply(int Reported, int Total, int filepos)
     Msg_AddMsg();
     Msg_UnLock();
     Syslog('+', "Posted message %ld", Msg.Id);
+
+    chartran_close();
 
     snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), scanmgr.NetReply?"net":"echo");
     if ((fp = fopen(temp, "a")) != NULL) {
@@ -408,7 +411,7 @@ void ScanFiles(ff_list *tmp)
 				break;
 			mbsedb_CloseFDB(fdb_area);
 			MacroVars("slbkdt", "ssddss", fdb.Name, fdb.LName, fdb.Size, fdb.Size / 1024, " ",
-					To_Low(fdb.Desc[0],scanmgr.HiAscii));
+					chartran(fdb.Desc[0]));
 			fseek(fi, filepos1, SEEK_SET);
 			Msg_Macro(fi);
 			filepos2 = ftell(fi);
@@ -419,7 +422,7 @@ void ScanFiles(ff_list *tmp)
 			 * to prevent unnecesary long messages.
 			 */
 			for (i = 1; i < MAX_DESC_LINES; i++) {
-			    MacroVars("t", "s", To_Low(fdb.Desc[i],scanmgr.HiAscii));
+			    MacroVars("t", "s", chartran(fdb.Desc[i]));
 			    fseek(fi, filepos2, SEEK_SET);
 			    if (strlen(fdb.Desc[i])) {
 				Msg_Macro(fi);

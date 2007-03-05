@@ -46,9 +46,9 @@ v0.91.5		18-Feb-2007
 		The make web stat produces UTF-8 webpages.
 
 	mbaff:
-		For each newfile report there is now a CHRS kludge setting.
-		Reports will be converted to the selected charset. Origin
-		characterset is CP437 for now.
+		For each newfileis and filefind report there is now a CHRS 
+		kludge setting. Reports will be converted to the selected 
+		charset. Origin characterset is CP437 for now.
 
 	mball:
 		Now also creates allfiles.utf and newfiles.utf with UTF-8
@@ -63,8 +63,8 @@ v0.91.5		18-Feb-2007
 		Fixed a too low memory allocation in clencode.
 
 	mbsetup:
-		In newfiles reports the Hi-ASCII setting is gone and a CHRS
-		kludge selection is added. Defaults to CP437 2.
+		In newfiles and filefind reports the Hi-ASCII setting is gone
+		and a CHRS kludge selection is added. Defaults to CP437 2.
 
 	lang:
 		Language prompts 44, 75 and 76 are obsolete.

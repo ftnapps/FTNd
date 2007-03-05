@@ -4,7 +4,7 @@
  * Purpose ...............: Filefind Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -124,6 +124,10 @@ int OpenFilefind(void)
 				    scanmgr.keywordlen = 3;
 				    FilefindUpdated = 1;
 				}
+				if (scanmgr.charset == 0) {
+				    scanmgr.charset = FTNC_CP437;
+				    FilefindUpdated = 1;
+				}
 				fwrite(&scanmgr, sizeof(scanmgr), 1, fout);
 				memset(&scanmgr, 0, sizeof(scanmgr));
 			}
@@ -200,6 +204,7 @@ int AppendFilefind(void)
 		snprintf(scanmgr.template, 15, "filefind");
 		strncpy(scanmgr.Origin, CFG.origin, 50);
 		scanmgr.keywordlen = 3;
+		scanmgr.charset = FTNC_CP437;
 		fwrite(&scanmgr, sizeof(scanmgr), 1, fil);
 		fclose(fil);
 		FilefindUpdated = 1;
@@ -226,7 +231,7 @@ void FFScreen(void)
 	mbse_mvprintw(14, 2, "8.  Active");
 	mbse_mvprintw(15, 2, "9.  Deleted");
 	mbse_mvprintw(16, 2, "10. Net. reply");
-	mbse_mvprintw(17, 2, "11. Hi Ascii");
+	mbse_mvprintw(17, 2, "11. CHRS kludge");
 	mbse_mvprintw(18, 2, "12. Keywrd len");
 }
 
@@ -279,7 +284,7 @@ int EditFfRec(int Area)
 	show_bool(14,18,    scanmgr.Active);
 	show_bool(15,18,    scanmgr.Deleted);
 	show_bool(16,18,    scanmgr.NetReply);
-	show_bool(17,18,    scanmgr.HiAscii);
+	show_charset(17,18, scanmgr.charset);
 	show_int( 18,18,    scanmgr.keywordlen);
 		
 	switch(select_menu(12)) {
@@ -317,7 +322,8 @@ int EditFfRec(int Area)
 	    case 8: E_BOOL(14,18,    scanmgr.Active,    "If this report is ^active^")
 	    case 9: E_BOOL(15,18,    scanmgr.Deleted,   "If this record is ^deleted^")
 	    case 10:E_BOOL(16,18,    scanmgr.NetReply,  "If reply's via ^netmail^ instead of echomail")
-	    case 11:E_BOOL(17,18,    scanmgr.HiAscii,   "Allow ^Hi ASCII^ in this area")
+	    case 11:scanmgr.charset = edit_charset(17,18, scanmgr.charset);
+		    break;
 	    case 12:E_IRC( 18,18,    scanmgr.keywordlen, 3, 8, "Minimum ^keyword length^ to allowed for search")
 	}
     }
@@ -478,7 +484,7 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Template file", scanmgr.template);
 	    add_webtable(wp, (char *)"Active", getboolean(scanmgr.Active));
 	    add_webtable(wp, (char *)"Netmail reply", getboolean(scanmgr.NetReply));
-	    add_webtable(wp, (char *)"Allow Hi-ASCII", getboolean(scanmgr.HiAscii));
+	    add_webtable(wp, (char *)"CHRS kludge", getftnchrs(scanmgr.charset));
 	    add_webdigit(wp, (char *)"Keyword length", scanmgr.keywordlen);
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
@@ -523,7 +529,7 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "     Template file     %s\n", scanmgr.template);
 	fprintf(fp, "     Active            %s\n", getboolean(scanmgr.Active));
 	fprintf(fp, "     Netmail reply     %s\n", getboolean(scanmgr.NetReply));
-	fprintf(fp, "     Allow Hi-ASCII    %s\n", getboolean(scanmgr.HiAscii));
+	fprintf(fp, "     CHRS kludge       %s\n", getftnchrs(scanmgr.charset));
 	fprintf(fp, "     Keyword length    %d\n", scanmgr.keywordlen);
 	fprintf(fp, "\n\n");
 	j++;
