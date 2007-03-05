@@ -1990,8 +1990,9 @@ struct	_scanmgr {
 	unsigned	Active		: 1;	/* Record active	   */
 	unsigned	NetReply	: 1;	/* Netmail reply	   */
 	unsigned	Deleted		: 1;	/* Area is deleted	   */
-	unsigned	HiAscii		: 1;	/* High Ascii allowed	   */
+	unsigned	xHiAscii	: 1;
 	int		keywordlen;		/* Minimum keyword length  */
+	int		charset;		/* Characterset to use	   */
 };
 
 
