@@ -3,6 +3,28 @@ $Id$
 
 v0.91.6		05-Mar-2007
 
+	upgrade:
+		This upgrade is not needed if you are happy with the current
+		symbolic links in the download fileareas.
+		You need to remove all existing symbolic links with paths, and
+		recreate the symbolic links without pathnames do:
+
+		mbse$ cd /opt/mbse/ftp
+		mbse$ find pub -type l -exec rm '{}' \;
+		mbse$ mbfile check
+		
+	mbfido:
+		The add file function now creates links without pathnames.
+
+	mbfile:
+		The check command now repairs filenames without using absolute
+		pathnames.
+		The adopt, import and move functions now make links without
+		path.
+
+	mbsebbs:
+		Uploaded files now have symlinks without pathnames.
+
 
 v0.91.5		18-Feb-2007 - 05-Mar-2007
 

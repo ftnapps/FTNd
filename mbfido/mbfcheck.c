@@ -298,13 +298,18 @@ void CheckArea(int Area)
     inArea = 0;
     while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 
+	if (chdir(area.Path)) {
+	    WriteError("$Can't chdir to %s", area.Path);
+	    break;
+	}
+
 	iTotal++;
 	inArea++;
-	snprintf(newdir, PATH_MAX, "%s/%s", area.Path, fdb.LName);
-	snprintf(mname,  PATH_MAX, "%s/%s", area.Path, fdb.Name);
+	snprintf(newdir, PATH_MAX, "%s", fdb.LName);
+	snprintf(mname,  PATH_MAX, "%s", fdb.Name);
 
-	if (file_exist(newdir, R_OK) && file_exist(mname, R_OK)) {
-	    Syslog('+', "File %s area %ld not on disk.", newdir, Area);
+	if (file_exist(fdb.LName, R_OK) && file_exist(fdb.Name, R_OK)) {
+	    Syslog('+', "File %s area %ld not on disk.", fdb.Name, Area);
 	    if (!fdb.NoKill) {
 	    	fdb.Deleted = TRUE;
 	    	do_pack = TRUE;
@@ -324,15 +329,15 @@ void CheckArea(int Area)
 
 	    strcpy(temp, fdb.LName);
 	    name_mangle(temp);
-	    snprintf(mname, PATH_MAX, "%s/%s", area.Path, temp);
+	    snprintf(mname, PATH_MAX, "%s", temp);
 	    if (strcmp(fdb.Name, temp))  {
 		Syslog('!', "Converted %s to %s", fdb.Name, temp);
 	    	tname = calloc(PATH_MAX, sizeof(char));
-	    	snprintf(tname, PATH_MAX, "%s/%s", area.Path, fdb.Name);
-	    	rename(tname, mname);
-	    	snprintf(tname, PATH_MAX, "%s/%s", area.Path, fdb.LName);
-	    	unlink(tname);
-	    	symlink(mname, tname);
+	    	snprintf(tname, PATH_MAX, "%s", fdb.Name);
+	    	rename(fdb.Name, mname);
+	    	snprintf(tname, PATH_MAX, "%s", fdb.LName);
+	    	unlink(fdb.LName);
+	    	symlink(mname, fdb.LName);
 	    	free(tname);
 	    	strncpy(fdb.Name, temp, 12);
 	    	iErrors++;
@@ -347,12 +352,11 @@ void CheckArea(int Area)
 	    	 * 8.3 and LFN are the same.
 	    	 */
 	    	tname = calloc(PATH_MAX, sizeof(char));
-	    	snprintf(tname, PATH_MAX, "%s/%s", area.Path, fdb.LName);
+	    	snprintf(tname, PATH_MAX, "%s", fdb.LName);
 	    	for (j = 0; j < strlen(fdb.LName); j++)
 	    	    fdb.LName[j] = tolower(fdb.LName[j]);
-	    	snprintf(newdir, PATH_MAX, "%s/%s", area.Path, fdb.LName);
-	    	if (strcmp(tname, newdir)) {
-	    	    Syslog('+', "Rename LFN from %s to %s", fdb.Name, fdb.LName);
+	    	if (strcmp(tname, fdb.LName)) {
+	    	    Syslog('+', "Rename LFN from %s to %s", tname, fdb.LName);
 	    	    rename(tname, newdir);
 	    	    Update = TRUE;
 	    	}
@@ -365,7 +369,7 @@ void CheckArea(int Area)
 	     * or both. One of them may also be a symbolic link or not exist
 	     * at all. Whatever it was, make it good.
 	     */
-	    if ((lstat(newdir, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
+	    if ((lstat(fdb.LName, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
 		/*
 	    	 * Long filename is a regular file and not a symbolic link.
 	    	 */
@@ -374,17 +378,17 @@ void CheckArea(int Area)
 	    	     * 8.3 name exists, is it a real file?
 	    	     */
 	    	    if ((stb.st_mode & S_IFLNK) != S_IFLNK) {
-	    		unlink(newdir);
-	    		symlink(mname, newdir);
-	    		Syslog('+', "%s changed into symbolic link", newdir);
+	    		unlink(fdb.LName);
+	    		symlink(mname, fdb.LName);
+	    		Syslog('+', "%s changed into symbolic link", fdb.LName);
 	    		iErrors++;
 	    	    } else {
 	    		/*
 	    		 * 8.3 is a symbolic link.
 	    		 */
 	    		unlink(mname);
-	    		rename(newdir, mname);
-	    		symlink(mname, newdir);
+	    		rename(fdb.LName, mname);
+	    		symlink(mname, fdb.LName);
 	    		Syslog('+', "%s changed to real file", mname);
 	    		iErrors++;
 	    	    }
@@ -392,8 +396,8 @@ void CheckArea(int Area)
 	    	    /*
 	    	     * No 8.3 name on disk.
 	    	     */
-	    	    rename(newdir, mname);
-	    	    symlink(mname, newdir);
+	    	    rename(fdb.LName, mname);
+	    	    symlink(mname, fdb.LName);
 	    	    Syslog('+', "%s changed to real file and created symbolic link", mname);
 	    	    iErrors++;
 	    	}
@@ -401,7 +405,7 @@ void CheckArea(int Area)
 	    	/*
 	    	 * Short filename is a real file.
 	    	 */
-	    	if (lstat(newdir, &stb) == 0) {
+	    	if (lstat(fdb.LName, &stb) == 0) {
 	    	    /*
 	    	     * LFN exists, is it a real file?
 	    	     */
@@ -409,31 +413,31 @@ void CheckArea(int Area)
 	    	    	/*
 	    	    	 * LFN is a real filename too.
 	    	    	 */
-	    	    	unlink(newdir);
-	    	    	symlink(mname, newdir);
-	    	    	Syslog('+', "%s changed into symbolic link", newdir);
+	    	    	unlink(fdb.LName);
+	    	    	symlink(mname, fdb.LName);
+	    	    	Syslog('+', "%s changed into symbolic link", fdb.LName);
 	    	    	iErrors++;
 	    	    }
 	    	} else {
 	    	    /*
 	    	     * No LFN, create symbolic link
 	    	     */
-	    	    symlink(mname, newdir);
-	    	    Syslog('+', "%s created symbolic link", newdir);
+	    	    symlink(mname, fdb.LName);
+	    	    Syslog('+', "%s created symbolic link", fdb.LName);
 	    	    iErrors++;
 	    	}
 	    } else {
 	    	/*
 	    	 * Weird, could not happen
 	    	 */
-	    	Syslog('!', "Weird problem, %s is no regular file", newdir);
+	    	Syslog('!', "Weird problem, %s is no regular file", fdb.LName);
 	    }
 
 	    /*
     	     * It could be that there is a thumbnail made of the 8.3 filename
     	     */
     	    tname = calloc(PATH_MAX, sizeof(char));
-    	    snprintf(tname, PATH_MAX, "%s/.%s", area.Path, fdb.Name);
+    	    snprintf(tname, PATH_MAX, ".%s", fdb.Name);
     	    if (file_exist(tname, R_OK) == 0) {
     		Syslog('+', "Removing wrong 8.3 thumbnail %s", tname);
     		iErrors++;
@@ -442,27 +446,27 @@ void CheckArea(int Area)
     	    free(tname);
 
 
-    	    if (file_time(newdir) != fdb.FileDate) {
+    	    if (file_time(fdb.LName) != fdb.FileDate) {
     		Syslog('!', "Date mismatch area %ld file %s", Area, fdb.LName);
-    		fdb.FileDate = file_time(newdir);
+    		fdb.FileDate = file_time(fdb.LName);
     		iErrors++;
     		Update = TRUE;
     	    }
-    	    if (file_size(newdir) != fdb.Size) {
+    	    if (file_size(fdb.LName) != fdb.Size) {
     		Syslog('!', "Size mismatch area %ld file %s", Area, fdb.LName);
-    		fdb.Size = file_size(newdir);
+    		fdb.Size = file_size(fdb.LName);
     		iErrors++;
     		Update = TRUE;
     	    }
-    	    if (file_crc(newdir, CFG.slow_util && do_quiet) != fdb.Crc32) {
+    	    if (file_crc(fdb.LName, CFG.slow_util && do_quiet) != fdb.Crc32) {
     		Syslog('!', "CRC error area %ld, file %s", Area, fdb.LName);
-    		fdb.Crc32 = file_crc(newdir, CFG.slow_util && do_quiet);
+    		fdb.Crc32 = file_crc(fdb.LName, CFG.slow_util && do_quiet);
     		iErrors++;
     		Update = TRUE;
     	    }
-	    if (stat(newdir, &stb) == 0) {
+	    if (stat(fdb.LName, &stb) == 0) {
 		if (stb.st_mode != 0100644) {
-		    if (chmod(newdir, 0644) == 0) {
+		    if (chmod(fdb.LName, 0644) == 0) {
 			 Syslog('!', "Fixed filemode area %ld, file %s", Area, fdb.LName);
 			 iErrors++;
 		    }

@@ -4,7 +4,7 @@
  * Purpose ...............: Add TIC file to the BBS
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -166,9 +166,15 @@ int Add_BBS(qualify **qal)
     }
     Found = FALSE;
     lname = calloc(PATH_MAX, sizeof(char));
-    snprintf(lname, PATH_MAX, "%s/%s", TIC.BBSpath, frec.LName);
-    if (symlink(temp2, lname)) {
-	WriteError("$Create link %s to %s failed", temp2, lname);
+    if (getcwd(lname, PATH_MAX -1)) {
+	if (chdir(TIC.BBSpath)) {
+	    WriteError("$Can't chdir %s", TIC.BBSpath);
+	} else {
+	    // snprintf(lname, PATH_MAX, "%s/%s", TIC.BBSpath, frec.LName);
+	    if (symlink(frec.Name, frec.LName)) {
+		WriteError("$Create link %s to %s failed", frec.Name, frec.LName);
+	    }
+	}
     }
     free(lname);
 

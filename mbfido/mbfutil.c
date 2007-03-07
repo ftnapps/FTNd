@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -274,8 +274,9 @@ int UnpackFile(char *File)
  */
 int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, char *LinkPath)
 {
-    int	    rc;
+    int	    	    rc;
     struct _fdbarea *fdb_area = NULL;
+    char	    *temp, *dest, *lnk;
 
     Syslog('f', "AddFile Area    : %d", Area);
     Syslog('f', "AddFile DestPath: %s", MBSE_SS(DestPath));
@@ -305,16 +306,31 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
 	    printf("\nCan't copy file to %s, %s\n", DestPath, strerror(rc));
 	return FALSE;
     }
+
     chmod(DestPath, 0644);
     if (LinkPath) {
-	unlink(LinkPath);
-	if ((rc = symlink(DestPath, LinkPath))) {
-	    WriteError("Can't create symbolic link %s", LinkPath);
-	    if (!do_quiet)
-		printf("\nCan't create symbolic link %s, %s\n", LinkPath, strerror(rc));
-	    unlink(DestPath);
-	    return FALSE;
+	temp = calloc(PATH_MAX, sizeof(char));
+	if (getcwd(temp, PATH_MAX-1)) {
+	    if (chdir(area.Path)) {
+		WriteError("$Can't chdir to %s", area.Path);
+		free(temp);
+		return FALSE;
+	    }
+	    unlink(LinkPath);
+	    dest = xstrcpy(basename(DestPath));
+	    lnk = xstrcpy(basename(LinkPath));
+	    if ((rc = symlink(dest, lnk))) {
+	    	WriteError("Can't create symbolic link %s", lnk);
+	    	if (!do_quiet)
+		    printf("\nCan't create symbolic link %s, %s\n", lnk, strerror(rc));
+	   	unlink(DestPath);
+	    	return FALSE;
+	    }
+	    free(dest);
+	    free(lnk);
+	    chdir(temp);
 	}
+	free(temp);
     }
 
     if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {

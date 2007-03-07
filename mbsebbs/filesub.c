@@ -864,20 +864,28 @@ int Addfile(char *File, int AreaNum, int fileid)
 	fdb.Crc32 = file_crc(Filename, TRUE);
 	strncpy(fdb.Uploader, exitinfo.sUserName, 35);
 	fdb.UploadDate = time(NULL);
-	if (strcmp(fdb.Name, fdb.LName)) {
-	    /*
-	     * Rename the file first to the 8.3 name, this is the
-	     * standard way to store files in the filebase.
-	     */
-	    snprintf(lname, PATH_MAX, "%s/%s", area.Path, fdb.Name);
-	    rename(Filename, lname);
-	    /*
-	     * Then make a symlink to the 8.3 name
-	     */
-	    if (symlink(lname, Filename)) {
-		WriteError("$Can't create link %s to %s", lname, Filename);
+
+	/*
+	 * Create the symlink is done in the real directory
+	 */
+	if (getcwd(lname, PATH_MAX-1)) {
+	    chdir(area.Path);
+	    if (strcmp(fdb.Name, fdb.LName)) {
+	    	/*
+	    	 * Rename the file first to the 8.3 name, this is the
+	    	 * standard way to store files in the filebase.
+	    	 */
+	    	rename(fdb.LName, fdb.Name);
+	    	/*
+	    	 * Then make a symlink to the 8.3 name
+	    	 */
+	    	if (symlink(fdb.Name, fdb.LName)) {
+		    WriteError("$Can't create link %s to %s", fdb.Name, fdb.LName);
+	    	}
 	    }
+	    chdir(lname);
 	}
+	free(lname);
 
 	if (area.PwdUP) {
 	    Enter(1);
