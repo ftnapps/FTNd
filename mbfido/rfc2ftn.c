@@ -248,7 +248,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	charset = xstrcpy((char *)"ISO-8859-1");
 	Syslog('m', "No charset, setting default to ISO-8859-1");
     }
-    chars_in = find_rfc_charset(charset);
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
@@ -332,14 +331,21 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (fmsg->to)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
 
+    chars_in = find_rfc_charset(charset);
     chars_out = msgs.Charset;
-    Syslog('m', "rfc2ftn: chars_in=%d chars_out=%d", chars_in, chars_out);
-    Syslog('m', "rfc2ftn: charset in: %s charset out: %s", get_ic_rfc(chars_in), get_ic_ftn(chars_out));
-    
-    /*
-     * Setup charset conversion
-     */
-    chartran_init(get_ic_rfc(chars_in), get_ic_ftn(chars_out), 'm');
+    if (chars_in == FTNC_ERROR) {
+	/*
+	 * Not in standard tables, go ahead with the uppercase name
+	 * and see if iconv will take it. It doesn't really matter if
+	 * we support the incoming rfc charset,
+	 */
+	tu(charset);
+	Syslog('m', "rfc2ftn: charset in: %s charset out: %s", charset, get_ic_ftn(chars_out));
+	chartran_init(charset, get_ic_ftn(chars_out), 'm');
+    } else {
+	Syslog('m', "rfc2ftn: charset in: %s charset out: %s", get_ic_rfc(chars_in), get_ic_ftn(chars_out));
+	chartran_init(get_ic_rfc(chars_in), get_ic_ftn(chars_out), 'm');
+    }
 
     do {
 	Syslog('m', "rfc2ftn: split loop, splitpart = %d", splitpart);
@@ -843,9 +849,9 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"Keywords")) return 2;
 	if (!strcasecmp(msg->key,"Summary")) return 2;
 	if (!strcasecmp(msg->key,"MIME-Version")) return removemime ?0:1;
-	if (!strcasecmp(msg->key,"Content-Type")) return removemime ?0:1;
+	if (!strcasecmp(msg->key,"Content-Type")) return removemime ?1:1;	// was 0:1 temp 08-03-2007 mb
 	if (!strcasecmp(msg->key,"Content-Length")) return removemime ?0:1;
-	if (!strcasecmp(msg->key,"Content-Transfer-Encoding")) return removemime ?0:1;
+	if (!strcasecmp(msg->key,"Content-Transfer-Encoding")) return removemime ?1:1; // dito
 	if (!strcasecmp(msg->key,"Content-Name")) return 2;
 	if (!strcasecmp(msg->key,"Content-Description")) return 2;
 	if (!strcasecmp(msg->key,"Message-ID")) return removemsgid ?0:1;

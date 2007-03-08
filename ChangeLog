@@ -3,6 +3,20 @@ $Id$
 
 v0.91.7		07-Mar-2007
 
+	mbselib:
+		If find_rfc_charset doesn't find a valid characterset we log a
+		warning instead of an error.
+
+	mbfido:
+		In rfc2ftn if we cannot find the incoming charset from the
+		standard table we will fall back to the charset in the
+		Content-type: header and try to initialize iconv with that
+		value.
+		For debug help to me, the headers Content-Type and
+		Content-Transfer-Encoding are temporary stored in the fido
+		message as kludges.
+
+
 v0.91.6		05-Mar-2007 - 07-Mar-2007
 
 	upgrade:

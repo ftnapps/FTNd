@@ -172,7 +172,7 @@ int find_rfc_charset(char *rfcname)
     }
     
     if (charmap[i].rfcname == NULL) {
-	WriteError("find_rfc_charset(%s) not found", rfcname);
+	Syslog('!', "find_rfc_charset(%s) not found", rfcname);
 	return FTNC_ERROR;
     }
     
