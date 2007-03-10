@@ -16,6 +16,9 @@ v0.91.7		07-Mar-2007
 		Content-Transfer-Encoding are temporary stored in the fido
 		message as kludges.
 
+	mbnntp:
+		Suppress logging of passwords.
+
 
 v0.91.6		05-Mar-2007 - 07-Mar-2007
 

@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE NNTP Server
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -265,7 +265,11 @@ void nntp(void)
 	if (len == 0)
 	    continue;
 
-	Syslog('n', "< \"%s\"", printable(buf, 0));
+	if (strcasecmp(buf, (char*)"AUTHINFO PASS")) {
+	    Syslog('n', "< \"%s\"", printable(buf, 0));
+	} else {
+	    Syslog('n', "< \"AUTHINFO PASS ********\"");
+	}
 	if (! check_free()) {
 	    send_nntp("400 server closed");
 	    return;
