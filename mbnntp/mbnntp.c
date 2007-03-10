@@ -265,7 +265,7 @@ void nntp(void)
 	if (len == 0)
 	    continue;
 
-	if (strcasecmp(buf, (char*)"AUTHINFO PASS")) {
+	if (strcasestr(buf, "AUTHINFO PASS") == NULL) {
 	    Syslog('n', "< \"%s\"", printable(buf, 0));
 	} else {
 	    Syslog('n', "< \"AUTHINFO PASS ********\"");

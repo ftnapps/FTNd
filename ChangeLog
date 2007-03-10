@@ -102,8 +102,8 @@ v0.91.5		18-Feb-2007 - 05-Mar-2007
 		archives.
 
 	mbnntp:
-		Reading news outputs UTF-8 coded articles.
-		TODO: test posting and fix if needed.
+		Reading news outputs UTF-8 coded articles. Posting is done
+		with the client side charset and translated when needed.
 
 	mbtask:
 		Fixed a too low memory allocation in clencode.

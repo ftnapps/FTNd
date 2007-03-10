@@ -290,6 +290,15 @@ void command_group(char *cmd)
 	     */
 	    if (msgs.Active && (msgs.Type == ECHOMAIL) && strlen(msgs.Newsgroup) &&
 		    (strcasecmp(opt, msgs.Newsgroup) == 0) && Access(usrconfig.Security, msgs.RDSec)) {
+		/*
+		 * Returns:
+		 *    211 n f l s group selected
+		 *        (n = estimated number of articles in group,
+		 *         f = first article number in the group,
+		 *         l = last article number in the group,
+		 *         s = name of the group.)
+		 *    411 no such news group
+		 */
 		if (Msg_Open(msgs.Base)) {
 		    Msg_Number();
 		    Msg_Highest();
