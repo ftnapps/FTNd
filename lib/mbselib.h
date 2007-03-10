@@ -461,7 +461,6 @@ extern struct _charmap {
     char 	*ftnkludge;
     char 	*rfcname;
     char 	*ic_ftn;
-    char 	*ic_rfc;
     char 	*lang;
     char 	*desc;
 } charmap[];
