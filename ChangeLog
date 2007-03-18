@@ -18,6 +18,13 @@ v0.91.7		07-Mar-2007
 		Content-Transfer-Encoding are temporary stored in the fido
 		message as kludges.
 
+	mbindex:
+		When the first Zone entry is missing in the nodelist, mbindex
+		aborts with a fatal error and doesn't replace the nodelist
+		index.
+		Keep the latest 4 instead of 2 nodelists in the nodelist
+		directory to allow a few weeks for recovery.
+
 	mbnntp:
 		Suppress logging of passwords.
 

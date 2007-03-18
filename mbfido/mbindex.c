@@ -630,6 +630,17 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	udx.node  = ndx.node;
 	udx.point = ndx.point;
 
+	if (ndx.zone == 0) {
+	    WriteError("%s(%u): no Zone entry found", nlname,lineno);
+	    fclose(nl);
+
+	    if (!do_quiet) {
+		printf(" %d entries\n", entries);
+		fflush(stdout);
+	    }
+	    return 1;
+	}
+
 	/*
 	 *  Now search for the baudrate field, just to check if it's there.
 	 */
@@ -827,12 +838,12 @@ int makelist(char *base, unsigned short zo, unsigned short ne, unsigned short no
 	}
 
 	/*
-	 * Sort found nodelists by age and kill all but the newest 2.
+	 * Sort found nodelists by age and kill all but the newest 4.
 	 */
 	sort_fdlist(&fdl);
 	while (files) {
 	    p = pull_fdlist(&fdl);
-	    if (files > 2) {
+	    if (files > 4) {
 		Syslog('+', "Remove old \"%s\"", p);
 		unlink(fullpath(p));
 	    }
