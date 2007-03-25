@@ -5,7 +5,7 @@
  * Original ideas ........: Eugene G. Crosser.
  * 
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -528,7 +528,7 @@ int apply(char *nl, char *nd, char *nn)
 
     fclose(fo);
     fclose(fd);
-    fputc('\012', fn);
+    fputc('\032', fn);
     fclose(fn);
 
     if ((rc != 0) && !do_quiet) {
