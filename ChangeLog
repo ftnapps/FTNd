@@ -28,6 +28,7 @@ v0.91.7		07-Mar-2007
 	mbdiff:
 		Wrote a lf instead of eof character as last character in the
 		new nodelist.
+		Fixed CRC error made by previous change.
 
 	mbnntp:
 		Suppress logging of passwords.

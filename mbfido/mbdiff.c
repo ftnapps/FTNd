@@ -482,6 +482,7 @@ int apply(char *nl, char *nd, char *nn)
 
 	while ((rc == 0) && fgets(cmdbuf, sizeof(cmdbuf)-1, fd)) {
 	    switch (cmdbuf[0]) {
+		case '\032':	break;
 		case ';':   Striplf(cmdbuf);
 			    break;
 		case 'A':   count = atoi(cmdbuf+1);
@@ -514,9 +515,14 @@ int apply(char *nl, char *nd, char *nn)
 			    Striplf(cmdbuf);
 			    for (i = 0; (i < count) && (rc == 0); i++)
 				if (fgets(lnbuf, sizeof(lnbuf) - 1, fo)) {
-				    for (p = lnbuf; *p; p++)
-					mycrc = updcrc(*p, mycrc);
-				    fputs(lnbuf, fn);
+				    /*
+				     * Don't use EOF character for CRC test.
+				     */
+				    if (lnbuf[0] != '\032') {
+				    	for (p = lnbuf; *p; p++)
+					    mycrc = updcrc(*p, mycrc);
+				    	fputs(lnbuf, fn);
+				    }
 				} else
 				    rc = 3;
 			    break;
@@ -539,15 +545,23 @@ int apply(char *nl, char *nd, char *nn)
     if ((rc == 0) && (mycrc != theircrc)) 
 	rc = 4;
 
-    if (rc == 3)
+    if (rc == 3) {
 	WriteError("Could not read some of the files");
-    else if (rc == 4)
+	if (!do_quiet)
+	    printf("Could not read some of the files\n");
+    } else if (rc == 4) {
 	WriteError("CRC is %hu, should be %hu", mycrc, theircrc);
-    else if (rc == 5)
+	if (!do_quiet)
+	    printf("CRC is %hu, should be %hu\n", mycrc, theircrc);
+    } else if (rc == 5) {
 	WriteError("Unknown input line: \"%s\"", cmdbuf);
-    else if (rc == 6)
+	if (!do_quiet)
+	    printf("Unknown input line: \"%s\"\n", cmdbuf);
+    } else if (rc == 6) {
 	WriteError("Diff does not match old list");
-    else {
+	if (!do_quiet)
+	    printf("Diff does not match old list\n");
+    } else {
 	Syslog('+', "Copied %d, added %d, deleted %d, difference %d", cc, ac, dc, ac-dc);
 	if (!do_quiet)
 	    printf("Created new nodelist\n");
