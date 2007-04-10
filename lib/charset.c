@@ -291,9 +291,9 @@ char *getchrsdesc(int val)
  * charactersets are given, the translation is off.
  * On success return 0, on error return -1 and write errorlog.
  */
-int chartran_init(char *fromset, char *toset, int logl)
+int chartran_init(char *fromset, char *toset, int loglvl)
 {
-    loglevel = logl;
+    loglevel = loglvl;
 
     if (use_tran1 || use_tran2) {
 	WriteError("chartran_init() called while still open");
