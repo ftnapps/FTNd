@@ -1,7 +1,13 @@
 $Id$
 
 
-v0.91.7		07-Mar-2007
+v0.91.8		26-Apr-2007
+
+	mbnewusr:
+		Fixed loading default language for new user.
+
+
+v0.91.7		07-Mar-2007 - 26-Apr-2007
 
 	mbselib:
 		If find_rfc_charset doesn't find a valid characterset we log a

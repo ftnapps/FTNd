@@ -137,6 +137,7 @@ int main(int argc, char **argv)
     /*
      * Initialize 
      */
+    snprintf(current_language, 10, "%s", CFG.deflang);
     InitLanguage();
 
     if ((tty = ttyname(0)) == NULL) {
