@@ -125,6 +125,8 @@ typedef struct {
 	unsigned int	tfilesmagic;	/* MIB tosser files magics	*/
 	unsigned int	tfileshatched;	/* MIB tosser files hatched	*/
 
+	unsigned int	ooutsize;	/* MIB outbound size		*/
+
 	unsigned int	bsessions;	/* MIB BBS sessions		*/
 	unsigned int	bminutes;	/* MIB BBS minutes used		*/
 	unsigned int	bposted;	/* MIB BBS msgs posted		*/
@@ -691,4 +693,13 @@ void mib_set_files(char *data)
     status_write();
 }
 
+
+
+void mib_set_outsize(unsigned int size)
+{
+    status.ooutsize = size;
+    Syslog('m', "MIB outbound: %d", status.ooutsize);
+
+    status_write();
+}
 

@@ -29,6 +29,7 @@ void		mib_set_email(char *);		/* MIB set email data		*/
 void		mib_set_news(char *);		/* MIB set news data		*/
 void		mib_set_echo(char *);		/* MIB set echomail data	*/
 void		mib_set_files(char *);		/* MIB set files data		*/
+void		mib_set_outsize(unsigned int);	/* MIB set outbound size	*/
 
 #endif
 

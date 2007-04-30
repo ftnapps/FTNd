@@ -264,7 +264,7 @@ int outstat()
     DIR		    *dp = NULL;
     struct dirent   *de;
     struct stat	    sb;
-    unsigned int    ibnmask = 0, ifcmask = 0, itnmask = 0;
+    unsigned int    ibnmask = 0, ifcmask = 0, itnmask = 0, outsize = 0;
     nodelist_modem  **tmpm;
 
     for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
@@ -682,6 +682,7 @@ int outstat()
 	/*
 	 * Show callresult for this node.
 	 */
+	outsize += (unsigned int)tmp->size;
 	fmt = calloc(81, sizeof(char));
 	buf = calloc(81, sizeof(char));
 	size_str_r(tmp->size, fmt);
@@ -716,6 +717,11 @@ int outstat()
 	s_do_inet = FALSE;
 	Syslog('c', "Removed semafore do_inet");
     }
+
+    /*
+     * Update outbound size MIB
+     */
+    mib_set_outsize(outsize);
 
     /*
      * Log results
