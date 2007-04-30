@@ -292,22 +292,22 @@ void die(int onsig)
     }
     if (email_in + email_imp + email_out + email_bad) {
 	Syslog('+', "Email    [%4d] import [%4d] out [%4d] bad [%4d]", email_in, email_imp, email_out, email_bad);
-	SockS("MSTI:3,%d,%d,%d;", email_imp, email_out, email_bad);
+	SockS("MSTI:3,%d,%d,%d;", email_in, email_out, email_bad);
     }
     if (echo_in + echo_imp + echo_out + echo_bad + echo_dupe) {
 	Syslog('+', "Echomail [%4d] import [%4d] out [%4d] bad [%4d] dupe [%4d]", echo_in, echo_imp, echo_out, echo_bad, echo_dupe);
-	SockS("MSTE:4,%d,%d,%d,%d;", echo_imp, echo_out, echo_bad, echo_dupe);
+	SockS("MSTE:4,%d,%d,%d,%d;", echo_in, echo_out, echo_bad, echo_dupe);
     }
     if (news_in + news_imp + news_out + news_bad + news_dupe) {
 	Syslog('+', "News     [%4d] import [%4d] out [%4d] bad [%4d] dupe [%4d]", news_in, news_imp, news_out, news_bad, news_dupe);
-	SockS("MSTR:4,%d,%d,%d,%d;", news_imp, news_out, news_bad, news_dupe);
+	SockS("MSTR:4,%d,%d,%d,%d;", news_in, news_out, news_bad, news_dupe);
     }
     if (tic_in + tic_imp + tic_out + tic_bad + tic_dup)
 	Syslog('+', "TICfiles [%4d] import [%4d] out [%4d] bad [%4d] dupe [%4d]", tic_in, tic_imp, tic_out, tic_bad, tic_dup);
     if (Magics + Hatched)
 	Syslog('+', "  Magics [%4d]  hatch [%4d]", Magics, Hatched);
     if (tic_in + tic_imp + tic_out + tic_bad + tic_dup + Magics + Hatched)
-	SockS("MSTF:6,%d,%d,%d,%d,%d,%d;", tic_imp, tic_out, tic_bad, tic_dup, Magics, Hatched);
+	SockS("MSTF:6,%d,%d,%d,%d,%d,%d;", tic_in, tic_out, tic_bad, tic_dup, Magics, Hatched);
     if (notify + areamgr + filemgr)
 	Syslog('+', "Notify msgs [%4d] AreaMgr [%4d] FileMgr [%4d]", notify, areamgr, filemgr);
 
