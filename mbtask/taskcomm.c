@@ -577,7 +577,7 @@ char *exe_cmd(char *in)
     }
 
     /*
-     * MIB Set Tosser Email
+     * MIB Set Tosser Internet-email
      *
      * MSTI:3,in,out,bad;
      * 100:0;
@@ -599,12 +599,12 @@ char *exe_cmd(char *in)
     }
 
     /*
-     * MIB Set Tosser News
+     * MIB Set Tosser RFC-news
      *
-     * MSTN:4,in,out,bad,dupe;
+     * MSTR:4,in,out,bad,dupe;
      * 100:0;
      */
-    if (strncmp(cmd, "MSTN", 4) == 0) {
+    if (strncmp(cmd, "MSTR", 4) == 0) {
 	mib_set_news(token);
 	return obuf;
     }

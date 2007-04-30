@@ -9,6 +9,9 @@ v0.91.8		26-Apr-2007
 	mbcico:
 		Added mbtask command to update the MIB counters.
 
+	mbfido:
+		Added mbtask commands to update the MIB counters.
+
 	mbnewusr:
 		Fixed loading default language for new user.
 
