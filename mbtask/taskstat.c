@@ -124,6 +124,16 @@ typedef struct {
 
 	unsigned int	tfilesmagic;	/* MIB tosser files magics	*/
 	unsigned int	tfileshatched;	/* MIB tosser files hatched	*/
+
+	unsigned int	bsessions;	/* MIB BBS sessions		*/
+	unsigned int	bminutes;	/* MIB BBS minutes used		*/
+	unsigned int	bposted;	/* MIB BBS msgs posted		*/
+	unsigned int	buploads;	/* MIB BBS file uploads		*/
+	unsigned int	bkbupload;	/* MIB BBS kbytes uploaded	*/
+	unsigned int	bdownloads;	/* MIB BBS file downloads	*/
+	unsigned int	bkbdownload;	/* MIB BBS kbytes downloaded	*/
+	unsigned int	bchats;		/* MIB BBS chatsessions		*/
+	unsigned int	bchatminutes;	/* MIB BBS chat minutes		*/
 } status_r;
 
 
