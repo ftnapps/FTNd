@@ -23,6 +23,12 @@ int		sem_set(char *, int);		/* Set/Reset semafore		*/
 void		sem_status_r(char *, char *);	/* Get semafore status		*/
 void		sem_create_r(char *, char *);	/* Create semafore		*/
 void		sem_remove_r(char *, char *);	/* Remove semafore		*/
+void		mib_set_mailer(char *);		/* MIB set mailer data		*/
+void		mib_set_netmail(char *);	/* MIB set netmail data		*/
+void		mib_set_email(char *);		/* MIB set email data		*/
+void		mib_set_news(char *);		/* MIB set news data		*/
+void		mib_set_echo(char *);		/* MIB set echomail data	*/
+void		mib_set_files(char *);		/* MIB set files data		*/
 
 #endif
 

@@ -80,6 +80,46 @@ typedef struct {
 	cl_stat		today;		/* Todays statistics		*/
 	unsigned	open	: 1;	/* Is BBS open			*/
 	unsigned int	sequence;	/* Sequencer counter		*/
+
+	unsigned int	mkbrcvd;	/* MIB mailer Kbytes received	*/
+	unsigned int	mkbsent;	/* MIB mailer Kbytes sent	*/
+	unsigned int	msessin;	/* MIB mailer inbound sessions	*/
+	unsigned int	msessout;	/* MIB mailer outbound sessions	*/
+	unsigned int	msesssecure;	/* MIB mailer secure sessions	*/
+	unsigned int	msessunsec;	/* MIB mailer unsecure sessions	*/
+	unsigned int	msessbad;	/* MIB mailer bad sessions	*/
+	unsigned int	mfreqs;		/* MIB mailer file requests	*/
+
+	unsigned int	tmsgsin;	/* MIB tosser messages in	*/
+	unsigned int	tmsgsout;	/* MIB tosser messages out	*/
+	unsigned int	tmsgsbad;	/* MIB tosser messages bad	*/
+	unsigned int	tmsgsdupe;	/* MIB tosser messages dupe	*/
+
+	unsigned int	tnetin;		/* MIB tosser netmail in	*/
+	unsigned int	tnetout;	/* MIB tosser netmail out	*/
+	unsigned int	tnetbad;	/* MIB tosser netmail bad	*/
+
+	unsigned int	temailin;	/* MIB tosser email in		*/
+	unsigned int	temailout;	/* MIB tosser email out		*/
+	unsigned int	temailbad;	/* MIB tosser email bad		*/
+
+	unsigned int	techoin;	/* MIB tosser echomail in	*/
+	unsigned int	techoout;	/* MIB tosser echomail out	*/
+	unsigned int	techobad;	/* MIB tosser echomail bad	*/
+	unsigned int	techodupe;	/* MIB tosser echomail dupe	*/
+
+	unsigned int	tnewsin;	/* MIB tosser news in		*/
+	unsigned int	tnewsout;	/* MIB tosser news out		*/
+	unsigned int	tnewsbad;	/* MIB tosser news bad		*/
+	unsigned int	tnewsdupe;	/* MIB tosser news dupe		*/
+
+	unsigned int	tfilesin;	/* MIB tosser files in		*/
+	unsigned int	tfilesout;	/* MIB tosser files out		*/
+	unsigned int	tfilesbad;	/* MIB tosser bad files		*/
+	unsigned int	tfilesdupe;	/* MIB tosser dupe files	*/
+
+	unsigned int	tfilesmagic;	/* MIB tosser files magics	*/
+	unsigned int	tfileshatched;	/* MIB tosser files hatched	*/
 } status_r;
 
 
@@ -106,9 +146,9 @@ void status_init()
      * If so, we generate an empty status file with only the start
      * date in it.
      */
+    memset((char *)&status, 0, sizeof(status_r));
     stat_fd = open(stat_fn, O_RDWR);
     if (stat_fd == -1) {
-	memset((char *)&status, 0, sizeof(status_r));
 	status.start = (int)time(NULL);
 	status.daily = (int)time(NULL);
 	status.sequence = (unsigned int)time(NULL);
@@ -457,6 +497,172 @@ void sem_remove_r(char *data, char *buf)
 
     free(sem);
     return;
+}
+
+
+
+void mib_set_mailer(char *data)
+{
+    unsigned int	kbrcvd, kbsent, direction, state, freqs;
+
+    Syslog('m', "MIB set mailer %s", data);
+    strtok(data, ",");
+    kbrcvd    = atoi(strtok(NULL, ","));
+    kbsent    = atoi(strtok(NULL, ","));
+    direction = atoi(strtok(NULL, ","));
+    state     = atoi(strtok(NULL, ","));
+    freqs     = atoi(strtok(NULL, ";"));
+
+    status.mkbrcvd += kbrcvd;
+    status.mkbsent += kbsent;
+    if (direction)
+	status.msessout++;
+    else
+	status.msessin++;
+    switch (state) {
+	case 0:	status.msesssecure++;	break;
+	case 1:	status.msessunsec++;	break;
+	case 2:	status.msessbad++;	break;
+    }
+    status.mfreqs += freqs;
+    Syslog('m', "MIB mailer: %d %d %d %d %d %d %d %d", status.mkbrcvd, status.mkbsent, status.msessin,
+	    status.msessout, status.msesssecure, status.msessunsec, status.msessbad, status.mfreqs);
+
+    status_write();
+}
+
+
+
+void mib_set_netmail(char *data)
+{
+    unsigned int	in, out, bad;
+
+    Syslog('m', "MIB set netmail %s", data);
+    strtok(data, ",");
+    in  = atoi(strtok(NULL, ","));
+    out = atoi(strtok(NULL, ","));
+    bad = atoi(strtok(NULL, ";"));
+
+    status.tmsgsin += in;
+    status.tnetin += in;
+    status.tmsgsout += out;
+    status.tnetout += out;
+    status.tmsgsbad += bad;
+    status.tnetbad += bad;
+    Syslog('m', "MIB netmail: %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
+	    status.tnetin, status.tnetout, status.tnetbad);
+
+    status_write();
+}
+
+
+
+void mib_set_email(char *data)
+{
+    unsigned int        in, out, bad;
+    
+    Syslog('m', "MIB set email %s", data);
+    strtok(data, ",");
+    in  = atoi(strtok(NULL, ","));
+    out = atoi(strtok(NULL, ","));
+    bad = atoi(strtok(NULL, ";"));
+
+    status.tmsgsin += in;
+    status.temailin += in;
+    status.tmsgsout += out;
+    status.temailout += out;
+    status.tmsgsbad += bad;
+    status.temailbad += bad;
+
+    Syslog('m', "MIB netmail: %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
+	    status.temailin, status.temailout, status.temailbad);
+
+    status_write();
+}
+
+
+
+void mib_set_news(char *data)
+{
+    unsigned int        in, out, bad, dupe;
+
+    Syslog('m', "MIB set news %s", data);
+    strtok(data, ",");
+    in   = atoi(strtok(NULL, ","));
+    out  = atoi(strtok(NULL, ","));
+    bad  = atoi(strtok(NULL, ","));
+    dupe = atoi(strtok(NULL, ";"));
+
+
+    status.tmsgsin += in;
+    status.tnewsin += in;
+    status.tmsgsout += out;
+    status.tnewsout += out;
+    status.tmsgsbad += bad;
+    status.tnewsbad += bad;
+    status.tmsgsdupe += dupe;
+    status.tnewsdupe += dupe;
+    
+    Syslog('m', "MIB news: %d %d %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad, status.tmsgsdupe,
+	    status.tnewsin, status.tnewsout, status.tnewsbad, status.tnewsdupe);
+
+    status_write();
+}
+
+
+
+void mib_set_echo(char *data)
+{
+    unsigned int        in, out, bad, dupe;
+
+    Syslog('m', "MIB set echo %s", data);
+    strtok(data, ",");
+    in   = atoi(strtok(NULL, ","));
+    out  = atoi(strtok(NULL, ","));
+    bad  = atoi(strtok(NULL, ","));
+    dupe = atoi(strtok(NULL, ";"));
+
+    status.tmsgsin += in;
+    status.techoin += in;
+    status.tmsgsout += out;
+    status.techoout += out;
+    status.tmsgsbad += bad;
+    status.techobad += bad;
+    status.tmsgsdupe += dupe;
+    status.techodupe += dupe;
+
+    Syslog('m', "MIB echo: %d %d %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad, status.tmsgsdupe,
+	    status.techoin, status.techoout, status.techobad, status.techodupe);
+
+    status_write();
+}
+
+
+
+void mib_set_files(char *data)
+{
+    unsigned int        in, out, bad, dupe, magics, hatched;
+
+    Syslog('m', "MIB set files %s", data);
+    strtok(data, ",");
+    in      = atoi(strtok(NULL, ","));
+    out     = atoi(strtok(NULL, ","));
+    bad     = atoi(strtok(NULL, ","));
+    dupe    = atoi(strtok(NULL, ","));
+    magics  = atoi(strtok(NULL, ","));
+    hatched = atoi(strtok(NULL, ";"));
+
+    status.tfilesin += in;
+    status.tfilesout += out;
+    status.tfilesbad += bad;
+    status.tfilesdupe += dupe;
+    status.tfilesmagic += magics;
+    status.tfileshatched += hatched;
+
+    Syslog('m', "MIB files: %d %d %d %d %d %d", status.tfilesin, status.tfilesout, status.tfilesbad, status.tfilesdupe,
+	    status.tfilesmagic, status.tfileshatched);
+
+    status_write();
 }
 
 

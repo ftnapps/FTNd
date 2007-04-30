@@ -3,8 +3,15 @@ $Id$
 
 v0.91.8		26-Apr-2007
 
+	upgrade:
+		Make sure mbtask is restarted.
+
 	mbnewusr:
 		Fixed loading default language for new user.
+
+	mbtask:
+		Added SNMP MIB counters and added set commands to increase
+		these new counters.
 
 
 v0.91.7		07-Mar-2007 - 26-Apr-2007

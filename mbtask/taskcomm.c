@@ -544,6 +544,83 @@ char *exe_cmd(char *in)
 
 
     /*
+     * The (M)IB commands, SNMP counters.
+     */
+
+    /* 
+     * MIB Set Mailer Session
+     *
+     * MSMS:5,kbrcvd,kbsent,direction,state,freqs;
+     * 100:0;
+     *
+     * kbrcvd	  Kbytes received
+     * kbsent	  KBytes sent
+     * direction  0=inbount, 1=outbound
+     * state	  0=secure, 1=unsecure, 2=badd session
+     * freqs	  nr of file requests
+     */
+    if (strncmp(cmd, "MSMS", 4) == 0) {
+	mib_set_mailer(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Set Tosser Netmail
+     *
+     * MSTN:3,in,out,bad;
+     * 100:0;
+     */
+    if (strncmp(cmd, "MSTN", 4) == 0) {
+	mib_set_netmail(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Set Tosser Email
+     *
+     * MSTI:3,in,out,bad;
+     * 100:0;
+     */
+    if (strncmp(cmd, "MSTI", 4) == 0) {
+	mib_set_email(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Set Tosser Echomail
+     *
+     * MSTE:4,in,out,bad,dupe;
+     * 100:0;
+     */
+    if (strncmp(cmd, "MSTE", 4) == 0) {
+	mib_set_echo(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Set Tosser News
+     *
+     * MSTN:4,in,out,bad,dupe;
+     * 100:0;
+     */
+    if (strncmp(cmd, "MSTN", 4) == 0) {
+	mib_set_news(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Set Tosser Files
+     *
+     * MSFF:6,in,out,bad,dupe,magics,hatched;
+     * 100:0;
+     */
+    if (strncmp(cmd, "MSTF", 4) == 0) {
+	mib_set_files(token);
+	return obuf;
+    }
+
+
+    /*
      * The (S)tatus commands.
      *
      *  SBBS:0;
