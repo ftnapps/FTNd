@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -57,6 +57,7 @@ static int caller;
 extern int	laststat;
 extern int	most_debug;
 extern pid_t	mypid;
+extern int	session_state;
 
 int	emsi_local_lcodes;
 int	emsi_remote_lcodes;
@@ -186,6 +187,11 @@ int rx_emsi(char *data)
 	return 0;
     }
 
+    if (protect)
+	session_state = STATE_SECURE;
+    else
+	session_state = STATE_UNSECURE;
+
     IsDoing("EMSI %s inb", ascfnode(remote->addr, 0x0f));
 
     if ((emsi_remote_opts & OPT_NRQ) == 0) 
@@ -252,6 +258,7 @@ int tx_emsi(char *data)
     }
 
     IsDoing("EMSI %s out", ascfnode(remote->addr, 0x0f));
+    session_state = STATE_SECURE;
 
     emsi_local_protos &= emsi_remote_protos;
     if ((emsi_remote_opts & OPT_NRQ) == 0) 

@@ -76,6 +76,7 @@ extern struct sockaddr_in   peeraddr;
 extern int	most_debug;
 extern int	laststat;
 extern int	crashme;
+extern int	session_state;
 
 int		gotblock = 0;
 
@@ -359,6 +360,8 @@ binkpend:
 	free(z_obuf);
 #endif
     rc = abs(rc);
+    if (rc)
+	session_state = STATE_BAD;
 
     Syslog('+', "Binkp: session finished, rc=%d", rc);
     return rc;
@@ -605,8 +608,11 @@ SM_STATE(WaitOk)
 	if (cmd) {
 	    if (bp.rxbuf[0] == MM_OK) {
 		Syslog('b', "Binkp: M_OK \"%s\"", printable(bp.rxbuf +1, 0));
-		if (SendPass)
+		if (SendPass) {
 		    bp.Secure = TRUE;
+		    session_state = STATE_SECURE;
+		} else
+		    session_state = STATE_UNSECURE;
 		Syslog('+', "Binkp: %s%sprotected session", bp.CRAMflag ? "MD5 ":"", bp.Secure ? "":"un");
 		SM_PROCEED(Opts)
 	    
@@ -902,6 +908,11 @@ SM_STATE(PwdAck)
 	SM_ERROR;
     }
     free(pw);
+    if (bp.Secure)
+    	session_state = STATE_SECURE;
+    else
+    	session_state = STATE_UNSECURE;
+
     Syslog('+', "Binkp: %s%sprotected session", bp.CRAMflag ? "MD5 ":"", bp.Secure ? "":"un");
     inbound_open(remote->addr, bp.Secure, TRUE);
     binkp_send_command(MM_OK, "%ssecure", bp.Secure ? "":"non-");

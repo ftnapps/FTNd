@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -58,7 +58,9 @@ int	laststat = 0;		    /* Last session status with remote	*/
 int	tx_define_type(void);
 int	rx_define_type(void);
 
-static	int type;
+int	session_type = SESSION_UNKNOWN;
+int	session_state = STATE_BAD;
+
 static	char *data=NULL;
 
 struct  sockaddr_in peeraddr;
@@ -86,7 +88,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
     pid_t   ipid, opid;
 
     session_flags = 0;
-    type = tp;
+    session_type = tp;
     nlent = nl;
 
     if (getpeername(0,(struct sockaddr*)&peeraddr,&addrlen) == 0) {
@@ -220,10 +222,10 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
     remote_flags=SESSION_FNC;
 
     if (role) {
-	if (type == SESSION_UNKNOWN) 
+	if (session_type == SESSION_UNKNOWN) 
 	    (void)tx_define_type();
-	Syslog('+', "Start outbound %s session with %s", typestr(type), ascfnode(a,0x1f));
-	switch(type) {
+	Syslog('+', "Start outbound %s session with %s", typestr(session_type), ascfnode(a,0x1f));
+	switch(session_type) {
 	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
 	    case SESSION_FTSC:	    rc = tx_ftsc(); break;
 	    case SESSION_YOOHOO:    rc = tx_yoohoo(); break;
@@ -231,12 +233,12 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    case SESSION_BINKP:	    rc = binkp(role); break;
 	}
     } else {
-	if (type == SESSION_FTSC) 
+	if (session_type == SESSION_FTSC) 
 	    session_flags |= FTSC_XMODEM_CRC;
-	if (type == SESSION_UNKNOWN) 
+	if (session_type == SESSION_UNKNOWN) 
 	    (void)rx_define_type();
-	Syslog('+', "Start inbound %s session", typestr(type));
-	switch(type) {
+	Syslog('+', "Start inbound %s session", typestr(session_type));
+	switch(session_type) {
 	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
 	    case SESSION_FTSC:	    rc = rx_ftsc(); break;
 	    case SESSION_YOOHOO:    rc = rx_yoohoo(); break;
@@ -256,6 +258,9 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	if (rc == 0)
 	    putstatus(tmpl->addr, 0, 0);
     }
+
+    if (rc)
+	session_state = STATE_BAD;
 
     /*
      * If the socket for the telnet filter is open, close it so that the telnet filters exit.
@@ -312,7 +317,7 @@ SM_EDECL
     int	    maybeftsc=0;
     int	    maybeyoohoo=0;
 
-    type = SESSION_UNKNOWN;
+    session_type = SESSION_UNKNOWN;
     ebuf[0] = '\0';
     ep = ebuf;
     buf[0] = '\0';
@@ -382,12 +387,12 @@ SM_STATE(nextchar)
 	maybeyoohoo++;
 
     if (((localoptions & NOWAZOO) == 0) && (maybeyoohoo > 1)) {
-	type = SESSION_YOOHOO;
+	session_type = SESSION_YOOHOO;
 	SM_SUCCESS;
     }
 
     if (maybeftsc > 1) {
-	type = SESSION_FTSC;
+	session_type = SESSION_FTSC;
 	SM_SUCCESS;
     }
 
@@ -441,7 +446,7 @@ SM_STATE(checkintro)
     Syslog('i', "Check \"%s\" for being EMSI request",ebuf);
 
     if (((localoptions & NOEMSI) == 0) && (strncasecmp(ebuf,"EMSI_REQA77E",12) == 0)) {
-	type = SESSION_EMSI;
+	session_type = SESSION_EMSI;
 	data = xstrcpy((char *)"**EMSI_REQA77E");
 	Syslog('i', "Sending **EMSI_INQC816 (2 times)");
 	PUTSTR((char *)"\r**EMSI_INQC816\r**EMSI_INQC816\r\021");
@@ -495,7 +500,7 @@ SM_EDECL
     int standby=0;
     int datasize;
 
-    type=SESSION_UNKNOWN;
+    session_type=SESSION_UNKNOWN;
     session_flags|=FTSC_XMODEM_CRC;
     ebuf[0]='\0';
     ep=ebuf;
@@ -581,7 +586,7 @@ SM_STATE(nextchar)
 			ep = ebuf;
 			ebuf[0] = '\0';
 			if (++maybeftsc > 1) {
-			    type = SESSION_FTSC;
+			    session_type = SESSION_FTSC;
 			    SM_SUCCESS;
 			} else {
 			    SM_PROCEED(waitchar);
@@ -591,7 +596,7 @@ SM_STATE(nextchar)
 			ep = ebuf;
 			ebuf[0] = '\0';
 			if (++maybeyoohoo > 1) {
-			    type = SESSION_YOOHOO;
+			    session_type = SESSION_YOOHOO;
 			    SM_SUCCESS;
 			} else {
 			    SM_PROCEED(waitchar);
@@ -637,7 +642,7 @@ SM_STATE(checkemsi)
     }
 
     if (strncasecmp(ebuf, "EMSI_INQC816", 12) == 0) {
-	type = SESSION_EMSI;
+	session_type = SESSION_EMSI;
 	data = xstrcpy((char *)"**EMSI_INQC816");
 	SM_SUCCESS;
     } else if (strncasecmp(ebuf, "EMSI_HBT", 8) == 0) {
@@ -676,7 +681,7 @@ SM_STATE(getdat)
 	Syslog('+', "Error while reading EMSI_DAT from the caller");
 	SM_ERROR;
     }
-    type = SESSION_EMSI;
+    session_type = SESSION_EMSI;
     SM_SUCCESS;
 
 SM_END

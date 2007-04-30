@@ -4,7 +4,7 @@
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -88,6 +88,10 @@ typedef struct {
 	unsigned int	msesssecure;	/* MIB mailer secure sessions	*/
 	unsigned int	msessunsec;	/* MIB mailer unsecure sessions	*/
 	unsigned int	msessbad;	/* MIB mailer bad sessions	*/
+	unsigned int	mftsc;		/* MIB mailer FTSC sessions	*/
+	unsigned int	myoohoo;	/* MIB mailer YooHoo sessions	*/
+	unsigned int	memsi;		/* MIB mailer EMSI sessions	*/
+	unsigned int	mbinkp;		/* MIB mailer Binkp sessions	*/
 	unsigned int	mfreqs;		/* MIB mailer file requests	*/
 
 	unsigned int	tmsgsin;	/* MIB tosser messages in	*/
@@ -503,7 +507,7 @@ void sem_remove_r(char *data, char *buf)
 
 void mib_set_mailer(char *data)
 {
-    unsigned int	kbrcvd, kbsent, direction, state, freqs;
+    unsigned int	kbrcvd, kbsent, direction, state, type, freqs;
 
     Syslog('m', "MIB set mailer %s", data);
     strtok(data, ",");
@@ -511,6 +515,7 @@ void mib_set_mailer(char *data)
     kbsent    = atoi(strtok(NULL, ","));
     direction = atoi(strtok(NULL, ","));
     state     = atoi(strtok(NULL, ","));
+    type      = atoi(strtok(NULL, ","));
     freqs     = atoi(strtok(NULL, ";"));
 
     status.mkbrcvd += kbrcvd;
@@ -524,9 +529,17 @@ void mib_set_mailer(char *data)
 	case 1:	status.msessunsec++;	break;
 	case 2:	status.msessbad++;	break;
     }
+    switch (type) {
+	case 1: status.mftsc++;		break;
+	case 2: status.myoohoo++;	break;
+	case 3: status.memsi++;		break;
+	case 4: status.mbinkp++;	break;
+    }
     status.mfreqs += freqs;
-    Syslog('m', "MIB mailer: %d %d %d %d %d %d %d %d", status.mkbrcvd, status.mkbsent, status.msessin,
-	    status.msessout, status.msesssecure, status.msessunsec, status.msessbad, status.mfreqs);
+    Syslog('m', "MIB mailer: rcvd=%d sent=%d in=%d out=%d sec=%d unsec=%d bad=%d ftsc=%d yoohoo=%d emsi=%d binkp=%d freq=%d", 
+	    status.mkbrcvd, status.mkbsent, status.msessin,
+	    status.msessout, status.msesssecure, status.msessunsec, status.msessbad, 
+	    status.mftsc, status.myoohoo, status.memsi, status.mbinkp, status.mfreqs);
 
     status_write();
 }
@@ -549,7 +562,7 @@ void mib_set_netmail(char *data)
     status.tnetout += out;
     status.tmsgsbad += bad;
     status.tnetbad += bad;
-    Syslog('m', "MIB netmail: %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
+    Syslog('m', "MIB netmail: in=%d out=%d bad=%d in=%d out=%d bad=%d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
 	    status.tnetin, status.tnetout, status.tnetbad);
 
     status_write();
@@ -574,7 +587,7 @@ void mib_set_email(char *data)
     status.tmsgsbad += bad;
     status.temailbad += bad;
 
-    Syslog('m', "MIB netmail: %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
+    Syslog('m', "MIB netmail: in=%d out=%d bad=%d in=%d out=%d bad=%d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
 	    status.temailin, status.temailout, status.temailbad);
 
     status_write();
@@ -603,7 +616,8 @@ void mib_set_news(char *data)
     status.tmsgsdupe += dupe;
     status.tnewsdupe += dupe;
     
-    Syslog('m', "MIB news: %d %d %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad, status.tmsgsdupe,
+    Syslog('m', "MIB news: in=%d out=%d bad=%d dupe=%d in=%d out=%d bad=%d dupe=%d", 
+	    status.tmsgsin, status.tmsgsout, status.tmsgsbad, status.tmsgsdupe,
 	    status.tnewsin, status.tnewsout, status.tnewsbad, status.tnewsdupe);
 
     status_write();
@@ -631,7 +645,8 @@ void mib_set_echo(char *data)
     status.tmsgsdupe += dupe;
     status.techodupe += dupe;
 
-    Syslog('m', "MIB echo: %d %d %d %d %d %d %d %d", status.tmsgsin, status.tmsgsout, status.tmsgsbad, status.tmsgsdupe,
+    Syslog('m', "MIB echo: in=%d out=%d bad=%d dupe=%d in=%d out=%d bad=%d dupe=%d", 
+	    status.tmsgsin, status.tmsgsout, status.tmsgsbad, status.tmsgsdupe,
 	    status.techoin, status.techoout, status.techobad, status.techodupe);
 
     status_write();
@@ -659,7 +674,8 @@ void mib_set_files(char *data)
     status.tfilesmagic += magics;
     status.tfileshatched += hatched;
 
-    Syslog('m', "MIB files: %d %d %d %d %d %d", status.tfilesin, status.tfilesout, status.tfilesbad, status.tfilesdupe,
+    Syslog('m', "MIB files: in=%d out=%d bad=%d dupe=%d magic=%d hatch=%d", 
+	    status.tfilesin, status.tfilesout, status.tfilesbad, status.tfilesdupe,
 	    status.tfilesmagic, status.tfileshatched);
 
     status_write();

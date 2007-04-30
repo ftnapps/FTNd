@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -115,6 +115,8 @@ typedef struct   _Hello {
 extern int	Loaded;
 extern pid_t	mypid;
 extern int	laststat;
+extern int	session_state;
+
 
 Hello hello2;
 Hello gethello2(unsigned char[]);
@@ -214,6 +216,11 @@ int rx_yoohoo(void)
 
     IsDoing("Inbound %s", ascfnode(remote->addr, 0x0f));
 
+    if (protect)
+	session_state = STATE_SECURE;
+    else
+	session_state = STATE_UNSECURE;
+
     session_flags |= SESSION_WAZOO;
     if (localcaps & DOES_HYDRA) 
 	return hydra(0);
@@ -282,6 +289,7 @@ int tx_yoohoo(void)
 	return MBERR_YOOHOO;
 
     IsDoing("Outbound %s", ascfnode(remote->addr, 0x0f));
+    session_state = STATE_SECURE;
 
     session_flags |= SESSION_WAZOO;
     if (capabilities & DOES_HYDRA) 

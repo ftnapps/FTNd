@@ -6,6 +6,9 @@ v0.91.8		26-Apr-2007
 	upgrade:
 		Make sure mbtask is restarted.
 
+	mbcico:
+		Added mbtask command to update the MIB counters.
+
 	mbnewusr:
 		Fixed loading default language for new user.
 

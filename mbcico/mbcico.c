@@ -4,7 +4,7 @@
  * Purpose: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -73,7 +73,10 @@ char		*phone;
 char		*flags;
 extern int	gotfiles;
 extern int	mypid;
+extern unsigned int	report_count;
 
+extern int	session_type;
+extern int	session_state;
 
 void usage(void)
 {
@@ -110,7 +113,8 @@ void free_mem(void)
 
 void die(int onsig)
 {
-    int	total = 0;
+    int		    total = 0;
+    unsigned int    rcvd = 0, sent = 0;
 
     signal(onsig, SIG_IGN);
 
@@ -127,7 +131,15 @@ void die(int onsig)
 	if (total < 1)
 	    total = 1;
 	Syslog('+', "Sent %lu bytes, received %lu bytes, avg %d cps", sentbytes, rcvdbytes, (sentbytes + rcvdbytes) / total);
+	sent = sentbytes / 1024;
+	if (sentbytes && !sent)
+	    sent = 1;	/* If something, at least 1 KByte */
+	rcvd = rcvdbytes / 1024;
+	if (rcvdbytes && !rcvd)
+	    rcvd = 1;
     }
+
+    SockS("MSMS:6,%d,%d,%d,%d,%d,%d;", rcvd, sent, master, session_state, session_type, report_count);
 
     if (online)
 	Syslog('+', "Connected %s", str_time(online));

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer - respond to filerequests
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -56,7 +56,7 @@ static void		attach_report(file_list**);
 static void		add_report(char *, ...);
 static char		*report_text = NULL;
 static unsigned int	report_total = 0L;
-static unsigned int	report_count = 0L;
+unsigned int		report_count = 0L;
 static int		no_more = FALSE;
 
 

@@ -550,13 +550,14 @@ char *exe_cmd(char *in)
     /* 
      * MIB Set Mailer Session
      *
-     * MSMS:5,kbrcvd,kbsent,direction,state,freqs;
+     * MSMS:6,kbrcvd,kbsent,direction,state,freqs;
      * 100:0;
      *
      * kbrcvd	  Kbytes received
      * kbsent	  KBytes sent
      * direction  0=inbount, 1=outbound
-     * state	  0=secure, 1=unsecure, 2=badd session
+     * state	  0=secure, 1=unsecure, 2=bad session
+     * type	  0=unknown, 1=ftsc, 2=yoohoo, 3=emsi, 4=binkp
      * freqs	  nr of file requests
      */
     if (strncmp(cmd, "MSMS", 4) == 0) {

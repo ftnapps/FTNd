@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -55,7 +55,7 @@ static file_list	*tosend;
 extern int		Loaded;
 extern pid_t		mypid;
 extern char		*tempinbound;
-
+extern int		session_state;
 
 
 int rx_ftsc(void)
@@ -286,6 +286,7 @@ SM_STATE(send_req)
     Syslog('x', "rxftsc SEND_REQ count=%d", count);
 
     if (didwazoo) {
+	session_state = STATE_UNSECURE;
 	SM_SUCCESS;
     }
 
@@ -333,11 +334,13 @@ SM_STATE(recv_req)
     if (recvbark()) {
 	if (sentmail && rcvdmail) {
 	    Syslog('+', "Consider session OK");
+	    session_state = STATE_SECURE;
 	    SM_SUCCESS;
 	} else {
 	    SM_ERROR;
 	}
     } else {
+	session_state = STATE_SECURE;
 	SM_SUCCESS;
     }
 
@@ -462,9 +465,11 @@ SM_STATE(scan_packet)
 		if (ghc == 0) {
 		    Syslog('+', "Password correct, protected FTS-0001 session");
 		    inbound_open(remote->addr, TRUE, FALSE);
+		    session_state = STATE_SECURE;
 		} else {
 		    Syslog('+', "Unsecure FTS-0001 session");
 		    inbound_open(remote->addr, FALSE, FALSE);
+		    session_state = STATE_UNSECURE;
 		}
 		/*
 		 * Move the packet to the temp inbound so the we can later

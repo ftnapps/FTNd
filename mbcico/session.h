@@ -17,6 +17,10 @@
 #define SESSION_SLAVE 0
 #define SESSION_MASTER 1
 
+#define	STATE_SECURE 0
+#define	STATE_UNSECURE 1
+#define	STATE_BAD 2
+
 extern node *nlent;
 extern fa_list *remote;
 
