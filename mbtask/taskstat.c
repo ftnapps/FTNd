@@ -159,7 +159,7 @@ void status_init()
     }
 	
     cnt = read(stat_fd, &status, sizeof(status_r));
-    if (cnt != sizeof(status_r)) {
+    if ((cnt != sizeof(status_r)) && (cnt < 50))  {
 	printf("Error reading status file\n");
 	exit(MBERR_INIT_ERROR);
     }
