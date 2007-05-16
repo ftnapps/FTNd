@@ -13,6 +13,8 @@ v0.91.8		26-Apr-2007
 		Added mbtask commands to update the MIB counters.
 		Fixed mbfile import with too many description lines in
 		files.bbs
+		Fixed a buffer overflow when processing TIC files with a lot
+		of garbage in it.
 
 	mbnewusr:
 		Fixed loading default language for new user.

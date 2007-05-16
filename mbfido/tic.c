@@ -375,8 +375,10 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
 	     * If we didn't find a matching keyword it is a line we
 	     * will just remember and forward if there are downlinks.
 	     */
-	    if (TIC.TicIn.Unknowns < 25) {
-		strcpy(TIC.TicIn.Unknown[TIC.TicIn.Unknowns], Temp);
+	    if (strlen(Temp) > 127) {
+		Syslog('+', "Unknown too long TIC line dropped");
+	    } else if (TIC.TicIn.Unknowns < 25) {
+		strncpy(TIC.TicIn.Unknown[TIC.TicIn.Unknowns], Temp, 127);
 		TIC.TicIn.Unknowns++;
 	    }
 	}
