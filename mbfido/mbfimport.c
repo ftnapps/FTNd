@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Import files with files.bbs
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -367,7 +367,7 @@ void ImportFiles(int Area)
 				    f_db.Desc[line][pos] = token[x];
 				    pos++;
 				}
-				if (line == 25)
+				if (line == 24)
 				    break;
 			    }
 			}

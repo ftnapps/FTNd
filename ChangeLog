@@ -11,6 +11,8 @@ v0.91.8		26-Apr-2007
 
 	mbfido:
 		Added mbtask commands to update the MIB counters.
+		Fixed mbfile import with too many description lines in
+		files.bbs
 
 	mbnewusr:
 		Fixed loading default language for new user.
