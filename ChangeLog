@@ -1,7 +1,9 @@
 $Id$
 
 
-v0.91.8		26-Apr-2007
+v0.91.9		16-May-2007
+
+v0.91.8		26-Apr-2007 - 16-May-2007
 
 	upgrade:
 		Make sure mbtask is restarted.
@@ -21,7 +23,7 @@ v0.91.8		26-Apr-2007
 
 	mbtask:
 		Added SNMP MIB counters and added set commands to increase
-		these new counters.
+		these new counters. Note, there is no SNMP interface yet.
 
 
 v0.91.7		07-Mar-2007 - 26-Apr-2007
