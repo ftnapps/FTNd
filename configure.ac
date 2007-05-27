@@ -41,6 +41,7 @@ AC_SUBST(VERSION)
 SYSTEM="`uname -s`"
 CPU="`uname -m`"
 LDFLAGS="-L/usr/local/lib"
+CPPFLAGS="-I/usr/local/include"
 
 #
 # Checks for programs.
