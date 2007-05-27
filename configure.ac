@@ -6,10 +6,10 @@ AM_CONFIG_HEADER(config.h)
 SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbutils mbnntp mbtask mbsetup unix lang examples html script"
 AC_SUBST(SUBDIRS)
 
-dnl
-dnl General settings for MBSE BBS
-dnl After changeing the version number, run autoconf!
-dnl
+#
+# General settings for MBSE BBS
+# After changeing the version number, run autoconf!
+#
 PACKAGE="mbsebbs"
 MAJOR="0"
 MINOR="91"
@@ -42,17 +42,17 @@ SYSTEM="`uname -s`"
 CPU="`uname -m`"
 LDFLAGS="-I /usr/local/include"
 
-dnl
-dnl Checks for programs.
-dnl Try to find GNU make
-dnl
+#
+# Checks for programs.
+# Try to find GNU make
+#
 AC_CHECK_PROG(MAKE, gmake, gmake)
 AC_CHECK_PROG(MAKE, make, make)
-dnl Alternate awk check, I skip mawk because it doesn't work for MBSE.
+# Alternate awk check, I skip mawk because it doesn't work for MBSE.
 AC_CHECK_PROG(AWK, gawk, gawk)
 AC_CHECK_PROG(AWK, nawk, nawk)
 AC_CHECK_PROG(AWK, awk, awk)
-dnl Try to find GNU install
+# Try to find GNU install
 AC_CHECK_PROG(INSTALL, ginstall, ginstall)
 AC_CHECK_PROG(INSTALL, install, install)
 AC_PROG_CC
@@ -65,9 +65,9 @@ AC_PATH_PROG(CHOWN, chown, chown, /bin:/sbin:/usr/bin:/usr/sbin:)
 AC_C_BIGENDIAN
 
 
-dnl
-dnl Additional commandline switches
-dnl
+#
+# Additional commandline switches
+#
 AC_ARG_ENABLE(experiment,  [  --enable-experiment     Compile experimental code],     [ experiment=$enableval ], [ experiment=no ])
 if test "$experiment" = "yes"; then
   AC_DEFINE(USE_EXPERIMENT)
@@ -96,9 +96,9 @@ AC_MSG_CHECKING(for cpuflags)
 fi
 
 
-dnl
-dnl Enable full newsgate, this was default upto 0.50.0
-dnl
+#
+# Enable full newsgate, this was default upto 0.50.0
+#
 AC_ARG_ENABLE(newsgate,  [  --enable-newsgate       Compile with newsgate],      [ newsgate=$enableval ], [ newsgate=no ])
 if test "$newsgate" = "yes"; then
   AC_DEFINE(USE_NEWSGATE)
@@ -108,9 +108,9 @@ else
 fi
 
 
-dnl
-dnl Checks for libraries and functions.
-dnl
+#
+# Checks for libraries and functions.
+#
 AC_CHECK_LIB(compat,re_comp,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lcompat"
@@ -140,7 +140,7 @@ else
     SHADOW_PASSWORD=1
     LIBSHADOW=1
   else
-    dnl some libc's (glibc 2.x) keep shadow functions in -lc
+    # some libc's (glibc 2.x) keep shadow functions in -lc
     AC_CHECK_LIB(c,setspent,result=yes,result=no)
     if test "$result" = "yes"; then
       if test -f /etc/shadow; then
@@ -176,9 +176,9 @@ if test "$result" = "yes"; then
 fi
 
 
-dnl
-dnl Support for zlib and bzlib transfers compression
-dnl
+#
+# Support for zlib and bzlib transfers compression
+#
 ZLIBSUP=No
 AC_CHECK_LIB(z,compress2,result=yes,result=no)
 if test "$result" = "yes"; then
@@ -192,9 +192,9 @@ if test "$result" = "yes"; then
   AC_CHECK_HEADERS(bzlib.h,BZLIBSUP=Yes,BZLIBSUP=No)
 fi
 
-dnl
-dnl Checks for header files.
-dnl
+#
+# Checks for header files.
+#
 AC_HEADER_STDC
 AC_HEADER_DIRENT
 AC_HEADER_TIME
@@ -206,9 +206,9 @@ AC_CHECK_HEADERS(limits.h utmp.h utmpx.h lastlog.h rpc/key_prot.h)
 AC_CHECK_HEADERS(iconv.h)
 AC_STRUCT_TIMEZONE
 
-dnl
-dnl Checks for typedefs, structures, and compiler characteristics.
-dnl
+#
+# Checks for typedefs, structures, and compiler characteristics.
+#
 AC_C_CONST
 AC_TYPE_UID_T
 AC_TYPE_OFF_T
@@ -219,9 +219,9 @@ AC_STRUCT_ST_BLKSIZE
 AC_HEADER_STAT
 AC_STRUCT_TM
 
-dnl
-dnl Checks for library functions.
-dnl
+#
+# Checks for library functions.
+#
 AC_CHECK_FUNCS(c64i a64l fchmod fchown fdatasync fsync lckpwdf strcasestr putpwent)
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
@@ -231,9 +231,9 @@ AC_CHECK_FUNCS(gettimeofday re_comp select)
 AC_CHECK_FUNCS(getspnam initgroups updwtmp updwtmpx)
 AC_CHECK_FUNCS(iconv_open)
 
-dnl
-dnl Check for usefull external programs
-dnl
+#
+# Check for usefull external programs
+#
 AC_PATH_PROG(COMPRESS,compress,no-compress-found-during-configure)
 AC_PATH_PROG(GZIP,gzip,no-gzip-found-during-configure)
 AC_PATH_PROG(ARC,arc)
@@ -266,9 +266,9 @@ AC_PATH_PROG(GOLDNODE,goldnode)
 AC_PATH_PROG(GOLDNODE,gnlnx)
 AC_PATH_PROG(CONVERT,convert)
 
-dnl
-dnl FIX DEL for Del!=207, this was default upto 207 or 126 if no argument 
-dnl
+#
+# FIX DEL for Del!=207, this was default upto 207 or 126 if no argument 
+#
 AC_ARG_ENABLE(gbkdel,      [  --enable-gbkdel         Delete key is 126 (default is 207)], [ gbkdel=$enableval ], [ gbkdel=no ])
 if test "$gbkdel" = "yes"; then
   GBK_DEL=126

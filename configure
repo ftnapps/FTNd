@@ -1715,6 +1715,10 @@ ac_config_commands="$ac_config_commands default-1"
 SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbutils mbnntp mbtask mbsetup unix lang examples html script"
 
 
+#
+# General settings for MBSE BBS
+# After changeing the version number, run autoconf!
+#
 PACKAGE="mbsebbs"
 MAJOR="0"
 MINOR="91"
@@ -1765,6 +1769,10 @@ SYSTEM="`uname -s`"
 CPU="`uname -m`"
 LDFLAGS="-I /usr/local/include"
 
+#
+# Checks for programs.
+# Try to find GNU make
+#
 # Extract the first word of "gmake", so it can be a program name with args.
 set dummy gmake; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -1839,6 +1847,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
+# Alternate awk check, I skip mawk because it doesn't work for MBSE.
 # Extract the first word of "gawk", so it can be a program name with args.
 set dummy gawk; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -1950,6 +1959,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
+# Try to find GNU install
 # Extract the first word of "ginstall", so it can be a program name with args.
 set dummy ginstall; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -4264,6 +4274,9 @@ esac
 
 
 
+#
+# Additional commandline switches
+#
 # Check whether --enable-experiment was given.
 if test "${enable_experiment+set}" = set; then
   enableval=$enable_experiment;  experiment=$enableval
@@ -4316,6 +4329,9 @@ echo "${ECHO_T}$CPUFLAGS" >&6; }
 fi
 
 
+#
+# Enable full newsgate, this was default upto 0.50.0
+#
 # Check whether --enable-newsgate was given.
 if test "${enable_newsgate+set}" = set; then
   enableval=$enable_newsgate;  newsgate=$enableval
@@ -4334,6 +4350,9 @@ else
 fi
 
 
+#
+# Checks for libraries and functions.
+#
 { echo "$as_me:$LINENO: checking for re_comp in -lcompat" >&5
 echo $ECHO_N "checking for re_comp in -lcompat... $ECHO_C" >&6; }
 if test "${ac_cv_lib_compat_re_comp+set}" = set; then
@@ -4743,7 +4762,8 @@ fi
     SHADOW_PASSWORD=1
     LIBSHADOW=1
   else
-        { echo "$as_me:$LINENO: checking for setspent in -lc" >&5
+    # some libc's (glibc 2.x) keep shadow functions in -lc
+    { echo "$as_me:$LINENO: checking for setspent in -lc" >&5
 echo $ECHO_N "checking for setspent in -lc... $ECHO_C" >&6; }
 if test "${ac_cv_lib_c_setspent+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -5598,6 +5618,9 @@ done
 fi
 
 
+#
+# Support for zlib and bzlib transfers compression
+#
 ZLIBSUP=No
 { echo "$as_me:$LINENO: checking for compress2 in -lz" >&5
 echo $ECHO_N "checking for compress2 in -lz... $ECHO_C" >&6; }
@@ -6105,6 +6128,9 @@ done
 
 fi
 
+#
+# Checks for header files.
+#
 { echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6; }
 if test "${ac_cv_header_stdc+set}" = set; then
@@ -7977,6 +8003,9 @@ _ACEOF
 fi
 
 
+#
+# Checks for typedefs, structures, and compiler characteristics.
+#
 { echo "$as_me:$LINENO: checking for an ANSI C-conforming const" >&5
 echo $ECHO_N "checking for an ANSI C-conforming const... $ECHO_C" >&6; }
 if test "${ac_cv_c_const+set}" = set; then
@@ -8734,6 +8763,9 @@ _ACEOF
 fi
 
 
+#
+# Checks for library functions.
+#
 
 
 
@@ -9477,6 +9509,9 @@ fi
 done
 
 
+#
+# Check for usefull external programs
+#
 # Extract the first word of "compress", so it can be a program name with args.
 set dummy compress; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -10720,6 +10755,9 @@ fi
 
 
 
+#
+# FIX DEL for Del!=207, this was default upto 207 or 126 if no argument
+#
 # Check whether --enable-gbkdel was given.
 if test "${enable_gbkdel+set}" = set; then
   enableval=$enable_gbkdel;  gbkdel=$enableval
