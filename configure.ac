@@ -40,7 +40,6 @@ AC_DEFINE_UNQUOTED(SHORTRIGHT, "$SHORTRIGHT")
 AC_SUBST(VERSION)
 SYSTEM="`uname -s`"
 CPU="`uname -m`"
-LDFLAGS="-I /usr/local/include"
 
 #
 # Checks for programs.
@@ -75,9 +74,9 @@ fi
 
 AC_ARG_ENABLE(debugging,   [  --enable-debugging      Compile for debugging], [ debugging=$enableval ], [ debugging=no ])
 if test "$debugging" = "yes"; then
-    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
+    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -I/usr/local/include"
 else
-    CFLAGS="-O2 -fno-strict-aliasing -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
+    CFLAGS="-O2 -fno-strict-aliasing -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -I/usr/local/include"
 fi 
 
 AC_ARG_ENABLE(optimize,   [  --enable-optimize       Enable CPU optimize], [ optimize=$enableval ], [ optimize=no ])

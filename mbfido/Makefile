@@ -54,7 +54,7 @@ TARGET		= mbfido mbseq mbaff mbindex mbdiff mbfile mbmsg
 ####################################################################################################################
 
 .c.o:
-		${CC} ${CFLAGS} ${LDFLAGS} ${INCLUDES} ${DEFINES} -c $<
+		${CC} ${CFLAGS} ${INCLUDES} ${DEFINES} -c $<
 
 all:		${TARGET}
 

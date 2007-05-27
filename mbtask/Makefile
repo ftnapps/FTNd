@@ -19,7 +19,7 @@ OTHER		= Makefile issue issue.netbsd
 #############################################################################
 
 .c.o:
-		${CC} ${CFLAGS} ${LDFLAGS} ${INCLUDES} ${DEFINES} -c $<
+		${CC} ${CFLAGS} ${INCLUDES} ${DEFINES} -c $<
 
 all:		mbtask
 

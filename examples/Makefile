@@ -12,7 +12,7 @@ OTHER		= Makefile header.txt footer.txt \
 #####################################################################################
 
 .c.o:
-		${CC} ${CFLAGS} ${LDFLAGS} ${INCLUDES} ${DEFINES} -c $<
+		${CC} ${CFLAGS} ${INCLUDES} ${DEFINES} -c $<
 
 all:
 

@@ -1767,7 +1767,6 @@ _ACEOF
 
 SYSTEM="`uname -s`"
 CPU="`uname -m`"
-LDFLAGS="-I /usr/local/include"
 
 #
 # Checks for programs.
@@ -4299,9 +4298,9 @@ else
 fi
 
 if test "$debugging" = "yes"; then
-    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
+    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -I/usr/local/include"
 else
-    CFLAGS="-O2 -fno-strict-aliasing -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
+    CFLAGS="-O2 -fno-strict-aliasing -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -I/usr/local/include"
 fi
 
 # Check whether --enable-optimize was given.
