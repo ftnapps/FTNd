@@ -51,7 +51,7 @@ SLIBS		= ../lib/libmbse.a
 #############################################################################
 
 .c.o:
-		${CC} ${CFLAGS} ${INCLUDES} ${DEFINES} -c $<
+		${CC} ${CFLAGS} ${LDFLAGS} ${INCLUDES} ${DEFINES} -c $<
 
 all:		${TARGET}
 

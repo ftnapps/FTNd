@@ -1763,6 +1763,7 @@ _ACEOF
 
 SYSTEM="`uname -s`"
 CPU="`uname -m`"
+LDFLAGS="-I /usr/local/include"
 
 # Extract the first word of "gmake", so it can be a program name with args.
 set dummy gmake; ac_word=$2
