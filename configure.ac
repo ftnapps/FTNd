@@ -40,6 +40,7 @@ AC_DEFINE_UNQUOTED(SHORTRIGHT, "$SHORTRIGHT")
 AC_SUBST(VERSION)
 SYSTEM="`uname -s`"
 CPU="`uname -m`"
+LDFLAGS="-L/usr/local/lib"
 
 #
 # Checks for programs.
