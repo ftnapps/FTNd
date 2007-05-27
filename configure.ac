@@ -1,5 +1,5 @@
-dnl Process this file with autoconf to produce a configure script.
-dnl $Id$
+# Process this file with autoconf to produce a configure script.
+# $Id$
 
 AC_INIT(lib/mbselib.h)
 AM_CONFIG_HEADER(config.h)
