@@ -196,7 +196,7 @@ fi
 #
 # Support for iconv
 #
-#AC_CHECK_HEADER(iconv.h)
+AC_CHECK_HEADER(iconv.h)
 AC_CHECK_LIB(iconv,iconv_open,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -liconv"
