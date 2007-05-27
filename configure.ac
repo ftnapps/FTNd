@@ -228,7 +228,9 @@ AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(gettimeofday re_comp select)
 AC_CHECK_FUNCS(getspnam initgroups updwtmp updwtmpx)
-AC_CHECK_FUNCS(iconv_open)
+AC_CHECK_FUNC(iconv_open,,
+  AC_CHECK_LIB(iconv, iconv_open)
+)
 
 #
 # Check for usefull external programs
