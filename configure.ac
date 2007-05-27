@@ -196,7 +196,7 @@ fi
 #
 # Support for iconv
 #
-AC_CHECK_HEADER(iconv.h)
+#AC_CHECK_HEADER(iconv.h)
 AC_CHECK_LIB(iconv,iconv_open,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -liconv"
@@ -214,6 +214,7 @@ AC_CHECK_HEADERS(termios.h sys/termios.h termio.h sys/termio.h sgtty.h)
 AC_CHECK_HEADERS(sys/time.h sys/vfs.h unistd.h netinet/in.h regex.h)
 AC_CHECK_HEADERS(sys/resource.h usersec.h gshadow.h shadow.h crypt.h)
 AC_CHECK_HEADERS(limits.h utmp.h utmpx.h lastlog.h rpc/key_prot.h)
+AC_CHECK_HEADERS(iconv.h)
 AC_STRUCT_TIMEZONE
 
 #
