@@ -3,6 +3,10 @@ $Id$
 
 v0.91.9		16-May-2007
 
+	general:
+		Fixed building on FreeBSD, tested on 5.3
+
+
 v0.91.8		26-Apr-2007 - 16-May-2007
 
 	upgrade:
