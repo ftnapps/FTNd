@@ -130,12 +130,3 @@ mbsetup:
 	   format, if a filegate list is installed and the filegate switch
 	   setting is wrong, a lot of wrong areas will be created.
 
-configure:
-	N: Add a test for FreeBSD to see if the sysctl function supports mib
-	   defines KERN_PROC_ARGS and KERN_PROC_ARGV. If not, fallback to
-	   /proc tests. Try adding a check for a mounted /proc filesystem.
-	   We need these tests to secure mbpasswd and mbuseradd.
-	   According to Google, FreeBSD switched to sysctl from 5.0. The
-	   KERN_PROC_ARGV seems still not present so this is not compatible
-	   with OpenBSD and NetBSD. OpenBSD and NetBSD are different too.
-
