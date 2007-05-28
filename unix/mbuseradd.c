@@ -4,7 +4,7 @@
  * Purpose ...............: setuid root version of useradd
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek	FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,7 +45,11 @@
 #include <syslog.h>
 #include <time.h>
 
-#if defined(__OpenBSD__) || defined(__NetBSD__)
+#if (defined(__FreeBSD__) && __FreeBSD_version >= 600000)
+#define FreeBSD_sysctl 1
+#endif
+
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(FreeBSD_sysctl)
 #include <sys/sysctl.h>
 #endif
 
@@ -184,8 +188,7 @@ int main(int argc, char *argv[])
     size_t	    siz = 100;
     char	    **p;
     int		    mib[4];
-#elif defined(__NetBSD__)
-#define ARG_SIZE 60
+#elif defined(__NetBSD__) || defined(FreeBSD_sysctl)
     static char     **s;
     size_t          siz = 100;
     int             mib[4];
@@ -282,9 +285,27 @@ int main(int argc, char *argv[])
         exit(1);
     }
     parent = xstrcpy((char *)s);
+#elif defined(FreeBSD_sysctl)
+    /*
+     * For FreeBSD 6.0 and later.
+     */
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_ARGS;
+    mib[3] = ppid;
+    if ((s = realloc(s, siz)) == NULL) {
+	fprintf(stderr, "mbuseradd: no memory\n");
+	exit(1);
+    }
+    if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
+	perror("");
+	fprintf(stderr, "mbuseradd: sysctl call failed\n");
+   	exit(1);
+    }
+    parent = xstrcpy((char *)s);
 #else
     /*
-     *  Systems with /proc filesystem like Linux, FreeBSD
+     *  Systems with /proc filesystem like Linux, old FreeBSD
      */
     snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
     if ((fp = fopen(temp, "r")) == NULL) {
