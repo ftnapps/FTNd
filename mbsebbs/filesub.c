@@ -930,8 +930,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    lines = 0;
 	    if ((id = fopen(idname, "r")) != NULL) {
 		/*
-		 * Import FILE_ID.DIZ, format to max. 25
-		 * lines, 48 chars width.
+		 * Import FILE_ID.DIZ, format to max. 25 * lines, 48 chars width.
 		 */
 		while (((fgets(temp1, PATH_MAX -1, id)) != NULL) && (lines < 25)) {
 		    Striplf(temp1);
@@ -966,8 +965,10 @@ int Addfile(char *File, int AreaNum, int fileid)
 			lines++;
 		    }
 		}
+		fclose(id);
+	    } else {
+		GotId = FALSE;
 	    }
-	    fclose(id);
 	    unlink(idname);
 
 	    if (GotId) {

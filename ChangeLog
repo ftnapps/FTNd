@@ -6,6 +6,10 @@ v0.91.9		16-May-2007
 	general:
 		Fixed building on FreeBSD, tested on 5.3
 
+	mbsebbs:
+		Fixed upload crash when a FILE_ID.DIZ is found but the bbs is
+		not allowed to open for reading.
+
 	mbpasswd:
 		Added check for FreeBSD > 6.0 and use sysctl for security check.
 
