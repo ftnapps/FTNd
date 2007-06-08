@@ -10,6 +10,10 @@ v0.91.9		16-May-2007
 		Fixed upload crash when a FILE_ID.DIZ is found but the bbs is
 		not allowed to open for reading.
 
+	mbfile:
+		Help message displays quoted description.
+		The adopt command works even if the description isn't quoted.
+
 	mbpasswd:
 		Added check for FreeBSD > 6.0 and use sysctl for security check.
 

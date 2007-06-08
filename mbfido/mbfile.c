@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -124,6 +124,7 @@ int main(int argc, char **argv)
 			Description = xstrcpy(argv[i]);
 		    }
 		}
+		break;
 	    }
 	} else if ((!strncasecmp(argv[i], "d", 1)) || (!strncasecmp(argv[i], "u", 1))) {
 	    if (!strncasecmp(argv[i], "u", 1))

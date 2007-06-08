@@ -114,7 +114,7 @@ void Help(void)
     mbse_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
     mbse_colour(CYAN, BLACK);
-    printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
+    printf("	a  adopt <area> <file> \"[desc]\"	Adopt file to area\n");
     printf("	c  check [area]			Check filebase\n");
     printf("	d  delete <area> \"<filemask>\"	Mark file(s) in area for deletion\n");
     printf("	im import <area>		Import files in current dir to area\n");
