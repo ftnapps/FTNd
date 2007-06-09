@@ -353,7 +353,7 @@ YN|View this BBS? [Y/n]:
 |Updating download counters, please wait ...
 |Failed!
 |Bytes
-|  #  Area  Active  File               Size  Cost
+|  #  Area Active     Size  Cost File
 |Yes
 |No
 TE|(T)oggle active, (E)rase all, (ENTER) to continue: 

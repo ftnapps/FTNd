@@ -353,7 +353,7 @@ JN|BBS-Details anzeigen ? [J/n]:
 |Download-Zaehler werden aktualisiert, bitte warten ...
 |Fehlgeschlagen!
 |Bytes
-|  #  Area  Aktiv   Datei              Gr.   Kosten
+|  #  Area Aktiv       Gr.  Kost Datei
 |Ja
 |Nein
 UA|Aufgelistete (U)mschalten, alle (A)bwaehlen, <ENTER> um fortzufahren: 

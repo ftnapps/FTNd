@@ -353,7 +353,7 @@ JN|Bekijk dit BBS? [J/n]:
 |Bijwerken download tellers, een ogenblik ...
 |Mislukt!
 |Bytes
-|  #  Geb.  Aktief  Bestand         Grootte  Kosten
+|  #  Geb. Aktief  Grootte Prijs Bestand
 |Ja
 |Nee
 SV|(S)chakel aktief, (V)erwijder alles, (ENTER) voor doorgaan: 

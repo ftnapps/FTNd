@@ -1675,16 +1675,19 @@ void EditTaglist()
     }
 
     temp = calloc(81, sizeof(char));
+    if (utf8)
+	chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
 
     while (TRUE) {
 	clear();
 	fseek(tf, 0, SEEK_SET);
 	Count = 0;
-	/* #  Area  Active  File               Size  Cost */
+	/*   #  Area Active     Size  Cost File */
+	/* 123 12345 123456 12345678 12345 */
 	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(355));
 	Enter(1);
 	colour(LIGHTGREEN, BLACK);
-	fLine(48);
+	PUTSTR(chartran(fLine_str(79)));
 
 	while ((fread(&Tag, sizeof(Tag), 1, tf) == 1)) {
 	    Count++;
@@ -1698,33 +1701,34 @@ void EditTaglist()
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    snprintf(temp, 81, "%5d  ", Tag.Area);
+	    snprintf(temp, 81, "%5d ", Tag.Area);
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
 	    if (Tag.Active)
 		/* Yes */
-		snprintf(temp, 81, "%-6s  ", (char *) Language(356));
+		snprintf(temp, 81, "%-6s ", (char *) Language(356));
 	    else
 		/* No */
-		snprintf(temp, 81, "%-6s  ", (char *) Language(357));
+		snprintf(temp, 81, "%-6s ", (char *) Language(357));
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    snprintf(temp, 81, "%-12s", Tag.SFile);
+	    snprintf(temp, 81, "%8d ", (int)(Tag.Size));
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    snprintf(temp, 81, " %8d", (int)(Tag.Size));
+	    snprintf(temp, 81, "%5d ", Tag.Cost);
 	    pout(Fg, BLACK, temp);
 
 	    Fg--;
-	    snprintf(temp, 81, " %5d", Tag.Cost);
+	    snprintf(temp, 81, "%s", Tag.LFile);
 	    pout(Fg, BLACK, temp);
+
 	    Enter(1);
 	}
 	colour(LIGHTGREEN, BLACK);
-	fLine(48);
+	PUTSTR(chartran(fLine_str(79)));
 
 	/* (T)oggle active, (E)rase all, (ENTER) to continue: */
 	pout(WHITE, RED, (char *) Language(358));
@@ -1755,6 +1759,8 @@ void EditTaglist()
 		}
 	    }
 	}
+
+	chartran_close();
 
 	if (i == Keystroke(358, 1)) {
 	    fclose(tf);

@@ -353,7 +353,7 @@ SN|¨Ver esta BBS? [S/n]:
 |Actualizando contadores de descarga...
 |­FALLO!
 |Bytes
-| n§  Area  Activa  Fichero            Tam.  Coste
+| n§  Area Activa     Tam. Coste Fichero
 |Si
 |No
 AT|(A)ctivar/desactivar, desactivar (T)odos, (ENTER) para seguir: 

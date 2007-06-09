@@ -312,7 +312,7 @@ int iLC(int Lines)
     iLineCount += Lines;
  
     if ((iLineCount >= rows) && (iLineCount < 1000)) {
-	iLineCount = 0;
+	iLineCount = 1;
 
 	while (TRUE) {
 	    /* More (Y/n/=) M=Mark */
@@ -359,23 +359,38 @@ int ShowOneFile()
 	snprintf(temp, 81, " %02d ", Tagnr);
 	pout(LIGHTGRAY, BLACK, temp);
 
-	snprintf(temp, 81, "%-12s", fdb.Name);
-	pout(CFG.FilenameF, CFG.FilenameB, temp);
-
-	snprintf(temp, 81, "%10u ", (int)(fdb.Size));
-	pout(CFG.FilesizeF, CFG.FilesizeB, temp);
-
-	snprintf(temp, 81, "%-10s  ", StrDateDMY(fdb.UploadDate));
-	pout(CFG.FiledateF, CFG.FiledateB, temp);
-
 	snprintf(temp, 81, "[%4d] ", fdb.TimesDL);
 	pout(LIGHTRED, BLACK, temp);
 
-	if ((strcmp(fdb.Uploader, "")) == 0)
-	    strcpy(fdb.Uploader, "SysOp");
+	snprintf(temp, 81, "%s", fdb.LName);
+	pout(CFG.FilenameF, CFG.FilenameB, temp);
+	Enter(1);
+	if (iLC(1) == 1)
+	    return 1;
 
-	snprintf(temp, 81, "%s%s", (char *) Language(238), fdb.Uploader);
-	pout(CFG.HiliteF, CFG.HiliteB, temp);
+	snprintf(temp, 81, "    %-10s ",  StrDateDMY(fdb.UploadDate));
+	pout(CFG.FiledateF, CFG.FiledateB, temp);
+
+	snprintf(temp, 81, "%10u bytes ", (int)(fdb.Size));
+	pout(CFG.FilesizeF, CFG.FilesizeB, temp);
+
+//	snprintf(temp, 81, "%-12s", fdb.Name);
+//	pout(CFG.FilenameF, CFG.FilenameB, temp);
+
+//	snprintf(temp, 81, "%10u ", (int)(fdb.Size));
+//	pout(CFG.FilesizeF, CFG.FilesizeB, temp);
+
+//	snprintf(temp, 81, "%-10s  ", StrDateDMY(fdb.UploadDate));
+//	pout(CFG.FiledateF, CFG.FiledateB, temp);
+
+//	snprintf(temp, 81, "[%4d] ", fdb.TimesDL);
+//	pout(LIGHTRED, BLACK, temp);
+
+//	if ((strcmp(fdb.Uploader, "")) == 0)
+//	    strcpy(fdb.Uploader, "SysOp");
+
+//	snprintf(temp, 81, "%s%s", (char *) Language(238), fdb.Uploader);
+//	pout(CFG.HiliteF, CFG.HiliteB, temp);
 	Enter(1);
 
 	if (iLC(1) == 1) 

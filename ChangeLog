@@ -14,6 +14,9 @@ v0.91.9		16-May-2007
 		Help message displays quoted description.
 		The adopt command works even if the description isn't quoted.
 
+	mbsebbs:
+		The filelist now displays long filenames (finally).
+
 	mbpasswd:
 		Added check for FreeBSD > 6.0 and use sysctl for security check.
 

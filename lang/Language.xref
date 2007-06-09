@@ -353,7 +353,7 @@
 352	file.c				|Updating download counter, please wait ...
 353	file.c				|Failed!
 354	file.c				|Bytes
-355	file.c				|   #  Area  Active  File                Size  Cost
+355	file.c				|  #  Area Active     Size  Cost File
 356	file.c lineedit.c		|Yes
 357	file.c				|No
 358 	file.c				TE|(T)oggle active, (E)rase all, (ENTER) to continue: 

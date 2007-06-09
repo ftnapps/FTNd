@@ -700,7 +700,10 @@ void OLR_SyncTags()
 
     if (Changed) {
 	colour(LIGHTGREEN, BLACK);
+	if (utf8)
+	    chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
 	fLine(79);
+	chartran_close();
 	Pause();
     }
 
