@@ -565,8 +565,7 @@ int ScanArchive(char *fn, char *ftype)
     FILE    *fp, *lp;
     int	    err = 0, Found = FALSE;
     char    *temp, *stdlog, *errlog, buf[256], msg[81];
-    char    *cwd = NULL;
-
+    char    *cwd = NULL, *fid;
 
     /*
      * First search for the right archiver program
@@ -576,8 +575,6 @@ int ScanArchive(char *fn, char *ftype)
     errlog = calloc(PATH_MAX, sizeof(char));
 	
     snprintf(temp,   PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
-    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
 	
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
@@ -629,6 +626,22 @@ int ScanArchive(char *fn, char *ftype)
     PUTSTR((char *) Language(200));
     Enter(1);
 
+    /*
+     * While we are here, see if there is a FILE_ID.DIZ
+     */
+    fid = xstrcpy((char *)"FILE_ID.DIZ");
+    snprintf(temp, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    if (getfilecase(temp, fid)) {
+	snprintf(temp, PATH_MAX, "%s/%s/tmp/%s", CFG.bbs_usersdir, exitinfo.Name, fid);
+	snprintf(stdlog, PATH_MAX, "%s/%s/wrk/FILE_ID.DIZ", CFG.bbs_usersdir, exitinfo.Name);
+	if (file_cp(temp, stdlog) == 0) {
+	    Syslog('b', "Copied %s", temp);
+	}
+    }
+    free(fid);
+
+    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
     snprintf(temp, PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 
     if ((fp = fopen(temp, "r")) != NULL) {
@@ -679,7 +692,14 @@ int ScanArchive(char *fn, char *ftype)
 	fclose(fp);
     }
 
-    execute_pth((char *)"rm", (char *)"-r -f ./*", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    /*
+     * Remove and recreate tmp directory if it was used (or not)
+     */
+    snprintf(temp, PATH_MAX, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    chdir(temp);
+    snprintf(temp, PATH_MAX, "-r -f %s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    execute_pth((char *)"mkdir", (char *)"tmp", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     chdir(cwd);
     free(cwd);
     free(temp);
@@ -836,7 +856,7 @@ int ImportFile(char *fn, int Area, int fileid, off_t Size)
 int Addfile(char *File, int AreaNum, int fileid)
 {
     FILE    *id, *pPrivate;
-    int	    err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
+    int	    iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
     char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[PATH_MAX], msg[81]; 
     struct  stat statfile; 
     struct _fdbarea *fdb_area = NULL;
@@ -920,22 +940,14 @@ int Addfile(char *File, int AreaNum, int fileid)
 
 	if (fileid && strlen(archiver.iunarc)) {
 	    /*
-	     * The right unarchiver is still in memory,
-	     * get the FILE_ID.DIZ if it exists.
+	     * During Virus scan, a possible FILE_ID.DIZ is in the users work directory.
 	     */
-	    snprintf(temp, PATH_MAX, "%s/%s", area.Path, File);
-	    if ((err = execute_str(archiver.iunarc, temp, (char *)"FILE_ID.DIZ", (char *)"/dev/null", 
-					(char *)"/dev/null", (char *)"/dev/null"))) {
-		if ((err = execute_str(archiver.iunarc, temp, (char *)"file_id.diz", (char *)"/dev/null",
-					    (char *)"/dev/null", (char *)"/dev/null"))) {
-		    Syslog('+', "No FILE_ID.DIZ found in %s", File);
-		} else {
-		    idname = xstrcpy((char *)"file_id.diz");
-		}
-	    } else {
-		idname = xstrcpy((char *)"FILE_ID.DIZ");
-	    }
-	    if (!err) {
+	    idname = xstrcpy(CFG.bbs_usersdir);
+	    idname = xstrcat(idname, (char *)"/");
+	    idname = xstrcat(idname, exitinfo.Name);
+	    idname = xstrcat(idname, (char *)"/wrk/FILE_ID.DIZ");
+
+	    if (file_exist(idname, R_OK) == 0) {
 		Syslog('+', "Found %s", idname);
 		GotId = TRUE;
 	    }

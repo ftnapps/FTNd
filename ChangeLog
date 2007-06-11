@@ -16,6 +16,8 @@ v0.91.9		16-May-2007
 
 	mbsebbs:
 		The filelist now displays long filenames (finally).
+		Searching FILE_ID.DIZ in uploads is now case insensitive.
+		Improved cleaning users tmp dir after virus scan.
 
 	mbpasswd:
 		Added check for FreeBSD > 6.0 and use sysctl for security check.
