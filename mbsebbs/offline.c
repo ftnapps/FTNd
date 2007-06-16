@@ -702,7 +702,7 @@ void OLR_SyncTags()
 	colour(LIGHTGREEN, BLACK);
 	if (utf8)
 	    chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
-	fLine(79);
+	PUTSTR(chartran(fLine_str(79)));
 	chartran_close();
 	Pause();
     }
