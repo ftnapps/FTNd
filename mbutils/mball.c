@@ -272,6 +272,18 @@ void BotBox(FILE *fp, FILE *up, int doit)
 
 
 
+void WriteFiles(FILE *fp, FILE *fu, FILE *np, FILE *nu, int New, char *temp)
+{
+    fprintf(fp, "%s\r\n", temp);
+    fprintf(fu, "%s\r\n", chartran(temp));
+    if (New) {
+	fprintf(np, "%s\r\n", temp);
+	fprintf(nu, "%s\r\n", chartran(temp));
+    }
+}
+
+
+
 void Masterlist()
 {
     FILE	    *fp, *np, *fu, *nu, *pAreas, *pHeader;
@@ -418,43 +430,25 @@ void Masterlist()
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (!fdb.Deleted) {
 			    New = (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays);
-			    snprintf(temp, 81, "%-12s%10u K %s [%04d] Uploader: %s",
-				fdb.Name, (int)(fdb.Size / 1024), StrDateDMY(fdb.UploadDate), fdb.TimesDL, 
-				strlen(fdb.Uploader)?fdb.Uploader:"");
-			    fprintf(fp, "%s\r\n", temp);
-			    fprintf(fu, "%s\r\n", chartran(temp));
-			    if (New) {
-				fprintf(np, "%s\r\n", temp);
-				fprintf(nu, "%s\r\n", chartran(temp));
-			    }
 
-	
+			    snprintf(temp, 81, "[%4d] %s %10u K %s", fdb.TimesDL, 
+				    StrDateDMY(fdb.UploadDate), fdb.Size / 1024, fdb.LName);
+			    WriteFiles(fp, fu, np, nu, New, temp);
+
 			    for (z = 0; z < 25; z++) {
 				if (strlen(fdb.Desc[z])) {
 				    if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X')) {
-					fprintf(fp, "                         %s\r\n",fdb.Desc[z]+4);
-					fprintf(fu, "                         %s\r\n",chartran(fdb.Desc[z]+4));
-					if (New) {
-					    fprintf(np, "                         %s\r\n",fdb.Desc[z]+4);
-					    fprintf(nu, "                         %s\r\n",chartran(fdb.Desc[z]+4));
-					}
+					snprintf(temp, 81, "                               %s", fdb.Desc[z]+4);
 				    } else {
-					fprintf(fp, "                         %s\r\n",fdb.Desc[z]);
-					fprintf(fu, "                         %s\r\n",chartran(fdb.Desc[z]));
-					if (New) {
-					    fprintf(np, "                         %s\r\n",fdb.Desc[z]);
-					    fprintf(nu, "                         %s\r\n",chartran(fdb.Desc[z]));
-					}
+					snprintf(temp, 81, "                               %s", fdb.Desc[z]);
 				    }
+				    WriteFiles(fp, fu, np, nu, New, temp);
 				}
 			    }
+
 			    if (strlen(fdb.Magic)) {
-				fprintf(fp, "                         Magic filerequest: %s\r\n", fdb.Magic);
-				fprintf(fu, "                         Magic filerequest: %s\r\n", fdb.Magic);
-				if (New) {
-				    fprintf(np, "                         Magic filerequest: %s\r\n", fdb.Magic);
-				    fprintf(nu, "                         Magic filerequest: %s\r\n", fdb.Magic);
-				}
+				snprintf(temp, 81, "                               Magic filerequest: %s", fdb.Magic);
+				WriteFiles(fp, fu, np, nu, New, temp);
 			    }
 			}
 		    }

@@ -19,6 +19,9 @@ v0.91.9		16-May-2007
 		Searching FILE_ID.DIZ in uploads is now case insensitive.
 		Improved cleaning users tmp dir after virus scan.
 
+	mball:
+		Creates allfiles/newfiles listings with long filenames.
+
 	mbpasswd:
 		Added check for FreeBSD > 6.0 and use sysctl for security check.
 

@@ -9,6 +9,7 @@ void MakeIndex(void);
 void MidLine(char *, FILE *, FILE *, int);
 void TopBox(FILE *, FILE *, int);
 void BotBox(FILE *, FILE *, int);
+void WriteFiles(FILE *, FILE *, FILE *, FILE *, int, char *);
 void Masterlist(void);
 void MakeArc(void);
 
