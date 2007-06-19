@@ -431,25 +431,30 @@ void Masterlist()
 			if (!fdb.Deleted) {
 			    New = (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays);
 
-			    snprintf(temp, 81, "[%4d] %s %10u K %s", fdb.TimesDL, 
-				    StrDateDMY(fdb.UploadDate), fdb.Size / 1024, fdb.LName);
+			    snprintf(temp, 81, "%s", fdb.LName);
+			    WriteFiles(fp, fu, np, nu, New, temp);
+
+			    snprintf(temp, 81, "%-12s%10u K %s [%04d] Uploader: %s", 
+				fdb.Name, (int)(fdb.Size / 1024), StrDateDMY(fdb.UploadDate), fdb.TimesDL, 	 
+				strlen(fdb.Uploader)?fdb.Uploader:"");
 			    WriteFiles(fp, fu, np, nu, New, temp);
 
 			    for (z = 0; z < 25; z++) {
 				if (strlen(fdb.Desc[z])) {
 				    if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X')) {
-					snprintf(temp, 81, "                               %s", fdb.Desc[z]+4);
+					snprintf(temp, 81, "                         %s", fdb.Desc[z]+4);
 				    } else {
-					snprintf(temp, 81, "                               %s", fdb.Desc[z]);
+					snprintf(temp, 81, "                         %s", fdb.Desc[z]);
 				    }
 				    WriteFiles(fp, fu, np, nu, New, temp);
 				}
 			    }
 
 			    if (strlen(fdb.Magic)) {
-				snprintf(temp, 81, "                               Magic filerequest: %s", fdb.Magic);
+				snprintf(temp, 81, "                         Magic filerequest: %s", fdb.Magic);
 				WriteFiles(fp, fu, np, nu, New, temp);
 			    }
+			    WriteFiles(fp, fu, np, nu, New, (char *)"");
 			}
 		    }
 		}

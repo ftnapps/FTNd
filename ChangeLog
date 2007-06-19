@@ -20,7 +20,8 @@ v0.91.9		16-May-2007
 		Improved cleaning users tmp dir after virus scan.
 
 	mball:
-		Creates allfiles/newfiles listings with long filenames.
+		Creates allfiles/newfiles listings with long filenames and
+		short filenames.
 
 	mbpasswd:
 		Added check for FreeBSD > 6.0 and use sysctl for security check.
