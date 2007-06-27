@@ -114,6 +114,8 @@ mbaff:
 	W: Rewrite filefind search algorithm.
 
 mbsetup:
+	U: Add check for empty data files.
+
 	N: Add a check for double areatag names. See MySQL plan.
 
 	N: Use some sort of sorting for the system aka's and make sure the
