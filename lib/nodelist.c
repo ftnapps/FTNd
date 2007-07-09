@@ -908,7 +908,7 @@ node *getnlent(faddr *addr)
      */
     while (TRUE) {
 	if (fgets(ebuf, sizeof(ebuf)-1, fp) == NULL) {
-	    WriteError("$fgets failed for nodelist entry");
+//	    WriteError("$fgets failed for nodelist entry");	Errors are allowed here.
 	    break;
 	}
 	/*

@@ -6,6 +6,10 @@ v0.91.9		16-May-2007
 	general:
 		Fixed building on FreeBSD, tested on 5.3
 
+	libnodelist:
+		Don't complain if attempt to read an extended nodelist line
+		fails.
+
 	mbsebbs:
 		Fixed upload crash when a FILE_ID.DIZ is found but the bbs is
 		not allowed to open for reading.
