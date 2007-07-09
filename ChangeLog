@@ -33,6 +33,9 @@ v0.91.9		16-May-2007
 	mbuseradd:
 		Added check for FreeBSD > 6.0 and use sysctl for security check.
 
+	script:
+		Improved grep in init scripts.
+
 
 v0.91.8		26-Apr-2007 - 16-May-2007
 

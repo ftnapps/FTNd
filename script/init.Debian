@@ -8,7 +8,7 @@
 # For Debian SYSV init style.
 
 # Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
 
 if [ "$MBSE_ROOT" = "" ]; then
 	echo "MBSE BBS: No 'mbse' user in the password file."
