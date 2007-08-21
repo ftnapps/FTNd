@@ -79,17 +79,18 @@ char *typestr(int tp)
 }
 
 
+
 #ifdef	HAVE_GEOIP_H
+
+extern void _GeoIP_setup_dbfilename(void);
+
+
 void geoiplookup(GeoIP* gi,char *hostname,int i) 
 {
     const char * country_code;
     const char * country_name;
-//    const char * domain_name;
-//    int netspeed;
     int country_id;
-//    GeoIPRegion * region;
     GeoIPRecord * gir;
-//    const char * org;
 
     if (GEOIP_COUNTRY_EDITION == i) {
 	country_id = GeoIP_id_by_name(gi, hostname);
@@ -118,8 +119,8 @@ void geoiplookup(GeoIP* gi,char *hostname,int i)
 	}
     }
 }
-
 #endif
+
 
 
 int session(faddr *a, node *nl, int role, int tp, char *dt)
