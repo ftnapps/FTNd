@@ -92,6 +92,10 @@
 #ifdef	HAVE_BZLIB_H
 #include <bzlib.h>
 #endif
+#ifdef  HAVE_GEOIP_H
+#include <GeoIP.h>
+#include <GeoIPCity.h>
+#endif
 #if !defined(__ppc__)
 #include <sys/poll.h>
 #endif

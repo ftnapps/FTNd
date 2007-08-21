@@ -259,3 +259,6 @@
 /* Define if you have the <iconv.h> header file. */
 #undef HAVE_ICONV_H
 
+/* Define if you have the <GeoIP.h> header file. */
+#undef HAVE_GEOIP_H
+

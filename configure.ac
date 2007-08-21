@@ -277,6 +277,18 @@ AC_PATH_PROG(GOLDNODE,goldnode)
 AC_PATH_PROG(GOLDNODE,gnlnx)
 AC_PATH_PROG(CONVERT,convert)
 
+
+#
+# Check for GeoIP support, see http://www.maxmind.com/
+#
+GEOIPSUP=No
+AC_CHECK_LIB(GeoIP,GeoIP_new,result=yes,result=no)
+if test "$result" = "yes"; then
+  LIBS="$LIBS -lGeoIP"
+  AC_CHECK_HEADERS(GeoIP.h GeoIPCity.h,GEOIPSUP=Yes,GEOIPSUP=No)
+fi
+
+
 #
 # FIX DEL for Del!=207, this was default upto 207 or 126 if no argument 
 #
@@ -370,6 +382,7 @@ AC_MSG_RESULT([
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
     Binkp bzlib compression : ..... ${BZLIBSUP}
     Full newsgate : ............... ${NEWSGATE}
+    GeoIP support : ............... ${GEOIPSUP}
     Delete key : .................. ${DEL}
 
 ])
