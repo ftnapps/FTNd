@@ -4,7 +4,7 @@ $Id$
 v0.91.10	21-Aug-2007
 
 	libmbse:
-		Added support or the ARM processor.
+		Added support or the ARM processor, thanks to Simon Voortman.
 
 	mbmon:
 		Added support or the ARM processor.
