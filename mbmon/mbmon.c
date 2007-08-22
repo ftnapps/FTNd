@@ -4,7 +4,7 @@
  * Purpose ...............: Monitor Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -439,6 +439,8 @@ void soft_info(void)
 	p = xstrcat(p, (char *)" Alpha)");
 #elif defined(__hppa__)
 	p = xstrcat(p, (char *)" HPPA)");
+#elif defined(_arm__)
+	p = xstrcat(p, (char *)" ARM)");
 #else
 #error "Unknown CPU"
 #endif

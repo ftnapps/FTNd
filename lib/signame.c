@@ -4,7 +4,7 @@
  * Purpose ...............: Signal names
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -36,7 +36,7 @@
  *  Signal handler signal names.
  */
 
-#if defined(__i386__) || defined(__x86_64__)
+#if defined(__i386__) || defined(__x86_64__) || defined(__arm__)
 
 char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",

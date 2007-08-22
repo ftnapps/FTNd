@@ -4,7 +4,7 @@
  * Purpose ...............: Common string functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -393,6 +393,8 @@ char *OsCPU()
     return (char *)"Alpha";
 #elif __hppa__
     return (char *)"HPPA";
+#elif __arm__
+    return (char *)"ARM";
 #else
 #error "Unknown CPU"
 #endif

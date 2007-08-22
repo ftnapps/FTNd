@@ -3,6 +3,16 @@ $Id$
 
 v0.91.10	21-Aug-2007
 
+	libmbse:
+		Added support or the ARM processor.
+
+	mbmon:
+		Added support or the ARM processor.
+
+	mbtask:
+		Added support or the ARM processor.
+
+
 
 v0.91.9		16-May-2007 - 21-Aug-2007
 

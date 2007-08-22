@@ -4,7 +4,7 @@
  * Purpose ...............: Signal names
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -36,7 +36,7 @@
  *  Signal handler signal names.
  */
 
-#if defined(__i386__) || defined(__x86_64__)
+#if defined(__i386__) || defined(__x86_64__) || defined(__arm__)
 
 char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
@@ -47,7 +47,6 @@ char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGTTIN",	"SIGTTOU",	"SIGURG",	"SIGXCPU",
 		"SIGXFSZ",	"SIGVTALRM",	"SIGPROF",	"SIGWINCH",
 		"SIGIO",	"SIGPWR",	"SIGUNUSED"};
-
 
 #elif defined(__PPC__) || defined(__ppc__)
 
@@ -61,7 +60,6 @@ char    SigName[32][16] = {     "NOSIGNAL",
                 "SIGXFSZ",      "SIGVTALRM",    "SIGPROF",      "SIGWINCH",
                 "SIGIO",        "SIGPWR",       "SIGUNUSED"};
 
-
 #elif defined(__sparc__)
 
 char	SigName[32][16] = {	"NOSIGNAL",
@@ -74,7 +72,7 @@ char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGXFSZ",	"SIGVTALRM",	"SIGPROF",	"SIGWINCH",
 		"SIGLOST",	"SIGUSR1",	"SIGUSR2"};
 
-#elif defined(__alpha__)
+#elif defined(__alpha__) || defined(__hppa__)
 
 char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
@@ -85,18 +83,6 @@ char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGTTIN",	"SIGTTOU",	"SIGIO",	"SIGXCPU",
 		"SIGXFSZ",	"SIGVTALRM",	"SIGPROF",	"SIGWINCH",
 		"SIGINFO",	"SIGUSR1",	"SIGUSR2"};
-
-#elif defined(__hppa__)
-
-char    SigName[32][16] = {  "NOSIGNAL",
-		"SIGHUP",       "SIGINT",       "SIGQUIT",      "SIGILL",
-		"SIGTRAP",      "SIGABRT",      "SIGEMT",       "SIGFPE",
-		"SIGKILL",      "SIGBUS",       "SIGSEGV",      "SIGSYS",
-		"SIGPIPE",      "SIGALRM",      "SIGTERM",      "SIGURG",
-		"SIGSTOP",      "SIGTSTP",      "SIGCONT",      "SIGCHLD",
-		"SIGTTIN",      "SIGTTOU",      "SIGWIO",       "SIGXCPU",
-		"SIGXFSZ",      "SIGVTALRM",    "SIGPROF",      "SIGWINCH",
-		"SIGINFO",      "SIGUSR1",      "SIGUSR2"};
 
 #else
 #error "Cannot make SigName array on this platform"
