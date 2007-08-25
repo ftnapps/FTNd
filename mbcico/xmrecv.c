@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -356,7 +356,7 @@ SM_STATE(recvblk)
 
 	if (crcmode && (header != SYN)) {
 		remotecrc = (short)xmblk.c1 << 8 | xmblk.c2;
-		localcrc = crc16xmodem(xmblk.data, sizeof(xmblk.data));
+		localcrc = crc16xmodem((char *)xmblk.data, sizeof(xmblk.data));
 		if (remotecrc != localcrc) {
 			Syslog('x', "bad crc: 0x%04x/0x%04x",remotecrc,localcrc);
 			if (recv_blk == (ackd_blk+1)) {
@@ -367,7 +367,7 @@ SM_STATE(recvblk)
 		}
 	} else {
 		remotecs = xmblk.c1;
-		localcs = checksum(xmblk.data, sizeof(xmblk.data));
+		localcs = checksum((char *)xmblk.data, sizeof(xmblk.data));
 		if (remotecs != localcs) {
 			Syslog('x', "bad checksum: 0x%02x/0x%02x",remotecs,localcs);
 			if (recv_blk == (ackd_blk+1)) {
@@ -394,7 +394,7 @@ SM_STATE(recvblk)
 		SM_PROCEED(waitblk);
 	}
 
-	Syslog('X', "received block %ld \"%s\"", recv_blk,printable(xmblk.data,128));
+	Syslog('X', "received block %d \"%s\"", recv_blk,printable((char *)xmblk.data,128));
 
 	if (fp == NULL) {
 		if ((fp = openfile(tmpfname,remtime,remsize,&resofs,resync)) == NULL) {
@@ -434,9 +434,9 @@ SM_STATE(recvblk)
 
 SM_STATE(checktelink)
 
-	Syslog('x', "checktelink got \"%s\"",printable(xmblk.data,45));
+	Syslog('x', "checktelink got \"%s\"",printable((char *)xmblk.data,45));
 	if (tmpfname[0] == '\0') {
-		strncpy(tmpfname,xmblk.data+8,16);
+		strncpy(tmpfname,(char *)xmblk.data+8,16);
 		/*
 		 *  Some systems fill the rest of the filename with spaces, sigh.
 		 */
@@ -447,8 +447,8 @@ SM_STATE(checktelink)
 				break;
 		}
 	} else {
-		Syslog('+', "Remote uses %s",printable(xmblk.data+25,-14));
-		Syslog('x', "Remote file name \"%s\" discarded", printable(xmblk.data+8,-16));
+		Syslog('+', "Remote uses %s",printable((char *)xmblk.data+25,-14));
+		Syslog('x', "Remote file name \"%s\" discarded", printable((char *)xmblk.data+8,-16));
 	}
 	remsize = ((off_t)xmblk.data[0]) + ((off_t)xmblk.data[1]<<8) + ((off_t)xmblk.data[2]<<16) + ((off_t)xmblk.data[3]<<24);
 	last_blk = (remsize-1)/XMBLKSIZ+1;

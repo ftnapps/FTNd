@@ -43,7 +43,7 @@ struct sockaddr_in	pop3_rem;	/* For remote socket address	*/
 
 int pop3_connect(void)
 {
-	int	addrlen;
+	socklen_t addrlen;
 	char	*p;
 
 	if (!strlen(CFG.popnode)) {

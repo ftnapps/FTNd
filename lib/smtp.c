@@ -43,7 +43,7 @@ struct sockaddr_in	smtp_rem;	/* For remote socket address	*/
 
 int smtp_connect(void)
 {
-	int	addrlen;
+	socklen_t addrlen;
 	char	*p, temp[40];
 
 	if (smtpsock != -1)

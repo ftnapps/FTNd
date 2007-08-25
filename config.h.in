@@ -238,6 +238,9 @@
 /* Define to `int' if <sys/types.h> doesn't define. */
 #undef uid_t
 
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef ssize_t
+
 /* Define as `fork' if `vfork' does not work. */
 #undef vfork
 

@@ -1805,7 +1805,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
 #ifdef HAVE_ZLIB_H
     int		    rcz, last;
     uLongf	    zlen;
-    char	    *zbuf;
+    Bytef	    *zbuf;
 
     if ((len >= BINKP_PLZ_BLOCK) && (bp.PLZwe == Active)) {
 	WriteError("Can't send block of %d bytes in PLZ mode", len);
@@ -1841,7 +1841,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     if ((bp.PLZwe == Active) && (len > 20) && (!cmd) && (bp.tmode != CompGZ) && (bp.tmode != CompBZ2)) {
 	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 	zlen = BINKP_PLZ_BLOCK -1;
-	rcz = compress2(zbuf, &zlen, buf, len, 9);
+	rcz = compress2(zbuf, &zlen, (Bytef *)buf, (uLong)len, 9);
 	if (rcz == Z_OK) {
 	    Syslog('b', "Binkp: compressed OK, srclen=%d, destlen=%d, will send compressed=%s", 
 		    len, zlen, (zlen < len) ?"yes":"no");
@@ -1867,7 +1867,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
 		if (!rc)
 		    rc = PUTCHAR(header & 0x00ff);
 		if (zlen && !rc)
-		    rc = PUT(zbuf, zlen);
+		    rc = PUT((char *)zbuf, (int)zlen);
 	    } else {
 		rc = PUTCHAR((header >> 8) & 0x00ff);
 		if (!rc)
@@ -2357,7 +2357,7 @@ int binkp_poll_frame(void)
 		    if ((bp.PLZthey == Active) && (bp.header & BINKP_PLZ_BLOCK) && (bp.rmode == CompNone) && bp.blklen) {
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 			zlen = BINKP_PLZ_BLOCK -1;
-			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
+			rc = uncompress((Bytef *)zbuf, &zlen, (Bytef *)bp.rxbuf, bp.rxlen -1);
 			if (rc == Z_OK) {
 			    bp.rxcompressed += (zlen - (bp.rxlen -1));
 			    memmove(bp.rxbuf, zbuf, zlen);

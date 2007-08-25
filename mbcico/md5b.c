@@ -4,7 +4,7 @@
  * Purpose ...............: MD5 for binkp protocol driver
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek                FIDO:   2:280/2802
  * Beekmansbos 10
@@ -514,7 +514,7 @@ char *MD_buildDigest(char *pw, unsigned char *challenge)
     if ((!pw) || (!challenge)) 
 	return rs;
 
-    hmac_md5(challenge+1, challenge[0], pw, strlen(pw), digest);
+    hmac_md5(challenge+1, challenge[0], (unsigned char *)pw, strlen(pw), digest);
     rs = (char *)xmalloc(MD5_DIGEST_LEN * 2 + 10);
     MD_toString(rs, MD5_DIGEST_LEN, digest);
     return rs;
