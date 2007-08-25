@@ -8,6 +8,7 @@ v0.91.10	21-Aug-2007
 		nothing if you don't have the library and tools. But if you do
 		have it, mbcico logs the country and city of the incoming
 		calls depending on the databases you have installed.
+		Added example telnet login for NetBSD.
 
 	libmbse:
 		Added support or the ARM processor, thanks to Simon Voortman.

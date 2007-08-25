@@ -471,6 +471,8 @@ tfido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t itn
 #telnet  stream  tcp     nowait  root   /usr/libexec/telnetd  telnetd -p $MHOME/bin/mblogin
 # Example OpenBSD telnet to the BBS
 #telnet  stream  tcp     nowait  root   /usr/libexec/tcpd     telnetd -L $MHOME/bin/mblogin
+# Example OpenBSD telnet to the BBS
+#telnet  stream  tcp     nowait  root   /usr/libexec/telnetd  telnetd -g mbse
 
 EOF
 	chmod 644 /etc/inetd.conf
@@ -483,6 +485,21 @@ EOF
 	fi
 	echo ", done."
     fi
+fi
+
+if [ "$OSTYPE" = "NetBSD" ]; then
+  if [ -f /etc/gettytab ]; then
+    if [ "`grep mbse /etc/gettytab`" = "" ]; then
+      log "+" "[$?] adding mbsebbs login to /etc/gettytab"
+cat << EOF >>/etc/
+
+#
+# Login entry for mbsebbs.
+#
+mbse:lo=/opt/mbse/bin/mblogin
+EOF
+    fi
+  fi
 fi
 
 if [ -f /etc/xinetd.conf ]; then
