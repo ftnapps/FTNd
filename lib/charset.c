@@ -297,7 +297,7 @@ int chartran_init(char *fromset, char *toset, int loglvl)
 {
     loglevel = loglvl;
 
-#ifdef	HAVE_ICONF_H
+#ifdef	HAVE_ICONV_H
 
     if (use_tran1 || use_tran2) {
 	WriteError("chartran_init() called while still open");
