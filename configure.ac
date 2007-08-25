@@ -243,7 +243,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
 AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
-AC_CHECK_FUNCS(gettimeofday re_comp select)
+AC_CHECK_FUNCS(gettimeofday re_comp select statfs statvfs)
 AC_CHECK_FUNCS(getspnam initgroups updwtmp updwtmpx)
 
 #

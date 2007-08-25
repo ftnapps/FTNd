@@ -205,6 +205,12 @@
 /* Define if the `S_IS*' macros in <sys/stat.h> do not work properly. */
 #undef STAT_MACROS_BROKEN
 
+/* Define if you have the statfs function */
+#undef HAVE_STATFS
+
+/* Define if you have the statvfs function */
+#undef HAVE_STATVFS
+
 /* Define if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
