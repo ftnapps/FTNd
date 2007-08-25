@@ -32,9 +32,9 @@ MSGBASE_HDRS	= jam.h jammsg.h jamsys.h msg.h msgtext.h
 MBINET_SRCS	= nntp.c pop3.c smtp.c
 MBINET_OBJS	= nntp.o pop3.o smtp.o
 MBINET_HDRS	= mbinet.h
-DIESEL_SRCS	= diesel.c mbdiesel.c
+DIESEL_SRCS	= diesel.c mbdiesel.c strcasestr.c
 DIESEL_HDRS	= diesel.h
-DIESEL_OBJS	= diesel.o mbdiesel.o
+DIESEL_OBJS	= diesel.o mbdiesel.o strcasestr.o
 OTHER_HDRS	= bluewave.h mbse.h users.h
 SRCS		= ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${MBINET_SRCS} \
 		  ${DIESEL_SRCS} ${NODELIST_SRCS} ${CHC_SRCS}
@@ -174,6 +174,7 @@ pop3.o: ../config.h mbselib.h mbinet.h
 smtp.o: ../config.h mbselib.h mbinet.h
 diesel.o: ../config.h mbselib.h diesel.h
 mbdiesel.o: ../config.h mbselib.h diesel.h
+strcasestr.o: ../config.h mbselib.h
 nodelist.o: ../config.h mbselib.h nodelist.h
 ftscprod.o: ../config.h mbselib.h
 # End of generated dependencies
