@@ -10,7 +10,7 @@
  * MBSE BBS and utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -48,7 +48,7 @@ int		fdHdr = -1;
 int		fdJdt = -1;
 int		fdJdx = -1;
 int		fdJlr = -1;
-char		*pSubfield;
+unsigned char	*pSubfield;
 char		BaseName[PATH_MAX];
 char		*pLine, *pBuff;
 char		szBuff[MAX_LINE_LENGTH + 1];
@@ -659,10 +659,14 @@ void JAM_Pack(void)
 				/*
 				 * Adjust the matching numbers
 				 */
-				if (LR.LastReadMsg == jamHdr.MsgNum)
+				if (LR.LastReadMsg == jamHdr.MsgNum) {
+				    Syslog('m', "JAM_Pack %s recno %d LastRead %u -> %u", BaseName, i, jamHdr.MsgNum, NewNumber);
 				    LR.LastReadMsg = NewNumber;
-				if (LR.HighReadMsg == jamHdr.MsgNum)
+				}
+				if (LR.HighReadMsg == jamHdr.MsgNum) {
+				    Syslog('m', "JAM_Pack %s recno %d HighRead %u -> %u", BaseName, i, jamHdr.MsgNum, NewNumber);
 				    LR.HighReadMsg = NewNumber;
+				}
 				lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
 				write(fdJlr, &LR, sizeof(lastread));
 			    }

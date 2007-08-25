@@ -36,7 +36,7 @@ static int		sock = -1;	/* Unix Datagram socket		*/
 struct sockaddr_un      clntaddr;       /* Client socket address        */
 struct sockaddr_un      servaddr;       /* Server socket address        */
 struct sockaddr_un      from;           /* From socket address          */
-int                     fromlen;
+socklen_t		fromlen;
 static char		*myname='\0';	/* my program name		*/
 char			spath[108];     /* Server socket path           */
 char			cpath[108];     /* Client socket path           */
@@ -175,7 +175,7 @@ int socket_send(char *buf)
 char *socket_receive(void)
 {
     static char	buf[SS_BUFSIZE];
-    int		rlen;
+    ssize_t	rlen;
 
     memset((char *)&buf, 0, SS_BUFSIZE);
     fromlen = sizeof(from);
