@@ -9,7 +9,7 @@ OTHER		= AUTHORS ChangeLog COPYING DEBUG CRON.sh FILE_ID.DIZ.in \
 		  ChangeLog_2002 ChangeLog_2003 ChangeLog_2004 ChangeLog_2005 \
 		  README SETUP.sh \
 		  TODO UPGRADE aclocal.m4 checkbasic config.h.in configure \
-		  configure.in \
+		  configure.ac \
 		  paths.h.in README.Gentoo
 TARFILE		= ${PACKAGE}-${VERSION}.tar.bz2
 
