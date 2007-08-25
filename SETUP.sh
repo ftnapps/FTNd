@@ -491,7 +491,7 @@ if [ "$OSTYPE" = "NetBSD" ]; then
   if [ -f /etc/gettytab ]; then
     if [ "`grep mbse /etc/gettytab`" = "" ]; then
       log "+" "[$?] adding mbsebbs login to /etc/gettytab"
-cat << EOF >>/etc/
+cat << EOF >>/etc/gettytab
 
 #
 # Login entry for mbsebbs.
