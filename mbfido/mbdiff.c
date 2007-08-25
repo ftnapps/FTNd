@@ -450,7 +450,8 @@ void Help(void)
 int apply(char *nl, char *nd, char *nn)
 {
     FILE	    *fo, *fd, *fn;
-    unsigned char   cmdbuf[BLKSIZ], lnbuf[BLKSIZ], *p;
+    unsigned char   cmdbuf[BLKSIZ], lnbuf[BLKSIZ]; 
+    char	    *p;
     int		    i, count, ac = 0, cc = 0, dc = 0, rc = 0, firstline = 1;
     unsigned short  theircrc = 0, mycrc = 0;
 
@@ -472,56 +473,56 @@ int apply(char *nl, char *nd, char *nn)
 	return 2;
     }
 
-    if ((fgets(cmdbuf, sizeof(cmdbuf)-1, fd) == NULL) ||
-	(fgets(lnbuf, sizeof(cmdbuf)-1, fo) == NULL) ||
-	(strcmp(cmdbuf, lnbuf) != 0)) {
+    if ((fgets((char *)cmdbuf, sizeof(cmdbuf)-1, fd) == NULL) ||
+	(fgets((char *)lnbuf, sizeof(cmdbuf)-1, fo) == NULL) ||
+	(strcmp((char *)cmdbuf, (char *)lnbuf) != 0)) {
 	rc = 6;
     } else {
 	rewind(fo);
 	rewind(fd);
 
-	while ((rc == 0) && fgets(cmdbuf, sizeof(cmdbuf)-1, fd)) {
+	while ((rc == 0) && fgets((char *)cmdbuf, sizeof(cmdbuf)-1, fd)) {
 	    switch (cmdbuf[0]) {
 		case '\032':	break;
-		case ';':   Striplf(cmdbuf);
+		case ';':   Striplf((char *)cmdbuf);
 			    break;
-		case 'A':   count = atoi(cmdbuf+1);
+		case 'A':   count = atoi((char *)cmdbuf+1);
 			    ac += count;
-			    Striplf(cmdbuf);
+			    Striplf((char *)cmdbuf);
 			    for (i = 0;(i < count) && (rc == 0); i++)
-				if (fgets(lnbuf, sizeof(lnbuf)-1, fd)) {
+				if (fgets((char *)lnbuf, sizeof(lnbuf)-1, fd)) {
 				    if (firstline) {
 					firstline = 0;
-					if ((p = strrchr(lnbuf, ':'))) {
-					    theircrc = atoi(p+1);
+					if ((p = strrchr((char *)lnbuf, ':'))) {
+					    theircrc = atoi((char *)p+1);
 					}
 				    } else {
-					for (p = lnbuf; *p; p++)
+					for (p = (char *)lnbuf; *p; p++)
 					    mycrc = updcrc(*p, mycrc);
 				    }
-				    fputs(lnbuf, fn);
+				    fputs((char *)lnbuf, fn);
 				} else
 				    rc = 3;
 			    break;
-		case 'D':   count = atoi(cmdbuf + 1);
+		case 'D':   count = atoi((char *)cmdbuf + 1);
 			    dc += count;
-			    Striplf(cmdbuf);
+			    Striplf((char *)cmdbuf);
 			    for (i = 0;(i < count) && (rc == 0); i++)
-				if (fgets(lnbuf, sizeof(lnbuf)-1, fo) == NULL) 
+				if (fgets((char *)lnbuf, sizeof(lnbuf)-1, fo) == NULL) 
 				    rc = 3;
 			    break;
-		case 'C':   count = atoi(cmdbuf+1);
+		case 'C':   count = atoi((char *)cmdbuf+1);
 			    cc += count;
-			    Striplf(cmdbuf);
+			    Striplf((char *)cmdbuf);
 			    for (i = 0; (i < count) && (rc == 0); i++)
-				if (fgets(lnbuf, sizeof(lnbuf) - 1, fo)) {
+				if (fgets((char *)lnbuf, sizeof(lnbuf) - 1, fo)) {
 				    /*
 				     * Don't use EOF character for CRC test.
 				     */
 				    if (lnbuf[0] != '\032') {
-				    	for (p = lnbuf; *p; p++)
+				    	for (p = (char *)lnbuf; *p; p++)
 					    mycrc = updcrc(*p, mycrc);
-				    	fputs(lnbuf, fn);
+				    	fputs((char *)lnbuf, fn);
 				    }
 				} else
 				    rc = 3;

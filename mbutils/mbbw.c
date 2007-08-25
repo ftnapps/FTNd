@@ -4,7 +4,7 @@
  * Purpose ...............: Dump Bluewave packets
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	    printf("\n");
 	    printf("Packet version           %d\n", Inf.ver);
 	    for (i = 0; i < 5; i++)
-		if (strlen(Inf.readerfiles[i]))
+		if (strlen((char *)Inf.readerfiles[i]))
 		    printf("Display file %d           %s\n", i+1, Inf.readerfiles[i]);
 	    printf("Registration number      %s\n", Inf.regnum);
 	    printf("Login name               %s\n", Inf.loginname);
@@ -82,13 +82,13 @@ int main(int argc, char **argv)
 						    (Inf.uflags & INF_EXT_INFO)    ? "Ext-info ":"",
 						    (Inf.uflags & INF_NUMERIC_EXT) ? "Numeric-ext":"");
 	    for (i = 0; i < 10; i++)
-		if (strlen(Inf.keywords[i]))
+		if (strlen((char *)Inf.keywords[i]))
 		    printf("Keywords %2d              %s\n", i+1, Inf.keywords[i]);
 	    for (i = 0; i < 10; i++)
-		if (strlen(Inf.filters[i]))
+		if (strlen((char *)Inf.filters[i]))
 		    printf("Filters %2d               %s\n", i+1, Inf.filters[i]);
 	    for (i = 0; i < 3; i++)
-		if (strlen(Inf.macros[i]))
+		if (strlen((char *)Inf.macros[i]))
 		    printf("Macro %d                  %s\n", i+1, Inf.macros[i]);
 	    printf("Netmail flags                     %s%s%s%s%s%s%s\n", (Inf.netmail_flags & INF_CAN_CRASH)  ? "Crash ":"",
 							     (Inf.netmail_flags & INF_CAN_ATTACH) ? "Attach ":"",

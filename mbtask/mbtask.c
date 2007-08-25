@@ -62,7 +62,7 @@ struct sockaddr_un	from;			/* From address		*/
 struct sockaddr_in	myaddr_in;		/* IBC local socket	*/
 struct sockaddr_in	clientaddr_in;		/* IBC remote socket	*/
 int			ibcsock = -1;		/* IBC socket		*/
-int			fromlen;
+socklen_t		fromlen;
 char			waitmsg[81];		/* Waiting message	*/
 static char		spath[PATH_MAX];	/* Socket path		*/
 int			logtrans = 0;		/* Log transactions	*/

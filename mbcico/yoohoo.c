@@ -556,7 +556,7 @@ int checkhello(void)
     remaddr.name = NULL;
     remaddr.domain = NULL;
     if (hello2.my_name[0])
-	remaddr.domain = hello2.my_name + (strlen(hello2.my_name)) + 1;
+	remaddr.domain = (char *)hello2.my_name + (strlen((char *)hello2.my_name)) + 1;
     if (remaddr.domain[0]) {
 	if ((q = strchr(remaddr.domain, '.')))
 	    *q = '\0';
@@ -617,9 +617,9 @@ int checkhello(void)
     else	
 	Syslog('+', "    uses: %s [%04X] version %d.%d", prodnm, hello2.product, majver, minver);
     Syslog('+', "  system: %s",(char*)hello2.my_name);
-    strncpy(history.system_name, hello2.my_name, 35);
+    strncpy(history.system_name, (char *)hello2.my_name, 35);
     Syslog('+', "   sysop: %s",(char*)hello2.sysop);
-    strncpy(history.sysop, hello2.sysop, 35);
+    strncpy(history.sysop, (char *)hello2.sysop, 35);
     snprintf(history.location, 10, "Somewhere");
 
     free(prodnm);

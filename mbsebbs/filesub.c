@@ -738,9 +738,9 @@ char *GetFileType(char *fn)
 
 	for (i = 0; i < sizeof(buf); i++)
 		if ((buf[i] >= ' ') && (buf[i] <= 127))
-			snprintf((char*)dbuf+strlen(dbuf), 80, "  %c", buf[i]);
+			snprintf((char*)dbuf+strlen((char *)dbuf), 80, "  %c", buf[i]);
 		else
-			snprintf((char*)dbuf+strlen(dbuf), 80, " %02x", buf[i]);
+			snprintf((char*)dbuf+strlen((char *)dbuf), 80, " %02x", buf[i]);
 
 	/*
 	 * Various expected uploads. Not that the standard MS-DOS archivers

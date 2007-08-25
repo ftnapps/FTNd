@@ -5,7 +5,7 @@
  * Remark ................: See below for more copyright details and credits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -1042,7 +1042,7 @@ int hydra_batch(int role, file_list *to_send)
 			if (compstate == HCMP_GZ) {
 			    txzlen = H_ZIPBUFLEN - 4;
 			    destLen = (uLongf)txzlen;
-			    rcz = compress2(txzbuf + 4, &destLen, txbuf + 4, txlen, 9);
+			    rcz = compress2((Bytef *)txzbuf + 4, &destLen, (Bytef *)txbuf + 4, txlen, 9);
 			    txzlen = (int)destLen;
 			    if (rcz == Z_OK) {
 				Syslog('h', "Hydra: compressed OK, srclen=%d, destlen=%d, will send compressed=%s", txlen, txzlen,
@@ -1503,7 +1503,7 @@ int hydra_batch(int role, file_list *to_send)
 		    if (pkttype == HPKT_ZIPDATA) {
 			rxzlen = H_ZIPBUFLEN;
 			destLen = (uLongf)rxzlen;
-			rcz = uncompress(rxzbuf, &destLen, rxbuf + 4, rxlen - 4);
+			rcz = uncompress((Bytef *)rxzbuf, &destLen, (Bytef *)rxbuf + 4, rxlen - 4);
 			rxzlen = (int)destLen;
 			if (rcz == Z_OK) {
 			    /*

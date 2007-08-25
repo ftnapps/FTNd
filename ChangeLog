@@ -11,6 +11,25 @@ v0.91.10	21-Aug-2007
 
 	libmbse:
 		Added support or the ARM processor, thanks to Simon Voortman.
+		Fixed compile without iconv support.
+
+	libdiesel:
+		Fixed linking problem on OpenBSD.
+
+	libmsgbase:
+		Added extra debug info in pack function.
+
+	mbcico:
+		Fixed a lot of compiler warnings.
+
+	mbfido:
+		Fixed a lot of compiler warnings.
+
+	mbdiff:
+		Fixed a lot of compiler warnings.
+
+	mbsebbs:
+		Fixed a lot of compiler warnings.
 
 	mbmon:
 		Added support or the ARM processor.

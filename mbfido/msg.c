@@ -4,7 +4,7 @@
  * Purpose ...............: Read *.msg messages
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -137,10 +137,10 @@ int toss_onemsg(char *msgname)
 	return 2;
     }
     
-    strncpy(fromUserName, buf, 36);
-    strncpy(toUserName, buf+0x24, 36);
-    strncpy(subject, buf+0x48, 72);
-    strncpy(DateTime, buf+0x90, 20);
+    strncpy(fromUserName, (char *)buf, 36);
+    strncpy(toUserName, (char *)buf+0x24, 36);
+    strncpy(subject, (char *)buf+0x48, 72);
+    strncpy(DateTime, (char *)buf+0x90, 20);
 
     Syslog('m', "From \"%s\"", printable(fromUserName, 0));
     Syslog('m', "To   \"%s\"", printable(toUserName, 0));
@@ -228,16 +228,16 @@ int toss_onemsg(char *msgname)
 	/*
 	 * Check FLAGS kludge
 	 */
-	if (!strncmp(buf, "\001FLAGS ", 7)) {
-	    flagstr = xstrcpy(buf + 7);
+	if (!strncmp((char *)buf, "\001FLAGS ", 7)) {
+	    flagstr = xstrcpy((char *)buf + 7);
 	    Syslog('m', "^aFLAGS %s", flagstr);
 	}
-	if (!strncmp(buf, "\001FLAGS: ", 8)) {
-	    flagstr = xstrcpy(buf + 8);
+	if (!strncmp((char *)buf, "\001FLAGS: ", 8)) {
+	    flagstr = xstrcpy((char *)buf + 8);
 	    Syslog('m', "^aFLAGS: %s", flagstr);
 	}
 	if (buf[0] != '\0') {
-	    if ((buf[0] != '\001') && (strcmp(buf, (char *)"--- ")))
+	    if ((buf[0] != '\001') && (strcmp((char *)buf, (char *)"--- ")))
 		empty = FALSE;
 	}
     }

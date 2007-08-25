@@ -4,7 +4,7 @@
  * Purpose ...............: Sysop to user chat utility
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -316,7 +316,7 @@ void Chat(char *username, char *channel)
 		PUTCHAR(7);
 	    }
 	/* if KEY_DEL isprint, do no output again */
-	} else if (isprint(ch) || traduce(&ch)) {
+	} else if (isprint(ch) || traduce((char *)&ch)) {
 	    alarm_on();
 	    if (curpos < width) {
 		PUTCHAR(ch);

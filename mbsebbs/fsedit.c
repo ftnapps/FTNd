@@ -221,7 +221,7 @@ void GetstrLC(char *sStr, int iMaxlen)
 	    }
 	}
 
-	if ((ch > 31 && ch < 127) || traduce(&ch)) {
+	if ((ch > 31 && ch < 127) || traduce((char *)&ch)) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
 		snprintf(sStr + strlen(sStr), 5, "%c", ch);
@@ -358,12 +358,12 @@ int FsWordWrap()
 	 * character 79.  Otherwise, drop it, because it's a space.
 	 */
 	if ((WCol == 80) || (WCol-1 == Col))
-	    snprintf(tmpLine + strlen(tmpLine), 5, "%c", Message[CurRow][79]);
+	    snprintf((char *)tmpLine + strlen((char *)tmpLine), 5, "%c", Message[CurRow][79]);
 	/*
 	 * Grab all characters from WCol to end of line.
 	 */
 	for (i = WCol; i < strlen(Message[CurRow]); i++) {
-	    snprintf(tmpLine + strlen(tmpLine), 5, "%c", Message[CurRow][i]);
+	    snprintf((char *)tmpLine + strlen((char *)tmpLine), 5, "%c", Message[CurRow][i]);
 	}
 	/*
 	 * Truncate current row.
@@ -385,21 +385,21 @@ int FsWordWrap()
 	 * Otherwise, slap the wrapped section on the front of the
 	 * next row with a space if needed.
 	 */
-	if ((strlen(tmpLine) + strlen(Message[CurRow+1])) > 79) {
+	if ((strlen((char *)tmpLine) + strlen(Message[CurRow+1])) > 79) {
 	    for (i = Line; i > CurRow; i--)
 		snprintf(Message[i+1], TEXTBUFSIZE +1, "%s", Message[i]);
 	    snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s", tmpLine);
 	    Line++;
-	    WCol = strlen(tmpLine) + 1;
+	    WCol = strlen((char *)tmpLine) + 1;
 	} else {
 	    if ((WCol == 80) && (Col >= WCol))
-		WCol = strlen(tmpLine)+1; 
+		WCol = strlen((char *)tmpLine)+1; 
 	    else {
-		if (tmpLine[strlen(tmpLine)] != ' ')
-		    snprintf(tmpLine + strlen(tmpLine), 1, " ");
-		WCol = strlen(tmpLine);
+		if (tmpLine[strlen((char *)tmpLine)] != ' ')
+		    snprintf((char *)tmpLine + strlen((char *)tmpLine), 1, " ");
+		WCol = strlen((char *)tmpLine);
 	    }
-	    snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s", strcat(tmpLine, Message[CurRow+1]));
+	    snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s", strcat((char *)tmpLine, Message[CurRow+1]));
 	}
     }
 
@@ -730,7 +730,7 @@ int Fs_Edit()
 			    break;
 			
 	    default:
-			    if ((ch > 31) || traduce(&ch) ) {
+			    if ((ch > 31) || traduce((char *)&ch) ) {
 				/*
 				 *  Normal printable characters or hi-ascii
 				 */

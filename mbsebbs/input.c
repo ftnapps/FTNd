@@ -4,7 +4,7 @@
  * Purpose ...............: Input functions, also for some utils.
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -373,7 +373,7 @@ void GetstrP(char *sStr, int iMaxLen, int Position)
 		PUTCHAR('\007');
 
 	    /* if 13 < DEL < 127 , should not output again */
-	} else if ((ch > 31 && ch < 127) || traduce(&ch)) {
+	} else if ((ch > 31 && ch < 127) || traduce((char *)&ch)) {
 	    if (iPos <= iMaxLen) {
 		iPos++;
 		snprintf(sStr + strlen(sStr), 5, "%c", ch);

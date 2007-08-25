@@ -1463,8 +1463,8 @@ void BlueWave_Fetch()
 	}
 	Syslog('+', "Login %s, Alias %s", Uph.loginname, Uph.aliasname);
 	Syslog('m', "Tear: %s", Uph.reader_tear);
-	if (strlen(Uph.reader_tear))
-	    newtear = xstrcpy(Uph.reader_tear);
+	if (strlen((char *)Uph.reader_tear))
+	    newtear = xstrcpy((char *)Uph.reader_tear);
 
 	/* MORE CHECKS HERE */
 
@@ -1502,7 +1502,7 @@ void BlueWave_Fetch()
 		Syslog('m', "  Type  : Internet");
 	    else
 		Syslog('m', "  Type  : Fidonet");
-	    getfilecase(Dirpath, Upr.filename);	
+	    getfilecase(Dirpath, (char *)Upr.filename);	
 	    Syslog('m', "  File  : %s", Upr.filename);
 	    Syslog('m', "  Tag   : %s", Upr.echotag);
 
@@ -1511,10 +1511,10 @@ void BlueWave_Fetch()
 		fread(&msgshdr, sizeof(msgshdr), 1, mf);
 		Found = FALSE;
 
-		if (strlen(Upr.echotag)) {
+		if (strlen((char *)Upr.echotag)) {
 		    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
 			fseek(mf, msgshdr.syssize, SEEK_CUR);
-			if (msgs.Active && (strcasecmp(msgs.QWKname, Upr.echotag) == 0)) {
+			if (msgs.Active && (strcasecmp(msgs.QWKname, (char *)Upr.echotag) == 0)) {
 			    Found = TRUE;
 			    break;
 			}
@@ -1525,7 +1525,7 @@ void BlueWave_Fetch()
 		     *  this is "areanum.msgnum" so we pick the part
 		     *  before the dot and pray that it's ok.
 		     */
-		    temp = strtok(strdup(Upr.filename), ".");
+		    temp = strtok(strdup((char *)Upr.filename), ".");
 		    if (fseek(mf, ((atoi(temp) -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET) == 0)
 			if (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
 			    Found = TRUE;
@@ -1541,9 +1541,9 @@ void BlueWave_Fetch()
 
 			if (Open_Msgbase(msgs.Base, 'w')) {
 			    Msg_New();
-			    strcpy(Msg.From, Upr.from);
-			    strcpy(Msg.To, Upr.to);
-			    strcpy(Msg.Subject, Upr.subj);
+			    strcpy(Msg.From, (char *)Upr.from);
+			    strcpy(Msg.To, (char *)Upr.to);
+			    strcpy(Msg.Subject, (char *)Upr.subj);
 			    mbse_CleanSubject(Msg.Subject);
 			    if (Upr.msg_attr & le_us(UPL_PRIVATE))
 				Msg.Private = TRUE;
@@ -1556,7 +1556,7 @@ void BlueWave_Fetch()
 			    dest.net   = le_us(Upr.destnet);
 			    dest.node  = le_us(Upr.destnode);
 			    dest.point = le_us(Upr.destpoint);
-			    Add_Kludges(dest, FALSE, Upr.filename);
+			    Add_Kludges(dest, FALSE, (char *)Upr.filename);
 			    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
 			    snprintf(temp, PATH_MAX, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Upr.filename);
 			    unlink(temp);
@@ -2206,8 +2206,8 @@ void QWK_Fetch()
 	}
 
 	while (fread(&Qwk, sizeof(Qwk), 1, up) == 1) {
-	    Area = atol(StripSpaces(Qwk.Msgnum, sizeof(Qwk.Msgnum)));
-	    nRec = atoi(StripSpaces(Qwk.Msgrecs, sizeof(Qwk.Msgrecs)));
+	    Area = atol(StripSpaces((char *)Qwk.Msgnum, sizeof(Qwk.Msgnum)));
+	    nRec = atoi(StripSpaces((char *)Qwk.Msgrecs, sizeof(Qwk.Msgrecs)));
 
 	    /*
 	     * Test for blank records.
@@ -2215,14 +2215,14 @@ void QWK_Fetch()
 	    if (Area && nRec) {
 		Syslog('m', "Conference %u", Area);
 		Syslog('m', "Records    %d", nRec);
-		Syslog('m', "To         %s", tlcap(StripSpaces(Qwk.MsgTo, sizeof(Qwk.MsgTo))));
-		Syslog('m', "From       %s", tlcap(StripSpaces(Qwk.MsgFrom, sizeof(Qwk.MsgFrom))));
-		Syslog('m', "Subject    %s", StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
-		snprintf(Temp, 128, "%s", StripSpaces(Qwk.Msgdate, sizeof(Qwk.Msgdate)));
-		Syslog('m', "Date       %s %s", Temp, StripSpaces(Qwk.Msgtime, sizeof(Qwk.Msgtime)));
+		Syslog('m', "To         %s", tlcap(StripSpaces((char *)Qwk.MsgTo, sizeof(Qwk.MsgTo))));
+		Syslog('m', "From       %s", tlcap(StripSpaces((char *)Qwk.MsgFrom, sizeof(Qwk.MsgFrom))));
+		Syslog('m', "Subject    %s", StripSpaces((char *)Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
+		snprintf(Temp, 128, "%s", StripSpaces((char *)Qwk.Msgdate, sizeof(Qwk.Msgdate)));
+		Syslog('m', "Date       %s %s", Temp, StripSpaces((char *)Qwk.Msgtime, sizeof(Qwk.Msgtime)));
 
-		if (strcmp("MBSEQWK", StripSpaces(Qwk.MsgTo, sizeof(Qwk.MsgTo))) == 0) {
-		    Syslog('m', "Command %s", StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
+		if (strcmp("MBSEQWK", StripSpaces((char *)Qwk.MsgTo, sizeof(Qwk.MsgTo))) == 0) {
+		    Syslog('m', "Command %s", StripSpaces((char *)Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
 		    snprintf(otemp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 		    if ((op = fopen(otemp, "r+")) != NULL) {
 
@@ -2234,7 +2234,7 @@ void QWK_Fetch()
 			    fseek(op, (Area -1) * sizeof(olrtagrec), SEEK_SET);
 			    fread(&olrtagrec, sizeof(olrtagrec), 1, op);
 
-			    if (strcmp("ADD", StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj))) == 0) {
+			    if (strcmp((char *)"ADD", StripSpaces((char *)Qwk.MsgSubj, sizeof(Qwk.MsgSubj))) == 0) {
 				if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) &&
 						    strlen(msgs.QWKname) && !olrtagrec.Tagged) {
 				    olrtagrec.Tagged = TRUE;
@@ -2244,7 +2244,7 @@ void QWK_Fetch()
 				}
 			    }
 
-			    if (strcmp("DROP", StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj))) == 0) {
+			    if (strcmp((char *)"DROP", StripSpaces((char *)Qwk.MsgSubj, sizeof(Qwk.MsgSubj))) == 0) {
 				if (!msgs.OLR_Forced && olrtagrec.Tagged) {
 				    olrtagrec.Tagged = FALSE;
 				    fseek(op, - sizeof(olrtagrec), SEEK_CUR);
@@ -2281,12 +2281,12 @@ void QWK_Fetch()
 				    pLine = szLine;
 				    nCol = 0;
 				    Syslog('m', "Msgbase open and locked");
-				    strcpy(Msg.From, tlcap(StripSpaces(Qwk.MsgFrom, sizeof(Qwk.MsgFrom))));
-				    strcpy(Msg.To, tlcap(StripSpaces(Qwk.MsgTo, sizeof(Qwk.MsgTo))));
-				    strcpy(Msg.Subject, StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
+				    strcpy(Msg.From, tlcap(StripSpaces((char *)Qwk.MsgFrom, sizeof(Qwk.MsgFrom))));
+				    strcpy(Msg.To, tlcap(StripSpaces((char *)Qwk.MsgTo, sizeof(Qwk.MsgTo))));
+				    strcpy(Msg.Subject, StripSpaces((char *)Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
 				    if ((Qwk.Msgstat == '*') || (Qwk.Msgstat == '+'))
 					Msg.Private = TRUE;
-				    strcpy(Temp, StripSpaces(Qwk.Msgdate, sizeof(Qwk.Msgdate)));
+				    strcpy(Temp, StripSpaces((char *)Qwk.Msgdate, sizeof(Qwk.Msgdate)));
 				    ltm = malloc(sizeof(struct tm));
 				    memset(ltm, 0, sizeof(struct tm));
 				    ltm->tm_mday = atoi(&Temp[3]);
@@ -2294,7 +2294,7 @@ void QWK_Fetch()
 				    ltm->tm_year = atoi(&Temp[6]);
 				    if (ltm->tm_year < 96)
 					ltm->tm_year += 100;
-				    strcpy(Temp, StripSpaces(Qwk.Msgtime, sizeof(Qwk.Msgtime)));
+				    strcpy(Temp, StripSpaces((char *)Qwk.Msgtime, sizeof(Qwk.Msgtime)));
 				    ltm->tm_hour = atoi(&Temp[0]);
 				    ltm->tm_min = atoi(&Temp[3]);
 				    ltm->tm_sec = 0;
@@ -2583,7 +2583,7 @@ unsigned int QWK_PackArea(unsigned int ulLast, int Area)
 			    Size += fwrite(Temp, (int)(128L - (Size % 128L)), 1, fdm);
 			}
 
-			snprintf(Qwk.Msgrecs, 6, "%-*u", (int)sizeof(Qwk.Msgrecs), (int)((ftell(fdm) - Pos) / 128L));
+			snprintf((char *)Qwk.Msgrecs, 6, "%-*u", (int)sizeof(Qwk.Msgrecs), (int)((ftell(fdm) - Pos) / 128L));
 			fseek(fdm, Pos, SEEK_SET);
 			fwrite(&Qwk, sizeof(Qwk), 1, fdm);
 			fseek(fdm, 0L, SEEK_END);

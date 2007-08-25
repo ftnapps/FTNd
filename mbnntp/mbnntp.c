@@ -106,7 +106,8 @@ int check_free(void)
 int main(int argc, char *argv[])
 {
     struct passwd   *pw;
-    int		    i, rc, addrlen = sizeof(struct sockaddr_in);
+    int		    i, rc; 
+    socklen_t	    addrlen = sizeof(struct sockaddr_in);
 
     /*
      * The next trick is to supply a fake environment variable
