@@ -196,11 +196,12 @@ fi
 #
 # Support for iconv, check libc first.
 #
-AC_CHECK_HEADERS(iconv.h)
-AC_CHECK_FUNC(iconv_open,,
-  AC_CHECK_LIB(iconv,iconv_open,result=yes,result=no)
+AC_CHECK_FUNC(iconv_open,result=yes,
+  AC_SEARCH_LIBS(iconv_open,iconv,result=yes,result=no)
+#  AC_CHECK_LIB(iconv,iconv_open,result=yes,result=no)
   if test "$result" = "yes"; then
-    LIBS="$LIBS -liconv"
+#    LIBS="$LIBS -liconv"
+    AC_CHECK_HEADERS(iconv.h)
   fi
 )
 
