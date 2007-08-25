@@ -35,7 +35,7 @@
 int		use_tran1 = FALSE;	/* Translate stage 1 active	*/
 int		use_tran2 = FALSE;	/* Translate stage 2 active	*/
 int		loglevel = '-';		/* Debug loglevel		*/
-#ifdef	HAVE_ICONF_H
+#ifdef	HAVE_ICONV_H
 iconv_t		cd1;			/* Conversion descriptor 1	*/
 iconv_t		cd2;			/* Conversion descriptor 2	*/
 #endif
