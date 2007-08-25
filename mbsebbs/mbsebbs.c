@@ -371,7 +371,9 @@ int main(int argc, char **argv)
     Syslog('b', "setlocale(LANG, NULL) returns \"%s\"", printable(setlocale(LANG, NULL), 0));
     Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
     Syslog('b', "setlocale(LC_ALL, NULL) returns \"%s\"", printable(setlocale(LC_ALL, NULL), 0));
+#ifndef __OpenBSD__
     Syslog('b', "nl_langinfo(CODESET) returns \"%s\"", nl_langinfo(CODESET));
+#endif
 
     snprintf(sMailbox, 21, "mailbox");
     colour(LIGHTGRAY, BLACK);

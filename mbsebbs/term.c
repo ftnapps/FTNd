@@ -117,7 +117,7 @@ void poutCR(int fg, int bg, char *Str)
 char *colour_str(int fg, int bg)
 {
     static char	temp[61];
-    char	tmp1[40];
+    char	tmp1[41];
     
     int att = 0, fore = 37, back = 40;
     
@@ -156,7 +156,7 @@ char *colour_str(int fg, int bg)
     else if (bg == LIGHTGRAY) back=47;
     else                      back=40;
 
-    snprintf(tmp1, 41, "%d;%d;%dm", att, fore, back);
+    snprintf(tmp1, 40, "%d;%d;%dm", att, fore, back);
     strncat(temp, tmp1, 60);
     return temp;
 }
@@ -209,7 +209,7 @@ char *clear_str(void)
 
     strncpy(temp, colour_str(LIGHTGRAY, BLACK), 40);
     strncat(temp, (char *)ANSI_HOME, 40);
-    strncat(temp, (char *)ANSI_CLEAR, 50);
+    strncat(temp, (char *)ANSI_CLEAR, 40);
     return temp;
 }
 
