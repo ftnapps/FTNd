@@ -35,8 +35,10 @@
 int		use_tran1 = FALSE;	/* Translate stage 1 active	*/
 int		use_tran2 = FALSE;	/* Translate stage 2 active	*/
 int		loglevel = '-';		/* Debug loglevel		*/
+#ifdef	HAVE_ICONF_H
 iconv_t		cd1;			/* Conversion descriptor 1	*/
 iconv_t		cd2;			/* Conversion descriptor 2	*/
+#endif
 
 
 
@@ -295,6 +297,8 @@ int chartran_init(char *fromset, char *toset, int loglvl)
 {
     loglevel = loglvl;
 
+#ifdef	HAVE_ICONF_H
+
     if (use_tran1 || use_tran2) {
 	WriteError("chartran_init() called while still open");
 	chartran_close();
@@ -330,6 +334,13 @@ int chartran_init(char *fromset, char *toset, int loglvl)
     }
 
     return 0;
+#else
+
+    /*
+     * Without iconv support we silently return an error
+     */
+    return -1;
+#endif
 }
 
 
@@ -339,6 +350,7 @@ int chartran_init(char *fromset, char *toset, int loglvl)
  */
 void chartran_close(void)
 {
+#ifdef	HAVE_ICONV_H
     Syslog(loglevel, "chartran_close()");
     if (use_tran1) {
 	iconv_close(cd1);
@@ -349,6 +361,7 @@ void chartran_close(void)
 	iconv_close(cd2);
 	use_tran2 = FALSE;
     }
+#endif
 }
 
 
@@ -360,13 +373,17 @@ void chartran_close(void)
 char *chartran(char *input)
 {
     static char	outbuf[4096];
+#ifdef	HAVE_ICONV_H
     static char	temp[4096];
     size_t	rc, inSize, outSize;
     char	*in, *out;
+#endif
 
     memset(&outbuf, 0, sizeof(outbuf));
-    memset(&temp, 0, sizeof(temp));
 
+#ifdef	HAVE_ICONV_H
+
+    memset(&temp, 0, sizeof(temp));
     /*
      * Transparant
      */
@@ -449,6 +466,16 @@ char *chartran(char *input)
 //    }
 
     return outbuf;
+
+#else
+
+    /*
+     * Just copy without iconv
+     */
+    strncpy(outbuf, input, sizeof(outbuf) -1);
+    return outbuf;
+
+#endif
 }
 
 
