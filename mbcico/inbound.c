@@ -198,9 +198,15 @@ int inbound_close(int success)
  */
 int inbound_space(void)
 {
+#ifdef __NetBSD__
+    struct statvfs   sfs;
+ 
+    if (statvfs(tempinbound, &sfs) != 0) {
+#else
     struct statfs   sfs;
 
     if (statfs(tempinbound, &sfs) != 0) {
+#endif
 	Syslog('!', "Cannot statfs \"%s\", assume enough space", tempinbound);
 	return -1L;
     } else

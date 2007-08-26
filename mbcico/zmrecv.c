@@ -558,6 +558,15 @@ int putsec(char *buf, int n)
 
 int getfree(void)
 {
+#ifdef	__NetBSD__
+        struct  statvfs sfs;
+ 
+        if (statvfs(inbound, &sfs) != 0) {
+                WriteError("$cannot statvfs \"%s\", assume enough space", inbound);
+                return -1L;
+        } else
+                return (sfs.f_bsize * sfs.f_bfree);
+#else
 	struct	statfs sfs;
 
 	if (statfs(inbound, &sfs) != 0) {
@@ -565,6 +574,7 @@ int getfree(void)
 		return -1L;
 	} else 
 		return (sfs.f_bsize * sfs.f_bfree);
+#endif
 }
 
 

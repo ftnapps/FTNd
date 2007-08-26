@@ -4,7 +4,7 @@
  * Purpose ...............: Unpacker
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -43,9 +43,15 @@ extern int  do_quiet;
 int checkspace(char *dir, char *fn, int factor)
 {
 	struct stat	st;
+#ifdef __NetBSD__
+        struct statvfs   sfs;
+ 
+        if ((stat(fn,&st) != 0) || (statvfs(dir,&sfs) != 0)) {
+#else
 	struct statfs	sfs;
 
 	if ((stat(fn,&st) != 0) || (statfs(dir,&sfs) != 0)) {
+#endif
 		WriteError("Cannot stat \"%s\" or statfs \"%s\", assume enough space", fn, dir);
 		return 1;
 	}

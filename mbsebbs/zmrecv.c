@@ -614,13 +614,21 @@ int putsec(char *buf, int n)
 
 int getfree(void)
 {
+#ifdef	__NetBSD__
+    struct statvfs   sfs;
+#else
     struct statfs   sfs;
+#endif
     char	    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-    
+
+#ifdef	__NetBSD__    
+    if (statvfs(temp, &sfs) != 0) {
+#else
     if (statfs(temp, &sfs) != 0) {
+#endif
 	WriteError("$cannot statfs \"%s\", assume enough space", temp);
 	free(temp);
 	return -1L;

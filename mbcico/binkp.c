@@ -1053,7 +1053,11 @@ int file_transfer(void)
 
 TrType binkp_receiver(void)
 {
+#ifdef	__NetBSD__
+    struct statvfs  sfs;
+#else
     struct statfs   sfs;
+#endif
     int		    written;
     off_t	    rxbytes;
     int		    bcmd, rc = 0;
@@ -1208,7 +1212,11 @@ TrType binkp_receiver(void)
 	    return Failure;
 	}
 
+#ifdef	__NetBSD__
+	if (statvfs(tempinbound, &sfs) == 0) {
+#else
 	if (statfs(tempinbound, &sfs) == 0) {
+#endif
 	    if ((bp.rsize / (sfs.f_bsize + 1)) >= sfs.f_bfree) {
 		Syslog('!', "Binkp: only %u blocks free (need %u) in %s for this file", sfs.f_bfree, 
 			    (unsigned int)(bp.rsize / (sfs.f_bsize + 1)), tempinbound);

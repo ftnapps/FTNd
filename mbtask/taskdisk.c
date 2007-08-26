@@ -321,12 +321,20 @@ void disk_getfs_r(char *buf)
  */
 void update_diskstat(void)
 {
+#ifdef	__NetBSD__
+    struct statvfs   sfs;
+#else
     struct statfs   sfs;
+#endif
     unsigned int    temp;
     mfs_list        *tmp;
 
     for (tmp = mfs; tmp; tmp = tmp->next) {
+#ifdef	__NetBSD__
+        if (statvfs(tmp->mountpoint, &sfs) == 0) {
+#else
         if (statfs(tmp->mountpoint, &sfs) == 0) {
+#endif
             temp = (unsigned int)(sfs.f_bsize / 512L);
 	    tmp->size  = (unsigned int)(sfs.f_blocks * temp) / 2048L;
 	    tmp->avail = (unsigned int)(sfs.f_bavail * temp) / 2048L;
@@ -337,11 +345,16 @@ void update_diskstat(void)
 	     * See man 2 statvfs about what approximately is defined.
 	     */
 	    tmp->ro = (strstr(tmp->fstype, "iso") != NULL);
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__)
 	    /*
 	     * XxxxBSD has the info in the statfs structure.
 	     */
 	    tmp->ro = (sfs.f_flags & MNT_RDONLY);
+#elif defined(__NetBSD__)
+	    /*
+	     * NetBSD 3.1 is a bit different again
+	     */
+	    tmp->ro = (sfs.f_flag & ST_RDONLY);
 #else
 #error "Don't know how to get sfs read-only status"
 #endif
@@ -362,10 +375,14 @@ void add_path(char *lpath)
 #if defined(__linux__)
     char	    *mtab, *fs;
     FILE	    *fp;
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__)
     struct statfs   *mntbuf;
     int		    mntsize;
     int		    i;
+#elif defined(__NetBSD__)
+    struct statvfs  *mntbuf;
+    int             mntsize;
+    int             i;
 #else
 #error "Don't know how to get mount paths"
 #endif
