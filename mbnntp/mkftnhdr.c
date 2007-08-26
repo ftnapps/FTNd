@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -288,7 +288,6 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
 	    tmsg->to->point  = msgs.Aka.point;
 	    tmsg->to->domain = xstrcpy(msgs.Aka.domain);
 	}
-	Syslog('N', "TO: %s",ascfnode(tmsg->to,0xff));
     } else {
 	if (recipient) {
 	    /*
@@ -381,25 +380,14 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
     if ((!freename) || ((freename) && (*freename == '\0')) || (strcmp(freename,".")==0)) 
 	freename=rfcfrom;
 
-    if (newsmode)
-	Syslog('M', "FROM: %s <%s>", freename, rfcfrom);
-    else
+    if (! newsmode)
 	Syslog('+', "from: %s <%s>",freename,rfcfrom);
 
     needreplyaddr = 1;
     if ((tmsg->from=parsefaddr(rfcfrom)) == NULL) {
 	if (freename && rfcfrom)
 	    Syslog('-', "at removed registrate()");
-//	    if (!strchr(freename,'@') && !strchr(freename,'%') && 
-//			    strncasecmp(freename,rfcfrom,MAXNAME) &&
-//			    strncasecmp(freename,"uucp",4) &&
-//			    strncasecmp(freename,"usenet",6) &&
-//			    strncasecmp(freename,"news",4) &&
-//			    strncasecmp(freename,"super",5) &&
-//			    strncasecmp(freename,"admin",5) &&
-//			    strncasecmp(freename,"postmaster",10) &&
-//			    strncasecmp(freename,"sys",3)) 
-//		needreplyaddr=registrate(freename,rfcfrom);
+	// FIXME: registrate() removed
     } else {
 	tmsg->ftnorigin = 1;
 	tmsg->from->name = xstrcpy(freename);
@@ -411,7 +399,6 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
 	replyaddr=NULL;
     }
     if (needreplyaddr && (tmsg->from == NULL)) {
-	Syslog('M', "fill replyaddr with \"%s\"",rfcfrom);
 	replyaddr=xstrcpy(rfcfrom);
     }
 
@@ -493,7 +480,6 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
     } else {
 	tmsg->subj = xstrcpy((char *)" ");
     }
-    Syslog('M', "SUBJ: \"%s\"", tmsg->subj);
 
     if ((p = hdr((char *)"X-FTN-FLAGS",msg))) 
 	tmsg->flags |= flagset(p);
@@ -566,9 +552,6 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
     else
 	tmsg->reply_a=NULL;
 
-    Syslog('M', "DATE: %s, MSGID: %s %lx, REPLY: %s %lx",
-		ftndate(tmsg->date), MBSE_SS(tmsg->msgid_a),tmsg->msgid_n, MBSE_SS(tmsg->reply_a),tmsg->reply_n);
-
     p = hdr((char *)"Organization",msg);
     if (p == NULL)
 	p = hdr((char *)"Organisation",msg);
@@ -586,7 +569,6 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
 	tmsg->origin = xstrcpy(CFG.origin);
     }
 
-    Syslog('M', "ORIGIN: %s", MBSE_SS(tmsg->origin));
     return tmsg;
 }
 

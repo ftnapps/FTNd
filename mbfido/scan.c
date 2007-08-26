@@ -584,8 +584,6 @@ void ExportEcho(sysconnect L, unsigned int MsgNum, fa_list **sbl)
     if ((!L.sendto) || L.pause || L.cutoff)
 	return;
 
-    Syslog('M', "Export to %s", aka2str(L.aka));
-
     if (!SearchNode(L.aka)) {
 	WriteError("Can't send to %s, noderecord not found", aka2str(L.aka));
 	return;

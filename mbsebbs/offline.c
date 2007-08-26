@@ -2551,7 +2551,6 @@ unsigned int QWK_PackArea(unsigned int ulLast, int Area)
 
 		    memset(&Qwk, ' ', sizeof(Qwk));
 		    snprintf(Temp, 81, "%-*u", (int)sizeof(Qwk.Msgnum), (int)Number);
-		    Syslog('M', "Message %s", Temp);
 		    memcpy(Qwk.Msgnum, Temp, sizeof(Qwk.Msgnum));
 		    tp = localtime(&Msg.Written);
 		    snprintf(Temp, 81, "%02d-%02d-%02d", tp->tm_mon+1, tp->tm_mday, tp->tm_year % 100);

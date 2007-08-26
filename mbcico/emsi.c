@@ -172,7 +172,6 @@ int rx_emsi(char *data)
 	    emsi_local_lcodes = LCODE_HAT;
 	}
     } else {
-	Syslog('i', "No EMSI password check");
 	Syslog('?', "Unexpected remote password \"%s\"", MBSE_SS(emsi_local_password));
     }
 
@@ -270,8 +269,6 @@ int tx_emsi(char *data)
 	return txtcp();
     else if (emsi_local_protos & PROT_HYD)
 	return hydra(1);
-//  else if (emsi_local_protos & PROT_JAN)
-//	return janus();
     else 
 	return txwazoo();
 }

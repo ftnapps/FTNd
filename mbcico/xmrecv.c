@@ -394,8 +394,6 @@ SM_STATE(recvblk)
 		SM_PROCEED(waitblk);
 	}
 
-	Syslog('X', "received block %d \"%s\"", recv_blk,printable((char *)xmblk.data,128));
-
 	if (fp == NULL) {
 		if ((fp = openfile(tmpfname,remtime,remsize,&resofs,resync)) == NULL) {
 			SM_ERROR;

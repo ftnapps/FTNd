@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -71,18 +71,16 @@ void putstatus(faddr *addr, int incr, int sts)
 	} else {
 	    cst->tryno += incr;
 	    srand(getpid());
-	    Syslog('d', "putstatus %s, incr=%d, tryno=%d, status=%d", ascfnode(addr, 0xf), incr, cst->tryno, sts);
 	    while (TRUE) {
 		j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
 		if ((j > (CFG.dialdelay / 10)) && (j > 9))
 		    break;
 	    }
-	    Syslog('d', "Next call allowed over %d seconds", j);
 	}
 
 	if (sts != -1)
 	    cst->trystat = sts;
-	cst->trytime = (int)time(NULL) + j;
+	cst->trytime = (int)time(NULL) + j;	/* Next call allowed at */
 
 	fwrite(cst, sizeof(callstat), 1, fp);
 	fclose(fp);

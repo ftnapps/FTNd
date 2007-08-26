@@ -92,7 +92,6 @@ typedef enum {NoState, Sending, IsSent, Got, Skipped, Get} FileState;
 typedef enum {InitTransfer, Switch, Receive, Transmit, DeinitTransfer} FtType;
 typedef enum {CompNone, CompGZ, CompBZ2, CompPLZ} CompType;
 
-// static char *txstate[] = { (char *)"TxGNF", (char *)"TxTryR", (char *)"TxReadS", (char *)"TxWLA", (char *)"TxDone" };
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
 #if defined(HAVE_ZLIB_H) || defined(HAVE_BZLIB_H)
@@ -1455,8 +1454,6 @@ TrType binkp_transmitter(void)
     file_list	*tsl;
     static binkp_list	*tmp;
 
-//    Syslog('b', "Binkd: transmitter %s", txstate[bp.TxState]);
-
     if (bp.TxState == TxGNF) {
 	/*
 	 * If we do not have a filelist yet, create one.
@@ -1619,7 +1616,6 @@ TrType binkp_transmitter(void)
 		fseek(bp.txfp, bp.txpos, SEEK_SET);
 		nget = fread(z_obuf, 1, nget, bp.txfp);
 		rc2 = do_compress(bp.tmode, bp.txbuf + nput, &ocnt, z_obuf, &nget, fleft ? 0 : 1, z_odata);
-//		Syslog('b', "Binkp: do_compress ocnt=%d nget=%d fleft=%d rc=%d", ocnt, nget, fleft, rc2);
 		if (rc2 == -1) {
 		    Syslog('+', "Binkp: compression error rc=%d", rc2);
 		    return Failure;
@@ -2052,7 +2048,7 @@ int binkp_send_comp_opts(int originate)
 	    nr = TRUE;
 	}
     } else {
-	if ((bp.NRwe == Can)/* || (bp.NRthey == Can)*/ && (bp.NRthey == Want)) {
+	if ((bp.NRwe == Can) && (bp.NRthey == Want)) {
 	    Syslog('b', "Binkp: binkp_send_comp_opts(FALSE) NRwe=Can NRthey=Want");
 	    bp.NRwe = Want;
 	    nr = TRUE;
@@ -2267,7 +2263,6 @@ void parse_m_nul(char *msg)
 		}
 #endif
 	    } else if (strcmp(q, (char *)"NR") == 0) {
-//		Syslog('b', "Binkp: remote wants NR mode, NOT SUPPORTED HERE YET");
 		Syslog('b', "Binkp: remote requests NR mode");
 		if (bp.NRthey == Can) {
 		    bp.NRthey = Want;
@@ -2324,15 +2319,12 @@ int binkp_poll_frame(void)
 		rc = -1;
 		break;
 	    } else {
-//		Syslog('b', "c=%02x %c rxlen=%d", c, isprint(c) ? c : '.', bp.rxlen);
 		switch (bp.rxlen) {
 		    case 0: bp.header = c << 8;
 			    rc = 0;
-//			    Syslog('b', "Binkp: 1st %02x", c);
 			    break;
 		    case 1: bp.header += c;
 			    rc = 0;
-//			    Syslog('b', "Binkp: 2nd %02x", c);
 			    break;
 		    default:bp.rxbuf[bp.rxlen-2] = c;
 		}

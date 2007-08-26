@@ -70,7 +70,6 @@ void fill_rlist(fa_list **fap, char *str)
 	if ((str == NULL) || (*str == '\0')) 
 		return;
 
-	Syslog('N' ,"fill_rlist %s",str);
 	buf = xstrcpy(str);
 	for (p = buf, q = strchr(p,'!'); *p; p = q, q = strchr(p,'!')) {
 		if (q) 
@@ -90,7 +89,6 @@ void fill_rlist(fa_list **fap, char *str)
 	}
 	free(buf);
 	for (tmp=*fap;tmp;tmp=tmp->next)
-		Syslog('N', "fill_rlist returns: %s",ascfnode(tmp->addr,0x06));
 	return;
 }
 
@@ -329,7 +327,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	return 4;
     }
 
-    Syslog('M', "Message input start =============");
     rewind(pkt);
     while ((fgets(buf, sizeof(buf)-2, pkt)) != NULL) {
 	/*
@@ -337,12 +334,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	 */
 	if (strlen(buf) > (sizeof(buf) /2))
 	    Syslog('+', "FTN: Possible bufferoverflow: line read %d bytes", strlen(buf));
-	if (strlen(buf) > 200) {
-	    Syslog('M', "FTN: Next line should be %d characters", strlen(buf));
-	    Syslogp('M', printable(buf, 200));
-	} else {
-	    Syslogp('M', printable(buf, 0));
-	}
 	if ((buf[0] == '\1') || !strncmp(buf,"AREA:",5) || !strncmp(buf,"SEEN-BY",7)) { /* This is a kluge line */
 	    waskludge = TRUE;
 	    badkludge = FALSE;
@@ -428,7 +419,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		(*tmsg)->key = xstrcpy((char *)"Origin");
 		(*tmsg)->val = xstrcpy(buf+11);
 		tmsg = &((*tmsg)->next);
-		Syslog('M', "origin \"%s\" at offset %d", buf,(int)orig_off);
 		p = buf+10;
 		while (*p == ' ') 
 		    p++;
@@ -470,7 +460,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	    fputs(buf,fp);
 	}
     }
-    Syslog('M', "Message input end ===============");
 
     if (bNeedToGetAddressFromMsgid && (p = hdr((char *)"MSGID", kmsg))) {
 	Syslog('m', "Need To Get Address From Msgid start...");
@@ -552,7 +541,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	 * The msgs record is already loaded.
 	 */
 	newsgroup = xstrcpy(msgs.Newsgroup);
-	Syslog('M', "newsgroup %s", printable(newsgroup, 0));
 	newsmode = TRUE;
     } else 
 	newsmode = FALSE;

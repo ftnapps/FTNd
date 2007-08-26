@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for new News
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -103,8 +103,6 @@ void tidy_artlist(List **fdp)
 void fill_artlist(List **fdp, char *id, int nr, int dupe)
 {
 	List	**tmp;
-
-	Syslog('M', "Fill %s %ld %s", id, nr, dupe ? "Dupe":"New msg");
 
 	for (tmp = fdp; *tmp; tmp = &((*tmp)->next));
 	*tmp = (List *)malloc(sizeof(List));
@@ -521,16 +519,6 @@ int get_xoverview(void)
 		}
 	    }
 	}
-
-//	if ((tmp = xoverview) != NULL) {
-//	    Syslog('M', "--Xoverview.fmt list");
-//	    while (tmp != NULL) {
-//		if (tmp->header != NULL) {
-//		    Syslog('M', "item = %s -- full = %s", tmp->header, tmp->full ? "True":"False");
-//		}
-//		tmp = tmp->next;
-//	    }
-//	}
     } else {
 	return 1;
     }

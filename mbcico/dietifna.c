@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -85,10 +85,7 @@ int txdietifna(void)
 	Syslog('+', "Start DietIFNA session");
 	session_flags |= SESSION_IFNA;
 	session_flags &= ~SESSION_BARK;
-//	if (localoptions & NOHOLD) 
-		nonhold_mail = (char *)ALL_MAIL;
-//	else 
-//		nonhold_mail = (char *)NONHOLD_MAIL;
+	nonhold_mail = (char *)ALL_MAIL;
 	tosend = create_filelist(remote, nonhold_mail, 2);
 
 	if ((rc = sendfiles(tosend)) == 0)

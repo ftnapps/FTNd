@@ -4,7 +4,7 @@
  * Purpose ...............: Mail and file queue operations
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -208,7 +208,6 @@ void flush_dir(char *ndir)
     } else {
 	snprintf(arcfile, PATH_MAX, "%s", arcname(&noden, nodes.Aka[0].zone, nodes.ARCmailCompat));
     }
-    Syslog('P', "Arcmail file %s", arcfile);
 
     /*
      * If there is a mailpkt.qqq file, close it and rename it.
@@ -231,7 +230,6 @@ void flush_dir(char *ndir)
 	    putc('\0', fp);
 	    fsync(fileno(fp));
 	    fclose(fp);
-	    Syslog('P', "Renamed %s to %s", fname, pktfile);
 	}
     }
     free(fname);
@@ -462,8 +460,6 @@ void flush_dir(char *ndir)
 	} else {
 	    snprintf(arcfile, PATH_MAX, "%s", pktname(&noden, flavor));
 	}
-	Syslog('P', "Outfile: %s", arcfile);
-	Syslog('P', "Pktfile: %s", pktfile);
 
 	/*
 	 *  Now we must see if there is already mail in the outbound.
@@ -569,9 +565,6 @@ void flush_dir(char *ndir)
 		}
 		chmod(arcfile, 0660);
 	    }
-
-	    Syslog('P', "%c %d %s", flavor, mode, pktfile);
-
 	}
 
 	free(buf);
