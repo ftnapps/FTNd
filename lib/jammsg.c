@@ -40,6 +40,7 @@
 #include "msg.h"
 #include "jam.h"
 #include "jammsg.h"
+#include "users.h"
 
 
 #define	MAX_TEXT	2048
@@ -595,8 +596,11 @@ void JAM_Pack(void)
     int		    ToRead, Readed, i, count;
     char	    *File, *New, *Subfield, *Temp;
     JAMIDXREC	    jamIdx;
-    unsigned int    NewNumber = 0, RefNumber = 0, Written = 0;
+    unsigned int    NewNumber = 0, RefNumber = 0, Written = 0, mycrc;
     lastread	    LR;
+    FILE	    *usrF;
+    struct userhdr  usrhdr;
+    struct userrec  usr;
 
     File = calloc(PATH_MAX, sizeof(char));
     New  = calloc(PATH_MAX, sizeof(char));
@@ -653,18 +657,21 @@ void JAM_Pack(void)
 			if ((read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))) {
 			    /*
 			     * Test if one of the lastread pointer is the current
-			     * old message number.
+			     * old message number and is different then the new number.
 			     */
-			    if ((LR.LastReadMsg == jamHdr.MsgNum) || (LR.HighReadMsg == jamHdr.MsgNum)) {
+			    if (((LR.LastReadMsg == jamHdr.MsgNum) || (LR.HighReadMsg == jamHdr.MsgNum)) && 
+				    (jamHdr.MsgNum != NewNumber)) {
 				/*
 				 * Adjust the matching numbers
 				 */
 				if (LR.LastReadMsg == jamHdr.MsgNum) {
-				    Syslog('m', "JAM_Pack %s recno %d LastRead %u -> %u", BaseName, i, jamHdr.MsgNum, NewNumber);
+				    Syslog('m', "JAM_Pack %s recno %d user %d LastRead %u -> %u", 
+					    BaseName, i, LR.UserID, jamHdr.MsgNum, NewNumber);
 				    LR.LastReadMsg = NewNumber;
 				}
 				if (LR.HighReadMsg == jamHdr.MsgNum) {
-				    Syslog('m', "JAM_Pack %s recno %d HighRead %u -> %u", BaseName, i, jamHdr.MsgNum, NewNumber);
+				    Syslog('m', "JAM_Pack %s recno %d user %d HighRead %u -> %u", 
+					    BaseName, i, LR.UserID, jamHdr.MsgNum, NewNumber);
 				    LR.HighReadMsg = NewNumber;
 				}
 				lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
@@ -714,21 +721,46 @@ void JAM_Pack(void)
 
 	/*
 	 * Now copy the lastread file, reset LastRead pointers if area is empty.
+	 * Check for deleted users.
 	 */
+	snprintf(File, PATH_MAX -1, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	if ((usrF = fopen(File, "r"))) {
+	    fread(&usrhdr, sizeof(usrhdr), 1, usrF);
+	}
 	lseek(fdJlr, 0, SEEK_SET);
 	for (i = 0; i < count; i++) {
 	    if (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread)) {
 		if (jamHdrInfo.ActiveMsgs == 0 && (LR.LastReadMsg || LR.HighReadMsg)) {
 		    LR.LastReadMsg = 0;
 		    LR.HighReadMsg = 0;
+		    Syslog('m', "JAM_Pack %s recno %d user %d LastRead and HighRead are reset", BaseName, i, LR.UserID);
 		}
-		if (jamHdrInfo.ActiveMsgs && (LR.LastReadMsg > jamHdrInfo.ActiveMsgs))
+		if (jamHdrInfo.ActiveMsgs && (LR.LastReadMsg > jamHdrInfo.ActiveMsgs)) {
 		    LR.LastReadMsg = jamHdrInfo.ActiveMsgs;
-		if (jamHdrInfo.ActiveMsgs && (LR.HighReadMsg > jamHdrInfo.ActiveMsgs))
+		    Syslog('m', "JAM_Pack %s recno %d user %d LastRead is reset to %d", BaseName, i, LR.UserID, LR.LastReadMsg);
+		}
+		if (jamHdrInfo.ActiveMsgs && (LR.HighReadMsg > jamHdrInfo.ActiveMsgs)) {
 		    LR.HighReadMsg = jamHdrInfo.ActiveMsgs;
+		    Syslog('m', "JAM_Pack %s recno %d user %d HighRead is reset to %d", BaseName, i, LR.UserID, LR.HighReadMsg);
+		}
+		Syslog('m', "JAM_Pack check user record %d", LR.UserID);
+		if (usrF) {
+		    Syslog('m', "JAM_Pack get user record %d at %d", LR.UserID, usrhdr.hdrsize + (usrhdr.recsize * LR.UserID));
+		    fseek(usrF, usrhdr.hdrsize + (usrhdr.recsize * LR.UserID), SEEK_SET);
+		    memset(&usr, 0, sizeof(usr));
+		    if (fread(&usr, usrhdr.recsize, 1, usrF) == 1) {
+			mycrc = StringCRC32(tl(usr.sUserName));
+			Syslog('m', "JAM_Pack got user record %d \"%s\", crc %s", LR.UserID, usr.sUserName,
+				(mycrc == LR.UserCRC) ? "Ok":"Error");
+		    } else {
+			Syslog('m', "JAM_Pack read error");
+		    }
+		}
 		write(fdnJlr, &LR, sizeof(lastread));
 	    }
 	}
+	if (usrF)
+	    fclose(usrF);
 
 	/*
 	 * Close all files
