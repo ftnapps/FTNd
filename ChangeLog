@@ -47,6 +47,9 @@ v0.91.10	21-Aug-2007
 		Added support or the ARM processor.
 		Fixed compiling on NetBSD 3.1.
 
+	mblogin:
+		On NetBSD accepts the -a parameter.
+
 
 v0.91.9		16-May-2007 - 21-Aug-2007
 

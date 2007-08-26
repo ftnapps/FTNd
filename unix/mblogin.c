@@ -5,7 +5,7 @@
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek        FIDO:           2:280/2802
  * Beekmansbos 10
@@ -163,6 +163,7 @@ int main(int, char **);
  * usage - print login command usage and exit
  *
  * login [ name ]
+ * login -a hostname	(for NetBSD)
  * login -r hostname    (for rlogind)
  * login -h hostname    (for telnetd, etc.)
  * login -f name        (for pre-authenticated login: datakit, xterm, etc.)
@@ -396,11 +397,14 @@ int main(int argc, char **argv)
 
     check_flags(argc, argv);
 
-    while ((flag = getopt(argc, argv, "d:h:p")) != EOF) {
+    while ((flag = getopt(argc, argv, "a:d:h:p")) != EOF) {
 	switch (flag) {
 	    case 'p':
 		    pflg++;
 		    break;
+#ifdef __NetBSD__
+	    case 'a':
+#endif
 	    case 'h':
 		    hflg++;
 		    hostname = optarg;
