@@ -21,6 +21,8 @@ v0.91.10	21-Aug-2007
 		Added extra debug info in pack function.
 		Only adjust LR pointers if they must be changed to save some
 		disk i/o.
+		LastRead records that don't belong to a valid user are
+		purged.
 
 	mbcico:
 		Fixed a lot of compiler warnings.

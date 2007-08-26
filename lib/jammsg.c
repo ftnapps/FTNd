@@ -743,20 +743,30 @@ void JAM_Pack(void)
 		    LR.HighReadMsg = jamHdrInfo.ActiveMsgs;
 		    Syslog('m', "JAM_Pack %s recno %d user %d HighRead is reset to %d", BaseName, i, LR.UserID, LR.HighReadMsg);
 		}
-		Syslog('m', "JAM_Pack check user record %d", LR.UserID);
 		if (usrF) {
-		    Syslog('m', "JAM_Pack get user record %d at %d", LR.UserID, usrhdr.hdrsize + (usrhdr.recsize * LR.UserID));
+		    /*
+		     * Search user record for LR pointer. If the record is valid and the
+		     * user still exists then copy the LR record, else we drop it.
+		     */
 		    fseek(usrF, usrhdr.hdrsize + (usrhdr.recsize * LR.UserID), SEEK_SET);
 		    memset(&usr, 0, sizeof(usr));
 		    if (fread(&usr, usrhdr.recsize, 1, usrF) == 1) {
 			mycrc = StringCRC32(tl(usr.sUserName));
-			Syslog('m', "JAM_Pack got user record %d \"%s\", crc %s", LR.UserID, usr.sUserName,
-				(mycrc == LR.UserCRC) ? "Ok":"Error");
+			if (mycrc == LR.UserCRC) {
+			    write(fdnJlr, &LR, sizeof(lastread));
+			} else {
+			    Syslog('-', "JAM_Pack %s purged LR record %d", BaseName, i);
+			}
 		    } else {
-			Syslog('m', "JAM_Pack read error");
+			Syslog('-', "JAM_Pack %s purged LR record %d", BaseName, i);
 		    }
+		} else {
+		    /*
+		     * Should not be possible, but simply write LR records
+		     * if no user data is available.
+		     */
+		    write(fdnJlr, &LR, sizeof(lastread));
 		}
-		write(fdnJlr, &LR, sizeof(lastread));
 	    }
 	}
 	if (usrF)
