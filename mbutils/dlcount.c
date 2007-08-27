@@ -4,7 +4,7 @@
  * Purpose ...............: Count WWW and FTP downloads
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -100,13 +100,12 @@ void dlcount(void)
 	     * Parse logline, be aware for lots of garbage created by systems
 	     * that try to compromise the webserver.
 	     */
-	    Syslog('f', "%s", printable(temp, 100));
+//	    Syslog('f', "%s", printable(temp, 100));
 	    p = strchr(temp, '[');
 	    if (p) {
 		q = strchr(p, ']');
 		if (q && ((q-p) < 40)) {
 		    strncpy(date, p+1, q - p - 1);
-//		    Syslog('f', "\"%s\"", date);
 		    tm.tm_mday = atoi(strtok(date, "/\0"));
 		    snprintf(month, 20, "%s", strtok(NULL, "/\0"));
 		    for (i = 0; i < 12; i++)
@@ -117,9 +116,7 @@ void dlcount(void)
 		    tm.tm_hour = atoi(strtok(NULL, ":\0"));
 		    tm.tm_min  = atoi(strtok(NULL, ":\0"));
 		    tm.tm_sec  = atoi(strtok(NULL, ":\0"));
-//		    Syslog('f', "%d %d %d  %d %d %d", tm.tm_mday, tm.tm_mon, tm.tm_year, tm.tm_hour, tm.tm_min, tm.tm_sec);
 		    filedate = mktime(&tm);
-//		    Syslog('f', "%s", rfcdate(filedate));
 		    if (filedate > lastcheck)
 			date_ok = TRUE;
 		}
@@ -128,7 +125,6 @@ void dlcount(void)
 		q = strchr(p+1, '"');
 		if (q && ((q-p) < 128)) {
 		    strncpy(file, p+1, q - p - 1);
-//		    Syslog('f', "\"%s\"", file);
 		    if (strncmp(file, "GET ", 4) == 0) {
 			if ((p = strstr(file, CFG.www_link2ftp))) {
 			    snprintf(base, PATH_MAX, "%s%s", CFG.ftp_base, p + strlen(CFG.www_link2ftp));
@@ -138,7 +134,6 @@ void dlcount(void)
 				    break;
 				}
 			    }
-//			    Syslog('f', "%s", base);
 			    file_ok = TRUE;
 			}
 		    }
@@ -164,7 +159,7 @@ void dlcount(void)
     if (strlen(CFG.ftp_logfile) && (fp = fopen(CFG.ftp_logfile, "r"))) {
 
 	/*
-	 * Check apache logfile
+	 * Check ftp logfile
 	 */
 	if (!do_quiet)
 	    printf("Checking FTP downloads\n");
@@ -180,7 +175,7 @@ void dlcount(void)
 	    /*
 	     * Parse logline.
 	     */
-	    Syslog('f', "%s", printable(temp, 100));
+//	    Syslog('f', "%s", printable(temp, 100));
 	    p = strtok(temp, " \0");	    /* Day of week	*/
 	    p = strtok(NULL, " \0");	    /* Month		*/
 	    for (i = 0; i < 12; i++)
@@ -192,9 +187,7 @@ void dlcount(void)
 	    tm.tm_min  = atoi(strtok(NULL, ":\0"));	    /* Minute		*/
 	    tm.tm_sec  = atoi(strtok(NULL, " \0"));	    /* Seconds		*/
 	    tm.tm_year = atoi(strtok(NULL, " \0")) - 1900;  /* Year		*/
-//	    Syslog('f', "%d %d %d  %d %d %d", tm.tm_mday, tm.tm_mon, tm.tm_year, tm.tm_hour, tm.tm_min, tm.tm_sec);
 	    filedate = mktime(&tm);
-//	    Syslog('f', "%s", rfcdate(filedate));
 	    if (filedate > lastcheck)
 		date_ok = TRUE;
 	    p = strtok(NULL, " \0");			    /* 0		*/
@@ -247,14 +240,12 @@ void count_download(char *filename, time_t filedate, off_t filesize, char *dltyp
 		temp[j] = '\0';
 		break;
 	    }
-//	Syslog('f', "%s", temp);
 	i = 0;
 
 	while (fread(&area, areahdr.recsize, 1, dfp) == 1) {
 	    i++;
 	    if (area.Available && (strcmp(temp, area.Path) == 0)) {
 		snprintf(temp, PATH_MAX, "%s", basename(filename));
-//		Syslog('f', "Download area %d %s", i, temp);
 
 		if ((fdb_area = mbsedb_OpenFDB(i, 30))) {
 		    while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {

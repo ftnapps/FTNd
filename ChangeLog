@@ -36,6 +36,9 @@ v0.91.10	21-Aug-2007
 	mbdiff:
 		Fixed a lot of compiler warnings.
 
+	mball:
+		Removed debug logging for checking WWW/FTP downloads.
+
 	mbsebbs:
 		Fixed a lot of compiler warnings.
 		Fixed compiling on NetBSD 3.1.
