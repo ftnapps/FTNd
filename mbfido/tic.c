@@ -523,6 +523,13 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
 	    strcpy(TIC.TicIn.FullName, RealName);
 	}
 	Syslog('f', "Real filename in inbound is \"%s\"", RealName);
+	if ((strlen(TIC.TicIn.FullName)) == 0) {
+	    Syslog('f', "LFN is empty, create lowercase one");
+	    strncpy(TIC.TicIn.FullName, RealName, 255);
+	    for (i = 0; i < strlen(TIC.TicIn.FullName); i++)
+		TIC.TicIn.FullName[i] = tolower(TIC.TicIn.FullName[i]);
+	}
+
 	Syslog('+', "8.3 name \"%s\", LFN \"%s\"", TIC.TicIn.File, TIC.TicIn.FullName);
 	if (strcmp(RealName, TIC.TicIn.File)) {
 	    /*

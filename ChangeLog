@@ -32,6 +32,7 @@ v0.91.10	21-Aug-2007
 	mbfido:
 		Fixed a lot of compiler warnings.
 		Fixed compiling on NetBSD 3.1.
+		If no LFN is empty, create a lowercase name.
 
 	mbdiff:
 		Fixed a lot of compiler warnings.
