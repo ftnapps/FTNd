@@ -15,14 +15,14 @@ MHOME=/opt/mbse
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:
 DISTNAME=
 DISTVERS=
-OSTYPE=`uname -s`
+OSTYPE=$( uname -s )
 
 #------------------------------------------------------------------------
 #
 # Logging procedure, needs two parameters.
 #
 log() {
-    /bin/echo `date +%d-%b-%y\ %X ` $1 $2 >> SETUP.log
+    /bin/echo $( date +%d-%b-%y\ %X ) $1 $2 >> SETUP.log
 }
 
 
@@ -42,8 +42,8 @@ EOF
 echo -n "Press ENTER to start the basic checks "
 read junk
 
-log "+" "MBSE BBS $0 started by `whoami`"
-log "+" "Current directory is `pwd`"
+log "+" "MBSE BBS $0 started by $(whoami)"
+log "+" "Current directory is $(pwd)"
 
 # Check the OS type, only Linux for now.
 #
@@ -69,66 +69,75 @@ if [ "$OSTYPE" = "Linux" ]; then
     if [ -f /etc/slackware-version ]; then
     	# Slackware 7.0 and later
     	DISTNAME="Slackware"
-    	DISTVERS=`cat /etc/slackware-version`
+	# There are two styles, newer releases are like "Slackware 12.0.0"
+	if grep -q Slackware /etc/slackware-version ; then
+	    DISTVERS=$( cat /etc/slackware-version | awk '{ print $2 }' )
+	else
+	    DISTVERS=$( cat /etc/slackware-version )
+	fi
+    elif [ -f /etc/debian_version ]; then
+	# Debian, at least since version 2.2
+	DISTNAME="Debian"
+	DISTVERS=$( cat /etc/debian_version )
+	# Ubuntu is based on Debian
+	if grep -q "Ubuntu" /etc/issue ; then
+	    DISTNAME="Ubuntu"
+	    DISTVERS=$( cat /etc/issue | awk '{ print $2 }' )
+	fi
+    elif [ -f /etc/SuSE-release ]; then
+	DISTNAME="SuSE"
+	DISTVERS=$( cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }' )
+	# Mandrake test before RedHat, Mandrake has a redhat-release
+	# file also which is a symbolic link to mandrake-release.
+    elif [ -f /etc/mandrake-release ]; then
+	DISTNAME="Mandrake"
+	# Format: Linux Mandrake release 8.0 (Cooker) for i586
+	DISTVERS=$( cat /etc/mandrake-release | awk '{ print $4 }' )
+    elif [ -f /etc/redhat-release ]; then
+	DISTNAME="RedHat"
+	if grep -q e-smith /etc/redhat-release ; then
+	    DISTVERS=$( cat /etc/redhat-release | awk '{ print $13 }' | tr -d \) )
+	else
+	    DISTVERS=$( cat /etc/redhat-release | awk '{ print $5 }' )
+	fi
+    elif [ -f /etc/gentoo-release ]; then
+        DISTNAME="Gentoo"
+        DISTVERS=$( cat /etc/gentoo-release | awk '{ print $5 }' )
     else
-    	if [ -f /etc/debian_version ]; then
-	    # Debian, at least since version 2.2
-	    DISTNAME="Debian"
-	    DISTVERS=`cat /etc/debian_version`
-    	else
-	    if [ -f /etc/SuSE-release ]; then
-	    	DISTNAME="SuSE"
-	    	DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
-	    else
-		# Mandrake test before RedHat, Mandrake has a redhat-release
-		# file also which is a symbolic link to mandrake-release.
-		if [ -f /etc/mandrake-release ]; then
-		    DISTNAME="Mandrake"
-		    # Format: Linux Mandrake release 8.0 (Cooker) for i586
-		    DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
-		else 
-		    if [ -f /etc/redhat-release ]; then
-		    	DISTNAME="RedHat"
-			if [ -z "`grep e-smith /etc/redhat-release`" ]; then
-			    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
-			else
-			    DISTVERS=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d \)`
-			fi
-		    else
-                        if [ -f /etc/gentoo-release ]; then
-                            DISTNAME="Gentoo"
-                            DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
-                        else
-                            DISTNAME="Unknown"
-                        fi
-		    fi
-	    	fi
-	    fi
-    	fi
+        DISTNAME="Unknown"
     fi
-fi # Linux
-if [ "$OSTYPE" = "FreeBSD" ]; then
+elif [ "$OSTYPE" = "FreeBSD" ]; then
     DISTNAME="FreeBSD"
-    DISTVERS=`uname -r`
+    DISTVERS=$(uname -r)
     PW="pw "
-fi
-if [ "$OSTYPE" = "NetBSD" ]; then
+elif [ "$OSTYPE" = "NetBSD" ]; then
     DISTNAME="NetBSD"
-    DISTVERS=`uname -r`
-fi
-if [ "$OSTYPE" = "OpenBSD" ]; then
+    DISTVERS=$(uname -r)
+elif [ "$OSTYPE" = "OpenBSD" ]; then
     DISTNAME="OpenBSD"
-    DISTVERS=`uname -r`
-fi
-if [ "$OSTYPE" = "Darwin" ]; then
+    DISTVERS=$(uname -r)
+elif [ "$OSTYPE" = "Darwin" ]; then
     DISTNAME="Darwin"
-    DISTVERS=`uname -r`
+    DISTVERS=$(uname -r)
+else
+    DISTNAME="Unknown"
 fi
 log "+" "Detected \"${OSTYPE}\" (${HOSTTYPE}) \"${DISTNAME}\" version \"${DISTVERS}\""
 
 
 # Basic checks.
-if [ `whoami` != "root" ]; then
+if [ "$DISTNAME" = "Unknown" ]; then
+    cat << EOF
+
+    Your are trying to install MBSE BBS on $OSTYPE system, however
+    the distribution is unknown.
+
+EOF
+    log "!" "Aborted, OS is $OSTYPE, distribution is unknown"
+    exit 2
+fi
+
+if [ $( whoami ) != "root" ]; then
 cat << EOF
 *** Run $0 as root only! ***
 
@@ -148,14 +157,14 @@ if [ "$MBSE_ROOT" != "" ]; then
 	exit 2
 fi
 
-if [ "`grep -w mbse: /etc/passwd`" != "" ]; then
+if grep -q ^mbse: /etc/passwd ; then
 	echo "*** User 'mbse' already exists on this system ***"
 	echo "*** SETUP aborted ***"
 	log "!" "Aborted, user 'mbse' already exists on this system"
 	exit 2
 fi
 
-if [ "`grep -w bbs: /etc/group`" != "" ]; then
+if grep -q ^bbs: /etc/group ; then
 	echo "*** Group 'bbs' already exists on this system ***"
 	echo "*** SETUP aborted ***"
 	log "!" "Aborted, group 'bbs' already exists on this system"
@@ -169,6 +178,20 @@ if [ -f /etc/passwd.lock ]; then
 	log "!" "Aborted, password file is locked"
 	exit 2
 fi
+
+#
+# Check if this is Ubuntu. Ubuntu by default has no xinetd installed.
+#
+if [ "$DISTNAME" = "Ubuntu" ]; then
+    if [ ! -f /etc/xinetd.d/echo ]; then
+	echo "*** You seem to be using Ubuntu but have not yet installed xinetd."
+	echo "    'sudo apt-get install xinetd' will install that for you. ***"
+	echo "*** SETUP aborted ***"
+	log "!" "Aborted, Ubuntu without xinetd package"
+	exit 2
+    fi
+fi
+
 clear
 
 if [ "$OSTYPE" = "Linux" ]; then
@@ -176,7 +199,7 @@ if [ "$OSTYPE" = "Linux" ]; then
     	log "+" "Directory /opt already present"
     else
     	mkdir /opt
-    	log "+" "[$?] Directory /opt created"
+    	log "+" "Directory /opt created"
 	echo "Directory /opt created."
     fi
 fi
@@ -196,11 +219,11 @@ if [ "$OSTYPE" = "FreeBSD" ] || [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "OpenB
 	    log "+" "Directory /usr/local/opt already present"
     	else
 	    mkdir -p /usr/local/opt
-	    log "+" "[$?] Directory /usr/local/opt created"
+	    log "+" "Directory /usr/local/opt created"
 	    echo "Directory /usr/local/opt created."
         fi
     	ln -s /usr/local/opt /opt
-	log "+" "[$?] Link /opt to /usr/local/opt created"
+	log "+" "Link /opt to /usr/local/opt created"
 	echo "Link /opt to /usr/local/opt created."
     fi
 fi
@@ -247,24 +270,31 @@ echo -n "Adding group 'bbs'"
 $PW groupadd bbs
 log "+" "[$?] Added group bbs"
 
-echo -n ", user 'mbse'"
+echo -n ", user 'mbse' $OSTYPE "
 if [ "$OSTYPE" = "Linux" ]; then
-    if [ "`grep wheel /etc/group`" = "" ]; then
-	useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G uucp -m -s /bin/bash mbse
-    else
-	useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,uucp -m -s /bin/bash mbse
+    # Different distros have different needs...
+    GRPS="uucp"
+    if grep -q ^wheel /etc/group ; then
+	GRPS=${GRPS}",wheel"
     fi
-fi
-if [ "$OSTYPE" = "FreeBSD" ]; then
+    if [ "$DISTNAME" = "Ubuntu" ]; then
+	GRPS=${GRPS}",adm,admin"
+    fi
+    if grep -q ^dialout /etc/group ; then
+	GRPS=${GRPS}",dialout"
+    fi
+    if grep -q ^dip /etc/group ; then
+	GRPS=${GRPS}",dip"
+    fi
+    log "+" "useradd -c \"MBSE BBS Admin\" -d $MHOME -g bbs -G $GRPS -m -s /bin/bash mbse"
+    useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G $GRPS -m -s /bin/bash mbse
+elif [ "$OSTYPE" = "FreeBSD" ]; then
     pw useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/local/bin/bash
-fi
-if [ "$OSTYPE" = "NetBSD" ]; then
+elif [ "$OSTYPE" = "NetBSD" ]; then
     useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/pkg/bin/bash mbse
-fi
-if [ "$OSTYPE" = "OpenBSD" ]; then
+elif [ "$OSTYPE" = "OpenBSD" ]; then
     useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/local/bin/bash mbse
-fi
-if [ "$OSTYPE" = "Darwin" ]; then
+elif [ "$OSTYPE" = "Darwin" ]; then
     useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -s /bin/bash
 fi
 log "+" "[$?] Added user mbse"
@@ -353,32 +383,32 @@ if [ "$OSTYPE" = "Linux" ]; then
    if [ -f /etc/shadow ]; then
 	log "+" "Standard shadow password system"
 	# Not all systems are the same...
-	if [ "`grep bbs:\!\!: /etc/shadow`" != "" ]; then
-		sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
+	if grep -q ^bbs:\!\!: /etc/shadow ; then
+	    sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
 	else
-		sed /bbs:\!:/s/bbs:\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
+	    sed /bbs:\!:/s/bbs:\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
 	fi
 	log "+" "[$?] removed password from user bbs"
 	mv /etc/shadow /etc/shadow.mbse
 	log "+" "[$?] made backup of /etc/shadow"
 	mv /etc/shadow.bbs /etc/shadow
 	log "+" "[$?] moved new /etc/shadow in place"
-	if [ "$DISTNAME" = "Debian" ] || [ "$DISTNAME" = "SuSE" ]; then
-		# Debian and SuSE use other ownership of /etc/shadow
-		chmod 640 /etc/shadow
-		chgrp shadow /etc/shadow
-		log "+" "[$?] Debian/SuSE style owner of /etc/shadow (0640 root.shadow)"
+	if [ "$DISTNAME" = "Debian" ] || [ "$DISTNAME" = "Ubuntu" ] || [ "$DISTNAME" = "SuSE" ]; then
+	    # Debian, Ubuntu and SuSE use other ownership of /etc/shadow
+	    chmod 640 /etc/shadow
+	    chgrp shadow /etc/shadow
+	    log "+" "[$?] Debian/Ubuntu/SuSE style owner of /etc/shadow (0640 root.shadow)"
 	else
-		chmod 600 /etc/shadow
-		log "+" "[$?] Default style owner of /etc/shadow (0600 root.root)"
+	    chmod 600 /etc/shadow
+	    log "+" "[$?] Default style owner of /etc/shadow (0600 root.root)"
 	fi
 	echo " File /etc/shadow.mbse is your backup of /etc/shadow"
     else
 	log "+" "Not a shadow password system"
-        if [ "`grep -w bbs:\!\!: /etc/passwd`" != "" ]; then
-                sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/passwd >/etc/passwd.bbs
+        if grep -q ^bbs:\!\!: /etc/passwd ; then
+            sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/passwd >/etc/passwd.bbs
         else
-                sed /bbs:\!:/s/bbs:\!:/bbs::/ /etc/passwd >/etc/passwd.bbs
+            sed /bbs:\!:/s/bbs:\!:/bbs::/ /etc/passwd >/etc/passwd.bbs
         fi
 	log "+" "[$?] Removed password of user bbs"
 	mv /etc/passwd /etc/passwd.mbse
@@ -416,45 +446,61 @@ fi
 echo ""
 
 
-if [ "`grep binkp /etc/services`" = "" ]; then
-        BINKD=TRUE
+if grep -q ^binkp /etc/services ; then
+    BINKD=FALSE
 else
-        BINKD=FALSE
+    BINKD=TRUE
 fi
-if [ "`grep fido /etc/services`" = "" ]; then
-	FIDO=TRUE
+if grep -q 60179\/tcp /etc/services ; then
+    FIDO_TCP=FALSE
 else
-	FIDO=FALSE
+    FIDO_TCP=TRUE
+fi
+if grep -q 60179\/udp /etc/services ; then
+    FIDO_UDP=FALSE
+else
+    FIDO_UDP=TRUE
+fi
+if grep -q ^tfido /etc/services ; then
+    TFIDO=FALSE
+else
+    TFIDO=TRUE
 fi
 
-log "+" "Services: binkp=$BINKD fido=$FIDO"
+log "+" "Services: binkp=$BINKD fido_tcp=$FIDO_TCP fido_udp=$FIDO_UDP tfido=$TFIDO"
 
-if [ "$FIDO" = "TRUE" ] || [ "$BINKD" = "TRUE" ]; then
-	echo -n "Modifying /etc/services"
-	log "+" "Modifying /etc/services"
-	mv /etc/services /etc/services.mbse
-	cat /etc/services.mbse >/etc/services
-	echo "#" >>/etc/services
-	echo "# Unofficial for MBSE BBS" >>/etc/services
-	echo "#" >>/etc/services
-	if [ "$BINKD" = "TRUE" ]; then
-		echo -n ", binkp at port 24554"
-		echo "binkp		24554/tcp		# mbcico IBN mode">>/etc/services
-	fi
-	if [ "$FIDO" = "TRUE" ]; then
-		echo -n ", fido at ports 60177, 60179"
-		echo "tfido		60177/tcp		# mbcico ITN mode (alternate port)">>/etc/services
-		echo "fido		60179/tcp		# mbcico IFC mode">>/etc/services
-		echo "fido		60179/udp		# Chatserver">>/etc/services
-	fi
-	chmod 644 /etc/services
-	echo ", done."
+if [ "$FIDO_TCP" = "TRUE" ] || [ "$FIDO_UDP" = "TRUE" ] || [ "$TFIDO" = "TRUE" ] || [ "$BINKD" = "TRUE" ]; then
+    echo -n "Modifying /etc/services"
+    log "+" "Modifying /etc/services"
+    mv /etc/services /etc/services.mbse
+    cat /etc/services.mbse >/etc/services
+    echo "#" >>/etc/services
+    echo "# Unofficial for MBSE BBS" >>/etc/services
+    echo "#" >>/etc/services
+    if [ "$BINKD" = "TRUE" ]; then
+	echo -n ", binkp at port 24554"
+	echo "binkp		24554/tcp		# mbcico IBN mode">>/etc/services
+    fi
+    if [ "$TFIDO" = "TRUE" ]; then
+	echo -n ", tfido at port 60177"
+	echo "tfido		60177/tcp		# mbcico ITN mode (alternate port)">>/etc/services
+    fi
+    if [ "$FIDO_TCP" = "TRUE" ]; then
+	echo -n ", fido tcp at port 60179"
+	echo "fido		60179/tcp		# mbcico IFC mode">>/etc/services
+    fi
+    if [ "$FIDO_UDP" = "TRUE" ]; then
+	echo -n ", fido udp at port 60179"
+	echo "fido		60179/udp		# Chatserver">>/etc/services
+    fi
+    chmod 644 /etc/services
+    echo ", done."
 fi
 
 
 if [ -f /etc/inetd.conf ]; then
     log "+" "/etc/inetd.conf found, inetd system"
-    if [ "`grep mbcico /etc/inetd.conf`" = "" ]; then
+    if ! grep -q mbcico /etc/inetd.conf ; then
 	echo -n "Modifying /etc/inetd.conf"
 	log "+" "Modifying /etc/inetd.conf"
 	mv /etc/inetd.conf /etc/inetd.conf.mbse
@@ -478,7 +524,7 @@ EOF
 	chmod 644 /etc/inetd.conf
 	if [ -f /var/run/inetd.pid ]; then
 		echo -n ", restarting inetd"
-		kill -HUP `cat /var/run/inetd.pid`
+		kill -HUP $( cat /var/run/inetd.pid )
 		log "+" "[$?] restarted inetd"
 	else
 		log "!" "Warning: no inetd.pid file found"
@@ -489,7 +535,7 @@ fi
 
 if [ "$OSTYPE" = "NetBSD" ]; then
   if [ -f /etc/gettytab ]; then
-    if [ "`grep mbse /etc/gettytab`" = "" ]; then
+    if ! grep mbsebbs /etc/gettytab ; then
       log "+" "[$?] adding mbsebbs login to /etc/gettytab"
 cat << EOF >>/etc/gettytab
 
@@ -598,9 +644,15 @@ cat << EOF
 
 EOF
 if [ "$OSTYPE" = "Linux" ] || [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "OpenBSD" ]; then
-    echo "     userdel bbs"
-    echo "     userdel -r mbse"
-    echo "     groupdel bbs"
+    if [ "$DISTNAME" = "Ubuntu" ]; then
+	echo "     sudo userdel bbs"
+	echo "     sudo userdel -r mbse"
+	echo "     sudo groupdel bbs"
+    else
+    	echo "     userdel bbs"
+    	echo "     userdel -r mbse"
+    	echo "     groupdel bbs"
+    fi
 fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
     echo "     pw userdel bbs -r"
