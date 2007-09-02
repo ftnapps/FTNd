@@ -10,6 +10,7 @@ v0.91.10	21-Aug-2007
 		calls depending on the databases you have installed.
 		Added example telnet login for NetBSD.
 		Dropped support for NetBSD < 3.0.
+		Added supportfor Ubuntu.
 
 	libmbse:
 		Added support or the ARM processor, thanks to Simon Voortman.
