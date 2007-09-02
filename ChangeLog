@@ -64,6 +64,7 @@ v0.91.10	21-Aug-2007
 		Fixed a lot of compiler warnings.
 		Fixed compiling on NetBSD 3.1.
 		Catch SIGIOT.
+		Use both CRC and User ID to search lastread record.
 
 	mbnewusr:
 		Catch SIGIOT.

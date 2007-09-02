@@ -381,6 +381,7 @@ int Read_a_Email(unsigned int Num)
 {
     char        *p = NULL, *fn, *charset = NULL, *charsin = NULL;
     lastread    LR;
+    unsigned int	mycrc;
 
     LastNum = Num;
     iLineCount = 7;
@@ -518,30 +519,32 @@ int Read_a_Email(unsigned int Num)
     /*
      * Update lastread pointer.
      */
+    p = xstrcpy(exitinfo.sUserName);
+    mycrc = StringCRC32(tl(p));
+    free(p);
     if (Msg_Lock(30L)) {
         LR.UserID = grecno;
-        p = xstrcpy(exitinfo.sUserName);
+	LR.UserCRC = mycrc;
         if (Msg_GetLastRead(&LR) == TRUE) {
             LR.LastReadMsg = Num;
             if (Num > LR.HighReadMsg)
                 LR.HighReadMsg = Num;
             if (LR.HighReadMsg > EmailBase.Highest)
                 LR.HighReadMsg = EmailBase.Highest;
-            LR.UserCRC = StringCRC32(tl(p));
+            LR.UserCRC = mycrc;
 	    if (!Msg_SetLastRead(LR))
                 WriteError("Error update lastread");
 	} else {
             /*
              * Append new lastread pointer
              */
-            LR.UserCRC = StringCRC32(tl(p));
+            LR.UserCRC = mycrc;
             LR.UserID  = grecno;
             LR.LastReadMsg = Num;
             LR.HighReadMsg = Num;
             if (!Msg_NewLastRead(LR))
                 WriteError("Can't append lastread");
         }
-        free(p);
         Msg_UnLock();
     }
 
@@ -631,8 +634,8 @@ int EmailPanel(void)
  */
 void Read_Email(void)
 {
-    char            *temp;
-    unsigned int    Start;
+    char            *temp, *p;
+    unsigned int    Start, mycrc;
     lastread        LR;
 
     if (HasNoEmail())
@@ -649,8 +652,12 @@ void Read_Email(void)
      * Check for lastread pointer, suggest lastread number for start.
      */
     Start = EmailBase.Lowest;
+    p = xstrcpy(exitinfo.sUserName);
+    mycrc = StringCRC32(tl(p));
+    free(p);
     if (Msg_Open(sMailpath)) {
 	LR.UserID = grecno;
+	LR.UserCRC = mycrc;
 	if (Msg_GetLastRead(&LR))
 	    Start = LR.HighReadMsg + 1;
 	else

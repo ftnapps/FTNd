@@ -146,6 +146,7 @@ void UpdateLR(msg_high *mhl, FILE *mf)
 {
     char	*p;
     msg_high	*tmp;
+    unsigned int mycrc;
 
     /*      Updating lastread pointer */
     poutCR(YELLOW, BLACK, (char *)Language(449));
@@ -160,8 +161,11 @@ void UpdateLR(msg_high *mhl, FILE *mf)
 		if (tmp->Personal) 
 		    Syslog('?', "Personal messages to update");
 
-		LR.UserID = grecno;
 		p = xstrcpy(exitinfo.sUserName);
+		mycrc = StringCRC32(tl(p));
+		free(p);
+		LR.UserID = grecno;
+		LR.UserCRC = mycrc;
 		if (Msg_GetLastRead(&LR) == TRUE) {
 		    LR.LastReadMsg = tmp->LastMsg;
 		    if (tmp->LastMsg > LR.HighReadMsg)
@@ -170,21 +174,20 @@ void UpdateLR(msg_high *mhl, FILE *mf)
 			Syslog('?', "Highread was too high");
 			LR.HighReadMsg = Msg_Highest();
 		    }
-		    LR.UserCRC = StringCRC32(tl(p));
+		    LR.UserCRC = mycrc;
 		    if (!Msg_SetLastRead(LR))
 			WriteError("Error update lastread");
 		} else {
 		    /*
 		     * Append new lastread pointer
 		     */
-		    LR.UserCRC = StringCRC32(tl(p));
+		    LR.UserCRC = mycrc;
 		    LR.UserID = grecno;
 		    LR.LastReadMsg = tmp->LastMsg;
 		    LR.HighReadMsg = tmp->LastMsg;
 		    if (!Msg_NewLastRead(LR))
 			WriteError("Can't append new lastread");
 		}
-		free(p);
 		Msg_UnLock();
 	    }
 	    Msg_Close();
@@ -811,8 +814,8 @@ void OLR_ViewTags()
 int OLR_Prescan()
 {
     unsigned short  RetVal = FALSE, Areas;
-    unsigned int    Number;
-    char	    *Temp, msg[81];
+    unsigned int    Number, mycrc;
+    char	    *Temp, msg[81], *p;
     FILE	    *mf, *tf;
     int		    x;
 
@@ -851,7 +854,11 @@ int OLR_Prescan()
 		pout(LIGHTCYAN, BLACK, msg);
 
 		memset(&LR, 0, sizeof(LR));
+		p = xstrcpy(exitinfo.sUserName);
+		mycrc = StringCRC32(tl(p));
+		free(p);
 		LR.UserID = grecno;
+		LR.UserCRC = mycrc;
 		if (Msg_GetLastRead(&LR))
 		    Number = LR.HighReadMsg;
 		else
@@ -1155,13 +1162,13 @@ void OLR_DownBW()
 {
     struct tm	    *tp;
     time_t	    Now;
-    char	    Pktname[32], *Work, *Temp, *cwd = NULL;
+    char	    Pktname[32], *Work, *Temp, *cwd = NULL, *p;
     int		    Area = 0;
     int		    RetVal = FALSE, rc = 0;
     FILE	    *fp, *tf, *mf, *af;
     INF_HEADER	    Inf;
     INF_AREA_INFO   AreaInf;
-    unsigned int    Start, High;
+    unsigned int    Start, High, mycrc;
     msg_high	    *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -1332,7 +1339,11 @@ void OLR_DownBW()
 		    Current = Personal = 0;
 		    if (Msg_Highest() != 0) {
 			memset(&LR, 0, sizeof(LR));
+			p = xstrcpy(exitinfo.sUserName);
+			mycrc = StringCRC32(tl(p));
+			free(p);
 			LR.UserID = grecno;
+			LR.UserCRC = mycrc;
 			if (Msg_GetLastRead(&LR))
 			    Start = LR.HighReadMsg;
 			else
@@ -1931,10 +1942,10 @@ void OLR_DownQWK(void)
 {
     struct tm	    *tp;
     time_t	    Now;
-    char	    Pktname[32], *cwd = NULL, *Work, *Temp;
+    char	    Pktname[32], *cwd = NULL, *Work, *Temp, *p;
     int		    Area = 0, i, rc = 0;
     FILE	    *fp = NULL, *tf, *mf, *af;
-    unsigned int    Start, High;
+    unsigned int    Start, High, mycrc;
     msg_high	    *tmp, *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -1999,7 +2010,11 @@ void OLR_DownQWK(void)
 		Current = Personal = 0;
 		if (Msg_Highest() != 0) {
 		    memset(&LR, 0, sizeof(LR));
+		    p = xstrcpy(exitinfo.sUserName);
+		    mycrc = StringCRC32(tl(p));
+		    free(p);
 		    LR.UserID = grecno;
+		    LR.UserCRC = mycrc;
 		    if (Msg_GetLastRead(&LR))
 			Start = LR.HighReadMsg;
 		    else
@@ -2643,10 +2658,10 @@ void OLR_DownASCII(void)
 {
     struct  tm      *tp;
     time_t          Now;
-    char            Pktname[32], *Work, *Temp, *cwd = NULL, Atag[60], Kinds[12];
+    char            Pktname[32], *Work, *Temp, *cwd = NULL, Atag[60], Kinds[12], *p;
     int		    Area = 0, i, rc = 0;
     FILE            *fp = NULL, *tf, *mf, *af, *inf;
-    unsigned int    Start, High;
+    unsigned int    Start, High, mycrc;
     msg_high        *tmp, *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -2764,6 +2779,10 @@ void OLR_DownASCII(void)
 		Current = Personal = 0;
 		if (Msg_Highest() != 0) {
 		    memset(&LR, 0, sizeof(LR));
+		    p = xstrcpy(exitinfo.sUserName);
+		    mycrc = StringCRC32(tl(p));
+		    free(p);
+		    LR.UserCRC = mycrc;
 		    LR.UserID = grecno;
 		    if (Msg_GetLastRead(&LR))
 			Start = LR.HighReadMsg;

@@ -1163,6 +1163,7 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
     char	*p = NULL, *fn, *charset = NULL, *charsin = NULL;
     int		ShowMsg = TRUE;
     lastread	LR;
+    unsigned int	mycrc;
 
     LastNum = Num;
     iLineCount = 7;
@@ -1335,29 +1336,31 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
      * Update lastread pointer if needed. Netmail boards are always updated.
      */
     if (Msg_Lock(30L) && (UpdateLR || msgs.Type == NETMAIL)) {
-	LR.UserID = grecno;
 	p = xstrcpy(exitinfo.sUserName);
+	mycrc = StringCRC32(tl(p));
+	free(p);
+	LR.UserID = grecno;
+	LR.UserCRC = mycrc;
 	if (Msg_GetLastRead(&LR) == TRUE) {
 	    LR.LastReadMsg = Num;
 	    if (Num > LR.HighReadMsg)
 		LR.HighReadMsg = Num;
 	    if (LR.HighReadMsg > MsgBase.Highest)
 		LR.HighReadMsg = MsgBase.Highest;
-	    LR.UserCRC = StringCRC32(tl(p));
+	    LR.UserCRC = mycrc;
 	    if (!Msg_SetLastRead(LR))
 		WriteError("Error update lastread");
 	} else {
 	    /*
 	     * Append new lastread pointer
 	     */
-	    LR.UserCRC = StringCRC32(tl(p));
+	    LR.UserCRC = mycrc;
 	    LR.UserID  = grecno;
 	    LR.LastReadMsg = Num;
 	    LR.HighReadMsg = Num;
 	    if (!Msg_NewLastRead(LR))
 		WriteError("Can't append lastread");
 	}
-	free(p);
 	Msg_UnLock();
     }
 
@@ -1372,8 +1375,8 @@ int Read_a_Msg(unsigned int Num, int UpdateLR)
  */
 void Read_Msgs()
 {
-    char	    *temp;
-    unsigned int    Start;
+    char	    *temp, *p;
+    unsigned int    Start, mycrc;
     lastread	    LR;
 
     temp = calloc(81, sizeof(char));
@@ -1388,7 +1391,11 @@ void Read_Msgs()
      */
     Start = MsgBase.Lowest;
     if (Msg_Open(sMsgAreaBase)) {
+	p = xstrcpy(exitinfo.sUserName);
+	mycrc = StringCRC32(tl(p));
+	free(p);
 	LR.UserID = grecno;
+	LR.UserCRC = mycrc;
 	if (Msg_GetLastRead(&LR))
 	    Start = LR.HighReadMsg + 1;
 	else
@@ -1990,8 +1997,9 @@ void MsgArea_List(char *Option)
     int		iGotArea = FALSE; /* Flag to check if user typed in area */
     int		iCheckNew = FALSE; /* Flag to check for new mail in area */
     int		offset;
-    char	*temp, msg[81];
+    char	*temp, msg[81], *p;
     lastread	LR;
+    unsigned int mycrc;
 
     temp = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
@@ -2052,7 +2060,11 @@ void MsgArea_List(char *Option)
 		    if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
 			if (Msg_Open(msgs.Base)) {
 			    MsgBase.Highest = Msg_Highest();
+			    p = xstrcpy(exitinfo.sUserName);
+			    mycrc = StringCRC32(tl(p));
+			    free(p);
 			    LR.UserID = grecno; 
+			    LR.UserCRC = mycrc;
 			    if (Msg_GetLastRead(&LR) != TRUE) {
 				LR.HighReadMsg = 0;
 			    }
@@ -2093,7 +2105,11 @@ void MsgArea_List(char *Option)
 		    if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
 			if (Msg_Open(msgs.Base)) {
 			    MsgBase.Highest = Msg_Highest();
+			    p = xstrcpy(exitinfo.sUserName);
+			    mycrc = StringCRC32(tl(p));
+			    free(p);
 			    LR.UserID = grecno; 
+			    LR.UserCRC = mycrc;
 			    if (Msg_GetLastRead(&LR) != TRUE ){
 				LR.HighReadMsg = 0;
 			    }
@@ -2175,7 +2191,11 @@ void MsgArea_List(char *Option)
 	    if (iCheckNew) {
 		if (Msg_Open(msgs.Base)) {
 		    MsgBase.Highest = Msg_Highest();
+		    p = xstrcpy(exitinfo.sUserName);
+		    mycrc = StringCRC32(tl(p));
+		    free(p);
 		    LR.UserID = grecno; 
+		    LR.UserCRC = mycrc;
 		    if (Msg_GetLastRead(&LR) != TRUE) {
 			LR.HighReadMsg = 0;
 		    }
@@ -2394,8 +2414,8 @@ void CheckMail()
 {
     FILE		*pMsgArea, *Tmp;
     int			x, Found = 0, Color, Count = 0, Reading, OldMsgArea;
-    char		*temp, *sFileName, msg[81];
-    unsigned int	i, Start;
+    char		*temp, *sFileName, msg[81], *p;
+    unsigned int	i, Start, mycrc;
     typedef struct	_Mailrec {
 	int		Area;
 	unsigned int	Msg;
@@ -2438,7 +2458,11 @@ void CheckMail()
 	     * Check lastread pointer, if none found start
 	     * at the begin of the messagebase.
 	     */
+	    p = xstrcpy(exitinfo.sUserName);
+	    mycrc = StringCRC32(tl(p));
+	    free(p);
 	    LR.UserID = grecno;
+	    LR.UserCRC = mycrc;
 	    if (Msg_GetLastRead(&LR))
 		Start = LR.HighReadMsg + 1;
 	    else
@@ -2516,7 +2540,11 @@ void CheckMail()
 		 * Check lastread pointer, if none found start
 		 * at the begin of the messagebase.
 		 */
+		p = xstrcpy(exitinfo.sUserName);
+		mycrc = StringCRC32(tl(p));
+		free(p);
 		LR.UserID = grecno;
+		LR.UserCRC = mycrc;
 		if (Msg_GetLastRead(&LR))
 		    Start = LR.HighReadMsg + 1;
 		else

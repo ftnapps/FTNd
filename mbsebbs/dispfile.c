@@ -572,9 +572,10 @@ char *ControlCodeU(int ch)
 char *ControlCodeK(int ch)
 {
     FILE	*pCallerLog;
-    char	sDataFile[PATH_MAX];
+    char	sDataFile[PATH_MAX], *p;
     static char	temp[81];
     lastread	LR;
+    unsigned int	mycrc;
 
     switch (toupper(ch)) {
 	case 'A':
@@ -632,7 +633,11 @@ char *ControlCodeK(int ch)
 		break;
 
 	case 'M':
+		p = xstrcpy(exitinfo.sUserName);
+		mycrc = StringCRC32(tl(p));
+		free(p);
 		LR.UserID = grecno;
+		LR.UserCRC = mycrc;
 		if (Msg_Open(sMsgAreaBase)) {
 		    if (Msg_GetLastRead(&LR) == TRUE) {
 			if (LR.HighReadMsg > MsgBase.Highest)
@@ -655,7 +660,11 @@ char *ControlCodeK(int ch)
 
 	case 'P':
 		SetEmailArea(sMailbox);
+		p = xstrcpy(exitinfo.sUserName);
+		mycrc = StringCRC32(tl(p));
+		free(p);
 		LR.UserID = grecno;
+		LR.UserCRC = mycrc;
 		if (Msg_Open(sMailpath)) {
 		    if (Msg_GetLastRead(&LR) == TRUE) {
 			if (LR.HighReadMsg > EmailBase.Highest)

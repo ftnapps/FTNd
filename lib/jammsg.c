@@ -120,6 +120,45 @@ void JAMset_flags()
 
 
 
+int JAM_SearchUser(unsigned int crcval)
+{
+    char		*temp;
+    FILE		*fp;
+    struct userhdr	usrhdr;
+    struct userrec	usr;
+    unsigned int	mycrc;
+    int			rc = 0;
+
+    if (crcval == 0)
+	return -1;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    snprintf(temp, PATH_MAX -1, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	free(temp);
+	return -1;
+    }
+    free(temp);
+
+    fread(&usrhdr, sizeof(usrhdr), 1, fp);
+    while (fread(&usr, usrhdr.recsize, 1, fp) == 1) {
+	mycrc = StringCRC32(tl(usr.sUserName));
+	if (mycrc == crcval) {
+	    fclose(fp);
+	    return rc;
+	}
+	rc++;
+    }
+
+    /*
+     * Nothing found
+     */
+    fclose(fp);
+    return -1;
+}
+
+
+
 
 /*
  * Add a message, the structure msg must contain all needed
@@ -341,21 +380,22 @@ void JAM_DeleteJAM(char *Base)
  */
 int JAM_GetLastRead(lastread *LR)
 {
-	lastread	lr;
+    lastread	lr;
 
-	LastReadRec = 0L;
-	lseek(fdJlr, 0, SEEK_SET);
+    LastReadRec = 0L;
+    lseek(fdJlr, 0, SEEK_SET);
 
-	while (read(fdJlr, &lr, sizeof(lastread)) == sizeof(lastread)) {
-		if (lr.UserID == LR->UserID) {
-			LR->LastReadMsg = lr.LastReadMsg;
-			LR->HighReadMsg = lr.HighReadMsg;
-			return TRUE;
-		}
-		LastReadRec++;
+    while (read(fdJlr, &lr, sizeof(lastread)) == sizeof(lastread)) {
+	if (lr.UserID == LR->UserID) {
+	    LR->LastReadMsg = lr.LastReadMsg;
+	    LR->HighReadMsg = lr.HighReadMsg;
+	    return TRUE;
 	}
+	LastReadRec++;
+	
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 
