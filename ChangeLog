@@ -1,7 +1,10 @@
 $Id$
 
 
-v0.91.10	21-Aug-2007
+v0.91.11	02-Sep-2007
+
+
+v0.91.10	21-Aug-2007 - 02-Sep-2007
 
 	general:
 		There is some experimental code for GeoIP support, it does
@@ -10,7 +13,7 @@ v0.91.10	21-Aug-2007
 		calls depending on the databases you have installed.
 		Added example telnet login for NetBSD.
 		Dropped support for NetBSD < 3.0.
-		Added supportfor Ubuntu.
+		Added support for Ubuntu.
 
 	libmbse:
 		Added support or the ARM processor, thanks to Simon Voortman.
@@ -43,7 +46,7 @@ v0.91.10	21-Aug-2007
 	mbfido:
 		Fixed a lot of compiler warnings.
 		Fixed compiling on NetBSD 3.1.
-		If no LFN is empty, create a lowercase name.
+		If the LFN in the tic file is empty, create a lowercase name.
 		Catch SIGIOT.
 
 	mbfile:
