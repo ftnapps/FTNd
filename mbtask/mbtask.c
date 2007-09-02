@@ -1553,7 +1553,7 @@ int main(int argc, char **argv)
      *  but that's live. This daemon should only be stopped by SIGTERM.
      */
     for (i = 0; i < NSIG; i++) {
-        if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV))
+        if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV)) || (i == SIGIOT)
             signal(i, (void (*))die);
 	else if ((i == SIGINT) || (i == SIGTERM))
 	    signal(i, (void (*))start_shutdown);
