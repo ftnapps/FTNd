@@ -386,7 +386,20 @@ int JAM_GetLastRead(lastread *LR)
     lseek(fdJlr, 0, SEEK_SET);
 
     while (read(fdJlr, &lr, sizeof(lastread)) == sizeof(lastread)) {
-	if (lr.UserID == LR->UserID) {
+	/*
+	 * Check for GoldED bug, the CRC == ID so the ID is invalid.
+	 * Test for a valid CRC to find the right record.
+	 */
+	if ((lr.UserID == lr.UserCRC) && (lr.UserCRC == LR->UserCRC)) {
+	    Syslog('m', "Found LR record for user %d using a workaround", LR->UserID);
+	    LR->LastReadMsg = lr.LastReadMsg;
+	    LR->HighReadMsg = lr.HighReadMsg;
+	    return TRUE;
+	}
+	/*
+	 * The way it should be.
+	 */
+	if ((lr.UserID != lr.UserCRC) && (lr.UserID == LR->UserID)) {
 	    LR->LastReadMsg = lr.LastReadMsg;
 	    LR->HighReadMsg = lr.HighReadMsg;
 	    return TRUE;
@@ -636,7 +649,7 @@ void JAM_Pack(void)
     int		    ToRead, Readed, i, count;
     char	    *File, *New, *Subfield, *Temp;
     JAMIDXREC	    jamIdx;
-    unsigned int    NewNumber = 0, RefNumber = 0, Written = 0, mycrc;
+    unsigned int    NewNumber = 0, RefNumber = 0, Written = 0, mycrc, myrec;
     lastread	    LR;
     FILE	    *usrF;
     struct userhdr  usrhdr;
@@ -784,21 +797,37 @@ void JAM_Pack(void)
 		    Syslog('m', "JAM_Pack %s recno %d user %d HighRead is reset to %d", BaseName, i, LR.UserID, LR.HighReadMsg);
 		}
 		if (usrF) {
-		    /*
-		     * Search user record for LR pointer. If the record is valid and the
-		     * user still exists then copy the LR record, else we drop it.
-		     */
-		    fseek(usrF, usrhdr.hdrsize + (usrhdr.recsize * LR.UserID), SEEK_SET);
-		    memset(&usr, 0, sizeof(usr));
-		    if (fread(&usr, usrhdr.recsize, 1, usrF) == 1) {
-			mycrc = StringCRC32(tl(usr.sUserName));
-			if (mycrc == LR.UserCRC) {
-			    write(fdnJlr, &LR, sizeof(lastread));
+		    if ((LR.UserID == LR.UserCRC) && LR.UserCRC) {
+			/*
+			 * GoldED bug, try to fix it. This might leave double records, we
+			 * will deal with that later. TODO: write that code!
+			 */
+			fseek(usrF, usrhdr.hdrsize, SEEK_SET);
+			myrec = 0;
+			while (fread(&usr, usrhdr.recsize, 1, usrF) == 1) {
+			    mycrc = StringCRC32(tl(usr.sUserName));
+			    if (LR.UserCRC == mycrc) {
+				LR.UserID = myrec;
+				Syslog('m', "JAM_Pack %s recno %d LastRead UserID set to %d", BaseName, i, myrec);
+			    }
+			}
+		    } else {
+			/*
+		    	 * Search user record for LR pointer. If the record is valid and the
+		    	 * user still exists then copy the LR record, else we drop it.
+		    	 */
+		    	fseek(usrF, usrhdr.hdrsize + (usrhdr.recsize * LR.UserID), SEEK_SET);
+		    	memset(&usr, 0, sizeof(usr));
+		    	if (fread(&usr, usrhdr.recsize, 1, usrF) == 1) {
+			    mycrc = StringCRC32(tl(usr.sUserName));
+			    if (mycrc == LR.UserCRC) {
+			    	write(fdnJlr, &LR, sizeof(lastread));
+			    } else {
+			    	Syslog('-', "JAM_Pack %s purged LR record %d", BaseName, i);
+			    }
 			} else {
 			    Syslog('-', "JAM_Pack %s purged LR record %d", BaseName, i);
 			}
-		    } else {
-			Syslog('-', "JAM_Pack %s purged LR record %d", BaseName, i);
 		    }
 		} else {
 		    /*

@@ -25,6 +25,9 @@ v0.91.10	21-Aug-2007
 		disk i/o.
 		LastRead records that don't belong to a valid user are
 		purged.
+		LastRead pointers are searched via an alternate method if the
+		record is created by GoldED.
+		Don't purge GoldED style LastRead records but fix them.
 
 	mbcico:
 		Fixed a lot of compiler warnings.
