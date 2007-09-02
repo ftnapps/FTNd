@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 01-Mar-2007</h5></div>
+<div align="right"><h5>Last update 02-Sep-2007</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -32,7 +32,9 @@ some features. Here is a short list of these packages:
      that will allow the PLZ extension. In the binkp protocol GZ compression will be enabled as well.</li>
  <li><b>Bzlib</b>. On some distributions you need to install <b>bzlib2 development</b> to add 
      support for binkp BZ2 compression.</li>
-</ol>
+ </ol>
+If you use Gentoo or Ubuntu, read the files README.Gentoo of README.Ubuntu. The last one may be usefull
+for Debian users too.
 <P>&nbsp;<p>
 
 <h3>Step 1: planning the filesystems.</h3>
@@ -135,12 +137,17 @@ To start the script type:
 cd mbsebbs-@VERSION@
 bash ./SETUP.sh
 </pre>
+Ubuntu users should do:
+<pre>
+cd mbsebbs-@VERSION@
+sudo bash ./SETUP.sh
+</pre>
 Yes, use <b>bash</b> as shell here. On some systems root doesn't use  bash
 as login shell, calling the script with bash forces the use of bash.
 The script does the following:
 <ol>
  <li>Create the group <strong>bbs</strong>
- <li>Create the user <strong>mbse</strong>
+ <li>Create the user <strong>mbse</strong> On Ubuntu this user is added to the admin group.
  <li>Create a <strong>.profile</strong> for user <strong>mbse</strong>
  <li>Create and set owner of directory tree under /opt/mbse
 </ol>
@@ -195,6 +202,13 @@ password: <em>enter root password here</em>
 make install
 exit
 </pre>
+Ubuntu users should do:
+<pre>
+cd ~/mbsebbs-@VERSION@
+./configure [--enable-optimize] [--enable-newsgate] [--enable-gdkdel]
+make
+sudo make install
+</pre>
 <b>Important:</b> it seems logical to use the <code>--enable-newsgate</code> option
 but it isn't. When you do, the mbnntp program is disabled and you cannot serve
 echomail as news to your users via internet. But you can gate echomail to the
@@ -218,6 +232,10 @@ script you just saw on the screen followed by a space and the word <b>start</b>.
 For example:
 <pre>
 /etc/rc.d/init.d/mbsed start
+</pre>
+Ubuntu users do:
+<pre>
+sudo /etc/init.d/mbsebbs start
 </pre>
 This will start the <b>mbtask</b> daemon.
 After that the bbs will be opened for use.

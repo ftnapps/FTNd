@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 21-Jan-2004</h5></div>
+<div align="right"><h5>Last update 02-Sep-2007</h5></div>
 <div align="center"><h1>Upgrade MBSE BBS</h1></div>
 
 <h3>Introduction.</h3>
@@ -44,6 +44,14 @@ su        <b>important, do not use "su -"</b>
 password: <em>enter root password here</em>
 make install
 </pre>
+Ubuntu users should do:
+<pre>
+cd ~/mbsebbs-@VERSION@
+make clean
+./configure
+make
+sudo make install
+</pre>
 The last part of the installation procedure shows you the location of the bbs
 startup script that is added to your system. Remember this one for a moment.
 <p>
@@ -55,6 +63,10 @@ For example:
 <pre>
 /etc/rc.d/init.d/mbsed reload
 exit
+</pre>
+Ubuntu users do:
+<pre>
+sudo /etc/init.d/mbsebbs restart
 </pre>
 This will close the bbs, kill <b>mbtask</b>, start the new <b>mbtask</b> and open
 the bbs again for use. At this point you may need to update some configuration settings
