@@ -423,6 +423,7 @@ int main(int argc, char *argv[])
     signal(SIGSEGV,(void (*))die);
     signal(SIGTERM,(void (*))die);
     signal(SIGKILL,(void (*))die);
+    signal(SIGIOT, (void (*))die);
 
     oldmask = umask(002);
 

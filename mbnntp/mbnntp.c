@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
      */
     for(i = 0; i < NSIG; i++) {
 
-	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGIOT))
 	    signal(i, (void (*))die);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);

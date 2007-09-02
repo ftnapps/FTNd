@@ -141,7 +141,7 @@ int main(int argc, char **argv)
      * Catch all signals we can, and ignore the rest.
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGIOT))
 	    signal(i, (void (*))die);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);

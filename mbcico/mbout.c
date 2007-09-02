@@ -4,7 +4,7 @@
  * Purpose: MBSE BBS Outbound Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
      * Catch all signals we can, and ignore the rest.
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGIOT))
 	    signal(i, (void (*))die);
 	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);

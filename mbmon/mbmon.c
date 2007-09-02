@@ -783,6 +783,7 @@ int main(int argc, char *argv[])
     signal(SIGSEGV,(void (*))die);
     signal(SIGTERM,(void (*))die);
     signal(SIGKILL,(void (*))die);
+    signal(SIGIOT,(void (*))die);
 
     if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
 	rows = ws.ws_row;

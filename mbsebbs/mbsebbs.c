@@ -208,7 +208,7 @@ int main(int argc, char **argv)
      * Trap signals
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGIOT))
 	    signal(i, (void (*))die);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);
