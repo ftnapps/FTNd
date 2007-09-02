@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - Scan mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -254,7 +254,7 @@ int outstat()
 {
     int		    rc, first = TRUE, T_window, iszmh = FALSE;
     struct _alist   *tmp, *old;
-    char	    digit[6], flstr[13], *temp, as[6], be[6], utc[6], flavor, *temp2, *fmt, *buf;
+    char	    digit[6], flstr[15], *temp, as[6], be[6], utc[6], flavor, *temp2, *fmt, *buf;
     time_t	    now;
     struct tm	    tm;
     int		    uhour, umin, thour, tmin;
@@ -522,7 +522,7 @@ int outstat()
 		    T_window = TRUE;
 	    }
 	}
-	strcpy(flstr,"...... .... ..");
+	strncpy(flstr, "...... .... ..", 14);
 
 	/*
 	 * If the node has internet and we have internet configured, 
