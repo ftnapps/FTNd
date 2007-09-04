@@ -3,6 +3,10 @@ $Id$
 
 v0.91.11	02-Sep-2007
 
+	libmsgbase:
+		Added missing record counter when searching GoldED wrong LR
+		pointers and forgot to write fixed LR records.
+
 	mbfido:
 		To test, date conversion for export netmail->email.
 

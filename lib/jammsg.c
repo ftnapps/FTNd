@@ -810,6 +810,8 @@ void JAM_Pack(void)
 				LR.UserID = myrec;
 				Syslog('m', "JAM_Pack %s recno %d LastRead UserID set to %d", BaseName, i, myrec);
 			    }
+			    myrec++;
+			    write(fdnJlr, &LR, sizeof(lastread));
 			}
 		    } else {
 			/*
