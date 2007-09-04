@@ -863,7 +863,8 @@ void ExportNet(unsigned int MsgNum, int UUCPgate)
 	/*
 	 *  First send all headers
 	 */
-	fprintf(fp, "Date: %s\n", rfcdate(Msg.Written));
+//	fprintf(fp, "Date: %s\n", rfcdate(Msg.Written));
+	fprintf(fp, "Date: %s\n", rfcdate(mktime(localtime(&Msg.Written))));
 	fprintf(fp, "From: %s@%s\n", fromname, ascinode(from, 0x2f));
 	tidy_faddr(from);
 	fprintf(fp, "Subject: %s\n", Msg.Subject);
