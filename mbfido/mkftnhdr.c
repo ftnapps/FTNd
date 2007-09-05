@@ -506,9 +506,9 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
     }
 
     if ((p = hdr((char *)"X-Origin-Date",msg))) 
-	tmsg->date = parsedate(p, NULL);
+	tmsg->date = parsedate(p, NULL) - (gmt_offset((time_t)0) * 60);
     else if ((p = hdr((char *)"Date",msg))) 
-	tmsg->date = parsedate(p, NULL);
+	tmsg->date = parsedate(p, NULL) - (gmt_offset((time_t)0) * 60);
     else 
 	tmsg->date = time((time_t *)NULL);
 
