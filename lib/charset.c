@@ -107,10 +107,8 @@ int find_ftn_charset(char *ftnkludge)
     int         j;
     char        *ftn, *cmp;
 
-    Syslog('-', "find_ftn_charset(%s)", ftnkludge);
-
-    ftn = calloc(80, sizeof(char));
-    cmp = calloc(80, sizeof(char));
+    ftn = calloc(81, sizeof(char));
+    cmp = calloc(81, sizeof(char));
 
     snprintf(ftn, 80, "%s", ftnkludge);
 
@@ -126,7 +124,6 @@ int find_ftn_charset(char *ftnkludge)
     }
 
     if (charalias[i].alias != NULL) {
-	Syslog('-', "found alias %s", charalias[i].ftnkludge);
 	snprintf(ftn, 80, "%s", charalias[i].ftnkludge);
     }
 
@@ -150,11 +147,11 @@ int find_ftn_charset(char *ftnkludge)
     free(cmp);
 
     if (charmap[i].ftnkludge == NULL) {
-	WriteError("find_ftn_charset(%s) not found", ftnkludge);
+	Syslog('m', "find_ftn_charset(%s) not found", ftnkludge);
 	return FTNC_ERROR;
     }
 
-    Syslog('-', "find_ftn_charset(%s) result %d", ftnkludge, i);
+    Syslog('m', "find_ftn_charset(%s) result %s", ftnkludge, charmap[i].ftnkludge);
     return i;
 }
 
@@ -167,19 +164,17 @@ int find_rfc_charset(char *rfcname)
 {
     static int  i;
     
-    Syslog('-', "find_rfc_charset(%s)", rfcname);
-    
     for (i = 0; charmap[i].rfcname; i++) {
 	if (strcasecmp(rfcname, charmap[i].rfcname) == 0)
 	    break;
     }
     
     if (charmap[i].rfcname == NULL) {
-	Syslog('!', "find_rfc_charset(%s) not found", rfcname);
+	Syslog('m', "find_rfc_charset(%s) not found", rfcname);
 	return FTNC_ERROR;
     }
     
-    Syslog('-', "find_rfc_charset(%s) result %d", rfcname, i);
+    Syslog('m', "find_rfc_charset(%s) result %s", rfcname, charmap[i].rfcname);
     return i;
 }
 
@@ -187,10 +182,10 @@ int find_rfc_charset(char *rfcname)
 
 char *getftnchrs(int val)
 {
-    static char	kludge[20];
+    static char	kludge[21];
 
     if ((val >= FTNC_NONE) && (val <= FTNC_MAXCHARS)) {
-	Syslog('-', "getftnchrs(%d) %s", val, charmap[val].ftnkludge);
+	Syslog('m', "getftnchrs(%d) %s", val, charmap[val].ftnkludge);
 	snprintf(kludge, 20, "%s", charmap[val].ftnkludge);
 	return kludge;
     }
@@ -202,10 +197,10 @@ char *getftnchrs(int val)
 
 char *getrfcchrs(int val)
 {
-    static char	rfcname[20];
+    static char	rfcname[21];
 
     if ((val >= FTNC_NONE) && (val <= FTNC_MAXCHARS)) {
-	Syslog('-', "getrfcchrs(%d) %s", val, charmap[val].rfcname);
+	Syslog('m', "getrfcchrs(%d) %s", val, charmap[val].rfcname);
 	snprintf(rfcname, 20, "%s", charmap[val].rfcname);
 	return rfcname;
     }
@@ -217,10 +212,10 @@ char *getrfcchrs(int val)
 
 char *get_ic_ftn(int val)
 {
-    static char ic_ftnname[20];
+    static char ic_ftnname[21];
     
     if ((val >= FTNC_NONE) && (val <= FTNC_MAXCHARS)) {
-	Syslog('-', "get_ic_ftn(%d) %s", val, charmap[val].ic_ftn);
+	Syslog('m', "get_ic_ftn(%d) %s", val, charmap[val].ic_ftn);
 	snprintf(ic_ftnname, 20, "%s", charmap[val].ic_ftn);
 	return ic_ftnname;
     }
@@ -232,9 +227,9 @@ char *get_ic_ftn(int val)
 
 char *get_ic_rfc(int val)
 {
-    static char ic_rfcname[20];
+    static char ic_rfcname[21];
  
-    snprintf(ic_rfcname, 19, getrfcchrs(val));
+    snprintf(ic_rfcname, 20, getrfcchrs(val));
     tu(ic_rfcname);
     return ic_rfcname;
 }
@@ -254,7 +249,7 @@ char *get_ic_rfc(int val)
 char *getlocale(int val)
 {
     int		i;
-    static char	langc[20];
+    static char	langc[21];
 
     for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
 	if (val == charmap[i].ftncidx) {
@@ -271,7 +266,7 @@ char *getlocale(int val)
 char *getchrsdesc(int val)
 {
     int		i;
-    static char	desc[60];
+    static char	desc[61];
 
     for (i = 0; (charmap[i].ftncidx != FTNC_ERROR); i++) {
 	if (val == charmap[i].ftncidx) {
@@ -405,10 +400,6 @@ char *chartran(char *input)
 	    WriteError("$iconv(%s) cd1", printable(input, 0));
 	    strncpy(outbuf, input, sizeof(outbuf) -1);
 	}
-//	if (strcmp(input, outbuf)) {
-//	    Syslog(loglevel, "i %s", printable(input, 0));
-//	    Syslog(loglevel, "u %s", printable(outbuf, 0));
-//	}
 	return outbuf;
     }
 
@@ -425,10 +416,6 @@ char *chartran(char *input)
 	    WriteError("$iconv(%s) cd2", printable(input, 0));
 	    strncpy(outbuf, input, sizeof(outbuf) -1);
 	}
-//	if (strcmp(input, outbuf)) {
-//	    Syslog(loglevel, "u %s", printable(input, 0));
-//	    Syslog(loglevel, "o %s", printable(outbuf, 0));
-//	}
 	return outbuf;
     }
 
@@ -445,9 +432,6 @@ char *chartran(char *input)
 	strncpy(outbuf, input, sizeof(outbuf) -1);
 	return outbuf;
     }
-//    if (strcmp(input, temp)) {
-//	Syslog(loglevel, "i %s", printable(input, 0));
-//    }
 
     inSize = strlen(temp);
     outSize = sizeof(outbuf);
@@ -458,12 +442,6 @@ char *chartran(char *input)
 	WriteError("$iconv(%s) cd2", printable(temp, 0));
 	strncpy(outbuf, input, sizeof(outbuf) -1);
     }
-//    if (strcmp(input, temp) || strcmp(temp, outbuf)) {
-//	Syslog(loglevel, "u %s", printable(temp, 0));
-//    }
-//    if (strcmp(temp, outbuf)) {
-//	Syslog(loglevel, "o %s", printable(outbuf, 0));
-//    }
 
     return outbuf;
 
