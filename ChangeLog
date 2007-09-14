@@ -13,6 +13,10 @@ v0.91.11	02-Sep-2007
 	mbfido:
 		Fixed date conversion in netmail-email gate.
 
+	mbtask:
+		Added some debug logging to investigate a problem with
+		outbound scanning.
+
 
 v0.91.10	21-Aug-2007 - 02-Sep-2007
 

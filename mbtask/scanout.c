@@ -86,6 +86,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 
 	    if ((strcasecmp(de->d_name+9,"pnt") == 0) && !ispoint) {
 		sscanf(de->d_name,"%04x%04x",&addr.net,&addr.node);
+		Syslog('m', "sscanf 1 \"%s\" \"%s\" => %d %d", dname, de->d_name, addr.net, addr.node);
 		if ((rc = scan_dir(fn, fname, 1)))
 		    goto exout;
 	    } else if ((strcasecmp(de->d_name+8,".out") == 0) ||
@@ -104,10 +105,13 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		       (strcasecmp(de->d_name+8,".dlo") == 0) ||
 		       (strcasecmp(de->d_name+8,".req") == 0) ||
 		       (strcasecmp(de->d_name+8,".pol") == 0)) {
-		if (ispoint)
+		if (ispoint) {
 		    sscanf(de->d_name,"%08x", &addr.point);
-		else
+		    Syslog('m', "sscanf 3 \"%s\" \"%s\" => %d %d %d", dname, de->d_name, addr.net, addr.node, addr.point);
+		} else {
 		    sscanf(de->d_name,"%04x%04x", &addr.net,&addr.node);
+		    Syslog('m', "sscanf 2 \"%s\" \"%s\" => %d %d", dname, de->d_name, addr.net, addr.node);
+		}
 		flavor = tolower(de->d_name[9]);
 		if (flavor == 'f') 
 		    flavor='o';
