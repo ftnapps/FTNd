@@ -522,6 +522,7 @@ int outstat()
 		    T_window = TRUE;
 	    }
 	}
+	memset(&flstr, 0, sizeof(flstr));
 	strncpy(flstr, "...... .... ..", 14);
 
 	/*
