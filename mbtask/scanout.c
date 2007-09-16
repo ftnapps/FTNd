@@ -59,6 +59,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
     struct dirent   *de;
     int		    rc = 0, isflo, fage;
     time_t	    t_start;
+    unsigned short  t_net, t_node, t_point;
 
     t_start = time(NULL);
     fname = calloc(PATH_MAX, sizeof(char));
@@ -85,7 +86,9 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 	    strncat(fname,de->d_name,PATH_MAX-strlen(fname)-2);
 
 	    if ((strcasecmp(de->d_name+9,"pnt") == 0) && !ispoint) {
-		sscanf(de->d_name,"%04x%04x",&addr.net,&addr.node);
+		sscanf(de->d_name,"%04hx%04hx",&t_net,&t_node);
+		addr.net = t_net;
+		addr.node = t_node;
 		Syslog('m', "sscanf 1 \"%s\" \"%s\" => %d %d", dname, de->d_name, addr.net, addr.node);
 		if ((rc = scan_dir(fn, fname, 1)))
 		    goto exout;
@@ -106,10 +109,13 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		       (strcasecmp(de->d_name+8,".req") == 0) ||
 		       (strcasecmp(de->d_name+8,".pol") == 0)) {
 		if (ispoint) {
-		    sscanf(de->d_name,"%08x", &addr.point);
+		    sscanf(de->d_name,"%08hx", &t_point);
+		    addr.point = t_point;
 		    Syslog('m', "sscanf 3 \"%s\" \"%s\" => %d %d %d", dname, de->d_name, addr.net, addr.node, addr.point);
 		} else {
-		    sscanf(de->d_name,"%04x%04x", &addr.net,&addr.node);
+		    sscanf(de->d_name,"%04hx%04hx", &t_net,&t_node);
+		    addr.net = t_net;
+		    addr.node = t_node;
 		    Syslog('m', "sscanf 2 \"%s\" \"%s\" => %d %d", dname, de->d_name, addr.net, addr.node);
 		}
 		flavor = tolower(de->d_name[9]);

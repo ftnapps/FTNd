@@ -16,6 +16,7 @@ v0.91.11	02-Sep-2007
 	mbtask:
 		Added some debug logging to investigate a problem with
 		outbound scanning.
+		Inserted some extra code to test..
 
 
 v0.91.10	21-Aug-2007 - 02-Sep-2007
