@@ -1,7 +1,10 @@
 $Id$
 
 
-v0.91.11	02-Sep-2007
+v0.91.12	24-Sep-2007
+
+
+v0.91.11	02-Sep-2007 - 24-Sep-2007
 
 	libmbse:
 		Removed some logging and code cleanup in the chartran code.
