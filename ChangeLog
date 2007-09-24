@@ -10,13 +10,14 @@ v0.91.11	02-Sep-2007
 		Added missing record counter when searching GoldED wrong LR
 		pointers and forgot to write fixed LR records.
 
+	mbcico:
+		Fixed outbound scanning on ARM systems.
+
 	mbfido:
 		Fixed date conversion in netmail-email gate.
 
 	mbtask:
-		Added some debug logging to investigate a problem with
-		outbound scanning.
-		Inserted some extra code to test..
+		Fixed outbound scanning on ARM systems.
 		Fixed a variable formatting.
 
 

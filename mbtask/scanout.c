@@ -4,7 +4,7 @@
  * Purpose ...............: Outbound scanning
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -89,7 +89,6 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		sscanf(de->d_name,"%04hx%04hx",&t_net,&t_node);
 		addr.net = t_net;
 		addr.node = t_node;
-		Syslog('m', "sscanf 1 \"%s\" \"%s\" => %d %d", dname, de->d_name, addr.net, addr.node);
 		if ((rc = scan_dir(fn, fname, 1)))
 		    goto exout;
 	    } else if ((strcasecmp(de->d_name+8,".out") == 0) ||
@@ -111,12 +110,10 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		if (ispoint) {
 		    sscanf(de->d_name,"%08hx", &t_point);
 		    addr.point = t_point;
-		    Syslog('m', "sscanf 3 \"%s\" \"%s\" => %d %d %d", dname, de->d_name, addr.net, addr.node, addr.point);
 		} else {
 		    sscanf(de->d_name,"%04hx%04hx", &t_net,&t_node);
 		    addr.net = t_net;
 		    addr.node = t_node;
-		    Syslog('m', "sscanf 2 \"%s\" \"%s\" => %d %d", dname, de->d_name, addr.net, addr.node);
 		}
 		flavor = tolower(de->d_name[9]);
 		if (flavor == 'f') 

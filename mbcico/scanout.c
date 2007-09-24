@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -55,6 +55,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
     DIR		    *dp = NULL;
     struct dirent   *de;
     int		    rc = 0, isflo, fage;
+    unsigned short  t_net, t_node, t_point;
 
     Syslog('o' ,"scan_dir \"%s\" (%s)",MBSE_SS(dname),ispoint?"point":"node");
 
@@ -80,9 +81,11 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 	strncat(fname,de->d_name,PATH_MAX-strlen(fname)-2);
 
 	if ((strcasecmp(de->d_name+9,"pnt") == 0) && !ispoint) {
-			sscanf(de->d_name,"%04x%04x",&addr.net,&addr.node);
-			if ((rc = scan_dir(fn, fname, 1)))
-				goto exout;
+	    sscanf(de->d_name,"%04x%04x",&t_net,&t_node);
+	    addr.net = t_net;
+	    addr.node = t_node;
+	    if ((rc = scan_dir(fn, fname, 1)))
+		goto exout;
 	} else if ((strcasecmp(de->d_name+8,".out") == 0) ||
 		   (strcasecmp(de->d_name+8,".cut") == 0) ||
 		   (strcasecmp(de->d_name+8,".hut") == 0) ||
@@ -99,10 +102,14 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		   (strcasecmp(de->d_name+8,".dlo") == 0) ||
 		   (strcasecmp(de->d_name+8,".req") == 0) ||
 		   (strcasecmp(de->d_name+8,".pol") == 0)) {
-	    if (ispoint)
-		sscanf(de->d_name,"%08x", &addr.point);
-	    else
-		sscanf(de->d_name,"%04x%04x", &addr.net,&addr.node);
+	    if (ispoint) {
+		sscanf(de->d_name,"%08x", &t_point);
+		addr.point = t_point;
+	    } else {
+		sscanf(de->d_name,"%04x%04x", &t_net,&t_node);
+		addr.net = t_net;
+		addr.node = t_node;
+	    }
 	    flavor = tolower(de->d_name[9]);
 	    if (flavor == 'f') 
 		flavor = 'o';
