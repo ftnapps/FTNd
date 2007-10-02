@@ -70,6 +70,8 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
+	N: Investigate a method to scan and filter messages using the gateway.
+
 	W: Add macro's for stats of all months.
 
 	W: Implement file requests for directory nodes.
@@ -110,6 +112,8 @@ mbnntp:
 	   the wrong messages because they cache the message id's.
 
 	N: Lastread pointers are not updated.
+
+	N: Investigate a method to scan and filter messages using the gateway.
 
 mbaff:
 	W: Rewrite filefind search algorithm.
