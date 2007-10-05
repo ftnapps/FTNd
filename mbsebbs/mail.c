@@ -133,8 +133,18 @@ int Post_Allowed(void);
 int Post_Allowed(void)
 {
     if (msgs.MsgKinds == RONLY) {
-	/* Message area is Readonly */
+	Enter(2);
+	/* Posting not allowed, this area is Read Only! */
 	pout(LIGHTRED, BLACK, (char *) Language(437));
+	Enter(1);
+	sleep(3);
+	return FALSE;
+    }
+    if (Access(exitinfo.Security, msgs.WRSec) == FALSE) {
+	Enter(2);
+	/* No Write access to area */
+	pout(LIGHTRED, BLACK, (char *) Language(453));
+	Enter(1);
 	sleep(3);
 	return FALSE;
     }

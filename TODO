@@ -34,8 +34,6 @@ everything:
 	   limitations. A php API should be added too.
 
 mbsebbs:
-	U: Users can post messages while there level is too low.
-
 	W: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
