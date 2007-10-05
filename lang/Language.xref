@@ -451,7 +451,7 @@
 450	offline.c			|Processing BlueWave reply packet
 451	offline.c			|ERROR in packet
 452	offline.c			|Import messages
-453	offline.c			|No Write access to area
+453	offline.c mail.c		|No Write access to area
 454	offline.c			|Messages imported
 455	offline.c			|Processing Offline Configuration
 456	offline.c			|Message areas selected
