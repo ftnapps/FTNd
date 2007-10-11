@@ -695,6 +695,33 @@ void JAM_Pack(void)
 		if (jamHdr.Attribute & MSG_DELETED) {
 		    if (jamHdr.SubfieldLen > 0L)
 			lseek (fdHdr, jamHdr.SubfieldLen, SEEK_CUR);
+                    lseek(fdJlr, 0, SEEK_SET);
+		    for (i = 0; i < count; i++) {
+			if ((read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))) {
+			    /*
+			     * Test if one of the lastread pointer is the current
+			     * old message number and is different then the new number.
+			     */
+			    if (((LR.LastReadMsg == jamHdr.MsgNum) || (LR.HighReadMsg == jamHdr.MsgNum)) &&
+				    (jamHdr.MsgNum != NewNumber)) {
+				/*
+				 * Adjust the matching numbers
+				 */
+				if (LR.LastReadMsg == jamHdr.MsgNum) {
+				    Syslog('m', "JAM_Pack (deleted) %s recno %d user %d LastRead %u -> %u",
+					    BaseName, i, LR.UserID, jamHdr.MsgNum, NewNumber);
+				    LR.LastReadMsg = NewNumber;
+				}
+				if (LR.HighReadMsg == jamHdr.MsgNum) {
+				    Syslog('m', "JAM_Pack (deleted) %s recno %d user %d HighRead %u -> %u",
+					    BaseName, i, LR.UserID, jamHdr.MsgNum, NewNumber);
+				    LR.HighReadMsg = NewNumber;
+				}
+				lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
+				write(fdJlr, &LR, sizeof(lastread));
+			    }
+			}
+		    }
 		} else {
 		    jamIdx.UserCRC = 0;
 		    jamIdx.HdrOffset = tell(fdnHdr);
@@ -718,12 +745,12 @@ void JAM_Pack(void)
 				 * Adjust the matching numbers
 				 */
 				if (LR.LastReadMsg == jamHdr.MsgNum) {
-				    Syslog('m', "JAM_Pack %s recno %d user %d LastRead %u -> %u", 
+				    Syslog('m', "JAM_Pack (active) %s recno %d user %d LastRead %u -> %u", 
 					    BaseName, i, LR.UserID, jamHdr.MsgNum, NewNumber);
 				    LR.LastReadMsg = NewNumber;
 				}
 				if (LR.HighReadMsg == jamHdr.MsgNum) {
-				    Syslog('m', "JAM_Pack %s recno %d user %d HighRead %u -> %u", 
+				    Syslog('m', "JAM_Pack (active) %s recno %d user %d HighRead %u -> %u", 
 					    BaseName, i, LR.UserID, jamHdr.MsgNum, NewNumber);
 				    LR.HighReadMsg = NewNumber;
 				}
@@ -800,7 +827,7 @@ void JAM_Pack(void)
 		    if ((LR.UserID == LR.UserCRC) && LR.UserCRC) {
 			/*
 			 * GoldED bug, try to fix it. This might leave double records, we
-			 * will deal with that later. TODO: write that code!
+			 * will deal with that later.
 			 */
 			fseek(usrF, usrhdr.hdrsize, SEEK_SET);
 			myrec = 0;

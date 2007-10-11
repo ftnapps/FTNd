@@ -3,6 +3,9 @@ $Id$
 
 v0.91.12	24-Sep-2007
 
+	libmsgbase:
+		Adjust lastread pointers too if they point to a deleted msg.
+
 	mbsebbs:
 		Added missing check to see if a user is allowed to post or
 		reply a message.
