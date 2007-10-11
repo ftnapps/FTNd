@@ -47,9 +47,6 @@ mbsebbs:
 
 	N: OLR: qwk, check netmail entered from reader, fido address missing?
 
-	N: Email written at the bbs is two hours ahead in time. Not if written
-	   using the bbs and sent via smtp. More info is needed.
-
 	W: Implement kermit protocol, external versions don't work right.
 
 
