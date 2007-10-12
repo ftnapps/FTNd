@@ -1,7 +1,9 @@
 $Id$
 
 
-v0.91.12	24-Sep-2007
+v0.91.13	12-Oct-2007
+
+v0.91.12	24-Sep-2007 - 12-Oct-2007
 
 	libmsgbase:
 		Adjust lastread pointers too if they point to a deleted msg.
