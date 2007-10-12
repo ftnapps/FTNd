@@ -364,6 +364,8 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
 	    if (TIC.TicIn.TotLDesc < 25) {
 		strncpy(TIC.TicIn.LDesc[TIC.TicIn.TotLDesc], Temp+6, 80);
 		TIC.TicIn.TotLDesc++;
+	    } else {
+		Syslog('f', "Too many LDesc lines in TIC file");
 	    }
 	    
 	} else if (strncasecmp(Temp, "destination ", 12) == 0) {
@@ -411,8 +413,9 @@ int LoadTic(char *inb, char *tfn, orphans **opl)
     }
     if (TIC.TicIn.TotLDesc) {
 	T_File.TotLdesc = TIC.TicIn.TotLDesc;
-	for (i = 0; i <= TIC.TicIn.TotLDesc; i++)
+	for (i = 0; i < TIC.TicIn.TotLDesc; i++) {
 	    strncpy(T_File.LDesc[i], TIC.TicIn.LDesc[i], 48);
+	}
     }
 
     /*

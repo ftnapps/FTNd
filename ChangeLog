@@ -10,6 +10,9 @@ v0.91.12	24-Sep-2007
 		Added missing check to see if a user is allowed to post or
 		reply a message.
 
+	mbfido:
+		Fixed buffer overwrite caused by bad formatted ticfiles.
+
 
 v0.91.11	02-Sep-2007 - 24-Sep-2007
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Process 1 .tic file
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -560,17 +560,8 @@ int ProcessTic(fa_list **sbl, orphans **opl)
      * Now check if other (older) ticfiles point to this file,
      * if found mark it to purge later.
      */
-//  First = TRUE;
     for (topl = *opl; topl; topl = topl->next) {
-//	if (First) {
-//	    Syslog('f', "TIC file     TIC area             Filename     ORP CRC DEL");
-//	    Syslog('f', "------------ -------------------- ------------ --- --- ---");
-//	    First = FALSE;
-//	}
-//	Syslog('f', "%-12s %-20s %-12s %s %s %s", topl->TicName, topl->Area, topl->FileName,
-//		topl->Orphaned ? "Yes" : "No ", topl->BadCRC ? "Yes" : "No ", topl->Purged ? "Yes":"No ");
 	if ((strcmp(topl->Area, TIC.TicIn.Area) == 0) && (strcmp(topl->FileName, TIC.TicIn.File) == 0)) {
-//	    Syslog('f', "Found matching obsolete tic file %s, mark to purge this one", topl->TicName);
 	    topl->Purged = TRUE;
 	}
     }
@@ -671,7 +662,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	else
 	    Magic_UpDateAlias();
 
-	for (i = 0; i <= TIC.File_Id_Ct; i++)
+	for (i = 0; i < TIC.File_Id_Ct; i++)
 	    strncpy(T_File.LDesc[i], TIC.File_Id[i], 48);
 	T_File.TotLdesc = TIC.File_Id_Ct;
 	T_File.Announce = tic.Announce;
@@ -746,7 +737,9 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 
     
     snprintf(Temp, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicName);
-    unlink(Temp);
+    if (unlink(Temp)) {
+	WriteError("$Can't delete %s", Temp);
+    }
 
     free(Temp);
     tidy_qualify(&qal);
