@@ -14,6 +14,7 @@ v0.91.13	12-Oct-2007
 
 	mbnntp:
 		Added GeoIP support.
+		Removed a lot of debug logging.
 
 	mbsetup:
 		Blocked selection of FTN and Usenet moderated message areas.
