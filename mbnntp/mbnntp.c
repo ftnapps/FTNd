@@ -284,7 +284,8 @@ void send_nntp(const char *format, ...)
     /*
      * Only log responses
      */
-    if (out[4] == ' ') {
+    if (out[3] == ' ') {
+	memset(&p, 0, sizeof(p));
     	strncpy(p, out, 3);
 	if (atoi(p) > 0) {
 	    Syslog('n', "> \"%s\"", printable(out, 0));

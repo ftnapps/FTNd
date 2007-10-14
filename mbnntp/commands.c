@@ -64,10 +64,7 @@ void send_xlat(char *inp)
     char    	temp[1024];
 
     strncpy(temp, chartran(inp), sizeof(temp) -1);
-    
-//    Syslog('n', "> \"%s\"", printable(temp, 0));
     PUTSTR(temp);
-
     PUTSTR((char *)"\r\n");
     FLUSHOUT();
     sentbytes += (strlen(temp) + 2);
@@ -141,8 +138,6 @@ void command_abhs(char *buf)
 	art = atoi(opt);
     }
 
-    Syslog('n', "Article %lu", art);
-    
     if (art == 0L) {
 	send_nntp("420 No current article has been selected");
 	return;
