@@ -82,7 +82,7 @@ int CountVirus(void)
 			    snprintf(virscan.scanner, 65, "%s .", _PATH_FPROT);
 			    virscan.available = TRUE;
 			} else {
-			    snprintf(virscan.scanner, 65, "/usr/local/bin/f-prot .");
+			    snprintf(virscan.scanner, 65, "/usr/local/bin/fpscan .");
 			    virscan.available = FALSE;
 			}
 			snprintf(virscan.options, 65, "-archive -silent");

@@ -14,6 +14,7 @@ v0.91.13	12-Oct-2007
 
 	mbsetup:
 		Blocked selection of FTN and Usenet moderated message areas.
+		Changed the F-PROT scanner name into fpscan.
 
 
 v0.91.12	24-Sep-2007 - 12-Oct-2007
