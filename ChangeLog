@@ -12,6 +12,9 @@ v0.91.13	12-Oct-2007
 	mbnewusr:
 		Added GeoIP support.
 
+	mbsetup:
+		Blocked selection of FTN and Usenet moderated message areas.
+
 
 v0.91.12	24-Sep-2007 - 12-Oct-2007
 

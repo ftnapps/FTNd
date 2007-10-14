@@ -1626,15 +1626,15 @@ int edit_emailmode(int y, int x, int val)
 
 char *getmsgkinds(int val)
 {
-	switch (val) {
-		case BOTH:    return (char *)"Private/Public  ";
-		case PRIVATE: return (char *)"Private only    ";
-		case PUBLIC:  return (char *)"Public only     ";
-		case RONLY:   return (char *)"Read Only       ";
-		case FTNMOD:  return (char *)"FTN moderated   ";
-		case USEMOD:  return (char *)"Usenet moderated";
-		default:      return NULL;
-	}
+    switch (val) {
+	case BOTH:    return (char *)"Private/Public  ";
+	case PRIVATE: return (char *)"Private only    ";
+	case PUBLIC:  return (char *)"Public only     ";
+	case RONLY:   return (char *)"Read Only       ";
+	case FTNMOD:  return (char *)"FTN_mod obsolete";
+	case USEMOD:  return (char *)"USE_mod obsolete";
+	default:      return NULL;
+    }
 }
 
 
@@ -1648,25 +1648,28 @@ void show_msgkinds(int y, int x, int val)
 
 int edit_msgkinds(int y, int x, int val)
 {
-	int ch;
+    int ch;
 
-	showhelp((char *)"Toggle ^Message Kinds^ with spacebar, press <Enter> whene done.");
-	do {
-		set_color(YELLOW, BLUE);
-		show_msgkinds(y, x, val);
-
-		ch = readkey(y, x, YELLOW, BLUE);
-
-		if (ch == ' ') {
-			if (val < USEMOD)
-				val++;
-			else
-				val = BOTH;
-		} 
-	} while (ch != KEY_ENTER && ch != '\012');
-	set_color(WHITE, BLACK);
+    showhelp((char *)"Toggle ^Message Kinds^ with spacebar, press <Enter> whene done.");
+    do {
+	set_color(YELLOW, BLUE);
 	show_msgkinds(y, x, val);
-	return val;
+
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    /*
+	     * Node, defined upto USEMOD, but we only use upto RONLY.
+	     */
+	    if (val < RONLY)
+		val++;
+	    else
+		val = BOTH;
+	} 
+    } while (ch != KEY_ENTER && ch != '\012');
+    set_color(WHITE, BLACK);
+    show_msgkinds(y, x, val);
+    return val;
 }
 
 
