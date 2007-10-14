@@ -102,12 +102,42 @@ int check_free(void)
 #endif
 
 
+#ifdef  HAVE_GEOIP_H
+
+extern void _GeoIP_setup_dbfilename(void);
+
+void geoiplookup(GeoIP* gi, char *hostname, int i) 
+{
+    const char * country_code;
+    const char * country_name;
+    const char * country_continent;
+    int country_id;
+
+    if (GEOIP_COUNTRY_EDITION == i) {
+	country_id = GeoIP_id_by_name(gi, hostname);
+	country_code = GeoIP_country_code[country_id];
+	country_name = GeoIP_country_name[country_id];
+	country_continent = GeoIP_country_continent[country_id];
+	if (country_code == NULL) {
+	    Syslog('+', "%s: IP Address not found\n", GeoIPDBDescription[i]);
+	} else {
+	    Syslog('+', "GeoIP location: %s, %s %s\n", country_name, country_code, country_continent);
+	}
+    }
+}
+#endif
+
+
 
 int main(int argc, char *argv[])
 {
     struct passwd   *pw;
     int		    i, rc; 
     socklen_t	    addrlen = sizeof(struct sockaddr_in);
+#ifdef  HAVE_GEOIP_H
+    char    *hostname;
+    GeoIP   *gi;
+#endif
 
     /*
      * The next trick is to supply a fake environment variable
@@ -164,6 +194,16 @@ int main(int argc, char *argv[])
 	    Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 		    addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
 	    Syslog('+', "Incoming connection from %s", inet_ntoa(peeraddr.sin_addr));
+#ifdef  HAVE_GEOIP_H
+	    hostname = inet_ntoa(peeraddr.sin_addr);
+	    _GeoIP_setup_dbfilename();
+	    if (GeoIP_db_avail(GEOIP_COUNTRY_EDITION)) {
+		if ((gi = GeoIP_open_type(GEOIP_COUNTRY_EDITION, GEOIP_STANDARD)) != NULL) {
+		    geoiplookup(gi, hostname, GEOIP_COUNTRY_EDITION);
+		}
+		GeoIP_delete(gi);
+	    }
+#endif
 #ifdef	USE_NEWSGATE
 	    send_nntp("400 Server closed");
 #else
