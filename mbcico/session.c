@@ -85,37 +85,22 @@ char *typestr(int tp)
 extern void _GeoIP_setup_dbfilename(void);
 
 
-void geoiplookup(GeoIP* gi,char *hostname,int i) 
+void geoiplookup(GeoIP* gi, char *hostname, int i) 
 {
     const char * country_code;
     const char * country_name;
+    const char * country_continent;
     int country_id;
-    GeoIPRecord * gir;
 
     if (GEOIP_COUNTRY_EDITION == i) {
 	country_id = GeoIP_id_by_name(gi, hostname);
 	country_code = GeoIP_country_code[country_id];
 	country_name = GeoIP_country_name[country_id];
+	country_continent = GeoIP_country_continent[country_id];
 	if (country_code == NULL) {
 	    Syslog('+', "%s: IP Address not found\n", GeoIPDBDescription[i]);
 	} else {
-	    Syslog('+', "%s: %s, %s\n", GeoIPDBDescription[i], country_code, country_name);
-	}
-    } else if (GEOIP_CITY_EDITION_REV0 == i) {
-	gir = GeoIP_record_by_name(gi, hostname);
-	if (NULL == gir) {
-	    Syslog('+', "%s: IP Address not found\n", GeoIPDBDescription[i]);
-	} else {
-	    Syslog('+', "%s: %s, %s, %s, %s, %f, %f\n", GeoIPDBDescription[i], gir->country_code, gir->region,
-		    gir->city, gir->postal_code,gir->latitude, gir->longitude);
-	}
-    } else if (GEOIP_CITY_EDITION_REV1 == i) {
-	gir = GeoIP_record_by_name(gi, hostname);
-	if (NULL == gir) {
-	    Syslog('+', "%s: IP Address not found\n", GeoIPDBDescription[i]);
-	} else {
-	    Syslog('+', "%s: %s, %s, %s, %s, %f, %f, %d, %d\n", GeoIPDBDescription[i], gir->country_code, gir->region, gir->city, 
-		    gir->postal_code, gir->latitude, gir->longitude, gir->dma_code, gir->area_code);
+	    Syslog('+', "GeoIP location: %s, %s %s\n", country_name, country_code, country_continent);
 	}
     }
 }
@@ -132,7 +117,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
     pid_t   ipid, opid;
 #ifdef	HAVE_GEOIP_H
     char    *hostname;
-    int	    i;
     GeoIP   *gi;
 #endif
 
@@ -163,18 +147,11 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 #ifdef	HAVE_GEOIP_H
 	hostname = inet_ntoa(peeraddr.sin_addr);
 	_GeoIP_setup_dbfilename();
-	Syslog('-', "Start GeoIP %s", hostname);
-	for (i = 0; i < NUM_DB_TYPES; ++i) {
-	    if (GeoIP_db_avail(i)) {
-		Syslog('-', "Doing %s", GeoIPDBDescription[i]);
-		gi = GeoIP_open_type(i, GEOIP_STANDARD);
-		if (NULL == gi) {
-//		    Syslog('+', "%s not available, skipping", GeoIPDBDescription[i]);
-		} else {
-		    geoiplookup(gi,hostname,i);
-		}
-		GeoIP_delete(gi);
+	if (GeoIP_db_avail(GEOIP_COUNTRY_EDITION)) {
+	    if ((gi = GeoIP_open_type(GEOIP_COUNTRY_EDITION, GEOIP_STANDARD)) != NULL) {
+		geoiplookup(gi, hostname, GEOIP_COUNTRY_EDITION);
 	    }
+	    GeoIP_delete(gi);
 	}
 #endif
 

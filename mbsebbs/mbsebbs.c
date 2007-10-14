@@ -346,7 +346,6 @@ int main(int argc, char **argv)
 	 * Network connection, no tty checking but fill a ttyinfo record.
 	 */
 #ifdef  HAVE_GEOIP_H
-//	hostname = inet_ntoa(peeraddr.sin_addr);
 	hostname = xstrcpy(p);
 	_GeoIP_setup_dbfilename();
 	if (GeoIP_db_avail(GEOIP_COUNTRY_EDITION)) {

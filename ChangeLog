@@ -3,6 +3,16 @@ $Id$
 
 v0.91.13	12-Oct-2007
 
+	mbcico:
+		Added GeoIP support.
+
+	mbsebbs:
+		Added GeoIP support.
+
+	mbnewusr:
+		Added GeoIP support.
+
+
 v0.91.12	24-Sep-2007 - 12-Oct-2007
 
 	libmsgbase:
