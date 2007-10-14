@@ -65,7 +65,7 @@ void send_xlat(char *inp)
 
     strncpy(temp, chartran(inp), sizeof(temp) -1);
     
-    Syslog('n', "> \"%s\"", printable(temp, 0));
+//    Syslog('n', "> \"%s\"", printable(temp, 0));
     PUTSTR(temp);
 
     PUTSTR((char *)"\r\n");

@@ -272,7 +272,7 @@ int get_nntp(char *buf, int max)
 
 void send_nntp(const char *format, ...)
 {
-    char    *out;
+    char    *out, p[4];
     va_list va_ptr;
 
     out = calloc(4096, sizeof(char));
@@ -281,7 +281,16 @@ void send_nntp(const char *format, ...)
     vsnprintf(out, 4096, format, va_ptr);
     va_end(va_ptr);
 
-    Syslog('n', "> \"%s\"", printable(out, 0));
+    /*
+     * Only log responses
+     */
+    if (out[4] == ' ') {
+    	strncpy(p, out, 3);
+	if (atoi(p) > 0) {
+	    Syslog('n', "> \"%s\"", printable(out, 0));
+	}
+    }
+
     PUTSTR(out);
     PUTSTR((char *)"\r\n");
     FLUSHOUT();
