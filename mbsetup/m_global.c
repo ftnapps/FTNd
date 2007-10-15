@@ -690,13 +690,12 @@ void e_ticconf(void)
     mbse_mvprintw(12, 2, "6.  Keep date");
     mbse_mvprintw(13, 2, "7.  Keep netm");
 
-    mbse_mvprintw( 7,42, "8.  Loc resp");
-    mbse_mvprintw( 8,42, "9.  Plus all");
-    mbse_mvprintw( 9,42, "10. Notify");
-    mbse_mvprintw(10,42, "11. Passwd");
-    mbse_mvprintw(11,42, "12. Message");
-    mbse_mvprintw(12,42, "13. Tic on/off");
-    mbse_mvprintw(13,42, "14. Pause");
+    mbse_mvprintw( 7,42, "8.  Plus all");
+    mbse_mvprintw( 8,42, "9.  Notify");
+    mbse_mvprintw( 9,42, "10. Passwd");
+    mbse_mvprintw(10,42, "11. Message");
+    mbse_mvprintw(11,42, "12. Tic on/off");
+    mbse_mvprintw(12,42, "13. Pause");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -709,15 +708,14 @@ void e_ticconf(void)
 	show_bool(12,18, CFG.ct_KeepDate);
 	show_bool(13,18, CFG.ct_KeepMgr);
 
-	show_bool( 7,58, CFG.ct_LocalRep);
-	show_bool( 8,58, CFG.ct_PlusAll);
-	show_bool( 9,58, CFG.ct_Notify);
-	show_bool(10,58, CFG.ct_Passwd);
-	show_bool(11,58, CFG.ct_Message);
-	show_bool(12,58, CFG.ct_TIC);
-	show_bool(13,58, CFG.ct_Pause);  
+	show_bool( 7,58, CFG.ct_PlusAll);
+	show_bool( 8,58, CFG.ct_Notify);
+	show_bool( 9,58, CFG.ct_Passwd);
+	show_bool(10,58, CFG.ct_Message);
+	show_bool(11,58, CFG.ct_TIC);
+	show_bool(12,58, CFG.ct_Pause);  
 
-	switch(select_menu(14)) {
+	switch(select_menu(13)) {
 	    case 0:	return;
 
 	    case 1: E_INT(  7,18,    CFG.tic_days,     "Number of days to ^keep^ files on hold.")
@@ -747,13 +745,12 @@ void e_ticconf(void)
 	    case 5: E_INT( 11,18,    CFG.tic_dupes,    "Enter the maximum number of ^dupes^ in the dupe database.")
 	    case 6: E_BOOL(12,18,    CFG.ct_KeepDate,  "^Keep^ original filedate on import")
 	    case 7: E_BOOL(13,18,    CFG.ct_KeepMgr,   "Keep ^Areamgr^ netmails.")
-	    case 8: E_BOOL( 7,58,    CFG.ct_LocalRep,  "Respond to local ^filesearch^ requests.")
-	    case 9: E_BOOL( 8,58,    CFG.ct_PlusAll,   "Allow ^+%*^ (Plus all) in FileMgr requests.")
-	    case 10:E_BOOL( 9,58,    CFG.ct_Notify,    "Allow turning ^Notify^ messages on or off.")
-	    case 11:E_BOOL(10,58,    CFG.ct_Passwd,    "Allow changing the AreaMgr/FileMgr ^password^.")
-	    case 12:E_BOOL(11,58,    CFG.ct_Message,   "Allow turning FileMgr ^messages^ on or off.")
-	    case 13:E_BOOL(12,58,    CFG.ct_TIC,       "Allow turning ^TIC^ files on or off.")
-	    case 14:E_BOOL(13,58,    CFG.ct_Pause,     "Allow the ^Pause^ FileMgr command.")
+	    case 8: E_BOOL( 7,58,    CFG.ct_PlusAll,   "Allow ^+%*^ (Plus all) in FileMgr requests.")
+	    case 9: E_BOOL( 8,58,    CFG.ct_Notify,    "Allow turning ^Notify^ messages on or off.")
+	    case 10:E_BOOL( 9,58,    CFG.ct_Passwd,    "Allow changing the AreaMgr/FileMgr ^password^.")
+	    case 11:E_BOOL(10,58,    CFG.ct_Message,   "Allow turning FileMgr ^messages^ on or off.")
+	    case 12:E_BOOL(11,58,    CFG.ct_TIC,       "Allow turning ^TIC^ files on or off.")
+	    case 13:E_BOOL(12,58,    CFG.ct_Pause,     "Allow the ^Pause^ FileMgr command.")
 	}
     }
 }
@@ -2068,7 +2065,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webdigit(wp, (char *)"Max dupes in database", CFG.tic_dupes);
     add_webtable(wp, (char *)"Keep filedate", getboolean(CFG.ct_KeepDate));
     add_webtable(wp, (char *)"Keep FileMgr netmail", getboolean(CFG.ct_KeepMgr));
-    add_webtable(wp, (char *)"Local filefind requests", getboolean(CFG.ct_LocalRep));
     add_webtable(wp, (char *)"FileMgr: allow +%%*", getboolean(CFG.ct_PlusAll));
     add_webtable(wp, (char *)"FileMgr: notify", getboolean(CFG.ct_Notify));
     add_webtable(wp, (char *)"FileMgr: passwd", getboolean(CFG.ct_Passwd));
@@ -2087,7 +2083,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "      Max. dupes         %d\n", CFG.tic_dupes);
     fprintf(fp, "      Keep filedate      %s\n", getboolean(CFG.ct_KeepDate));
     fprintf(fp, "      Keep mgr netmail   %s\n", getboolean(CFG.ct_KeepMgr));
-    fprintf(fp, "      Local requests     %s\n", getboolean(CFG.ct_LocalRep));
     fprintf(fp, "      FileMgr: allow +%%* %s\n", getboolean(CFG.ct_PlusAll));
     fprintf(fp, "      FileMgr: notify    %s\n", getboolean(CFG.ct_Notify));
     fprintf(fp, "      FileMgr: passwd    %s\n", getboolean(CFG.ct_Passwd));
