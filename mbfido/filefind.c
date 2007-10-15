@@ -256,15 +256,9 @@ void ScanFiles(ff_list *tmp)
     int		    filepos, filepos1 = 0, filepos2 = 0, filepos3 = 0, filepos4 = 0;
     struct _fdbarea *fdb_area = NULL;
 
-    /*
-     *  Check for local generated requests.
-     */
-    if (!CFG.ct_LocalRep) {
-    }
-
     kwd  = calloc(81, sizeof(char));
     temp = calloc(PATH_MAX, sizeof(char));
-    BigDesc = calloc(1230, sizeof(char));
+    BigDesc = calloc(1231, sizeof(char));
 
     snprintf(temp, PATH_MAX, "%s (%d:%d/%d.%d)", tmp->from, tmp->zone, tmp->net, tmp->node, tmp->point);
     Syslog('+', "ff: %s [%s]", temp, tmp->subject);
@@ -317,7 +311,7 @@ void ScanFiles(ff_list *tmp)
 				    temp[j] = temp[j+i+1];
 				temp[j] = '\0';
 			    } else {
-				snprintf(kwd, 81, "%s", temp);
+				snprintf(kwd, 80, "%s", temp);
 				temp[0] = '\0';
 			    }
 
@@ -331,22 +325,21 @@ void ScanFiles(ff_list *tmp)
 				    kwd[i-1] = kwd[i];
 				kwd[i-1] = '\0';
 			    }
-			    tl(kwd);
 
 			    if (strlen(kwd) > scanmgr.keywordlen) {
-				if (strstr(fdb.Name, kwd) != NULL) {
+				if ((strcasestr(fdb.Name, kwd) != NULL) || (strcasestr(fdb.LName, kwd) != NULL)) {
 				    Found = TRUE;
-				    Syslog('m', "Found %s in %s in filename", kwd, fdb.Name);
+				    Syslog('m', "Found '%s' in %s in filename", kwd, fdb.LName);
 				}
-				if (keywrd && (strstr(tl(BigDesc), kwd) != NULL)) {
+				if (keywrd && (strcasestr(BigDesc, kwd) != NULL)) {
 				    Found = TRUE;
-				    Syslog('m', "Found %s in %s in description", kwd, fdb.Name);
+				    Syslog('m', "Found '%s' in %s in description", kwd, fdb.LName);
 				}
 			    }
 			} /* while (strlen(temp) && (!Found)) */
 			if (Found) {
 			    found++;
-			    Syslog('m', "Found %s area %d", fdb.Name, areanr);
+			    Syslog('m', "Found %s area %d", fdb.LName, areanr);
 			    fill_rflist(&rfl, fdb.Name, areanr);
 			}
 			strcpy(BigDesc, "");
