@@ -1135,7 +1135,7 @@ struct	sysconfig {
 	unsigned	ct_KeepDate	: 1;	/* Keep Filedate	    */
 	unsigned	ct_KeepMgr	: 1;	/* Keep Mgr netmails	    */
 	unsigned	xct_ResFuture	: 1;	/* Reset Future filedates   */
-	unsigned	ct_LocalRep	: 1;	/* Respond to local requests*/
+	unsigned	xct_LocalRep	: 1;	/* Respond to local requests*/
 	unsigned	xct_ReplExt	: 1;	/* Replace Extension	    */
 	unsigned	ct_PlusAll	: 1;	/* Filemgr: allow +%*	    */
 	unsigned	ct_Notify	: 1;	/* Filemgr: Notify on/off   */
