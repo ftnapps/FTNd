@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -127,7 +127,7 @@ void fill_rflist(rf_list **fdp, char *fname, unsigned int larea)
 	 */
 	tmp = (rf_list *)malloc(sizeof(rf_list));
 	tmp->next = NULL;
-	snprintf(tmp->filename, 15, "%s", fname);
+	snprintf(tmp->filename, 80, "%s", fname);
 	tmp->area = larea;
 
 	/*

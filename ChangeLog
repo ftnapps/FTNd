@@ -16,6 +16,10 @@ v0.91.13	12-Oct-2007
 		Added GeoIP support.
 		Removed a lot of debug logging.
 
+	mbaff:
+		Fixed filefind search filenames case insensitive.
+		Fixed filefind search in description.
+
 	mbsetup:
 		Blocked selection of FTN and Usenet moderated message areas.
 		Changed the F-PROT scanner name into fpscan.

@@ -20,7 +20,7 @@ typedef struct _ff_list {		/* Filefind array		   */
 
 typedef struct _rf_list {		/* Reply filenames array	   */
 	struct _rf_list	*next;
-	char		filename[15];	/* Filename found		   */
+	char		filename[81];	/* Filename found		   */
 	unsigned int	area;		/* BBS file area number		   */
 } rf_list;
 

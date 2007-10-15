@@ -258,10 +258,9 @@ void ScanFiles(ff_list *tmp)
 
     kwd  = calloc(81, sizeof(char));
     temp = calloc(PATH_MAX, sizeof(char));
-    BigDesc = calloc(1231, sizeof(char));
 
     snprintf(temp, PATH_MAX, "%s (%d:%d/%d.%d)", tmp->from, tmp->zone, tmp->net, tmp->node, tmp->point);
-    Syslog('+', "ff: %s [%s]", temp, tmp->subject);
+    Syslog('+', "Search [%s] for %s", tmp->subject, temp);
 
     if (!do_quiet) {
 	mbse_colour(CYAN, BLACK);
@@ -291,8 +290,9 @@ void ScanFiles(ff_list *tmp)
 	    if (area.Available && area.FileFind) {
 		if ((fdb_area = mbsedb_OpenFDB(areanr, 30))) {
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+			BigDesc = xstrcpy((char *)"");
 			for (i = 0; i < 25; i++)
-			    snprintf(BigDesc, 1230, "%s%s", BigDesc, *(fdb.Desc + i));
+			    BigDesc = xstrcat(BigDesc, fdb.Desc[i]);
 			snprintf(temp, PATH_MAX, "%s", tmp->subject);
 
 			Found = FALSE;
@@ -329,20 +329,21 @@ void ScanFiles(ff_list *tmp)
 			    if (strlen(kwd) > scanmgr.keywordlen) {
 				if ((strcasestr(fdb.Name, kwd) != NULL) || (strcasestr(fdb.LName, kwd) != NULL)) {
 				    Found = TRUE;
-				    Syslog('m', "Found '%s' in %s in filename", kwd, fdb.LName);
+				    Syslog('m', " Found '%s' in %s in filename", kwd, fdb.LName);
 				}
 				if (keywrd && (strcasestr(BigDesc, kwd) != NULL)) {
 				    Found = TRUE;
-				    Syslog('m', "Found '%s' in %s in description", kwd, fdb.LName);
+				    Syslog('m', " Found '%s' in %s in description", kwd, fdb.LName);
 				}
 			    }
 			} /* while (strlen(temp) && (!Found)) */
 			if (Found) {
 			    found++;
-			    Syslog('m', "Found %s area %d", fdb.LName, areanr);
-			    fill_rflist(&rfl, fdb.Name, areanr);
+			    Syslog('+', " Found %s in area %d", fdb.LName, areanr);
+			    fill_rflist(&rfl, fdb.LName, areanr);
 			}
-			strcpy(BigDesc, "");
+			free(BigDesc);
+			BigDesc = NULL;
 		    }
 		    mbsedb_CloseFDB(fdb_area);
 		} else
@@ -398,9 +399,11 @@ void ScanFiles(ff_list *tmp)
 			areanr = rft->area;
 		    }
 
+		    Syslog('m', "rp: %d %s", rft->area, rft->filename);
+
 		    if ((fdb_area = mbsedb_OpenFDB(rft->area, 30))) {
 			while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1)
-			    if (!strcmp(rft->filename, fdb.Name))
+			    if (!strcmp(rft->filename, fdb.LName))
 				break;
 			mbsedb_CloseFDB(fdb_area);
 			MacroVars("slbkdt", "ssddss", fdb.Name, fdb.LName, fdb.Size, fdb.Size / 1024, " ",
