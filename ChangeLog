@@ -20,6 +20,10 @@ v0.91.13	12-Oct-2007
 		Fixed filefind search filenames case insensitive.
 		Fixed filefind search in description.
 
+	mball:
+		File download checks from http and ftp are now case
+		insensitive.
+
 	mbsetup:
 		Blocked selection of FTN and Usenet moderated message areas.
 		Changed the F-PROT scanner name into fpscan.

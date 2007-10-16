@@ -249,7 +249,8 @@ void count_download(char *filename, time_t filedate, off_t filesize, char *dltyp
 
 		if ((fdb_area = mbsedb_OpenFDB(i, 30))) {
 		    while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-			if (((strcmp(frec.Name, temp) == 0) || (strcmp(frec.LName, temp) == 0)) && (frec.Size == filesize)) {
+			if (((strcasecmp(frec.Name, temp) == 0) || (strcasecmp(frec.LName, temp) == 0)) && 
+				(frec.Size == filesize)) {
 			    Syslog('+', "%s download %s from area %d", dltype, temp, i);
 			    frec.LastDL = filedate;
 			    frec.TimesDL++;
