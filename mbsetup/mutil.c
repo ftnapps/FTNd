@@ -4,7 +4,7 @@
  * Purpose ...............: Menu Utils
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -226,7 +226,7 @@ void add_webdigit(FILE *fp, char *hstr, int digit)
     char    left[1024];
 
     html_massage(hstr, left, 1023);
-    fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%d</TD></TR>\n", left, digit);
+    fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%u</TD></TR>\n", left, digit);
 }
 
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2007
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -220,7 +220,7 @@ char *mkemsidat(int caller)
     p=xstrcat(p,phone?emsiencode(phone):(char *)"-Unpublished-");
     p=xstrcat(p,(char *)"][");
     if ((CFG.IP_Speed) && (emsi_local_protos & PROT_TCP))
-	snprintf(cbuf,16,"%d",CFG.IP_Speed);
+	snprintf(cbuf,16,"%u",CFG.IP_Speed);
     else 
 	strcpy(cbuf,"9600");
     p=xstrcat(p,cbuf);

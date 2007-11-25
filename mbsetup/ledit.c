@@ -1070,6 +1070,36 @@ int edit_int(int y, int x, int val, char *help)
 
 
 
+void show_uint(int y, int x, unsigned int val)
+{
+    mbse_mvprintw(y, x, (char *)"          ");
+    mbse_mvprintw(y, x, (char *)"%u", val);
+}
+
+
+
+unsigned int edit_uint(int y, int x, unsigned int val, char *help)
+{
+    static char s[11], line[11];
+
+    while (TRUE) {
+    	showhelp(help);
+    	memset((char *)s, 0, sizeof(s));
+    	snprintf(line, 11, "%u", val);
+    	strcpy(s, edit_field(y, x, 10, '9', line));
+    	set_color(WHITE, BLACK);
+   	show_uint(y, x, atoi(s));
+    	fflush(stdout);
+        if ((atoll(s) >= 0) && (atoll(s) <= 4294967295U))
+	    break;
+	errmsg("Value must be between 0 and 4294967295");
+    }
+
+    return atoll(s);
+}
+
+
+
 int edit_int_range(int y, int x, int val, int min, int max, char *help)
 {
     static char s[7], line[7];

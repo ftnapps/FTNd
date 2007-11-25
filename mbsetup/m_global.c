@@ -1335,7 +1335,7 @@ void e_mailer(void)
 	show_logl( 7,23,   CFG.cico_loglevel);
 	show_str(  8,23,20,CFG.IP_Phone);
 	show_str(  9,23,30,CFG.IP_Flags);
-	show_int( 10,23,   CFG.IP_Speed);
+	show_uint(10,23,   CFG.IP_Speed);
 	show_int( 11,23,   CFG.timeoutreset);
 	show_int( 12,23,   CFG.timeoutconnect);
 	show_int( 13,23,   CFG.dialdelay);
@@ -1358,7 +1358,7 @@ void e_mailer(void)
 	    case 1: E_LOGL(CFG.cico_loglevel, "1.14.1", s_mailer)
 	    case 2: E_STR(  8,23,20,CFG.IP_Phone,       "The mailer ^TCP/IP \"phone\" number^ for this system, empty is no TCP/IP")
 	    case 3: E_STR(  9,23,30,CFG.IP_Flags,       "The mailer ^TCP/IP capability flags^ for this system")
-	    case 4: E_INT( 10,23,   CFG.IP_Speed,       "The mailer ^TCP/IP linespeed^ for this system")
+	    case 4: E_UINT(10,23,   CFG.IP_Speed,       "The mailer ^TCP/IP linespeed^ for this system")
 	    case 5: E_INT( 11,23,   CFG.timeoutreset,   "The modem ^reset timeout^ in seconds")
 	    case 6: E_INT( 12,23,   CFG.timeoutconnect, "The modem ^wait for connect timeout^ in seconds")
 	    case 7: E_INT( 13,23,   CFG.dialdelay,      "The ^random dialdelay^ in seconds ((^n^ <= delay) and (^n^ > (delay / 10)))")

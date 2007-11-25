@@ -3,6 +3,14 @@ $Id$
 
 v0.95.0		25-Nov-2007
 
+	mbcico:
+		The maximum speed to show to the other end is now 4294976295.
+
+	mbsetup:
+		Changed the maximum linespeed to display for TCP/IP sessions to
+		4294976295. Numbers above 2147483647 might display on remote
+		systems as negative numbers.
+
 
 v0.92.0		08-Oct-2006 - 16-Oct-2007
 
