@@ -75,6 +75,9 @@ if [ "$OSTYPE" = "Linux" ]; then
 	else
 	    DISTVERS=$( cat /etc/slackware-version )
 	fi
+    elif [ -f /etc/zenwalk-version ]; then
+	DISTNAME="Zenwalk"
+	DISTVERS="Unknown"
     elif [ -f /etc/debian_version ]; then
 	# Debian, at least since version 2.2
 	DISTNAME="Debian"

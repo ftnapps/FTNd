@@ -52,54 +52,47 @@ if [ "$OSTYPE" = "Linux" ]; then
     	# Slackware 7.0 and later
     	DISTNAME="Slackware"
     	DISTVERS=`cat /etc/slackware-version`
-    else
-    	if [ -f /etc/debian_version ]; then
-	    # Debian, at least since version 2.2
-	    DISTNAME="Debian"
-	    DISTVERS=`cat /etc/debian_version`
-    	else
-	    if [ -f /etc/SuSE-release ]; then
-	    	DISTNAME="SuSE"
-	    	DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
+    elif [ -f /etc/zenwalk-version ]; then
+	DISTNAME="Zenwalk"
+	DISTVERS=`cat /etc/zenwalk-version`
+    elif [ -f /etc/debian_version ]; then
+	# Debian, at least since version 2.2
+	DISTNAME="Debian"
+	DISTVERS=`cat /etc/debian_version`
+    elif [ -f /etc/SuSE-release ]; then
+	DISTNAME="SuSE"
+	DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
+    elif [ -f /etc/mandrake-release ]; then
+	# Mandrake test before RedHat, Mandrake has a redhat-release
+	# file also which is a symbolic link to mandrake-release.
+	DISTNAME="Mandrake"
+	# Format: Linux Mandrake release 8.0 (Cooker) for i586
+	DISTVERS="`cat /etc/mandrake-release | awk '{ print $4 }'`"
+    elif [ -f /etc/redhat-release ]; then
+	DISTNAME="RedHat"
+	if [ -z "`grep e-smith /etc/redhat-release`" ]; then
+	    if [ -z "`grep Fedora /etc/redhat-release`" ]; then
+		DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
 	    else
-		# Mandrake test before RedHat, Mandrake has a redhat-release
-		# file also which is a symbolic link to mandrake-release.
-		if [ -f /etc/mandrake-release ]; then
-		    DISTNAME="Mandrake"
-		    # Format: Linux Mandrake release 8.0 (Cooker) for i586
-		    DISTVERS="`cat /etc/mandrake-release | awk '{ print $4 }'`"
-		else
-		    if [ -f /etc/redhat-release ]; then
-			DISTNAME="RedHat"
-			if [ -z "`grep e-smith /etc/redhat-release`" ]; then
-			    if [ -z "`grep Fedora /etc/redhat-release`" ]; then
-				DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
-			    else
-				DISTVERS=`cat /etc/redhat-release | awk '{ print $4 }'`
-				DISTNAME="Fedora Core"
-			    fi
-			else
-			    DISTVERS=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d \)`
-			fi
-		    else
-                        if [ -f /etc/gentoo-release ]; then
-                            DISTNAME="Gentoo"
-                            DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
-                        else
-		    	    DISTNAME="Unknown"
-			    log "!" "unknown distribution, collecting data"
-			    log "-" "`uname -a`"
-			    log "-" "`ls -la /etc`"
-			    echo "Failed to install bootscripts, unknown Linux distribution."
-			    echo "Please mail the file `pwd`/script/installinit.log to mbroek@users.sourceforge.net"
-			    echo "or send it as file attach to Michiel Broek at 2:280/2802@Fidonet."
-			    echo "Add information about the distribution you use in the message."
-			    exit 1;
-			fi
-		    fi
-	    	fi
+		DISTVERS=`cat /etc/redhat-release | awk '{ print $4 }'`
+		DISTNAME="Fedora Core"
 	    fi
-    	fi
+	else
+	    DISTVERS=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d \)`
+	fi
+    elif [ -f /etc/gentoo-release ]; then
+	DISTNAME="Gentoo"
+	DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
+    else
+	DISTNAME="Unknown"
+	log "!" "unknown distribution, collecting data"
+	log "-" "`uname -a`"
+	log "-" "`ls -la /etc`"
+	echo "Failed to install bootscripts, unknown Linux distribution."
+	echo "Please mail the file `pwd`/script/installinit.log to mbroek@users.sourceforge.net"
+	echo "or send it as file attach to Michiel Broek at 2:280/2802@Fidonet."
+	echo "Add information about the distribution you use in the message."
+	exit 1;
     fi
 fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
@@ -147,6 +140,20 @@ if [ "$DISTNAME" = "SuSE" ]; then
     ln -s ../mbsed $DISTDIR/init.d/rc5.d/S99mbsed
     echo "SuSE $DISTVERS SystemV init configured"
     log "+" "SuSE $DISTVERS SystemV init configured"
+fi
+
+
+
+#--------------------------------------------------------------------------
+#
+#  Adding scripts for Zenwalk
+#
+if [ "$DISTNAME" = "Zenwalk" ]; then
+    DISTINIT="/etc/rc.d/rc.zmbsed"
+    echo "Adding Zenwalk init script"
+    log "+" "Addiing Zenwalk init script"
+    cp init.Slackware $DISTINIT
+    chmod 755 $DISTINIT
 fi
 
 
