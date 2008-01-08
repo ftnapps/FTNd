@@ -77,7 +77,7 @@ if [ "$OSTYPE" = "Linux" ]; then
 	fi
     elif [ -f /etc/zenwalk-version ]; then
 	DISTNAME="Zenwalk"
-	DISTVERS="Unknown"
+	DISTVERS=$( cat /etc/zenwalk-version | awk '{ print $2 }' )
     elif [ -f /etc/debian_version ]; then
 	# Debian, at least since version 2.2
 	DISTNAME="Debian"
