@@ -611,7 +611,7 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "MGTI", 4) == 0) {
 	buf = calloc(SS_BUFSIZE, sizeof(char));
-	mib_get_netmail_r(buf);
+	mib_get_email_r(buf);
 	snprintf(obuf, SS_BUFSIZE, "%s", buf);
 	free(buf);
 	return obuf;
