@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Daemon
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -491,18 +491,6 @@ char *exe_cmd(char *in)
     }
 
     /*
-     *  GDST:0;		Obsolete!
-     *  100:n,data1,..,data10;
-     */
-//    if (strncmp(cmd, "GDST", 4) == 0) {
-//        buf = calloc(SS_BUFSIZE, sizeof(char));
-//	disk_getfs_r(buf);
-//	snprintf(obuf, SS_BUFSIZE, "%s", buf);
-//	free(buf);
-//	return obuf;
-//    }
-
-    /*
      *  GSYS:0;
      *  100:7,calls,pots_calls,isdn_calls,network_calls,local_calls,startdate,last_caller;
      *  201:1,16;
@@ -566,6 +554,20 @@ char *exe_cmd(char *in)
     }
 
     /*
+     * MIB Get Mailer Session
+     *
+     * MGMS:0;
+     * 100:12,kbrcvd,kbsent,sessin,sessout,sess_sec,sess_unseq,sess_bad,ftsc,yoohoo,emsi,binkp,freqs;
+     */
+    if (strncmp(cmd, "MGMS", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_mailer_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
+    }
+
+    /*
      * MIB Set Tosser Netmail
      *
      * MSTN:3,in,out,bad;
@@ -573,6 +575,20 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "MSTN", 4) == 0) {
 	mib_set_netmail(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Get Tosser Netmail
+     *
+     * MGTN:0;
+     * 100:3,in,out,bad;
+     */
+    if (strncmp(cmd, "MGTN", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_netmail_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
 	return obuf;
     }
 
@@ -588,6 +604,20 @@ char *exe_cmd(char *in)
     }
 
     /*
+     * MIB Get Tosser Internet-email
+     *
+     * MGTI:0;
+     * 100:3,in,out,bad;
+     */
+    if (strncmp(cmd, "MGTI", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_netmail_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
+    }
+
+    /*
      * MIB Set Tosser Echomail
      *
      * MSTE:4,in,out,bad,dupe;
@@ -595,6 +625,20 @@ char *exe_cmd(char *in)
      */
     if (strncmp(cmd, "MSTE", 4) == 0) {
 	mib_set_echo(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Get Tosser Echomail
+     *
+     * MGTE:0;
+     * 100:4,in,out,bad,dupe;
+     */
+    if (strncmp(cmd, "MGTE", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_echo_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
 	return obuf;
     }
 
@@ -610,6 +654,34 @@ char *exe_cmd(char *in)
     }
 
     /*
+     * MIB Get Tosser RFC-news
+     *
+     * MGTR:0;
+     * 100:4,in,out,bad,dupe;
+     */
+    if (strncmp(cmd, "MGTR", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_news_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
+    }
+
+    /*
+     * MIB Get Tosser Totals
+     *
+     * MGTT:0;
+     * 100:4,in,out,bad,dupe;
+     */
+    if (strncmp(cmd, "MGTT", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_tosser_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
+    }
+
+    /*
      * MIB Set Tosser Files
      *
      * MSFF:6,in,out,bad,dupe,magics,hatched;
@@ -620,6 +692,58 @@ char *exe_cmd(char *in)
 	return obuf;
     }
 
+    /*
+     * MIB Get Tosser Files
+     *
+     * MGFF:0;
+     * 100:6,in,out,bad,dupe,magics,hatched;
+     */
+    if (strncmp(cmd, "MGTT", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_files_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
+    }
+
+    /*
+     * MIB Set BBS
+     *
+     * MSBB:9,sessions,minutes,posted,uploads,kbupload,downloads,kbdownload,chats,chatminutes;
+     * 100:0;
+     */
+    if (strncmp(cmd, "MSBB", 4) == 0) {
+	mib_set_bbs(token);
+	return obuf;
+    }
+
+    /*
+     * MIB Get BBS
+     *
+     * MGBB:0;
+     * 100:9,sessions,minutes,posted,uploads,kbupload,downloads,kbdownload,chats,chatminutes;
+     */
+    if (strncmp(cmd, "MGBB", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_bbs_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
+    }
+	
+    /*
+     * MIB Get Outbound Size
+     *
+     * MGOB:0;
+     * 100:1,size;
+     */
+    if (strncmp(cmd, "MGOB", 4) == 0) {
+	buf = calloc(SS_BUFSIZE, sizeof(char));
+	mib_get_outsize_r(buf);
+	snprintf(obuf, SS_BUFSIZE, "%s", buf);
+	free(buf);
+	return obuf;
+    }
 
     /*
      * The (S)tatus commands.

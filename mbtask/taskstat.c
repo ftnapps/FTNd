@@ -4,7 +4,7 @@
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -558,6 +558,18 @@ void mib_set_mailer(char *data)
 
 
 
+void mib_get_mailer_r(char *buf)
+{
+
+    snprintf(buf, 127, "100:12,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d;",
+	    status.mkbrcvd, status.mkbsent, status.msessin,
+	    status.msessout, status.msesssecure, status.msessunsec, status.msessbad,
+	    status.mftsc, status.myoohoo, status.memsi, status.mbinkp, status.mfreqs);
+    return;
+}
+
+
+
 void mib_set_netmail(char *data)
 {
     unsigned int	in, out, bad;
@@ -582,6 +594,14 @@ void mib_set_netmail(char *data)
 
 
 
+void mib_get_netmail_r(char *buf)
+{
+    snprintf(buf, 127, "100:3,%d,%d,%d;", status.tnetin, status.tnetout, status.tnetbad);
+    return;
+}
+
+
+
 void mib_set_email(char *data)
 {
     unsigned int        in, out, bad;
@@ -599,10 +619,18 @@ void mib_set_email(char *data)
     status.tmsgsbad += bad;
     status.temailbad += bad;
 
-    Syslog('m', "MIB netmail: in=%d out=%d bad=%d in=%d out=%d bad=%d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
+    Syslog('m', "MIB email: in=%d out=%d bad=%d in=%d out=%d bad=%d", status.tmsgsin, status.tmsgsout, status.tmsgsbad,
 	    status.temailin, status.temailout, status.temailbad);
 
     status_write();
+}
+
+
+
+void mib_get_email_r(char *buf)
+{
+    snprintf(buf, 127, "100:3,%d,%d,%d;", status.temailin, status.temailout, status.temailbad);
+    return;
 }
 
 
@@ -637,6 +665,14 @@ void mib_set_news(char *data)
 
 
 
+void mib_get_news_r(char *buf)
+{
+    snprintf(buf, 127, "100:4,%d,%d,%d,%d;", status.tnewsin, status.tnewsout, status.tnewsbad, status.tnewsdupe);
+    return;
+}
+
+
+
 void mib_set_echo(char *data)
 {
     unsigned int        in, out, bad, dupe;
@@ -662,6 +698,22 @@ void mib_set_echo(char *data)
 	    status.techoin, status.techoout, status.techobad, status.techodupe);
 
     status_write();
+}
+
+
+
+void mib_get_echo_r(char *buf)
+{
+    snprintf(buf, 127, "100:4,%d,%d,%d,%d;", status.techoin, status.techoout, status.techobad, status.techodupe);
+    return;
+}
+
+
+
+void mib_get_tosser_r(char *buf)
+{
+    snprintf(buf, 127, "100:4,%d,%d,%d,%d;", status.tmsgsin, status.tmsgsout, status.tmsgsbad, status.tmsgsdupe);
+    return;
 }
 
 
@@ -695,6 +747,15 @@ void mib_set_files(char *data)
 
 
 
+void mib_get_files_r(char *buf)
+{
+    snprintf(buf, 127, "100:6,%d,%d,%d,%d,%d,%d;", status.tfilesin, status.tfilesout, status.tfilesbad, status.tfilesdupe,
+	    status.tfilesmagic, status.tfileshatched);
+    return;
+}
+
+
+
 void mib_set_outsize(unsigned int size)
 {
     status.ooutsize = size;
@@ -702,4 +763,58 @@ void mib_set_outsize(unsigned int size)
 
     status_write();
 }
+
+
+
+void mib_get_outsize_r(char *buf)
+{
+    snprintf(buf, 127, "100:1,%d;", status.ooutsize);
+    return;
+}
+
+
+
+void mib_set_bbs(char *data)
+{
+    unsigned int	sessions, minutes, posted, uploads, kbupload, downloads, kbdownload, chats, chatminutes;
+
+    Syslog('m', "MIB set bbs %s", data);
+    strtok(data, ",");
+    sessions	= atoi(strtok(NULL, ","));
+    minutes	= atoi(strtok(NULL, ","));
+    posted	= atoi(strtok(NULL, ","));
+    uploads	= atoi(strtok(NULL, ","));
+    kbupload	= atoi(strtok(NULL, ","));
+    downloads	= atoi(strtok(NULL, ","));
+    kbdownload	= atoi(strtok(NULL, ","));
+    chats	= atoi(strtok(NULL, ","));
+    chatminutes	= atoi(strtok(NULL, ";"));
+					    
+    status.bsessions += sessions;
+    status.bminutes += minutes;
+    status.bposted += posted;
+    status.buploads += uploads;
+    status.bkbupload += kbupload;
+    status.bdownloads += downloads;
+    status.bkbdownload += kbdownload;
+    status.bchats += chats;
+    status.bchatminutes += chatminutes;
+								    
+    Syslog('m', "MIB bbs: sess=%d mins=%d posted=%d upls=%d kbup=%d downs=%d kbdown=%d chat=%d chatmins=%d",
+	    status.bsessions, status.bminutes, status.bposted, status.buploads, status.bkbupload,
+	    status.bdownloads, status.bkbdownload, status.bchats, status.bchatminutes);
+
+    status_write();
+}
+
+
+
+void mib_get_bbs_r(char *buf)
+{
+    snprintf(buf, 127, "100:9,%d,%d,%d,%d,%d,%d,%d,%d,%d;", 
+	    status.bsessions, status.bminutes, status.bposted, status.buploads, status.bkbupload,
+	    status.bdownloads, status.bkbdownload, status.bchats, status.bchatminutes);
+    return;
+}
+
 

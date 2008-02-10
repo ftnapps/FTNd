@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 17-Oct-2005</h5></div>
+<div align="right"><h5>Last update 10-Feb-2008</h5></div>
 <div align="center"><H1>mbtask - MBSE BBS Taskmanager</H1></div>
 
 <H3>Sysopsis.</H3>
@@ -173,7 +173,7 @@ this condition. Replies can also contain optional data. Examples:<br>
 </pre>
 Because data fields in commands and replies are separated and terminated by
 , and ; characters these characters need to be escaped. Also characters outside
-the us-ascii range must be escaped. This is done by ttranslating the character
+the us-ascii range must be escaped. This is done by translating the character
 to a backslash followed by the hexadecimal number of the character.
 The server has a 10 minute timeout for receiving data when a connection
 is established. The clients need to "ping" the server at regular intervals
@@ -192,6 +192,7 @@ Axxx    Accounting, system monitor info etc.
 Cxxx    Chatting
 Dxxx    Disk watch
 Gxxx    Global commands.
+Mxxx    MIB commands.
 Sxxx    Status commands.
 
 
@@ -320,9 +321,6 @@ Command: GMON:1,n;                      Get registration info line, 1=First, 0=N
 Reply:   100:7,pid,tty,user,program,city,isdoing,starttime;
          100:0;                         No more lines.
 
-Command: GDST:0;                        Get filesystem status. Obsolete, use DGFS instead.
-         100:n,data1, ..., data10;      Maximum 10 filesystems datalines.
-
 Command: GSYS:0;                        Get bbs statistics.
          100:7,calls,pots_calls,isdn_calls,network_calls,local_calls,startdate,lastcaller;
 
@@ -332,6 +330,57 @@ Command: GLCC:0;                        Get Lastcallers count
 Command: GLCR:1,recno;                  Get Lastcaller record
          100:9,user,location,level,tty,time,minsmcalls,speed,cations;
          201:1,16;                      Not available.
+
+
+         Group M, MIB commands.
+
+Command: MSMS:6,kbrcvd,kbsent,direction,state,itype,freqs; Set Mailer Session
+Reply:   100,0;
+
+Command: MGMS:0;			Get Mailer Session
+Reply:	 100:12,kbrcvd,kbsent,sessin,sessout,sess_sec,sess_unseq,sess_bad,ftsc,yoohoo,emsi,binkp,freqs;
+
+Command: MSTN:3,in,out,bad;		Set Tosser Netmail
+Reply:   100,0;
+
+Command: MGTN:0;			Get Tosser Netmail
+Reply:	 100:3,in,out,bad;
+
+Command: MSTI:3,in,out,bad;		Set Tosser Internet-email
+Reply:   100,0;
+
+Command: MGTI:0;			Get Tosser Internet-email
+Reply:   100:3,in,out,bad;
+
+Command: MSTE:4,in,out,bad,dupe;	Set Tosser Echomail
+Reply:   100:0;
+
+Command: MGTE:0;			Get Tosser Echomail
+Reply:   100:4,in,out,bad,dupe;
+
+Command: MSTR:4,in,out,bad,dupe;	Set Tosser RFC-news
+Reply:   100:0;
+
+Command: MGTR:0;			Get Tosser RFC-news
+Reply:   100:4,in,out,bad,dupe;
+
+Command: MGTT:0;			Get Tosser Totals
+Reply:	 100:4,in,out,bad,dupe;
+
+Command: MSFF:6,in,out,bad,dupe,magics,hatched;	Set Tosser Files
+Reply:   100:0;
+
+Command: MGFF:0;			Get Tosser Files
+Reply:   100:6,in,out,bad,dupe,magics,hatched;
+
+Command: MSBB:9,sessions,minutes,posted,uploads,kbupload,downloads,kbdownload,chats,chatminutes; Set BBS
+Reply:   100:0;
+
+Command: MGBB:0;			Get BBS
+Reply:	 100:9,sessions,minutes,posted,uploads,kbupload,downloads,kbdownload,chats,chatminutes
+
+Command: MGOB:0;			Get Outbound Size
+Reply:   100:1,size;
 
 
          Group S, Status commands.
