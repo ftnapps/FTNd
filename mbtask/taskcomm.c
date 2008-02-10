@@ -698,7 +698,7 @@ char *exe_cmd(char *in)
      * MGFF:0;
      * 100:6,in,out,bad,dupe,magics,hatched;
      */
-    if (strncmp(cmd, "MGTT", 4) == 0) {
+    if (strncmp(cmd, "MGTF", 4) == 0) {
 	buf = calloc(SS_BUFSIZE, sizeof(char));
 	mib_get_files_r(buf);
 	snprintf(obuf, SS_BUFSIZE, "%s", buf);
