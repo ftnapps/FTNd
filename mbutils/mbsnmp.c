@@ -212,7 +212,7 @@ int main(int argc, char **argv)
      */
     type = (char *)"counter";
     if ((group == 8) && (sub == 0))
-	type = (char *)"integer";
+	type = (char *)"gauge";
 
     if ((group < 9) && (sub < params)) {
 	if (getnext) {
