@@ -4,7 +4,7 @@
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -63,6 +63,7 @@ extern int	do_mailout;
 extern int	cols;
 extern int	rows;
 char		*newtear = NULL;
+extern unsigned int	mib_posted;
 
 
 typedef struct	_msg_high {
@@ -1613,6 +1614,7 @@ void BlueWave_Fetch()
 	    poutCR(CFG.TextColourF, CFG.TextColourB, temp);
 	    ReadExitinfo();
 	    exitinfo.iPosted += i;
+	    mib_posted += i;
 	    WriteExitinfo();
 	    do_mailout = TRUE;
 	}
@@ -2430,6 +2432,7 @@ void QWK_Fetch()
 	poutCR(CFG.TextColourF, CFG.TextColourB, temp);
 	ReadExitinfo();
 	exitinfo.iPosted += nPosted;
+	mib_posted += nPosted;
 	WriteExitinfo();
 	do_mailout = TRUE;
     }

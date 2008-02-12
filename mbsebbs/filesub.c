@@ -4,7 +4,7 @@
  * Purpose ...............: All the file sub functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,10 +45,13 @@
 #include "ttyio.h"
 
 
-extern pid_t	    mypid;
-int		    arecno = 1;	/* Area record number			     */
-int		    Hcolor = 9;	/* Color of area line in xxxScan() functions */
-extern int	    rows;
+extern pid_t	    	mypid;
+int		    	arecno = 1;	/* Area record number			     */
+int		    	Hcolor = 9;	/* Color of area line in xxxScan() functions */
+extern int	    	rows;
+extern unsigned int	mib_uploads;
+extern unsigned int	mib_kbupload;
+
 
 
 /*
@@ -821,7 +824,9 @@ int ImportFile(char *fn, int Area, int fileid, off_t Size)
 	     */
 	    if (Size) {
 		exitinfo.Uploads++;
+		mib_uploads++;
 		exitinfo.UploadK += (Size / 1024);
+		mib_kbupload += (Size / 1024);
 		exitinfo.UploadKToday += (Size / 1024);
 		Syslog('b', "Uploads %d, Kb %d, Kb today %d", exitinfo.Uploads, exitinfo.UploadK, exitinfo.UploadKToday);
 		/* You have */  /* extra download KBytes. */

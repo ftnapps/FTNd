@@ -4,7 +4,7 @@
  * Purpose ...............: Internet email
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,6 +54,7 @@ extern char		*Message[];
 extern int		Line;
 extern int		do_mailout;
 extern int		LC_Wrote;
+extern unsigned int	mib_posted;
 
 
 /*
@@ -346,6 +347,7 @@ int Save_Email(int IsReply)
 
     ReadExitinfo();
     exitinfo.iPosted++;
+    mib_posted++;
     WriteExitinfo();
 
     do_mailout = TRUE;

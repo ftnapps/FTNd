@@ -4,7 +4,7 @@
  * Purpose ...............: Sysop to user chat utility
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,14 +45,16 @@
 
 #define	RBUFLEN	    81
 
-int		chat_with_sysop = FALSE;    /* Global sysop chat flag	*/
-int		chatting = FALSE;	    /* Global chatting flag	*/
-char		rbuf[50][RBUFLEN];	    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
-int		rpointer = 0;		    /* Chat receive pointer	*/
-int		rsize = 5;		    /* Chat receive size	*/
-extern pid_t	mypid;
-extern int	cols;
-extern int	rows;
+int			chat_with_sysop = FALSE;    /* Global sysop chat flag	*/
+int			chatting = FALSE;	    /* Global chatting flag	*/
+char			rbuf[50][RBUFLEN];	    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
+int			rpointer = 0;		    /* Chat receive pointer	*/
+int			rsize = 5;		    /* Chat receive size	*/
+extern pid_t		mypid;
+extern int		cols;
+extern int		rows;
+extern unsigned int	mib_chats;
+extern unsigned int	mib_chatminutes;
 
 
 
@@ -180,6 +182,8 @@ void Chat(char *username, char *channel)
     unsigned char   ch;
     char	    sbuf[81], resp[128], *name, *mname;
     static char	    buf[200];
+    time_t	    c_start, c_end;
+
 
     WhosDoingWhat(SYSOPCHAT, NULL);
     clear();
@@ -268,6 +272,7 @@ void Chat(char *username, char *channel)
     }
 
     chatting = TRUE;
+    c_start = time(NULL);
 
     while (stop == FALSE) {
 
@@ -354,6 +359,10 @@ void Chat(char *username, char *channel)
 	}
     }
     chatting = FALSE;
+    c_end = time(NULL);
+    mib_chats++;
+    mib_chatminutes += (unsigned int) ((c_end - c_start) / 60);
+
 
     /* 
      * Before sending the close command, purge all outstanding messages.

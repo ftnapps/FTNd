@@ -5,7 +5,7 @@
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -74,6 +74,7 @@ FILE		*qf;			/* Quote file			    */
 extern int	do_mailout;
 extern int	LC_Wrote;		/* Lastcaller info write message    */
 extern int	rows;
+extern unsigned int	mib_posted;
 
 
 /*
@@ -836,6 +837,7 @@ int Save_Msg(int IsReply, faddr *Dest)
 		
     ReadExitinfo();
     exitinfo.iPosted++;
+    mib_posted ++;
     WriteExitinfo();
 
     LC_Wrote = TRUE;

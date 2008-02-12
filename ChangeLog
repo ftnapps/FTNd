@@ -6,6 +6,9 @@ v0.95.1		07-Jan-2008
 	mbtask:
 		Added last changes for MIB counters.
 
+	mbsebbs:
+		Added MIB counters.
+
 	script:
 		Added support for Zenwalk.
 

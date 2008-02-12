@@ -4,7 +4,7 @@
  * Purpose ...............: All the file functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,10 +51,14 @@
 
 
 
-extern int	arecno;		/* File area number in xxxScan() functions   */
-int		Strlen = 0;
-int		FileRecno = 0;
-extern int	rows;
+extern int		arecno;		/* File area number in xxxScan() functions   */
+int			Strlen = 0;
+int			FileRecno = 0;
+extern int		rows;
+extern unsigned int	mib_downloads;
+extern unsigned int	mib_kbdownload;
+extern unsigned int	mib_uploads;
+
 
 
 int CheckFile(char *, int);
@@ -392,7 +396,9 @@ void Download(void)
     ReadExitinfo();
 
     exitinfo.Downloads += Count;          /* Increase download counter      */
+    mib_downloads      += Count;
     exitinfo.DownloadK += (Size / 1024);  /* Increase amount download today */
+    mib_kbdownload     += (Size / 1024);
 
     /*
      * Minus the amount downloaded today from downloadktoday
@@ -1027,6 +1033,7 @@ int DownloadDirect(char *Name, int Wait)
 	 */
 	ReadExitinfo();
 	exitinfo.Downloads++;    /* Increase download counter */
+	mib_downloads++;
 	WriteExitinfo();
     }
 
@@ -1328,6 +1335,7 @@ int Upload_Home()
 
     ReadExitinfo();
     exitinfo.Uploads += Count;
+    mib_uploads += Count;
     WriteExitinfo();	
 
     tidy_upload(&up);
