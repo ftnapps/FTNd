@@ -109,7 +109,7 @@ int ftnmsgid(char *msgid, char **s, unsigned int *n, char *areaname)
 	tidy_faddr(tmp);
     } else {
 	if ((r=strchr(l,'@')) == NULL) { /* should never happen */
-	    Syslog('!', "ftnmsgid: should never happen");
+	    Syslog('!', "ftnmsgid: should never happen: %s", printable(l, 0));
 	    *s = xstrcpy(l);
 	    hash_update_s(&nid,l);
 	/* <MSGID_mimeanything_abcd1234@ftn.domain> */
