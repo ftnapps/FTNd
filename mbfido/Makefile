@@ -13,7 +13,7 @@ SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c qualify.c \
 		  mbmsg.c newspost.c postemail.c scan.c toberep.c atoul.c filemgr.c \
 		  hash.c mbaff.c mbseq.c notify.c postnetmail.c scannews.c tosspkt.c \
 		  mbfkill.c mbfutil.c mbfindex.c mbfcheck.c mbfpack.c mbflist.c mbfadopt.c \
-		  mbfimport.c mbfsort.c virscan.c mbftoberep.c mbfmove.c mbfdel.c bounce.c \
+		  mbfimport.c mbfsort.c mbftoberep.c mbfmove.c mbfdel.c bounce.c \
 		  createm.c createf.c msgflags.c dirsession.c queue.c dirlock.c msg.c orphans.c
 HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h qualify.h \
 		  postnetmail.h scannews.h tosspkt.h addpkt.h bwrite.h forward.h \
@@ -24,9 +24,9 @@ HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h qualify.h \
 		  grlist.h maketags.h mbmsg.h newspost.h postecho.h rollover.h tic.h mbfrearc.h \
 		  atoul.h filemgr.h hash.h mbaff.h mbseq.h notify.h postemail.h scan.h toberep.h \
 		  mbfkill.h mbfutil.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfadopt.h \
-		  mbfimport.h mbfsort.h virscan.h mbftoberep.h mbfmove.h mbfdel.h bounce.h \
+		  mbfimport.h mbfsort.h mbftoberep.h mbfmove.h mbfdel.h bounce.h \
 		  createm.h createf.h msgflags.h dirsession.h queue.h dirlock.h msg.h orphans.h
-MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o virscan.o tracker.o \
+MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o tracker.o \
 		  makestat.o scannews.o lhash.o bounce.o unpack.o tic.o ptic.o \
 		  utic.o mover.o hash.o mkftnhdr.o addbbs.o magic.o fsort.o toberep.o \
 		  ftn2rfc.o atoul.o ping.o forward.o sendmail.o scan.o addpkt.o \
@@ -39,7 +39,7 @@ MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o mbaff.o msgutil.o toberep.o
 MBINDEX_OBJS	= mbindex.o
 MBDIFF_OBJS	= mbdiff.o
 MBFILE_OBJS	= mbfile.o mbfkill.o mbfutil.o mbfindex.o mbfcheck.o mbfpack.o mbflist.o mbfadopt.o \
-		  mbfimport.o virscan.o mbftoberep.o mbfmove.o mbfdel.o mbfsort.o mbfrearc.o
+		  mbfimport.o mbftoberep.o mbfmove.o mbfdel.o mbfsort.o mbfrearc.o
 MBMSG_OBJS	= post.o mbmsg.o
 MBFIDO_LIBS	= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a ../lib/libmbinet.a ../lib/libnodelist.a
 MBSEQ_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
@@ -131,7 +131,7 @@ hatch.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h utic.h roll
 mbdiff.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbdiff.h
 mgrutil.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/diesel.h sendmail.h rollover.h addpkt.h createm.h createf.h mgrutil.h
 qualify.o: ../config.h ../lib/mbselib.h qualify.h
-ptic.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h unpack.h mover.h toberep.h orphans.h tic.h utic.h magic.h forward.h rollover.h ptic.h magic.h createf.h virscan.h qualify.h addbbs.h
+ptic.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h unpack.h mover.h toberep.h orphans.h tic.h utic.h magic.h forward.h rollover.h ptic.h magic.h createf.h qualify.h addbbs.h
 sendmail.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h addpkt.h rollover.h sendmail.h
 tracker.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h tracker.h
 addpkt.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h addpkt.h
@@ -187,10 +187,9 @@ mbfindex.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/d
 mbfcheck.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfcheck.h
 mbfpack.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfpack.h
 mbflist.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbflist.h
-mbfadopt.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h virscan.h mbfutil.h mbflist.h
-mbfimport.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h virscan.h mbfutil.h mbfimport.h
+mbfadopt.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbflist.h
+mbfimport.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfimport.h
 mbfsort.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfsort.h
-virscan.o: ../config.h ../lib/mbselib.h virscan.h
 mbftoberep.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbftoberep.h
 mbfmove.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfmove.h
 mbfdel.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfmove.h

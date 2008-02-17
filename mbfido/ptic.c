@@ -4,7 +4,7 @@
  * Purpose ...............: Process 1 .tic file
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -44,7 +44,6 @@
 #include "ptic.h"
 #include "magic.h"
 #include "createf.h"
-#include "virscan.h"
 #include "qualify.h"
 #include "addbbs.h"
 
@@ -339,7 +338,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
      * Check if this is an archive, and if so, which compression method
      * is used for this file.
      */
-    if (strlen(tic.Convert) || tic.VirScan || tic.FileId || tic.ConvertAll || strlen(tic.Banner)) {
+    if (strlen(tic.Convert) || tic.FileId || tic.ConvertAll || strlen(tic.Banner)) {
 	/*
 	 * Create tmp workdir
 	 */
@@ -373,7 +372,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	}
     }
 
-    if ((tic.VirScan || MustRearc) && IsArchive) {
+    if (MustRearc && IsArchive) {
 
 	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
 	if (!checkspace(temp2, TIC.TicIn.File, UNPACK_FACTOR)) {
@@ -420,42 +419,19 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	}
     }
 
-    if (tic.VirScan && !UnPacked) {
-	/*
-	 * Copy file to tempdir and run scanner over the file
-	 * whatever that is. This should catch single files
-	 * with worms or other macro viri
-	 */
-	snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
-	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), TIC.TicIn.File);
-
-	if ((rc = file_cp(temp1, temp2))) {
-	    WriteError("Can't copy %s to %s: %s", temp1, temp2, strerror(rc));
-	    free(Temp);
-	    tidy_qualify(&qal);
-	    clean_tmpwork();
-	    return 1;
-	}
-
-	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
-	if (chdir(temp2) != 0) {
-	    WriteError("$Can't change to %s", temp2);
-	    free(Temp);
-	    tidy_qualify(&qal);
-	    clean_tmpwork();
-	    return 1;
-	}
-    }
-
+    /*
+     * Scan file for viri.
+     */
     if (tic.VirScan) {
+
+	snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 
 	if (!do_quiet) {
 	    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 	    fflush(stdout);
 	}
 
-	if (VirScan(NULL)) {
-	    clean_tmpwork();
+	if (VirScanFile(temp1)) {
 	    chdir(TIC.Inbound);
 	    Bad((char *)"Possible virus found!");
 	    free(Temp);

@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Import files with files.bbs
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -32,7 +32,6 @@
 #include "../lib/mbselib.h"
 #include "../lib/users.h"
 #include "../lib/mbsedb.h"
-#include "virscan.h"
 #include "mbfutil.h"
 #include "mbfimport.h"
 
@@ -84,56 +83,20 @@ void test_file(char *dirpath, char *search, char *result)
  */
 int flush_file(char *source, char *dest, char *lname, struct FILE_record f_db, int Area)
 {
-    int	    Doit, rc;
-    char    *temp2, *unarc, *tmpdir;
+    int	    Doit = TRUE, rc = 0;
 
     Syslog('f', "flush_file(%s, %s, %s, %d)", source, dest, lname, Area);
 
-    temp2  = calloc(PATH_MAX, sizeof(char));
-    tmpdir = calloc(PATH_MAX, sizeof(char));
-
-    snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
-    Doit = TRUE;
-    if ((unarc = unpacker(source)) == NULL) {
-	Syslog('+', "Unknown archive format %s", source);
-	snprintf(temp2, PATH_MAX, "%s/%s", tmpdir, f_db.Name);
-	if ((rc = file_cp(source, temp2))) {
-	    WriteError("1 Can't copy file to %s, %s", temp2, strerror(rc));
-	    if (!do_quiet)
-		printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
-	    Doit = FALSE;
-	} else {
-	    if (do_novir == FALSE) {
-		if (!do_quiet) {
-		    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-		    fflush(stdout);
-		}
-		if (VirScan(tmpdir)) {
-		    Doit = FALSE;
-		}
-	    }
-	}
-    } else {
+    if (do_novir == FALSE) {
 	if (!do_quiet) {
-	    printf("Unpacking \b\b\b\b\b\b\b\b\b\b");
+	    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 	    fflush(stdout);
 	}
-	if (UnpackFile(source)) {
-	    if (do_novir == FALSE) {
-		if (!do_quiet) {
-		    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-		    fflush(stdout);
-		}
-		if (VirScan(tmpdir)) {
-		    Doit = FALSE;
-		}
-	    }
-	} else {
+	if (VirScanFile(source)) {
 	    Doit = FALSE;
 	}
     }
-
-    rc = 0;
+    
     if (Doit) {
 	if (!do_quiet) {
 	    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
@@ -150,8 +113,6 @@ int flush_file(char *source, char *dest, char *lname, struct FILE_record f_db, i
 	}
     }
 
-    free(temp2);
-    free(tmpdir);
     return rc;
 }
 

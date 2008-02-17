@@ -11,6 +11,10 @@ v0.95.1		07-Jan-2008
 
 	mbfido:
 		Changed error message on the news gate.
+		Switched to virus scanner from library.
+
+	mbfile:
+		Switched to virus scanner from library.
 
 	mbsebbs:
 		Added MIB counters.
