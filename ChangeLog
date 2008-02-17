@@ -18,6 +18,7 @@ v0.95.1		07-Jan-2008
 
 	mbsebbs:
 		Added MIB counters.
+		Switched to virus scanner from library.
 
 	mbsetup:
 		Added support for TCP stream scanners.
