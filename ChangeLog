@@ -1,7 +1,9 @@
 $Id$
 
+v0.91.2		17-Feb-2008
 
-v0.95.1		07-Jan-2008
+
+v0.95.1		07-Jan-2008 - 17-Feb-2008.
 
 	upgrade:
 		Start mbsetup and exit. If you have a clamd running on some
