@@ -5,6 +5,8 @@ v0.95.1		07-Jan-2008
 
 	mbselib.h:
 		Added file virscan function.
+		Added stream scanning for ClamAV, scanning is 10 times faster
+		compared to the commandline scanner.
 
 	mbtask:
 		Added last changes for MIB counters.
