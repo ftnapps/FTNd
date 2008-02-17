@@ -489,6 +489,7 @@ typedef enum {E_NOISP, E_TMPISP, E_PRMISP} EMODE;
 typedef enum {AREAMGR, FILEMGR, EMAIL} SERVICE;
 typedef enum {FEEDINN, FEEDRNEWS, FEEDUUCP} NEWSFEED;
 typedef enum {S_DIRECT, S_DIR, S_FTP} SESSIONTYPE;
+typedef enum {SCAN_EXTERN, CLAM_STREAM, FP_STREAM} SCANTYPE;
 
 
 
@@ -1526,6 +1527,9 @@ struct	_virscan {
 	unsigned	deleted  	: 1;	/* Scanner is deleted	   */
 	char		options[65];		/* Scanner options	   */
 	int		error;			/* Error level for OK	   */
+	int		scantype;		/* Virus scanner type	   */
+	char		host[65];		/* Stream scanner host	   */
+	unsigned int	port;			/* Stream scanner port	   */
 };
 
 
@@ -2598,6 +2602,12 @@ int pid2prog(pid_t, char *, size_t);	/* Find progrname for a pid	*/
  */
 void clean_tmpwork(void);	    /* Remove tmp workdir		*/
 int  create_tmpwork(void);	    /* Create tmp workdir		*/
+
+
+/*
+ * virscan.c
+ */
+int VirScanFile(char *);		/* VirScan a file		*/
 
 
 /*************************************************************************

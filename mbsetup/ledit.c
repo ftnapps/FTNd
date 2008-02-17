@@ -4,7 +4,7 @@
  * Purpose ...............: Line Editor
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -2028,6 +2028,50 @@ int edit_sessiontype(int y, int x, int val)
     } while (ch != KEY_ENTER && ch != '\012');
     set_color(WHITE, BLACK);
     show_sessiontype(y, x, val);
+    return val;
+}
+
+
+
+char *get_scannertype(int val)
+{
+    switch (val) {
+	case SCAN_EXTERN:   return (char *)"External commandline ";
+	case CLAM_STREAM:   return (char *)"ClamAV stream scanner";
+	case FP_STREAM:     return (char *)"F-Prot stream scanner";
+	default:            return NULL;
+    }
+}
+
+
+
+void show_scannertype(int y, int x, int val)
+{
+    mbse_mvprintw(y, x, get_scannertype(val));
+}
+
+
+
+int edit_scannertype(int y, int x, int val)
+{
+    int ch;
+
+    showhelp((char *)"Toggle ^Scanner type^ with spacebar, press <Enter> whene done.");
+    do {
+	set_color(YELLOW, BLUE);
+	show_scannertype(y, x, val);
+
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    if (val < FP_STREAM)
+		val++;
+	    else
+		val = SCAN_EXTERN;
+	}
+    } while (ch != KEY_ENTER && ch != '\012');
+    set_color(WHITE, BLACK);
+    show_scannertype(y, x, val);
     return val;
 }
 

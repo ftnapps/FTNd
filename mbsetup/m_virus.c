@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Virus structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -49,82 +49,102 @@ int	VirUpdated = 0;
  */
 int CountVirus(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count;
+    FILE	*fil;
+    char	ffile[PATH_MAX];
+    int		count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "r")) == NULL) {
-		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created new %s", ffile);
-			virscanhdr.hdrsize = sizeof(virscanhdr);
-			virscanhdr.recsize = sizeof(virscan);
-			fwrite(&virscanhdr, sizeof(virscanhdr), 1, fil);
+    snprintf(ffile, PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "r")) == NULL) {
+	if ((fil = fopen(ffile, "a+")) != NULL) {
+	    Syslog('+', "Created new %s", ffile);
+	    virscanhdr.hdrsize = sizeof(virscanhdr);
+	    virscanhdr.recsize = sizeof(virscan);
+	    fwrite(&virscanhdr, sizeof(virscanhdr), 1, fil);
+	    
+	    /*
+	     *  Create some default records and enable them if they exist.
+	     */
+	    memset(&virscan, 0, sizeof(virscan));
+	    snprintf(virscan.comment, 41, "AntiVir/Linux Scanner");
+	    if (strlen(_PATH_ANTIVIR)) {
+		snprintf(virscan.scanner, 65, "%s", _PATH_ANTIVIR);
+		virscan.available = TRUE;
+	    } else {
+		snprintf(virscan.scanner, 65, "/usr/bin/antivir");
+		virscan.available = FALSE;
+	    }
+	    snprintf(virscan.options, 65, "-allfiles -s -q");
+	    virscan.scantype = SCAN_EXTERN;
+	    fwrite(&virscan, sizeof(virscan), 1, fil);
 
-			/*
-			 *  Create some default records but don't enable them.
-			 */
-			memset(&virscan, 0, sizeof(virscan));
-			snprintf(virscan.comment, 41, "AntiVir/Linux Scanner");
-			if (strlen(_PATH_ANTIVIR)) {
-			    snprintf(virscan.scanner, 65, "%s", _PATH_ANTIVIR);
-			    virscan.available = TRUE;
-			} else {
-			    snprintf(virscan.scanner, 65, "/usr/bin/antivir");
-			    virscan.available = FALSE;
-			}
-			snprintf(virscan.options, 65, "-allfiles -s -q");
-			fwrite(&virscan, sizeof(virscan), 1, fil);
+	    memset(&virscan, 0, sizeof(virscan));
+	    snprintf(virscan.comment, 41, "F-Prot commandline scanner");
+	    if (strlen(_PATH_FPROT)) {
+		snprintf(virscan.scanner, 65, "%s .", _PATH_FPROT);
+		virscan.available = TRUE;
+	    } else {
+		snprintf(virscan.scanner, 65, "/usr/local/bin/fpscan .");
+		virscan.available = FALSE;
+	    }
+	    snprintf(virscan.options, 65, "-archive -silent");
+	    virscan.scantype = SCAN_EXTERN;
+	    fwrite(&virscan, sizeof(virscan), 1, fil);
 
-			memset(&virscan, 0, sizeof(virscan));
-			snprintf(virscan.comment, 41, "F-Prot scanner");
-			if (strlen(_PATH_FPROT)) {
-			    snprintf(virscan.scanner, 65, "%s .", _PATH_FPROT);
-			    virscan.available = TRUE;
-			} else {
-			    snprintf(virscan.scanner, 65, "/usr/local/bin/fpscan .");
-			    virscan.available = FALSE;
-			}
-			snprintf(virscan.options, 65, "-archive -silent");
-			fwrite(&virscan, sizeof(virscan), 1, fil);
+	    memset(&virscan, 0, sizeof(virscan));
+	    snprintf(virscan.comment, 41, "McAfee VirusScan for Linux");
+	    if (strlen(_PATH_UVSCAN)) {
+		snprintf(virscan.scanner, 65, "%s", _PATH_UVSCAN);
+		virscan.available = TRUE;
+	    } else {
+		snprintf(virscan.scanner, 65, "/usr/local/bin/uvscan");
+		virscan.available = FALSE;
+	    }
+            snprintf(virscan.options, 65, "--noboot --noexpire -r --secure -");
+	    virscan.scantype = SCAN_EXTERN;
+            fwrite(&virscan, sizeof(virscan), 1, fil);
 
-                        memset(&virscan, 0, sizeof(virscan));
-                        snprintf(virscan.comment, 41, "McAfee VirusScan for Linux");
-			if (strlen(_PATH_UVSCAN)) {
-			    snprintf(virscan.scanner, 65, "%s", _PATH_UVSCAN);
-			    virscan.available = TRUE;
-			} else {
-			    snprintf(virscan.scanner, 65, "/usr/local/bin/uvscan");
-			    virscan.available = FALSE;
-			}
-                        snprintf(virscan.options, 65, "--noboot --noexpire -r --secure -");
-                        fwrite(&virscan, sizeof(virscan), 1, fil);
+	    memset(&virscan, 0, sizeof(virscan));
+	    snprintf(virscan.comment, 41, "Clam AntiVirus commandline scanner");
+	    if (strlen(_PATH_CLAMAV)) {
+		snprintf(virscan.scanner, 65, "%s", _PATH_CLAMAV);
+		virscan.available = TRUE;
+	    } else {
+		snprintf(virscan.scanner, 65, "/usr/local/bin/clamscan");
+		virscan.available = FALSE;
+	    }
+	    snprintf(virscan.options, 65, "--quiet --recursive");
+	    virscan.scantype = SCAN_EXTERN;
+	    fwrite(&virscan, sizeof(virscan), 1, fil);
 
-			memset(&virscan, 0, sizeof(virscan));
-			snprintf(virscan.comment, 41, "Clam AntiVirus");
-			if (strlen(_PATH_CLAMAV)) {
-			    snprintf(virscan.scanner, 65, "%s", _PATH_CLAMAV);
-			    virscan.available = TRUE;
-			} else {
-			    snprintf(virscan.scanner, 65, "/usr/local/bin/clamscan");
-			    virscan.available = FALSE;
-			}
-			snprintf(virscan.options, 65, "--quiet --recursive");
-			fwrite(&virscan, sizeof(virscan), 1, fil);
+	    memset(&virscan, 0, sizeof(virscan));
+	    snprintf(virscan.comment, 41, "Clam AntiVirus stream scanner");
+	    virscan.available = FALSE;
+	    virscan.scantype = CLAM_STREAM;
+	    snprintf(virscan.host, 65, "localhost");
+	    virscan.port = 3310;
+	    fwrite(&virscan, sizeof(virscan), 1, fil);
 
-			fclose(fil);
-			chmod(ffile, 0640);
-			return 4;
-		} else
-			return -1;
-	}
+	    memset(&virscan, 0, sizeof(virscan));
+	    snprintf(virscan.comment, 41, "F-Prot stream scanner");
+	    virscan.available = FALSE;
+	    virscan.scantype = FP_STREAM;
+	    snprintf(virscan.host, 65, "localhost");
+	    virscan.port = 10200;
+	    fwrite(&virscan, sizeof(virscan), 1, fil);
+			
+	    fclose(fil);
+	    chmod(ffile, 0640);
+	    return 6;
+	} else
+	    return -1;
+    }
 
-	fread(&virscanhdr, sizeof(virscanhdr), 1, fil);
-	fseek(fil, 0, SEEK_END);
-	count = (ftell(fil) - virscanhdr.hdrsize) / virscanhdr.recsize;
-	fclose(fil);
+    fread(&virscanhdr, sizeof(virscanhdr), 1, fil);
+    fseek(fil, 0, SEEK_END);
+    count = (ftell(fil) - virscanhdr.hdrsize) / virscanhdr.recsize;
+    fclose(fil);
 
-	return count;
+    return count;
 }
 
 
@@ -137,48 +157,71 @@ int CountVirus(void)
 int OpenVirus(void);
 int OpenVirus(void)
 {
-	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	int	oldsize;
+    FILE	*fin, *fout;
+    char	fnin[PATH_MAX], fnout[PATH_MAX];
+    int		oldsize, has_stream = FALSE;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
-	if ((fin = fopen(fnin, "r")) != NULL) {
-		if ((fout = fopen(fnout, "w")) != NULL) {
-			fread(&virscanhdr, sizeof(virscanhdr), 1, fin);
-			/*
-			 * In case we are automatic upgrading the data format
-			 * we save the old format. If it is changed, the
-			 * database must always be updated.
-			 */
-			oldsize = virscanhdr.recsize;
-			if (oldsize != sizeof(virscan)) {
-				VirUpdated = 1;
-				Syslog('+', "Upgraded %s, format changed", fnin);
-			} else
-				VirUpdated = 0;
-			virscanhdr.hdrsize = sizeof(virscanhdr);
-			virscanhdr.recsize = sizeof(virscan);
-			fwrite(&virscanhdr, sizeof(virscanhdr), 1, fout);
+    snprintf(fnin,  PATH_MAX, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
+    if ((fin = fopen(fnin, "r")) != NULL) {
+	if ((fout = fopen(fnout, "w")) != NULL) {
+	    fread(&virscanhdr, sizeof(virscanhdr), 1, fin);
+	    /*
+	     * In case we are automatic upgrading the data format
+	     * we save the old format. If it is changed, the
+	     * database must always be updated.
+	     */
+	    oldsize = virscanhdr.recsize;
+	    if (oldsize != sizeof(virscan)) {
+		VirUpdated = 1;
+		Syslog('+', "Upgraded %s, format changed", fnin);
+	    } else
+		VirUpdated = 0;
+	    virscanhdr.hdrsize = sizeof(virscanhdr);
+	    virscanhdr.recsize = sizeof(virscan);
+	    fwrite(&virscanhdr, sizeof(virscanhdr), 1, fout);
 
-			/*
-			 * The datarecord is filled with zero's before each
-			 * read, so if the format changed, the new fields
-			 * will be empty.
-			 */
-			memset(&virscan, 0, sizeof(virscan));
-			while (fread(&virscan, oldsize, 1, fin) == 1) {
-				fwrite(&virscan, sizeof(virscan), 1, fout);
-				memset(&virscan, 0, sizeof(virscan));
-			}
+	    /*
+	     * The datarecord is filled with zero's before each
+	     * read, so if the format changed, the new fields
+	     * will be empty.
+	     */
+	    memset(&virscan, 0, sizeof(virscan));
+	    while (fread(&virscan, oldsize, 1, fin) == 1) {
+		/*
+		 * Check if we already have defined stream scanners
+		 */
+		if (virscan.scantype != SCAN_EXTERN)
+		    has_stream = TRUE;
+		fwrite(&virscan, sizeof(virscan), 1, fout);
+		memset(&virscan, 0, sizeof(virscan));
+	    }
 
-			fclose(fin);
-			fclose(fout);
-			return 0;
-		} else
-			return -1;
-	}
-	return -1;
+	    fclose(fin);
+	    if ((oldsize != sizeof(virscan)) && (! has_stream)) {
+		memset(&virscan, 0, sizeof(virscan));
+		snprintf(virscan.comment, 41, "Clam AntiVirus stream scanner");
+		virscan.available = FALSE;
+		virscan.scantype = CLAM_STREAM;
+		snprintf(virscan.host, 65, "localhost");
+		virscan.port = 3310;
+		fwrite(&virscan, sizeof(virscan), 1, fout);
+
+		memset(&virscan, 0, sizeof(virscan));
+		snprintf(virscan.comment, 41, "F-Prot stream scanner");
+		virscan.available = FALSE;
+		virscan.scantype = FP_STREAM;
+		snprintf(virscan.host, 65, "localhost");
+		virscan.port = 10200;
+		fwrite(&virscan, sizeof(virscan), 1, fout);
+	    }
+
+	    fclose(fout);
+	    return 0;
+	} else
+	    return -1;
+    }
+    return -1;
 }
 
 
@@ -247,87 +290,119 @@ int AppendVirus(void)
 
 
 
+void ScanScreen(void)
+{
+    clr_index();
+    set_color(WHITE, BLACK);
+    mbse_mvprintw( 5, 2, "4.  EDIT VIRUS SCANNER");
+    set_color(CYAN, BLACK);
+    mbse_mvprintw( 7, 2, "1.  Comment");
+    mbse_mvprintw( 8, 2, "2.  Type");
+    mbse_mvprintw( 9, 2, "3.  Available");
+    mbse_mvprintw(10, 2, "4.  Deleted");
+    mbse_mvprintw(11, 2, "5.  Error lvl");
+
+    if (virscan.scantype == SCAN_EXTERN) {
+    	mbse_mvprintw(12, 2, "6.  Command");
+    	mbse_mvprintw(13, 2, "7.  Options");
+    } else {
+	mbse_mvprintw(12, 2, "6.  Host");
+	mbse_mvprintw(13, 2, "7.  Port");
+    }
+}
+
+
+
 /*
  * Edit one record, return -1 if there are errors, 0 if ok.
  */
 int EditVirRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX];
-	int	offset;
-	int	j;
-	unsigned int	crc, crc1;
+    FILE		*fil;
+    char		mfile[PATH_MAX];
+    int			offset, j;
+    unsigned int	crc, crc1;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit VirScan");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit VirScan");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    snprintf(mfile, PATH_MAX, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	offset = sizeof(virscanhdr) + ((Area -1) * sizeof(virscan));
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    offset = sizeof(virscanhdr) + ((Area -1) * sizeof(virscan));
+    if (fseek(fil, offset, 0) != 0) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&virscan, sizeof(virscan), 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&virscan, crc, sizeof(virscan));
+    fread(&virscan, sizeof(virscan), 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&virscan, crc, sizeof(virscan));
 
+    ScanScreen();
+	
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "4.  EDIT VIRUS SCANNER");
-	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Comment");
-	mbse_mvprintw( 8, 2, "2.  Command");
-	mbse_mvprintw( 9, 2, "3.  Options");
-	mbse_mvprintw(10, 2, "4.  Available");
-	mbse_mvprintw(11, 2, "5.  Deleted");
-	mbse_mvprintw(12, 2, "6.  Error lvl");
+	show_str(  7,16,40, virscan.comment);
+	show_scannertype(8, 16, virscan.scantype);
+	show_bool( 9,16,    virscan.available);
+	show_bool(10,16,    virscan.deleted);
+	show_int( 11,16,    virscan.error);
 
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str(  7,16,40, virscan.comment);
-		show_str(  8,16,64, virscan.scanner);
-		show_str(  9,16,64, virscan.options);
-		show_bool(10,16,    virscan.available);
-		show_bool(11,16,    virscan.deleted);
-		show_int( 12,16,    virscan.error);
+	if (virscan.scantype == SCAN_EXTERN) {
+	    show_str( 12,16,64, virscan.scanner);
+	    show_str( 13,16,64, virscan.options);
+	} else {
+	    show_str( 12,16,64, virscan.host);
+	    show_int( 13,16,    virscan.port);
+	}
 
-		j = select_menu(6);
-		switch(j) {
-		case 0:	crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&virscan, crc1, sizeof(virscan));
-			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						working(2, 0, 0);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&virscan, sizeof(virscan), 1, fil);
-					fclose(fil);
-					VirUpdated = 1;
-					working(6, 0, 0);
-				}
+	j = select_menu(7);
+	switch(j) {
+	case 0:	crc1 = 0xffffffff;
+		crc1 = upd_crc32((char *)&virscan, crc1, sizeof(virscan));
+		if (crc != crc1) {
+		    if (yes_no((char *)"Record is changed, save") == 1) {
+			working(1, 0, 0);
+			if ((fil = fopen(mfile, "r+")) == NULL) {
+			    working(2, 0, 0);
+			    return -1;
 			}
-			IsDoing("Browsing Menu");
-			return 0;
-		case 1:	E_STR(  7,16,40,virscan.comment,  "The ^Comment^ for this record")
-		case 2:	E_STR(  8,16,64,virscan.scanner,  "The full ^name and path^ to the binary of this scanner")
-		case 3:	E_STR(  9,16,64,virscan.options,  "The ^commandline options^ for this scanner")
-		case 4:	E_BOOL(10,16,   virscan.available,"Switch if this virus scanner is ^Available^ for use.")
-		case 5:	E_BOOL(11,16,   virscan.deleted,  "Is this scanner ^deleted^")
-		case 6:	E_INT( 12,16,   virscan.error,    "The ^Error Level^ the scanner returns when no virus is found")
+			fseek(fil, offset, 0);
+			fwrite(&virscan, sizeof(virscan), 1, fil);
+			fclose(fil);
+			VirUpdated = 1;
+			working(6, 0, 0);
+		    }
+		}
+		IsDoing("Browsing Menu");
+		return 0;
+	case 1: E_STR(  7,16,40,virscan.comment,  "The ^Comment^ for this record")
+	case 2: virscan.scantype = edit_scannertype( 8,16,virscan.scantype);
+		ScanScreen();
+		break;
+	case 3: E_BOOL( 9,16,   virscan.available,"Switch if this virus scanner is ^Available^ for use.")
+	case 4: E_BOOL(10,16,   virscan.deleted,  "Is this scanner ^deleted^")
+	case 5: E_INT( 11,16,   virscan.error,    "The ^Error Level^ the scanner returns when no virus is found")
+
+	case 6:	if (virscan.scantype == SCAN_EXTERN) {
+		    E_STR( 12,16,64,virscan.scanner,  "The full ^name and path^ to the binary of this scanner")
+		} else {
+		    E_STR( 12,16,64,virscan.host,  "The ^FQDN hostname^ or ^IP address^ where the stream scanner is running")
+		}
+	case 7:	if (virscan.scantype == SCAN_EXTERN) {
+		    E_STR( 13,16,64,virscan.options,  "The ^commandline options^ for this scanner")
+		} else {
+		    E_INT( 13,16,   virscan.port,     "The ^port number^ for this stream scanner")
 		}
 	}
-
-	return 0;
+    }
+    return 0;
 }
 
 
@@ -465,20 +540,32 @@ int virus_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
 	    fprintf(wp, "<TBODY>\n");
 	    add_webtable(wp, (char *)"Scanner name", virscan.comment);
-	    add_webtable(wp, (char *)"Command line", virscan.scanner);
-	    add_webtable(wp, (char *)"Options", virscan.options);
+	    add_webtable(wp, (char *)"Scanner type", get_scannertype(virscan.scantype));
 	    add_webtable(wp, (char *)"Available", getboolean(virscan.available));
 	    add_webdigit(wp, (char *)"Errorlevel OK", virscan.error);
+	    if (virscan.scantype == SCAN_EXTERN) {
+		add_webtable(wp, (char *)"Command line", virscan.scanner);
+		add_webtable(wp, (char *)"Options", virscan.options);
+	    } else {
+		add_webtable(wp, (char *)"Host", virscan.host);
+		add_webdigit(wp, (char *)"Port", virscan.port);
+	    }
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
 	    close_webdoc(wp);
 	}
 
 	fprintf(fp, "      Scanner name   %s\n", virscan.comment);
-	fprintf(fp, "      Command line   %s\n", virscan.scanner);
-	fprintf(fp, "      Options        %s\n", virscan.options);
+	fprintf(fp, "      Scanner type   %s\n", get_scannertype(virscan.scantype));
 	fprintf(fp, "      Available      %s\n", getboolean(virscan.available));
 	fprintf(fp, "      Errorlevel OK  %d\n", virscan.error); 
+	if (virscan.scantype == SCAN_EXTERN) {
+	    fprintf(fp, "      Command line   %s\n", virscan.scanner);
+	    fprintf(fp, "      Options        %s\n", virscan.options);
+	} else {
+	    fprintf(fp, "      Host           %s\n", virscan.host);
+	    fprintf(fp, "      Port           %d\n", virscan.port);
+	}
 	fprintf(fp, "\n\n\n");
 	j++;
     }

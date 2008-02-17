@@ -3,6 +3,9 @@ $Id$
 
 v0.95.1		07-Jan-2008
 
+	mbselib.h:
+		Added file virscan function.
+
 	mbtask:
 		Added last changes for MIB counters.
 
@@ -11,6 +14,9 @@ v0.95.1		07-Jan-2008
 
 	mbsebbs:
 		Added MIB counters.
+
+	mbsetup:
+		Added support for TCP stream scanners.
 
 	script:
 		Added support for Zenwalk.
