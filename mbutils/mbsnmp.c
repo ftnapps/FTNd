@@ -88,8 +88,8 @@ void die(int onsig)
 
 int main(int argc, char **argv)
 {
-    int		    i, getnext = FALSE, group = 0, sub = 0, params, val;
-    char	    *cmd, *t1, *t2, *saveptr1 = NULL, *saveptr2 = NULL, *token1, *token2; 
+    int		    i, getnext = FALSE, group = 0, sub = 0, params, val = 0;
+    char	    *t1, *t2, *saveptr1 = NULL, *saveptr2 = NULL, *token1, *token2; 
     char	    *base_save, *req_save, *envptr = NULL, *req_oid, *base_oid, *resp, *type;
     struct passwd   *pw;
 
@@ -131,23 +131,9 @@ int main(int argc, char **argv)
 	    signal(i, SIG_IGN);
     }
 
-    cmd = xstrcpy((char *)"Cmd:");
-
-    for (i = 1; i < argc; i++) {
-	cmd = xstrcat(cmd, (char *)" ");
-	cmd = xstrcat(cmd, argv[i]);
-    }
-
     pw = getpwuid(getuid());
     InitClient(pw->pw_name, (char *)"mbsnmp", CFG.location, CFG.logfile, 
 		CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
-
-    Syslog('f', cmd);
-    free(cmd);
-
-//    Syslog('+', "base oid %s", base_oid);
-//    Syslog('+', "req_oid  %s", req_oid);
-//    Syslog('+', "getnext  %s", getnext ? "True":"False");
 
     base_save = xstrcpy(base_oid);
     req_save  = xstrcpy(req_oid);
@@ -156,7 +142,6 @@ int main(int argc, char **argv)
 	token2 = strtok_r(t2, ".", &saveptr2);
 	if ((token1 == NULL) || (token2 == NULL))
 	    break;
-//	Syslog('-', "%d %s %s", i, token1, token2);
     }
 
     /*
@@ -164,16 +149,12 @@ int main(int argc, char **argv)
      */
     if (token2) {
 	group = atoi(token2);
-//	Syslog('-', "%d %s %s", i, token1, token2);
 	t2 = NULL;
 	token2 = strtok_r(t2, ".", &saveptr2);
 	if (token2) {
-//	    Syslog('-', "%d %s %s", i, token1, token2);
 	    sub = atoi(token2);
 	}
     }
-
-//    Syslog('+', "group=%d sub=%d", group, sub);
 
     if ((group < 0) || (group > 8)) {
 	die(MBERR_OK);
@@ -192,16 +173,12 @@ int main(int argc, char **argv)
 	default: resp = (char *)"200:0;";
     }
 
-//    Syslog('+', "resp %s", resp);
-
     t1 = strtok(resp, ":");
     t1 = strtok(NULL, ",");
     params = atoi(t1);
 
-//    Syslog('+', "params=%d", params);
     for (i = 0; i < params; i++) {
 	t1 = strtok(NULL, ",;");
-//	Syslog('+', "t1 %d %s", i, t1);
 	val = atoi(t1);
 	if (i == sub)
 	    break;
@@ -225,7 +202,6 @@ int main(int argc, char **argv)
     	printf("%s.%d.%d\n", base_save, group, sub);
     	printf("%s\n", type);
     	printf("%d\n", val);
-	Syslog('f', "Rsp: %s %s => %s.%d.%d %s %d", req_save, getnext ? "N":"G", base_save, group, sub, type, val);
     }
 
     die(MBERR_OK);
