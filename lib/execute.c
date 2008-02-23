@@ -118,7 +118,9 @@ int _execute(char **args, char *in, char *out, char *err)
 		if (WIFEXITED(status)) {
 		    rc = WEXITSTATUS(status);
 		    if (rc) {
-			WriteError("Execute: returned error %d", rc);
+			if ((strstr(args[0], (char *)"unzip") == NULL) || (rc != 11)) {
+			    WriteError("Execute: returned error %d", rc);
+			}
 			return (rc + MBERR_EXTERNAL);
 		    }
 		}

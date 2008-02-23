@@ -14,6 +14,7 @@ v0.95.1		07-Jan-2008 - 17-Feb-2008.
 		Added file virscan function.
 		Added stream scanning for ClamAV, scanning is 10 times faster
 		compared to the commandline scanner.
+		Don't log errors if execute unzip returned error 11.
 
 	mbtask:
 		Added last changes for MIB counters.
