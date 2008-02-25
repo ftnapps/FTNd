@@ -129,6 +129,7 @@ int clam_stream_check(char *server, char *port, char *filename)
 	    if (errno == EPIPE)
 		break;
 	    WriteError("$write2()");
+	    fclose(fp);
 	    return 2;
 	}
     }
@@ -137,6 +138,7 @@ int clam_stream_check(char *server, char *port, char *filename)
 	return 2;
     }
     close(ss);
+    fclose(fp);
 
     if ((buf_len = read(s, buf, sizeof(buf)-1)) == -1) { 
 	WriteError("$read3()");
@@ -156,12 +158,120 @@ int clam_stream_check(char *server, char *port, char *filename)
 	    buf_s += sizeof("stream:")-1;
 	    while(*buf_s == ' ') 
 		buf_s ++;
-	    Syslog('!', "ClamAV stream check, virus found: %.*s", (int)(buf_c - buf_s), buf_s);
+	    WriteError("ClamAV stream check, virus found: %.*s", (int)(buf_c - buf_s), buf_s);
 	}
 	return 1;
     }
 
+    close(s);
     Syslog('f', "clam_stream_check(): no virus found");
+    return 0;
+}
+
+
+
+/*
+ * F-Prot stream check.
+ * Returns: 0 = Ok, no virus found.
+ *          1 = Virus found.
+ *          2 = Internal error.
+ *
+ * telnet localhost 10200
+ * SCAN FILE /path/to/file SIZE n
+ * stream data
+ *   --
+ * receive:
+ * n <descriptive text> <name of the scanned object>
+ * n -= result code, 0 s clean.
+ */
+int fp_stream_check(char *server, char *port, char *filename)
+{
+    struct addrinfo	hints, *res;
+    int			filesize = 0, buf_len = 0, s, err;
+    char		*cmd, buf[1024], *str1, *str2;
+    FILE		*fp;
+
+    Syslog('f', "fp_stream_check(%s, %s, %s)", server, port, filename);
+    filesize = file_size(filename);
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = PF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((err = getaddrinfo(server, port, &hints, &res)) != 0) {
+	WriteError("getaddrinfo(%s:%s): %s\n", server, port, gai_strerror(err));
+	return 2;
+    }
+
+    while (res) {
+	s = socket(PF_INET, SOCK_STREAM, 0);
+	if (s == -1) {
+	    WriteError("$socket()");
+	    return 2;
+	}
+
+	if (connect(s, res->ai_addr, sizeof(struct sockaddr)) == -1) {
+	    struct sockaddr_in *sa = (struct sockaddr_in *)res->ai_addr;
+	    WriteError("$connect(%s:%d)", inet_ntoa(sa->sin_addr), (int)ntohs(sa->sin_port));
+	    res = res->ai_next;
+	    close(s);
+	} else {
+	    break;
+	}
+    }
+
+    if (res == NULL) {
+	WriteError("unable to connect to %s", server);
+	return 2;
+    }
+
+    cmd = calloc(PATH_MAX, sizeof(char));
+    snprintf(cmd, PATH_MAX-1, "SCAN STREAM %s SIZE %d\n", filename, filesize);
+    Syslog('f', "snd: %s", printable(cmd, 0));
+    if (write(s, cmd, strlen(cmd)) == -1) {
+	WriteError("$write()");
+	return 2;
+    }
+    free(cmd);
+
+    /*
+     * Stream the data
+     */
+    if ((fp = fopen(filename, "r")) == NULL) {
+	WriteError("$can't open %s", filename);
+	return 2;
+    }
+
+    while ((buf_len = fread(buf, 1, sizeof(buf), fp)) > 0) {
+	if (write(s, buf, buf_len) == -1) {
+	    if (errno == EPIPE)
+		break;
+	    WriteError("$write2()");
+	    fclose(fp);
+	    return 2;
+	}
+    }
+    fclose(fp);
+
+    if ((buf_len = read(s, buf, sizeof(buf)-1)) == -1) {
+	WriteError("$read()");
+	return 2;
+    }
+    buf[buf_len] = '\0';
+    Syslog('f', "got: %s", printable(buf, 0));
+    cmd = xstrcpy(buf);
+    str1 = strtok(cmd, "<");
+    str1[strlen(str1)-1] = '\0';
+    str2 = strtok(NULL, ">");
+    err = atoi(str1);
+    if (err) {
+	// Message looks like: 'contains infected objects: EICAR_Test_File'
+	WriteError("F-Prot stream check %s, rc=%d", str2, err);
+	return 1;
+    }
+
+    close(s);
+    Syslog('f', "fp_stream_check(): no virus found");
     return 0;
 }
 
@@ -239,7 +349,7 @@ int VirScanFile(char *filename)
 					    unlink(stdlog);
 					    unlink(errlog);
 					    if (vrc != virscan.error) {
-						Syslog('!', "Virus found by %s", virscan.comment);
+						WriteError("Virus found by %s", virscan.comment);
 						rc = TRUE;
 					    }
 					}
@@ -249,8 +359,14 @@ int VirScanFile(char *filename)
 					if ((clam_stream_check(virscan.host, port, filename) == 1)) {
 					    rc = TRUE;
 					}
+					free(port);
 					break;
-		case FP_STREAM:
+		case FP_STREAM:		port = calloc(21, sizeof(char));
+					snprintf(port, 20, "%d", virscan.port);
+					if ((fp_stream_check(virscan.host, port, filename) == 1)) {
+					    rc = TRUE;
+					}
+					free(port);
 					break;
 	    }
 
