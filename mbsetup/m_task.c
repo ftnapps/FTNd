@@ -4,7 +4,7 @@
  * Purpose ...............: Setup TaskManager.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -216,7 +216,7 @@ int task_doc(FILE *fp, FILE *toc, int page)
     close_webdoc(wp);
 					
     page = newpage(fp, page);
-    addtoc(fp, toc, 16, 0, page, (char *)"Task manager");
+    addtoc(fp, toc, 18, 0, page, (char *)"Task manager");
 
     fprintf(fp, "\n");
     fprintf(fp, "     Command on mailout     %s\n", TCFG.cmd_mailout);

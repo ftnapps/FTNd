@@ -4,7 +4,7 @@
  * Purpose ...............: Domain Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -472,7 +472,7 @@ int domain_doc(FILE *fp, FILE *toc, int page)
 		return page;
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 15, 0, page, (char *)"Domain manager");
+	addtoc(fp, toc, 17, 0, page, (char *)"Domain manager");
 	j = 0;
 
 	wp = open_webdoc((char *)"domain.html", (char *)"Domain Translation", NULL);

@@ -4,7 +4,7 @@
  * Purpose ...............: Service Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -423,7 +423,7 @@ int service_doc(FILE *fp, FILE *toc, int page)
 	return page;
 
     page = newpage(fp, page);
-    addtoc(fp, toc, 14, 0, page, (char *)"Service manager");
+    addtoc(fp, toc, 16, 0, page, (char *)"Service manager");
     j = 0;
 
     fprintf(fp, "\n");

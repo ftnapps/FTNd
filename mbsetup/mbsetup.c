@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -309,7 +309,7 @@ void site_docs(void)
      * Append table of contents
      */
     page = newpage(fp, page);
-    addtoc(fp, toc, 17, 0, page, (char *)"Table of contents");
+    addtoc(fp, toc, 21, 0, page, (char *)"Table of contents");
     fprintf(fp, "\n\n");
     line = 4;
     rewind(toc);

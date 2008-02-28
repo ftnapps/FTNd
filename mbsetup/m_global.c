@@ -4,7 +4,7 @@
  * Purpose ...............: Global Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1682,8 +1682,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	return page;
 
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 0, page, (char *)"Global system setup");
-    addtoc(fp, toc, 1, 1, page, (char *)"Host system information");
+    addtoc(fp, toc, 0, 0, page, (char *)"System inormation");
+    addtoc(fp, toc, 0, 1, page, (char *)"System inormation");
 
     wp = open_webdoc((char *)"global.html", (char *)"Global Configuration", NULL);
     fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
@@ -1744,12 +1744,14 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
-    
+ 
+    addtoc(fp, toc, 1, 0, page, (char *)"Global system setup");
+    addtoc(fp, toc, 1, 1, page, (char *)"System fidonet addresses");
+
     fprintf(wp, "<A NAME=\"_akas\"></A><H3>System fidonet addresses</H3>\n");
     fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
     fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
     fprintf(wp, "<TBODY>\n");
-    addtoc(fp, toc, 1, 2, page, (char *)"System fidonet addresses");
     for (i = 0; i < 40; i++) {
 	if (CFG.akavalid[i]) {
 	    fprintf(fp, "      Aka %2d    %s\n", i+1, aka2str(CFG.aka[i]));
@@ -1781,7 +1783,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
-    addtoc(fp, toc, 1, 3, page, (char *)"Registration information");
+    addtoc(fp, toc, 1, 2, page, (char *)"Registration information");
     fprintf(fp, "      System name      %s\n", CFG.bbs_name);
     fprintf(fp, "      Mail domain      %s\n", CFG.sysdomain);
     fprintf(fp, "      My FQDN          %s\n", CFG.myfqdn);
@@ -1808,7 +1810,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
-    addtoc(fp, toc, 1, 4, page, (char *)"Global filenames");
+    addtoc(fp, toc, 1, 3, page, (char *)"Global filenames");
     fprintf(fp, "      System logfile   %s\n", CFG.logfile);
     fprintf(fp, "      Error logfile    %s\n", CFG.error_log);
     fprintf(fp, "      Debug logfile    %s\n", CFG.debuglog);
@@ -1841,7 +1843,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
-    addtoc(fp, toc, 1, 5, page, (char *)"Pathnames");
+    addtoc(fp, toc, 1, 4, page, (char *)"Pathnames");
     fprintf(fp, "      Users homedirs   %s\n", CFG.bbs_usersdir);
     fprintf(fp, "      Nodelists        %s\n", CFG.nodelists);
     fprintf(fp, "      Unsafe inbound   %s\n", CFG.inbound);
@@ -1896,7 +1898,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 6, page, (char *)"Global settings");
+    addtoc(fp, toc, 1, 5, page, (char *)"Global settings");
     fprintf(fp, "      Show new msgarea %s\n", getboolean(CFG.NewAreas));
     fprintf(fp, "      Exclude sysop    %s\n", getboolean(CFG.exclude_sysop));
     fprintf(fp, "      Show connect     %s\n", getboolean(CFG.iConnectString));
@@ -1941,7 +1943,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 7, page, (char *)"Users flag descriptions");
+    addtoc(fp, toc, 1, 6, page, (char *)"Users flag descriptions");
     fprintf(fp, "               1    1    2    2    3 3\n");
     fprintf(fp, "      1   5    0    5    0    5    0 2\n");
     fprintf(fp, "      --------------------------------\n");
@@ -1980,7 +1982,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 8, page, (char *)"New users defaults");
+    addtoc(fp, toc, 1, 7, page, (char *)"New users defaults");
     fprintf(fp, "      Access level      %s\n", get_secstr(CFG.newuser_access));
     fprintf(fp, "      Cap. username     %s\n", getboolean(CFG.iCapUserName));
     fprintf(fp, "      Ask Sex           %s\n", getboolean(CFG.iSex));
@@ -2016,7 +2018,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
-    addtoc(fp, toc, 1, 9, page, (char *)"Text colors");
+    addtoc(fp, toc, 1, 8, page, (char *)"Text colors");
     fprintf(fp, "      Normal text      %s on %s\n", get_color(CFG.TextColourF), get_color(CFG.TextColourB));
     fprintf(fp, "      Underline text   %s on %s\n", get_color(CFG.UnderlineColourF), get_color(CFG.UnderlineColourB));
     fprintf(fp, "      Input text       %s on %s\n", get_color(CFG.InputColourF), get_color(CFG.InputColourB));
@@ -2045,7 +2047,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 10, page, (char *)"Sysop paging");
+    addtoc(fp, toc, 1, 9, page, (char *)"Sysop paging");
     fprintf(fp, "      Page length        %d seconds\n", CFG.iPageLength);
     fprintf(fp, "      Page times         %d\n", CFG.iMaxPageTimes);
     fprintf(fp, "      Sysop msg area     %d\n", CFG.iSysopArea);
@@ -2075,7 +2077,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");    
-    addtoc(fp, toc, 1, 11, page, (char *)"Fileecho processing");
+    addtoc(fp, toc, 1, 10, page, (char *)"Fileecho processing");
     fprintf(fp, "      Keep days on hold  %d\n", CFG.tic_days);
     fprintf(fp, "      Hatch password     %s\n", CFG.hatchpasswd);
     fprintf(fp, "      Max. systems       %d\n", CFG.tic_systems);
@@ -2116,7 +2118,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 12, page, (char *)"Fidonet Mail and Echomail processing");
+    addtoc(fp, toc, 1, 11, page, (char *)"Fidonet Mail and Echomail processing");
     fprintf(fp, "      Max .pkt size      %d Kb.\n", CFG.maxpktsize);
     fprintf(fp, "      Max archive size   %d Kb.\n", CFG.maxarcsize);
     fprintf(fp, "      Bad mail board     %s\n", CFG.badboard);
@@ -2148,7 +2150,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"POP3 user@domain login", getboolean(CFG.UsePopDomain));
     add_webtable(wp, (char *)"SMTP host", CFG.smtpnode);
     add_webtable(wp, (char *)"News transfermode", getnewsmode(CFG.newsfeed));
-    addtoc(fp, toc, 1, 13, page, (char *)"Internet Mail and News processing");
+    addtoc(fp, toc, 1, 12, page, (char *)"Internet Mail and News processing");
     fprintf(fp, "      Split messages at  %d KBytes\n", CFG.new_split);
     fprintf(fp, "      Force split at     %d KBytes\n", CFG.new_force);
     fprintf(fp, "      ISP Email Mode     %s\n", getemailmode(CFG.EmailMode));
@@ -2197,7 +2199,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webdigit(wp, (char *)"Max. newfile groups", CFG.new_groups);
     add_webtable(wp, (char *)"WWW logfile", CFG.www_logfile);
     add_webtable(wp, (char *)"FTP logfile", CFG.ftp_logfile);
-    addtoc(fp, toc, 1, 14, page, (char *)"Newfile reports");
+    addtoc(fp, toc, 1, 13, page, (char *)"Newfile reports");
     fprintf(fp, "      New files days     %d\n", CFG.newdays);
     fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
     fprintf(fp, "      Max. newfile grps  %d\n", CFG.new_groups);
@@ -2233,7 +2235,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TBODY>\n");
     fprintf(wp, "</TABLE>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 15, page, (char *)"Mailer setup");
+    addtoc(fp, toc, 1, 14, page, (char *)"Mailer setup");
     p = getloglevel(CFG.cico_loglevel);
     fprintf(fp, "      Mailer loglevel    %s\n",  p);
     free(p);
@@ -2287,7 +2289,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1, 17, page, (char *)"WWW server setup");
+    addtoc(fp, toc, 1, 15, page, (char *)"WWW server setup");
     fprintf(fp, "      HTML root            %s\n", CFG.www_root);
     fprintf(fp, "      Link to FTP base     %s\n", CFG.www_link2ftp);
     fprintf(fp, "      Webserver URL        %s\n", CFG.www_url);
@@ -2309,7 +2311,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     page = newpage(fp, page);
-    addtoc(fp, toc, 1,18, page, (char *)"Manager flag descriptions");
+    addtoc(fp, toc, 1,16, page, (char *)"Manager flag descriptions");
     fprintf(fp, "               1    1    2    2    3 3\n");
     fprintf(fp, "      1   5    0    5    0    5    0 2\n");
     fprintf(fp, "      --------------------------------\n");
