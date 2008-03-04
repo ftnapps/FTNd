@@ -5,7 +5,7 @@
 # Hatch script for MBSE BBS.
 #
 #============================================================================
-# Copyright (C) 1997-2004
+# Copyright (C) 1997-2008
 #   
 # Michiel Broek                FIDO:           2:280/2802
 # Beekmansbos 10
@@ -35,7 +35,7 @@
 # 
 HATCHPWD="DizIzMyBIGseeKret"
 INBOUND=$MBSE_ROOT/var/inbound
-HVERSION="1.0.2"
+HVERSION="1.0.3"
 
 
 if [ "`id -un`" != "mbse" ]; then
@@ -104,6 +104,7 @@ do
 	    fi		
 	    echo "Origin $AKA" >> $FILE
 	    echo "From $AKA" >> $FILE
+	    echo "File $f" >> $FILE
 	    echo "Fullname $f" >> $FILE
 	    echo "Pth `pwd`" >> $FILE
 	    echo "Desc $DESC" >> $FILE

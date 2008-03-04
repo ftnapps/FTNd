@@ -8,6 +8,11 @@ v0.91.2		17-Feb-2008
 	mbsetup:
 		Fixed chapter numbering in the ascii sitedoc.
 
+	script:
+		Fixed hatch script to send File line. Note: you must manually
+		install hatch.new to hatch in the bin directory and set the
+		password again, this script will not automatic install.
+
 
 v0.95.1		07-Jan-2008 - 17-Feb-2008.
 
