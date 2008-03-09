@@ -353,6 +353,14 @@ Syslog('-', "postecho(%s)", ascfnode(p_from, 0x1f));
 if (strcmp(msgs.Tag, "VCTEST") == 0) {
 Syslog('-', "zonegated message, seenby is now %s", sbe);
 }
+	    /*
+	     * Add our system again, the rest of our aka's will be added next.
+	     */
+	    snprintf(sbe, 16, "%u/%u", msgs.Aka.net, msgs.Aka.node);
+	    fill_list(&sbl, sbe, NULL);
+if (strcmp(msgs.Tag, "VCTEST") == 0) {
+Syslog('-', "and added %s", sbe);
+}
 	}
 
 	/*
@@ -458,9 +466,9 @@ Syslog('-', "zonegated message, seenby is now %s", sbe);
 	    seenlen = strlen(sbe);
 	}
 	fprintf(nfp, "%s", sbe);
-if (strcmp(msgs.Tag, "VCTEST") == 0) {
-Syslog('-', "add %s to msg", sbe);
-}
+//if (strcmp(msgs.Tag, "VCTEST") == 0) {
+//Syslog('-', "add %s to msg", sbe);
+//}
     }
 
     seenlen = MAXPATH + 1;
@@ -486,6 +494,16 @@ Syslog('-', "add %s to msg", sbe);
     fprintf(nfp, "\n");
     fflush(nfp);
     rewind(nfp);
+
+if (strcmp(msgs.Tag, "VCTEST") == 0) {
+while ((fgets(buf, MAX_LINE_LENGTH, nfp)) != NULL) {
+Striplf(buf);
+if (strncmp(buf, "SEEN-BY", 7) == 0) {
+Syslog('-', "%s", buf);
+}
+}
+rewind(nfp);
+}
 
 
     /*
