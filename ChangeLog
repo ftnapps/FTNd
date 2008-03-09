@@ -13,6 +13,9 @@ v0.91.2		17-Feb-2008
 		install hatch.new to hatch in the bin directory and set the
 		password again, this script will not automatic install.
 
+	mbtask:
+		Call setprgp is not fatal if it fails.
+
 
 v0.95.1		07-Jan-2008 - 17-Feb-2008.
 

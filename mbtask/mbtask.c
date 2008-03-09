@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1672,8 +1672,11 @@ int main(int argc, char **argv)
 	 * associated with that terminal as its control terminal.
 	 */
 	if ((pgrp = setpgid(0, 0)) == -1) {
-	    Syslog('?', "$setpgid failed");
-	    die(MBERR_INIT_ERROR);
+	    Syslog('t', "$setpgid failed");
+	    /*
+	     * Just log this, some SElinux versions don't allow it.
+	     */
+//	    die(MBERR_INIT_ERROR);
 	}
 
 	frk = fork();
