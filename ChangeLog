@@ -5,6 +5,9 @@ v0.91.2		17-Feb-2008
 	mbselib.h:
 		Added stream scanning for F-Prot.
 
+	mbfido:
+		Added debug code for a seenby problem.
+
 	mbsetup:
 		Fixed chapter numbering in the ascii sitedoc.
 
