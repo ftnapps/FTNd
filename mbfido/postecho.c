@@ -4,7 +4,7 @@
  * Purpose ...............: Post echomail message.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -338,29 +338,17 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
      */
     if (!dupe && !isbad) {
 
-if (strcmp(msgs.Tag, "VCTEST") == 0) {
-Syslog('-', "postecho(%s)", ascfnode(p_from, 0x1f));
-}
 	if (msgs.Aka.zone != Link.aka.zone) {
 	    /*
 	     * If it is a zonegated echomailmessage the SEEN-BY lines
 	     * are stripped off including that of the other zone's
-	     * gate. Add the gate's aka to the SEEN-BY
+	     * gate. Add the gate's aka and our own aka to the SEEN-BY
 	     */
 	    tidy_falist(&sbl);
 	    snprintf(sbe, 16, "%u/%u", Link.aka.net, Link.aka.node);
 	    fill_list(&sbl, sbe, NULL);
-if (strcmp(msgs.Tag, "VCTEST") == 0) {
-Syslog('-', "zonegated message, seenby is now %s", sbe);
-}
-	    /*
-	     * Add our system again, the rest of our aka's will be added next.
-	     */
 	    snprintf(sbe, 16, "%u/%u", msgs.Aka.net, msgs.Aka.node);
 	    fill_list(&sbl, sbe, NULL);
-if (strcmp(msgs.Tag, "VCTEST") == 0) {
-Syslog('-', "and added %s", sbe);
-}
 	}
 
 	/*
@@ -466,9 +454,6 @@ Syslog('-', "and added %s", sbe);
 	    seenlen = strlen(sbe);
 	}
 	fprintf(nfp, "%s", sbe);
-//if (strcmp(msgs.Tag, "VCTEST") == 0) {
-//Syslog('-', "add %s to msg", sbe);
-//}
     }
 
     seenlen = MAXPATH + 1;
@@ -494,17 +479,6 @@ Syslog('-', "and added %s", sbe);
     fprintf(nfp, "\n");
     fflush(nfp);
     rewind(nfp);
-
-if (strcmp(msgs.Tag, "VCTEST") == 0) {
-while ((fgets(buf, MAX_LINE_LENGTH, nfp)) != NULL) {
-Striplf(buf);
-if (strncmp(buf, "SEEN-BY", 7) == 0) {
-Syslog('-', "%s", buf);
-}
-}
-rewind(nfp);
-}
-
 
     /*
      * Import this echomail, even if it's bad or a dupe.
@@ -536,9 +510,6 @@ rewind(nfp);
 		StatAdd(&nodes.MailSent, 1L);
 		UpdateNode();
 		SearchNode(tmpq->aka);
-if (strcmp(msgs.Tag, "VCTEST") == 0) {
-Syslog('-', "send message to %s", aka2str(tmpq->aka));
-}
 		echo_out++;
 		if (EchoOut(tmpq->aka, t->name, f->name, subj, nfp, flags, cost, mdate))
 		    WriteError("Forward echomail to %s failed", aka2str(tmpq->aka));
