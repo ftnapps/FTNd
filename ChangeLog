@@ -1,9 +1,9 @@
 $Id$
 
-v0.91.3		12-Mar-2008
+v0.95.3		12-Mar-2008
 
 
-v0.91.2		17-Feb-2008 - 12-Mar-2008.
+v0.95.2		17-Feb-2008 - 12-Mar-2008.
 
 	mbselib.h:
 		Added stream scanning for F-Prot.
