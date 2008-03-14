@@ -50,7 +50,7 @@ void tidy_orphans(orphans **qal)
 void fill_orphans(orphans **qal, char *TicName, char *Area, char *FileName, int Orphaned, int BadCRC)
 {
     orphans	*tmp;
-
+Syslog('-', "fill_orphans");
     tmp = (orphans *)malloc(sizeof(orphans));
     tmp->next = *qal;
     snprintf(tmp->TicName, 13, TicName);
