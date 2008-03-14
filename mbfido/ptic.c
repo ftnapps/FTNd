@@ -71,7 +71,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     int		    First, Listed = FALSE, DownLinks = 0, MustRearc = FALSE;
     int		    UnPacked = FALSE, IsArchive = FALSE, rc, i, j, k, File_Id = FALSE;
     char	    *Temp, *unarc = NULL, *cmd = NULL;
-    char	    temp1[PATH_MAX], temp2[PATH_MAX], sbe[24], TDesc[256];
+    char	    temp1[PATH_MAX], temp2[PATH_MAX], sbe[24], TDesc[1024];
     unsigned int    crc, crc2, Kb;
     sysconnect	    Link;
     FILE	    *fp;
@@ -587,7 +587,6 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    }
 	}
     }
-
     clean_tmpwork();
     chdir(TIC.Inbound);
 

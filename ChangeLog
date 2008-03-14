@@ -2,6 +2,11 @@ $Id$
 
 v0.95.3		12-Mar-2008
 
+	mbfido:
+		Fixed another buffer overflow thanks someone who is using a
+		tic processor that doesn't follow specs and doesn't create
+		proper ticfiles.
+
 
 v0.95.2		17-Feb-2008 - 12-Mar-2008.
 
