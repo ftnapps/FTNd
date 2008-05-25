@@ -1,12 +1,32 @@
 Source: mbsebbs
-Section: unknown
+Section: network
 Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.org>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
+Vcs-Browser: http://fido.mbse.eu/cgi-bin/viewvc.cgi/mbsebbs/?cvsroot=MBSE
+Homepage: http://www.mbse.eu/mbse/mbsebbs
 
 Package: mbsebbs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Recommends: xinetd, zip, unzip
+Suggests: arc, arj, unrar-free, unzoo, zoo, lha, dosemu, dosemu-freedos
+Description: MBSE BBS System for Unix
+ MBSE BBS is a full Fidonet capable ANSI BBS 
+ package including a mailer, tosser, ticfile 
+ processor, filefind and other utilities. 
+ The bbs supports full configurable ANSI
+ menus, multiple languages, standard file 
+ transfer protocols, native GNU/Linux doors,
+ DOS doors using dosemu and BlueWave and QWK
+ offline readers.
+ The mailer supports FTS-0001, YooHoo/2U2,
+ EMSI protocols over modem, TCP/IP IFC and
+ Binkp protocols. Zedzap, Zmodem, Telink and
+ Hydra file transfer protocols.  Full FTN mail
+ support, including automatic routing for hub
+ and host systems.
+ Internal mail format is JAM (c) messagebase.
+ Full tic file support, including extended
+ tic files.
