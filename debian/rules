@@ -60,7 +60,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/mbsebbs.
-	$(MAKE) prefix=$(CURDIR)/debian/mbsebbs/usr install
+	$(MAKE) prefix=$(CURDIR)/debian/mbsebbs/opt install
 
 
 # Build architecture-independent files here.
