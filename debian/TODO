@@ -1,0 +1,12 @@
+Debian TODO for MBSE BBS
+-------------------------
+
+Packaging
+----------
+- Create man pages for executables;  for instance, using help2man
+- Create a synchronet-dbg package?   (Check references.)
+
+Configuration:
+- Create & use debian/po, so that any debconf messages can be translated.
+
+ -- Robert James Clay <jame@rocasa.org>  Tue, 25 May 2008 13:39 -0400
