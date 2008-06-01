@@ -3,10 +3,12 @@ Debian TODO for MBSE BBS
 
 Packaging
 ----------
-- Create man pages for executables;  for instance, using help2man
+- Create man pages for executables;  for instance, using help2man.
 - Create an mbsebbs-dbg package?   (Check references.)
+- Create debian/README.Source file.
+- Update debian/watch to correctly find new versions.
 
 Configuration:
-- Create & use debian/po, so that any debconf messages can be translated.
+- Create & use debian/po, so that any debconf messages can be translated?
 
- -- Robert James Clay <jame@rocasa.org>  Tue, 25 May 2008 13:43 -0400
+ -- Robert James Clay <jame@rocasa.org>  Tue,  1 Jun 2008 13:22 -0400
