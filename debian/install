@@ -17,5 +17,5 @@ mbutils/mball	/opt/mbse/bin
 mbutils/mbbw	/opt/mbse/bin
 mbutils/mblang	/opt/mbse/bin
 mbutils/mbstat	/opt/mbse/bin
-mbutils/toberep	/opt/mbse/bin
+mbutils/mbtoberep	/opt/mbse/bin
 mbutils/mbuser	/opt/mbse/bin
