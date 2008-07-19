@@ -1,7 +1,7 @@
 opt
 opt/mbse
-opt/mbse/bin/adm
 opt/mbse/bin
+opt/mbse/bin/adm
 opt/mbse/etc
 opt/mbse//etc/dosemu
 opt/mbse/log

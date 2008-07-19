@@ -19,3 +19,8 @@ mbutils/mblang	/opt/mbse/bin
 mbutils/mbstat	/opt/mbse/bin
 mbutils/mbtoberep	/opt/mbse/bin
 mbutils/mbuser	/opt/mbse/bin
+scripts/maint	/opt/mbse/bin/adm
+scripts/midnight	/opt/mbse/bin/adm
+scripts/weekly	/opt/mbse/bin/adm
+scripts/monthly	/opt/mbse/bin/adm
+
