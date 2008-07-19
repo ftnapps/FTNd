@@ -1,5 +1,6 @@
 opt
 opt/mbse
+opt/mbse/bin/adm
 opt/mbse/bin
 opt/mbse/etc
 opt/mbse//etc/dosemu
