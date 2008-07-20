@@ -74,7 +74,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs ChangeLog
-	dh_installdocs
+	dh_installdocs -XREADME
 	dh_installexamples -XMakefile -Xinit. -XREADME -Xsetup.mbse examples/* script/*
 	dh_install
 	dh_installmenu
