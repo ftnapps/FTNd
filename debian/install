@@ -36,4 +36,4 @@ script/midnight	/opt/mbse/bin/adm
 script/weekly	/opt/mbse/bin/adm
 script/monthly	/opt/mbse/bin/adm
 script/rundoor.sh	/opt/mbse/bin
-script/runvirtual	/opt/mbse/bin
+script/runvirtual.sh	/opt/mbse/bin
