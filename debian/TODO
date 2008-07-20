@@ -15,8 +15,8 @@ Packaging
 Configuration:
 - Configure user:group mbse:bbs -  in postinst script?
 - crontab:  Once have user:group mbse:bbs being configured, install a             
-crontab for mbsebbs under that user (in postinst)?.  Also install it in
-the examples directory.  Or ask a question about installing it?
+crontab for mbsebbs under that user (in postinst)?.  Or ask a question
+about installing it?
 
 
- -- Robert James Clay <jame@rocasa.org>  Sat,  19 Jul 2008 21:21 -0400
+ -- Robert James Clay <jame@rocasa.org>  Sat,  19 Jul 2008 21:30 -0400
