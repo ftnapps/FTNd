@@ -6,6 +6,13 @@ mbfido/mbfido	/opt/mbse/bin
 mbfido/mbfile	/opt/mbse/bin
 mbfido/mbindex	/opt/mbse/bin
 mbfido/mbmsg	/opt/mbse/bin
+lang/language.de	/opt/mbse/share/int
+lang/language.en	/opt/mbse/share/int
+lang/language.es	/opt/mbse/share/int
+lang/language.fr	/opt/mbse/share/int
+lang/language.gl	/opt/mbse/share/int
+lang/language.nl	/opt/mbse/share/int
+lang/language.zh	/opt/mbse/share/int
 mbfido/mbseq	/opt/mbse/bin
 mbmon/mbmon	/opt/mbse/bin
 mbnntp/mbnntp	/opt/mbse/bin
