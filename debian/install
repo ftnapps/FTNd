@@ -19,8 +19,14 @@ mbutils/mblang	/opt/mbse/bin
 mbutils/mbstat	/opt/mbse/bin
 mbutils/mbtoberep	/opt/mbse/bin
 mbutils/mbuser	/opt/mbse/bin
+scripts/bbsdoor.sh	/opt/mbse/bin
+scripts/doors.bat	/opt/mbse/bin
+scripts/editor	/opt/mbse/bin
+scripts/hatch	/opt/mbse/bin
 scripts/maint	/opt/mbse/bin/adm
+scripts/mbsedoor	/opt/mbse/bin
 scripts/midnight	/opt/mbse/bin/adm
 scripts/weekly	/opt/mbse/bin/adm
 scripts/monthly	/opt/mbse/bin/adm
-
+scripts/rundoor.sh	/opt/mbse/bin
+scripts/runvirtual	/opt/mbse/bin
