@@ -1,3 +1,4 @@
+debian/cron.d	/usr/share/doc/mbsebbs/examples
 html/	/usr/share/doc/mbsebbs
 mbcico/mbcico	/opt/mbse/bin
 mbcico/mbout	/opt/mbse/bin
