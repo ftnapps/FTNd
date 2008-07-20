@@ -31,7 +31,7 @@ script/doors.bat	/opt/mbse/bin
 script/editor	/opt/mbse/bin
 script/hatch	/opt/mbse/bin
 script/maint	/opt/mbse/bin/adm
-script/mbsedoor	/opt/mbse/bin
+script/mbsedos	/opt/mbse/bin
 script/midnight	/opt/mbse/bin/adm
 script/weekly	/opt/mbse/bin/adm
 script/monthly	/opt/mbse/bin/adm
