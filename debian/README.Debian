@@ -1,6 +1,11 @@
 mbsebbs for Debian
 ------------------
 
-<possible notes regarding this package - if none, delete this file>
+   If you get an error message such as this when mbtask is started: 
+IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat
+   That indicates that the entry for it is missing from the file.  Add
+   a line such this to the /etc/services file:
+fido		60179/udp			# MBSE BBS Chatserver
 
- -- Robert James Clay <jame@rocasa.org>  Tue, 19 Feb 2008 20:09:43 -0500
+
+ -- Robert James Clay <jame@rocasa.org>  Sun, 7 Aug 2008 12:06:43 -0500
