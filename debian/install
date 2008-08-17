@@ -15,6 +15,7 @@ lang/language.fr	/opt/mbse/share/int
 lang/language.gl	/opt/mbse/share/int
 lang/language.nl	/opt/mbse/share/int
 lang/language.zh	/opt/mbse/share/int
+lib/nodelist.conf	/opt/mbse/etc
 mbfido/mbseq	/opt/mbse/bin
 mbmon/mbmon	/opt/mbse/bin
 mbnntp/mbnntp	/opt/mbse/bin
