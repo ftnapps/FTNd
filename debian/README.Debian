@@ -1,6 +1,9 @@
 mbsebbs for Debian
 ------------------
 
+    An example crontab is available as doc/mbsebbs/examples/crontab.mbse,
+    which can be installed using the crontab command as the user mbse.
+
     Configuring inetd or xinetd.  For inetd;  the information in
    doc/mbsebbs/examples/inetd.mbse could be added to /etc/inetd.conf.
    For xinetd: the doc/mbsebbs/examples/xinetd.mbse could be installed
@@ -13,4 +16,4 @@ IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat
 fido		60179/udp			# MBSE BBS Chatserver
 
 
- -- Robert James Clay <jame@rocasa.org>  Sun, 7 Aug 2008 12:51:33 -0500
+ -- Robert James Clay <jame@rocasa.org>  Sun, 7 Aug 2008 13:47:33 -0500
