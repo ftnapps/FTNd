@@ -1,0 +1,52 @@
+#:MBSE BBS services are defined here.
+#
+# Author: Michiel Broek <mbse@mbse.eu>, 27-Sep-2004
+
+service binkp
+{
+	socket_type	= stream
+	protocol	= tcp
+	wait		= no
+	user		= mbse
+	instances	= 10
+	server		= /opt/mbse/bin/mbcico
+	server_args	= -t ibn
+}
+
+service fido
+{
+	socket_type	= stream
+	protocol	= tcp
+	wait		= no
+	user		= mbse
+	instances	= 10
+	server		= /opt/mbse/bin/mbcico
+	server_args	= -t ifc
+}
+
+service tfido
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = mbse
+	instances       = 10
+	server          = /opt/mbse/bin/mbcico
+	server_args	= -t itn
+}
+
+# Telnet to the bbs using mblogin, disabled by default.
+#
+service telnet
+{
+	disable		= yes
+	protocol	= tcp
+	instances	= 10
+	flags		= REUSE
+	log_on_failure += USERID
+	socket_type	= stream
+	user		= root
+	server		= /usr/sbin/telnetd
+	server_args	= -L /opt/mbse/bin/mblogin
+	wait		= no
+}
