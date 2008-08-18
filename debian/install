@@ -40,3 +40,6 @@ script/weekly	/opt/mbse/bin/adm
 script/monthly	/opt/mbse/bin/adm
 script/rundoor.sh	/opt/mbse/bin
 script/runvirtual.sh	/opt/mbse/bin
+unix/mblogin	/opt/mbse/bin
+unix/mbpasswd	/opt/mbse/bin
+unix/mbuseradd	/opt/mbse/bin
