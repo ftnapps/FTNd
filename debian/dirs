@@ -6,8 +6,10 @@ opt/mbse/etc
 opt/mbse//etc/dosemu
 opt/mbse/log
 opt/mbse/tmp
+opt/mbse/tmp/arc
 opt/mbse/tmp/nlwork
 opt/mbse/home
+opt/mbse/home/bbs
 opt/mbse/share
 opt/mbse/share/doc
 opt/mbse/share/doc/html
