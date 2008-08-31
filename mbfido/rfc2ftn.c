@@ -610,7 +610,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    else
 		charwrite(p,ofp);
 	} else
-	    fprintf(ofp,"%s\n", TearLine());
+	    fprintf(ofp,"\n%s\n", TearLine());
 
 	if ((p = hdr((char *)"X-FTN-Origin",msg))) {
 	    if (*(q=p+strlen(p)-1) == '\n') 
