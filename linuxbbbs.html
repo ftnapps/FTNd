@@ -1,0 +1,101 @@
+<HTML>
+<HEAD>
+ <TITLE>Rocasa BBS:  BBBS on Linux</TITLE>
+ <META NAME="author" content="Robert James Clay">
+ <META NAME="keywords" CONTENT="Linux, Fidonet, BBS, BBBS">
+ <META NAME="description" CONTENT="Information and links about BBBS on Linux. ">
+ <link rel="stylesheet" type="text/css" href="/bbbs.css">
+</HEAD>
+<BODY>
+
+<H1 ALIGN="CENTER">BBBS on Linux</H1>
+
+<UL>
+  <LI> BBBS info & links
+  <LI>Linux hosted BBBS systems  
+  <LI>Linux installs for BBBS
+</UL>
+
+
+<HR WIDTH="75%">
+<H2 ALIGN="CENTER">BBBS Info & Links</H2>
+<P ALIGN="CENTER">
+BBBS is a full featured bbs program that is available for many platforms that includes full Fidonet and Internet support(See the BBBS home page,<A HREF="http://www.bbbs.net">  http://www.bbbs.net </A>for details.) 
+<P ALIGN="CENTER">Another BBBS support page can be found at <A HREF="http://freezer-burn.org/bbbs.html"> http://freezer-burn.org/bbbs.html</A>.
+<HR WIDTH="75%">
+<H2 ALIGN="CENTER">Linux hosted BBBS systems</H2>
+
+<UL>
+<LI><DL>
+    <DT><A HREF="telnet://bbs.rocasa.net">Rocasa BBS</A> 
+    <DD><A HREF="http://www.rocasa.org/about.html">About</A> Rocasa BBS
+    </DL>
+
+<LI><DL>
+    <DT><A HREF="telnet://24.0.151.4:23">Ocean Beach BBS</A> 
+    <DD>Ocean Beach, CA, USA
+    </DL>
+
+<LI><DL>
+    <DT>Telnet to<A HREF="telnet://shx.tzo.net:23"> Stronghold Enterprises/X</A> 
+    <DD><A HREF="http://shx.tzo.net:8080/bbbs">HTTP </A> Login (after you have an account.) 
+    </DL>
+</UL>
+
+
+
+<HR WIDTH="75%">
+<H2 ALIGN="CENTER">Linux installs for BBBS</H2>
+<P>
+
+The version I am useing is the one for Linux/i386.  Originally I had it
+installed on a Slackware v3.4 system, but when the new version (v3.42 1s)
+came out I needed a Linux distribution that supported the new libc6 (glibc)
+libraries.  I choose Red Hat for that, because at the time I had a CD for
+that distribution already.   
+<P>
+Because BBBS supports so much in itself, I decided to find out just how much
+of a minimal install of linux was needed to run BBBS.  What I plan to do is
+do a minimal linux install, & then install BBBS on it.
+Note that this page is a work in progress;  I'm adding to it as I  go.
+
+<H3>Background</H3>
+<P>
+BBBS is a full featured bbs program that is available for many platforms that includes full Fidonet and Internet support(See the BBBS home page,<A HREF="http://www.bbbs.net">  http://www.bbbs.net </A>for details.) The version I am useing is the one for Linux/i386.  Originally I had it installed on a Slackware v3.4 system, but when the new version (v3.42 1s) came out I needed a Linux distribution that supported the new libc6 (glibc) libraries.  I choose Red Hat for that, because at the time I had a CD for that distribution already.   
+<P>
+The problem with Red Hat is that it just doesn't seem possible to do a really minimal install of it;  at least, not easily.  I tried a minimal install of Red Hat (only have about 470 megs total available on the machine I tried it on), & it installed all kinds of things I didn't want or need on the system (including XFree86 librarys).  At the time I decided to move BBBS to it's own box, I had the Red Hat Install sitting at about 160 megs:  could pare it down some more, but it would take time because would have to check any other affected pkgs, to see if I needed to keep them.
+<P>
+So when I decided to put BBBS on it's own box, I figured I'd use a distribution that supports minimal installs easier.  Thought about using a newer Slackware distribution, but I had heard alot of good things about the Debian distribution so I decided to go with it.  
+
+<H3>Details</H3>
+<P>{5/9/99]
+The situation was that I was putting together a system based on an old P60;  had just bought a drive for it (WD 1.6 gig), but didn't get another cd rom drive.  Also only had a 5 1/4" floppy drive to use on it.  Did the install using NFS, from another of my systems that does have a CD rom drive;  didn't do the install off of the cd (didn't feel like typeing in those long paths...<g>), just copied the base tgz file (about 10 megs) to  a sub-directory on the system with the cdrom drive (the directory tree is one I already export from the machine) & then did the NFS install off of that...  This base install of Debian v2.1 takes about 32 Megs of drive space.
+
+<P>[5/9/99]
+'Course, when they say "base" they mean it...  Basic funtionality, including tcp/ip, is there;  but not much else...  Still need to decide what other pkgs's to install on that system & get them on there...  For use with BBBS, it will not need very much at all...  I will install Perl, but what else will actually be needed I'll be finding out.  More info on that as I do it...  
+
+<P> One thing to note is that the default hosts.allow & hosts.deny files basically disallow things like telneting into the system.  The hosts.allow file needs to be changed, to allow in what you need.  While setting it up, I basically allow anything in from my local lan. 
+
+<P>  24 December 1999 - Finished (I think...) with moving the BBBS install to another
+machine, a P90 with 32 Megs of Ram & a 1.6 gig drive.  With that size of a drive, I 
+didn't really need to worry as much about how much space the base os install took;  
+but I did try to limit it.  I used Debian Linux v2.1, & did the initial install from 
+the cdrom's;  then once the system was network capable (very basic install = 53 megs),
+I then did updates & any other installs from one of the Debian mirror sites.  Before
+I moved BBBS over to it, there was about 83 megs of drive space in use...  
+<P>  Note that this page is a work in progress;  I will be adding to it as I go.
+
+<P ALIGN="CENTER">
+[<A HREF ="index.html">Home</A>]
+<HR>
+
+Any comments, suggestions, questions, etc. about this page; please feel free to <A HREF="contact.html"> contact </A>me.
+<P ALIGN="CENTER">
+<FONT SIZE="-2">
+Copyright Copyright &#169 1999-2008  Robert J. Clay
+</FONT>
+
+</BODY>
+</HTML>
+
+
