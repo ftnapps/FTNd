@@ -52,6 +52,10 @@ if [ "$OSTYPE" = "Linux" ]; then
     	# Slackware 7.0 and later
     	DISTNAME="Slackware"
     	DISTVERS=`cat /etc/slackware-version`
+    elif [ -f /etc/slamd64-version ]; then
+        # Slamd64
+        DISTNAME="Slamd64"
+        DISTVERS=`cat /etc/slamd64-version`
     elif [ -f /etc/zenwalk-version ]; then
 	DISTNAME="Zenwalk"
 	DISTVERS=`cat /etc/zenwalk-version`
@@ -162,7 +166,7 @@ fi
 #
 #  Adding scripts for Slackware
 #
-if [ "$DISTNAME" = "Slackware" ]; then
+if [ "$DISTNAME" = "Slackware" ] || [ "$DISTNAME" = "Slamd64" ]; then
     mkdir -p /etc/rc.d/init.d
     DISTINIT="/etc/rc.d/init.d/mbsed"
     echo "Adding SystemV Slackware $DISTVERS MBSE BBS start/stop scripts"
