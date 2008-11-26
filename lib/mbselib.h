@@ -1259,8 +1259,8 @@ struct	sysconfig {
 	unsigned	modereader	: 1;	/* NNTP Mode Reader	    */
 	unsigned	allowcontrol	: 1;	/* Allow control messages   */
 	unsigned	dontregate	: 1;	/* Don't regate gated msgs  */
-	char		nntpuser[16];		/* NNTP username	    */
-	char		nntppass[16];		/* NNTP password	    */
+	char		xnntpuser[16];		/* NNTP username	    */
+	char		xnntppass[16];		/* NNTP password	    */
 	int		nntpdupes;		/* NNTP dupes database size */
 	int		newsfeed;		/* Newsfeed mode	    */
 	int		maxarticles;		/* Default max articles	    */
@@ -1287,6 +1287,9 @@ struct	sysconfig {
 
 	char		myfqdn[64];		/* My real FQDN		    */
 	int		www_mailerlines;	/* Limit mailhistory lines  */
+
+	char		nntpuser[32];		/* NNTP username            */
+	char		nntppass[32];		/* NNTP password            */
 };
 
 

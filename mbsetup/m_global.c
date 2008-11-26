@@ -900,12 +900,12 @@ void s_intmailcfg(void)
     mbse_mvprintw(17, 1, "11. UUCP aka");
     mbse_mvprintw(18, 1, "12. Emailmode");
 
-    mbse_mvprintw(13,42, "13. Articles");
-    mbse_mvprintw(14,42, "14. News mode");
-    mbse_mvprintw(15,42, "15. Split at");
-    mbse_mvprintw(16,42, "16. Force at");
-    mbse_mvprintw(17,42, "17. Control ok");
-    mbse_mvprintw(18,42, "18. No regate");
+    mbse_mvprintw(13,48, "13. Articles");
+    mbse_mvprintw(14,48, "14. News mode");
+    mbse_mvprintw(15,48, "15. Split at");
+    mbse_mvprintw(16,48, "16. Force at");
+    mbse_mvprintw(17,48, "17. Control ok");
+    mbse_mvprintw(18,48, "18. No regate");
 
     set_color(WHITE, BLACK);
     show_str( 7,16,64, CFG.popnode);
@@ -914,8 +914,8 @@ void s_intmailcfg(void)
     switch (CFG.newsfeed) {
 	case FEEDINN:	show_str(11,16,64, CFG.nntpnode);
 			show_bool(12,16,   CFG.modereader);
-			show_str(13,16,15, CFG.nntpuser);
-			show_str(14,16,15, (char *)"**************");
+			show_str(13,16,31, CFG.nntpuser);
+			show_str(14,16,31, (char *)"*******************************");
 			break;
 	case FEEDRNEWS:	show_str(10,16,64, CFG.rnewspath);
 			break;
@@ -929,12 +929,12 @@ void s_intmailcfg(void)
     show_aka(17,16,    CFG.UUCPgate);
     show_emailmode(18,16, CFG.EmailMode);
 
-    show_int( 13,57, CFG.maxarticles);
-    show_newsmode(14,57, CFG.newsfeed);
-    show_int( 15,57, CFG.new_split);
-    show_int( 16,57, CFG.new_force);
-    show_bool(17,57, CFG.allowcontrol);
-    show_bool(18,57, CFG.dontregate);
+    show_int( 13,65, CFG.maxarticles);
+    show_newsmode(14,65, CFG.newsfeed);
+    show_int( 15,65, CFG.new_split);
+    show_int( 16,65, CFG.new_force);
+    show_bool(17,65, CFG.allowcontrol);
+    show_bool(18,65, CFG.dontregate);
 }
 
 
@@ -1000,8 +1000,10 @@ void e_intmailcfg(void)
 				strcpy(CFG.nntpnode, edit_str(11,16,64, CFG.nntpnode, (char *)"The ^UUCP^ nodename of the remote UUCP system"));
 			break;
                 case 6: E_BOOL(12,16,    CFG.modereader,   "Does the NNTP server needs the ^Mode Reader^ command.")
-                case 7: E_STR( 13,16,15, CFG.nntpuser,     "The ^Username^ for the NNTP server if needed.")
-                case 8: E_STR( 14,16,15, CFG.nntppass,     "The ^Password^ for the NNTP server if needed.")
+                case 7: E_STR( 13,16,31, CFG.nntpuser,     "The ^Username^ for the NNTP server if needed.")
+                case 8: strcpy(CFG.nntppass, edit_str(14,16,31, CFG.nntppass, (char *)"The ^Password^ for the NNTP server if needed."));
+			s_intmailcfg();
+			break;
                 case 9: E_INT( 15,16,    CFG.nntpdupes,    "The number of ^dupes^ to store in the news articles dupes database.")
 		case 10:tmp = PickAka((char *)"1.12.10", FALSE);
                         if (tmp != -1)
@@ -1015,14 +1017,14 @@ void e_intmailcfg(void)
                         s_intmailcfg();
                         break;
 
-		case 13:E_INT( 13,57, CFG.maxarticles,    "Default maximum ^news articles^ to fetch")
-		case 14:CFG.newsfeed = edit_newsmode(14,57, CFG.newsfeed);
+		case 13:E_INT( 13,65, CFG.maxarticles,    "Default maximum ^news articles^ to fetch")
+		case 14:CFG.newsfeed = edit_newsmode(14,65, CFG.newsfeed);
 			s_intmailcfg();
 			break;
-                case 15:E_IRC( 15,57, CFG.new_split, 12, 60, "Gently ^split^ messages after n kilobytes (12..60).")
-                case 16:E_IRC( 16,57, CFG.new_force, 16, 64, "Force ^split^ of messages after n kilobytes (16..64).")
-                case 17:E_BOOL(17,57, CFG.allowcontrol,      "^Allow control^ messages for news to be gated.")
-                case 19:E_BOOL(18,57, CFG.dontregate,        "Don't ^regate^ already gated messages.")
+                case 15:E_IRC( 15,65, CFG.new_split, 12, 60, "Gently ^split^ messages after n kilobytes (12..60).")
+                case 16:E_IRC( 16,65, CFG.new_force, 16, 64, "Force ^split^ of messages after n kilobytes (16..64).")
+                case 17:E_BOOL(17,65, CFG.allowcontrol,      "^Allow control^ messages for news to be gated.")
+                case 19:E_BOOL(18,65, CFG.dontregate,        "Don't ^regate^ already gated messages.")
                 }
         };
 }
@@ -1502,6 +1504,18 @@ void global_menu(void)
 #endif
 	CFG.is_upgraded = TRUE;
 	Syslog('+', "Main config, upgraded execute settings");
+    }
+
+    if (strlen(CFG.xnntpuser) && ! strlen(CFG.nntpuser)) {
+	Syslog('+', "Main config, nntp username length increased");
+	strncpy(CFG.nntpuser, CFG.xnntpuser, 16);
+	memset(&CFG.xnntpuser, 0, sizeof(CFG.xnntpuser));
+    }
+
+    if (strlen(CFG.xnntppass) && ! strlen(CFG.nntppass)) {
+	Syslog('+', "Main config, nntp password length increased");
+	strncpy(CFG.nntppass, CFG.xnntppass, 16);
+	memset(&CFG.xnntppass, 0, sizeof(CFG.xnntppass));
     }
 
     for (;;) {

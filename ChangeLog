@@ -1,12 +1,19 @@
 $Id$
 
-v0.95.4		31-Aug-2008
+v0.95.4		31-Aug-2008 - 
+
+	upgrade:
+		Start mbsetup, enter global menu, leave and save.
 
 	mbnntp:
 		A cosmetic change to add an extra newline before the tearline.
 
 	mbfido:
 		A cosmetic change to add an extra newline before the tearline.
+
+	mbsetup:
+		Increased the size of the nntp username and password fields to
+		32 characters.
 
 	script:
 		installinit.sh now knows about Slamd64.
