@@ -4,7 +4,7 @@
  * Purpose ...............: fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -80,7 +80,7 @@ char *xtodos(char *orig)
     name_mangle(p);
     memset(&buf, 0, sizeof(buf));
     strncpy(buf, p, 12);
-    Syslog('o', "name \"%s\" converted to \"%s\"", MBSE_SS(orig), MBSE_SS(buf));
+    Syslog('o', "name \"%s\" converted to \"%s\"", MBSE_SS(orig), buf);
     free(copy);
     return xstrcpy(buf);
 }
