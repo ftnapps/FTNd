@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -237,7 +237,7 @@ int UnpackFile(char *File)
     }
 
     cmd = xstrcpy(archiver.funarc);
-    if ((cmd == NULL) || (cmd == "")) {
+    if ((cmd == NULL) || (strlen(cmd) == 0)) {
 	WriteError("No unarc command available");
 	if (!do_quiet)
 	    printf("\nNo unarc command available\n");

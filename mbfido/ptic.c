@@ -400,11 +400,10 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    return 1;
 	}
 
-	cmd = xstrcpy(archiver.funarc);
-
-	if ((cmd == NULL) || (cmd == "")) {
+	if (strlen(archiver.funarc) == 0) {
 	    Syslog('!', "No unarc command available");
 	} else {
+	    cmd = xstrcpy(archiver.funarc);
 	    snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 		UnPacked = TRUE;

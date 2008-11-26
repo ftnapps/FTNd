@@ -4,7 +4,7 @@
  * Purpose ...............: Alias Database
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -126,7 +126,7 @@ int registrate(char *freename, char *address)
 		}
 
 	*q = '\0';
-	Syslog('m', "Registrate \"%s\" \"%s\"", MBSE_SS(buf), MBSE_SS(address));
+	Syslog('m', "Registrate \"%s\" \"%s\"", buf, MBSE_SS(address));
 
 	while (fread(&key, sizeof(key), 1, afp)) {
 		if (!strcmp(key.freename, buf)) {
@@ -146,9 +146,9 @@ int registrate(char *freename, char *address)
 	key.dtime = time(NULL);
 
 	if (fwrite(&key, sizeof(key), 1, afp) != 1) {
-		WriteError("$Cannot store: \"%s\" \"%s\"", MBSE_SS(buf), MBSE_SS(address));
+		WriteError("$Cannot store: \"%s\" \"%s\"", buf, MBSE_SS(address));
 	} else {
-		Syslog('m', "Registered \"%s\" as \"%s\"", MBSE_SS(buf), MBSE_SS(address));
+		Syslog('m', "Registered \"%s\" as \"%s\"", buf, MBSE_SS(address));
 	}
 	close_alias_db();
 	return 1;

@@ -4,7 +4,7 @@
  * Purpose ...............: Unpacker
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -86,10 +86,10 @@ int unpack(char *fn)
     if (!getarchiver(unarc))
 	return 1;
 
-    cmd = xstrcpy(archiver.munarc);
-
-    if ((cmd == NULL) || (cmd == ""))
+    if (strlen(archiver.munarc) == 0)
 	return -1;
+
+    cmd = xstrcpy(archiver.munarc);
 
     if ((ld = f_lock(fn)) == -1) {
 	free(cmd);

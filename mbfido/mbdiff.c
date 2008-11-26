@@ -5,7 +5,7 @@
  * Original ideas ........: Eugene G. Crosser.
  * 
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 	else
 	    cmd = xstrcpy(archiver.munarc);
 
-	if ((cmd == NULL) || (cmd == "")) {
+	if ((cmd == NULL) || (strlen(cmd) == 0)) {
 	    show_log = TRUE;
 	    free(cmd);
 	    free(onl);

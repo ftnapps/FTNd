@@ -286,8 +286,8 @@ int toss_onemsg(char *msgname)
 	Msg.Written = parsefdate(DateTime, NULL);
 	Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
 
-	Msg.KillSent       = ((Attribute & M_KILLSENT));
-	Msg.Hold           = ((Attribute & M_HOLD));
+	Msg.KillSent       = ((Attribute & M_KILLSENT)) ? 1:0;
+	Msg.Hold           = ((Attribute & M_HOLD)) ? 1:0;
 	Msg.Crash          = ((Attribute & M_CRASH)    || flag_on((char *)"CRA", flagstr));
 	Msg.ReceiptRequest = ((Attribute & M_RRQ)      || flag_on((char *)"RRQ", flagstr));
 	Msg.Orphan         = ((Attribute & M_ORPHAN));
