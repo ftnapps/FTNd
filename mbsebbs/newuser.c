@@ -320,7 +320,7 @@ int newuser(void)
 
 	    badname = (strlen(temp) && (BadNames(temp) || CheckName(temp) || CheckUnixNames(temp)));
 	    if (badname) {
-		Syslog('+', "User tried \"%s\" as Handle", MBSE_SS(temp));
+		Syslog('+', "User tried \"%s\" as Handle", temp);
 		/* That login name already exists, please choose another one. */
 		language(LIGHTRED, BLACK, 386);
 		Enter(1);
