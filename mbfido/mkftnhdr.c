@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,11 +53,6 @@
 
 
 
-#ifndef ULONG_MAX
-#define ULONG_MAX 4294967295
-#endif
-
-
 char	*replyaddr=NULL;
 char	*ftnmsgidstyle=NULL;
 faddr	*bestaka;
@@ -97,8 +92,8 @@ int ftnmsgid(char *msgid, char **s, unsigned int *n, char *areaname)
 	    if (strspn(tmp->name,"0123456789") == strlen(tmp->name))
 		nid = atoul(tmp->name);
 	    else 
-		nid = ULONG_MAX;
-	    if (nid == ULONG_MAX) {
+		nid = 0xffffffff;
+	    if (nid == 0xffffffff) {
 		hash_update_s(&nid, tmp->name);
 	    } else
 		ftnorigin = 1;
@@ -192,8 +187,8 @@ int ftnmsgid(char *msgid, char **s, unsigned int *n, char *areaname)
 	    if (strspn(l,"0123456789") == strlen(l))
 		nid = atoul(l);
 	    else 
-		nid = ULONG_MAX;
-	    if (nid == ULONG_MAX)
+		nid = 0xffffffff;
+	    if (nid == 0xffffffff)
 		hash_update_s(&nid,l);
 	    *s=xstrcpy(r);
 	}

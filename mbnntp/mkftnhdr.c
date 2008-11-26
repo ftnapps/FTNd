@@ -52,10 +52,6 @@
 
 #ifndef	USE_NEWSGATE
 
-#ifndef ULONG_MAX
-#define ULONG_MAX 4294967295
-#endif
-
 
 char	*replyaddr=NULL;
 char	*ftnmsgidstyle=NULL;
