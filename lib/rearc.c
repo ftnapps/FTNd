@@ -4,7 +4,7 @@
  * Purpose ...............: ReArc an archive.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2008
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -75,8 +75,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
         return -1;
     }
 
-    uncmd = xstrcpy(archiver.funarc);
-    if ((uncmd == NULL) || (uncmd == "")) {
+    if (strlen(archiver.funarc) == 0) {
         if (!do_quiet) {
 	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" no unarchive command available\n");
@@ -84,6 +83,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 	Syslog('+', "rearc(%s, %s), no unarchive command available", filename, arctype);
 	return -1;
     }
+    uncmd = xstrcpy(archiver.funarc);
 
     newname = calloc(PATH_MAX, sizeof(char));
     strcpy(newname, filename);
@@ -116,8 +116,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     snprintf(p, 6, "%s", archiver.name);
     Syslog('f', "new filename %s", newname);
 
-    arccmd = xstrcpy(archiver.farc);
-    if ((arccmd == NULL) || (arccmd == "")) {
+    if (strlen(archiver.farc) == 0) {
 	if (!do_quiet) {
 	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" no archive command available\n");
@@ -127,6 +126,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 	free(newname);
 	return -1;
     }
+    arccmd = xstrcpy(archiver.farc);
 
     /*
      * unarchive and archive commands are available, create a temp directory to work in.
