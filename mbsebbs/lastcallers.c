@@ -59,9 +59,9 @@ extern int	cols;
  */
 void LastCallers(char *OpData)
 {
-    FILE		    *pLC;
+    FILE		    *fp;
     int			    LineCount = 5, count = 0;
-    char		    lstr[128], *sFileName, *Heading;
+    char		    lstr[201], *sFileName, *Heading;
     struct lastcallers	    lcall;
     struct lastcallershdr   lcallhdr;
 
@@ -75,19 +75,19 @@ void LastCallers(char *OpData)
     PUTSTR(chartran(lstr));
 
     snprintf(sFileName, PATH_MAX, "%s/etc/lastcall.data", getenv("MBSE_ROOT"));
-    if ((pLC = fopen(sFileName,"r")) == NULL) 
+    if ((fp = fopen(sFileName,"r")) == NULL) 
 	WriteError("$LastCallers: Can't open %s", sFileName);
     else {
-	fread(&lcallhdr, sizeof(lcallhdr), 1, pLC);
+	fread(&lcallhdr, sizeof(lcallhdr), 1, fp);
 
 	strcpy(lstr, colour_str(WHITE, BLACK));
 	/* Todays callers to */
 	snprintf(Heading, 81, "%s%s", (char *) Language(84), CFG.bbs_name);
-	strncat(lstr, Center_str(Heading), 127);
+	strncat(lstr, Center_str(Heading), 200);
 	PUTSTR(chartran(lstr));
 
 	strcpy(lstr, colour_str(LIGHTRED, BLACK));
-	strncat(lstr, Center_str(hLine_str(strlen(Heading))), 127);
+	strncat(lstr, Center_str(hLine_str(strlen(Heading))), 200);
 	PUTSTR(chartran(lstr));
 	Enter(1);
 
@@ -96,41 +96,41 @@ void LastCallers(char *OpData)
 	PUTSTR(chartran(lstr));
 
 	strcpy(lstr, colour_str(GREEN, BLACK));
-	strncat(lstr, fLine_str(cols -1), 127);
+	strncat(lstr, fLine_str(cols -1), 200);
 	PUTSTR(chartran(lstr));
-		
-	while (fread(&lcall, lcallhdr.recsize, 1, pLC) == 1) {
+
+	while (fread(&lcall, lcallhdr.recsize, 1, fp) == 1) {
 	    if (!lcall.Hidden) {
 		count++;
 
 		strcpy(lstr, colour_str(WHITE, BLACK));
-		snprintf(Heading, 81, "%-5d", count);
-		strncat(lstr, Heading, 127);
+		snprintf(Heading, 80, "%-5d", count);
+		strncat(lstr, Heading, 200);
 
-		strncat(lstr, colour_str(LIGHTCYAN, BLACK), 127);
+		strncat(lstr, colour_str(LIGHTCYAN, BLACK), 200);
 		if ((strcasecmp(OpData, "/H")) == 0) {
 		    if ((strcmp(lcall.Handle, "") != 0 && *(lcall.Handle) != ' '))
-			snprintf(Heading, 81, "%-20s", lcall.Handle);
+			snprintf(Heading, 80, "%-20s", lcall.Handle);
 		    else
-			snprintf(Heading, 81, "%-20s", lcall.UserName);
+			snprintf(Heading, 80, "%-20s", lcall.UserName);
 		} else if (strcasecmp(OpData, "/U") == 0) {
-		    snprintf(Heading, 81, "%-20s", lcall.Name);
+		    snprintf(Heading, 80, "%-20s", lcall.Name);
 		} else {
-		    snprintf(Heading, 81, "%-20s", lcall.UserName);
+		    snprintf(Heading, 80, "%-20s", lcall.UserName);
 		}
-		strncat(lstr, Heading, 127);
+		strncat(lstr, Heading, 200);
 
-		snprintf(Heading, 81, "%-8s", lcall.Device);
-		strncat(lstr, pout_str(LIGHTBLUE, BLACK, Heading), 127);
+		snprintf(Heading, 80, "%-8s", lcall.Device);
+		strncat(lstr, pout_str(LIGHTBLUE, BLACK, Heading), 200);
 
-		snprintf(Heading, 81, "%-8s", lcall.TimeOn);
-		strncat(lstr, pout_str(LIGHTMAGENTA, BLACK, Heading), 127);
+		snprintf(Heading, 80, "%-8s", lcall.TimeOn);
+		strncat(lstr, pout_str(LIGHTMAGENTA, BLACK, Heading), 200);
 
-		snprintf(Heading, 81, "%-7d", lcall.Calls);
-		strncat(lstr, pout_str(YELLOW, BLACK, Heading), 127);
+		snprintf(Heading, 80, "%-7d", lcall.Calls);
+		strncat(lstr, pout_str(YELLOW, BLACK, Heading), 200);
 
-		snprintf(Heading, 81, "%-32s", lcall.Location);
-		strncat(lstr, pout_str(LIGHTRED, BLACK, Heading), 127);
+		snprintf(Heading, 80, "%-32s", lcall.Location);
+		strncat(lstr, pout_str(LIGHTRED, BLACK, Heading), 200);
 		PUTSTR(chartran(lstr));
 		Enter(1);
 
@@ -139,14 +139,15 @@ void LastCallers(char *OpData)
 		    Pause();
 		    LineCount = 0;
 		}
+
 	    } /* End of check if user is hidden */
 	}
 
 	strcpy(lstr, colour_str(GREEN, BLACK));
-	strncat(lstr, fLine_str(cols -1), 127);
+	strncat(lstr, fLine_str(cols -1), 200);
 	PUTSTR(chartran(lstr));
 
-	fclose(pLC);
+	fclose(fp);
 	Enter(1);
 	Pause();
     }

@@ -75,6 +75,10 @@ if [ "$OSTYPE" = "Linux" ]; then
 	else
 	    DISTVERS=$( cat /etc/slackware-version )
 	fi
+    elif [ -f /etc/slamd64-version ]; then
+	# Slamd64
+	DISTNAME="Slamd64"
+	DISTVERS=`cat /etc/slamd64-version`
     elif [ -f /etc/zenwalk-version ]; then
 	DISTNAME="Zenwalk"
 	DISTVERS=$( cat /etc/zenwalk-version | awk '{ print $2 }' )
