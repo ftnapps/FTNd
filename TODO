@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.95.3 TODO list.
+			MBSE BBS V0.95.5 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -116,7 +116,7 @@ mbaff:
 	W: Rewrite filefind search algorithm.
 
 mbsetup:
-	U: Menu 7.x.4.1 paswword length too large?
+	U: Menu 7.x.4.1 password length too large?
 
 	U: Add check for empty data files.
 
