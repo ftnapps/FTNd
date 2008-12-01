@@ -6,7 +6,7 @@ include ../Makefile.global
 OTHER		= Makefile header.txt footer.txt \
 		  menus-en.tar txtfiles-en.tar templates-en.tar \
 		  menus-es.tar txtfiles-es.tar templates-es.tar \
-		  templates-de.tar \
+		  menus-de.tar txtfiles-de.tar templates-de.tar \
 		  templates-nl.tar
 
 #####################################################################################
@@ -29,7 +29,7 @@ help:
 		@echo ""
 		@echo "make macros                Force (re)installation of all macro templates"
 		@echo ""
-		@echo "You may replace the word english above with spanish galego german dutch"
+		@echo "You may replace the word english above with spanish, german or dutch"
 
 english-menus:
 		@tar xfC menus-en.tar ${PREFIX}/share/int/menus/en
@@ -61,11 +61,19 @@ spanish-macros:
 spanish:	spanish-menus spanish-txtfiles spanish-macros
 
 
+german-menus:
+		@tar xfC menus-de.tar ${PREFIX}/share/int/menus/de
+		@echo "Installed default German menus"
+
+german-txtfiles:
+		@tar xfC txtfiles-de.tar ${PREFIX}/share/int/txtfiles/de
+		@echo "Installed default German txtfiles"
+
 german-macros:
 		@tar xfC templates-de.tar ${PREFIX}/share/int/macro/de
 		@echo "Installed default German macro files"
 
-german:		german-macros
+german:		german-menus german-txtfiles german-macros
 
 
 dutch-macros:
@@ -97,8 +105,10 @@ install:
 		@if [ ! -f ${PREFIX}/share/int/menus/es/main.mnu ];    then ${MAKE} -s spanish-menus ;    fi
 		@if [ ! -f ${PREFIX}/share/int/txtfiles/es/main.ans ]; then ${MAKE} -s spanish-txtfiles ; fi
 		@if [ ! -f ${PREFIX}/share/int/macro/es/html.tic ];    then ${MAKE} -s spanish-macros ;   fi
-		@if [ ! -f ${PREFIX}/share/int/macro/es/html.tic ];    then ${MAKE} -s german-macros ;    fi
-		@if [ ! -f ${PREFIX}/share/int/macro/es/html.tic ];    then ${MAKE} -s dutch-macros ;     fi
+		@if [ ! -f ${PREFIX}/share/int/menus/de/main.mnu ];    then ${MAKE} -s german-menus ;     fi
+		@if [ ! -f ${PREFIX}/share/int/txtfiles/de/main.ans ]; then ${MAKE} -s german-txtfiles ;  fi
+		@if [ ! -f ${PREFIX}/share/int/macro/de/html.tic ];    then ${MAKE} -s german-macros ;    fi
+		@if [ ! -f ${PREFIX}/share/int/macro/nl/html.tic ];    then ${MAKE} -s dutch-macros ;     fi
 
 clean:
 		rm -f *.h~ *.c~ core filelist Makefile.bak
