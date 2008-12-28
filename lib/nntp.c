@@ -94,7 +94,7 @@ int nntp_connect(void)
     }
     Syslog('+', "NNTP: %s", p);
 
-    if (strncmp(p, "480", 3) == 0) {
+    if ((strncmp(p, "480", 3) == 0) || CFG.nntpforceauth) {
 	/*
 	 *  Must login with username and password
 	 */

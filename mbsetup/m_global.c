@@ -882,6 +882,7 @@ void s_intmailcfg(void)
 			mbse_mvprintw(13, 2, "7. NNTP m.r.");
 			mbse_mvprintw(14, 2, "8. NNTP user");
 			mbse_mvprintw(15, 2, "9. NNTP pass");
+			mbse_mvprintw(16, 1, "10. NNTP force");
 			break;
 	case FEEDRNEWS: mbse_mvprintw(10, 2, "4. Path rnews");
 			mbse_mvprintw(11, 2, "5. N/A");
@@ -889,6 +890,7 @@ void s_intmailcfg(void)
 			mbse_mvprintw(13, 2, "7. N/A");
                         mbse_mvprintw(14, 2, "8. N/A");
                         mbse_mvprintw(15, 2, "9. N/A");
+			mbse_mvprintw(16, 1, "10. N/A");
 			break;
 	case FEEDUUCP:	mbse_mvprintw(10, 2, "4. UUCP path");
 			mbse_mvprintw(11, 2, "5. UUCP node");
@@ -896,19 +898,20 @@ void s_intmailcfg(void)
 			mbse_mvprintw(13, 2, "7. N/A");
                         mbse_mvprintw(14, 2, "8. N/A");
                         mbse_mvprintw(15, 2, "9. N/A");
+			mbse_mvprintw(16, 1, "10. N/A");
 			break;
     }
-    mbse_mvprintw(16, 1, "10. News dupes");
     mbse_mvprintw(17, 1, "11. Email aka");
     mbse_mvprintw(18, 1, "12. UUCP aka");
     mbse_mvprintw(19, 1, "13. Emailmode");
 
-    mbse_mvprintw(14,48, "14. Articles");
-    mbse_mvprintw(15,48, "15. News mode");
-    mbse_mvprintw(16,48, "16. Split at");
-    mbse_mvprintw(17,48, "17. Force at");
-    mbse_mvprintw(18,48, "18. Control ok");
-    mbse_mvprintw(19,48, "19. No regate");
+    mbse_mvprintw(13,48, "14. News dupes");
+    mbse_mvprintw(14,48, "15. Articles");
+    mbse_mvprintw(15,48, "16. News mode");
+    mbse_mvprintw(16,48, "17. Split at");
+    mbse_mvprintw(17,48, "18. Force at");
+    mbse_mvprintw(18,48, "19. Control ok");
+    mbse_mvprintw(19,48, "20. No regate");
 
     set_color(WHITE, BLACK);
     show_str( 7,16,64, CFG.popnode);
@@ -920,6 +923,7 @@ void s_intmailcfg(void)
 			show_bool(13,16,   CFG.modereader);
 			show_str(14,16,31, CFG.nntpuser);
 			show_str(15,16,31, (char *)"*******************************");
+			show_bool(16,16,   CFG.nntpforceauth);
 			break;
 	case FEEDRNEWS:	show_str(10,16,64, CFG.rnewspath);
 			break;
@@ -928,11 +932,11 @@ void s_intmailcfg(void)
 			break;
     }
 
-    show_int(16,16,    CFG.nntpdupes);
     show_aka(17,16,    CFG.EmailFidoAka);
     show_aka(18,16,    CFG.UUCPgate);
     show_emailmode(19,16, CFG.EmailMode);
 
+    show_int( 13,65, CFG.nntpdupes);
     show_int( 14,65, CFG.maxarticles);
     show_newsmode(15,65, CFG.newsfeed);
     show_int( 16,65, CFG.new_split);
@@ -988,7 +992,7 @@ void e_intmailcfg(void)
 
     s_intmailcfg();
     for (;;) {
-	switch(select_menu(19)) {
+	switch(select_menu(20)) {
 	    case 0: return;
 	    case 1: E_STR(  7,16,64, CFG.popnode,      "The ^FQDN^ of the node where the ^POP3^ server runs.")
 	    case 2: E_BOOL( 8,16,    CFG.UsePopDomain, "Use ^user@maildomain^ to login the POP3 server.")
@@ -1021,7 +1025,9 @@ void e_intmailcfg(void)
 			s_intmailcfg();
 		    }
 		    break;
-	    case 10:E_INT( 16,16,    CFG.nntpdupes,    "The number of ^dupes^ to store in the news articles dupes database.")
+	    case 10:if (CFG.newsfeed == FEEDINN)
+			CFG.nntpforceauth = edit_bool(16,16, CFG.nntpforceauth, (char *)"Force ^authentication^ on connect to the news server");
+		    break;
 	    case 11:tmp = PickAka((char *)"1.12.11", FALSE);
                     if (tmp != -1)
                                 CFG.EmailFidoAka = CFG.aka[tmp];
@@ -1033,14 +1039,16 @@ void e_intmailcfg(void)
             case 13:CFG.EmailMode = edit_emailmode(19,16, CFG.EmailMode);
                     s_intmailcfg();
                     break;
-	    case 14:E_INT( 14,65, CFG.maxarticles,    "Default maximum ^news articles^ to fetch")
-	    case 15:CFG.newsfeed = edit_newsmode(15,65, CFG.newsfeed);
+
+	    case 14:E_INT( 13,65, CFG.nntpdupes,      "The number of ^dupes^ to store in the news articles dupes database.")
+	    case 15:E_INT( 14,65, CFG.maxarticles,    "Default maximum ^news articles^ to fetch")
+	    case 16:CFG.newsfeed = edit_newsmode(15,65, CFG.newsfeed);
 		    s_intmailcfg();
 		    break;
-            case 16:E_IRC( 16,65, CFG.new_split, 12, 60, "Gently ^split^ messages after n kilobytes (12..60).")
-            case 17:E_IRC( 17,65, CFG.new_force, 16, 64, "Force ^split^ of messages after n kilobytes (16..64).")
-            case 18:E_BOOL(18,65, CFG.allowcontrol,      "^Allow control^ messages for news to be gated.")
-            case 19:E_BOOL(19,65, CFG.dontregate,        "Don't ^regate^ already gated messages.")
+            case 17:E_IRC( 16,65, CFG.new_split, 12, 60, "Gently ^split^ messages after n kilobytes (12..60).")
+            case 18:E_IRC( 17,65, CFG.new_force, 16, 64, "Force ^split^ of messages after n kilobytes (16..64).")
+            case 19:E_BOOL(18,65, CFG.allowcontrol,      "^Allow control^ messages for news to be gated.")
+            case 20:E_BOOL(19,65, CFG.dontregate,        "Don't ^regate^ already gated messages.")
 	}
     }
 }
@@ -2200,11 +2208,13 @@ int global_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "      NNTP mode reader   %s\n", getboolean(CFG.modereader));
 			fprintf(fp, "      NNTP username      %s\n", CFG.nntpuser);
 			fprintf(fp, "      NNTP password      %s\n", getboolean(strlen(CFG.nntppass)));
+			fprintf(fp, "      NNTP force auth    %s\n", getboolean(CFG.nntpforceauth));
 			add_webtable(wp, (char *)"NNTP host", CFG.nntpnode);
 			add_webdigit(wp, (char *)"NNTP port", CFG.nntpport);
 			add_webtable(wp, (char *)"NNTP mode reader", getboolean(CFG.modereader));
 			add_webtable(wp, (char *)"NNTP username", CFG.nntpuser);
 			add_webtable(wp, (char *)"NNTP password", CFG.nntppass);
+			add_webtable(wp, (char *)"NNTP force auth", getboolean(CFG.nntpforceauth));
 			break;
 	case FEEDRNEWS:	fprintf(fp, "      Path to rnews      %s\n", CFG.rnewspath);
 			add_webtable(wp, (char *)"Path to rnews", CFG.rnewspath);
