@@ -2,6 +2,9 @@ $Id$
 
 v0.95.5		29-Nov-2008
 
+	upgrade:
+		Start mbsetup, enter global setup, leave and save.
+
 	mbselib:
 		Newsservers can be connected with a port number from the
 		setup.
