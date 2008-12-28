@@ -55,7 +55,7 @@ int nntp_connect(void)
 	return -1;
     }
 	
-    Syslog('+', "NNTP: connecting host: %s", CFG.nntpnode);
+    Syslog('+', "NNTP: connecting host: %s:%d", CFG.nntpnode, CFG.nntpport);
     memset(&nntp_loc, 0, sizeof(struct sockaddr_in));
     memset(&nntp_rem, 0, sizeof(struct sockaddr_in));
 
@@ -67,12 +67,7 @@ int nntp_connect(void)
     }
 
     nntp_rem.sin_addr.s_addr = ((struct in_addr *)(nhp->h_addr))->s_addr;
-
-    if ((nsp = getservbyname("nntp", "tcp")) == NULL) {
-	WriteError("NNTP: can't find service port for nntp/tcp");
-	return -1;
-    }
-    nntp_rem.sin_port = nsp->s_port;
+    nntp_rem.sin_port = htons(CFG.nntpport);
 
     if ((nntpsock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 	WriteError("$NNTP: unable to create tcp socket");
@@ -221,7 +216,7 @@ int nntp_close(void)
 
 /*
  *  Send NNTP command, check response code. 
- *  If the code not matches, the value is returned, else zer.
+ *  If the code doesn't match, the value is returned, else zero.
  */
 int nntp_cmd(char *cmd, int resp)
 {

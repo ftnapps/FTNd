@@ -878,34 +878,37 @@ void s_intmailcfg(void)
     switch (CFG.newsfeed) {
 	case FEEDINN:	mbse_mvprintw(10, 2, "4. N/A");
         		mbse_mvprintw(11, 2, "5. NNTP node");
-			mbse_mvprintw(12, 2, "6. NNTP m.r.");
-			mbse_mvprintw(13, 2, "7. NNTP user");
-			mbse_mvprintw(14, 2, "8. NNTP pass");
+			mbse_mvprintw(12, 2, "6. NNTP port");
+			mbse_mvprintw(13, 2, "7. NNTP m.r.");
+			mbse_mvprintw(14, 2, "8. NNTP user");
+			mbse_mvprintw(15, 2, "9. NNTP pass");
 			break;
 	case FEEDRNEWS: mbse_mvprintw(10, 2, "4. Path rnews");
 			mbse_mvprintw(11, 2, "5. N/A");
 			mbse_mvprintw(12, 2, "6. N/A");
-                        mbse_mvprintw(13, 2, "7. N/A");
+			mbse_mvprintw(13, 2, "7. N/A");
                         mbse_mvprintw(14, 2, "8. N/A");
+                        mbse_mvprintw(15, 2, "9. N/A");
 			break;
 	case FEEDUUCP:	mbse_mvprintw(10, 2, "4. UUCP path");
 			mbse_mvprintw(11, 2, "5. UUCP node");
                         mbse_mvprintw(12, 2, "6. N/A");
-                        mbse_mvprintw(13, 2, "7. N/A");
+			mbse_mvprintw(13, 2, "7. N/A");
                         mbse_mvprintw(14, 2, "8. N/A");
+                        mbse_mvprintw(15, 2, "9. N/A");
 			break;
     }
-    mbse_mvprintw(15, 2, "9. News dupes");
-    mbse_mvprintw(16, 1, "10. Email aka");
-    mbse_mvprintw(17, 1, "11. UUCP aka");
-    mbse_mvprintw(18, 1, "12. Emailmode");
+    mbse_mvprintw(16, 1, "10. News dupes");
+    mbse_mvprintw(17, 1, "11. Email aka");
+    mbse_mvprintw(18, 1, "12. UUCP aka");
+    mbse_mvprintw(19, 1, "13. Emailmode");
 
-    mbse_mvprintw(13,48, "13. Articles");
-    mbse_mvprintw(14,48, "14. News mode");
-    mbse_mvprintw(15,48, "15. Split at");
-    mbse_mvprintw(16,48, "16. Force at");
-    mbse_mvprintw(17,48, "17. Control ok");
-    mbse_mvprintw(18,48, "18. No regate");
+    mbse_mvprintw(14,48, "14. Articles");
+    mbse_mvprintw(15,48, "15. News mode");
+    mbse_mvprintw(16,48, "16. Split at");
+    mbse_mvprintw(17,48, "17. Force at");
+    mbse_mvprintw(18,48, "18. Control ok");
+    mbse_mvprintw(19,48, "19. No regate");
 
     set_color(WHITE, BLACK);
     show_str( 7,16,64, CFG.popnode);
@@ -913,9 +916,10 @@ void s_intmailcfg(void)
     show_str( 9,16,64, CFG.smtpnode);
     switch (CFG.newsfeed) {
 	case FEEDINN:	show_str(11,16,64, CFG.nntpnode);
-			show_bool(12,16,   CFG.modereader);
-			show_str(13,16,31, CFG.nntpuser);
-			show_str(14,16,31, (char *)"*******************************");
+			show_int(12,16,    CFG.nntpport);
+			show_bool(13,16,   CFG.modereader);
+			show_str(14,16,31, CFG.nntpuser);
+			show_str(15,16,31, (char *)"*******************************");
 			break;
 	case FEEDRNEWS:	show_str(10,16,64, CFG.rnewspath);
 			break;
@@ -924,17 +928,17 @@ void s_intmailcfg(void)
 			break;
     }
 
-    show_int(15,16,    CFG.nntpdupes);
-    show_aka(16,16,    CFG.EmailFidoAka);
-    show_aka(17,16,    CFG.UUCPgate);
-    show_emailmode(18,16, CFG.EmailMode);
+    show_int(16,16,    CFG.nntpdupes);
+    show_aka(17,16,    CFG.EmailFidoAka);
+    show_aka(18,16,    CFG.UUCPgate);
+    show_emailmode(19,16, CFG.EmailMode);
 
-    show_int( 13,65, CFG.maxarticles);
-    show_newsmode(14,65, CFG.newsfeed);
-    show_int( 15,65, CFG.new_split);
-    show_int( 16,65, CFG.new_force);
-    show_bool(17,65, CFG.allowcontrol);
-    show_bool(18,65, CFG.dontregate);
+    show_int( 14,65, CFG.maxarticles);
+    show_newsmode(15,65, CFG.newsfeed);
+    show_int( 16,65, CFG.new_split);
+    show_int( 17,65, CFG.new_force);
+    show_bool(18,65, CFG.allowcontrol);
+    show_bool(19,65, CFG.dontregate);
 }
 
 
@@ -980,53 +984,65 @@ void e_uucp(void)
 
 void e_intmailcfg(void)
 {
-        int     tmp;
+    int     tmp;
 
-        s_intmailcfg();
-        for (;;) {
-                switch(select_menu(18)) {
-                case 0: return;
-                case 1: E_STR(  7,16,64, CFG.popnode,      "The ^FQDN^ of the node where the ^POP3^ server runs.")
-		case 2: E_BOOL( 8,16,    CFG.UsePopDomain, "Use ^user@maildomain^ to login the POP3 server.")
-                case 3: E_STR(  9,16,64, CFG.smtpnode,     "The ^FQDN^ of the node where the ^SMTP^ server runs.")
-		case 4: if (CFG.newsfeed == FEEDRNEWS)
-				strcpy(CFG.rnewspath, edit_pth(10,16,64, CFG.rnewspath, (char *)"The path and filename to the ^rnews^ command.", 0775));
-			if (CFG.newsfeed == FEEDUUCP)
-				strcpy(CFG.rnewspath, edit_pth(10,16,64, CFG.rnewspath, (char *)"The path to the ^uucppublic^ directory.", 0775));
-			break;
-                case 5: if (CFG.newsfeed == FEEDINN)
-				strcpy(CFG.nntpnode, edit_str(11,16,64, CFG.nntpnode, (char *)"The ^FQDN^ of the node where the ^NNTP^ server runs."));
-			if (CFG.newsfeed == FEEDUUCP)
-				strcpy(CFG.nntpnode, edit_str(11,16,64, CFG.nntpnode, (char *)"The ^UUCP^ nodename of the remote UUCP system"));
-			break;
-                case 6: E_BOOL(12,16,    CFG.modereader,   "Does the NNTP server needs the ^Mode Reader^ command.")
-                case 7: E_STR( 13,16,31, CFG.nntpuser,     "The ^Username^ for the NNTP server if needed.")
-                case 8: strcpy(CFG.nntppass, edit_str(14,16,31, CFG.nntppass, (char *)"The ^Password^ for the NNTP server if needed."));
+    s_intmailcfg();
+    for (;;) {
+	switch(select_menu(19)) {
+	    case 0: return;
+	    case 1: E_STR(  7,16,64, CFG.popnode,      "The ^FQDN^ of the node where the ^POP3^ server runs.")
+	    case 2: E_BOOL( 8,16,    CFG.UsePopDomain, "Use ^user@maildomain^ to login the POP3 server.")
+	    case 3: E_STR(  9,16,64, CFG.smtpnode,     "The ^FQDN^ of the node where the ^SMTP^ server runs.")
+	    case 4: if (CFG.newsfeed == FEEDRNEWS)
+			strcpy(CFG.rnewspath, edit_pth(10,16,64, CFG.rnewspath, (char *)"The path and filename to the ^rnews^ command.", 0775));
+		    if (CFG.newsfeed == FEEDUUCP)
+			strcpy(CFG.rnewspath, edit_pth(10,16,64, CFG.rnewspath, (char *)"The path to the ^uucppublic^ directory.", 0775));
+		    break;
+            case 5: if (CFG.newsfeed == FEEDINN)
+			strcpy(CFG.nntpnode, edit_str(11,16,64, CFG.nntpnode, (char *)"The ^FQDN^ of the node where the ^NNTP^ server runs."));
+		    if (CFG.newsfeed == FEEDUUCP)
+			strcpy(CFG.nntpnode, edit_str(11,16,64, CFG.nntpnode, (char *)"The ^UUCP^ nodename of the remote UUCP system"));
+		    break;
+	    case 6: if (CFG.newsfeed == FEEDINN)
+			CFG.nntpport = edit_int(12,16, CFG.nntpport, (char *)"The NNTP ^port^ number to connect to");
+		    if (CFG.nntpport == 0) {
+			CFG.nntpport = 119;
 			s_intmailcfg();
-			break;
-                case 9: E_INT( 15,16,    CFG.nntpdupes,    "The number of ^dupes^ to store in the news articles dupes database.")
-		case 10:tmp = PickAka((char *)"1.12.10", FALSE);
-                        if (tmp != -1)
+		    }
+		    break;
+            case 7: if (CFG.newsfeed == FEEDINN)
+			CFG.modereader = edit_bool(13,16,    CFG.modereader, (char *)"Does the NNTP server needs the ^Mode Reader^ command.");
+		    break;
+            case 8: if (CFG.newsfeed == FEEDINN)
+			strcpy(CFG.nntpuser, edit_str( 14,16,31, CFG.nntpuser, (char *)"The ^Username^ for the NNTP server if needed."));
+		    break;
+            case 9: if (CFG.newsfeed == FEEDINN) {
+			strcpy(CFG.nntppass, edit_str(15,16,31, CFG.nntppass, (char *)"The ^Password^ for the NNTP server if needed."));
+			s_intmailcfg();
+		    }
+		    break;
+	    case 10:E_INT( 16,16,    CFG.nntpdupes,    "The number of ^dupes^ to store in the news articles dupes database.")
+	    case 11:tmp = PickAka((char *)"1.12.11", FALSE);
+                    if (tmp != -1)
                                 CFG.EmailFidoAka = CFG.aka[tmp];
-                        s_intmailcfg();
-                        break;
-                case 11:e_uucp();
-                        s_intmailcfg();
-                        break;
-                case 12:CFG.EmailMode = edit_emailmode(18,16, CFG.EmailMode);
-                        s_intmailcfg();
-                        break;
-
-		case 13:E_INT( 13,65, CFG.maxarticles,    "Default maximum ^news articles^ to fetch")
-		case 14:CFG.newsfeed = edit_newsmode(14,65, CFG.newsfeed);
-			s_intmailcfg();
-			break;
-                case 15:E_IRC( 15,65, CFG.new_split, 12, 60, "Gently ^split^ messages after n kilobytes (12..60).")
-                case 16:E_IRC( 16,65, CFG.new_force, 16, 64, "Force ^split^ of messages after n kilobytes (16..64).")
-                case 17:E_BOOL(17,65, CFG.allowcontrol,      "^Allow control^ messages for news to be gated.")
-                case 19:E_BOOL(18,65, CFG.dontregate,        "Don't ^regate^ already gated messages.")
-                }
-        };
+                    s_intmailcfg();
+                    break;
+            case 12:e_uucp();
+                    s_intmailcfg();
+                    break;
+            case 13:CFG.EmailMode = edit_emailmode(19,16, CFG.EmailMode);
+                    s_intmailcfg();
+                    break;
+	    case 14:E_INT( 14,65, CFG.maxarticles,    "Default maximum ^news articles^ to fetch")
+	    case 15:CFG.newsfeed = edit_newsmode(15,65, CFG.newsfeed);
+		    s_intmailcfg();
+		    break;
+            case 16:E_IRC( 16,65, CFG.new_split, 12, 60, "Gently ^split^ messages after n kilobytes (12..60).")
+            case 17:E_IRC( 17,65, CFG.new_force, 16, 64, "Force ^split^ of messages after n kilobytes (16..64).")
+            case 18:E_BOOL(18,65, CFG.allowcontrol,      "^Allow control^ messages for news to be gated.")
+            case 19:E_BOOL(19,65, CFG.dontregate,        "Don't ^regate^ already gated messages.")
+	}
+    }
 }
 
 
@@ -1516,6 +1532,11 @@ void global_menu(void)
 	Syslog('+', "Main config, nntp password length increased");
 	strncpy(CFG.nntppass, CFG.xnntppass, 16);
 	memset(&CFG.xnntppass, 0, sizeof(CFG.xnntppass));
+    }
+
+    if (! CFG.nntpport) {
+	Syslog('+', "Main config, set default nntp port 119");
+	CFG.nntpport = 119;
     }
 
     for (;;) {
@@ -2175,11 +2196,12 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "      SMTP host          %s\n", CFG.smtpnode);
     fprintf(fp, "      News transfermode  %s\n", getnewsmode(CFG.newsfeed));
     switch (CFG.newsfeed) {
-	case FEEDINN:	fprintf(fp, "      NNTP host          %s\n", CFG.nntpnode);
+	case FEEDINN:	fprintf(fp, "      NNTP host          %s:%d\n", CFG.nntpnode, CFG.nntpport);
 			fprintf(fp, "      NNTP mode reader   %s\n", getboolean(CFG.modereader));
 			fprintf(fp, "      NNTP username      %s\n", CFG.nntpuser);
 			fprintf(fp, "      NNTP password      %s\n", getboolean(strlen(CFG.nntppass)));
 			add_webtable(wp, (char *)"NNTP host", CFG.nntpnode);
+			add_webdigit(wp, (char *)"NNTP port", CFG.nntpport);
 			add_webtable(wp, (char *)"NNTP mode reader", getboolean(CFG.modereader));
 			add_webtable(wp, (char *)"NNTP username", CFG.nntpuser);
 			add_webtable(wp, (char *)"NNTP password", CFG.nntppass);

@@ -1290,6 +1290,7 @@ struct	sysconfig {
 
 	char		nntpuser[32];		/* NNTP username            */
 	char		nntppass[32];		/* NNTP password            */
+	unsigned int	nntpport;		/* NNTP port if not 119	    */
 };
 
 

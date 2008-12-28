@@ -2,6 +2,13 @@ $Id$
 
 v0.95.5		29-Nov-2008
 
+	mbselib:
+		Newsservers can be connected with a port number from the
+		setup.
+
+	mbsetup:
+		In screen 1.12 a nntp port number can be set.
+
 	examples:
 		Added German menus and textfiles, written by Niels Haedecke.
 
