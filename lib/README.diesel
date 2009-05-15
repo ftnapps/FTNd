@@ -1,0 +1,20 @@
+
+If you want compile a standalone diesel executable interpreter, you can
+do it writing at linux prompt:
+
+	# cc -DTESTPROG -g diesel.c -o diesel
+
+Then you can interpret a diesel script and see output calling...
+
+	# diesel <script
+or...
+	# cat script |diesel
+
+If you want set some vars before interpret script you can do...
+
+	# echo '@! @(setvar,a,5) @(setvar,B,HELLO)'| cat - script |diesel
+
+Or you can put all @(setvar...) sentences in a separated file an call...
+
+	# cat setvar.file script |diesel
+

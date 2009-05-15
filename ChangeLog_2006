@@ -1,0 +1,184 @@
+$Id: ChangeLog_2006,v 1.1 2008/11/29 13:55:33 mbse Exp $
+
+
+v0.90.0		06-Nov-2005 - 23-Jul-2006
+
+        upgrade:
+                Start mbsetup once and leave, this will update user records
+                with the wrong editor choice, fixes the files databases if
+		needed and upgrades the nodes settings.
+                Add extra switches to unarchiver commands entry 11, see
+                mbsetup for the archivers.
+                In menus 7.n.3.14 check if the NR flag is off, unless you need
+                it (which I doubt).
+
+        mbsebbs:
+                Removed antique line editor.
+                Added check for users homedirectory permissions and attempt to
+                fix errors. If fatal the connection is dropped.
+                Fixed virus scan of uploaded archives.
+                There are no paths anymore in OLR download packet files.
+                Made OLR bluewave packets CPU independant.
+                Fixed a strange bug that ftell didn't work right, this caused
+                corrupt bluewave download packets.
+                Bluewave is now big/little endian correct.
+                Added width marker for chat input and fixed linelength.
+                Added screen rows detection using ANSI sequences needed for
+                some terminal programs like minicom.
+                Writes LINES and COLUMNS environment into data.msg so that the
+                joe editor can use that.
+                Changed zmodem transmitter timeout to 60 seconds and changed
+                the zmodem init fase so that clients that don't start automatic
+                have a chance to start the transfer.
+                The zmodem transmitter now uses buffered output.
+                Added Change archiver menu.
+                Added crontrol-U0 to display current archiver.
+                Changes to OLR ASCII download:
+                - area files are named after area tag if possible, dots are
+                  replaced by underscores and extension is .text.
+                - If available each message now has a msgid in the header.
+                - Added a .info file with control information.
+                Fixed logging of wrong file after upload.
+
+        mbtask:
+		Lots of changes and bugfixes in the IBC chatserver.
+                Added code to the chatserver thread to handle remote servers
+                with dynamic dns addresses.
+                All IBC log lines start now with IBC: to allow easier grep.
+                Added global reset for chatservers every 24 hours.
+                Added setup checks for two main configuration settings for IBC
+                and fail to start if they are missing.
+                Don't start connections with IBC servers that miss settings in
+                the chatserver setup.
+                Several commands now send the server address from the servers
+                setup to the neighbours.
+                After server connect send the correct usernames already in chat.
+                When the IBC server detects a IP change of a remote server it
+                will completly restart the connection with that remote.
+                Made several functions multithread aware.
+                On shutdown also send PART and QUIT messages to all our links
+                for our own users if they are still online so that the network
+                will keep the correct state.
+                Removed all thread programming so that mbtask is now a single
+                process again.
+                Fixed startup problem on new installations.
+                Changed chat welcome message.
+                Registration info for the clients was send double coded.
+                Delete users from channel when a server disconnects.
+                Delete users from a server when server disconnects.
+                Check for stopped tasks reverted to the old method without
+                signal handlers.
+                Fixed comma issue in user/city registration.
+                Fixed a crash when there is no /etc/services udp port for the
+                chatserver.
+
+        mbsetup:
+                In users edit screen, removed append record option.
+                Blocked changing the users unixname.
+                Removed antique line editor is edit users.
+                In IBC setup added a switch for dynamic dns.
+                Added switches to default extract commands for file_id.diz
+                files to:
+                  nomarch -U
+                  rar -cu
+                  unrar -cu
+                  unzip -L
+                Other archives don't support forced upper or lowercase.
+                Added NR switch to the nodes session setup.
+                When a filearea was moved to another path the symlinks were not
+                moved to the new path.
+                Added archiver selection for nodes in node setup.
+                In archiver select added checks for valid archivers and allowed
+                escape without selecting an archiver.
+                Added selection of archiver select menu.
+                Added setup switch for tic nodes that need a 4d seen-by line.
+                When saving message areas, the golded.inc file now has the
+                groupid numbers from the groups in echomail or news areas.
+                The message groups now handle groupnumbers for golded groups.
+                In nodes setup added check for paths when directory sessions
+                are selected.
+
+        mbcico:
+                Don't add files to send anymore when batchnr > 20 to prevent
+                an infinite session loop.
+                Implemented binkp NR option.
+                Assume EXTCMD is set when GZ or BZ2 is active.
+                Added real error message for failed outgoing IP connections.
+
+        mbfido:
+                Added some experimental code for tic orphans processing.
+                Fixed crash when receiving bad tics. 
+                Tic orphans and bad crc handling is using a new method.
+                Now using new tmp workdirectory functions.
+                When a hatch directory doesn't exist, it is created.
+                Removed gated SB debug logmessages.
+                Made searching file file_id.diz case insensitive.
+                Uses archiver from the setup to pack mail for a node.
+                If sending crash to a node not in the setup, a default
+                archiver is now set to ZIP.
+                Accept unpacket mail for own points.
+                In created ticfiles in advanced seen-by mode, setting the node
+                to 4d will add point numbers to the seen-by lines if needed.
+                When message areas are auto changed, the updated golded.inc
+                file now has the groupid numbers from the groups in echomail
+                or news areas.
+                Seenby addresses in the internal tables did not store the
+                point numbers.
+                Added warning log for messages >= 32768 bytes.
+
+        mbfile:
+                Now using new tmp workdirectory functions.
+                Fixed file importing of non-archived files.
+                The test for files.bbs for files to import was done in the
+                wrong directory.
+                If a file is not removed from disk during pack, a error log
+                is created instead of a normal log.
+                Fixed a crash when files.bbs had empty lines.
+                Made searching file file_id.diz case insensitive.
+                Import now skips empty lines in files.bbs.
+                Import now handles properly missing files.
+
+        mbaff:
+                Fixed announce and filefind report problem when there were "
+                characters in the description.
+
+        mbmon:
+                Improved error message when the chatserver is not configured
+                in /etc/services.
+                In chat beeps are heard for system messages.
+                Added width marker for chat input and fixed linelength.
+                Better user input checking in chat.
+                Safer display in chat.
+
+        mbstat:
+                Don't write in errorlog after normal termination.
+                Added semafore names to help display.
+
+        mbmsg:
+                With the post function the right time is now used.
+
+        mbnntp:
+                Removed AREA:TAG kludge from posted articles.
+
+        libmbse.a:
+                Added temp workdirectory functions.
+                On socket send error 2, abort the client program.
+                Fixed another 32/64 bit issue in the files databases and added
+                automatic correction if detected.
+                Fixed comma issue in user/city registration.
+
+        nodelist.a:
+                Fixed parsing the nodelist when IBN:1.2.3.4 returned the IP
+                address 1.2.3.4 with port 1.
+
+        lang:
+                Changed language prompts 373 and 438.
+                New prompts 86, 87, 88 and 89.
+
+	install:
+		The checkbasic script uses more tricks to see if you are mbse
+		su to root before install.
+
+	examples:
+		Updated Engish menus and txtfiles.
+

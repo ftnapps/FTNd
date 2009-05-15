@@ -1,0 +1,1502 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<!-- $Id: faq.html,v 1.26 2005/01/31 12:40:03 mbse Exp $ -->
+<!-- Don't ever edit this file with an editor that destroys the makeup of this file -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<meta name="GENERATOR" content="vi handcraft">
+<meta name="author" lang="en" content="Michiel Broek">
+<meta name="description" lang="en" content="MBSE BBS Manual">
+<meta name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<title>MBSE BBS FAQ &amp; Howto</title>
+<link rel="stylesheet" href="manual.css">
+</head>
+<body>
+<blockquote>
+<div align="Center"><h1>MBSE BBS FAQ and Howto.</h1></div>
+<div align="Right"><h5>Last updated 31-Jan-2005</h5></div>
+
+<pre>
+Authors: P.E. Kimble aka King Kimerud            kimerud@bayhaus.org
+         Michiel Broek                           2:280/2802
+         Rick van Ruth                           3:640/954
+	 David Gonzalez                          4:930/1
+</pre><hr>
+<h3>Introduction</h3>
+<p>
+This FAQ is a work in progress. It is not complete, nor does its author
+claim   that it is complete. This FAQ only answers questions pertaining to
+using MBSE   BBS on your GNU/Linux box. It is a compilation of previous questions 
+that Michiel   Broek has recieved and answered from us newbies in getting 
+MBSE up &amp; running.   
+</p>
+
+<ol>
+ <li><a name="_Installation"></a><a href="#1">Installation</a><p>
+ <ol>
+  <li><a href="#1.1">Why do I have to install MBSE in the /opt directory?</a></li>
+  <li><a href="#1.2">What other operating systems will MBSE run on?</a></li>
+  <li><a href="#1.3">Will MBSE ever be ported to DOS/Windows or OS/2?</a></li>
+  <li><a href="#1.4">What does the quest switch in the bbs user setup mean?</a></li>
+  <li><a href="#1.5">How do I monitor as the things happen?</a></li>
+  <li><a href="#1.6">How do I start mbsebbs from inetd or xinetd?</a></li>
+  <li><a href="#1.7">I just installed mbse, now I get a Socket send failed error 2</a></li>
+ </ol>
+ <p></li>
+ <li><a name="_Fidosetup"></a><a href="#2">Fidonet Setup</a><p>
+ <ol>
+  <li><a href="#2.1">The nodelist compiler crashes, why?</a></li>
+  <li><a href="#2.2">What is the purpose of the "Comment" line in the tic area setup?</a></li>
+  <li><a href="#2.3">How do I poll a node?</a></li>
+  <li><a href="#2.4">I created a filerequest but mbcico doesn't call out.</a></li>
+  <li><a href="#2.5">Does MBSE support fidonet via ftp feeds?</a></li>
+  <li><a href="#2.6">The tosser and mbmsg program are slow, why?</a></li>
+  <li><a href="#2.7">How can I use an external netmail tracker with MBSE?</a></li>
+  <li><a href="#2.8">I am having problems with dates when unarchiving .arc files.</a></li>
+ </ol>
+ <p></li>
+ <li><a name="_Inetsetup"></a><a href="#3">Internet Setup</a><p>
+ <ol>
+  <li><a href="#3.1">Posting newsmessages to the newsserver fails.</a></li>
+  <li><a href="#3.2">FTP fidonet feeds how-to.</a></li>
+  <li><a href="#3.3">Polling a internet node fails</a></li>
+  <li><a href="#3.4">Dialup script examples for MBSE</a></li>
+  <li><a href="#3.5">BBS users cannot get their email on Debian</a></li>
+ </ol>
+ <p></li>
+ <li><a name="_BBSsetup"></a><a href="#4">BBS Setup</a><p>
+ <ol>
+  <li><a href="#4.1">How do I to set up MBSE for ISDN?</a></li>
+  <li><a href="#4.2">How do I use GoldED together with MBSE?</a></li>
+  <li><a href="#4.3">How do I use MsgEd together with MBSE?</a></li>
+  <li><a href="#4.4">How do I adopt a directory full of files to the bbs?</a></li>
+ </ol>
+ <p></li>
+ <li><a name="_Doors"></a><a href="#5">Doors Setup</a><p>
+ <ol>
+  <li><a href="#5.1">How do I run DOS doors under MBSE BBS?</a></li>
+  <li><a href="#5.2">Dosemu compile tips</a></li>
+  <li><a href="#5.3">Setting up for InterBBS games.</a></li>
+  <li><a href="#5.4">Door Maintenance.</a></li>
+ </ol>
+ <p></li>
+</ol>
+
+<a href="index.htm"><img src="images/b_arrow.png" alt="Back" border="0">Go Back</a>
+<hr>
+
+<h3><a name="1">1. Installation.</a></h3>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="1.1">Q 1.1</a></td>
+   <td>Why do I have to install MBSE in the /opt directory?</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 1.1</td>
+   <td> The /opt is for extra applications, when mbse is installed there 
+     it is easier to upgrade the OS. If you insist on installing in /usr/local
+       the choose /usr/local/mbse. 
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Installation"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="1.2">Q 1.2</a></td>
+   <td> What other operating systems will MBSE run on? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 1.2</td>
+   <td> Currently only on most GNU/Linux distributions, FreeBSD and NetBSD.
+       The author, Michiel Broek, has made a valiant effort ensuring that
+MBSE     will recognize and install on the major distributions of GNU/Linux.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Installation"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="1.3">Q 1.3</a></td>
+   <td> Will MBSE BBS ever be ported to DOS/Windows or OS/2? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 1.3</td>
+   <td> No. </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Installation"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="1.4">Q 1.4</a></td>
+   <td> What does the guest switch in BBS user setup mean? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 1.4</td>
+   <td> Nothing yet. </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Installation"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+  
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="1.5">Q 1.5</a></td>
+   <td> How do I monitor as the things happen? </td></tr>
+  <tr>
+   <td valign="Top">A 1.5</td>
+   <td> tail -f /opt/mbse/log/system.log or start mbmon. </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Installation"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="1.6">Q 1.6</a></td>
+   <td> How to start mbsebbs from inetd or xinetd? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 1.6</td>
+   <td> This is described in the documentation of the 
+        <a href="programs/mblogin.html">mblogin</a> program. </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Installation"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="1.7">Q 1.7</a></td>
+   <td> I just installed mbse, now I get a Socket send failed error 2.</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 1.7</td>
+   <td> With a normal system boot the <b>mbtask</b> daemon will be started 
+     by one of the systems init scripts. If you just installed mbse you need 
+     to  do this for the first time manually. As user <b>mbse</b> issue the 
+     following commands: <pre>mbtask<br>mbstat open<br><br></pre>
+     This will start the daemon, the daemon creates the default
+     databases. Then  you can use <b>mbsetup</b> to configure your new system.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Installation"><img src="images/hand.up.png" border="0" alt="Up"></a>
+
+<hr>
+<h3><a name="2">2. Fidonet setup.</a></h3>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.1">Q 2.1</a></td>
+   <td> The nodelist compiler crashes, why? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.1</td>
+   <td>Note: From previous experience, it is vital that you follow 
+       the docs  closely. Also, ensure that you have a copy of a valid nodelist 
+       and nodediff file. I have ran into problems where either the noddiffs 
+       don't match the nodelist, the crc checks fail, or I have files from 
+       two different zones. I have even had to back up several months before 
+       finding a valid noddiff that would match the nodelist. </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.2">Q 2.2</a></td>
+   <td> What is the purpose of the "Comment" line in the tic area setup?</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.2</td>
+   <td>The downlinks will see this when receiving FileMgr replies. 
+       It is meant only as a description for the filearea. </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.3">Q 2.3</a></td>
+   <td> How do I poll a node? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.3</td>
+   <td> mbout poll f2802.n280.z2 </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.4">Q 2.4</a></td>
+   <td> I created a filerequest but mbcico doesn't call out. </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.4</td>
+   <td> You need to add a poll for that node to do the call. </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+  
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.5">Q 2.5</a></td>
+   <td> Does MBSE support fidonet via ftp transfers? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.5</td>
+   <td> Yes, but only the passive side. <a href="#3.2">Refer to 3.2.</a></td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+  
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.6">Q 2.6</a></td>
+   <td>The tosser and mbmsg programs are slow, why?</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.6</td>
+   <td> Tossing mail and linking message areas are background tasks. 
+     When mbse was first developed the hardware was not fast enough to run 
+     these programs at full speed. The mailer could give CRC errors and the 
+     bbs seemed to stop now and then. To overcome this problem all programs 
+     started with the -quiet switch (background jobs) are stopping for short 
+     periods so that they would use less system resources. Systems with SCSI 
+     disks or other fast and well designed machines don't have a need for that 
+     slowdown. In mbsetup menu 1.5.17 is the setting for the speed of all utility 
+     programs, the default is slow. You might try this set to fast and see what
+     happens on your system.</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.7">Q 2.7</a></td>
+   <td>How can I use an external netmail tracker with MBSE?</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.7</td>
+   <td>If the netmail tracker can work on .pkt files you could try to 
+       install it into mbfido. It can call a external program to process incoming 
+       .pkt files before mbfido does something with it. That option was built a
+       few years ago for extra Y2K checks. (The pktdate program of Tobias Ernest).</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="2.8">Q 2.8</a></td>
+   <td>I am having problems with dates when unarchiving .arc files.</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 2.8</td>
+   <td>If you are experiencing a problem with the dates on arc files
+       showing as January 1970 or similar when extracted using Arc v5.31 for linux
+       then obtain "nomarch". MBSE will detect nomarch during configuration/install
+       and set your archiver.data file accordingly. Nomarch extracts .arc files
+       and keeps the original file date.</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+
+<hr>
+<h3><a name="3">3. Internet setup.</a></h3>
+  
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="3.1">Q 3.1</a></td>
+   <td> Posting newsmessages to the newsserver fails. </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 3.1</td>
+   <td>Check if you need the "mode reader" command for the newsserver.
+       Set this flag in mbsetup 1.15.5 </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Inetsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="3.2">Q 3.2</a> </td>
+   <td> How do I configure MBSE for my ftp filenet feeds? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 3.2</td>
+   <td>Follow the next steps to setup your system for FTP clients. 
+    <ol>
+     <li>As root, add a new group to your system: <b>groupadd bbsftp</b>.</li>
+     <li>Make sure there is a directory /opt/mbse/var/bbsftp. This directory 
+      	 should be owned by mbse, group bbs and have mode 0775.</li>
+     <li>Add an invalid shell to /etc/shells, /usr/bin/false is good.</li>
+     <li>Install an FTP server, the examples here are for ProFTPD.</li>
+     <li>In /etc/proftpd.conf make sure there are the following lines: 
+<pre>
+# Anonymous ftp and members of group bbsftp have a chroot environment.
+# DefaultRoot     ~ bbsftp
+</pre>
+         This will make sure that users who are member of the bbsftp
+         group have a chrooted directory structure for their ftp directories.
+ 	 Also make sure the line Umask 022 is changed to Umask 002.</li>
+     <li>Add a username for the node you whish to give an FTP feed.
+         Use the following as root:                                            
+<pre>
+useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
+    -s /usr/bin/false -c "FTP Account for username" -m username
+</pre>
+         Note: this is one line! There will now be a user added and
+         have a  home  directory of /opt/mbse/var/bbsftp/username. Make sure
+         that  directory has  permission 0775 or 0770. Create in the username
+         directory two other directories, inbound and outbound. They must
+         be owned by the user and be a member of group bbs and have mode 0775.
+         The modes  077x are needed because the user and mbse must be able to
+         read and write  to these directories.</li>
+     <li>Try to login with ftp from some other system with the choosen 
+      	 username and his password and check the changes until now. You should 
+    	 not be able to escape from the directories of this user and you should 
+   	 be able to upload files, download and delete files. Check also if you 
+ 	 uploaded a file if user mbse can delete that file and also put a file 
+	 in the users ftp directory as user mbse, and check that you can download 
+         and delete is as ftp user.</li>
+     <li>Make sure for the node you want to change there is no mail
+         left in the outbound. Now start mbsetup, menu 7, open the setup
+         of the node that will use ftp. In screen 3, items 7 and 8, set these
+         to  Directory. Now enter screen 8, here you will setup the directory
+         session.                                                                
+<pre>
+       7.8  EDIT NODE DIRECTORY SESSION
+
+            Outbound settings
+       1.   Files path      /opt/mbse/var/bbsftp/username/outbound
+       2.   Check for lock  Yes               3.   Wait clear lock Yes
+       4.   Check lockfile  /opt/mbse/var/bbsftp/username/lock.bsy
+       5.   Create lock     Yes
+       6.   Create lockfile /opt/mbse/var/bbsftp/username/lock.bsy
+       
+            Inbound settings
+       7.   Files path      /opt/mbse/var/bbsftp/username/inbound
+       8.   Check for lock  Yes               9.   Wait clear lock Yes
+       10.  Check lockfile  /opt/mbse/var/bbsftp/username/lock.bsy
+       11.  Create lock     Yes
+       12.  Create lockfile /opt/mbse/var/bbsftp/username/lock.bsy
+</pre>
+         Save this and you are ready.</li>
+     <li>A final note, since this user is in group bbs and not in the
+         bbs userdatabase he can never telnet to your system with this account
+         and get a shell. The user doesn't even have a valid shell.</li>
+    </ol>
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Inetsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="3.3">Q 3.3</a></td>
+   <td>Polling a internet node fails.</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 3.3</td>
+   <td>There are several reasons why mbcico refuses to call an internet
+       node, most problems are nodelist related. A internet node with binkp
+       protocol should be listed with the flags CM,IBN before mbcico will
+       make a call. Also, in the nodelist system name field there should
+       be the hosts full qualified domainname so that mbcico can get that
+       node's IP address. If one of these items are missing, the node will
+       not be called. To correct this problem there are two options, make
+       sure the node is listed with a dns name and proper flags in the nodelist.
+       The second option is to add a setup record for that node and fill in
+       the nodelist override fields. You can find these in menu 7.3, item
+       5 can be filled with the nodelist flags, ie. CM,IBN and item 6 can   
+       be used to give that node's fdn or IP address.                        
+       <p>
+       If the call still fails there are several things that must be
+       right before mbcico makes any internet call. In mbmon, screen 2 (SERVER
+       STATS) there are flags that indicate if the system is running, internet
+       is available and the bbs is open. If one of these is No, then no call will
+       be made. (For POTS the Internet flag does not matter of course).
+       <p> 
+       In mbsetup, screen 18 (taskmanager), you need to set the maximum 
+       TCP sessions to allow. This is inbound and outbound together. So if you set
+       this to 3 and 3 or more systems are already calling in via internet, your
+       system will not call anymore until the amount of TCP sessions drops below 3.
+       <p>
+       If you set this to high on an average cable/adsl connection, 
+       you can get into trouble because you use up all upstream bandwidth. (We have
+       seen a lot of errors at a busy when the upstream speed was 64K and downspeed
+       512K and about 4 sessions together). A good rule seems 1 TCP session for
+       each 32K bandwidth.
+       <p>
+       Then turn in that same screen debug on. After a minute mbtask 
+       rereads his configuration.
+       <p>
+       Make a poll with mbout poll &lt;node&gt;.
+       <p>
+       Watch the mbtask logfile and see what it does for that node. It
+       should be added to the calllist. If not, it might be still a nodelist problem.</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Inetsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="3.4">Q 3.4</a></td>
+   <td>Dialup script examples for MBSE</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 3.4</td>
+   <td>Dialup Script using mclient:                        
+<pre>
+#!/bin/sh
+#
+# Dialup script for MBSE BBS.
+#
+#============================================================================
+# Copyright (C) 1997-2002
+#   
+# Michiel Broek                FIDO:           2:280/2802
+# Beekmansbos 10
+# 1971 BV IJmuiden
+# the Netherlands
+#
+# This file is part of MBSE BBS.
+#
+# This BBS is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version.
+#
+# MBSE BBS is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with MBSE BBS; see the file COPYING.  If not, write to the Free
+# Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+#============================================================================
+#
+#
+# Enter commands to make the dialup connection and to hangup the connection.
+#
+DIALCMD="mclient -d -c DDS"
+HANGUPCMD="mclient -k"
+#
+# Log to syslog
+#
+LOGGER="logger -p user.notice -t basename $0$$]"
+
+if [ -z "$DIALCMD" ]; then
+    echo "This script is not configured, edit this script to use it."
+    exit 1
+fi
+
+echo "Dial internet start" | $LOGGER
+#
+# Do 3 attempts to connect
+#
+connect=0; try=0;
+while let 'connect == 0'
+do
+    # Count connect attepts
+    #
+    let try=try+1
+    if [ $try == 4 ]; then
+        echo "No internet connection, giving up" | $LOGGER
+        $HANGUPCMD &gt;&gt;/dev/null
+        exit 1
+    fi
+
+    echo "Call attempt $try"    | $LOGGER
+    $DIALCMD &gt;&gt;/dev/null
+    i=60;
+    while let 'i &gt; 0' &amp;&amp; let 'connect == 0'
+    do
+        if [ -f $MBSE_ROOT/var/sema/is_inet ]; then
+            connect=1
+            echo "mbtask detected internet"     | $LOGGER
+        fi
+        let i=i-1
+        sleep 1
+    done
+    #
+    # Check if we have a connection
+    #
+    if [ ! -f $MBSE_ROOT/var/sema/is_inet ]; then
+        echo "Failed, 10 seconds pause ..."     | $LOGGER
+        sleep 10
+    fi
+done
+
+#
+# Here we have a connection, now make all needed polls
+#
+$MBSE_ROOT/bin/mbout poll f5003.n280.z2 f19.n280.z2 -quiet
+
+#
+# Now we wait until the do_inet semafore appears, we
+# timeout at 25 seconds, must be enough.
+#
+i=25;
+while let 'i &gt; 0'
+do
+    if [ -f $MBSE_ROOT/var/sema/do_inet ]; then
+        i=0;
+    else
+        let i=i-1;
+        sleep 1
+        echo "wait do_inet $i"
+    fi
+done
+
+#
+# Now test until the do_inet semafore is gone.
+# Timeout is one hour.
+#
+i=3600;
+while let 'i &gt; 0'
+do
+    if [ ! -f $MBSE_ROOT/var/sema/do_inet ]; then
+        i=0;
+    else
+        let i=i-1;
+        sleep 1
+        echo "wait ready $i"
+    fi
+done
+
+echo "Internet sessions done, hangup"   | $LOGGER
+$HANGUPCMD &gt;&gt;/dev/null
+echo "Script ready"                     | $LOGGER
+exit 0
+
+=================================================
+</pre>
+         Dialup Script using diald:                                     
+                                   
+<pre>
+=================================================
+#!/bin/sh
+
+PATH=/opt/mbse:/opt/mbse/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/usr/local
+/ sbin:$PATH
+cd /opt/mbse
+if [ -f /opt/mbse/tmp/ip.up ] ; then
+        exit
+fi
+echo "up" &gt; /var/run/diald.ctl
+sleep 15
+
+ping -c 10 -w 10 mail.iol.ie
+if [ -e /var/run/ppp0.pid ]  ; then
+        touch /opt/mbse/tmp/ip.up
+   cd /opt/mbse
+   echo "Fetching News"
+   /opt/mbse/fetchnews
+   echo "Synching clock"
+   telnet 192.168.0.2 9049
+   bin/mbfido news
+   echo "Fetching Mail"
+   /usr/bin/fetchmail -f /opt/mbse/.fetchmailrc
+   bin/soup
+        if [ ! 'cat /opt/mbse/irex/s/rexbusy.0 | xargs ps --no-header' ] ;
+        then
+                rm /etc/ftn/irex/s/rexbusy.0
+        fi
+
+   ./rexl
+   fetchmail -f /opt/mbse/.fetchmailrc
+   ./rexl -sf m
+   /opt/mbse/bin/bink
+
+  echo down &gt; /var/run/diald.ctl
+
+  bin/bres.sh  # &gt;&gt; /dev/null 2&gt;&amp;1
+fi
+rm /opt/mbse/tmp/ip.up
+
+==================================
+</pre>
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Inetsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="3.5">Q 3.5</a></td>
+   <td>BBS users cannot get their email on Debian</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 3.5</td>
+   <td>
+   Debian Linux uses for normal users a security model with private user groups.
+   The users of the bbs are all in group bbs. Some pop3 servers do not handle
+   that situation well and don't show the email for bbs users that is delivered
+   in /var/mail. If you choose to use qpopper it will work.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Inetsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+  
+<hr>
+<h3><a name="4">4. BBS setup.</a></h3>
+  
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="4.1">Q 4.1</a></td>
+   <td> How to set up MBSE for ISDN.</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 4.1</td>
+   <td>Contributed by: J. Beekhuizen, 2:280/1018                   
+       <p> 
+       Of course, you have to configure and build your kernel for ISDN 
+       support and the correct drivers for your card. It is beyond the scope 
+       of this document to explain how to do that.
+       <p> 
+       To your /etc/inittab file add the following lines for your ISDN 
+       devices ttyI0 and ttyI1. </p>
+<pre>
+# ISDN lines
+I1:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI0
+I2:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI1
+</pre>
+       To your mgetty.config file [/usr/local/etc/mgetty_sendfax/mgetty.config 
+       on my system] set up the ttyI0 and ttyI1 ports. With AT&amp;E you set
+       the MSN/EAZ the device should listen to. This should for an MSN be your
+       telephone number <b>with</b> the area code but <b>without</b> the leading
+       0. For an EAZ the last digit of your EAZ.                          
+       <p> 
+       The ISDN ports
+<pre>
+port ttyI0
+modem-type data
+init-chat "" ATZ OK
+AT&amp;E714015437&amp;W0 OK 
+AT&amp;B512 OK
+
+port ttyI1
+modem-type data
+init-chat "" ATZ OK 
+AT&amp;E714017198&amp;W0 OK
+AT&amp;B512 OK
+</pre>
+       From the mbsetup menu #5 "Edit Modem types" configure the ISDN 
+       modem type.                                                          
+<pre>
+	Modem type   ISDN Linux
+	Init string  ATZ\r
+	Init string
+	Init string
+	OK string    OK
+	Hangup       \d\p\p\p+++\d\p\p\pATH0\r
+	Info command ATI2\r
+	Dial command ATD\T\r
+	Connect      CONNECT 64000
+	Connect      CONNECT
+	[...]
+	Reset cmd    ATZ\r
+	Error string BUSY
+	Error string NO CARRIER
+	Error string NO DIALTONE
+	Error string NO ANSWER
+	Error string RING\r
+	Error string ERROR
+	Error string
+	Error string
+	Error string
+	Error string
+	Cost offset  0
+	EMSI speed   28800                   ! not relevant for ISDN
+	Strip dashes No
+	Available    Yes
+</pre>
+        And from #6 "Edit TTY lines info" the ISDN lines          
+<pre>
+	TTY name     ISDN Line 1
+	Device name  ttyI0
+	Phone or DNS 31-71-4015437
+	Line speed   64 kbits
+	Fido flags   CM,XA,MO,X75
+	Equipment    ISDN
+	Available    Yes
+	Auth. log    No
+	Honor ZMH    Yes
+	Callout      Yes
+	Modem type   ISDN Linux
+	Locked speed 0                                 ! not relevant for ISDN
+	EMSI name    The Wizard's ISDN line 1
+
+	TTY name     ISDN Line 2
+	Device name  ttyI1
+	Phone or DNS 31-71-4017198
+	Line speed   64 kbits
+	Fido flags   CM,XA,MO,X75
+	Equipment    ISDN
+	Available    Yes
+	Auth. log    No
+	Honor ZMH    Yes
+	Callout      Yes
+	Modem type   ISDN Linux
+	Locked speed 0
+	EMSI name    The Wizard's ISDN line 2
+
+</pre>
+       T-t-that's all folks :)) </td>
+      </tr>
+ </tbody>
+</table>
+<a href="#_BBSsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="4.2">Q 4.2</a></td>
+   <td> How do I use GoldED together with MBSE? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 4.2</td>
+   <td>Since MBSE BBS version 0.33.12 GoldED and MBSE BBS can be used 
+       together without problems as long as you use it to read the sysop mail. 
+       The mbsetup program can export a file called /opt/mbse/etc/golded.inc 
+       which will contain your main Aka's, Aka matching, sysop name and all your
+       mail areas. This file is only (re)created if you change the global settings
+       or one of the mail areas. The first time you must force this by making
+       a change somewhere.                                                  
+       <p> 
+       Now create /opt/mbse/etc/golded.cfg, here is what I wrote:
+<pre>
+; GoldED.cfg
+;
+; Internet Addressing
+;
+INTERNETADDRESS Michiel_Broek@f2802.n280.z2.fidonet.org
+INTERNETGATE UUCP 2:292/875
+;
+;
+OUTBOUNDPATH /opt/mbse/var/bso/outbound
+REPLYLINK chain
+STYLECODES yes
+;
+;
+; MESSAGE READER
+;
+DISPMSGSIZE KBYTES
+DISPATTACHSIZE KBYTES
+DISPLOCALHIGH YES
+DISPPAGEBAR YES
+VIEWHIDDEN YES
+VIEWKLUDGE NO
+VIEWQUOTE YES
+;
+INCLUDE /opt/mbse/etc/golded.inc
+;
+; The end.
+</pre>
+       Put in /opt/mbse/.profile the following line: export GOLDED=$HOME/etc 
+       <p> 
+       When you now start GoldED you use it as the sysop. Make sure that
+       the sysop's userrecord is the first user in the MBSE BBS userbase. If not,
+       the lastread pointers are not right. The GoldED nodelist compiler can be
+       added to the setup in menu 18.</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_BBSsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="4.3">Q 4.3</a> </td>
+   <td> How do I use MsgEd together with MBSE?</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 4.3</td>
+   <td>Since MBSE BBS version 0.35.05 MsgEd and MBSE BBS can be used 
+       together without problems as long as you use it to read the sysop 
+       mail. The mbsetup program can export a file called /opt/mbse/etc/msg.txt 
+       which will contain your mail areas setup. This file is only 
+       (re)created if you change the global settings or one of the mail 
+       areas. The first time you must force this by making a change somewhere.</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_BBSsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="4.4">Q 4.4</a> </td>
+   <td> How do I adopt (batch upload) a directory full of files to my BBS'es file base?</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 4.4</td>
+   <td>Written by: Russell Tiedt.
+       <p>
+       Easy using the script below, provided the file archives (*.zip, *.rar, *.arc, 
+       *.lha, etc.) all contain "file_id.diz" files.
+       <p>
+       Sort the files in tempory directries that correspond to the filebase area, ie. 
+       /dos4 (DOS files - filebase area no 4)
+       <p>
+       Then copy the script below to the directory, edit the number of the filebase 
+       that the files must be batch uploaded to, to the number that corresponds to 
+       the required filebase. (On my BBS system the DOS file section corresponds to 
+       the number 4, hence the name above for the tempory directory used above) I 
+       copy all files to be batch uploaded to the DOS file section, to the /dos4 
+       directory, copy the script below to the /dos4 directory, edit the script so 
+       that it uploads to the DOS filebase (4) and run it.
+<pre>
+for file in `ls` ; do
+  mbfile adopt 4 $file "Dummy description"
+done
+</pre>
+       NOTE: the 4 in the script above, indicates the filebase/filearea that the 
+       files will be batch uploaded to.
+
+       For archives that have/contain a file_id.diz file, "Dummy description" will be 
+       replaced with the content of the "file_id.diz file of that archive, if no 
+       file_id.diz exists in the archive, then "Dummy descrition" will appear in the 
+       description field of the files.bbs file for the file area it gets uploaded to.
+       <p>
+       If the files don't have/contain file_id.diz files, then create and insert in 
+       the archive, a file_id.diz file having a suitable description of the content 
+       of the archive, then follow the instructions above.
+       <p>
+       For *.exe and *.com files, as well as other files that are not archived ie. in 
+       *.zip/*.rar/*.arc/*.lha/*.lhz/*.zoo etc. Create a file_id.diz file for the 
+       file, then make an archive using the archiver of your choice containing the 
+       file and the file_id.diz you created for it, then follow the instructions 
+       above.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_BBSsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+
+<hr>
+<h3><a name="5">5. Doors setup.</a></h3>
+  
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="5.1">Q 5.1</a> </td>
+   <td> How do I run DOS doors under MBSE BBS? </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 5.1</td>
+   <td>
+<pre>
+Written by: Redy Rodriguez, sysop of Parolas BBS 2:348/609
+Fidonet:    Redy rodriguez 2:348/609
+Email:      redy@users.sourceforge.net
+            Redy_Rodriguez@f609.n348.z2.fidospain.org
+</pre>
+<p>
+<em>Note: the next method is obsolete, with newer versions of dosemu it is
+possible to run the doors without sudo but with user privileges. See the 
+<a href="doors.html">doors</a> page for details. The information below is for
+old versions of dosemu.</em>
+       <p>
+       <b>NO WARANTEE</b>
+       <p> 
+       The information gathered here, works for the indicated intention. 
+       It is proven and working in PAROLAS BBS, however, I do not guarantee 
+       that it works correctly in all the cases. The author is not responsible 
+       for the  damage this can cause. If you follow the instructions, and you 
+       get not the expected result, or as a result of it you get undesired results, 
+       you loose  data or destroy your  system, you you will be the only person 
+       in charge.
+       <p>
+       <b>INTRODUCTION</b>
+       <p> 
+       This document describes how I have been able to execute MS/DOS 
+       doors in  MBSEBBS. Probably it is not the best way to do it, but this 
+       is the one that works for me. If somebody finds one more more effective, 
+       or simpler or safer a solution, then I like to hear this solution.
+       <p>
+       <b>WHAT IS NEEDED?</b>
+       <p> 
+       MBSEBBS is correctly compiled and working, in my case I have the
+       version  0.33.19, that is at the moment the most recent and stable, I suppose
+       that this method can be valid for newer versions. DOSEMU 1.0.2 I have tried
+       previous versions, but these do not work correctly with virtual ports. You
+       can download dosemu.1.02.tgz from  <a href="www.dosemu.org">www.dosemu.org</a>
+       , you may also need to download the freedos archive dosemu-freedos-bin-1.02.tgz.
+       A partition with MS/DOS, I have on my disc a partition with installed
+       MS/DOS, and that is the one that I use, but I'm sure that many doors
+       could  work correctly with the freedos. You also need <b>sudo</b>. Sudo
+       is a utility that let's ordinary users execute certain programs as superuser,
+       this is available with almost all GNU/Linux distributions.
+       <p>
+       <b>COMPILING DOSEMU</b>
+       <p> 
+       Unpack dosemu in some directory, for example /usr/src, then changed 
+       into that directory and execute 'make'. When this is ready we have 
+       dosemu compiled. If we already had a previous version of dosemu it is 
+       advisable to uninstall it before continuing. Copy dosemu-freedos-bin-1.02.tgz 
+       to the toplevel directory of the dosemu source and execute:
+<pre>
+./install_systemwide -fd dosemu-freedos-bin-1.02.tgz
+</pre>
+       In the directory etc, within the directory where we have decompressed 
+       the source code of dosemu we have configuration examples. Create the 
+       directory /var/lib/dosemu if it does not exist the directory, and copy 
+       global.conf to that directory. Also copy dosemu.conf to directory /etc 
+       and copy dosemu.users.secure as dosemu.users to /etc.               
+       <p>
+       <b>CONFIGURE THE DOS PARTITION</b>
+       <p> 
+       Now we must configure the dos partition, in my case this exists 
+       as a mounted dos partition in /dos/c. If this is not the case then you
+       could work with an image of freedos. I have created in my dos partition 
+       a directory c:\doors where I install all doors that I want to use, and 
+       a file called c:\doors.bat with the following contents:
+<pre>
+@echo off
+c:
+cd \doors
+if exist %1.bat call %1 %2 %3 %4 %5 %6 %7 %8 %9
+c:\dosemu\exitemu
+</pre>
+       Change to the directory /var/lib/dosemu and create directory
+       called for example 'c':                                          
+<pre>
+mkdir c. 
+</pre>
+       A link to the mounted partition could be made but I prefer
+       to  create a new directory and in that directory make links to dos program 
+       which are only of interest for us. Many programs and directories of the 
+       dos partition are not needed in dosemu and to run doors. Change to the 
+       created directory and make links to everything what we have in our dos 
+       partition (we will erase  soon what we do not need).  Autoexec.bat and 
+       config.sys must copied instead  of making links so we can modify them, because
+       surely we will want that they  are different in dosemu, then in real dos.
+<pre>
+cd c
+ln -s /dos/c/* .
+rm autoexec.bat
+rm config.sys
+cp /dos/c/autoexec.bat config.sys .
+</pre>
+       Create a directory dosemu and copy the typical utilities of dosemu.
+<pre>
+mkdir dosemu 
+cp /usr/src/dosemu-1.02/1.0.2.0/commands/* dosemu
+</pre>
+       Now we modify the copy of config.sys and autoexec.bat to erase
+       everything what is not necessary to execute our games as doors, like
+       drivers for cdrom, mouse etc... We will clear the keyboard driver 'KEYB
+       XX' and make sure that in the path in autoexec.bat to include the directory
+       c:\dosemu. Also load the fossil emulator, for example add these two lines:
+<pre>
+path %PATH%:c:\dosemu
+c:\dosemu\fossil
+</pre>
+       If there is another fossil, such as bnu or x00 in config.sys
+       or  autoexec.bat we clear all references to these, we will load them
+       if that is necessary in the file that it executes the door when needed, 
+       this can be necessary for some doors and for other not. Now we can erase 
+       all the links to the directories who are not necessary, and that we do
+       not want that they are visible.
+       <p> 
+       Then edit the file /etc/dosemu.conf and look for the line that 
+       begins with "$_hdimage =" and change that to:
+<pre>
+$_hdimage = "c"
+</pre>
+       Now login as root and you should be able to execute our dos 
+       emulator by executing '/usr/bin/dosemu.bin'                         
+       <p> 
+       (to leave dosemu type in exitemu)
+       <p>
+       <b>CONFIGURING SUDO</b>
+       <p> 
+       Normally the dos partition is not accessible to the users of the
+       BBS, except from within dosemu, and to be able to have access without activating
+       the setuid bit of dosemu, we use sudo so that any user of the BBS can execute
+       dosemu.bin as root. As root execute visudo to edit the configuration file
+       of sudo add the lines:
+<pre>
+%bbs   ALL=NOPASSWD:/opt/mbse/bin/bbsdoor.sh
+%bbs   ALL=NOPASSWD:/opt/dosemu/bin/dosemu.bin
+</pre>
+       The first command is a script that takes care of copying the
+       file door.sys to the dos partition, the second line is to allow to
+       execute dosemu.bin. Any user of group BBS can execute these commandos
+       like root without password is asked.                                
+       <p> 
+       In order to test that this works login as user mbse and execute:
+<pre> 
+sudo dosemu.bin
+</pre>
+       <p>
+       <b>INSTALLING A DOOR</b>
+       <p> 
+       First we need a pair of scripts. These scripts are installed when
+       you did install MBSE. These scripts are needed to execute the doors and are
+       installed in /opt/mbse/bin:
+<pre>
+--- rundoor.sh ---
+
+#!/bin/bash
+#
+# rundoor.sh - Never call this script directly, create a symlink
+#              to thisfile with the name of the door. For example
+#              tu run the door ilord do:
+#              cd /opt/mbse/bin
+#              ln -s rundoor.sh ilord
+#
+# by Redy Rodriguez and Michiel Broek.
+#
+DOOR=`basename $0`
+COMMANDO="\" doors $DOOR $*\r\""
+
+/usr/bin/sudo /opt/mbse/bin/bbsdoor.sh $DOOR $1
+/usr/bin/sudo /opt/dosemu/bin/dosemu.bin \
+-F /var/lib/dosemu/global.conf \
+-I "`echo -e serial { com 1 virtual }"\n" keystroke $COMMANDO`"
+reset
+tput reset
+stty sane
+
+--- bbsdoor.sh ---
+
+#
+#  Initialize DOS environment before starting a bbs door.
+#  Parameters: $1 = name of the door
+#              $2 = the nodenumber for this session
+#
+#  by Redy Rodriguez, 22-Oct-2001
+if [ "$1" != "" ]; then
+    if [ "$2" != "" ]; then
+        mkdir -p /dos/c/doors/node$2 &gt;/dev/null 2&gt;&amp;1
+	# Copy door.sys to dos partition
+	cat ~/door.sys &gt;/dos/c/doors/node$2/door.sys
+	# Create .dosemu/disclaimer in user home to avoid warning
+	if [ ! -d $HOME/.dosemu ]; then
+	    mkdir $HOME/.dosemu
+	fi
+	if [ ! -f $HOME/.dosemu/disclaimer ]; then
+	    touch $HOME/.dosemu/disclaimer
+	fi
+    fi
+fi
+</pre>
+       The script rundoor.sh is never called directly, simply create 
+       a link with the name of the door to this file, this name must be the 
+       same as the one of the .bat file that starts the door in the doors directory 
+       of the dos  partition. Let me explain this with an example:          
+       <p> 
+       I have chosen the door Virtual Sysop, but it could be any other 
+       door. My experience says to me that not all doors work correctly with 
+       a serial port in virtual mode. This one is working at Parolas BBS.
+       <p> 
+       Unpack Virtual Sysop in the dos partition, in the directory c:\doors\vsysop.
+       Execute as user mbse 'sudo dosemu.bin' and make sure that the door
+       works in local mode (these commands are for this door):
+<pre>
+cd doors
+cd vsysop
+vsysop -local
+</pre>
+       If everything is correct then create the file c:\doors\vsysop.bat 
+       with the following contents:                                       
+<pre>
+--- vsysop.bat ---
+
+@echo off
+C:\COMUNIC\X00\X00 E B,0,57600
+cd vsysop
+vsysop -D c:\doors\node%1\door.sys -BBSNAME PAROLAS
+deltree /y c:\doors\node%1
+C:\COMUNIC\X00\X00
+cd ..
+</pre>
+       Before passing the control to dosemu, the file door.sys will
+       be  copied to c:\doors\node???? where the ???? is the node number from
+       which  the door is  invoked (to allow that several users can execute the
+       door at the same time).  This nodenumber also is passed as the first parameters 
+       to the .bat file, this is to indicate to which directory to copy the door.sys
+       file.                                                                 
+       <p> 
+       The Virtual Sysop door supports door.sys and that is the only 
+       dropfile that is generated by mbsebbs and that is supported by most 
+       of the doors. If you need another format you must use a converter to change
+       the format of the dropfile.
+       <p> 
+       I use the fossil X00, I have it installed in C:\COMUNIC\X00 and 
+       this door works for me correctly with these parameters, it is alos possible
+       that it works without X00 or that you can load another fossil.    
+       <p> 
+       Now create a link to rundoor.sh in /opt/mbse/bin called vsysop. 
+       The name must be the same one that the name of the .bat file created 
+       in the dos partition, but without the extension bat.
+<pre>
+ln -s /opt/mbse/bin/rundoor.sh /opt/mbse/bin/vsysop
+</pre>
+       Now we execute mbsetup and enter the menu setup to add an entrance
+       like this (It puts option 16 to Yes):                             
+<pre>
+    8.3. EDIT MENU ITEM
+
+    1.  Sel. key  V
+    2.  Type nr.  7         Run external program in shell
+    3.  Opt. data /opt/mbse/bin/vsysop /N
+                  1234567890123456789012345678901234567890123456789012345678901234
+    4.  Display
+    5.  Security  0     --------------------------------
+    6.  Min. age  0
+    7.  Max. lvl  0
+    8.  Password  &lt;null&gt;                    13. No door.sys No
+    9.  Credit    0                         13. Y2K style   No
+    10. Lo-colors Normal display color      14. Use Comport Yes
+    11. Hi-colors Bright display color      15. Run nosuid  Yes
+    12. Autoexec  No                        16. No Prompt   Yes
+</pre>
+       And that is everything... </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Doors"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="5.2">Q 5.2</a></td>
+   <td> Dosemu compile tips </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 5.2</td>
+   <td>
+<pre>
+Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
+</pre>
+       Dosemu still exhibits some file locking behaviour and this needs 
+       to be overcome, especially if you are running multinode door games. The
+       following information  was supplied by Bob Newell of Chung Kuo BBS (telnet
+       chungkuo.org) and I reiterate it here.                            
+       <p> 
+       There is an issue in that GNU/Linux file locking does not map precisely 
+       to DOS file locking. You need to patch DOSEMU and build a special version
+       to deal with this problem. Find the file "dosext/mfs/mfs.c" in your
+       DOSEMU source tree. Locate the following lines:
+<pre>
+case DENY_ANY:
+fl.l_type = F_RDLCK;
+
+Change the second line to 
+fl.l_type = !writing ? F_RDLCK : F_WRLCK;
+</pre>
+       and build a new version of DOSEMU.                        
+       <p> 
+       To solve a problem of slow screen painting, locate "base/async/int.c" 
+       in your source tree. Locate
+<pre>
+case 0x2C:
+
+and just below, comment out or delete the line
+
+usleep(INT2F_IDLE_USECS);
+</pre>
+       and rebuild your DOSEMU.
+       <br>
+       It is recommended to use both tips above as it will not harm 
+       any dos door games.</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Doors"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="5.3">Q 5.3</a></td>
+   <td> Setting up for InterBBS games. </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 5.3</td>
+   <td>
+<pre>
+Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
+</pre>
+       There are 2 methods for providing InterBBS setup. If your system 
+       merely connects to one host for your games packets you need only perform 
+       a few simple steps to have it working. If your system is a Host for InterBBS
+       games  you will also need to add a script to separate different packets
+       for different downlink systems.
+       <p>
+       Common to Both Methods:<br>
+       With most BBS games you will need 2 directories in your dos
+       filesystem area. One for the inbound packets and one for netmail messages
+       door games produce to send outbound packets.                       
+       <p> 
+       The easiest way to solve this is by creating symlinks from your 
+       MBSE directories into the directory where your dos doors live (c:\doors). 
+       The 2 directories you wish to link are /opt/mbse/var/inbound and /opt/mbse/var/msgs 
+       - link them into your dos directories doors directory with the same 
+       names ie: "inbound" and "msgs". Now according to dosemu you will have 
+       a c:\doors\inbound and a c:\doors\msgs. We do not actually use the "msgs" 
+       directory for anything other than a place to tell games where to write 
+       its netmails to. These "netmails" are subsequently deleted from the system, 
+       but the games need to be able to write them there.
+       <p>
+       1. The Easy Way - Single Host System:<br>
+       <p>
+       1A. First of all you will realise that door games running under 
+       dosemu usually write files as owner root, chmod 0644. This is not good 
+       for MBSE to transfer these files as it does not have permission to act 
+       on the files. In order to force dosemu to write games files so that MBSE 
+       can act upon them we need to alter /etc/sudoers and change the umask for
+       root running under sudo. To do this open /etc/sudoers (you must be root
+       to edit this file) and add the following line at the top of the file before
+       the specifications:
+       <p>
+       Defaults &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; umask=0000</p>
+       <p>
+       This will allow dosemu to write files chmod 0666 (read/write everybody) 
+       and MBSE will be able to manipulate them.
+       <p> 
+       For my example I will use the InterBBS dos door game called Barren
+       Realms Elite (BRE for short).
+       <p> 
+       1B. Install Bre in c:\doors\bre and setup the necessary files 
+       for its execution as a dos door from MBSE as per the dos doors faq. 
+       <p> 
+       1C. Tell Bre (in its BBS.CFG) that the path for inbound packets 
+       is c:\doors\inbound and the netmail path is c:\doors\msgs Bre will now
+       automatically process all inbound packets it finds in the inbound directory
+       for itself. It needs no assistance as it merely searches for the correct
+       filename in the directory.
+       <p>
+       1D. We need to link Bre's outbound path to our host nodes MBSE 
+       mailbox for automatic transfer of games packets. First make sure you 
+       have added an "outbox" for your uplink node in the nodes setup in MBSE 
+       - Section 7, Select Uplink, Menu 1, Section 2 "outbox dir". eg: if your 
+       uplink is 3:640/954  then MBSE will default to creating /opt/mbse/var/boxes/node3_640_954 
+       as the  outbox (I will use this as an example). Note the flavour of your 
+       uplinks node connection will apply to the outbox as well. Thus if that 
+       particular node is set crashmail then anything you put in the outbox will
+       also be sent crashmail.
+       <p>
+       Next go to your Bre game directory. You will notice Bre has an 
+       OUTBOUND directory, this is where it places all its game packets that 
+       are to be sent to the uplink. We need to delete this directory and instead 
+       create a symlink to the node outbox instead. If Bre is in c:\doors\bre 
+       then the symlink command will be:
+       <p>
+       ln -s /opt/mbse/var/boxes/node3_640_954 /dos/c/doors/bre/OUTBOUND
+       <p>
+       Alter the above depending on where your linux path to your dos 
+       is, also remember linux is case sensitive! Note you can also make as 
+       many symlinks as you like to the nodes outbox, so if you have 2 or 3 
+       different games you send to that node you can link the outbox to each 
+       games outbound directory. Also if you have different games to different 
+       host nodes just link the game outbound directories to the outboxes of each
+       node.
+       <p>
+       Thats it. The system will now process inbound and outbound packets 
+       automatically. You will however need to delete the netmails in the msgs
+       directory - I have included this in the Door game maintenance section 
+       further on.
+       <p> 
+       If you experience problems with your system polling nodes and
+       sending the game mail packets while a user is online within the game then
+       you might wish to use the dos "share.exe" so packet files are not being accessed
+       by both the game and the mailer at the same time. You can load share.exe
+       within your doors.bat in dos root directory.
+       <p> 
+       2. The Hard Way - Multiple Host System
+       <p>
+       Follow steps 1A, 1B, 1C above, the change occurs for 1D (below).
+       <p> 
+       1D. We need a script to process the Bre outbound packets and add
+       them to MBSE's node outboxes path so they are sent. A script on how to do
+       this  follows (with comments ). First remember to create your outboxes for
+       each node that you transfer games packets to. I will use 3:640/954 as above
+       and 1:123/456 for this example of 2 systems linked to the one Bre game. 
+       <p> 
+       This script should be owned by user "mbse" and have the permissions
+       (chmod 755) -rwxr-xr-x. It is best kept in /opt/mbse/bin with your
+       dos game executing scripts. I call this script "dos_poll"
+<pre>
+------------------------------------------------------------------------
+#!/usr/bin/perl -U
+use File::Basename;
+use File::Copy;
+
+# Define the variables for the outboxes for our links
+$node1 = "/opt/mbse/var/boxes/node3_640_954";
+$node2 = "/opt/mbse/var/boxes/node1_123_456";
+# Define the linux path to Bre's outbound directory
+$bre_path = "/opt/mbse/dos/doors/bre/OUTBOUND";
+
+opendir(DIR, "$bre_path") || die;
+@dirlist = readdir(DIR);
+closedir(DIR);
+
+foreach $filename (@dirlist){
+    $brefile = "$bre_path/$filename";
+    ($filenameOnly, $pathname, $fileExtension) = fileparse($filename, '\..*');
+    
+    if($filenameOnly eq "048b0201") {
+        move("$brefile","$node1"); 
+    }
+    if($filenameOnly eq "048b0203") {
+        move("$brefile","$node2"); 
+    }
+}
+
+# '048b0201' is the packet name Bre creates. You can find out what
+# your packet name is by running BRE PLANETARY and then checking inside
+# the Bre OUTBOUND directory - note no ext on name. You should also check
+# your nodes dat for which is which 048b0201 means from system 2 to system 1
+# so you would be system 2 in the nodes dat and 1 would be 3:640/954
+# 048b0203 is obviously to system 3 in the nodes dat - 1:/123/456 in our
+# example here
+
+------------------------------------------------------------------------
+</pre>
+       Thats it. You can run this 'dos_poll' script from the maintenance scripts described below.</td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Doors"><img src="images/hand.up.png" border="0" alt="Up"></a>
+<p>
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="5.4">Q 5.4</a></td>
+   <td> Door Maintenance. </td>
+  </tr>
+  <tr>
+   <td valign="Top">A 5.4</td>
+   <td>
+<pre>Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954</pre>
+       Ok, so you can setup doors, run inbound and outbound for interbbs
+       games. So how do you do maintenance? <br>
+       Again by scripts. Again I will use BRE as an example. First 
+       I  create a  maintenance batch file in my C: root directory. I have called 
+       it maint.bat and for the bre game it looks like this:               
+<pre>
+cd \doors\bre
+BRE INBOUND
+BRE SCORES
+BRE REQUEST
+BRE PLANETARY
+exitemu
+</pre>
+       if you are familiar with Bre you will know this to be a standard
+       sort of  maintenance except for the "exitemu" at the end. That is there
+       because we are going to use a script to start dosemu and call the maint.bat
+       - so afterwards we need it to exit dosemu. <br>
+       Now a maintenance script to be called from your cron or whatever
+       else you  are using to execute events on your system. I call this script
+       "dos_maint" and it also lives in /opt/mbse/bin
+<pre>
+#!/bin/sh
+#
+COMMANDO="\" maint \r\""
+/usr/bin/sudo dosemu -dumb -E dir &gt; /opt/mbse/log/dos.log -quiet -I "`echo keystroke $COMMANDO`"
+/bin/rm /opt/mbse/var/msgs/*.msg
+#/opt/mbse/bin/dos_poll # Uncomment this line&nbsp;if you are using the Multiple host script
+</pre>
+       You will notice this script starts dosemu and calls maint.bat,
+       and   then   when its finished there it deletes all those games netmails
+       and if   you run   the script for multiple hosts for your games it can call
+       that as  well. Please   note the second line is all ONE line, it has most
+       probably   wrapped here.                                               
+       <p> 
+       You will notice that the script calls dosemu and not dosemu.bin, 
+       this is because we need to tell dosemu to open a dumb terminal and not
+       display   to a console or screen. By use of the redirection we redirect 
+       the  normal  console output to a file, here I have used /opt/mbse/log/dos.log 
+       as that is where all of MBSE's other logs reside.
+       <p> 
+       Once "dos_maint" is run via the cron it will run maintenance on
+       your dos doors, process inbound/outbound interBBS game packets and have your
+       outbound packets ready to send. Thats about all there is to do :)
+       <p>
+       Note: You can make variants on these scripts for running daily 
+       maintenance or just packet processing at certain times of day. They 
+       are just variations on the information above, but if you have questions, 
+       contact me!
+       <p> 
+       Have fun! </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_Doors"><img src="images/hand.up.png" border="0" alt="Up"></a>
+
+</blockquote>
+</body>
+</html>

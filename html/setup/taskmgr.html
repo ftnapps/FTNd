@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: taskmgr.html,v 1.9 2004/05/19 20:46:12 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Task Manager.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 19-May-2004</h5></div>
+<div align='center'><H1>MBSE BBS Setup - Task Manager.</H1></div>
+
+<H3>Introduction</H3>
+<P>
+The task manager is the daemon which controls the MBSE BBS. It watches semafore's and spawns
+programs in the background. It also watches the outbound to see if there are
+nodes to call.
+The behaviour is setup in this screen.
+<P>
+
+<H3>Edit Task Manager</H3>
+<P>
+<pre>
+<b>Mailout   </b>Action for semafore mailout.
+<b>Mailin    </b>Action for semafore mailin.
+<b>Newnews   </b>Action for semafore newnews.
+<b>Index 1   </b>Nodelist compiler 1 for semafore mbindex.
+<b>Index 2   </b>Nodelist compiler 2 for semafore mbindex.
+<b>Index 3   </b>Nodelist compiler 3 for semafore mbindex.
+<b>Msglink   </b>Action for semafore msglink.
+<b>Reqindex  </b>Action for semafore reqindex.
+<b>Ping #1   </b>IP address of node to ping to check the internet.
+<b>Ping #2   </b>IP address of second node to ping to check the internet.
+<b>Max TCP   </b>Maximum simultaneous outgoing calls over the internet.
+<b>Max Load  </b>Max system load until processing is suspended.
+<b>ZMH start </b>Start of Zone Mail Hour in UTC time.
+<b>ZMH end   </b>End of Zone Mail Hour in UTC time.
+</pre>
+<P>
+Default are the original MBSE commands filled in, but you could also call
+shell scripts.
+<P>
+The two IP addresses to ping need to be IP addresses, not hostnames. This is the
+most reliable way to check the connection. You should enter the IP addresses of
+the nameservers of your own ISP here. One of these will always be up, so if one 
+of these can be reached, the internet connection is assumed to be alive. The
+status of the internet connection is used to decide if it is allowed (and
+possible) to call TCP/IP nodes. Calling these nodes is not depending on ZMH
+unless the destination is not a CM node.<br>
+The <b>max load</b> setting decides at which system load point processing of background
+tasks will be suspended. The default value should be allright for machines slower then 200
+MHz or with low ram. On faster machines you may set this value higher.
+<P>
+<IMG SRC="../images/taskmgr.png" Border="0" alt='Taskmanager setup'>
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

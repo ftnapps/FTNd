@@ -1,0 +1,55 @@
+$Id: README.developer,v 1.30 2007/11/25 14:37:48 mbse Exp $
+
+			README.developer for MBSE BBS
+
+This file is only available on CVS, not in the distribution. This file will
+hold information about CVS tags, scheduled releases and other info for
+development only. There are no secrets in this file because it's public
+available.
+
+
+	Wordlengths.
+
+From bits/types.h:
+
+   Here we assume what is presently the case in all the GCC configurations
+   we support: long long is always 64 bits, long is always word/address size,
+   and int is always 32 bits.
+
+IOW: Never use long in the sources because it breaks between 32/64 bit 
+hardware.
+
+How about time_t, it seems an alias for long! (and it is).
+
+
+	CVS tags.
+
+mbsebbs-0_33_17		17-Aug-2001 Initial CVS import by Ken.
+mbsebbs-0_33_18_current	25-Aug-2001 Upgraded to 0.33.18 current development.
+mbsebbs-0_33_18_final	02-Nov-2001 Version 0.33.18 released.
+mbsebbs-0_33_19_current 02-Nov-2001 Start 0.33.19 current development.
+mbsebbs-0_33_19_final	10-Feb-2002 Version 0.33.19 released.
+mbsebbs-0_33_20_current	10-Feb-2002 Start 0.33.20 current development.
+mbsebbs-0_33_20_final	04-Jun-2002 Version 0.33.20 finished (not released).
+mbsebbs-0_33_21_release	04-Jun-2002 Version 0.33.21 release.
+mbsebbs-0_35_01_current 05-Jun-2002 Start 0.35.01 development.
+mbsebbs-0_36_00_release 26-Dec-2002 Version 0.36.00 release.
+mbsebbs-0_37_00_current 26-Dec-2002 Start version 0.37 development.
+mbsebbs-0_38_00_release 03-Oct-2003 Version 0.38.00 release.
+mbsebbs-0_39_00_current 09-Oct-2003 Start version 0.39 development.
+mbsebbs-0_50_00_release 09-Feb-2004 Version 0.50.0 release.
+mbsebbs-0_51_00_current 09-Feb-2004 Start 0.51 development.
+mbsebbs-0_60_00_release 04-Jun-2004 Version 0.60.0 release.
+mbsebbs-0_61_00_current 06-Jun-2004 Start 0.61 development.
+mbsebbs-0_70_00_release 26-Oct-2004 Version 0.70.0 release.
+mbsebbs-0_71_00_current 27-Oct-2004 Start 0.71 development.
+mbsebbs-0_80_00_release 06-Oct-2004 Version 0.80.0 release.
+mbsebbs-0_81_00_current 07-Oct-2005 Start 0.81 development.
+mbsebbs-0_82_00_release 06-Nov-2005 Version 0.82.0 release.
+mbsebbs-0_83_00_current 06-Nov-2005 Start 0.83 development.
+mbsebbs-0_90_00_release 23-Jul-2006 Version 0.90.0 release.
+mbsebbs-0_91_00_release 08-Oct-2006 Version 0.91.0 development.
+mbsebbs-0_92_00_release 16-Oct-2007 Version 0.92.0 release.
+mbsebbs-0_95_00_current 25-Nov-2007 Version 0.95.9 development.
+
+Michiel.

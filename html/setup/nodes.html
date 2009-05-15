@@ -1,0 +1,415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: nodes.html,v 1.23 2005/08/21 14:03:34 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Fidonet nodes.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align=right><h5>Last update 21-Aug-2005</h5></div>
+<div align=center><H1>MBSE BBS Setup - Fidonet nodes.</H1></div>
+<P>
+
+<h3>Introduction</H3>
+<P>
+Unlike many other bbs packages, for each node you need only one record. If you
+have a relation with a node for one network with costsharing, and other 
+networks without costsharing you need two records for that node. For each node
+you can setup the aka's, mail, files and session handshake. There are ten 
+screens for each node.
+<p>&nbsp;<p>
+
+<H3>1. Edit general setup</H3>
+<p>
+This screen has the general information for the node. The contact info fields are
+just for private use, these fields are only used in this screen. The Outbox dir is for
+files to sent to the node, all file you put in there will be sent to the remote if
+user mbse has read/write access to the file. Only real files are allowed, not symlinks etc.
+<p><table>
+<tr><th nowrap align=left valign=top>Sysop name</th><td>The name of the system
+operator. The name entered here is used in Areamgr and Filemgr messages etc.</td></tr>
+<tr><th nowrap align=left valign=top>Outbox dir</th><td>Private extra outbound
+directory for this node. Any file dropped into this directory will be sent to
+the node and removed after it is sent.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. phone</th><td>Contact info, node private
+phone.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. fax</th><td>Contact info, node private
+fax.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. cellphone</th><td>Contact info, node
+cellphone (GSM).</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. e-mail</th><td>Contact info, node e-mail
+address.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. remark</th><td>Contact info, node
+remark.</td></tr>
+<tr><th nowrap align=left valign=top>Route via</th><td>A route via Fido address. All
+mail for this node will be send via this Aka, even mail and files for other
+networks. This can be usefull if this node has internet access so you can send
+everything to this node over the internet. Note that to force calling this node
+via internetr, ISDN or pots can also be done by using nodelist flags override. See
+section 3. This setting is more usefull to force routing via another node or
+aka.</td></tr>
+<tr><th nowrap align=left valign=top>Netmail direct</th><td>Set "direct" flag in
+netmail to this node.</td></tr>
+<tr><th nowrap align=left valign=top>Netmail crash</th><td>Send netmail always "crash"
+to this node.</td></tr>
+<tr><th nowrap align=left valign=top>Netmail hold</th><td>Put mail on "hold" for this
+node.</td></tr>
+<tr><th nowrap align=left valign=top>Pack mail</th><td>Should net- and echomail be packed in
+arcmail archives.</td></tr>
+<tr><th nowrap align=left valign=top>Send notify</th><td>Send automatic generated
+notify messages.</td></tr>
+<tr><th nowrap align=left valign=top>Language</th><td>The language to use for areamgr
+msgs.</td></tr>
+<tr><th nowrap align=left valign=top>Deleted</th><td>If this node must be
+deleted.</td></tr>
+</table>
+<P>
+<IMG SRC="../images/nodes1.png" alt='Nodes setup'>
+<P>&nbsp;<p>
+
+<H3>2. Edit nodes aka's</H3>
+<p>
+In this screen you can setup 20 aka's for the node.
+<p>
+<IMG SRC="../images/nodes2.png" alt="Nodes aka's setup">
+<P>&nbsp;<p>
+
+<H3>3. Edit node session</H3>
+<p>
+In this screen you can setup the session defaults.
+<p><table>
+<tr><th nowrap align=left valign=top>Session passwd</th><td>This is the mailer
+session password.</td></tr>
+<tr><th nowrap align=left valign=top>Dial command</th><td>You can put an
+override here for the normal dial command. If you leave this empty the command
+from the modem setup is used.</td></tr>
+<tr><th nowrap align=left valign=top>Phone number 1</th><td>An alternative phone
+number to dial.</td></tr>
+<tr><th nowrap align=left valign=top>Phone number 2</th><td>An alternative phone
+number to dial.  Use these above commands if the node has another
+phone number as mentioned in the nodelist.</td></tr>
+<tr><th nowrap align=left valign=top>Nodelist flags</th><td>Override for the
+nodelist flags, the nodelist flags are completly ignored if you enter something
+here so make sure all flags you need are here. All aka's of this node will use
+the same flags. This can be usefull to force calling this node via the
+internet and to force a certain protocol.</td></tr>
+<tr><th nowrap align=left valign=top>Inet hostname</th><td>The FQDN hostname or
+IP address of this node. This replaces the original system name from the
+nodelist and this is then used to make the internet TCP/IP connection. This can
+be usefull if the FQDN is not present in the nodelist.</td></tr>
+<tr><th nowrap align=left valign=top>Outbound sess.</th><td>Outbound session
+method, choices are <b>Direct</b> and <b>Directory</b>. Direct means normal
+classic mailer connections. Directory means that everything is put in a
+directory from which the other node can fetch the mail and files using ftp
+protocol.</td></tr>
+<tr><th nowrap align=left valign=top>Inbound sess.</th><td>Inbound session
+method, choices are <b>Direct</b> and <b>Directory</b>. Direct means normal
+classic mailer connections. Directory means that inbound mail and files are
+expected in a directory were it is stored by the node using ftp
+protocol.</td></tr>
+<tr><th nowrap align=left valign=top>No EMSI</th><td>Disable EMSI
+handshake.</td></tr>
+<tr><th nowrap align=left valign=top>No YooHoo/2U2</th><td>Disable FTSC-0006
+handshake.</td></tr>
+<tr><th nowrap align=left valign=top>No Filerequest</th><td>Disable filerequest
+from this node.</td></tr>
+<tr><th nowrap align=left valign=top>Don't call</th><td>Do not call this
+node.</td></tr>
+<tr><th nowrap align=left valign=top>8.3 names</th><td>Set this if the node only
+accepts 8.3 filenames.</td></tr>
+<tr><th nowrap align=left valign=top>No PLZ</th><td>Disable PLZ compression on
+outgoing calls with the binkp protocol.</td></tr>
+<tr><th nowrap align=left valign=top>No GZ/BZ2</th><td>Disable GZ and BZ2
+compression on outgoing calls with the binkp protocol.</td></tr>
+<tr><th nowrap align=left valign=top>No Zmodem</th><td>Disable Zmodem
+protocol.</td></tr>
+<tr><th nowrap align=left valign=top>No Zedzap</th><td>Disable Zedzap
+protocol.</td></tr>
+<tr><th nowrap align=left valign=top>No Hydra</th><td>Disable Hydra
+protocol.</td></tr>
+<tr><th nowrap align=left valign=top>Binkp CRC32</th><td>Enable CRC32 file
+transfer checks.</td></tr>
+<tr><th nowrap align=left valign=top>Binkp old esc</th><td>Some systems followed
+the wrong character escape method as published in FSP-1011 revision 3. For these
+systems turn this flag on or you won't be able to send long filenames with
+spaces in the name or other special characters. Such known systems are Argus and
+Irex upto 2.29. Others may exist, even some older mbse versions.
+<tr><th nowrap align=left valign=top>No binkp/1.1</th><td>Irex from version 2.24
+at least upto 2.29 have a buggy binkp/1.1 implementation. Set this to Yes for
+nodes that use one of these Irex versions and the binkp session will fall back
+to the binkp/1.0 protocol.</td></tr>
+<tr><th nowrap align=left valign=top>Ign. Hold</th><td>Ignore the nodelist flags
+Hold or Down. Set this only if you want to call a node that is Down or Hold and
+you know that you can connect it.</td></tr>
+</table>
+<p>
+<IMG SRC="../images/nodes3.png" alt="Nodes session setup">
+<P>&nbsp;<p>
+
+
+<H3>4. Edit node - mail processing</H3>
+<P>
+<p><table>
+<tr><th nowrap align=left valign=top>PKT password</th><td>The password to insert
+in .pkt files.</td></tr>
+<tr><th nowrap align=left valign=top>Check PKT pwd</th><td>Check password in
+received .pkt files. If not, errors or missing passwords are only logged.  If
+set, errors or missing password are refused and the .pkt files are renamed to
+.bad</td></tr>
+<tr><th nowrap align=left valign=top>Mail forward</th><td>Not in use
+yet.</td></tr>
+<tr><th nowrap align=left valign=top>ARCmail comp.</th><td>Use ARCmail 0.60 file
+naming convention for out of zone mail.</td></tr>
+<tr><th nowrap align=left valign=top>ARCmail a..z</th><td>Allow a..z last
+character for ARCmail filenames.</td></tr>
+</table>
+<P>
+<IMG SRC="../images/nodes4.png" alt='Nodes mail setup'>
+<P>&nbsp;<p>
+
+<H3>5. Edit mail groups</H3>
+<P>
+Here you can tag which mail groups are available for this node. Note that all
+groups are visible here, even for networks this node has no aka's in. Be 
+carefull not to allow a node to connect areas from networks he has no aka in.
+<P>
+<IMG SRC="../images/nodes5.png" alt='Nodes mail groups'>
+<P>&nbsp;<p>
+
+<H3>6. File setup</H3>
+<P>
+<p><table>
+<tr><th nowrap align=left valign=top>Files password</th><td>The password for
+.tic files.</td></tr>
+<tr><th nowrap align=left valign=top>Incl. message</th><td>Send a netmail
+message for each file to send.</td></tr>
+<tr><th nowrap align=left valign=top>Send TIC file</th><td>Send .tic file to
+this node.</td></tr>
+<tr><th nowrap align=left valign=top>Advanced TIC</th><td>Send advanced or
+standard .tic files.</td></tr>
+<tr><th nowrap align=left valign=top>Advanced SB</th><td>Send advanced Seen-By
+lines, some systems can't handle this!</td></tr>
+<tr><th nowrap align=left valign=top>To line in TIC</th><td>Send the To line in
+the ticfile. Some braindead systems will forward this line instead of processing
+it and then the next system in the line will fail.</td></tr>
+<tr><th nowrap align=left valign=top>File forward</th><td>Forward TIC files for
+this node (not yet).</td></tr>
+</table>
+<P>
+<IMG SRC="../images/nodes6.png" alt='Nodes files setup'>
+<P>&nbsp;<p>
+
+<H3>7. File groups</H3>
+<P>
+The same story as for mail groups is true for the file groups.
+<P>
+<IMG SRC="../images/nodes7.png" alt='Nodes files groups'>
+<P>&nbsp;<p>
+
+<H3>8. Directory session</H3>
+<P>
+Setup in this screen is needed if you selected Inbound and or Outbound session
+as Directory session. The node is then getting and bringing mail using the ftp
+protocol and no normal mailer connects are being used anymore.
+This may be a good solution for points, they only need a simple mailreader and a
+tosser. The mail is transferred by the <b>mbfido</b> program, during the toss or
+tic command after the normal inbound is processed <b>mbfido</b> will look for nodes inbound
+directories to process. When mail is added to the outbound, mail for nodes with
+directory sessions is not stored in the normal Binley Style Outbound but in the
+session outbound directory.<br>
+You need to setup a ftp account for this node and the best thing is to
+set this up so that the other node is forced in a chroot environment, ie. make
+it so that the node only sees his own directories and cannot leave that. The ftp
+account needs to be a member of group bbs because mbfido needs access to the
+files as well as the node. The nodes account needs also to be a member of group
+bbsftp for the chroot environment.
+The node needs umask 002 so that files that he puts
+there will have group read/write access. During toss mbfido also stores the
+files with group read/write access so that the node can remove the files when he
+has fetched all files. Directory locking is supported and is compatible with
+other mailers that support ftp. Here is a small sample of protftp.conf for use
+with directory sessions:
+<pre>
+# This is /etc/proftpd.conf for use with mbsebbs ftp mail
+# sessions and anonymous ftp access.
+# It assumes that you have a user/group "nobody" and "ftp" 
+# for normal/anonymous operation.
+# It also assumes you have a group bbsftp were ftp mail users
+# must be a member of.
+#
+ServerName			"Seaport ProFTPD server"
+ServerType			inetd
+DefaultServer			on
+#
+# Port 21 is the standard FTP port.
+Port				21
+# Umask 002 is to force new dirs and files to be group writable.
+Umask				002
+#
+# To prevent DoS attacks, set the maximum number of child processes
+# to 30.
+MaxInstances			30
+#
+# Set the user and group that the server normally runs at.
+User				nobody
+Group				nogroup
+#
+SystemLog			/var/log/proftpd
+TransferLog			/var/log/xferlog
+#
+# Anonymous ftp and members of group bbsftp have a chroot environment.
+DefaultRoot	~ bbsftp
+#
+# Normally, we want files to be overwriteable.
+&lt;Directory /*&gt;
+  AllowOverwrite		on
+&lt;/Directory&gt;
+#
+# A basic anonymous FTP server configuration.
+# To enable this, remove the user ftp from /etc/ftpusers.
+&lt;Anonymous ~ftp&gt;
+  RequireValidShell		off
+  User				ftp
+  Group				ftp
+  # We want clients to be able to login with "anonymous" as well as "ftp"
+  UserAlias			anonymous ftp
+  #
+  # Limit the maximum number of anonymous logins
+  MaxClients			50
+  #
+  # We want 'welcome.msg' displayed at login, and '.message' displayed
+  # in each newly chdired directory.
+  DisplayLogin			welcome.msg
+  DisplayFirstChDir		.welcome
+  DisplayReadme			README
+  #
+  # Display .dotfiles and .dirs
+  LsDefaultOptions		"-a"
+  #
+  # Limit WRITE everywhere in the anonymous chroot
+  &lt;Limit WRITE&gt;
+    DenyAll
+  &lt;/Limit&gt;
+  #
+  # An upload directory that allows storing files but not retrieving
+  # or creating directories.
+  &lt;Directory incoming/*&gt;
+     &lt;Limit READ&gt;
+       DenyAll
+     &lt;/Limit&gt;
+
+     &lt;Limit STOR&gt;
+       AllowAll
+     &lt;/Limit&gt;
+  &lt;/Directory&gt;
+  #
+&lt;/Anonymous&gt;
+</pre>
+Here are some examples to create an account, first create the extra group
+bbsftp:
+<pre>
+groupadd bbsftp
+</pre>
+Then create accounts like this:
+<pre>
+useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/irex -s /bin/bash -c "FTP Mail account" irex
+</pre>
+Then give the node a password for the ftp login. Note that this account has a
+shell, proftpd needs a valid shell to allow access. If the node tries to telnet
+to your bbs he can't login with this account if you use <b>mblogin</b>, this is
+because the node is not in the bbs userfile. If you system allows it, the node
+can access the shell using rlogin or ssh.<br>
+Now the items to setup for the directory sessions:
+<p><table>
+<tr><th nowrap align=left valign=top colspan=2>Outbound settings</th></tr>
+<tr><th nowrap align=left valign=top>Files path</th><td>The path were to store
+the outbound mail and files.</td></tr>
+<tr><th nowrap align=left valign=top>Check for lock</th><td>If we need to check
+for a lockfile before adding files.</td></tr>
+<tr><th nowrap align=left valign=top>Wait clear lock</th><td>Wait for the lock
+to clear if present or not. If set to yes and there is a lock created by the
+node then mbfido will wait for maximum 10 minutes for the lock to disappear. If
+set to no, mbfido skips this node and will add mail and files at a later time.
+<tr><th nowrap align=left valign=top>Check lockfile</th><td>The full filename
+and path of the lockfile to check for.</td></tr>
+<tr><th nowrap align=left valign=top>Create lock</th><td>If mbfido should create
+a lock during the time it will add mail and files.</td></tr>
+<tr><th nowrap align=left valign=top>Create lockfile</th><td>The full filename
+and path of the lockfile to create.</td></tr>
+<tr><th nowrap align=left valign=top colspan=2>Inbound settings</th></tr>
+<tr><th nowrap align=left valign=top>Files path</th><td>The path from were to 
+get the inbound mail and files.</td></tr>
+<tr><th nowrap align=left valign=top>Check for lock</th><td>If we need to check
+for a lockfile before getting files.</td></tr>
+<tr><th nowrap align=left valign=top>Wait clear lock</th><td>Wait for the lock
+to clear if present or not. If set to yes and there is a lock created by the
+node then mbfido will wait for maximum 10 minutes for the lock to disappear. If
+set to no, mbfido skips this node and will scan this directory at a later time.
+<tr><th nowrap align=left valign=top>Check lockfile</th><td>The full filename
+and path of the lockfile to check for.</td></tr>
+<tr><th nowrap align=left valign=top>Create lock</th><td>If mbfido should create
+a lock during the time it will get mail and files.</td></tr>
+<tr><th nowrap align=left valign=top>Create lockfile</th><td>The full filename
+and path of the lockfile to create.</td></tr>
+</table>
+<P>
+<IMG SRC="../images/nodes8.png" alt='Nodes directory setup'>
+<P>&nbsp;<P>
+
+<H3>9. Security</H3>
+<P>
+This will set the security bits for the node. These bits can be used to give
+access or deny access to certain echomail areas or tic file areas. Default bit 1
+is set for each node.
+<P>
+<IMG SRC="../images/nodes9.png" alt='Nodes security setup'>
+<P>
+
+<H3>10. Area and File managers</H3>
+<P>
+This screen sets names and passwords of the uplink managers, also our own
+password is set here.
+<p><table>
+<tr><th nowrap align=left valign=top>Uplink AreaMgr program</th><td>The name of the
+Areamgr program of this node.  This could be AreaFix, AreaMgr etc.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink AreaMgr passowrd</th><td>The password for the
+Areamgr of this node.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink AreaMgr is BBBS</th><td>If the uplink uses BBBS software set this
+to Yes.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink FilMgr program</th><td>The name of the
+Filemgr progrom of this node. This could be FileMgr, Allfix, Raid etc.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink FileMgr password</th><td>The password of the
+Filemgr if this node.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink FileMgr is BBBS</th><td>If the plink
+uses BBBS set this to Yes.</td></tr>
+<tr><th nowrap align=left valign=top>Our Area/Filemgr passwd</th><td>Our own
+Area/Filemgr password for this node to send to our node.</td></tr>
+</table>
+<P>
+<IMG SRC="../images/nodes10.png" alt="Nodes managers setup">
+<P>
+
+<H3>11. Statistics</H3>
+<P>
+In this statistics screen you can see the mail and files flow with this
+node. Values are stored for the current week, the previous week, the
+current month and previous month and the overall total since you defined
+this node. There are actual 12 months of statistics stored in the nodes
+record, only 2 are visible.
+<P>
+<IMG SRC="../images/nodes11.png" alt='Nodes statistics'>
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

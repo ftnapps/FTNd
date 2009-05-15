@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: nodelist.html,v 1.7 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Nodelist and Nidediff processing.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 22-Jan-2002</h5></div>
+<div align='center'><H1>Nodelist and Nodediff processing</H1></div>
+
+<H3>Introduction</H3>
+<P>
+A received a lot of questions about nodelist and nodediff processing, so
+I will describe here the setup of the development system for the Fidonet
+nodelist. First of all, it is <strong>very important</strong> that you
+use three separate directories to do the nodelist processing. This is to
+make sure that all stages are independent of each other, and if something
+goes wrong, you still have a working system. The three directories are:<br>
+<ol>
+<li><strong>/opt/mbse/ftp/pub/fido/nodelist</strong>, this is the public 
+download area, the received diff's are stored here as well as the final 
+compressed nodelists for download.
+<li><strong>/opt/mbse/tmp/nlwork</strong>, this is the working directory 
+to apply diffs to the previous nodelist. This directory should allways
+contain the latest <strong>uncompressed</strong> nodelist.
+<li><strong>/opt/mbse/var/nodelist</strong>, this is the systems nodelist 
+directory defined in mbsetup, menu 1.4.4
+</ol>
+In short the steps to process the nodediff's is as follows:
+<ol>
+<li>Receive the nodediff and store it for download.
+<li>Apply the diff to the latest nodelist.
+<li>Hatch the new compressed nodelist.
+<li>Store the new nodelist for download.
+<li>Unpack the new nodelist in the nodelist compiler directory.
+<li>Set the compile semafore.
+<li>Compile the nodelists.
+</ol>
+Next I will describe these steps in detail.
+<P>&nbsp;</P>
+
+<H3>The download area</H3>
+<P>
+First define the download area for the bbs. In my case, this is area 20. From
+here users can download the nodelists and nodediffs, files to the downlinks
+are send from here. Below is the example of my system.
+<P>
+<IMG SRC="images/nodelist.png" Border="0" Alt="BBS download area 20">
+<P>&nbsp;</P>
+
+<H3>The NODEDIFF tic area</H3>
+<P>
+From your uplinks you usually receive NODEDIFF or NODEDIZZ files. Create a tic area for 
+that purpose. I have keep# set to 5, this means the last 5 diff's are stored
+in the download directory, older ones are removed. Now you can receive
+nodediff files, store them for download, and send them to other nodes.
+<P>
+<IMG SRC="images/nodelist1.png" Border="0" Alt="NODEDIZZ tic area">
+<P>&nbsp;</P>
+
+<H3>Apply the diff</H3>
+<P>
+We do this with the tic <strong>magic</strong> processor. In this example
+I have NODELIST.007 in the <strong>/opt/mbse/tmp/nlwork</strong> directory.
+Note that this filename is uppercase, they are usually stored and distributed
+as uppercase names. As I receive the diff files as zip, the filemask on 
+my system is <strong>nodediff.z##</strong>.
+This means that the file with the name nodediff.z14 in the area NODEDIZZ 
+is a match. The command that is executed expands to
+<strong>mbdiff /opt/mbse/tmp/nlwork/NODELIST /var/spool/mbse/ftp/pub/fido/nodelist/nodediff.z14 -quiet</strong>
+if the received nodediff is 
+<strong>nodediff.z14</strong>.<br>The mbdiff program applies 
+<strong>nodediff.z14</strong> against <strong>NODELIST.007</strong> in the 
+<strong>/opt/mbse/tmp/nlwork</strong> directory. If this is successfull, a
+new <strong>NODELIST.014</strong> is created there, a compressed <strong>
+nodelist.z14</strong> is created there and <strong>NODELIST.007</strong> is
+removed.<br> If this operation fails, only <b>NODELIST.007</b> will stay
+in that directory.
+Because the ARC program for GNU/Linux isn't good for files, I
+left the Arc files command empty in the archiver setup. As a fallback the
+mbdiff program uses <strong>zip</strong> to create the compressed archive.<br>
+If creating the new nodelist fails for some reason, a missed diff or so,
+the whole processing stops here. The previous nodelist is still here and
+you can manually correct the situation. So, if you missed a diff, see that
+you get it and manually give the <strong>mbdiff</strong> commands as user
+<strong>mbse</strong> until you are up to date. Or, place the latest
+uncompressed nodelist in the directory <strong>/opt/mbse/tmp/nlwork</strong>.
+<P>
+<IMG SRC="images/nodelist2.png" Border="0" Alt="Magic to apply the nodelist diff file">
+<P>&nbsp;</P>
+
+<H3>Processing the new nodelist</H3>
+<P>
+Now that we have created the new compressed nodelist, it has to go somewhere.
+The file <strong>nodelist.z14</strong> is in the directory 
+<strong>/opt/mbse/tmp/nlwork</strong>. The example for the hatch manager
+is shown below. The hatch manager runs automatic with the comand
+<strong>mbfido tic</strong>. This setup will hatch the new nodelist in the
+tic area <strong>NODELIST</strong> The two screens below show the hatch and
+tic setup for this area.
+<P>
+<IMG SRC="images/nodelist3.png" Border="0" Alt="Hatch new nodelist">
+<IMG SRC="images/nodelist4.png" Border="0" Alt="TIC area for new nodelist">
+<P>
+Now that we have hatched the new nodelist and processed it the new nodelist
+is stored in in the download area, and maybe send some copies to downlinks. 
+We now have to feed it to the nodelist compiler for our own system. 
+We use a tic <strong>magic</strong> command to do
+that. In this case we unpack the nodelist in <strong>/opt/mbse/var/nodelist</strong>
+and set the <strong>compile</strong> semafore so that the <strong>mbindex
+</strong> will compile the new nodelist. Don't be afraid that the unpacked
+nodelists will acumulate in the nodelist directory, <strong>mbindex</strong>
+will handle that, only the latest two nodelists are kept there. The
+<strong>mbindex</strong> program is started by the taskmanager <strong>
+mbtask</strong>.
+<P>
+<IMG SRC="images/nodelist5.png" Border="0" Alt="Magic copy nodelist and trigger compiler">
+<P>&nbsp;</P>
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

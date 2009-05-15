@@ -1,0 +1,138 @@
+$Id: TODO,v 1.353 2008/11/29 13:59:33 mbse Exp $
+
+			MBSE BBS V0.95.5 TODO list.
+			---------------------------
+
+	These are a list of things that must be implemented one way or
+	another. Some things are urgent and necessary to operate the bbs
+	without human intervention, others are just for comfort, or nice.
+	I think this list will always contain items, I only hope the urgent
+	matters will be removed.
+	Note that most goodies are still in my mind instead of in this file.
+	Classes: U = Urgent.
+		 N = Normal, second priority.
+                 L = Cosmetic or nice to have.
+	         W = Feature request.
+		 X = Will not be done unless it's really needed.
+
+everything:
+	W: Implement IPv6.
+
+	N: In BSO the i flavor should have been d flavor.
+
+	N: Increase size of Unix usernames > 8. The limit on Slackware is 32
+	   characters, defined in utmp.h in UT_NAMESIZE
+
+	L: Add personal message area.
+
+	N: The ttyinfo.tty field is too short for NetBSD.
+
+	W: Implement topic groups for file and message areas, with access level
+	   control.
+
+	W: Switch to MySQL as database backend. This can also solve some other
+	   limitations. A php API should be added too.
+
+mbsebbs:
+	W: OLR, implement file requests.
+
+	N: Only count posted messages in local mail areas.
+
+	X: OLR: include private email area in download packets. See also global
+           wish for private mail areas.
+
+	X: OLR: implement some global settings from the offline configuration.
+
+	X: OLR: check qwke extensions.
+
+	N: OLR: qwk, check netmail entered from reader, fido address missing?
+
+	W: Implement kermit protocol, external versions don't work right.
+
+
+mbfido:
+	N: Don't log an error if no file_id.diz is found.
+
+	W: Check all .flo files for dead attachments.
+
+	W: Check all .flo files for to old attachments.
+
+	W: Count posted messages during mailscan.
+
+	W: Code cleanup and make a structure in this program. Remove duplicate
+	   or similar functions.
+
+	N: Process GoldED filerequest netmails with the filereq flag set, we
+	   should create a .req file with the contents of the subject line.
+
+	N: Process To: and Cc: lines in messages gated from Fido to Internet.
+
+	N: Investigate a method to scan and filter messages using the gateway.
+
+	W: Add macro's for stats of all months.
+
+	W: Implement file requests for directory nodes.
+
+	W: Add %from command to areamgr/filemgr.
+
+	W: Add netmail notification of changed areas.
+
+	W: Make it possible to only virus scan the complete archives.
+
+	W: Let mbfido areas with a special switch update area descriptions.
+
+	W: Send rulefile via netmail for each new connected mail area.
+
+	W: Send notifications to downlinks about changed areas from uplink.
+
+	W: Add statistic mail messages. Via AMC??
+
+	N: After readalias we need to free the alias list when mbfido ends.
+
+	N: Hatch statistics are not updated.
+
+	W: Copy personal mail to a personal message area.
+
+	W: Someday make retoss from bad possible (volonteers?).
+
+	W: AreaMgr %rescan should auto connect disconnected areas.
+
+mbcico:
+	L: Implement binkp option ND and NDA.
+
+mbnntp:
+	N: fetched mail doesn't get the status Rcvd if it was for the user.
+
+	N: Do a better job for message linking by newsclients. This is a
+	   problem because we use the message numbers and messages are
+	   sometimes renumbered. This will make some clients try to fetch
+	   the wrong messages because they cache the message id's.
+
+	N: Lastread pointers are not updated.
+
+	N: Investigate a method to scan and filter messages using the gateway.
+
+mbaff:
+	W: Rewrite filefind search algorithm.
+
+mbsetup:
+	U: Menu 7.x.4.1 password length too large?
+
+	U: Add check for empty data files.
+
+	N: Add a check for double areatag names. See MySQL plan.
+
+	N: Use some sort of sorting for the system aka's and make sure the
+	   main aka with zone's is listed first. Having zone's mixed gives
+	   too high outbound stats and the outbound is scanned multiple times.
+
+	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
+	   See MySQL plan.
+
+	W: Add global setup in menus 9.1 and 10.1 at least to change uplink
+	   data.
+
+	W: See if a check can be made in file groups setup for the areas file
+	   format, if a filegate list is installed and the filegate switch
+	   setting is wrong, a lot of wrong areas will be created.
+

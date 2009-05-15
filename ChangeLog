@@ -1,0 +1,116 @@
+$Id: ChangeLog,v 1.1225 2008/12/28 12:28:25 mbse Exp $
+
+v0.95.5		29-Nov-2008
+
+	upgrade:
+		Start mbsetup, enter global setup, leave and save.
+
+	mbselib:
+		Newsservers can be connected with a port number from the
+		setup.
+
+	mbsetup:
+		In screen 1.12 a nntp port number can be set.
+		Added a switch to force authentication on connect with nntp
+		servers.
+
+	examples:
+		Added German menus and textfiles, written by Niels Haedecke.
+
+
+v0.95.4		31-Aug-2008 - 29-Nov-2008
+
+	upgrade:
+		Start mbsetup, enter global menu, leave and save.
+
+	mbnntp:
+		A cosmetic change to add an extra newline before the tearline.
+
+	mbfido:
+		A cosmetic change to add an extra newline before the tearline.
+
+	mbsebbs:
+		Fixed a buffer overflow in lastcallers display.
+
+	mbsetup:
+		Increased the size of the nntp username and password fields to
+		32 characters.
+
+	script:
+		installinit.sh now knows about Slamd64.
+		SETUP.sh now knows about Slamd64.
+
+
+v0.95.3		12-Mar-2008 - 31-Aug-2008.
+
+	mbfido:
+		Fixed another buffer overflow thanks someone who is using a
+		tic processor that doesn't follow specs and doesn't create
+		proper ticfiles.
+
+
+v0.95.2		17-Feb-2008 - 12-Mar-2008.
+
+	mbselib.h:
+		Added stream scanning for F-Prot.
+
+	mbfido:
+		Fixed missing SEENBY entry of our own aka if a echomail
+		message came from another zone.
+
+	mbsetup:
+		Fixed chapter numbering in the ascii sitedoc.
+
+	script:
+		Fixed hatch script to send File line. Note: you must manually
+		install hatch.new to hatch in the bin directory and set the
+		password again, this script will not automatic install.
+
+	mbtask:
+		Call setprgp is not fatal if it fails.
+
+
+v0.95.1		07-Jan-2008 - 17-Feb-2008.
+
+	upgrade:
+		Start mbsetup and exit. If you have a clamd running on some
+		server (or bbs machine), you can switch to use stream
+		scanning. See the manual for details.
+
+	mbselib.h:
+		Added file virscan function.
+		Added stream scanning for ClamAV, scanning is 10 times faster
+		compared to the commandline scanner.
+		Don't log errors if execute unzip returned error 11.
+
+	mbtask:
+		Added last changes for MIB counters.
+
+	mbfido:
+		Changed error message on the news gate.
+		Switched to virus scanner from library.
+
+	mbfile:
+		Switched to virus scanner from library.
+
+	mbsebbs:
+		Added MIB counters.
+		Switched to virus scanner from library.
+
+	mbsetup:
+		Added support for TCP stream scanners.
+
+	script:
+		Added support for Zenwalk.
+
+
+v0.95.0		25-Nov-2007 - 07-Jan-2008
+
+	mbcico:
+		The maximum speed to show to the other end is now 4294976295.
+
+	mbsetup:
+		Changed the maximum linespeed to display for TCP/IP sessions to
+		4294976295. Numbers above 2147483647 might display on remote
+		systems as negative numbers.
+

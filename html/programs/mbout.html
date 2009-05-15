@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mbout.html,v 1.8 2003/11/08 20:15:31 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbout - The Outbound Manager.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 17-Mar-2001</h5></div>
+<div align="center"><H1>mbout - The Outbound Manager</H1></div>
+
+<H3>Synopsis.</H3>
+<P>
+<code><strong>mbout</strong> [command] &lt;params&gt; &lt;options&gt;</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbout</strong> is the outbound manager for MBSE BBS. It can ask 
+information from the nodelists, create and remove polls, request and send files and
+display the outbound status. Most of the tasks such as create and remove 
+polls should be done from the crontab.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+In order to run <strong>mbout</strong> you must set the global variable
+<strong>$MBSE_ROOT</strong>. This variable must point to the root directory
+of the bbs structure. The main configuration file <strong>config.data</strong>
+must be present in the ~/etc directory.
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+<code><strong>mbout</strong> att &lt;node&gt; &lt;flavor&gt; &lt;file&gt;</code> will attach
+the specified file to the specified node. The node should be in the format
+f2802.n280.z2, flavor should be crash, immediate, normal or hold. Only the first
+letter of the flavor parameter is needed.
+If the node is not in the nodelist, the status is Down or Hold, then this command fails. 
+To non-CM nodes you mus use the <strong>Immediate</strong> flavor if you want to send the file direct. 
+The flavors Hold and Normal are still allowed. The file must be in the directory range
+from where file attaches are allowed.
+<P>
+<code><strong>mbout</strong> poll [node..node]</code> creates poll requests in the outbound
+for one or more nodes. The node should be in the format f2802.n280.z2. The semafore 
+<strong>scanout</strong> is created so that the mailer will start calling. 
+The mailer will handle the poll request as if it should deliver immediate mail, 
+so the node will be called as long as the poll request exists, even to nodes which are not CM. 
+The error counter for the node to poll will be reset to zero, so a node that was
+previous marked undialable will be called again.
+If a call to a node is successfull, the poll file will be removed by <strong>mbcico</strong>. 
+If a node is not in the nodelist or has the status Down or Hold, no poll will be created for that node.
+<P>
+<code><strong>mbout</strong> stop [node..node]</code> removes poll requests that are 
+leftover when polling nodes didn't succeed. There is no check if the node is
+in the nodelist or has the status Down or Hold, the poll is always removed.
+<P>
+<code><strong>mbout</strong> req &lt;node&gt; &lt;file&gt; [file..file]</code> creates
+filerequests to a node. One or more filenames may be given including wildcards.
+It is not possible to do update or password protected uploads yet. If there
+is already a requestlist for that node, the new requests will be added. This
+command does not call a node, you need to create a poll request to make the
+actual call. This is also practical if you want some files from your uplink,
+just make the requests and the actual request is send when your normal 
+scheduled poll to your uplink is processed.
+<P>
+<code><strong>mbout</strong> reset [node..node]</code> resets the nodes "try"
+counter to zero. So if a node is undiable, the counter is 30 or more, then by
+resetting this counter that node will be called again. The outbound is rescanned
+after this command so that calling will start immediatly.
+<P>
+<code><strong>mbout</strong> stat</code> shows the status of the mailer outbound. 
+This status is also written to the logfile.
+<P>
+<code><strong>mbout</strong> node &lt;node&gt;</code> will show the nodelist information for
+a certain node.
+<P>&nbsp;<P>
+
+<H3>Options.</H3>
+<P>
+<code><strong>mbout</strong> [commands] -quiet</code> will suppress screen output. This is
+usefull if you run <strong>mbout</strong> from the crontab or from background
+scripts.
+<P>&nbsp;<P>
+
+<H3>Examples.</H3>
+<P>
+This is an example of crontab entries that writes the outbound status to the
+logfile and creates and stops polling of 2 nodes.<br>
+<pre>
+00 00 * * * export MBSE_ROOT=/opt/mbse; $MBSE_ROOT/bin/mbout stat -quiet
+00 01 * * * export MBSE_ROOT=/opt/mbse; $MBSE_ROOT/bin/mbout poll f98.n100.z92 f0.n100.z92 -quiet
+00 02 * * * export MBSE_ROOT=/opt/mbse; $MBSE_ROOT/bin/mbout stop f98.n100.z92 f0.n100.z92 -quiet
+</pre>
+<P>
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

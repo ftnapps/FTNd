@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: menu0.html,v 1.12 2003/11/08 20:48:19 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Menus - Global Menus.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<DIV align=right><h5>Last update 01-Apr-2003</h5></DIV>
+<DIV align=center><h1>MBSE BBS Global Menus</h1></DIV>
+<hr>
+
+<OL>
+
+ <LI value="1"><strong>Goto another menu:</strong> This will start the execution
+ of another menu. The current menu level is not stored on the stack.<br>
+ <strong>Optional data:</strong> The name of the new menu.<Br>
+ <P>
+
+ <LI value="2"><strong>Gosub another menu:</strong> This will start the execution
+ of another menu. The current menu level is stored on the stack. Gosub's may
+ be nested 50 levels deep.<br>
+ <strong>Optional data:</strong> The name of the new menu.<br>
+ <P>
+
+ <LI value="3"><strong>Return from Gosub:</strong> This will go back one
+        gosub level. If you are already at the top level nothing happens.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="4"><strong>Return to top menu:</strong> Return to the top (main)
+     menu. The name of this menu is set in the global setup. 
+     Default is main.mnu<br>
+    <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="5"><strong>Display .a?? file with controlcodes:</strong> This will
+   display an ANSI file to the user. If the user has <em>Graphics No</em> set
+   then the ASCII version is shown. Search is done first in the users language
+   path and if that fails the default language path is used. 
+   <A HREF="control.html">Control codes</A> in the
+   file are substituted with the current values the represent.<BR>
+   <strong>Optional data:</strong> The name of the file to display. Do not
+   give the filename extension!<BR>
+   <P>
+
+ <LI value="6"><strong>Show menu prompt:</strong> Display the menu prompt.<br>
+   <strong>Optional data:</strong> The prompt to display. This string may
+   contain some control characters that are replaced with information. The
+   prompt is displayed in White on Black and is hardcoded at the moment.
+   <ul>
+     <li><strong>~</strong> This will insert the number of minutes the user
+        has left.
+     <li><strong>@</strong> This will insert the name of the current file area.
+     <li><strong>^</strong> This will insert the name of the current message area.
+     <li><strong>#</strong> This will insert the current local time.
+   </ul>
+   <P>
+
+ <LI value="7"><strong>Run external program:</strong> This will execute 
+    external programs.<br>
+   <strong>Optional data:</strong> The full path and filename of the external
+   program to run. There are a few switches you can give on the commandline:
+   <UL>
+    <LI><b>/N</B> will be replaced by the current nodenumber. The nodenumber is
+    faked by using the record number of the tty lines setup.
+    <LI><b>/A</b> will prompt for a filename to enter. The filename the user
+    enters is then replaced on the commandline. This is a dangerous option!
+    <LI><b>/T=your prompt</b> is an alternate prompt for entering a filename
+    if used together with the <b>/A</b> option.
+   </UL>
+   <br>
+   <P>
+
+ <LI value="8"><strong>Show product information:</strong> This will show
+   copyright information about MBSE BBS.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="9"><strong>Display todays callers:</strong> This will display a
+   list of todays callers to the BBS.<br>
+   <strong>Optional data:</strong> "/H" Show handles instead of real names, "/U"
+   show Unix names instead of real names.<br>
+   <P>
+
+ <LI value="10"><strong>Display userlist:</strong> Display all users in the
+   users database except those that are hidden.<br>
+   <strong>Optional data:</strong> "/H" Show handles instead of real names, "/U"
+   show Unix names instead of real names.<br>
+   <P>
+
+ <LI value="11"><strong>Time statistics:</strong> Display the users time
+   statistics.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="12"><strong>Page Sysop:</strong> Page sysop for a chat.<br>
+   <strong>Optional data:</strong> A message to the user<br>
+   The message to the user could be something like "Calling sysop, please
+   wait ..." or "I will see if Michiel wants to chat with you, please wait!"
+   As sysop you will know best what to put in that line.
+   <P>
+
+ <LI value="13"><strong>Terminate call:</strong> Terminale this call and 
+   hangup.<br>
+   <strong>Optional data:</strong> None.
+   <P>
+
+ <LI value="14"><strong>Make a log entry:</strong> This will write a line in
+   the logfile.<br>
+   <strong>Optional data:</strong> The information you want in the logfile.<br>
+   <P>
+
+ <LI value="15"><strong>Print text to screen:</strong> Write text to the users
+   screen.<br>
+   <strong>Optional data:</strong> The text that must appear on the users
+   screen. The <em>@</em> character is replaced with a newline.<br>
+   <P>
+
+ <LI value="16"><strong>Who is online:</strong> Displays the who is online
+   list and what they are doing. Users that are hidden are not displayed.<br>
+   <strong>Optional data:</strong> "/H" Show handles instead of real names, "/U"
+   show Unix names instead of real names.<br>
+   <P>
+
+ <LI value="17"><strong>Comment to sysop:</strong> Enter the texteditor and
+   let the user write a message to the sysop. The area is predefined in the
+   global setup.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="18"><strong>Send online message:</strong> Send an online message
+   to a user on another line.<br>
+   <strong>Optional data:</strong> "/H" Use handles instead of real names, "/U"
+   use Unix names instead of real names.<br>
+   <P>
+
+ <LI value="19"><strong>Display textfile with more:</strong> This will display
+   a textfile to the user. After each full screen the user is prompted with
+   <em>More Y/n/=</em>.<br>
+   <strong>Optional data:</strong> The full path and filename to the file.<br>
+   <P>
+
+ <LI value="20"><strong>Display .a?? file with control codes and wait:</strong> 
+   This will display a ANSI or ASCII file to the user with <A HREF="control.html">
+   control codes</A> and wait for <em>Enter</em> when it is finished.<br>
+   <strong>Optional data:</strong> The filename without extension of the
+   file to display.<br>
+   <P>
+
+ <LI value="21"><strong>Display line</strong> This entry does nothing except
+   that it displays the text on the display line. This is always displayed,
+   even if the display line is empty. In that case an empty line is displayed.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="22"><strong>Chat session</strong> This connects the user to the
+   chatserver. The user is connected with his unix name as default name. The chat
+   server is a very simple IRC look alike server.<br>
+   <strong>Optional data:</strong> None yet, maybe the channel later.<br>
+   <P>
+ 
+</OL>
+
+<HR>
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Index" BORDER=0></A>
+   <A HREF="../">Main Index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" BORDER=0></A>
+   <A HREF="./">Menus Index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

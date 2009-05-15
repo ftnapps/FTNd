@@ -1,0 +1,277 @@
+$Id: ChangeLog_2007,v 1.1 2008/11/29 13:55:33 mbse Exp $
+
+
+v0.92.0		08-Oct-2006 - 16-Oct-2007
+
+	general:
+                With this version de default internal character encoding is
+                UTF-8. BBS users who have a UTF-8 terminal can use the bbs in
+                UTF-8 mode and should have no troubles at all reading and
+                writing messages in several language encodings.
+		Fixed building on FreeBSD, tested on 5.3 and 6.2.
+		Added support to link to the GeoIP library. If it's present on
+		your system, mbcico, mbsebbs, mbnewusr and mbnntp will log the
+		country from which the connection is made.
+                Added example telnet login for NetBSD.
+                Dropped support for NetBSD < 3.0.
+                Added support for Ubuntu.
+		Added support for the ARM processor.
+
+	upgrade:
+                Because some directories will be moved, a special upgrade
+                procedure is needed. Take the following steps:
+                1. Don't install the new source yet and make a backup!
+                2. In the source topdir run "make clean".
+                3. Unpack the new source.
+                4. Build new source, "./configure" and "make".
+                5. Run "./mbsetup-0.92.0/mbsetup", enter global setup and
+                   leave with save. this 'should' move all your existing
+                   language files to the new directory structure.
+                6. "su", run "make install" and restart the bbs.
+                7. "exit".
+                If you didn't do steps 1 and 2 (automatic updates) and you
+                installed the source over the old source, you will have some
+                extra files in the lang subdir of the source. No big deal.
+                If you didn't run step 5 then the new language paths have
+                the default files from source and not your own. Your own files
+                are then still under ~/english/*.* ~/dutch/*.* etc. Move the
+                contents of these subdirs into ~/share/int/menus/en/* etc.
+                Compile and install this new version.
+                In all macro files html.* change the charset to UTF-8. You will
+		find these in /opt/mbse/share/int/macro/*/html.*
+                If you still have all default macro files then in the source
+                directory mbsebbs/examples simply run "make macros" to install
+                the updated versions.
+                Run "mbfile index -f " once to regenerate all download html
+                index pages with UTF-8 encoding. Check the error.log for
+                errors.
+                In mbsetup menu 1.3.7 change logo.asc into logo.ans and make
+                sure you have that file. A note about the logo file, it will
+                be displayed before we know if a user has a utf-8 or ansi
+                terminal, so change your logo screen so that it has no ansi
+                grafic characters, just plain ascii with ansi color codes.
+                Start and leave mbsetup, this will upgrade the newfiles and
+                filefind reports to set a defaults CHRS kludge CP437 2 which
+                is good for reports with ANSI blockgraphics.
+ 		The next step is optional but advised to make the symbolic
+		links in the download areas without path information:               
+
+                mbse$ cd /opt/mbse/ftp
+                mbse$ find pub -type l -exec rm '{}' \;
+                mbse$ mbfile check
+
+                Make sure mbtask is restarted.
+
+        libmbse:
+                Fixed commandline address parsing if a 2d address was given.
+                Added coding and decoding to strings that are processed by the
+                diesel macroprocessor.
+                Fixed a compile warning in the diesel code.
+                Moved default language paths into ~/share/int
+                Fixed a too low memory allocation in clencode.
+                Added support or the ARM processor, thanks to Simon Voortman.
+
+	libmsgbase:
+                Added extra debug info in pack function.
+		Fixed serveral problems with LastRead pointers created by
+		GoldED.
+                LastRead records that don't belong to a valid user are
+                purged.
+
+	libnodelist:
+                Don't complain if attempt to read an extended nodelist line
+                fails.
+
+        libdiesel:
+                Fixed linking problem on OpenBSD.
+
+        mbcico:
+                If no suitable compressor found for binkp transfers then don't
+                complain.
+                Added mbtask command to update the MIB counters.
+                Fixed a lot of gcc4 compiler warnings.
+                Fixed compiling on NetBSD 3.1.
+                Catch SIGIOT.
+                Fixed outbound scanning on ARM systems.
+                Added GeoIP support.
+
+        mbout:
+                Catch SIGIOT.
+
+        mbfido:
+                Check if active marked virusscanner is really present on the
+                system.
+                Don't crash on empty ticfiles.
+                Fixed log message for scanned netmail.
+                The make web stat command produces UTF-8 webpages.
+                The add file function now creates links without pathnames.
+                In rfc2ftn if we cannot find the incoming charset from the
+                standard table we will fall back to the charset in the
+                Content-type: header and try to initialize iconv with that
+                value.
+                For debug info help to me, the headers Content-Type and
+                Content-Transfer-Encoding are temporary stored in the fido
+                message as kludges.
+                Added mbtask commands to update the MIB counters.
+                Fixed mbfile import with too many description lines in
+                files.bbs
+                Fixed a buffer overflow when processing TIC files with a lot
+                of garbage in it.
+                Fixed a lot of gcc4 compiler warnings.
+                Fixed compiling on NetBSD 3.1.
+                If the LFN in the tic file is empty, create a lowercase name.
+                Catch SIGIOT.
+                Fixed date conversion in netmail-email gate.
+                Fixed buffer overwrite caused by bad formatted ticfiles.
+
+        mbsebbs:
+                Remove some private user files from the users home directory
+                during logoff.
+                Check if active marked virusscanner is really present on the
+                system.
+                Moved default language paths into ~/share/int
+                Added terminal setting UTF-8.
+                Removed setting ANSI/Textmode, allways graphic now.
+                All *.asc textfiles are now obsolete, only *.ans are valid.
+                Display ansi file converts to UTF-8 if the user has UTF-8.
+                Email and FTN mail reading now translates to the users
+                characterset using glibc iconv.
+                Changed menus lastcallers, whoson, userlist, pinfo, fsedit,
+                timestats, filelist to output UTF-8 code if the user has set
+                that terminal setting.
+                Uploaded files now have symlinks without pathnames.
+                Fixed upload crash when a FILE_ID.DIZ is found but the bbs is
+                not allowed to open it for reading.
+                The filelist now displays long filenames (finally).
+                Searching FILE_ID.DIZ in uploads is now case insensitive.
+                Improved cleaning users tmp dir after virus scan.
+                Fixed a lot of gcc4 compiler warnings.
+                Fixed compiling on NetBSD 3.1.
+                Catch SIGIOT.
+                Use both CRC and User ID to search lastread record.
+                Added missing check to see if a user is allowed to post or
+                reply a message.
+                Added GeoIP support.
+
+        mbnewusr:
+                Fixed loading default language for new user.
+                Catch SIGIOT.
+                Added GeoIP support.
+
+        mbfile:
+                The check filebase command now also removes dead symlinks from
+                the download directories.
+                The index command produces UTF-8 webpages.
+                The check command now repairs filenames without using absolute
+                pathnames.
+                The adopt, import and move functions now make links without
+                path.
+                Help message displays quoted description.
+                The adopt command works even if the description isn't quoted.
+                Catch SIGIOT.
+
+        mbindex:
+                Check nodelist permissions and try to correct them.
+                When the first Zone entry is missing in the nodelist, mbindex
+                aborts with a fatal error and doesn't replace the nodelist
+                index.
+                Keep the latest 4 instead of 2 nodelists in the nodelist
+                directory to allow a few weeks for recovery.
+                Catch SIGIOT.
+
+        mbdiff:
+                Wrote a lf instead of eof character as last character in the
+                new nodelist.
+                Fixed CRC error made by previous change.
+                Fixed a lot of gcc4 compiler warnings.
+                Catch SIGIOT.
+
+        mbaff:
+                For each newfiles and filefind report there is now a CHRS
+                kludge setting. Reports will be converted to the selected
+                charset. Origin characterset is CP437 for now.
+                Catch SIGIOT.
+                Fixed filefind search filenames case insensitive.
+                Fixed filefind search in description.
+
+        mball:
+                Now also creates allfiles.utf and newfiles.utf with UTF-8
+                encoded text. These new files will also be added to the zip
+                archives.
+                Creates allfiles/newfiles listings with long filenames and
+                short filenames.
+                Removed debug logging for checking WWW/FTP downloads.
+                Catch SIGIOT.
+                File download checks from http and ftp are now case
+                insensitive.
+
+        mbmsg:
+                Catch SIGIOT.
+
+        mbstat:
+                Catch SIGIOT.
+
+        mbnntp:
+                Reading news outputs UTF-8 coded articles. Posting is done
+                with the client side charset and translated when needed.
+                Suppress logging of passwords.
+                Catch SIGIOT.
+                Added GeoIP support.
+                Removed a lot of debug logging.
+
+        mbsetup:
+                In generated html sitedocs fixed link from node to tic areas.
+                Moved default language paths into ~/share/int
+                In newfiles and filefind reports the Hi-ASCII setting is gone
+                and a CHRS kludge selection is added. Defaults to CP437 2.
+                Blocked selection of FTN and Usenet moderated message areas.
+                Changed the F-PROT scanner name into fpscan.
+                Removed a not used setting for filefind.
+
+        mbmon:
+                Added support or the ARM processor.
+                Catch SIGIOT.
+
+        mbtask:
+                Some code cleanup.
+                Fixed s SIGBUS on Sparc/NetBSD systems.
+                Moved default language paths into ~/share/int
+                Fixed a too low memory allocation in clencode.
+                Added SNMP MIB counters and added set commands to increase
+                these new counters. Note, there is no SNMP interface yet.
+                Added support or the ARM processor.
+                Fixed compiling on NetBSD 3.1.
+                Fixed a too small buffer.
+                Catch SIGIOT.
+                Fixed outbound scanning on ARM systems.
+
+        mbuser:
+                Set default editor on erased records.
+
+        mbpasswd:
+                Added check for FreeBSD > 6.0 and use sysctl for security check.
+
+        mbuseradd:
+                Added check for FreeBSD > 6.0 and use sysctl for security check.
+
+        mblogin:
+                On NetBSD accepts the -a parameter.
+
+        script:
+                Fixed problems with newer joe editor versions.
+        script:
+                Adjusted editor script to use nansi.sys if ansi.sys is not
+                available in the terminfo database.
+        script:
+                Improved grep in init scripts.
+
+        lang:
+                Renamed language files and changed installation paths.
+                Language prompts 44, 75 and 76 are obsolete.
+
+        examples:
+                Upgraded the html macro templates to produce UTF-8 web pages.
+                Upgraded the txtfiles examples to only have .ans screens. The
+                logo.ans screen now works on ANSI and UTF-8 terminals.
+
+

@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: menu100.html,v 1.5 2003/11/08 20:40:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Menus - File Area Menus.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 02-Feb-2001</h5></div>
+<div align='center'><h1>MBSE BBS File Area Menus</h1></div>
+<hr>
+
+<OL>
+
+ <LI value="101"><strong>Select another area:</strong> This option will show
+ a list of available areas and let the user select a new area. If there is
+ optional data the new area will be selected without user intervention.<br>
+ <strong>Optional data:</strong> If there is an option the area is direct
+ selected. Current options are: <strong>F+</strong> goto next available area.
+ <strong>F-</strong> goto previous available area.<Br>
+ <P>
+
+ <LI value="102"><strong>File List:</strong> This option will display a list
+ of files with their dates, sizes and description. During the display of the
+ list the user can select (Tag) files for later download.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="103"><strong>View File:</strong> Not yet implemented.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="104"><strong>Download File(s):</strong> This option will start to
+ transmit files to the user if he has tagged files for download. Tagging files
+ for download can be done during File List, Keyword Scan, Filename Scan or
+ Newfile Scan. If a user didn't select a transfer protocol before now he will be
+ forced to select a file transfer protocol.<br>
+ <strong>Optional Data:</strong> None.<br>
+ <P>
+
+ <LI value="105"><strong>Raw Directory:</strong> This option will display the
+ contents of a directory in raw format.<br>
+ <strong>Optional data:</strong> If the option is <strong>/F</strong> the
+ contents of the current directory is shown. If the option is the full path
+ to a directory, the contents of that directory is shown. <br>
+ <P>
+
+ <LI value="106"><strong>Keyword Scan:</strong> This option will search for
+ files in the files database for a matching keyword. The search is not case
+ sensitive. If there are files found the user is able to select (Tag) these
+ files for later download.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="107"><strong>Filename Scan:</strong> This option will search for
+ a filename match in the files database. The search is not case sensitive.
+ If there are files found the user is able to select (Tag) these files for
+ later download.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="108"><strong>Newfiles Scan:</strong> This option will scan for new
+ files available for download since the last time the user was online. As
+ option the user can change that date from which to start the search. Any files
+ found the user may select (Tag) for later download.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="109"><strong>Upload:</strong> This option will let the user upload
+ files to the bbs. If the current area has an alternate upload area, the upload
+ will end up in that area. If the user uses X-modem or another ancient protocol
+ he will first be asked for a filename. Normal modern protocols don't need this.
+ The filename is checked before the transfer is done to protect the bbs. Further
+ the files the user will upload will at first be placed under the users home
+ directory <strong>~/upl</strong>. After the upload(s) the files are checked
+ for virusses. If all is well, the file is imported in the bbs. If the file
+ contains a valid FILE_ID.DIZ file inside the archive, that file will be used
+ for the description of the upload, if not, the uploader will have to describe
+ the file.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="110"><strong>Edit Taglist:</strong> This option is for the user to
+ edit the list of files he has tagged for later download.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="111"><strong>View file in homedir:</strong> Not yet implemented.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="112"><strong>Download Direct:</strong> Download a file direct.<br>
+ <strong>Optional data:</strong> The full path and filename to the file to
+ download.<br>
+ <P>
+
+ <LI value="113"><strong>Copy file to Homedir:</strong> This option will copy 
+ a file from a download directory to the users home directory. It will be 
+ checked if the user has enough room in his directory, the default Quota for
+ users is 10 MBytes.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="114"><strong>List Homedir:</strong> This option will list the files
+ in the users home directory.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="115"><strong>Delete in Homedir:</strong> This option will let the 
+ user delete one or more files from his home directory.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="116"><strong>Unpack file in Homedir:</strong> Not yet implemented.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="117"><strong>Pack files in Homedir:</strong> Not yet implemented.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="118"><strong>Download Homedir:</strong> This option will let the 
+ user download from his home directory.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="119"><strong>Upload Homedir:</strong> This option will let the user
+ upload files to his home directory.<br>
+ <strong>Optional data:</strong> None.<br>
+</OL>
+
+<HR>
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Index" BORDER=0></A>
+<A HREF="../">Main Index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" BORDER=0></A>
+<A HREF="./">Menus Index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

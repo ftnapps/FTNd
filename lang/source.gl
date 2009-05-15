@@ -1,0 +1,480 @@
+|Por favor teclee o seu nome e apelidos: 
+|Por favor teclee os seus apelidos: 
+|Desconectando usuario ...
+|Explorando ficheiro de usuarios ...
+SN|¨Escribiche-lo teu nome correctamente? [S/n] 
+|Tes que acceder de novo con este nome: 
+|Este ‚ un sistema PRIVADO. Teclea "off" para salir
+|Teclea n£mero de ficheiro ou <Enter> para rematar : 
+|Password: 
+|Sobrepasouse o n£mero m ximo de erros permitido... 
+|O teu nome ou a tua PASSWORD son incorrectos
+HR|Exportar ¢ directrio (P)ersoal ou ¢ de (R)egras: 
+|Mesaxe exportada ¢ directorio de regras coma 
+|Non se atopan regras pra esta  rea 
+|No podes borrar esta mensaxe.
+|Lector Offline: Informaci¢n extendida ACTIVADA
+|Lector Offline: Informaci¢n extendida DESACTIVADA
+|Este non ‚ un ficheiro de texto plano.
+|Solo podes facer login 
+|veces ¢ mesmo tempo
+|Outro usuario est  a usar esa door, proba mais tarde
+SN| ‚ correcto [s/N]: 
+|Non podo interpretar
+|Select your preferred character set
+|Select character set (Enter to Quit): 
+|Character set now set to: 
+YN|Check for new mail at login [Y/n]: 
+YN|Check for new files at login [Y/n]: 
+|Enter a short reason for chat
+|The Sysop cannot use the bbs to chat! Use mbmon to chat
+|Sorry, the chatserver is not available
+|line 
+|
+|
+|
+|áéíóúüÜñÑçÇ¿¡ºª ‚¡¢£š¤¥‡€¨­§¦
+| ‚¡¢£š¤¥‡€¨­§¦
+|MBSE BBS - REXISTRO DE NOVO USUARIO
+|Use este nome: 
+|Por favor teclee o novo password : 
+|Por favor repita o password outra vez......  : 
+|­Non coinciden! Volta a empezar...
+|A password debe ter como m¡nimo 
+|caracteres. Volta a empezar...
+|
+|Teclea o teu n£mero de tel‚fono de VOZ
+|Mensaxe exportado ¢ teu directorio privado como: 
+|N£mero de tel‚fono incorrecto. Repite... 
+|Teclea o n£mero de tel‚fono do teu MODEM
+|¨Onde vives? (Cidade): 
+|O nome da t£a cidade ‚ demasiado curto. Repiteo por favor 
+HM|¨Tu que eres (H)ome ou (M)uller: 
+|Home
+|Muller
+|Contesta s¢ H o M
+|Desco¤ecido
+|Data de nacemento (DD-MM-AAAA): 
+|Tecleaches ‚ste ano por error.
+|Teclea a fecha en formato correcto (DD-MM-AAAA)
+|*** Atenci¢n: F lache o SysOp ***
+|*** Fin da parola. Que te¤as un b¢ d¡a ***
+SN=|M is (S/n/=) 
+SN|¨Queres men£s r pidos? [S/n]: 
+|Por favor contesta S ou N
+|
+|Nada
+|Marcar  reas para lectura Off-Line
+|Creouse a t£a conta de usuario:
+|Nome de Login : 
+|Password        : 
+|non visualizable
+|Rexistro de novo usuario completo.
+|Non topo 
+|Localidade anterior : 
+|Localidade demasiado curta: (min. 
+|
+|
+|Non existe a mensaxe
+|Novas activadas
+|Novas desactivadas
+|
+|
+|Mensaxe privada, e non ‚ tua
+|Teclea o formato de data correcto
+|Hoxe chamaron a 
+|#    Usr. Nombre         Puerto  Tiempo  Llams  Localidad
+|Can't open archiver file.
+|Select your preferred archiver
+|Select Archiver (Enter to Quit): 
+|Archiver now set to:
+|Teclea tres combinaci¢ns.
+|1§ dixito: 
+|­Repite! Debe ser un n£mero maior que cero e menor que  
+|2§ dixito : 
+|3§ dixito: 
+| Esquerda : 
+|  Dereita : 
+SN|Probo a abrir con esta combinaci¢n [S/n]: 
+|Ganaches ...
+|­Ohhh! - Non se abre...
+|A combinaci¢n era:
+SN|¨Queres volver probar? [S/n]: 
+SN|¨Queres probar a abri-la caixa? [S/n]: 
+|A CAIXA ESTA BLOQUEADA.
+| abriu a caixa.
+|A caixa queda bloqueada ata que o SysOp recompense ¢ usuario.
+|­Excedeche-lo m ximo n£mero de intentos diarios!
+|Mensaxe ¢ seguinte usuario: 
+|Os campos De, Para e Asunto son opcionais.
+|     De: 
+|   Para: 
+| Asunto: 
+|  Teclea ata 10 li¤as de ata 74 Caracteres por linea
+|Funci¢ns dispo¤ibles:
+LCEAG|(L)istar, (C)ambiar texto, (E)ditar li¤a, (A)bandonar (G)ardar 
+|Escolle: 
+|Abandonando...
+|Volvendo a 
+|Edita-la li¤a n§: 
+|Esa non existe.
+|Password vella: 
+|Password nova: 
+|Repite a nova: 
+|­Non coinciden!
+|Password cambiada. Non a esquezas... 
+|­Password vella incorrecta!
+|Lista de usuarios 
+|Buscar un nome (Enter para listar todos): 
+|Nome                     Localidade                  U.Chamada     Chamadas
+|Non o atopo...
+|L¡mite de tempo sobrepasado ... desconectando!
+SN=M|M is (S/n/=) M=Marcar
+|Buscando 
+|con 
+|Estad¡sticas de TEMPO de 
+|en 
+|Hora Actual        :
+|Data Actual        :
+|Tempo de conexion  :
+|Tempo usado hoxe   :
+|Tempo que queda    :
+|L¡mite diario      :
+|Tes 
+SN|mensaxes, ¨Queres lelas agora? [S/n]: 
+|Non hai correo novo pra ti ...
+|Men£s r pidos activados
+|Men£s r pidos desactivados 
+|Act
+|Des
+|O nome xa existe
+|Buscando correo novo ...
+|Charla de MBSE BBS
+|O Sysop est  falando con outro usuario.
+|Intenta chamalo de novo dentro de un pouco ...
+|Xa chamacves moitas veces. 
+|O SysOp non est  ... ¨por que non lle deixas unha mensaxe?
+|Po¤endo mensaxe na  rea: 
+|De       : 
+|Para     : 
+|Verificando usuario...
+|Usuario non existe. Repite, ou (Enter) para sair 
+|Asunto   : 
+SN|¨ Cancelar Mensaxe [s/N] ?: 
+SN|Privado [s/N]: 
+|Empeza a escribi-la tua mensaxe. (Enter) nunha li¤a vac¡a para sair.
+|M ximo 60 li¤as, 73 caracteres por li¤a
+|Lonxitud m xima sobrepasada
+|Funcions dispo¤ibles: (Mensaxe Actual: 
+|Li¤as)
+|L - Listar mensaxe    G - Gardar mensaxe    C - Continuar escribindo
+|A - Abandonar         B - Borrar li¤as      I - Insertar li¤a
+|T - editar Texto      E - Editar li¤a       S - Sustituir li¤a
+LGCABITESZ|Z - Centrar li¤a                                           
+|Escolle 
+|Continuar
+|Borrar
+|Borrar dende a li¤a 
+|Abandonar.
+|Teclea un n£mero entre  
+|Borrar ata a li¤a 
+|Editar
+|N§ de li¤a a editar 
+|Insertar
+|Insertar antes da li¤a n§ 
+|Listar
+|N§ de Li¤a a sustituir 
+|A li¤a di: 
+|Non se cambiou:
+|La li¤a agora di: 
+|Abandonar.
+SN|¨Est s seguro? [s/N]: 
+|Mensaxe anulada.
+|No
+|Editar texto
+|N§ de l¡¤a a editar 
+|Texto a cambiar  : 
+|Texto novo       : 
+|La l¡¤a agora di: 
+|Gardar
+|­Posible VIRUS atopado!
+|Ok
+|Descomprimindo
+|Gardando mensaxe no disco 
+|N§ de li¤a a centrar 
+|A li¤a ‚ demasiado longa e non se pode centrar
+|Non hai mensaxes nesta  rea.
+|Data    : 
+SN=|M is (S/n/=/n§  rea): 
+|Para    : 
+|De      : 
+|Asunto  : 
+|Seg. resp.:
+|Resp. a:
+|mensaxes en
+OSACNRBX|(O)utra vez (S)eg. (A)nt. (C)ontes. (N)ova (B)orrar (R)ematar e(X)port.
+|(O)utra vez (S)eg (A)nt. (C)ontes. (N)ova (R)ematar e(X)portar
+|Seguinte
+|ERROR
+CSR|(C)ontestar, (S)eguinte, (R)ematar:
+|Enter para mante-lo mesmo asunto 
+|n§    De                   Para                 Asunto                         
+|A  rea  
+|ten 
+|mensaxes.
+|Teclea unnha mensaxe entre 
+|N£mero de mensaxe [
+|Area  Tipo  Descripci¢n                              Mensaxes Persoais
+|f¡o 
+|Teclee N§ ou TAG da  rea, ? para ve-la lista: 
+|TAG                  Area  Msxs   Descripci¢n
+|Borrando mensaxe 
+| Areas de Mensaxes 
+|Escolle unha  rea: 
+| rea escollida non v lida - Escolla outra ...
+|Password incorrecto 
+|Password correcto 
+|Non tes permiso para listar esta  rea 
+|Non podo abri-la base de ficheiros desta  rea
+|Enviado por: 
+|B O R R A D O
+|
+SN|Nodo desco¤ecido. ¨Continuar? [s/N]: 
+|Total Fichs: 
+|FATAL: Imposible abrir base de  reas
+|Non tes permiso para descargar ficheiros desta  rea.
+|Nome do ficheiro: 
+|Nome vac¡o, cancelando.
+|­Nome de ficheiro non v lido!
+|Ese ficheiro non est  dispo¤ible para descargar 
+|Tes 
+|KBytes extra para descargar.
+|Non tes tempo dabondo para descargar ese ficheiro.
+|Non tes suficiente cr‚dito para descargar " 
+|Tes que enviar algo antes de descargar.
+|Kilobytes dispo¤ibles: 
+|Verificando ficheiros marcados, agarda un pouco...
+|Desmarcar  reas para lectura Off-Line
+|Atopado FILEID.DIZ en
+|Non hai ficheiros marcados.
+|
+|Escolleche-las seguintes  reas: 
+|Ficheiro                                               Tama¤o      Fecha
+|Protocolo: Non podo abrir ficheiro de protocolos.
+|Escolle o protocolo de transferencia predeterminado 
+|Escolle Protocolo (Enter para sair): 
+|Ese non vale, ­Escolle outro!
+|Protocolo predeterminado: 
+|Palabra a buscar: 
+|Buscar ficheiro por unha palabra 
+|Aceptanse comodins coma : *.zip, *.gz, *.*
+|                        : *.zip es lo mismo que .zip
+|Nome do ficheiro a buscar: 
+|Buscar ficheiro por nome 
+SN|Buscar novos ficheiros dende a tua £ltima chamada [S/n]: 
+|Buscar novos dende fecha [DD-MM-YYYY]: 
+|Buscar ficheiros por fecha 
+|
+|Descargar Correo para lectura OFF-LINE 
+|Non tes permiso para enviar ficheiros a esta  rea.
+|Non hai espacio dabondo para copiar este ficheiro 
+|ficheiros(
+|bytes) marcados para descargar.
+|O ficheiro xa existe neste sistema
+|Empeza a enviar agora ...
+|Env¡o non rematado por: 
+SN|¨Queres protexer con password o ficheiro enviado? [s/N]: 
+|­LEMBRA! A password ‚ "CaSe SeNsITiVe!"
+|Teclea a descripci¢n do ficheiro 
+|Dev¢lvechese o tempo do env¡o. ­Gracias polo ficheiro!
+|Copiando a directorio persoal : 
+|Non podo abrir directorio para listar: 
+|Listado do directorio persoal de 
+|Nome do ficheiro a borrar: 
+|Non podes borrar ficheiros ocultos ...
+|Imposible borrar ficheiro ...
+|Nome non v lido, proba outra vez ...
+|O ficheiro non existe, proba outra vez ...
+|Area                 Descripci¢n                               Msxs. Pers.
+| Areas de ficheiros
+|Teclee password da  rea:  
+|A¤adindo BBS 
+|Nome da BBS: 
+|Resposta obligatoria ...
+|N£mero de tel‚fono: 
+|Nome do SysOp: 
+|Software de BBS: 
+|Espacio (GigaBytes): 
+|Velocidades: 
+SN|¨Queres a¤adir unha descripcion? [S/n]: 
+|Teclea a descripci¢n de 
+|Listado de BBSs
+|n§   Nome da BBS            N£mero         Software        GigaByte Veloc.
+|Buscar unha BBS 
+|Teclee 3 letras da BBS que quere buscar: 
+|Necesito lo menos 3 letras ...
+SN| BBS? [S/n]: 
+|Non podo topa-la BBS ...
+|Amosar una BBS 
+|N£mero a listar: 
+|Rexistro inexistente
+| Rexistro      : 
+| Nome BBS      : 
+| N£mero        : 
+| Software      : 
+| GigaBytes     : 
+| Velocidades   : 
+| SysOp         : 
+| Dispo¤ible    : 
+| Fecha entrada : 
+| Entrada por   : 
+|Borrar BBS 
+|Teclee n£mero da BBS a borrar: 
+|O Rexistro 
+|non ‚ teu.
+|xa estaba marcado para borrar
+|queda marcado para borrar 
+|O SysOp eliminar o da lista cando lle pareza
+|todo-los rexistros marcados para borrar.
+|Total de mensaxes topados: 
+|­Comando desco¤ecido!
+|Gardando...
+|Oneliners: Aparecer n de forma aleatoria no men£ da BBS.
+|Os textos obscenos ou ofensivos ser n borrados
+|Teclea a tua 'oneliner'. Máx 75 caracteres.
+|Oneliner a¤adida
+|n§ A Fecha      Usuario         Descripci¢n
+| # Descripci¢n 
+|Teclee n£mero a listar:  
+|Connected from 
+|Ficheiros : 
+|Tama¤o    : 
+|Protocolo : 
+|Actualizando contadores de descarga...
+|­FALLO!
+|Bytes
+| n§  Area Activa     Tam. Coste Fichero
+|Si
+|No
+AT|(A)ctivar/desactivar, desactivar (T)odos, (ENTER) para seguir: 
+|N£mero de ficheiro, 1..
+|Marcado: 
+|Non hai ficheiros marcados.
+|Replace
+|Cargando BBS, agarde por favor ...
+|Areas de correo novas ou borradas en 
+|Area  Estado Tipo     Descripci¢n
+|Comprobar correo novo ACTIVADO
+|Comprobar correo novo DESACTIVADO
+|Borrar ficheiro: 
+SN|¨Est s seguro? [S/n]: 
+|Comprobar ficheiros novos ACTIVADO
+|Comprobar ficheios novos DESACTIVADO
+|Est s usando o editor 
+12|Escolle: 1) E. pantalla completa, 2) Editor externo 
+|¡Non hai mensaxes! 
+|Pulsa (Enter) para seguir: 
+|Centrar
+|Demasiadas mensaxes, S¢ as primeiras 
+|Elija su Idioma / Escolla idioma / Select language
+|Escolla Idioma:
+|Idioma: 
+|O sistema vai crea-la tua conta UNIX. Preguntar che unhos datos:
+|Creouse a tua "Conta UNIX". P¢dela usar para entrar no 'Login'.
+|Teclea un nome de login (M ximo 8 caracteres) por exemplo se te chamas
+|'Elena Nito del Bosque ' podes usar 'enitob', 'elenanb' ou 'enbosque'
+|login > 
+|Ese nome de LOGIN xa existe. Escolle outro...
+|de li¤as
+|de pantalla completa
+|externo
+| 
+|New    
+|Local    
+|Netmail  
+|Echomail 
+|News     
+|E-Mail   
+|Del
+|Xan
+|Feb
+|Mar
+|Abr
+|Mai
+|Xun
+|Xul
+|Ago
+|Sep
+|Out
+|Nov
+|Dec
+|Autologout: ¨Quedaches dormido o cortouse a li¤a?
+|empaquetar nse.
+|Alias (Enter se non queres ningun): 
+|Hala, Xa podes usa-la BBS
+|Usuarios conectados a 
+|Nomme                         Porto    Estado         Localidade
+|'Non molesten' DESACTIVADO
+|'Non molesten' ACTIVADO
+|Navegando
+|Descargando
+|Enviando
+|S. Mensaxes
+|Door Externa
+|Charlando
+|Ls. Ficheiros
+SN|¨Queres descargar estas mensaxes [S/N]?
+|No Banco
+|Safe Door
+|L. Conectados
+|Offline Reader
+|Teclea usuario ¢ que queres dar recado:
+|Non hai usuario en 
+|Non quere que o molesten
+|Teclea texto do recado (Max 76 Caracteres)
+|** Mensaxe ** de
+|A tua password caducou, nova password : 
+|Pulsa ENTER para seguir 
+|Non podes escribir, ­esta  rea es S¢ Lectura!
+1|Escolle: 1) Editor de pantalla completa
+|Upload de correo Off-Line
+|O paquete recibido non ‚ v lido
+|Comprimido con un compresor desco¤ecido
+|O compresor non est  dispo¤ible
+|Paquete de correo de tipo desco¤ecido
+|Descarga de BlueWave
+|Preparando paquete
+|Comprimindo con 
+|Descarga fallida
+|Descarga completa
+|Actualizando punteiros de lectura
+|Procesando paquete de respostas BlueWave
+|ERRO no paquete
+|Importando mensaxes 
+|Imposible escribir na  rea
+|Mensaxes importadas 
+|Procesando Configuraci¢n Off-Line
+|Areas seleccionadas
+|Procesando peticions de ficheiros
+|Descarga de QWK
+|Procesando paquete de respostas QWK
+|Descarga ASCII
+SN|Crash [s/N]: 
+SN|Aviso: o nodo non ‚ CM, enviar immediato [s/N]: 
+YN|Adxuntar ficheiro [s/N]: 
+|Ficheiro 
+|adxuntado
+|O ficheiro non esta en 
+|buzon     - Email entrante/sainte
+|archivo   - Email Archivado
+|papeleira - Papeleira, Email borrado
+|Area # 
+|minutos.
+|O editor funcionar  cas teclas de Emacs
+|O editor funcionar  cas teclas de Wordstar
+|Enderezo, m ximo 3 li¤as (solo o ver  o SysOp):
+|Tes que po¤e-lo teu enderezo 
+|Enderezo vello:
+|¨Queres usa-lo alias (
+SN|) nesta mensaxe?  [S/n]: 
+|Non hai mais  reas con mensaxes sen ler.

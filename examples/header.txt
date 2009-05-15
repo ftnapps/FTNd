@@ -1,0 +1,28 @@
+
+  ----------========== MBSE BBS Support System NL. ==========----------
+
+  Sysops       : Michiel Broek
+  Online       : 24 hrs/day
+  Line #1      : 31-(0)255-515973 1200-28K8 bps, V34,V42B,V32B,X75
+  Requests     : minimum 1200 bps, no limits.
+  Request times: except ZMH.
+  Request flag : XA
+  AKAs         : 2:280/2802
+
+  Alle files op dit bbs die onder MS-DOS   draaien  zijn  gecontroleerd met
+  de laatste beschikbare  virusscanners  voordat ze  voor  download  op het
+  bbs geplaatst zijn.
+  Desondanks aanvaarden wij geen enkele aansprakelijkheid   voor  eventuele
+  schade die ontstaat door het gebruik van deze files.
+
+  All files on  this  bbs  running under MS-DOS are checked with the latest
+  available virusscanners before they were made available for download from
+  the bbs.
+  Nevertheless we  take  no  responibility for any damage due to the use of
+  these files.
+
+  Todos  los  ficheros  en  esta  bbs nativos de MS-DOS son verificados con
+  los  mas  recientes  antivirus  disponibles  antes  de  ser  puestos para
+  descarga desde la bbs.
+  Aun  asi  nosotros  no  somos  responsables  por  cualquier daño casusado
+  debido al uso de estos archivos.

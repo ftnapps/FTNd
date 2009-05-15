@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: webserver.html,v 1.9 2006/01/03 21:30:50 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Howto setup an webserver to work with MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 03-Jan-2006</h5></div>
+<div align='center'><H1>How to setup an webserver to work with MBSE BBS.</H1></div>
+
+<H3>Introduction</H3>
+<P>
+To let a webserver work with MBSE BBS you must organize a special file
+structure.
+Note that even if you don't setup a webserver you must still create a 
+structure like this for the fidonet mailer, if you don't, 
+<strong>mail and files will get lost!</strong>
+This description is written for <A HREF="http://www.apache.org">Apache</A>,
+this is installed on most GNU/Linux and xxxBSD distributions. 
+For the directory structure, read the setup for
+<A HREF="ftpserver.html">the FTP server</A>.
+<P>&nbsp;<P>
+
+<H3>Important settings in mbsetup.</H3>
+<P>
+Screen 1.18:
+<pre>
+1.  Base path      /opt/mbse/ftp/pub
+</pre>
+Screen 1.19:
+<pre>
+1.  Docs root      /var/www/htdocs
+2.  Link to ftp    files
+3.  URL name       http://www.mbse.ym
+</pre>
+The base ftp path is the default which mbse bbs installs. The Docs root for the
+apache httpd server is different on each distribution, in this example it is set
+for <A HREF="http://www.slackware.com">Slackware 8.0</A>. Because the directory
+/var/www/htdocs has nothing to do with /opt/mbse/ftp/pub we make an alias link
+named <b>files</b>. For the URL name you must fill in the real internet name how
+your bbs is reached. If someone types this in, he must get the index.html from
+the directory /var/www/htdocs, the docs root. I just assume you have your http
+server up and running.
+<p>
+Now you can run the command <b>mbfile index</b>, this will create a main index
+in the directory /opt/mbse/ftp/pub and additional index.html files in all your
+download areas.
+<P>&nbsp;<P>
+
+<H3>Change Apache server configuration.</H3>
+<P>
+As root edit your httpd.conf file, it is possible that you find it in
+/etc/apache, but that depends on your distribution. In the section between
+&lt;IfModule mod_alias.c&gt; and &lt;/IfModule&gt; insert the following lines:
+<pre>
+    #
+    # Alias for MBSE BBS download areas.
+    #
+    Alias /files/ /opt/mbse/ftp/pub/
+    &lt;Directory "/opt/mbse/ftp/pub"&gt;
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+    &lt;/Directory&gt;
+
+    #
+    # Alias to access the MBSE BBS documenatation
+    #
+    Alias /mbseman/ /opt/mbse/html/
+    &lt;Directory "/opt/mbse/html"&gt;
+        Options Indexes MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+    &lt;/Directory&gt;
+</pre>
+Then restart Apache with the command <b>apachectl restart</b> Now if you access
+your webserver with for example http://www.mybbs.com/files/ you must be able to
+browse the filelists. If you use http://www.mybbs.com/mbseman/ you must be able
+to browse this documentation online.
+<P>&nbsp;<P>
+
+<H3>Example views</H3>
+<P>
+This are some snapshots of how this will look like, click to enlarge:
+<TABLE>
+ <TR>
+  <TD><A HREF="../images/dream1.png"><IMG SRC="../images/tdream1.png" Border="0" ALT='dreamlandbbs'></A></TD>
+  <TD><A HREF="../images/dream2.png"><IMG SRC="../images/tdream2.png" Border="0" ALT='dreamlandbbs'></A></TD>
+  <TD><A HREF="../images/dream3.png"><IMG SRC="../images/tdream3.png" Border="0" ALT='dreamlandbbs'></A></TD>
+ </TR>
+</TABLE>
+<P>&nbsp;<P>
+
+<H3>Counting downloads</H3>
+<P>
+If you want to increase the download counters when files are downloaded via www
+you must make sure that the web logs the downloads to a <b>access_log</b>
+file, for example /var/log/apache/access_log. 
+This logfile must be readable by user mbse and must be in <b>combined</b>
+format. You can set this in your apache configuration file.
+Then in <b>mbsetup</b> menu 1.13.4 enter full filename and path to this logfile.
+The <b>mball</b> program will parse this file and increase the download counters
+for the files that are downloaded from the webserver.
+<P>
+
+<P>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

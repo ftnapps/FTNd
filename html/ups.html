@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: ups.html,v 1.8 2003/11/09 15:32:42 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Using UPS semafore's.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 08-Jun-2001</h5></div>
+<div align='center'><H1>MBSE BBS - Using UPS semafore's.</H1></div>
+
+If you have a UPS and you are able to let your UPS software create semafore's when powerfail conditions
+occur then read on. The MBSE BBS taskmanager and a lot of utilities will act on two special semafore's,
+they are:
+
+<ol>
+ <li><code>upsalarm</code>, this semafore should be set when there is no mains power, but there is enough
+     power left to operate your system. All background tasks will be suspended as long as this condition
+     is true. If the power comes back, the UPS software should remove this semafore.
+ <li><code>upsdown</code>, this semafore should be set when the UPS sofware signals your system to go down.
+     This is a fatal condition and there is no way back. Even if the power comes back your system should
+     shutdown and the UPS will disconnect the power to your system. After a while it will turn the power on
+     again and your system boots. MBSE BBS will if this semafore is seen kick users out of the bbs, and the
+     system shutdown script will try to close MBSE BBS as quick as possible. Normal the close timeout is 
+     one hour to let users normal finnish what they were doing, now it is only 30 seconds and if they were
+     not logged out, they will be disconnected anyway.
+</ol>
+I know not all UPS software can do this but most UPS software is open source so you can change it to create
+these semafore's. It is not a problem that UPS semafore's still exist if the systems boots, the MBSE BBS
+startup scripts will remove them before the bbs is started.
+<P>&nbsp;<P>
+
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

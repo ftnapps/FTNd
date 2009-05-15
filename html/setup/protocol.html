@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: protocol.html,v 1.6 2004/11/28 15:19:26 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - BBS Setup - Transfer Protocols.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 28-Nov-2004</h5></div>
+<div align='center'><H1>MBSE BBS Setup - BBS Setup - File Transfer Protocols.</H1></div>
+
+<H3>Introduction.</H3>
+<p>
+MBSE BBS has Xmodem, Ymodem, Ymodem-1K, Ymodem-G, Zmodem and Zmodem-8K (aka
+ZedZap) build in. In addition some external protocols are added to the setup but
+they are disabled by default. When the bbs is started the first time, a set of
+default protocols is created. The code used is based on the code from lrzsz
+package wich is based in the original code written by Chuck Forsberg.
+<p>
+Ymodem is receiver driven. That means if the user has selected plain Ymodem at
+the bbs and
+his local client is using Ymodem-G and when the user starts a download, the files are
+sent with Ymodem-G and not with plain Ymodem. With the same configuation an
+upload will be sent with plain Ymodem. With downloads, the Ymodem at the bbs
+will use what the client wants: 128 or 1K data blocks, crc of checksum, normal or
+streaming Ymodem-G.
+<p>
+Zmodem is transmitter driven. That means if the user has selected Zmodem-8K at
+the bbs and his local client is using normal Zmodem and when the user starts a
+download, the download is sent with Zmodem-8K. With the same configuration an
+upload will be sent with plain Zmodem. With uploads, the Zmodem at the bbs
+doesn't care what is being used, it will adapt to the client program.
+<p>
+These days (2004) nobody should use Xmodem anymore but when I wrote Ymodem you
+also get Xmodem because they are the same. Only with Xmodem the user has to
+type in the filename to both sides. If you enable it you are on your own and you
+may need to change the sources to make it really work because I didn't add
+typing in the filename at the bbs. Also, Xmodem is restricted to 8.3 filenames
+and the bbs uses long filenames.
+<P>&nbsp;<p>
+
+<H3>Transfer Protocols Setup.</H3>
+<P>
+<pre>
+<strong>Select Key  </strong>The key the user has to press to select this protocol.
+<strong>Name        </strong>The name of this protocol.
+<strong>Upload      </strong>The full path and filename and parameters to upload files.
+<strong>Download    </strong>The full path and filename and parameters to download files.
+<strong>Available   </strong>If this protocol is available.
+<strong>Internal    </strong>If this is internal or external protocol.
+<strong>Advice      </strong>A small advice to the user shown before the transfer starts.
+<strong>Efficiency  </strong>The efficiency in percent. Has no real meaning.
+<strong>Deleted     </strong>If this protocol must be deleted.
+<strong>Sec. level  </strong>The security level a user must have to select this protocol.
+</pre>
+Some fields cannot be changed when this is an internal protocol, they are
+hardcoded.
+<P>
+<IMG SRC="../images/protocol.png" alt='File transfer protocols'>
+<P>
+
+<A HREF="bbs.html"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to BBS index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# description: Starts and stops MBSE BBS. 
+#
+# $Id: init.Slackware,v 1.7 2007/07/09 18:46:51 mbse Exp $
+#
+# /etc/rc.d/init.d for Slackware
+#
+
+# Find the MBSE_ROOT from the /etc/passwd file.
+MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+
+if [ "${MBSE_ROOT}" = "" ]
+then
+    echo "MBSE BBS: No 'mbse' user in the password file."
+    exit 1
+fi
+
+if [ ! -d ${MBSE_ROOT} ]
+then
+    echo "MBSE BBS: Home directory '${MBSE_ROOT}' not found."
+    exit 1
+fi
+
+export MBSE_ROOT
+
+# See how we were called.
+case "$1" in
+    start)
+        echo -n "MBSE BBS starting:"
+	rm -f ${MBSE_ROOT}/var/run/*
+	rm -f ${MBSE_ROOT}/var/sema/*
+	rm -f ${MBSE_ROOT}/var/*.LCK
+	rm -f ${MBSE_ROOT}/tmp/mb*
+	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
+	echo -n " mbtask"
+	sleep 2
+	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    echo " and opened the bbs."
+	fi
+        ;;
+    stop)
+        echo -n "MBSE BBS shutdown:"
+        if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+            echo -n " logoff users "
+            su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+            echo -n "done, stopping mbtask"
+	    kill -15 `cat ${MBSE_ROOT}/var/run/mbtask`
+	    i=10; doit=1;
+	    while let 'i > 0' && let 'doit != 0'
+	    do
+		if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		    echo -n "."
+		    sleep 1
+		    let i=i-1
+		else
+		    doit=0
+		fi
+	    done
+	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		kill -9 `cat ${MBSE_ROOT}/var/run/mbtask`
+	    fi
+	    echo " done."
+	else
+	    echo " not running."
+	fi
+        ;;
+    status)
+	echo -n "MBSE BBS status: "
+	if [ ! -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	    echo "mbtask is NOT running"
+	else
+	    echo "mbtask running with pid `cat ${MBSE_ROOT}/var/run/mbtask`"
+	fi
+        ;;
+    restart|reload)
+	$0 stop
+	$0 start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|reload|restart|status}"
+        exit 1
+esac
+exit 0

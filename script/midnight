@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# MBSE BBS Midnight - Should be run from cron at 00:00
+#
+# $Id: midnight,v 1.4 2004/09/14 20:37:59 mbse Exp $
+
+if [ "$MBSE_ROOT" = "" ]; then
+    export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+fi
+if [ "`id -un`" != "mbse" ] ; then
+    echo "Must be run by user 'mbse'"
+    exit 1
+fi
+      
+# While the system is on UPS battery power, don't start maintenance
+#
+while [ -f $MBSE_ROOT/var/sema/upsalarm ]; do
+   sleep 60
+done
+
+# Rollover statistic counters.
+#
+$MBSE_ROOT/bin/mbfido roll -quiet
+
+# Log "What's on Hold"
+#
+$MBSE_ROOT/bin/mbout  stat -quiet
+
+# Export messages "missed" by the fast mailscan
+#
+$MBSE_ROOT/bin/mbfido scan -full -quiet
+

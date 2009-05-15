@@ -1,0 +1,432 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mbtask.html,v 1.16 2008/02/10 13:29:42 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbtask - MBSE BBS Taskmanager.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 10-Feb-2008</h5></div>
+<div align="center"><H1>mbtask - MBSE BBS Taskmanager</H1></div>
+
+<H3>Sysopsis.</H3>
+<P>
+<code><strong>mbtask</strong> [-nd]</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbtask</strong> is the taskmanager for the whole MBSE BBS system.
+This deamon keeps track of all client actions,
+does the logging for the clients, does database locking, authorizes clients,
+set/resets users "do not disturb flags", sends and receives chat messages,
+keeps track of Zone Mail Hour, the status of the mail and files in the outbound,
+and the BBS open/close status. 
+Communication between <strong>mbsed</strong> and the client programs is done via Unix
+Datagram sockets. The protocol used to communicate between <strong>mbtask</strong>
+and the clients is explained later.
+This daemon also watches the semafore directory for some special files. 
+It also starts programs when they are needed. 
+The very first time <b>mbtask</b> is started it creates a default config.data and task.data,
+the main configuration and task configuration files. 
+Then it calls <b>mbsetup init</b> to build the default databases.
+<b>mbtask</b> should be started at system boot so the bbs system will start working. 
+The init script that is installed on your system will do that. 
+<P>
+After startup and initalization <b>mbtask</b> runs internally once per second forever. 
+If there is nothing to do then this time will slowly increase upto 5 seconds. This time will be reset
+to one second as soon as there is work to be done. The actual work is to check a number of external and
+internal semafore's and act on these. 
+But before any program is started a number of things are checked:
+<OL>
+  <LI>Check the system's load average. If it is too busy the processing of background 
+      tasks is suspended until your system load drops. 
+      The default setup is set at 1.50 but you can change that with mbsetup. Experience
+      will learn what the best value will be and I need some feedback on that.<br>
+  <LI>The UPS semafore <b>upsalarm</b> will be checked. This means that the system is running on
+      battery power and no new jobs are started. 
+  <LI>The UPS semafore <b>upsdown</b> will be checked. This is the fatal one, if
+      this one exists <b>mbtask</b> will try to stop all current running jobs.
+      If there are no jobs left running then <b>mbtask</b> will stop itself. 
+      The upsdown semafore means that the system 
+      will shutdown and power off, that's why it's fatal and there is no way back.<br>
+  <LI>The status of the bbs will be checked, is it open or closed. If it is closed, no
+      jobs will be started.
+  <LI>The Zone Mail Hour is checked. If ZMH begins the semafore's <b>zmh</b> is
+      created.
+      If ZMH ends the semafore <b>zmh</b> is removed. 
+  <LI>Each twenty seconds a ping is send to the IP addresses defined with <b>mbsetup</b> to
+      check if the internet can be reached. If both ping addresses fail, it is assumed that
+      the internet can't be reached. After a status change, the outbound will be
+      scanned.
+  <LI>Scan the mailer outbound for work. This builds a list of nodes with mail
+      in the outbound and sets the necessary flags on nodes who may be called.
+      If a node needs to be called, <b>mbtask</b> will spawn <b>mbcico</b> to
+      call this node. The number of free modem and ISDN ports and the maximum
+      number of TCP/IP sessions and already registered sessions, determine
+      howmany sessions will be started. The sessions will be started at
+      intervals of 20 seconds.
+      It will also set a time when something will change for a node, ie. a zone
+      mail hour is reached, or a mail window for a node with Txx flags is
+      reached. Internally this scheduler runs at the UTC clock because Fidonet
+      has all times defined in UTC.
+</OL>
+Each new minute the timestamp of semafore <b>mbtask.last</b> is updated so that you can check that
+<b>mbtask</b> is running. Also each minute is checked if the system configuration files are
+changed, is so they are reloaded. There is no need to stop and start <b>mbtask</b> if you made
+changes to the system configuration.
+Then all kind of internal semafore's will be checked. The commands that are executed have default
+values, but they can be changed wit mbsetup. The commands can be scripts as well.
+The checks and actions are:
+<P>
+<table border=1 bgcolor='#FFFF99' cellspacing=0 cellpadding=3>
+<tr>
+  <th align=left bgcolor='#000080'><font color='#FFFFFF'>Semafore</font></th>
+  <th align=left bgcolor='#000080'><font color='#FFFFFF'>Speed</font></th>
+  <th align=left bgcolor='#000080'><font color='#FFFFFF'>Tasktype</font></th>
+  <th align=left bgcolor='#000080'><font color='#FFFFFF'>Depends on</font></th>
+  <th align=left bgcolor='#000080'><font color='#FFFFFF'>Job to run</font></th>
+</tr>
+<tr><td>mailout</td><td>Fast</td><td>mbfido</td><td>Max. 1 mbfido task</td><td>mbfido scan web -quiet</td></tr>
+<tr><td>mailin</td><td>Fast</td><td>mbfido</td><td>Max. 1 mbfido task</td><td>mbfido tic toss web -quiet</td></tr>
+<tr><td>newnews</td><td>Fast</td><td>mbfido</td><td>Max. 1 mbfido task</td><td>mbfido news web -quiet</td></tr>
+<tr><td>mbindex</td><td>Fast</td><td>mbindex</td><td>No other tasks</td><td>mbindex -quiet and if exist: goldnode</td></tr>
+<tr><td>msglink</td><td>Fast</td><td>mbfido</td><td>No other tasks</td><td>mbmsg link -quiet</td></tr>
+<tr><td>reqindex</td><td>Fast</td><td>mbfile</td><td>No other tasks</td><td>mbfile index -quiet</td></tr>
+<tr><td>scanout</td><td>Slow</td><td>call</td><td>Only 1 call task</td><td>mbcico -r1</td></tr>
+</table>
+<P>
+The Fast and Slow values mean: Fast is each second, Slow is check each 20 seconds.
+As you can see, the system will not do too much at the same time. Jobs like compiling
+new nodelists or create file request indexes have a very low priority. Because this
+daemon checks the semafore's each second it responds much better that the old scripts
+running on the cron daemon. The system will be expanded so that more outgoing calls
+will be done at the same time, ie. ISDN and analogue calls, and if they are present
+internet calls, will be made at the same time.
+<P>
+The <b>mbtask</b> program keeps also track of a unique number generator, this is
+just a simple counter that is increased each time it is asked for a new number.
+It will take years for the numbers to repeat. Even if the status file is lost
+the chance that numbers are repeated on your system are almost zero. The first
+time the counter is initialized it is set to the current unix time in seconds
+since 1 januari 1970. This counter is used by several programs to create unique
+.pkt filenames, msgid numbers etc.
+<P>
+The commandline option <b>-nd</b> is only for debugging, it allows to start
+without becoming a daemon, <b>mbtask</b> will run in the foreground. This
+option is only usefull for developers.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+In order to run <strong>mbtask</strong> you must set the global variable
+<strong>$MBSE_ROOT</strong>. This variable must point to the root directory
+of the bbs structure.
+<P>&nbsp;<P>
+
+
+<H3>Security.</H3>
+<P>
+<strong>mbtask</strong> is installed setuid root. This is needed to initialize
+a raw socket for the ping function. After that is done the privilege drops to
+user <strong>mbse</strong> before the child process is created and the rest
+of the initialisation is done. 
+The child process can never get root privileges because it is spawned by user mbse.
+<P>&nbsp;<P>
+
+
+<H3>Communications.</H3>
+<P>
+Communication between the server and the clients is established by
+Unix datagram sockets. There can be only 1 server running. 
+The server will accept connections from clients on your local machine only.
+The limit for the amount of clients that can connect to the server is set to 100.
+<P>
+The server creates a Unix datagram socket at startup and waits for connections.
+The name of this this socket is /opt/mbse/tmp/mbtask.
+When a client connects it creates a Unix datagram socket in /opt/mbse/tmp, the name is
+the name of the program, added with the pid of the program. So if <b>mbcico</b> is started 
+with pid 2312 the socket will be /opt/mbse/tmp/mbcico2312.
+<P>
+All commands are 4 capital letters followed by a colon, a number indicating
+how much data fields will follow. If that number is higher than zero, the 
+data fields are seperated with commas. The command is terminated 
+with a ; character. Examples are:<br>
+<pre>
+GCLO:0;                 Zero datafields command.
+DOPE:1,dbname;          One datafield command.
+</pre>
+All commands will receive a reply as soon as possible. If a
+resource is temporary not available, a reply will follow too, telling
+this condition. Replies can also contain optional data. Examples:<br>
+<pre>
+100:0;                  Response 100, no data.
+200:1,Syntax error;     One datafield.
+</pre>
+Because data fields in commands and replies are separated and terminated by
+, and ; characters these characters need to be escaped. Also characters outside
+the us-ascii range must be escaped. This is done by translating the character
+to a backslash followed by the hexadecimal number of the character.
+The server has a 10 minute timeout for receiving data when a connection
+is established. The clients need to "ping" the server at regular intervals
+to prevent a disconnect. All official MBSE BBS programs do that. The pid
+send with most commands is the pid of the calling program. Since this number
+is unique, it is used to keep track of the connected clients.
+<P>
+The commands are divided in 26 catagories, most unused at this time.
+<P>
+<pre>
+Catagories:
+
+Cat.    Description
+----    -------------------------------------------
+Axxx    Accounting, system monitor info etc.
+Cxxx    Chatting
+Dxxx    Disk watch
+Gxxx    Global commands.
+Mxxx    MIB commands.
+Sxxx    Status commands.
+
+
+
+         Group A, Accounting.
+
+Command: AINI:5,pid,tty,uid,prg,city;   Initialize connection, and who am I.
+Reply:   100:1,line;                    Ok, linen is a logical linennumber for the bbs.
+         200:1,Syntax Error;            Error.
+
+Command: ADOI:2,pid,doing;              What am I doing right now.
+Reply:   100:0;                         Ok.
+         200:1,Syntax Error;            Error.
+
+Command: ACLO:1,pid;                    Close my connection.
+Reply:   107:0;                         Connection closed.
+         200:1,Syntax Error;            Error, connection is still open.
+
+Command: ALOG:5,fil,prg,pid,grade,txt;  Write a line of text in logfile with grade.
+Reply:   100:0;                         Ok.
+         201:1,errno;                   Error, number in errno.
+
+Command: ATCP:1,pid;			Registrate this session as TCP/IP session.
+Reply:   100:0;				Ok.
+         200:1,Syntax Error;		Error.
+
+Command: AUSR:3,pid,uid,city;           Set username and city
+Reply:   100:0;                         Ok.
+         200:1,Syntax Error;            Error.
+
+Command: ADIS:2,pid,flag;               Set Do Not Disturb flag.
+Reply:   100:0;                         Ok.
+         200:1,Syntax Error;            Error.
+
+Command: ATIM:1,time;                   Set new Client/Server timer in seconds.
+Reply:   100:0;                         Ok.
+         200:1,Syntax Error;            Error.
+
+Command: ADEF:0;                        Set Client/Server timer to default (10 minutes).
+Reply:   100:0;                         Ok.
+         200:1,Syntax Error;            Error.
+
+Command: ATTY:2,pid,tty;                Set new tty name.
+Reply:   100:0;                         Ok.
+         200:1,Syntax Error;            Error.
+
+
+         Group C, Chatting
+
+Command: CIPM:1,pid;                    Is Personal Message present.
+Reply:   100:2,fromname,message;        Yes, from .. with message text.
+         100:0;                         No.
+
+Command: CSPM:3,fromuser,touser,txt;    Send personal message to user.
+Reply:   100:1,n;                       n: 0=Ok, 1=Do not disturb, 2=Buffer full, 3=Error.
+         100:0;                         Impossible.
+
+Command: CSYS:2,pid,1;                  Sysop available for chat (from mbmon).
+         CSYS:2,pid,0;                  Sysop goes away (from mbmon).
+Reply:   100:0;                         Always Ok.
+
+Command: CPAG:2,pid,reason;             Page sysop for a chat.
+Reply:   100:1,n;                       1=busy, 2=sysop not available, 3=error.
+         100:0;                         Ok
+
+Command: CCAN:1,pid;                    Cancel sysop page.
+Reply:   100:0;                         Always Ok.
+
+Command: CCKP:0;                        Check sysop page (from mbmon).
+Reply:   100:3,pid,1,reason;            Page is active.
+         100:3,pid,0,reason;            Page is cancelled, user still online.
+         100:0;                         No page active.
+
+Command: CISC:1,pid;                    Check sysop in chatmode.
+Reply:   100:1,1;                       Yes and drop into chatmode.
+         100:1,0;                       No.
+
+Command: CCON:4,pid,username,unixname,n; Connect to chatserver with username. n=1 user is sysop.
+Reply:   100:1,error;                   Error with message.
+         100:0;                         Ok.
+
+Command: CCLO:1,pid;                    Close chat session.
+Reply:   100:1,error;                   Error.
+         100:0;                         Ok.
+
+Command: CPUT:2,pid,message;            Put message on chatserver.
+Reply:   100:2,0,error;                 Error, not fatal and continue.
+         100:2,1,error;                 Error, fatal and disconnect chat.
+	 100:0;                         Ok.
+
+Command: CGET:1,pid;                    Get message from chatserver.
+         100:2,0,message;               If message present.
+	 100:2,1,error;                 Error and disconnect chat.
+	 100:0;                         No new message.
+
+
+         Group D, Disk watch command.
+
+Command: DRES:0;                        Reset and reread disk tables.
+Reply:   100:0;                         Always Ok.
+
+Command: DSPC:0;                        Enough free diskspace.
+Reply:   100:1;n;                       0=No, 1=Yes, 2=Unknown, 3=Error.
+
+Command: DGFS:0;                        Get filesystem status (see note below).
+         100:n,data1, ..., data10;      Maximum 10 filesystems datalines.
+
+
+         Group G, Global commands.
+
+Command: GNOP:0;                        No OPerations.
+Reply:   100:0;                         Ok.
+
+Command: GPNG:1,data;                   Ping, echo data.
+Reply:   100:1,data;                    Ping reply.
+
+Command: GVER:0;                        Give server version.
+Reply:   100:1,Version ....;            Version reply.
+
+Command: GSTA:0;                        Get complete mbsed status record. (13 fields)
+Reply:   100:19,start,laststart,daily,startups,clients,tot_clients,tot_peak,syntax_errs,
+                com_errs,today_clients,today_peak,today_syntax,today_comerr,bbsopen,
+                is_zmh,do_inet,processing,system_load,sequence;
+
+Command: GMON:1,n;                      Get registration info line, 1=First, 0=Next line.
+Reply:   100:7,pid,tty,user,program,city,isdoing,starttime;
+         100:0;                         No more lines.
+
+Command: GSYS:0;                        Get bbs statistics.
+         100:7,calls,pots_calls,isdn_calls,network_calls,local_calls,startdate,lastcaller;
+
+Command: GLCC:0;                        Get Lastcallers count
+         100,1,n;                       Return counter value.
+
+Command: GLCR:1,recno;                  Get Lastcaller record
+         100:9,user,location,level,tty,time,minsmcalls,speed,cations;
+         201:1,16;                      Not available.
+
+
+         Group M, MIB commands.
+
+Command: MSMS:6,kbrcvd,kbsent,direction,state,itype,freqs; Set Mailer Session
+Reply:   100,0;
+
+Command: MGMS:0;			Get Mailer Session
+Reply:	 100:12,kbrcvd,kbsent,sessin,sessout,sess_sec,sess_unseq,sess_bad,ftsc,yoohoo,emsi,binkp,freqs;
+
+Command: MSTN:3,in,out,bad;		Set Tosser Netmail
+Reply:   100,0;
+
+Command: MGTN:0;			Get Tosser Netmail
+Reply:	 100:3,in,out,bad;
+
+Command: MSTI:3,in,out,bad;		Set Tosser Internet-email
+Reply:   100,0;
+
+Command: MGTI:0;			Get Tosser Internet-email
+Reply:   100:3,in,out,bad;
+
+Command: MSTE:4,in,out,bad,dupe;	Set Tosser Echomail
+Reply:   100:0;
+
+Command: MGTE:0;			Get Tosser Echomail
+Reply:   100:4,in,out,bad,dupe;
+
+Command: MSTR:4,in,out,bad,dupe;	Set Tosser RFC-news
+Reply:   100:0;
+
+Command: MGTR:0;			Get Tosser RFC-news
+Reply:   100:4,in,out,bad,dupe;
+
+Command: MGTT:0;			Get Tosser Totals
+Reply:	 100:4,in,out,bad,dupe;
+
+Command: MSFF:6,in,out,bad,dupe,magics,hatched;	Set Tosser Files
+Reply:   100:0;
+
+Command: MGFF:0;			Get Tosser Files
+Reply:   100:6,in,out,bad,dupe,magics,hatched;
+
+Command: MSBB:9,sessions,minutes,posted,uploads,kbupload,downloads,kbdownload,chats,chatminutes; Set BBS
+Reply:   100:0;
+
+Command: MGBB:0;			Get BBS
+Reply:	 100:9,sessions,minutes,posted,uploads,kbupload,downloads,kbdownload,chats,chatminutes
+
+Command: MGOB:0;			Get Outbound Size
+Reply:   100:1,size;
+
+
+         Group S, Status commands.
+
+Command: SBBS:0;                        Get BBS Status (open, zmh, shutdown).
+Reply:   100:2,0,The system is open for use;
+         100:2,1,The system is closed right now!;
+         100:2,2,The system is closed for Zone Mail Hour!;
+
+Command: SOPE:0;                        Open the BBS.
+Reply:   100:0;                         Ok.
+
+Command: SCLO:1,mesage;                 Close the BBS with reason.
+Reply:   100:0;                         Ok.
+
+Command: SFRE:0;                        Is the BBS Free.
+Reply:   100:1,Running utilities: n  Active users: n;
+         100:0;                         It's free.
+
+Command: SSEQ:0;                        Get next unique sequence number.
+Reply:   100:1,number;                  Next unique sequence number.
+
+Command: SEST:1,semafore;               Get status of internal semafore.
+Reply:   100:1,n;                       1 = set, 0 = not set.
+         200:1,16;                      Semafore not known.
+
+Command: SECR:1,semafore;               Set semafore
+Reply:   100:0;                         Ok.
+         200:1,16;                      Error.
+
+Command: SERM:1,semafore;               Remove semafore
+Reply:   100:0;                         Ok (also if there was no semafore).
+         200:1,16;                      Semafore not known.
+</pre>
+Note: in reply of DGFS the reply is 100:n,size free mountpoint fstype,.....
+where n = 1 for 1 filesystem, and 10 for a total of 10 filesystems. There
+will never be a reply for more then 10 filesystems. The reported filesystems
+are collected by a thread process of mbtask that only includes the filesystems
+actually used by mbse.
+This is used by the <b>mbmon</b> program to get a "live" view of your filesystems.
+The GSPC command is used by utilities to check if enough space is available to
+continue to work safely.
+<P>&nbsp;<P>
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

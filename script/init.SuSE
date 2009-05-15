@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# $Id: init.SuSE,v 1.7 2007/07/09 18:46:51 mbse Exp $
+#
+# /sbin/init.d/mbsed for SuSE
+
+### BEGIN INIT INFO
+# Provides: mbsed
+# Default-Start: 2 3 5
+# Default-Stop:
+# Description: Start MBSE BBS
+### END INIT INFO
+
+# Find the MBSE_ROOT from the /etc/passwd file.
+MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+
+if [ "${MBSE_ROOT}" = "" ]
+then
+    echo "MBSE BBS: No 'mbse' user in the password file."
+    exit 1
+fi
+ 
+if [ ! -d ${MBSE_ROOT} ]
+then
+    echo "MBSE BBS: Home directory '${MBSE_ROOT}' not found."
+    exit 1
+fi
+ 
+export MBSE_ROOT
+
+case "$1" in
+    start)
+        echo -n "MBSE BBS starting:"
+	rm -f ${MBSE_ROOT}/var/run/*
+	rm -f ${MBSE_ROOT}/var/sema/*
+	rm -f ${MBSE_ROOT}/var/*.LCK
+	rm -f ${MBSE_ROOT}/tmp/mb*
+	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
+	echo -n " mbtask"
+	sleep 2
+	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    echo " and opened the bbs."
+	fi
+	;;
+    stop)
+        echo -n "MBSE BBS shutdown:"
+        if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+            echo -n " logoff users "
+            su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+            echo -n "done,"
+	    echo -n " stopping mbtask "
+	    killproc `cat ${MBSE_ROOT}/var/run/mbtask` -15
+	    sleep 3
+	    echo "done."
+	else
+	    echo "already stopped."
+	fi
+	;;
+    restart|reload)
+	$0 stop
+	$0 start
+	;;
+    status)
+        echo -n "MBSE BBS status: "
+        if [ ! -f ${MBSE_ROOT}/var/run/mbtask ]; then
+            echo "mbtask is NOT running"
+        else
+            echo "mbtask Ok"
+        fi
+	;;
+    *)
+	echo "Usage: $0 {start|stop|status|reload|restart}"
+	exit 1
+esac
+exit 0

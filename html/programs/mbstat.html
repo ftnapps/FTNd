@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mbstat.html,v 1.5 2003/11/08 18:49:36 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbstat - MBSE BBS Status Changer.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 07-Jul-2001</h5></div>
+<div align="center"><H1>mbstat - MBSE BBS Status Changer</H1></div>
+
+<H3>Synopsis.</H3>
+<P>
+<code><strong>mbstat</strong> [commands] &lt;options&gt;</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbstat</strong> changes the bbs status between open and close, can wait
+for all users to logoff and wait for critical utilities to stop their actions.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+In order to run <strong>mbstat</strong> you must set the global variable
+<strong>$MBSE_ROOT</strong>. This variable must point to the root directory
+of the bbs structure. The main configuration file <strong>config.data</strong>
+must be present in the ~/etc directory.
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+<code><strong>mbstat</strong> semafore scanout</code> will set the internal
+semafore <i>scanout</i> in the <b>mbtask</b> daemon. The following semafore's 
+are valid: scanout, mailout, mailin, mbindex, reqindex, msglink.
+<P>
+<code><strong>mbstat</strong> close</code> will close the bbs for users.
+Users that are just logging in to the bbs will be thrown out after a short message. 
+Users already logged in will be thrown out when they pass by a menu prompt. 
+So users who are doing file transfers can finish their transfers before being disconnected.
+<P>
+<code><strong>mbstat</strong> open</code> opens the bbs for users. 
+This should be run from one of the system startup scripts right after you started 
+<strong>mbsed</strong>. If you installed everything as it should this 
+command is already executed at system startup.
+<P>
+<code><strong>mbstat</strong> wait</code> will
+wait for the bbs to become free. This includes a check for utilities that
+do critical actions so they can finish their job without corrupting the bbs
+databases. The default is to wait 60 minutes. If the semafore
+<strong>upsdown</strong> exists it will wait only 30 seconds.
+<P>
+You should run <strong>mbstat close wait</strong> in your system shutdown script so
+that the system shutdown will wait for a clean shutdown of the bbs before
+the rest of your system goes down. If you installed everything as it should
+be then these commands are already installed in your system shutdown scripts.
+<P>
+
+<H3>Options.</H3>
+<P>
+<code><strong>mbstat</strong> [command] -quiet</code> will supress screen output. 
+This is good for using mbstat in scripts.
+<P>
+
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: invoking.html,v 1.6 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Starting and stopping the BBS.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 06-Jun-2001</h5></div>
+<div align='center'><H1>Starting and Stopping the BBS.</H1></div>
+
+Now it is time to check the starting and stopping of the BBS. As you have
+installed everything, setup the BBS etc, you must check if the shutdown and
+reboot work properly. As root type <strong>shutdown -r now</strong> and
+watch the console. You should see messages that the BBS is closing while
+the systems shuts down. This should be one of the first things to happen.
+Because Slackware up to version 7.0.0 is tricky to automatic install the shutdown scripts,
+you won't see this happen on older Slackware versions. If you want, you can edit
+/etc/rc.d/rc.6 and /etc/rc.d/rc.K and insert the line /opt/mbse/etc/rc.shutdown
+at the proper places.<p>
+
+When your system comes up again, one of the last messages before the login
+prompt appears or just before X-windows starts, you should see messages that
+the BBS is started.<P>
+
+Login as user <strong>mbse</strong> and check the logfiles if everything looks
+good. If something is wrong, reread the previous documentation and check if
+you did everything right.<p>
+
+Next logon to your BBS locally using the account "bbs". 
+You can do that by typing <b>su - bbs</b> or if you already have installed
+<b>mblogin</b> as login replacement for telnet, then type <b>telnet
+localhost</b>.
+You will then create the first user of your BBS, this will be you, the sysop of course. 
+After you logout the BBS start as user <strong>
+mbse</strong> the program <strong>mbsetup</strong> and edit your user record
+to set your level to that of the sysop. One more thing, the unix account you
+must create when you logon as new BBS user may not be <strong>mbse</strong>
+as this is the normal Admin account the BBS and its utilities use.<p>
+
+Now login with your unix account and see if everything still works. 
+If you have setup <strong>mgetty</strong> you may want to test if
+users really can login with a modem. Also check a mailer session, can you
+dialout, ie. poll other nodes and can they call you. There is a lot that can
+go wrong with unix permissions if you are not precise in wat you are doing.<P>
+
+If everything is working it is time to create poll events, and adjust other 
+scripts to your local needs to get your BBS full up and running.<P>
+
+To do this you must install a crontab for user <strong>mbse</strong>.
+As user <strong>mbse</strong> go to the directory <strong>~/mbsebbs-0.33.xx</strong>.
+In that directory type <strong>sh ./CRON.sh</strong> and a default crontab will be installed.<p>
+
+To add poll events, edit the crontab with the command <strong>crontab -e
+</strong> At the bottom of that file there is an example of how to do that.
+Now that the crontab is installed, all maintenance will now work, automatic
+dialout, scanning and tossing mail etc. In other words, the bbs is up and
+running.
+<p>
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

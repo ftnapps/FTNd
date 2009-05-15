@@ -1,0 +1,332 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: filefind.html,v 1.5 2003/11/08 21:18:53 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Implementation and Usage of FileFind Utilities.</TITLE>
+</HEAD>
+<BODY>
+<PRE>
+ Document:   fsc-00xx
+ Version:    0.6
+ Date        Aug 30, 1995
+ Title:      Implementation and Usage of FileFind Utilities
+ Authors:    Robert Williamson FidoNet#1:167/104.0  robert@ecs.mtlnet.org
+
+  Intro
+
+    A portion of the document is derived from information in
+      AllFix.DOC by Harald Harms @ 2:281/910
+    with  additional  sections  from
+      FQuery.DOC by Robert Williamson @ 1:167/104
+
+        The  MSdos program ALLFIX by Harald Harms first introduced the idea
+    of searching for files via echomail.  The term applied to this function
+    is  'FileFind'.   A FileFind system allows sysops, points and BBS users
+    to  search  for  files  by  placing  a  message  to 'ALLFIX' in an echo
+    designated  for  the purpose of finding files.  All FTN sites running a
+    FileFind  processor which is configured to scan that echo will reply to
+    that  user if there any files matching his query.  This system provides
+    a  method  for  searching  many  FTN sites throughout the world, with a
+    single message.
+
+        FileFind  programs  work by either scanning through defined message
+    bases or scanning packets for defined AREA tagnames for messages to the
+    default  name  ALLFIX.   All FileFind programs MUST respond to the name
+    ALLFIX,  but  may also respond to the name FILEFIND and the name of the
+    particular  FileFind  program  in  use  or  defined  for the echo.  The
+    FileFind  program  will  process  these messages, examining the Subject
+    field  for  search  queries.  If any valid query is found, the FileFind
+    program  will  search  the  sites files database for files matching the
+    users's query.
+
+        If the FileFind program finds any matches, it will generate a reply
+    containing  a list of the files found, and some basic information ABOUT
+    the  system  posting  the reply.  When the user who initially wrote the
+    request  reads  the reply, he will then be able to decide if any of the
+    reported  files  meet  his  needs,  and  from the ABOUT included in the
+    reply, learn where and how he may get those files.
+
+
+  FileFind Query Message Structure
+
+    To: name_of_FileFind program
+
+    The  message  must be addressed to ALLFIX so that all FileFind programs
+    can  respond.   To  use  features  specific  to  a  particular FileFind
+    program,  or  to  limit  the  responses  to  a particular platform, the
+    message  should  be  addressed  to  that program's name.  Some FileFind
+    programs  will  respond  to more than two names.
+
+    Subject:
+    A  space-separated  list  of  file  specifications,  keywords or quoted
+    strings.
+
+    keyword     - single word preceeded by a '/' with no intervening spaces,
+                  must be at least 3 characters, not including the '/'.
+                  a keyword search is in actually a substring search of the
+                  site's filelist.
+
+    description - string enclosed in double-quotes,
+                  if a single word, must be more than 3 characters.
+
+    filespec    - single word, no spaces, no double-quotes or preceding /,
+                  must be at least 3 characters, not including any wildcard
+                  or pattern matching charcaters, such as '*'.
+                  Messages addressed to ALLFIX must not have any embedded
+                  pattern matching characters.
+
+
+        The  minimum  number  of  characters  for  description, keyword and
+    filespec  queries  is an implementation detail of the FileFind program.
+    These  values  should  be configurable, but should never be settable to
+    values of less than 3.
+
+        Each  implementation  should  allow  the  operator  the  ability to
+    configure a list of disallowed keywords.
+
+  NetMail Queries
+
+        Some  FileFind  programs  may also have the ability to process file
+    search  queries  received  as  netmail and addressed to the name of the
+    particular  FileFInd  program  with this capability.  In this case, all
+    replies are via netmail also.
+
+  NetMail Commands
+        FileFind   Netmail   commands  are  identifed  by  a  leading  '%'.
+    Implementation  of  netmail  commands  is  optional.   If  implemented,
+    compliant  FileFind  utilities  should be able to process the following
+    minimum NetMail command set.
+
+
+    %HELP       - netmail only, returns an extended help text for the
+                  FileFind program, the ABOUT of the the site and a list
+                  of MAGIC freqable names.
+    %ABOUT      - netmail only, returns the ABOUT of the site and a full
+ or %MAGIC        list of MAGIC names.
+
+    %NEWFILES   - netmail only, returns the NEWFILES list of the site
+ or %NEW          via netmail.
+
+    Extended NetMail Commands:
+        Implementation  of  the  following netmail commands is optional and
+    not required for compliance with the FileFind NetMail Command set.
+
+    %REPORT &lt;tagname&gt;
+                - sends a configuration report for echo &lt;tagname&gt;
+                  this allows an echo moderator to check if a site running
+                  a  FileFind  utility  is  compliant with the rules of the
+                  filefind echo.
+
+    %REQUEST &lt;filename&gt;
+                - if found, will place requested file on hold for remote
+                  site
+
+    %UUREQUEST &lt;filename&gt;
+                - if  found,  and  the filesize after uuencoding is less
+                  than 60K, it will be sent as multiple netmail messages
+
+
+  The Site ABOUT
+
+        Obviously,  a  system that neither accepts file requests nor allows
+    users  to  download  on  their  first  call should not be responding to
+    FileFind  messages.   If  there  are  any limitations for the caller to
+    acquire  any  of  the  files  that  the  site  has  advertised as being
+    available  in  it's FileFind response, these limitations MUST be listed
+    in  the  reply.   This information should be included in the ABOUT file
+    that the FileFind program user creates.
+
+        The  site  ABOUT  should  contain  the  following information.  The
+    FileFind  program  implementor  should  instruct  his  users  on  these
+    requirements.
+
+      - sitename
+      - site operator's name
+      - complete phonenumber
+      - baud rate
+      - hours during which filerequests are accepted, if at all
+      - hours during which users can download
+      - conditions for file requests and user downloads
+      NOTE: the above information should be within the first 14 lines.
+      optional:
+      - a list a MAGIC names
+      - an indication if magic names are also available to terminal users.
+
+  Searching for Files and Creating Replies
+
+        The  method  used by the FileFind program to search for requests is
+    up  to  the  implementor.   However,  if searching a list, the FileFind
+    program should confirm the actual existance of all files that match the
+    query specification.
+
+        The  FileFind  program  should  only  process  description strings,
+    filespecs  or  keywords  that  contain more than 3 valid characters and
+    should  have configuration options to define greater minimum lengths on
+    a per-echo basis.
+
+        For  filespecs,  the  wildcard  character '*' IS considered a valid
+    specification  as  well  as the '?' wildcard, but only the '?' is to be
+    counted  as  a  character  when  determining the length of query.  File
+    extensions  are  not necessary and any characters AFTER a '*' are to be
+    ignored.   The  FileFind  program should be configurable so as to allow
+    replacement  all  of the file extensions with '.*' or '#?' dependant on
+    platform.   This  results  in  queries being independant of the various
+    archivers in use.
+
+    Replies
+
+        Replies  created  by  FileFind  utilities  are  expected  to  be in
+    compliance with the following FTN specifications:
+        FTS-0001    -  packed message format
+        FTS-0009    -  MSGID/REPLY
+        FSC-0046    -  PID and tear line
+
+        In  addition, a FileFind utility may use the FID:  control line for
+    any  information needed that cannot be put in a PID:  without violating
+    that specification.
+
+        ^AFID: ascii text CR
+
+    Must be less than 80 characters including ^A and terminating CR.
+
+    There  are three ways in which the FileFind program can create replies:
+        - write the replies in the echo in which the query appeared.
+        - write the replies in an echo that has been specifically
+          designated for that purpose in the particular FTN or for
+          a gorup of echos in that FTN.
+        - reply via routed netmail.
+
+        Since each FTN site connected to a particular FileFind program area
+    is  capable  of creating an information reply, there is much concern as
+    to  the  amount  of  traffic  that  can  be generated, FileFind program
+    developers  must  be sensitive to these concerns by providing the means
+    to  their users to limit the traffic on a per-echo basis.  For example,
+    various  FileFind  echos  have  rules  limiting  the  size or number of
+    replies,  or  the length of the system information that may be included
+    in a reply.
+
+  Limiting replies
+
+    It is strongly suggested that some default limitations be built-in.
+
+    Limiting Site Header (ABOUT):
+
+        If the site's ABOUT, (the text that has been configured in order to
+    add  the  system's  information  and Magic names list to the reply), is
+    greater  than  14  lines,  the  remainder should NOT be posted.  A line
+    should  be  added  to  the response indicated this, and the user may be
+    invited to either Freq or download the MAGIC name's ABOUT or MAGIC, for
+    a  full  list of magic names.  The FileFind program may optionally send
+    the full system information and magic name list via routed netmail.
+
+    Limiting Match List due to ambiguity of query:
+
+        If  the list of matches (note:  not the size of the message itself)
+    is  greater than 32K, the FileFind program should post a message to the
+    user to indicate that his query may have been too ambiguous and perhaps
+    invite him to freq or download the MAGIC name FILES for a full list.
+
+    Splitting Match List into Multiple Messages:
+
+        If the list of matches is greater than 10K, it should be split into
+    multiple  messages  of  no more than 8K.  Although the backbone permits
+    messages  up  to  16K  in length, 8K is a more readable size.  Only the
+    first  split  message  may  contain  the ABOUT information of the site.
+    Each  message must be given both a unique Subject field (eg:  prepended
+    by  "Part n/n") and a unique MSGID:.  This because some tossers may use
+    either or both for dupe detection.
+
+    Limiting Number of Split Messages:
+
+        If  the  number of messages is greater than the preset limit of the
+    echo,  and  the FileFind Program does not have an option to forward the
+    replies  via  netmail,  the  replies  should  be discarded and the user
+    informed that his request may have been too amibiguous.
+
+
+    NetMail Reply:
+
+        The  FileFind program may have an option to forward all replies via
+    routed netmail, or to do so under certain conditions as outlined above.
+    Obviously, if the FileFind program can process netmail queries, it MUST
+    respond via netmail.
+
+    User NetMail Reply Request:
+
+        Alternativly the user can request a netmail reply for his echomail
+    query by preceeding the query with either "%" or "!".
+      eg;
+        Subject:  % /fsc /fts
+
+        If  the  FileFind  program  does  not support this feature, it must
+    ignore  any  echomail  query message that has a "%" or "!" as the first
+    WORD of the Subject field.
+
+    Second Reply or Extended Response Request:
+
+        The  FileFind  site  indicates  availablility  of  Second  Reply by
+    placing the string 'program_name 4d_address' in the From:  field of the
+    message.
+        eg: FROM: FQUERY 1:167/104.0
+
+        When a user replies to a FileFind reply, the message will be to the
+    FileFind  program  @  {network  address}.  When processing the FileFind
+    conferences, the FileFind program will treat any message to itself that
+    includes the site address as a Second Reply Request.
+
+        If  this feature is available, the FileFind program will include up
+    to  a maximum of 15 files (maximum 12K match list) in it's replies.  If
+    the  user  wants  a  more  detailed  listing,  he simply replies to the
+    FileFind  program's  reply.   Only  the system that posted the original
+    reply  will  respond to that new request.  This second, specific reply,
+    will  contain  up  to  50  files (32K of matchlist) either including or
+    SKIPPING the first 15.  These numbers may be replaced by byte limits in
+    some implementations.
+
+    No Second Reply in Designated Reply Echo:
+
+        The Designated Reply Echo method does not allow replies to be made,
+    because  the FileFind program may not be permitted to scan a Designated
+    Reply  Echo.  The FileFind program should automatically report up to 50
+    files  for any requests.  Therefore, the traffic limitaion features may
+    be  disabled for networks that require the FileFind program to reply in
+    a Designated Reply Echo, and disallow Second Reply in that echo.
+
+    Disable Local Messages:
+
+        The  FileFind  program must be able to to disable the processing of
+    local  messages.  What this means is that the FileFind program will not
+    process  any messages generated on that FTN site, including messages by
+    the  sysop  using  an  offline  reader,  or by a site's BBS or off-line
+    reader users.  This should NOT exclude messages from a site's points.
+
+
+    Limit by Age:
+
+        The  FileFind program must be configurable so that the operator can
+    limit  the  age  of an query message that is acceptable for processing.
+    This  should  be  in  number  of  days.   The  FileFind  program may be
+    configured  to  process all the FileFind requests regardless of how old
+    they are.  Age should never be greater than 365 days.
+
+    LinkMGR Support:
+        Implmentors  may choose to support the LinkMGR proposal for netmail
+    queries  and  commands.   In this proposal, the queries and commands do
+    not  appear  in  the  subject  field but rather, in the the BODY of the
+    message.  The subject field wil contain the LinkMGR password.
+        Use of the LinkMGR method allows the user to send multiple commands
+    to the fIleFind program.
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+# $Id: cpuflags,v 1.2 2004/09/25 10:47:33 mbse Exp $
+#
+# Small script to try to find out the CPU optimisation flags.
+# Based on ideas found in the NetBSD cpuflags script.
+#
+OS=`uname -s`
+
+case $OS in
+    FreeBSD | NetBSD)
+
+	if [ -x /sbin/sysctl ]; then
+	    SYSCTL=/sbin/sysctl
+	elif [ -x /usr/sbin/sysctl ]; then
+	    SYSCTL=/usr/sbin/sysctl
+	elif [ -x /bin/sysctl ]; then
+	    SYSCTL=/bin/sysctl
+	else
+	    SYSCTL=/usr/bin/sysctl
+	fi
+
+	hw_machine_arch=`$SYSCTL -n hw.machine_arch`
+	hw_model=`$SYSCTL -n hw.model`
+
+	case $hw_machine_arch in
+
+	    alpha)
+		# cpu0 at mainbus0: ID 0 (primary), 21164A-0 (unknown ...
+		case "`egrep '^cpu0 ' /var/run/dmesg.boot`" in
+		    *[\(\ ]2106[46][-\ \)]*)    FLAGS="-mcpu=21064"     ;;
+		    *[\(\ ]21164[-\ \)]*)       FLAGS="-mcpu=21164"     ;;
+		    *[\(\ ]21164A[-\ \)]*)      FLAGS="-mcpu=21164a"    ;;
+		    *[\(\ ]21264B[-\ \)]*)      FLAGS="-mcpu=21264"     ;;
+		esac
+		;;
+	    
+	    i386) 
+		case $hw_model in
+		    *386-class*)            FLAGS='-march=i386'             ;;
+		    *486-class*)            FLAGS='-march=i486'             ;;
+		    *AMD\ K6*)              FLAGS='-march=k6'               ;;
+		    *Pentium*)		    FLAGS='-march=pentium'          ;;
+		    *586-class*)            FLAGS='-march=pentium'          ;;
+		    *686-class*)            FLAGS='-march=pentiumpro'       ;;
+		esac 
+		;;
+
+	    sparc | sparc64) 
+		case " $hw_model" in					       # Examples
+		    *[\ \(]MB86900/1A*)     FLAGS='-mcpu=cypress'           ;; # ss1+
+		    *[\ \(]CY7C601*)        FLAGS='-mcpu=cypress'           ;; # ss2
+		    *[\ \(]W8601/8701*)     FLAGS='-mcpu=cypress'           ;; # elc
+		    *[\ \(]MB86904*)        FLAGS='-mcpu=supersparc'        ;; # ss5 usparc
+		    *[\ \(]MB86907*)        FLAGS='-mcpu=supersparc'        ;; # ss5 usparc
+		    *[\ \(]TMS390S10*)      FLAGS='-mcpu=supersparc'        ;; # classic  "
+		    *[\ \(]TMS390Z50*)      FLAGS='-mcpu=supersparc'        ;; # ss10/ss20
+		    *[\ \(]RT620/625*)      FLAGS='-mcpu=supersparc'        ;; # ss20 ross
+		    *[\ \(]MB86930*)        FLAGS='-mcpu=sparclite'         ;; # from gcc
+		    *[\ \(]MB86934*)        FLAGS='-mcpu=sparclite'         ;; # from gcc
+		    # under 1.5.1 -mcpu=ultrasparc chokes egcs-2.91.66 compiling perl
+		    *[\ \(]SUNW,UltraSPARC*) FLAGS='-mcpu=v9'               ;; # Ultra
+		esac 
+		;;
+	
+	esac
+	;;
+
+    Linux)
+	hw_machine_arch=`uname -m`
+	case $hw_machine_arch in
+	
+	    parisc)
+		case "`egrep 'cpu family' /proc/cpuinfo  | cut -d ' ' -f 4`" in
+		    1.0*)       FLAGS='-march=1.0'      ;;
+		    1.1*)	FLAGS='-march=1.1'	;;
+		    2.0*)       FLAGS='-march=2.0'      ;;
+		esac
+		case "`egrep 'cpu	' /proc/cpuinfo  | cut -d ' ' -f 2`" in
+		    PA7100LC)   FLAGS=${FLAGS}' -mschedule=7100LC'	;;
+		esac
+		;;
+		
+	    i386)
+		FLAGS='-march=i386'
+		;;
+
+	    i486)
+		FLAGS='-march=i486'
+		;;
+
+	    i586)
+		FLAGS='-march=pentium'
+		;;
+
+	    i686)
+		FLAGS='-march=pentiumpro'
+		;;
+
+	    *)
+		echo "Unsupported Linux arch $hw_machine_arch"
+		exit 1
+		;;
+	esac
+	;;
+
+    *)
+	echo "Unsupported OS $OS"
+	exit 1
+	;;
+esac
+
+
+# Fixup flags for old gcc
+if [ -n "$FLAGS" ]; then
+    gcc_ver=`gcc -v 2>&1 | awk '/gcc version/ {sub("egcs-","");print $3}'`
+    FLAGS=`awk -v "flags=$FLAGS" -v "gcc_ver=$gcc_ver" '
+	{if (gcc_ver < $1){map[$2] = ""$3}}
+	END{if (flags in map) {print map[flags]}else {print flags}}
+	' <<EOD
+2.90    -mcpu=21164a    
+2.90    -march=i386             -mno-486
+2.90    -march=i486             -m486
+2.90    -march=pentium          -m486
+2.90    -march=pentiumpro       -m486
+2.90    -mcpu=supersparc        -msupersparc
+2.90    -mcpu=sparclite         -msparclite
+2.90    -mcpu=cypress           -mcypress
+2.90    -mcpu=v9                -mv8
+2.90    -mcpu=arm610            -m6
+2.90    -mcpu=strongarm110      -m6
+2.90    -mcpu=arm710            -m6
+2.95    -march=k6               -march=pentium
+EOD
+`
+fi
+
+echo $FLAGS
+
+exit 0

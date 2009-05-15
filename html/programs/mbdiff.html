@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mbdiff.html,v 1.6 2003/11/08 18:49:36 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbdiff - Nodelist difference file processor.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 30-Jan-2001</h5></div>
+<div align="center"><H1>mbdiff - Nodelist difference file processor.</H1></div>
+
+<H3>Synopsis.</H3>
+<P>
+<code><strong>mbdiff</strong> [nodelist] [nodediff] &lt;options&gt;</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbdiff</strong> applies a (compressed) nodediff file against the
+nodelist of the week before to create a new nodelist. The result is a new
+plain nodelist and a nodelist compressed with zip.
+<P>&nbsp;<P>
+
+<H3>Environmet.</H3>
+<P>
+In order to run <strong>mbdiff</strong> you must set the global variable
+<strong>$MBSE_ROOT</strong>. This variable must point to the root directory
+of the bbs structure. The main configuration file <strong>config.data</strong>
+must be present in the ~/etc directory.
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+<code><strong>mbdiff</strong> [nodelist] [nodediff]</code> The nodelist must be the full
+path and filename without the dot and daynumber extension. The nodediff is
+the full path and filename to the (compressed) nodediff file fitting on the
+latest nodelist. It is adviced to make a seperate working directory where
+you keep the nodelists. Don't do this in your normal nodelist directory.
+When the operation is successfull, the new nodelist is in the working directory
+and the old list is removed. A compressed version of the nodelist is also
+placed in the working directory. From here you can hatch the new compressed
+nodelist with the <strong>mbfido</strong> program.
+<P>&nbsp;<P>
+
+<H3>Options.</H3>
+<P>
+<code><strong>-quiet</strong></code> - supress screen output, this switch is needed when
+<strong>mbdiff</strong> runs on the background.
+<P>
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

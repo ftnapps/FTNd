@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: outbound.html,v 1.6 2004/07/11 15:43:49 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Binkley style outbound with MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 11-Jul-2004</h5></div>
+<div align='center'><h1>Binkly style outbound documentation for MBSE BBS.</H1></div>
+
+The MBSE BBS outbound directory structure is BinkleyTerm compatible, with
+domains and point subdirectories (full 5d). There are separate "protected" and
+"unknown" inbound directories for incoming sessions. Files received during
+outbound sessions are always placed in the "protected" inbound directory. Only
+the "protected" inbound directory is processed automatic.
+<P>
+<PRE>
+
+.pol	Poll flag, is handled as crash immediate, the length is always 0 bytes.
+
+	Flow files are files with the full pathnames to the files to send
+	on disk. Names are translated by MBSE BBS to full DOS filenames and
+	paths depending on your setup. 
+	If you use it then it is importand that you think about the directory
+	structure to use. See also the documentation about the setup of the
+	<a href="ftpserver.html">ftp server</a>
+	The filenames may be prepended with a special character:
+	#	= Truncate file after sent.
+	- or ^	= Kill file after sent.
+	@	= Leave file after sent, this is the default. Upto version
+                  0.61.1 this was empty.
+
+.flo	Normal flow file (contains complete filenames to send).
+.clo	Crash flow file.
+.hlo	Hold flow file.
+.dlo	Direct flow file, overrides CM flag.
+
+	The following are .pkt files, during the mail session they will be
+	renamed to nnnnnnnn.pkt with an unique name and added to the spool
+	file. Messages can allways be added to the outbound as long as the
+	node isn't locked.
+
+.out	Normal .pkt file.
+.cut	Crash .pkt file.
+.hut	Hold .pkt file.
+.dut	Immediate .pkt file.
+
+.req	Request file. Contains filenames in ascii with &lt;cr&gt;&lt;lf&gt;.
+
+.su0	Arcmail bundles, the last digit may be any digit or letter.
+.mo0
+.tu0
+.we0
+.th0
+.fr0
+.sa0
+
+.sts	Node status file created by mbcico. These are data files containing
+	three values: 
+	1. 'time', this is the time when a new call to this node is allowed.
+	    (in time_t format).
+	2. 'retries', is the number of retries to try to connect that node. This
+   	    field is zeroed when the call succeeds or when that node calls in.
+	    It is also zeroed when a new poll is created. Currently, mbcico stops
+	    calling a node if the counter is higher then 30.
+	3. 'code', is the return code of the last attempt.
+	0      - Successfull call
+	1      - No dialout port available
+	2      - No CONNECT or TCP connect failed
+ 	3      - Could not reset the modem
+	4      - System is locked
+	5      - Retry time not reached?
+	6      - Fatal error in nodelist lookup
+	7      - Call prohibited by config options
+	8      - Phone number unavailable
+	9      - No free matching port
+	10     - Unused
+	11..29 - Session (handshake) errors.
+	This file is <b>not</b> compatible with the .sts files created by <b>ifcico</b>.</PRE>
+
+<PRE>
+.spl	Spool file, created by mbcico.
+
+.bsy	Busy file, for locking nodes. The 'pid' of the process who locked that
+	node is inserted into this file. All programs of the MBSE BBS package
+	(and ifcico package) check if the pid exists if a .bsy file is found.
+	If there is no pid found, the lock is a stale lock and is removed.
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

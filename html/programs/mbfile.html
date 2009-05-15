@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mbfile.html,v 1.16 2007/06/08 19:02:19 mbse Exp $ -->
+<HEAD>
+<TITLE>MBSE BBS Programs - mbfile - File database maintenance program.</TITLE>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META NAME="Language" content='en'>
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 08-Jun-2007</h5></div>
+<div align="center"><H1>mbfile - File database maintenance program.</H1></div>
+
+<H3>Synopsys.</H3>
+<code><strong>mbfile</strong> [commands] &lt;options&gt;</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbfile</strong>
+is the filedatabase maintenance program for mbsebbs. In order to run mbfile you
+must have started <strong>mbsed</strong>,
+this is the deamon which controls all bbs activities.
+<P>
+The main purpose of <strong>mbfile</strong>
+to do automatic maintenance on the downloadable files on the bbs, such as
+removing or moving old files, checking the database and packing the database.
+The best way to do the maintenance is to run <strong>mbfile</strong>
+from the crontab. example:
+<P><pre>
+30 05 * * * export MBSE_ROOT=/opt/mbse; /opt/mbse/bin/mbfile kill pack index -quiet
+</pre>
+Other functions in <b>mbfile</b> are meant to do manual maintenance such as
+adding, deleting or moving files.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+In order to run the bbs you need to set one global environment variable
+<strong>$MBSE_ROOT</strong>
+This variable must point to the root of the bbs directoy structure. The
+main configuration file <strong>config.data</strong>
+must exist in the subdirectory ~/etc.
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+<code><strong>mbfile</strong> adopt &lt;area&gt; &lt;file&gt; "[description]"</code>
+Adopt a file to the filebase. The description is optional, but if present it
+should be enclosed in quotes. The optional description may be at most 255 characters.
+Default mbfile will try to use the FILE_ID.DIZ if this is present. The file to
+adopt needs to be in your current directory and will be copied to the new area.
+If you have virus scanners defined, the file will be checked for virusses. 
+
+<P>
+<code><strong>mbfile</strong> check [area]</code>
+Check the database integrity. All files in the filedatabase must exist on
+disk and all files on disk must exist in the filedatabase. There are some
+exceptions, files.bbs, files.bak, 00index, index*.html, header, readme and 
+files that start with a dot. 
+Of all files the date and time is checked, the size and the crc
+value of the file. If there is something wrong, the error is corrected or the
+file is removed. If the area is a CD-rom area, the check that files on disk
+must exist in the filedatabase is skipped.
+If no area number is given, all areas are checked.
+<P>
+
+<code><strong>mbfile</strong> delete &lt;area&gt; "&lt;filemask&gt;"</code>
+Mark file(s) in an area for later deletion. You can use wildcards, and if you do
+surround them with quotes to prevent shell expansion.
+The file is not removed until you run <strong>mbfile pack</strong>.
+<P>
+
+<code><strong>mbfile</strong> import &lt;area&gt;</code>
+Import files to the given area using files.bbs descriptions. There are two
+possibilities, import from CD-rom or just from a temporary directory.
+<UL>
+ <LI>Import from a temporary directory: Put the files to import there including the
+files.bbs file.
+ <LI>Import from CD-rom: Go into the directory on the CD
+where the files are. If the files.bbs is not in the same directory, 
+you must enter the full filename and path where the files.bbs is with
+<b>mbsetup</b> 8.4.area.6.
+</UL>
+To start the import, type <code>mbfile import area</code> where area is the
+number of the destination filearea.
+The files are not checked for FILE_ID.DIZ inside the
+archives. If you have virus scanners defined, the files are checked for 
+virusses before they are added the the bbs. If you don't want these fresh files
+to be announced, add the <code>-announce</code> option on the commandline. This
+may be a good idea if you migrate from another bbs system.
+<P>
+
+<code><strong>mbfile</strong> index</code>
+Create fast filerequest index for the <strong>mbcico</strong> filerequest
+processor. In each directory with the downloadable files is also a 
+<strong>files.bbs</strong> file written in msdos cr/lf format. This includes a
+download counter.
+Also, if defined, in each available download area for ftp/http, <b>00index</b>
+and <b>index.html</b> files are
+created, starting at the ftp pub directory. If the area contains gif or jpg
+images, thumbnails are created using the <b>convert</b> program if you have that
+installed. The thumbnails have the same filenames as the original images, only
+they start with a dot. The convert command is defined with <b>mbsetup</b> menu
+1.19.8, if you don't have it or don't want thumbnails, make that entry empty.
+The index command only rebuilds area index files (files.bbs, index.html and
+00index) when there was a change in the area. 
+<P>
+
+<code><strong>mbfile</strong> kill</code>
+Mark files to delete or move files in areas that have the <strong>download age</strong>
+set or the <strong>filedate age</strong> set. A setting of 0 is ignored.
+Areas on CD-rom are always skipped.
+If the Move to Area option is set the files are moved to the given area. The
+upload date and download date are reset to the current date and time.
+So if you set in the destination area aging of 14 days, files will stay
+there for 14 days after the move. This is good for automatic "last chance" areas.
+<P>
+
+<code><strong>mbfile</strong> list [area]</code>
+List all defined file areas, the number of files, the total size of the files
+and the primary group. If and area is given on the commandline, the files in
+that area are listed.
+<P>
+
+<code><strong>mbfile</strong> move &lt;from&gt; &lt;to&gt; &lt;file&gt;</code>
+This command will move a file from one area to another. No actions on the file
+are performed.
+<P>
+
+<code><strong>mbfile</strong> pack</code>
+This command will actualy remove the records of files that are marked for
+deletion. If the file is still on disk, it will be removed also. So when
+you delete files with mbsetup or with mbfile, they are still in your database and on disk
+until you run <strong>mbfile pack</strong>.
+<P>
+
+<code><strong>mbfile</strong> rearc &lt;area&gt; "&lt;filemask&gt;"</code>;
+Re-archive file(s) in an file area to the archiver that must be set in the
+<a href="../setup/files.html">file area setup</a>.
+<P>
+
+<code><strong>mbfile</strong> sort &lt;area&gt;</code>
+Sort the files in area on the long filenames. The sort is case insensitive. When
+the sort is completed, the command <strong>mbfile index</strong> will automatic
+run to rebuild all indexes.
+<P>
+
+<code><strong>mbfile</strong> toberep</code>
+Shows which files are to be reported. This lists only the files that are
+received during .tic processing, new uploaded files are not displayed. This list
+is automatic removed after newfiles are announced.
+See also <A HREF="mbtoberep.html">mbtoberep</A>.
+<P>
+
+<code><strong>mbfile</strong> undelete &lt;area&gt; "&lt;filemask&gt;"</code>
+Mark a file that is marked for deletion to be available again, ie. undo the deletion
+mark. You can use wildcards, and if you do
+surround them with quotes to prevent shell expansion.
+<P>&nbsp;<P>
+
+<H3>Options.</H3>
+<P>
+<code><strong>mbfile</strong> [command] -quiet</code>
+Quiet mode, no screen output. Use this switch if you run <strong>mbfile</strong> from the crontab.
+<P>
+<code><strong>mbfile</strong> [command] -announce</code>
+Announce mode, use this switch with the adopt and import commands to prevent
+that the added file(s) will be announced. This can be usefull if you add lots of
+files that you don't want to announce these as new files.
+<P>
+<code><strong>mbfile</strong> [command] -force</code>
+With the adopt, import and move commands files that already exist in the
+destination area are not overwritten. With this switch you can force to
+overwrite the existing file.
+<P>
+<code><strong>mbfile</strong> [command] -virus</code>
+Supress virus scanning of files during adopt or import. Use with care.
+<P>
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

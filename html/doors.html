@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: doors.html,v 1.10 2004/11/05 11:53:47 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Running DOS doors on MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 05-Nov-2004</h5></div>
+<div align='center'><H1>MBSE BBS - Running DOS doors.</H1></div>
+
+<h3>Introduction</h3>
+<p>
+Running DOS doors is possible on systems that can run 
+<a href="http://www.dosemu.org">dosemu</a>. The latest versions of dosemu don't
+need to be started suid root or started using sudo, it can run as the user that
+is logged in the bbs. Since that is possible, a new location for the virtual C:
+drive is now being used withing the $MBSE_ROOT file structure. This virtual C:
+drive is owned by the group bbs. The basic ideas how doors should be run written
+by Redy Rodriguez are still valid, but some scripts are changed and some dosemu
+files must be copied into the mbse directory tree.<p>
+<em>One very important note: the virtual dos drive is now $MBSE_ROOT/var/dosemu/c
+Don't use another location or change the access rights, there will be several 
+references from mbse to that and only that location for dos support. 
+Choose another one and you are on your own!</em>
+<p>&nbsp;<p>
+
+<h3>Installing dosemu</h3>
+<p>
+Some distributions have good dosemu packages, others don't. You need a dosemu
+that can be used in a systemwide multiuser setup. The bad packages want to have
+the dos drive in each users home directory, this is not what we want for doors.
+If you don't have a good dosemu you have to compile your own. This is not too
+complicated. First download the source from <a
+href="http://www.dosemu.org">dosemu</a>. You don't need the freedos-bin source
+if you are going to use ms-dos or pc-dos. 
+Unpack the source in some directory of your choice and compile the sources:<br>
+<pre>
+mbse@seaport$ tar xfvz dosemu-1.2.2.tgz
+mbse@seaport$ cd dosemu-1.2.2
+mbse@seaport:~/dosemu-1.2.2$ ./configure --prefix=/usr --sysconfdir=/etc/dosemu --with-x
+mbse@seaport:~/dosemu-1.2.2$ make
+</pre>
+Note that the <code>--with-x</code> is not needed for running doors, but it
+might be handy that you can use dosemu as user mbse in X to do maintenance on
+your doors.<br>
+Then as root do:<br>
+<pre>
+root@seaport:~/dosemu-1.2.2# make install
+</pre>
+<p>&nbsp;<p>
+
+<h3>Setup dosemu in mbse</h3>
+<p>
+First copy <code>/etc/dosemu/dosemu.conf</code> into <code>~/etc/dosmeu</code>.
+Then edit <code>~/etc/dosemu/dosemu.conf</code> so that we have a version for
+mbse users. Set the following settings in that file:<br>
+<pre>
+$_hdimage = "/opt/mbse/var/dosemu/c"
+$_floppy_a = ""
+$_xms = (1024)
+$_ems = (2048)
+$_dpmi = (0x1000)
+$_layout = "us"
+</pre>
+Next copy this new file as <code>virtual.conf</code> in
+<code>~/etc/dosemu/</code>. Then add the following line:
+<pre>
+$_com1 = "virtual"
+</pre>
+Note that in older dosemu versions you could use a commandline option to do
+this, but this isn't supported anymore since dosemu-1.2.x. The
+<code>rundoor.sh</code> now also uses two configuration files.<br>
+Next we need to setup the C: drive. Do this as user mbse. First type <code>umask
+007</code>, this sets the create mode for directories to 0770 and files to 0660
+so that we create all files and directories read/write for all bbs users. This
+is very important! Type the following commands:
+<pre>
+mbse@seaport:~$ umask 007
+mbse@seaport:~$ cd var/dosemu/c
+mbse@seaport:~/var/dosemu/c$ mkdir dos dosemu temp util doors
+</pre>
+Now we must install dos. If you use ms-dos then in <code>~/var/dosemu/c</code>
+copy the ms-dos files <code>command.com</code>, <code>io.sys</code> and
+<code>msdos.sys</code>. In <code>~/var/dosemu/c/dos</code> copy all ms-dos
+commands. Next install the dosemu utilities, copy these from
+<code>/usr/share/dosemu/freedos/dosemu</code> to
+<code>~/var/dosemu/c/dosemu</code>. Now there is a empty
+<code>~/var/dosemu/c/util</code>, copy some utilities here such as your
+favourite dos editor, zip and unzip etc.<br>
+Next we must create <code>config.sys</code> and <code>autoexec.bat</code>. These
+files must be dos crlf formatted. You can do that with the joe editor, for
+example <code>joe -crlf config.sys</code>. Examples:<br>
+<pre>
+config.sys:
+
+BUFFERS = 20
+DEVICE=C:\DOS\SETVER.EXE
+SET TEMP=C:\TEMP
+DOS=HIGH,UMB
+FILES=50
+
+autoexec.bat:
+
+@ECHO OFF
+PROMPT $P$G
+PATH C:\DOSEMU;C:\DOS;C:\UTIL;
+SET TEMP=C:\TEMP
+Lh C:\DOS\DOSKEY /INSERT
+Lh C:\DOS\SHARE
+</pre>
+Now we are ready to try it, type <code>mbsedos</code> and the dos emulator
+should start. You can leave dosemu with the command <code>exitemu</code>.
+<p>&nbsp;</P>
+
+<h3>Installing a door</h3>
+<p>
+All doors are started using the script <code>~/bin/rundoor.sh</code>. This script
+is never started directly, you should make a copy of that with the name of the
+door, but the best solution is to make a symlink with the name of the door. For
+example:<br>
+<pre>
+mbse@seaport$ cd ~/bin
+mbse@seaport:~bin$ ln -s rundoor.sh 8ball
+</pre>
+See also inside <code>rundoor.sh</code> for the instructions. This file does
+several things, first it prepares the users home directory with the dosemu
+environment so that dosemu will run for the user. Then it creates a node
+directory in the dos C: drive and copies the door dropfiles into that node
+directory. Finally it starts dosemu in virtual comport mode and inserts the
+commands in dos to start the door.<br>
+But before we can run the door, the door itself must be installed in the dos
+partition. In this example I will explain how to install the door 8ball.
+Start <code>mbsedos</code> and create a directory <code>c:\doors\8ball</code>.
+Unpack 8ball in that directory and run <code>setup</code>. Test the door with
+the command <code>local</code>. Now goto the directory <code>c:\doors</code> and
+create the file <code>8ball.bat</code>. That file will be used to start the
+door. It will be called by <code>c:\doors.bat</code> with two parameters, the
+name of the door and the nodenumber.
+<pre>
+@ECHO OFF
+C:
+C:\UTIL\X00 E B,0,57600
+CD \DOORS\8BALL
+ASKME.EXE /E /C1 /PC:\DOORS\NODE%1
+C:\UTIL\X00
+CD \DOORS\NODE%1
+DEL DOOR.SYS
+DEL DOOR32.SYS
+</pre>
+Finally we have to make a menu entry to start the door. The Opt. Data line is
+the command to start the door, the optional <code>/N</code> is replaced by the
+current nodenumber of the user. A second option may be used,
+<code>novirtual</code>, if that is present the <code>rundoor.sh</code> will
+start dosemu without setting the comport in virtual mode. Use this if your door
+isn't a real door but a normal dos program.
+<p>
+<img src="images/doors.png" alt="door setup" border="0"><p>
+Note that I use the
+Display lines to make the menu, there are only ansi screens for the top and
+common lines on the screen, see the second image how to build the whole doors
+menu.
+<p>
+<img src="images/doors2.png" alt="doors menu" border="0">
+<p>
+<p>&nbsp;<p>
+
+<h3>Netmail support</h3>
+<p>
+In the virtual c: drive you need some directories that point to several other
+mbse subdirectories. You may need at least three of them, one to put netmail in,
+one to put files in to send and one semafore directory to tell mbse there is
+something to send. For example like this:
+<pre>
+ln -s /opt/mbse/var/msgs /opt/mbse/var/dosemu/c/msgs
+ln -s /opt/mbse/var/boxes/node92_100_60 /opt/mbse/var/dosemu/c/outbox
+ln -s /opt/mbse/var/sema /opt/mbse/var/dosemu/c/sema
+</pre>
+In dos you now have:
+<pre>
+C:\MSGS
+C:\OUTBOX
+C:\SEMA
+</pre>
+In <code>C:\MSGS</code> doors may put *.msg netmails. 
+File attaches won't work from these netmails because the netmails
+point to files with dosnames. (May be solved later). The script that calls the
+door, for example <code>c:\doors\bre.bat</code> must copy the file to send to
+the node outbound box. In the above example that would be copy to 
+<code>C:\OUTBOX</code>.
+To create the semafore to tell mbse to scan add to the batfile (for example
+<code>C:\DOORS\BRE.BAT</code> the following two lines:
+<pre>
+CD C:\SEMA
+ECHO ""&gt;MAILOUT
+</pre>
+See also the <a href="faq.html#_Doors">F.A.Q.</a> for some very usefull tips and
+tricks.
+Using the same method with symlinks, you can make all paths you need from the
+rest of mbse visible in dos. Use with care.
+<p>&nbsp;<p>
+
+<h3>What if I don't upgrade</h3>
+<p>
+That's your choice, but for a while the old method starting dosemu via sudo is
+still supported. The file <code>~/bin/bbsdoor.sh</code> is still there, but the
+file <code>~/bin/rundoor.sh</code> is renamed to
+<code>~/bin/runvirtual.sh</code>. So you should change all symlinks of your door
+names in <code>~/bin</code> (or copies) to <code>~/bin/runvirtual.sh</code>. You
+should not need to change anything else.
+<p>
+
+<h3>Problems</h3>
+<p>
+Currently there are some troubles with modem calls.
+<p>
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

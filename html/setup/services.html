@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: services.html,v 1.6 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Edit Services.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 25-Oct-2001</h5></div>
+<div align='center'><H1>MBSE BBS Setup - Edit Services.</H1></div>
+
+<H3>Introduction.</H3>
+<P>
+Services are special mail accounts. Netmail addressed to one of these names
+will be handled according to the action that is selected. Current implemented
+actions are AreaMgr, FileMgr and Email. So if you name a service <strong>
+Areamgr</strong> and set the action to <strong>AreaMgr</strong> then an incoming
+netmail will be directed to the Areamgr function. If you define a service
+<strong>listserv</strong> and set the action to <strong>Email</strong> then
+and incoming netmail will be converted to email and send to the <strong>listserv</strong>
+account at your host.<br>
+<P>&nbsp;<P>
+
+<H3>Edit Services.</H3>
+<P>
+<pre>
+<strong>Name      </strong>The name of the Service.
+<strong>Type      </strong>Toggle the service type with the spacebar.
+<strong>Active    </strong>If this service is active.
+<strong>Deleted   </strong>If this service must be deleted.
+</pre>
+<P>
+Here are some example services:
+<P>
+<PRE>
+UUCP		Email
+allfix          FileMgr
+areamgr         AreaMgr                                                  
+fmail           AreaMgr                                                  
+gecho           AreaMgr                                                  
+mbtic           FileMgr                                                  
+raid            FileMgr
+</PRE>
+Note: the UUCP services is needed if you are gating email!
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

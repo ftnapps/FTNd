@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# description: Starts and stops MBSE BBS. 
+#
+# $Id: init.FreeBSD,v 1.12 2007/07/09 18:46:51 mbse Exp $
+#
+# /usr/local/etc/rc.d/mbse.sh
+#
+
+# Find the MBSE_ROOT from the /etc/passwd file.
+MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+
+if [ "${MBSE_ROOT}" = "" ]
+then
+    echo "MBSE BBS: No 'mbse' user in the password file."
+    exit 1
+fi
+
+if [ ! -d ${MBSE_ROOT} ]
+then
+    echo "MBSE BBS: Home directory '${MBSE_ROOT}' not found."
+    exit 1
+fi
+
+export MBSE_ROOT
+
+# See how we were called.
+case "$1" in
+    start)
+	rm -f ${MBSE_ROOT}/var/run/*
+	rm -f ${MBSE_ROOT}/var/sema/*
+	rm -f ${MBSE_ROOT}/var/*.LCK
+	rm -f ${MBSE_ROOT}/tmp/mb*
+	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
+	echo -n " mbtask"
+	sleep 2
+	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    echo -n ", opened bbs"
+	fi
+        ;;
+    stop)
+	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+            echo -n " logoff users"
+            su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+	    kill -15 `cat ${MBSE_ROOT}/var/run/mbtask`
+	    sleep 1
+	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		echo -n "."
+		sleep 1
+	    fi
+	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		echo -n "."
+		sleep 1
+	    fi
+	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		echo -n "."
+		sleep 1
+	    fi
+	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		kill -9 `cat ${MBSE_ROOT}/var/run/mbtask`
+	    fi
+	    echo -n " done"
+	fi
+        ;;
+    *)
+        echo "Usage: `basename $0` {start|stop}" >&2
+	;;
+esac
+exit 0

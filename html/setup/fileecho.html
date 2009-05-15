@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: fileecho.html,v 1.8 2005/08/12 13:26:54 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - File Echo's Setup - TIC Areas.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 12-Aug-2005</h5></div>
+<div align="center"><H1>MBSE BBS Setup - File Echo's Setup - TIC Areas.</H1></div>
+
+<H3>Introduction.</H3>
+<P>
+In this setup you can define the File Echo's or TIC areas. Files received or
+send from this areas are bound together with a *.tic file with information
+about the file and where to store that file. Each file echo must belong to a
+group, in this grouprecord is the information about costsharing and some
+other details. When a file is received at your system you can do several
+things with that file before it is stored in your download areas such as;
+scanning the file for virusses, extracting the FILE_ID.DIZ file to use as
+description, allow update of magic alias, convert to another compression
+format, replace the file archive comment with an add of your own bbs and limit
+the number of files (nodelists).
+<P>&nbsp;<p>
+
+<H3>TIC Area Setup.</H3>
+<P>
+<pre>
+<strong>Comment    </strong>A description for this area.
+<strong>Area tag   </strong>The tag for this area.
+<strong>Security   </strong>The security access flags for downlinks.
+<strong>BBS area   </strong>The BBS download area number, 0 means passthru.
+<strong>Message    </strong>Not in use yet.
+<strong>Group      </strong>The group where this area belongs to.
+<strong>Keep #     </strong>The number of files to keep, the name must match.
+<strong>Fido aka   </strong>The Fidonet aka to use for this area.
+<strong>Convert    </strong>The archiver to convert to, leave blank for none.
+<strong>Banner     </strong>The bannerfile (in ~/etc) to replace in the archive.
+<strong>Replace    </strong>Honor the "Replace" command in the .tic file.
+<strong>Dupecheck  </strong>Check for duplicates in this area.
+<strong>Secure     </strong>Check if the sending system is connected.
+<strong>Touch      </strong>Touch rearchived files to the original date.
+<strong>Virus sc.  </strong>Try to scan for virusses.
+<strong>Announce   </strong>Files may be announced in this area.
+<strong>Upd magic  </strong>Allow update magic request name.
+<strong>File_id    </strong>Try to use the FILE_ID.DIZ file for description.
+<strong>Conv.all   </strong>Convert archive even if it is already right.
+<strong>Send org.  </strong>Send original received file instead of the file from the BBS.
+<strong>Mandatory  </strong>Downlinks can't disconnect from this area.
+<strong>Notified   </strong>Not in use yet.
+<strong>Upl discon </strong>Not in use yet.
+<strong>Deleted    </strong>If this area must be deleted.
+<strong>Active     </strong>If this area is active.
+<strong>New SR     </strong>Give new node links the status SR instead of S.
+<strong>Systems    </strong>To the screen with connected systems.
+</pre>
+<P>
+<IMG SRC="../images/fileecho.png" alt='TIC area setup'>
+<P>
+
+
+<H3>Global Commands.</H3>
+<P>
+From menu 10.2 you can enter the global commands menu. In this menu you can:
+<ol>
+ <li>Delete connection
+ <li>Add new connection
+ <li>Replace connection
+ <li>Change connection status
+ <li>Change aka to use
+ <li>Change security flags
+ <li>Delete TIC area
+</ol>
+After you have selected the action you want and added the items to do, you will see
+a screen were you can select TIC file area groups. You can then tag one or more
+groups and press enter when you are done. Then you have one chance to perform the
+actions or to bail out. All areas matching in that group are affected by your
+changes. If you are not happy with the result, don't save the database and no
+harm is done. The file mbsetup.log shows all affected areas.
+<P>
+
+
+<A HREF="tic.html"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to File Echo's Setup</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

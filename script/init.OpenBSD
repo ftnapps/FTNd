@@ -1,0 +1,35 @@
+#:MBSE-BBS: bbs startup
+#
+# $Id: init.OpenBSD,v 1.2 2007/07/09 18:46:51 mbse Exp $
+#
+# Added to /etc/rc.local by mbse bbs install
+#
+echo -n "Starting mbsebbs:"
+
+# Find the MBSE_ROOT from the /etc/passwd file.
+MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+
+if [ "${MBSE_ROOT}" = "" ]
+then
+	echo " no 'mbse' user in the password file."
+else
+    if [ ! -d ${MBSE_ROOT} ]
+    then
+	echo " home directory '${MBSE_ROOT}' not found."
+    else
+    	export MBSE_ROOT
+
+    	rm -f ${MBSE_ROOT}/var/run/*
+    	rm -f ${MBSE_ROOT}/var/sema/*
+    	rm -f ${MBSE_ROOT}/var/*.LCK
+    	rm -f ${MBSE_ROOT}/tmp/mb*
+    	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null 2>&1
+    	echo -n " mbtask"
+    	sleep 2
+    	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    echo ", opened bbs"
+    	fi
+    fi
+fi
+

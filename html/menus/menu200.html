@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: menu200.html,v 1.9 2003/11/08 20:40:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Menus - Message Area Menus.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<DIV align=right><h5>Last update 20-Feb-2003</h5></DIV>
+<DIV align=center><h1>MBSE BBS Message Area Menus</h1></DIV>
+<hr>
+
+<OL>
+
+ <LI value="201"><strong>Select another area:</strong> This option will show
+ a list of all available areas and let the user select a new area. If there
+ is optional data the area will be selected without user intervention.<br>
+ <strong>Optional data:</strong> If there is an option the area is direct
+ selected. Current options are <strong>M+</strong> goto the next available
+ area. <strong>M-</strong> goto the previous available area. If you use the
+ <strong>U+</strong> and <strong>U-</strong> instead, the area is changed to the
+ previous or next area with unread messages, areas without unread messages are
+ skipped.<br>
+ Another option is the <strong>N</strong>, if this is used for area select the
+ areas with new unread mail are marked with a yellow star.
+ <P>
+
+ <LI value="202"><strong>Post a Message:</strong> This option lets the user
+ post a new message.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="203"><strong>Read Messages:</strong> This option lets the user
+ read messages. If he has done that before in that area he will be suggested
+ to start after the message he has last read. During reading of messages
+ the user can reply to other messages.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="204"><strong>Check for Mail:</strong> Check for new arrived mail.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="205"><strong>Quickscan Messages:</strong> Make a quick overview
+ list of all messages in that area.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="206"><strong>Delete a Message:</strong> This option will let the
+ user delete a specific message. He must the the owner of that
+ message or have sysop rights in that area to be able to delete a message.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="207"><strong>Mail Status:</strong> This gives a complete overview
+ of all available mail at the bbs.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="208"><strong>OLR: Tag Area:</strong> This option lets
+ the user tag one or more areas to be included in his offline mail packet.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="209"><strong>OLR: Untag Area:</strong> This option lets
+ the user untag one or more areas not to be included in his offline mail
+ packet.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="210"><strong>OLR: View Tags:</strong> This option lets
+ the user view which areas will be included in his offline mail packet.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="211"><strong>OLR: Restrict Date:</strong> Not yet
+ implemented.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="212"><strong>OLR: Upload Mail:</strong> Let the user upload
+ mail or a new offline reader setup. The packet format is automatic detected.
+ Currently BlueWave is supported. QWK support will be added later.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="213"><strong>OLR: Download BlueWave:</strong> Download mail in
+ BlueWave version 2 format.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="214"><strong>OLR: Download QWK:</strong> Download mail in QWK
+  format.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="215"><strong>OLR: Download ASCII:</strong> Download mail in flat
+ ASCII format. Not yet implemented.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="216"><strong>Read Email</strong> Read users private email.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="217"><strong>Write Email</strong> Post an email message.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="218"><strong>Trash Email</strong> Put email in the trashcan.
+ Not Yet implemented.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="219"><strong>Choose Mailbox</strong> Choose another private
+ mailbox. Valid boxes are: mailbox (normal in/out), archive and trash.<br>
+ <strong>Optional data:</strong> If there is an option the area is direct
+ selected. Current options are <strong>M+</strong> goto the next mailbox.
+ <strong>M-</strong> goto the previous mailbox.<br>
+ <P>
+
+ <LI value="220"><strong>Quickscan Email</strong> Make a quick overview
+ list of all messages in the selected e-mail area.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="221"><strong>Show area rules</strong> Show the rules of a 
+ echomail area if such rulefile is present in the rules directory. The file
+ seached for needs to have a name that is the same as the area tag, or the area
+ tag plus .rul, or the first eight characters of the area tag plus .rul like
+ the rulefiles in the elist package.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+</OL>
+
+<HR>
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Index" BORDER=0></A>
+<A HREF="../">Main Index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" BORDER=0></A>
+<A HREF="./">Menus Index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

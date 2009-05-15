@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: semafore.html,v 1.9 2004/09/14 20:37:58 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Semafore files with MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 14-Sep-2004</h5></div>
+<div align='center'><H1>Semafore files with MBSE BBS.</H1></div>
+
+
+The directory $MBSE_ROOT/var/sema is the hardcoded semafore directory where all
+semafore's must be created, tested and removed. When the system is booting,
+the init script will erase all semafore's just before the BBS is started.
+This description is valid from MBSE BBS v0.33.19 and newer.
+
+<PRE>
+zmh		Purpose: to mark the state of Zone Mail Hour. 
+		Created by "mbtask" at the start of Zone Mail Hour.
+		Removed by "mbtask" at the end of Zone Mail Hour.
+
+upsalarm	Purpose: Signal that the system is running on battery power.
+		Created and removed by UPS software.
+		Checked by mbtask to suspend processing.
+		Checked by mbfido to stop processing.
+
+upsdown		Purpose: Signal that the system will go down on low battery.
+		Created and removed by UPS software.
+		Checked by mbtask to go down.
+		Checked by several scripts and "mbstat wait".
+
+newnews		Purpose: Signal that there are new articles on the news server.
+		Checked by mbtask to start news processing.
+		Removed by mbtask as soon as it is detected.
+
+mailout		Purpose: Signal that there is mail posted in the message base.
+		Checked by mbtask to start scan the message base.
+		Removed by mbtask as soon as it is detected.
+
+mailin		Purpose: Signal that there is new mail in the inbound.
+		Checked by mbtask to start the tosser.
+		Removed by mbtask as soon as it is detected.
+
+scanout		Purpose: Signal that the outbound must be rescanned.
+		Checked by mbtask to check the outbound.
+		Removed by mbtask as soon as it is detected.
+
+do_inet		Purpose: Signal that there are node(s) to be called via the
+		internet. Usefull for dialup systems to check whether a
+		connection to the internet is needed.
+		Created and removed by mbtask.
+
+is_inet		Purpose: Signal that the internet is available. Usefull for
+		dialup systems to check when the internet connection is up
+		or down after starting or stopping ppp.
+		Created and removed by mbtask.
+
+mbtask.last	Purpose: A timestamp created and touched by "mbtask" every
+		minute so you can check it is running.
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

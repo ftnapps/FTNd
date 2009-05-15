@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mgetty.html,v 1.9 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Setup mgetty for MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 07-Jan-2002</h5></div>
+<div align='center'><H1>Setup mgetty for MBSE BBS</H1></div>
+
+To handle incoming calls you can use <strong>mgetty</strong> written by
+Gert Doering, (gert@greenie.muc.de). Others may work. You have to compile
+<strong>mgetty</strong> with the -DFIDO flag to accept Fidonet mailer calls.
+If you want incoming PPP calls as well, add the -DAUTO_PPP as well. If you want
+to use ISDN, make sure you have ISDN support compiled in the kernel.
+Below you can see the mgetty.config and login.config for mgetty that you may
+need. 
+I have also included a part of my /etc/inittab to show how <strong>mgetty
+</strong> will spawn from <strong>init</strong>.
+<P>
+
+<HR>
+<PRE>
+# inittab       This is only a part of /etc/inittab!
+#               In this example it runs in runlevel 3 and 4.
+#
+# Serial lines
+s1:34:respawn:/usr/local/sbin/mgetty -i /opt/mbse/etc/issue ttyS0
+#
+# ISDN lines, two channels
+I1:34:respawn:/usr/local/sbin/mgetty -i /opt/mbse/etc/issue ttyI0
+I2:23:respawn:/usr/local/sbin/mgetty -i /opt/mbse/etc/issue ttyI1
+#
+# End of /etc/inittab
+</PRE>
+<HR>
+<PRE>
+# mgetty configuration file: mgetty.config
+#
+# ----- global section -----
+#
+# In this section, you put the global defaults, per-port stuff is below
+#
+# set the global debug level to "4" (default from policy.h)
+debug 4
+#
+# set the local fax station id
+fax-id ++31-255-515973
+#
+# access the modem(s) with 38400 bps
+speed 38400
+#
+#  use these options to make the /dev/tty-device owned by "uucp.uucp" 
+#  and mode "rw-rw-r--" (0664). *LEADING ZERO NEEDED!*
+port-owner uucp
+port-group uucp
+port-mode 0664
+#
+#  use these options to make incoming faxes owned by "root.uucp" 
+#  and mode "rw-r-----" (0640). *LEADING ZERO NEEDED!*
+fax-owner root
+fax-group uucp
+fax-mode 0640
+#
+#
+# ----- port specific section -----
+# 
+# Here you can put things that are valid only for one line, not the others
+#
+# Dynalink 1428EXTRA faxmodem at port 0 (COM1).
+#
+port ttyS0
+speed 57600
+switchbd 19200
+modem-type cls2
+init-chat "" \d\dAT&amp;F&amp;C1&amp;D3X4W2B0M0Q0V1H0&amp;K3S0=0 OK
+#
+#
+# ISDN ports.
+# With AT&amp;E you set the MSN/EAZ the device should listen to.
+# This should for an MSN be your telephone number _with_ the area
+# code but _without_ the leading 0.  
+# For an EAZ the last digit of your EAZ.
+#
+port ttyI0
+modem-type data
+init-chat "" ATZ OK AT&amp;E714015437&amp;W0 OK AT&amp;B512 OK
+#
+port ttyI1
+modem-type data
+init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK
+#
+# end of mgetty.config
+</PRE>
+<HR>
+<PRE>
+# login.config
+#
+# This is a sample "login dispatcher" configuration file for mgetty
+#
+# Format:
+#	username userid utmp_entry login_program [arguments]
+#
+# Meaning:
+#       for a "username" entered at mgettys login: prompt, call
+#	"login_program" with [arguments], with the uid set to "userid",
+#	and a USER_PROCESS utmp entry with ut_user = "utmp_entry"
+#
+#
+# Use this one for fido calls (login name /FIDO/ is handled specially)
+#
+#  mgetty has to be compiled with "-DFIDO", otherwise a fido call won't
+#  be detected.
+#
+/FIDO/	mbse	fido	/opt/mbse/bin/mbcico @
+#
+#
+# Automatic PPP startup on receipt of LCP configure request (AutoPPP).
+#  mgetty has to be compiled with "-DAUTO_PPP" for this to work.
+#  Warning: Case is significant, AUTOPPP or autoppp won't work!
+#  Consult the "pppd" man page to find pppd options that work for you.
+#  See also PPP-HOWTO on how to set this up.
+#
+/AutoPPP/ -	a_ppp	/etc/ppp/paplogin
+#
+# This is the "standard" behaviour - *dont* set a userid or utmp
+#  entry here, otherwise /bin/login will fail!
+#  This entry isn't really necessary: if it's missing, the built-in
+#  default will do exactly this.
+#  Here we replace the standard login with MBSE BBS login:
+#
+*	-	-	/opt/mbse/bin/mblogin @
+#
+#
+# end of login.config
+</PRE>
+<HR>
+
+<P>
+I have added the <strong>-i /opt/mbse/etc/issue</strong> options to the 
+<strong>mgetty</strong> line in /etc/inittab. 
+The file /opt/mbse/etc/issue is a plain textfile to give a small banner just
+before the login prompt. 
+It could look like this:<br>
+<pre>
+
+        .--.     Welcome at MBSE BBS Development.
+       |o_o |    --------------------------------
+       |:_/ |
+      //   \ \   This may or may not work today...
+     (|     | )
+    /'\_   _/`\
+    \___)=(___/  
+Powered by GNU/Linux.
+
+</pre>
+There is a default /opt/mbse/etc/issue installed by the installation script.
+You need to edit this to insert your bbs name in it or even completely replace
+this file for a nicer one. Don't make it too big, don't put control characters
+or ANSI sequences in it as this may prevent some mailers to connect to your system.
+<p>
+I discovered that some systems don't have the right permissions on the serial
+port for MBSE BBS. To fix this type the following commands:
+<pre>
+su
+password: <em>enter root password here</em>
+chmod 666 /dev/ttyS0
+chown uucp.uucp /dev/ttyS0
+exit
+</pre>
+Note that /dev/ttyS0 is for COM1, /dev/ttyS1 for COM2 etc. This is not a nice
+solution. If youre system allows it, try to add the the user <b>mbse</b> as
+a legal user of your serial ports. Most distributions have some tool for this.
+<p>
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

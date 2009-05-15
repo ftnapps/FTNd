@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: fidonet.html,v 1.4 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Fidonet Networks.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 29-Jan-2001</h5></div>
+<div align='center'><H1>MBSE BBS Setup - fidonet Networks</H1></div>
+
+Each fidonet network can have maximum 6 zones. The main zone (where you are)
+must be the first zone, the others will follow. You can add 6 additional 
+nodelists to merge with the main nodelist. These additional nodelists are 
+normally more recent that the main nodelist, so entries in the additional 
+nodelists will replace entries from the main nodelist when you compile the
+nodelists. In the shown example you can see that I have a regional nodelist
+and a pointlist added for my region. For each additional list you must 
+specify the RC address because that information is normally not present in these
+nodelists. <U>Watch out!</U> Nodelist names are case sensitive. If you receive a
+nodelist and automatic put them in place with the <strong>mbfido</strong>
+program, and the resulting file is uppercase, you must use uppercase names
+here also. You don't need to give the extension of the nodelist name, the
+<strong>mbindex</strong> will figure that out.
+<p>
+<IMG SRC="../images/mbsetup2.png" alt='Fidonet networks setup'>
+<p>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

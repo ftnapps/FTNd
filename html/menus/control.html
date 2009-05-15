@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: control.html,v 1.12 2007/02/25 20:28:04 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Menus - Control Codes in ANSI and ASCII files.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<DIV align=right><h5>Last update 25-Feb-2007</h5></div>
+<DIV align=center><h1>MBSE BBS Control Codes in ANSI and ASCII files</h1></DIV>
+<hr>
+
+
+<H3>Single Control characters</H3>
+<PRE>
+ Code      Description
+ ----      ---------------------------------------
+  A        Wait for a key
+  B        Print text above sec. level
+  F        Control-code F
+  K        Control-code K
+  P        Wait one second
+  U        Control-code U
+
+
+</PRE>
+The control-B syntax is: ^B&lt;seclevel&gt;^B&lt;The text to show&gt;^B<br>
+For example: ^B32000^BThis is the text^B<br>
+<P>
+
+<H3>Control-F followed by:</H3>
+<PRE>
+ Code      Description
+ ----      ---------------------------------------
+  !        Display transfer protocol
+  A        Number of uploads
+  B        Number of downloads
+  C        Downloads in Kilobytes
+  D        Uploads in Kilobytes
+  E        Download plus upload Kilobytes
+  F        Download Kilobyte limit
+  H        Current file area number
+  I        Current file area description
+  J        Download files limit
+  K        Description of user limit
+
+
+</PRE>
+<P>
+
+<H3>Control-K followed by:</H3>
+<PRE>
+ Code      Description
+ ----      ---------------------------------------
+  A        Print date in format DD-MM-YYYY
+  B        Print time in HH:MM:SS
+  C        Print date in DD-Mmm
+  D        Print date in DD-Mmm-YYYY
+  E        Print locked port baudrate
+  F        Print the name of the Last caller
+  G        Total users in userlist
+  H        Number of system calls
+  I        Current message area number
+  J        Current message area description
+  K        Print random oneliner
+  L        Print number of messages in current area.
+  M        Print users LastRead pointer of current message area.
+  N        Print users current e-mail mailbox name.
+  O        Print number of messages in current e-mail box.
+  P        Print users LastRead pointer of current e-mail box.
+  Q        Print the date and time of the last caller.
+
+
+</PRE>
+<P>
+
+<H3>Control-U followed by:</H3>
+<PRE>
+ Code      Description
+ ----      ---------------------------------------
+  A        User's full name
+  B        User's location
+  C        User's voice phone
+  D        User's data phone
+  E        User's last login date
+  F        User's first login date
+  G        User's last login time
+  H        User's security level
+  I        User's total calls
+  J        User's time used today
+  K        User's connect time this session
+  L        User's time left today
+  M        User's screen length
+  N        User's first name
+  O        User's last name
+  P        User's graphics mode allways (On).
+  Q        User's news bulletins (On/Off)
+  R        User's hot-keys (On/Off)
+  S        User's daily time limit
+  T        User's date of birth
+  U        User's messages posted
+  X        User's language
+  Y        User's handle
+  Z        User's do not disturb flag (On/Off)
+  1        User's check for new mail (On/Off)
+  2        User's check for new files (On/Off)
+  3        User's fullscreen editor (On/Off)
+  4        User's FS editor Emacs shortcuts (On/Off)
+  5        User's first address line.
+  6        User's Second address line.
+  7        User's Third address line.
+  8        User's OLR Extended Onfo (On/Off).
+  9        User's charactewr set.
+  0        User's current archiver.
+
+</PRE>
+
+<HR>
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Index" BORDER=0></A>
+<A HREF="../">Main Index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" BORDER=0></A>
+<A HREF="./">Menus Index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

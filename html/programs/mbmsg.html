@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mbmsg.html,v 1.5 2003/11/08 18:49:36 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbmsg - Message Base Utility.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 30-Jan-2001</h5></div>
+<div align="center"><H1>mbmsg - Message Base Utility</H1></div>
+
+<H3>Sysnopsis.</H3>
+<P>
+<code><strong>mbmsg</strong> [commands] &lt;options&gt;</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbmsg</strong>
+is the message base utility program for mbsebbs. In order to run mbmsg you
+must have started <strong>mbsed</strong>,
+this is the deamon which controls all bbs activities.
+<P>
+The main purpose of <strong>mbmsg</strong>
+is to link messages after tossing mail, and to maintain the size of the message
+bases and the age of the messages. The best way to do the maintenance is to
+run <strong>mbmsg</strong>
+from the crontab. example:
+<pre>
+30 05 * * * export MBSE_ROOT=/bbs; /bbs/bin/mbmsg kill pack link -quiet
+</pre>
+Another purpose is to automatic post messages in message areas. Echomail and
+netmail is possible.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+In order to run <strong>mbmsg</strong> you must set the global variable
+<strong>$MBSE_ROOT</strong>. This variable must point to the root directory
+of the bbs structure. The main configuration file <strong>config.data</strong>
+must be present in the ~/etc directory.
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+<code><strong>mbmsg</strong> link</code> Link all messages by subject ignoring 
+Re: in the subject lines. You should run this after tossing or scanning mail.
+<p>
+<code><strong>mbmsg</strong> kill</code> Kill messages in areas that have the 
+<strong>age</strong> set or the <strong>maximum</strong> messages set. 
+A setting of 0 is ignored. The messages are not removed from the message base, 
+they are only marked as deleted.
+<P>
+<code><strong>mbmsg</strong> pack</code> This command actualy removes the 
+messages who have the deleted flag set.
+The lastread pointers are updated and the messages renumbered. After this 
+command there is no way you can recover your messages, except from backups.
+<P>
+<code><strong>mbmsg</strong> post &lt;to&gt; &lt;#&gt; &lt;subj&gt; &lt;file&gt; &lt;flavor&gt;
+</code> This command posts a message in numbered area. If a field
+consists of more then one word it must be surounded with quotes.
+The <strong>to </strong> field can be "Michiel Broek" for a full name or
+"Michiel_Broek@f16.n2801.z2.fidonet" for netmail addressing. Look out:
+you need underscore between the firstname and lastname, no spaces.
+Flavor can be one or more of the characters "c", "i", "h" or "p" to set the Crash, 
+Immediate, Hold or Private flags.
+If no flavor is needed, use the - (minus sign) as a placeholder.
+<p>&nbsp;<P>
+
+<H3>Options.</H3>
+<P>
+<code><strong>mbmsg</strong> [command] -area &lt;#&gt;</code> 
+Process only one area &lt;#&gt; number.
+<P>
+<code><strong>mbmsg</strong> [command] -quiet</code> Quiet mode, 
+no screen output. Use this switch if you run <strong>mbmsg</strong> 
+from the crontab.
+<P>
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

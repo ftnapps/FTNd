@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+#  $Id: checkbasic,v 1.3 2006/07/02 11:07:36 mbse Exp $
+#
+#  checkbasic - A script for mbse bbs that checks if your
+#		installation is correct. If it is then
+#		normal installation is allowed. If it is
+#		pristine, basic installation must be done.
+#		If it bad or incomplete installed it will
+#		give an errormessage.
+
+if [ "`grep mbse: /etc/passwd`" != "" ]; then
+  if [ "`grep bbs: /etc/group`" != "" ]; then
+    if [ -n "$MBSE_ROOT" ]; then
+      if [ "$LOGNAME" = "root" ]; then
+	#
+	# Newer su versions change logname when su to root without
+	# environment change. Try to fix LOGNAME variable.
+	#
+	export LOGNAME="`who am i | awk -F ' ' '{ print $1 }'`"
+      fi
+      if [ "$LOGNAME" = "mbse" ]; then
+        #
+	# Looks good, normal mbse user and environment is set.
+	# Exit with errorcode 0
+	echo "Hm, looks good..."
+	exit 0
+      else
+	echo "*** You are not logged in as user 'mbse' ***"
+	exit 1
+      fi
+    else
+      echo "*** MBSE_ROOT environment is not set or you are not 'mbse'  ***"
+      if [ "$LOGNAME" = "root" ]; then
+	echo "*** You seem to be root, did you use 'su -' instead of 'su' ***"
+      fi
+      exit 1
+    fi
+  else
+    echo "*** Group 'bbs' is missing on your system ***"
+    exit 1
+  fi
+else
+  echo "*** User 'mbse' is missing on your system ***"
+  echo "    It looks like you need to do a basic install."
+  echo "    Make sure you are root and type ./SETUP.sh and"
+  echo "    read the file INSTALL for instructions."
+fi
+exit 1
+

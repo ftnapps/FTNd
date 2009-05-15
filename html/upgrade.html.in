@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: upgrade.html.in,v 1.2 2007/09/02 12:53:07 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Upgrade MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 02-Sep-2007</h5></div>
+<div align="center"><h1>Upgrade MBSE BBS</h1></div>
+
+<h3>Introduction.</h3>
+<p>
+First of all, if you upgrade from a previous version of MBSE BBS, 
+read all the ChangeLog entries from the version you are currently 
+running upto the new @VERSION@ version you are installing. 
+Then make a backup of at least all files in /opt/mbse/bin and /opt/mbse/etc.
+<p>&nbsp;<P>
+
+
+<h3>Install the source.</h3>
+<p>
+Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
+While in mbse's home directory (/opt/mbse) unpack the distribution archives:
+<pre>
+tar xfvj /path/to/mbsebbs-@VERSION@.tar.bz2
+</pre>
+You now have the subdirectory with sources in the right place. 
+Next build the binaries and install them using the following commands:
+<pre>
+cd ~/mbsebbs-@VERSION@
+make clean
+./configure
+make
+su        <b>important, do not use "su -"</b>
+password: <em>enter root password here</em>
+make install
+</pre>
+Ubuntu users should do:
+<pre>
+cd ~/mbsebbs-@VERSION@
+make clean
+./configure
+make
+sudo make install
+</pre>
+The last part of the installation procedure shows you the location of the bbs
+startup script that is added to your system. Remember this one for a moment.
+<p>
+Now restart the bbs (still as root) by executing the startup
+script you just saw on the screen followed by a space and the word <b>reload</b> or <b>restart</b>,
+this depends on the distribution you use. There are also distributions that must use the startup
+script twice, once with <b>stop</b> and then <b>start</b> as parameter.
+For example:
+<pre>
+/etc/rc.d/init.d/mbsed reload
+exit
+</pre>
+Ubuntu users do:
+<pre>
+sudo /etc/init.d/mbsebbs restart
+</pre>
+This will close the bbs, kill <b>mbtask</b>, start the new <b>mbtask</b> and open
+the bbs again for use. At this point you may need to update some configuration settings
+with <b>mbsetup</b>. Read the ChangeLog for the details. The ChangeLog may also describe a
+different restart procedure if this is needed.
+<p>&nbsp;<p>
+
+<h3>Other updates</h3>
+<p>
+Not everything is updated during the upgrade, only the binaries. Normally this is enough. 
+However it may be that the example menus, macro templates are updated in the distribution.
+Because these files may have some very personal changes, these files are not overwritten.
+You can force that, in the subdirectory ~/mbsebbs-@VERSION@/examples type
+<pre>
+make help
+</pre>
+to see what you can force to update. But carefully taking over the changes may be better.
+<br>
+In the directory /opt/mbse/bin and /opt/mbse/etc are new scripts installed. They have the
+extension <b>.new</b> and you need to examine these to see if you can simply copy these over
+your current ones.
+<p>
+<a href="index.htm"><img SRC="images/b_arrow.png" ALT="Back to Index" BORDER=0>Back to Index</a>
+
+</blockquote>
+</body>
+</html>

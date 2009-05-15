@@ -1,0 +1,22 @@
+#!/bin/sh
+#BLURB="Enable/disable MBSE BBS at boot"
+#
+# System setup script for Slackware
+#
+# $Id: setup.mbse,v 1.2 2005/02/27 14:31:04 mbse Exp $
+#
+T_PX=$1
+TMP=/var/log/setup/tmp
+if [ "$COLOR" = "on" -o -r $TMP/SeTcolor ]; then
+  dialog --title "ENABLE MBSE BBS AT BOOT?" --yesno \
+ "MBSE BBS is the bulletin board system and Fidonet (r) mailer for Unix." 6 70
+  if [ $? = 0 ]; then
+    mkdir -p /etc/rc.d/rc3.d /etc/rc.d/rc4.d
+    ln -s /etc/rc.d/init.d/mbsed /etc/rc.d/rc3.d/K05mbsed
+    ln -s /etc/rc.d/init.d/mbsed /etc/rc.d/rc3.d/S95mbsed
+    ln -s /etc/rc.d/init.d/mbsed /etc/rc.d/rc4.d/K05mbsed
+    ln -s /etc/rc.d/init.d/mbsed /etc/rc.d/rc4.d/S95mbsed
+  else
+    rm -f /etc/rc.d/rc3.d/K05mbsed /etc/rc.d/rc3.d/S95mbsed /etc/rc.d/rc4.d/K05mbsed /etc/rc.d/rc4.d/S95mbsed
+  fi
+fi

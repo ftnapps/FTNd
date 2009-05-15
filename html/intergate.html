@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: intergate.html,v 1.8 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS - Internet gateway.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 10-May-2002</h5></div>
+<div align='center'><H1>MBSE BBS - Internet Gateway.</H1></div>
+
+<H3>Introduction.</H3>
+<P>
+Since version 0.33.14 the email gateway is build into MBSE BBS and since
+version 0.33.15 the newsgateway is build into MBSE BBS. Since version 0.33.16 the
+newsgateway to UUCP nodes is added. To route
+email trafic to and from the internet you need a internet MTA. I stopped using 
+<strong>sendmail</strong> for this because it gave too much trouble setting it
+up together with MBSE BBS. 
+Today I use <A HREF="http://www.postfix.org">Postfix</A>,
+a well documented, secure and easy to setup MTA. For the actual gate from
+Postfix to the BBS you I use <b>mbmail</b> which you need to add to the 
+Postfix configuration.<P>
+<P>
+There may be two reasons to create a gateway, one is to gate internet news and
+email to the Fidonet bbs users, another reason may be that you want to make
+echomail as news available on your system so that users can connect to your 
+bbs with their favourite browser an get the mail and news using pop3 and
+nntp protocols. The setup is the same for both reasons so I will make one
+description for the whole setup.
+<P>&nbsp;<P>
+
+<H3>Setup a newsgate node with inn.</H3>
+<P>
+If you only want to gate internet news to your bbs users and not want to
+make echomail available as news, and you have a permament internet connection
+then you don't need your own news server. This will also work on dialup links,
+once the internet connection is up, make sure that <b>mbfido news -quiet</b> is
+started as user mbse.
+To do this configure MBSE BBS to use the newsserver of your ISP in screen 1.15 
+with mbsetup. 
+If you don't want to use the newsserver of your ISP or want to make echomail
+available as news for your local users you must install your own newsserver.
+You could use <A HREF="http://www.isc.org">inn news</A> for a newsserver.
+To connect a small feed with your ISP you could use <strong>suck</strong>.
+<P>
+In each echomail area you want to gate you need to fill in the newsgroup
+name of that area and echomail received in that area will automatic be 
+posted to that newsgroup. The command <b>mbfido news</b> will check all
+configured newsgroups for new newsarticles. If you set it up for the first
+time you need to run <strong>mbfido news -learn</strong> to fill the dupes
+database for news with all the already existing news articles. If you skip
+that, you may get a lot of old articles that will be gated. Just run that
+command once after you have set this up. Later when you receive fresh articles
+the command <strong>mbfido news</strong> will only gate new arrived articles.
+In each mail area you can set the number of articles to get in one run. If you
+set this too high, mbfido will scan all headers on the newsserver for new
+articles. This can cost a lot of time. The best thing to do is to set this value
+about four times higher then the average number of messages per day in that
+group. If you set it too low, warning messages will appear in the logfile.
+<P>&nbsp;<P>
+
+<H3>Setup a newsgate with rnews.</H3>
+<P>
+This is the setup if you don't want an NNTP newsserver like inn, but a simple
+cnews setup for UUCP links only. In <strong>mbsetup</strong> menu 1.15 you need
+to set this up. You need to fill in the path to the rnews program so that
+<strong>mbfido</strong> can post articles to cnews.  MORE INFO NEEDED.
+<P>
+In each echomail area you want to gate you need to fill in the newsgroup
+name of that area and echomail received in that area will automatic be
+posted to that newsgroup.
+<P>&nbsp;<P>
+
+<H3>Setup a newsgate via UUCP.</H3>
+<P>
+With this setup you don't run a local newsserver, only your bbs users and 
+Fidonet links can then use news. You need to install <strong>uucp</strong>
+on your system. With <strong>mbsetup</strong> menu 1.15 you need to set this
+up. Suppose your ISP's nodename is xs4all the you probably need to set the
+UUCP path to <code>/var/spool/uucp/xs4all</code> and the UUCP node to
+<code>xs4all</code>. Your own nodename will be your system's hostname without
+the domain part.
+<P>
+In each echomail area you want to gate you need to fill in the newsgroup
+name of that area and echomail received in that area will automatic be
+posted to that newsgroup.
+<P>&nbsp;<P>
+
+<H3>Setup a email gate.</H3>
+<P>
+See <A HREF="postfix.html">Postfix (email) configuration</A>
+<P>
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

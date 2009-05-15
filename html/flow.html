@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: flow.html,v 1.11 2007/03/01 19:12:54 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Running a BBS under Unix.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 01-Mar-2007</h5></div>
+<div align='center'><H1>Running a BBS under Unix.</H1></div>
+
+<h3>Introduction</H3>
+<P>
+Everyone who has been running a (single line) BBS under DOS until now will
+need to understand that running a BBS under Unix (or any other multitasking
+os) is completly different of what you are used to. Under DOS things were
+quite simple, from AUTOEXEC.BAT you started a new .BAT file that would run
+forever and started all needed programs after each other. 
+The programs that where started 
+depended on the errorlevel of the previous program. Only one program could
+run at the same time.
+<P>
+People who had previous run a BBS on another multitasking os, or were running
+a BBS on a small lan with a fileserver and workstations for each line, are
+already more used to the idea of running more programs at the same time,
+and to "signal" what to do next with semafore files.
+<P>
+The Unix aproach is more or less the same, but there are more differences.
+The main difference is that there is no mailer connected with the modem waiting
+for a call, instead there is a getty process watching your modem(s). And for
+internet calls, these are started via (x)inetd using standard *nix methods.
+Another
+big difference is that you don't see what's happening, there is no screen
+with the mailer or bbs picture on it. All programs run in the background. If
+you don't like that, stop now and go back to your old DOS bbs. It's just the
+way everything is done.
+<P>
+Programs that must start at specific times (events in DOS), are started from
+cron, this is the event scheduler for Unix. With this
+program maintenance can be started, polls created etc. For starting programs
+when they are needed there is a taskmanager loaded at system bootup. This
+taskmanager "watches" the semafore directory of the bbs and will start what
+is needed. It will also watch the mailer outbound to see if there are nodes
+to call.
+<P>&nbsp;<P>
+
+<H3>Waiting for a call .....</H3>
+<P>
+Under Unix this is done with the mgetty program, this is the 
+process that is connected with each modem (or ISDN adapter) and waits for a
+call. The mgetty program (written by Gert Doering, gert@greenie.muc.de) will
+detect the call, and find out what or who did make the call. It can detect
+incoming humans who want a login prompt, PPP calls from users who want to
+make a PPP connection (browsing your BBS whith netscape for example), A fax
+machine trying to deliver a fax and finally a mailer trying to establish
+an EMSI, FSC-0006 or FSC-0001 session. The mgetty program is responsible for
+starting the right client programs. How to do this is explained in the 
+installation manuals, but be sure to compile it with Fido and PPP support.
+<P>
+For internet calls, via (x)inetd mbsebbs can accept calls from connections on
+ports. For example if a connection comes in on port 24554 the mailer is started
+in binkp mode.
+<P>&nbsp;<P>
+
+<H3>A Human is calling.</H3>
+<P>
+This could be a bbs user. For each user to login to your bbs there is a
+unix account. They automatic create such an account the first time they login
+with the <b>bbs</b> account. During the creation of their account the shell that is
+installed for there account is the mbsebbs binary, so that's the only thing
+that they get if they call in. When they logout the bbs, or drop carrier etc,
+the session is ended and mgetty takes over the line again.
+Note that they never can get a Unix shell unless you install a <b>door</b> 
+in the bbs that calls a shell for them.
+<P>
+Because for dialin with mgetty the mblogin program is used and not the normal
+login program, only bbs users can login. All other users including <b>root</b> are
+denied access.
+You might consider installing SSH on your system for remote maintenance.
+<p>
+It is also possible to install the mblogin program as the login program for
+telnet users if you are directly connected to the internet.
+<P>&nbsp;<P>
+
+<H3>A PPP call is detected.</H3>
+<P>
+Installing a PPP server on your system is beyound the scope of this project.
+However if you did install it, users can login your bbs with their favourite
+browser and use your bbs. Note that the necessary tools to automatic create
+newsgroups don't exist at this time. With the proper setup you can automatic
+create and maintain html pages for the file areas.
+<P>&nbsp;<P>
+
+<H3>A mailer call is detected.</h3>
+<P>
+If a mailer is detected by mgetty, the <b>mbcico</b> program is started and will
+take over from mgetty. It will establish a mail session with the caller and
+the mail and or files will be exchanged just like any DOS mailer would do.
+After the call, mbcico will hangup and mgetty will take control of your modem
+again. If there is any mail received, mbcico will place the semafore <b>mailin</b>
+so that another process can take care of the received mail.
+<P>&nbsp;<P>
+
+<h3>There is mail in the inbound</h3>
+<P>
+As I said before, if the <b>mailin</b> semafore is present, the task manager will
+then start the <b>mbfido</b> program that will toss the mail, process any files 
+received and if necessary it will create other semafore's for example to link 
+the message bases, start the nodelist compiler etc. Note that this can be done 
+while there may be a new mailsession going on, a bbs user is online, it doesn't 
+matter. Processing mail and files can be done real multitasking without any 
+damage to other processes.
+<P>&nbsp;<P>
+
+<H3>It's time to poll a node</h3>
+<P>
+At the time that you whish to poll a node, let cron create "poll" requests.
+When a poll is created, the semafore <b>scanout</b> is also created.
+The taskmanager will then start mbcico at regular intervals so that mail will
+get out. If there is no more mail to send, the <b>scanout</b> semafore is removed.
+If a timeslot ends, you can just remove the "poll" requests that didn't succeed.
+<P>&nbsp;<P>
+
+<H3>It's Zone Mail Hour, so now what</h3>
+<P>
+Relax, if you have netmail ready for nodes the
+mailer script will try to send these mails to those nodes. If it was crash
+mail, and the destination was a non CM node, the mailer will try to send those
+mails too. Note that other crashmails are send anytime. Also note that packed
+mail and files are not send during ZMH. If a node calls you during ZMH he will
+get everything that's waiting, including packed mail and files. The task manager
+(more on that later) calculates the Zone Mail Hour from UTC time, you don't
+have to change anything for summer- and wintertime. The taskmanager knows about
+all zone mail hours of all Fidonet zones (1..6). For othernets, zone mail hour
+is taken from the setup as default value. The taskmanager will also handle the
+mail for nodes with the Txx flag (FSC-0062) on the right times.
+<P>&nbsp;<P>
+
+<H3>Daily maintenane</h3>
+<P>
+This is started by cron jobs. There is no need to take
+your bbs lines down during maintenance, you can do it any time of the day.
+I have made several scripts for this, daily, weekly and monthly.
+<P>&nbsp;<P>
+
+<h3>How about system load</h3>
+<P>
+Because GNU/Linux is a 32 bit os, not bothered with a graphical user interface
+(unless you install it), it has all the time in the world to serve your
+bbs programs. Background programs are build to release time to the Unix os,
+they don't need to run fast because it's background processing. The bbs and
+the mailer, have a low server load although there is no timerelease build
+in. Only the bbs has some short moments when it needs a lot of your system,
+for example when a user logs in and scans for new mail. The bbs I run is a
+486-DX4 100 MHz, 20 MB ram, with 2 analogue lines, this seems to work fine.
+When this system's MOBO died, I used a 386DX33 for several months with
+20 MB ram, and the only thing users ever noticed was that scanning for new
+mail was slower. I think this is the slowest harware that will work.
+However, you must always use 16550A uarts for the COM ports. For best 
+performance use SCSI disks. I noticed that old 5"FH SCSI disks perform better
+for bbs usage then modern EIDE disks. This is probably caused by the fact that
+the kernel needs more time for the cheap IDE bus.
+If you want to use X11 on your bbs, you need more ram and a faster CPU or a 
+separate machine via a lan and export the display to that machine. Currently the
+smallest amount of memory you need is 36 MB, and that amount is only needed if
+you use a virus scanner which needs more memory then mbse.
+<P>
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

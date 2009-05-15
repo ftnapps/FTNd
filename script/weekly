@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# MBSE BBS Weekly - Should be run every week at sunday from cron at 00:15
+#
+# $Id: weekly,v 1.4 2004/09/14 20:37:59 mbse Exp $
+
+if [ "$MBSE_ROOT" = "" ]; then
+   export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+fi
+if [ "`id -un`" != "mbse" ] ; then
+    echo "Must be run by user 'mbse'"
+    exit 1
+fi
+      
+# While the system is on UPS battery power, don't start maintenance
+#
+while [ -f $MBSE_ROOT/var/sema/upsalarm ]; do
+   sleep 60
+done
+
+$MBSE_ROOT/bin/mbfido notify -quiet
+
