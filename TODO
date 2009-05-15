@@ -16,14 +16,12 @@ $Id: TODO,v 1.353 2008/11/29 13:59:33 mbse Exp $
 		 X = Will not be done unless it's really needed.
 
 everything:
-	W: Implement IPv6.
-
 	N: In BSO the i flavor should have been d flavor.
 
-	N: Increase size of Unix usernames > 8. The limit on Slackware is 32
+	W: Increase size of Unix usernames > 8. The limit on Slackware is 32
 	   characters, defined in utmp.h in UT_NAMESIZE
 
-	L: Add personal message area.
+	W: Add personal message area.
 
 	N: The ttyinfo.tty field is too short for NetBSD.
 
@@ -43,11 +41,9 @@ mbsebbs:
 
 	X: OLR: implement some global settings from the offline configuration.
 
-	X: OLR: check qwke extensions.
-
 	N: OLR: qwk, check netmail entered from reader, fido address missing?
 
-	W: Implement kermit protocol, external versions don't work right.
+	X: Implement kermit protocol, external versions don't work right.
 
 
 mbfido:
@@ -71,7 +67,7 @@ mbfido:
 
 	W: Add macro's for stats of all months.
 
-	W: Implement file requests for directory nodes.
+	X: Implement file requests for directory nodes.
 
 	W: Add %from command to areamgr/filemgr.
 
@@ -87,8 +83,6 @@ mbfido:
 
 	W: Add statistic mail messages. Via AMC??
 
-	N: After readalias we need to free the alias list when mbfido ends.
-
 	N: Hatch statistics are not updated.
 
 	W: Copy personal mail to a personal message area.
@@ -98,7 +92,7 @@ mbfido:
 	W: AreaMgr %rescan should auto connect disconnected areas.
 
 mbcico:
-	L: Implement binkp option ND and NDA.
+	W: Implement binkp option ND and NDA.
 
 mbnntp:
 	N: fetched mail doesn't get the status Rcvd if it was for the user.

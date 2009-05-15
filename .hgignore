@@ -11,6 +11,7 @@ html/basic.html
 html/index.htm
 html/upgrade.html
 script/editor
+script/installinit.log
 unix/login.defs
 lib/ftscprod.c
 mbcico/mbcico
