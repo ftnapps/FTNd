@@ -1,0 +1,46 @@
+# Compile-time configuration for MBSE FidoNet/Internet BBS
+# $Id: Makefile.global.in,v 1.16 2007/05/27 14:12:52 mbse Exp $
+
+MAJOR		= @MAJOR@
+MINOR		= @MINOR@
+REVISION	= @REVISION@
+VERSION		= @MAJOR@.@MINOR@.@REVISION@
+PACKAGE		= @PACKAGE@
+
+# for make install, where to put binaries and what owner to set
+SUBDIRS		= @SUBDIRS@
+PREFIX		= @prefix@
+BINDIR		= @prefix@/bin
+ETCDIR		= @prefix@/etc
+DOCDIR		= @prefix@/doc
+VARDIR		= @prefix@/var
+INTDIR		= @prefix@/share/int
+OWNER		= @OWNER@
+GROUP		= @GROUP@
+ROWNER		= @ROWNER@
+RGROUP		= @RGROUP@
+MODE		= 0711
+SMODE		= 6711
+
+CHOWN		= @CHOWN@
+INSTALL		= @INSTALL@
+RANLIB		= @RANLIB@
+LN_S		= @LN_S@
+SHELL		= /bin/sh
+ECHO		= echo -e
+CC		= @CC@
+AWK		= @AWK@
+TAR		= @TAR@
+ZIP		= @ZIP@
+MAKE		= @MAKE@
+
+# joe editor
+JOEBIN		= @joebin@
+JOELIB		= @joelib@
+
+CFLAGS		= @CFLAGS@
+LIBS		= @LIBS@
+DEFS		= @DEFS@
+LDFLAGS		= @LDFLAGS@
+CPPFLAGS	= @CPPFLAGS@
+
