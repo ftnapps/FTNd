@@ -1,0 +1,146 @@
+#
+# $MBSE_ROOT/etc/login.defs - Configuration control definitions for mblogin.
+#
+#   $Id: login.defs.in,v 1.3 2004/11/28 18:23:13 mbse Exp $
+
+# Three items must be defined:  MAIL_DIR, ENV_SUPATH, and ENV_PATH.
+# If unspecified, some arbitrary (and possibly incorrect) value will
+# be assumed.  All other items are optional - if not specified then
+# the described action or option will be inhibited.
+#
+# Comment lines (lines beginning with "#") and blank lines are ignored.
+#
+
+#
+# Allow user "mbse" to login and get a shell. You better leave this to "no"
+# and install ssh if you want to login using a shell.
+#
+ALLOW_MBSE		no
+
+#
+# Ask a user when his username is not found if he wants to register as new
+# user. If not, the user has to use the special account to start mbnewusr.
+# If no, it is not bbs user friendly,
+# If yes, usernames may be easy guessed, but most bbses do it like this.
+#
+ASK_NEWUSER		yes
+
+#
+# The newuser account name, defaults to "bbs". If you change this change it
+# in the password files, change it in mbsetup and in this file. Better
+# leave this unchanged.
+#
+NEWUSER_ACCOUNT		bbs
+
+#
+# Delay in seconds before being allowed another attempt after a login failure
+#
+FAIL_DELAY		3
+
+#
+# Enable display of unknown usernames when login failures are recorded.
+#
+LOG_UNKFAIL_ENAB	no
+
+#
+# Enable logging of successful logins
+#
+LOG_OK_LOGINS		no
+
+#
+# Enable logging of lastlog login time info.
+#
+LASTLOG_ENAB		yes
+
+#
+# If defined, this file will be output before each login prompt.
+# Should not be needed, mgetty and getty will do this already.
+#
+ISSUE_FILE	@prefix@/etc/issue
+
+#
+# If defined, name of file whose presence which will inhibit non-root
+# logins.  The contents of this file should be a message indicating
+# why logins are inhibited.
+#
+NOLOGINS_FILE	/etc/nologin
+
+#
+# If defined, an HZ environment parameter spec.
+#
+# for Linux/x86
+ENV_HZ		HZ=100
+# For Linux/Alpha...
+#ENV_HZ		HZ=1024
+
+#
+# *REQUIRED*  The default PATH settings, for superuser and normal users.
+#
+# (they are minimal, add the rest in the shell startup files)
+ENV_PATH	PATH=/usr/local/bin:/bin:/usr/bin:@prefix@/bin
+
+#
+# Terminal permissions
+#
+#	TTYGROUP	Login tty will be assigned this group ownership.
+#	TTYPERM		Login tty will be set to this permission.
+#
+# If you have a "write" program which is "setgid" to a special group
+# which owns the terminals, define TTYGROUP to the group number and
+# TTYPERM to 0620.  Otherwise leave TTYGROUP commented out and assign
+# TTYPERM to either 622 or 600.
+#
+TTYGROUP	tty
+TTYPERM		0620
+
+#
+# Login configuration initializations:
+#
+#	ERASECHAR	Terminal ERASE character ('\010' = backspace).
+#	KILLCHAR	Terminal KILL character ('\025' = CTRL/U).
+#	UMASK		Default "umask" value.
+#	ULIMIT		Default "ulimit" value.
+#
+# The ERASECHAR and KILLCHAR are used only on System V machines.
+# The ULIMIT is used only if the system supports it.
+# (now it works with setrlimit too; ulimit is in 512-byte units)
+#
+# Prefix these values with "0" to get octal, "0x" to get hexadecimal.
+#
+ERASECHAR	0177
+KILLCHAR	025
+UMASK		007
+
+#
+# Max number of login retries if password is bad
+#
+LOGIN_RETRIES		5
+
+#
+# Max time in seconds for login
+#
+LOGIN_TIMEOUT		60
+
+#
+# Only works if compiled with MD5_CRYPT defined:
+# If set to "yes", new passwords will be encrypted using the MD5-based
+# algorithm compatible with the one used by recent releases of FreeBSD.
+# It supports passwords of unlimited length and longer salt strings.
+# Set to "no" if you need to copy encrypted passwords to other systems
+# which don't understand the new algorithm.  Default is "no".
+#
+MD5_CRYPT_ENAB	yes
+
+#
+# Should login be allowed if we can't cd to the home directory?
+# Default in no.
+#
+DEFAULT_HOME	no
+
+#
+# Enable setting of the umask group bits to be the same as owner bits
+# (examples: 022 -> 002, 077 -> 007) for non-root users, if the uid is
+# the same as gid, and username is the same as the primary group name.
+#
+USERGROUPS_ENAB yes
+

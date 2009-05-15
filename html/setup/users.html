@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: users.html,v 1.9 2005/11/08 21:03:09 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - BBS Users.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 08-Nov-2005</h5></div>
+<div align='center'><H1>MBSE BBS Setup - BBS Users.</H1></div>
+
+<H3>Introduction.</H3>
+<P>
+This screen lets you edit some settings of the BBS users. Note that the users
+database will never be packed and users will always keep their record number.
+If a user is deleted the record will be blanked. New users will get a blank
+record if it exists, otherwise the database will be expanded. The reason for
+this is the LastRead pointers of the message areas, BBS systems who do it
+in another method mostly can't keep track of LastRead pointers and records,
+and they mix all users LastRead pointers. 
+Fields that can be changed by the users themselves are in the second screen.
+<P>&nbsp;<P>
+
+<H3>Edit User</H3>
+<P>
+<pre>
+<strong>Full Name    </strong>The full (Fidonet) name of the user.
+<strong>Security     </strong>The security level of the user.
+<strong>Expirydate   </strong>The expiry date of the user DD-MM-YYYY.
+<strong>Expiry Sec   </strong>The security level the user gets after expiry.
+<strong>Unix uid     </strong>Displays the unix name of the user.
+<strong>1st login    </strong>Displays the date of the first login.
+<strong>Last login   </strong>Displays the date of the last login.
+<strong>Pwdchange    </strong>Displays the date of the last password change.
+<strong>Credit       </strong>The users credit.
+<strong>Hidden       </strong>If the user is hidden from listings etc.
+<strong>Deleted      </strong>User must be deleted.
+<strong>No Kill      </strong>User can never be deleted.
+<strong>Comment      </strong>The comment about this user.
+<strong>Locked       </strong>Locked out of the BBS.
+<strong>Guest        </strong>Is this a "guest" account on/off.
+<strong>Ext Info     </strong>Send ^aKLUDGES with BlueWave downloads.
+<strong>Email        </strong>If this user has an email address.
+<strong>Calls        </strong>Displays the number of calls.
+<strong>Downlds      </strong>Displays the number of downloads.
+<strong>Down Kb      </strong>Displays the number of Kilobytes downloaded.
+<strong>Uploads      </strong>Displays the number of uploads.
+<strong>Upload Kb    </strong>Displays the number of Kilobytes uploaded.
+<strong>Posted       </strong>Displays the number of messages posted.
+<strong>Time left    </strong>Show the time left in minuts and reset the time.
+<strong>Screen 2     </strong>Go to next setup screen.
+</pre>
+Watch out when changing the unix userid of the user, you need to change the
+system password file and the users home directory manually.
+<P>
+<IMG SRC="../images/users.png" alt='User editor'>
+<P>
+
+<H3>Edit User Private Settings</H3>
+<P>
+<pre>
+<strong>Handle       </strong>The nickname of the user.
+<strong>Location     </strong>The location of the user.
+<strong>Address 1    </strong>The address of the user line 1.
+<strong>Address 2    </strong>The address of the user line 2.
+<strong>Address 3    </strong>The address of the user line 3.
+<strong>Voicephone   </strong>The voice phonenumber of the user.
+<strong>dataphone    </strong>The data phonenumber of the user.
+<strong>Birthdate    </strong>The birthdate of the user DD-MM-YYYY.
+<strong>Password     </strong>Change password for this user.
+<strong>Sex          </strong>Users sex, male or female.
+<strong>Protocol     </strong>The selected file transfer protocol.
+<strong>Archiver     </strong>The selected archiver.
+<strong>Charset      </strong>The users preffered character set.
+<strong>Screenlen    </strong>The length (lines) of the users screen.
+<strong>Language     </strong>The language the user uses.
+<strong>Hotkeys      </strong>Hotkeys on/off.
+<strong>Color        </strong>Color on/off.
+<strong>Fs Chat      </strong>Fullscreen Chat on/off.
+<strong>Silent       </strong>Do not disturb on/off.
+<strong>CLS          </strong>Sent clearscreen codes on/off.
+<strong>More         </strong>More prompt on/off.
+<strong>Editor       </strong>Select message editor.
+<strong>MailScan     </strong>Scan for new mail at logon on/off.
+<strong>ShowNews     </strong>Show "news" screens on/off.
+<strong>NewFiles     </strong>New files scan at logon on/off.
+<strong>Emacs        </strong>Use Emacs (or Wordstar) FS edit shortcut keys.
+</pre>
+<P>
+
+<IMG SRC="../images/users2.png" alt='User editor'>
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

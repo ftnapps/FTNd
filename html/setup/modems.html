@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: modems.html,v 1.4 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Modem types.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 29-Jan-2001</h5></div>
+<div align='center'><H1>MBSE BBS Setup - Modem types</H1></div>
+
+In the setup screen you can define all kinds of modems you use. This includes
+ISDN modems.
+This is not the setup of individual lines, that is in the next section, so
+if you own a bbs with 5 analogue lines with only two brands and types of
+modems connected, you need only to define those two types of modems here. Some
+defaults are installed during initial bbs setup.
+<P>&nbsp;<P>
+
+<h3>Setup a modem.</h3>
+<p>
+<pre>
+<strong>Type             </strong>The description of this modem.
+<strong>Init 1           </strong>The first modem init string.
+<strong>Init 2           </strong>The second init string (if needed).
+<strong>Init 3           </strong>The third init string (if needed).
+<strong>Reset            </strong>Not in use
+<strong>Hangup           </strong>Only needed if drop DTR doesn't work.
+<strong>Dial             </strong>The dial command.
+<strong>Info             </strong>Command to get caller-id (not tested).
+<strong>Ok               </strong>The modem "OK" response.
+<strong>Offset           </strong>The answer/connect time offset.
+<strong>Speed            </strong>The maximum modem linespeed, ie 28800.
+<strong>Available        </strong>If this modem is available.
+<strong>Deleted          </strong>If this modem must be deleted.
+<strong>Stripdash        </strong>Strip dashes from the dial command.
+<strong>Connect strings  </strong>Here you can define 20 connect strings.
+<strong>Error strings    </strong>Here you can define 10 non-connect strings.
+</pre>
+<p>&nbsp;<P>
+
+<H3>Special characters</H3>
+<p>
+<pre>
+<strong>\\               </strong>Send one backslash.
+<strong>\r               </strong>Send the CR character.
+<strong>\n               </strong>Send the LF character.
+<strong>\t               </strong>Send the TAB character.
+<strong>\b               </strong>Send the BS character.
+<strong>\s               </strong>Send a space character.
+<strong>\d               </strong>Wait one second.
+<strong>\p               </strong>Wait 0,25 second.
+<strong>\D               </strong>Send untranslated phone number.
+<strong>\T               </strong>Send translated phone number.
+</pre>
+<p>&nbsp;<P>
+
+<H3>The Hangup field</H3>
+<p>
+This is only needed if your modem doesn't hangup by dropping the DTR line for
+one second. Most modems do that if &amp;D2 or &amp;D3 is in the init string.
+<p>&nbsp;<P>
+
+<H3>The Offset field.</H3>
+<p>
+The <strong>Offset</strong> field is to calculate the cost for outgoing calls.
+Analogue modems need time to establish the connection, 6 seconds is quite
+common. So when you see the CONNECT BLABLA message, the phone connection
+is there already 6 seconds and you are already paying for 6 seconds. This
+offset is thus added to the total calculated connect time for cost 
+calculations. For ISDN modems this can be 1 or 0.
+<p>&nbsp;<P>
+<IMG SRC="../images/modems0.png" alt='Modems setup'>
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

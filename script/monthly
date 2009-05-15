@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# MBSE BBS Monthly - Should be run at the first day of the month at 01:30
+#
+# $Id: monthly,v 1.5 2005/08/26 10:42:11 mbse Exp $
+
+if [ "$MBSE_ROOT" = "" ]; then
+   export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+fi
+if [ "`id -un`" != "mbse" ] ; then
+   echo "Must be run by user 'mbse'"
+   exit 1
+fi
+
+# While the system is on UPS battery power, don't start maintenance
+#
+while [ -f $MBSE_ROOT/var/sema/upsalarm ]; do
+   sleep 60
+done
+
+# Check files database and download areas.
+# 
+$MBSE_ROOT/bin/mbfile check index -quiet

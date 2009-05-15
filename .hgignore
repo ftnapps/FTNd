@@ -1,0 +1,11 @@
+.filelist
+FILE_ID.DIZ
+INSTALL
+Makefile.global
+autom4te.cache
+config.cache
+config.h
+config.log
+config.status
+paths.h
+stamp-h

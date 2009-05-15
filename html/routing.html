@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: routing.html,v 1.6 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Netmail routing behaviour.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 22-Oct-2001</h5></div>
+<div align='center'><h1 ALIGN="CENTER">MBSE BBS Netmail routing behaviour</h1></div>
+
+<h3>Introduction</h3>
+<p>
+The <strong>mbfido</strong> program that is responsible for unpacking, 
+importing, exporting and routing of netmail has a build in default routing
+plan. In general this is quite simple, if we know the destination node or
+his uplink, (that node or uplink is in our setup), then we will route via
+that node in our setup. If the node or his uplink is not in our setup, then
+the nodelist is used and normal fidonet routing is used. This means, if you
+are a node, everything goes to your hub, if you are a hub, then mail for
+your downlinks will go direct to the downlinks because they are in your setup, 
+everything else goes to the host. 
+If you are a host, then your own downlinks will get the mail direct,
+the downlinks of the hubs in your net well be routed via the hubs below you.
+If it is for a node in your region but outside your net, mail will be routed via
+the other hosts in your region. Mail to outside your region will go to the
+region coordinators system.
+<P>&nbsp;<P>
+
+<h3>Tracking and bouncing</h3>
+<p>
+At this moment there is no bouncing of undeliverable mail. I will built this
+in, but it will only work inside your own net. I will never include code for
+bouncing mail outside your net, because nodelists are always not uptodate.
+<p>&nbsp;<P>
+
+<h3>Special routing</h3>
+<p>
+What if you need special routing. The solution is simple, add the routing
+nodes to your setup and fill in the "route via" field. If you don't have a
+session password with that node, leave the password fields blank. This node
+will never know that he is in your setup as long as you have the notify
+settings for that node switched off. To figure
+out such solutions yourself, I have included the flow diagrams for the tracking
+module.
+<p>&nbsp;<P>
+
+<h3>Main tracking routine:</h3>
+<PRE>
+<CODE>
+	+=============================+
+	|     Trackmail to dest.      |
+	+--------------+--------------+
+		       |
+	++-------------+-------------++
+	||   rc = GetRoute to dest   || (See next diagram).
+	++-------------+-------------++
+		       |
+	+--------------+--------------+  yes
+	|       rc = R_NOROUTE        +-----------------+
+	+--------------+--------------+		+-------+--------+
+		       | no			| res: R_NOROUTE |
+		       |			+================+
+	+--------------+--------------+  yes
+	|       rc = R_UNLISTED       +-----------------+
+	+--------------+--------------+		+-------+--------+
+		       |			| res: R_UNLISTED|
+		       |			+----------------+
+	+--------------+--------------+  yes
+	|        rc = R_LOCAL         +-----------------+
+	+--------------+--------------+		+-------+--------+
+		       | no			| result: R_LOCAL|
+		       |			+================+
+	+--------------+--------------+  no
+	|   routing node in setup ?   +-----------------+
+	+--------------+--------------+		+-------+--------+
+		       | yes			|   result:  rc  |
+		       |			+================+
+	+--------------+--------------+  no
+	|   "Route via" filled in ?   +-----------------+
+	+--------------+--------------+		+-------+--------+
+		       | yes			|  res: R_ROUTE  |
+		       |			+================+
+	+--------------+--------------+
+	|   Change route to address   |
+	|       result = R_ROUTE      |
+	+=============================+
+</CODE>
+</PRE>
+<h3>Sub function GetRoute:</h3>
+<PRE>
+<CODE>
+	+=============================+
+	|          GetRoute           |
+	+--------------+--------------+
+		       |   
+	+--------------+--------------+
+	|      Add domain name	      |
+	+--------------+--------------+
+		       |
+	+--------------+--------------+ yes
+	|  Is dest our own address ?  +------------------+
+	+--------------+--------------+		+--------+-------+
+		       | no			|   rc = R_LOCAL |
+		       |			+================+
+	+--------------+--------------+ yes
+	| Is dest our point address ? +------------------+
+	+--------------+--------------+		+--------+-------+
+		       | no			|  rc = R_DIRECT |
+		       |			+================+
+	+--------------+--------------+ yes (route to boss)
+	|    Are we a point system    +------------------+
+	+--------------+--------------+		+--------+-------+
+		       | no			| dest is my Boss|
+		       |                        |  res: R_DIRECT |
+		       |			+----------------+
+	+--------------+--------------+ yes
+	| Dest. addr. in nodes setup? +------------------+
+	+--------------+--------------+		+--------+-------+
+		       | no			|  rc = R_DIRECT |
+		       |			+================+
+	+--------------+--------------+ yes
+	| Boss of point dest in setup +------------------+
+	+--------------+--------------+		+--------+-------+
+		       | no			|  rc = R_DIRECT |
+		       |			|   dest = Boss  |
+		       |			+================+
+	+--------------+--------------+ 
+	| Is node listed and do we    | yes
+        | know his uplink in setup ?  +------------------+
+	+--------------+--------------+		+--------+-------+
+		       | no			| dest is uplink |
+		       |			|  rc = R_DIRECT |
+		       |			+================+
+	+--------------+--------------+ yes
+	|   Are we host in network ?  +------------------+
+	+--------------+--------------+		+--------+-------+
+		       | no			| Set host addr. |
+		       |			+--------+-------+
+		       |				 +----------+
+	+--------------+--------------+ yes			    |
+	|    Are we hub in domain ?   +------------------+	    |
+	+--------------+--------------+		+--------+-------+  |
+		       | no			|  Set hub addr. |  v
+		       |			+--------+-------+  |
+		       |				 |	    |
+		       +---------------&lt;-----------------+-----&lt;----+
+		       |
+	+--------------+--------------+
+	|    Set our region number    |
+	+--------------+--------------+
+		       |
+		       |
+	+--------------+--------------+ no
+	|       Host address set ?    +-----------------------------+
+	+--------------+--------------+				    |
+		       | yes					    |
+		       |					    |
+	+--------------+--------------+ 
+        |  Dest region &lt;&gt; our region  | yes			    |
+	|  or Dest zone &lt;&gt; our zone   +------------------+	    |
+	+--------------+--------------+		+--------+-------+  |
+		       | no			|   Dest to RC   |  |
+		       |			|  rc = R_ROUTE  |  |
+		       |			+================+  |
+	+--------------+--------------+ yes			    |
+	|     Dest net &lt;&gt; our net     +------------------+	    |
+	+--------------+--------------+		+--------+-------+  |
+		       | no			| to host destnet|  |
+		       |			|  rc = R_ROUTE  |  |
+		       |			+================+  |
+	+--------------+--------------+ yes			    |
+	|       Has node a hub        +------------------+	    |
+	+--------------+--------------+		+--------+-------+  |
+		       | yes			| to node's hub  |  |
+		+------+--------+		|  rc = R_ROUTE  |  |
+		| dest is direct|		+================+  |
+		|  rc = R_ROUTE |				    |
+		+===============+				    |
+								    |
+		       +------------------------&lt;-------------------+
+	+--------------+--------------+ no
+	|       Hub address set ?     +-----------------+
+	+--------------+--------------+		+-------+--------+
+		       | yes			|  via our hub   |
+		       |			|  rc = R_ROUTE  |
+		       |			+================+
+	+--------------+--------------+ yes
+	|  Dest node of our hub addr  +-----------------+
+	+--------------+--------------+		+-------+--------+
+		       | no			|  rc = R_DIRECT |
+		       |			+================+
+		+------+-------+
+		| dest is host |
+		| rc = R_ROUTE |
+		+==============+
+</CODE>
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

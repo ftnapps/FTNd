@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: usleep.html,v 1.7 2004/01/25 10:57:52 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>System load and the usleep() call.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 23-Jan-2004</h5></div>
+<div align='center'><H1>System load and the usleep() call.</H1></div>
+
+At some time when developping MBSE BBS I decided that background utilities
+did't need full speed to do their jobs. BBS utilities under DOS needed
+to run as fast as possible because you needed to bring the bbs down to run
+these programs and users couldn't login during that time.
+<p>
+Starting with mball, the allfiles creator, I inserted code that does usleep(1)
+after each 5 processed files. The 1 microsecond is not really the time the
+program pauses, it's probably a lot longer. I think this depends on the 
+hardware type, (Intel, Sparc, Alpha etc) how long GNU/Linux will really suspends
+executing the utility.
+<p>
+The program speed downgrade at the development machine that mball needed was
+3 times the original exection time, while system loading stayed under 30%.
+At that time the development machine is an 486DX2-66 with a Seagate ST32151N
+SCSI harddisk.
+<p>
+The extra usleep code is only active if you run these utils with the -quiet
+switch and when this is set in mbsetup. See menu 1-&gt;5.
+With this switch, the program is mostly run by cron. If you onmit
+this switch, this is probably when you start the program manually, it will
+then always run at full speed, no matter what the setting in mbsetup is.
+<p>
+If you have a fast system or don't care that the performance of your system 
+drops because of background processing, you can turn this future off with
+mbsetup in the global section. (menu 1-&gt;5).
+<p>
+Remember, if you have a PII-400 MMX or so with IDE disks, you may still have
+performance problems and need to set that switch to yes. There is only one
+way to find out if you need it.
+<p>
+Well, actually, I tested this on a Dell Latitude PII-266, setting the switch to
+yes gave better performance then no. Why? The CPU has more time for the slow
+IDE disk. With the slow switch on programs runs even faster then with the switch
+off. Modern hardware (PIII and later) may run fine with the slow switch turned
+off.
+<p>
+In januari 2004 the usleep code is replaced by a milliseconds timer written
+around the nanosleep system call. This call conforms to POSIX.1b and is written
+so that if the timer is interrupted it will resume with the time left to do.
+The real minimum time the timer runs is 10 ms on Intel systems, see also <b>man
+nanosleep</b> All usleep(1) calls are now msleep(1) calls, in practice these are
+pauses of 10 ms.
+<P>
+Michiel.
+<p>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

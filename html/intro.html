@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: intro.html,v 1.11 2007/03/01 19:12:54 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Running a BBS under Unix.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 01-Mar-2007</h5></div>
+<div align="center"><H1>Introduction to MBSE BBS.</H1></div>
+
+<H3>Distribution.</H3>
+<P>
+These are the only official distribution sites for the mbse bbs package. They are:
+<OL>
+ <LI><A HREF="http://www.mbse.eu">http://www.mbse.eu</A>
+ <LI>fidonet node 2:280/2802 binkp fido.mbse.eu
+</OL>
+If you find mbse bbs on another site it may be out of date. I have no control over these sites.
+New versions of mbse bbs are announced in the fidonet area LINUX_BBS and MBSE
+support echo. On the official fidonet
+nodes you can request the latest version with the magic MBSEBBS. You will then get a zip file,
+in this zip file is the original tar.gz file. This is to let systems who only support 8.3
+filenames to pickup the distribution package.
+<P>&nbsp;<P>
+
+<H3>History.</H3>
+<P>
+At the end of 1997 I was looking for several BBS systems that could run on
+GNU/Linux and it must be capable to run Fidonet mail. After reviewing almost
+all packages that were available at that time I found that there were no
+packages that suited my needs. Some had the plain user interfaces that
+my bbs users were used to but no Fidonet capabilities, others looked
+awfull or were difficult to use by normal bbs users without Unix experience.
+I also didn't want to run shareware anymore, one day you pay for some program,
+and the next day support is over because the writer of that program decided
+to stop development or simply dissapears from the Fidonet stage. With all
+Y2K problems ahead the solution should be Open Software so that you have
+the sources in case something goes wrong.
+One package was very interesting and had the look and feel of RemoteAcces,
+that package was RapidBBS. There was only one problem, it had no Fidonet
+capabilities. I rewrote the data structures and created a deamon that should
+control all bbs acivities. In march 1998 I started writing the mbfido program
+that should handle all Fidonet mail and .tic files. In june 1998 the final
+message base format became JAM using the LoraBBS sources as a guide to create
+the JAM libraries. The original JAMapi was not stable enough to do all the work
+that needed to be done.
+<P>
+In Juli 1998 the first version of MBSE BBS was installed on the bbs I have, 
+on the second line. The first line was running McMail, GEcho and RA on a
+Novell client while on the GNU/Linux box the mars_nwe emulator from Martin Stower 
+was running. In november 1998 mbcico was created from ifcico from Eugene M.
+Crosser. In Januari 1999 it did also compile and run on a Sun Sparcstation 2
+system.
+<P>
+In April 1999 the motherboard of the GNU/Linux server died, I replaced it with
+the MOBO of one of the client machines. From that day on, MBSE BBS became the
+only bbs running on my system, because I was short on serial port boards at
+that time. McMail and RA became history and MBSE BBS was on its own. From that
+day on, updates were almost daily, all users and up and downlinks showed that
+there were plenty of bugs to solve. One month later most problems were solved.
+<P>
+In juli 1999 Jan van de Werken started beta testing MBSE BBS on his system.
+In September 1999 MBSE BBS was public released for the first time.
+<P>&nbsp;<P>
+
+<H3>Is it Y2K ready?</H3>
+<P>
+There have been no problems since 1 januari 2000 with MBSE BBS. I do run
+pktdate by Tobias Ernst in the tosser, this solves problems with incoming
+mail. Due to the internal date format, this program should run until 2038, 
+just as long as Unix/Linux and the internet will function without changing 
+the date format.
+<P>&nbsp;<P>
+
+<H3>Future plans.</H3>
+<P>
+Plans are to completly integrate www and chat into MBSE BBS. It
+should work for browsers about the same as with ANSI character terminals.
+<P>&nbsp;<P>
+
+
+<A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

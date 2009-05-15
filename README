@@ -1,0 +1,28 @@
+$Id: README,v 1.8 2006/07/03 20:27:21 mbse Exp $
+
+				MBSE BBS Packages.
+
+
+Distribution naming scheme:
+
+mbsebbs-0.33.18.tar.bz2
+  |     | |  |
+  |     | |  +-------- minor patchlevel 
+  |     | +----------- minor version
+  |     +------------- major version
+  +------------------- package name
+
+For fidonet distribution, the tar archive and FILE_ID.DIZ are
+zipped together in a file like mbb03318.zip
+
+The odd minor version numbers are developent versions only. From 0.35.1 and up
+these will not be released anymore but are only available via cvs.
+
+The even minor version numbers will be stable releases, they will be available
+at http://www.mbse.eu and at 2:280/2802. The first version using this
+scheme is 0.36.00
+
+For first time installing, see the file INSTALL. After installation, the html
+guide is installed in /opt/mbse/html.
+
+

@@ -1,0 +1,121 @@
+#!/bin/sh
+#
+# $Id: hatch,v 1.7 2008/03/04 20:40:20 mbse Exp $
+#
+# Hatch script for MBSE BBS.
+#
+#============================================================================
+# Copyright (C) 1997-2008
+#   
+# Michiel Broek                FIDO:           2:280/2802
+# Beekmansbos 10
+# 1971 BV IJmuiden
+# the Netherlands
+#
+# This file is part of MBSE BBS.
+#
+# This BBS is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version.
+#
+# MBSE BBS is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with MBSE BBS; see the file COPYING.  If not, write to the Free
+# Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+#============================================================================
+#
+# Global settings, change as needed:
+#
+# Password, see menu 1.10.2
+# 
+HATCHPWD="DizIzMyBIGseeKret"
+INBOUND=$MBSE_ROOT/var/inbound
+HVERSION="1.0.3"
+
+
+if [ "`id -un`" != "mbse" ]; then
+    echo "This program may only be used by user 'mbse'"
+    exit 1
+fi
+
+if [ "DizIzMyBIGseeKret" == "${HATCHPWD}" ]; then
+    echo "This script is not yet configured, first edit this script before use!"
+    exit 1
+fi
+
+cat <<EOF
+
+   Hatch files for MBSE BBS. All files you want to hatch must be
+   in the current directory and must be owned by user 'mbse' and
+   group 'bbs'. They will be removed when they are hatched, so
+   this should be a temporary copy of all those files.
+   These files must be real files, no symlinks.
+   Long filenames are allowed as long as there are no spaces in
+   the filename. The mbfido program will build the 8.3 filenames
+   when needed.
+   When hatching long filenames and downlinks complain about this,
+   then with mbsetup set these nodes to 8.3 names.
+
+EOF
+
+echo -n "Enter TIC group to hatch files in (Control-C = stop) : "
+read GROUP
+if [ -z "$GROUP" ]; then
+    exit 0
+fi
+
+echo -n "Enter the Fidonet aka for this TIC group, ie. 2:280/2802 : "
+read AKA
+if [ -z "$AKA" ]; then
+    exit 0
+fi
+
+echo -e "Now scanning directory, add a oneline description for each file\n"
+
+i=0;
+for f in `ls` 
+do
+    if [ -f $f ]; then
+	echo -e "Enter description for $f (empty is skip file)"
+	echo -n ": "
+	read DESC
+	if [ ! -z "$DESC" ]; then
+	    echo -e "Replace filename (empty is none)"
+	    echo -n ": "
+	    read REPL
+	    echo -e "Magic filename (empty is no magic)"
+	    echo -n ": "
+	    read MAGIC
+	    let i=i+1
+	    FILE=$INBOUND/`$MBSE_ROOT/bin/mbseq`.tic
+	    echo "Hatch" > $FILE
+	    echo "Created MBSE BBS hatch script v$HVERSION" >> $FILE
+	    echo "Area $GROUP" >> $FILE
+	    if [ ! -z "$REPL" ]; then
+		echo "Replaces $REPL" >> $FILE
+	    fi
+	    if [ ! -z "$MAGIC" ]; then
+		echo "Magic $MAGIC" >> $FILE
+	    fi		
+	    echo "Origin $AKA" >> $FILE
+	    echo "From $AKA" >> $FILE
+	    echo "File $f" >> $FILE
+	    echo "Fullname $f" >> $FILE
+	    echo "Pth `pwd`" >> $FILE
+	    echo "Desc $DESC" >> $FILE
+	    echo "Pw $HATCHPWD" >> $FILE
+	    echo -e "\nFile hatched\n"
+	fi
+    fi
+done
+
+echo -e "\nTotal $i files hatched in area $GROUP."
+echo "Start processing TIC files"
+
+$MBSE_ROOT/bin/mbfido tic
+

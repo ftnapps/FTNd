@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: fegroup.html,v 1.9 2004/03/08 22:25:22 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - File Echo's Setup - File Groups.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 08-Mar-2003</h5></div>
+<div align="center"><H1>MBSE BBS Setup - File Echo's Setup - File Groups.</H1></div>
+
+<H3>Introduction.</H3>
+<P>
+File echo groups are to logically divide your file echo's for different 
+file distribution networks. 
+This screen also has a lot of fields that are needed for the auto area create.
+When a new area is created a bbs download area is made and a new tic area record
+is made.
+It makes sense to select the groups by uplink and
+area file that is available for that file distribution network. By doing that 
+downlinks can connect areas that are not yet connected at your bbs but are
+available from your uplink. If you are connected to the filegate then there is
+one area file for all distribution groups. You must then create a file group for
+each distribution group, ie. Fidonet, SDS etc. The name of that group must
+exactly match the comment field in the group in this setup.
+<P>&nbsp;<p>
+
+<H3>File Group Setup.</H3>
+<P>
+<pre>
+<strong>Name      </strong>File Echo Group name.
+<strong>Comment   </strong>The description of that group.
+<strong>Base path </strong>The base path for new created areas.
+<strong>Active    </strong>If this group is active.
+<strong>Use Aka   </strong>The Fidonet aka to use for this group
+<strong>Uplink    </strong>The Fidonet aka of the uplink.
+<strong>Areas     </strong>The name of the areas file (in ~/var/arealists).
+<strong>Filegate  </strong>Is area file in filegate.zxx format or not.
+<strong>Banner    </strong>Banner file to add to archives.
+<strong>Convert   </strong>Archiver to convert archive to.
+<strong>BBS group </strong>BBS group name.
+<strong>New group </strong>New files announce group.
+<strong>Active    </strong>If this group is active.
+<strong>Deleted   </strong>If this group must be deleted.
+<strong>Start at  </strong>New created areas must start at area nr.
+<strong>Auto chng </strong>Auto change when running <b>mbfido areas</b>
+<strong>User chng </strong>Auto create areas on downlinks requests.
+<strong>Replace   </strong>Set replace option in new areas.
+<strong>Dupecheck </strong>Set Dupecheck option in new areas.
+<strong>Secure    </strong>Set secure option in new areas.
+<strong>Touch     </strong>Set Touch filedate option in new areas.
+<strong>Virscan   </strong>Set virus scanner option in new areas.
+<strong>Announce  </strong>Set announce files option in new areas.
+<strong>Upd magic </strong>Set update magicname option in new areas.
+<strong>File ID   </strong>Set File ID option in new areas.
+<strong>Conv. all </strong>Set convert all option in new areas.
+<strong>Send orig </strong>Set send original option in new areas.
+<strong>DL sec    </strong>Set download security in new areas.
+<strong>UP sec    </strong>Set upload security in new areas.
+<strong>LT sec    </strong>Set list security in new areas.
+<strong>Upl. area </strong>Set upload area number in new areas.
+<strong>Link sec  </strong>Set link security to copy to new areas.
+</pre>
+<p>
+<img src="../images/fegroup.png" alt='File echo groups setup'>
+<P>
+
+<A HREF="tic.html"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to File Echo's Setup</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

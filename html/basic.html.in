@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: basic.html.in,v 1.23 2007/10/14 13:58:22 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS basic installation.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 14-Oct-2007</h5></div>
+<div align="center"><h1>MBSE BBS Basic Installation</h1></div>
+
+<h3>Introduction.</h3>
+<p>
+Before you compile and install MBSE BBS you must first setup the basic
+environment. If you don't do this, things will fail.
+<p>
+To compile and install MBSE BBS most distributions have installed all needed packages. 
+If important packages are missing then the configure script will tell you. There are also
+less important packages which if missinng still let you compile MBSE BBS, but you will miss
+some features. Here is a short list of these packages:
+<ol>
+ <li><b>Zlib</b>. On some distributions you also need <b>zlib development</b>. When you have
+     zlib installed, then in <b>mbcico</b> extra code will be compiled in the Hydra and Binkp protocol drivers
+     that will allow the PLZ extension. In the binkp protocol GZ compression will be enabled as well.</li>
+ <li><b>Bzlib</b>. On some distributions you need to install <b>bzlib2 development</b> to add 
+     support for binkp BZ2 compression.</li>
+ <li><b>GeoIP</b>. Allows logging of the origin of the network connections by country and continent.
+     You need at least GeoIP 1.4.3 to compile without errors. See
+     <A HREF="http://www.maxmind.com/app/geoip_country">www.maxmind.com</A>.
+ </ol>
+If you use Gentoo or Ubuntu, read the files README.Gentoo or README.Ubuntu. The last one may be usefull
+for Debian users too.
+<P>&nbsp;<p>
+
+<h3>Step 1: planning the filesystems.</h3>
+<p>
+MBSE BBS is default installed in <b>/opt/mbse</b>. It should be possible to install the bbs in a different
+location but this is not supported. Many have tried, and and only a few have succeeded. See
+<A HREF="http://www.pathname.com/fhs/">Filesystem Hierarchy Standard</A> for more info.
+The default filesystem layout looks like this:<br>
+<pre>
+/opt/mbse                       0775  Default MBSE_ROOT
+/opt/mbse/bin                   0770  Binaries
+/opt/mbse/etc                   0770  System configuration files
+/opt/mbse/etc/dosemu            0750  DOSemu configuration files
+/opt/mbse/ftp/pub               0755  Default FTP root for download areas.
+/opt/mbse/home                  0770  Users homedirectories
+/opt/mbse/home/bbs              0770  Newuser account
+/opt/mbse/html                  0755  HTML documentation
+/opt/mbse/log                   0770  MBSE BBS logfiles
+/opt/mbse/share/doc             0750  Generated sitedocs
+/opt/mbse/share/doc/html        0750  Generated html sitedocs
+/opt/mbse/share/doc/tags        0750  Generated area tags
+/opt/mbse/share/int             0750  Base for language files
+/opt/mbse/share/int/macro/de    0750  German template macro's
+/opt/mbse/share/int/macro/en    0750  English template macro's
+/opt/mbse/share/int/macro/es    0750  Spanish template macro's
+/opt/mbse/share/int/macro/fr    0750  French template macro's
+/opt/mbse/share/int/macro/gl    0750  Galego template macro's
+/opt/mbse/share/int/macro/nl    0750  Dutch template macro's
+/opt/mbse/share/int/macro/zh    0750  Chinese template macro's
+/opt/mbse/share/int/menus/de    0750  German menu files
+/opt/mbse/share/int/menus/en    0750  English menu files
+/opt/mbse/share/int/menus/es    0750  Spanish menu files
+/opt/mbse/share/int/menus/fr    0750  French menu files
+/opt/mbse/share/int/menus/gl    0750  Galego menu files
+/opt/mbse/share/int/menus/nl    0750  Dutch menu files
+/opt/mbse/share/int/menus/zh    0750  Chinese menu files
+/opt/mbse/share/int/txtfiles/de 0750  German ansi screens
+/opt/mbse/share/int/txtfiles/en 0750  English ansi screens
+/opt/mbse/share/int/txtfiles/es 0750  Spanish ansi screens
+/opt/mbse/share/int/txtfiles/fr 0750  French ansi screens
+/opt/mbse/share/int/txtfiles/gl 0750  Galego ansi screens
+/opt/mbse/share/int/txtfiles/nl 0750  Dutch ansi screens
+/opt/mbse/share/int/txtfiles/zh 0750  Chinese ansi screens
+/opt/mbse/tmp                   0770  Temp directory
+/opt/mbse/tmp/arc               0770  Temp archiver directory
+/opt/mbse/var                   0770  Var root
+/opt/mbse/var/arealists         0750  Areamgr arealist files
+/opt/mbse/var/badtic            0750  Bad TIC files
+/opt/mbse/var/boxes             0770  Base for nodes fileboxes
+/opt/mbse/var/bso               0770  Binkley Style Outbound directory
+/opt/mbse/var/bso/outbound      0770  Default outbound for main aka
+/opt/mbse/var/dosemu            0770  Base for DOS drives (doors)
+/opt/mbse/var/dosemu/c          0770  DOS drive C:
+/opt/mbse/var/fdb               0770  Files database
+/opt/mbse/var/inbound           0750  Protected inbound directory
+/opt/mbse/var/magic             0750  Magic filerequest names
+/opt/mbse/var/mail              0770  JAM messagebase root
+/opt/mbse/var/msgs              0770  *.msgs netmail directory
+/opt/mbse/var/nodelist          0750  Nodelists
+/opt/mbse/var/queue             0750  Queue for before outbound
+/opt/mbse/var/rules             0770  Echomail area rules files
+/opt/mbse/var/run               0770  Pid files of running programs
+/opt/mbse/var/sema              0777  Semafore files
+/opt/mbse/var/ticqueue          0750  Queue for TIC files
+/opt/mbse/var/unknown           0750  Unprotected inbound directory
+</pre>
+<p>
+Don't use UMSDOS or SAMBA filesystems for the bbs, stick by the standard
+GNU/Linux
+filesystems (ext2, ext3 or reiserfs) or ufs if you use FreeBSD.
+If you intent to make your bbs also accessible
+by FTP and WWW you must create the directory structure under the ftp user
+behind the pub directory. Read <a href="misc/ftpserver.html">the
+ftp server</a> doc for details. If you don't follow these guidlines, you
+will run into trouble later and have to spend a lot of time in correcting
+this error.
+<P>&nbsp;<p>
+
+<h3>Step 2: Running the installation script.</h3>
+<p>
+First, if you use FreeBSD, install the psmisc package. This will make sure
+that MBSE BBS is stopped properly if you shutdown your computer. Also if you 
+use FreeBSD 5.0 or later make sure that you mount procfs, see <b>man procfs</b>
+for details. If you don't mount procfs, you cannot add new users to the bbs and
+existing bbs users cannot change their passwords. As sysop, you can't change
+passwords too.<br>
+If you are upgrading, proceed with step 4. If not, follow the next steps
+very carefully!<br>
+The installation script must be run by root. It checks if there is a
+previous or failed installation on your system. If that's so the script will
+not run. In other words, you can only run this script once. The script makes
+backup copies of the system files it changes, these files will get the
+extension <strong>.mbse</strong> To run the installation script you need
+the archive <strong>mbbsebbs-@VERSION@.tar.bz2</strong>.
+Unpack this archive on your system, in /tmp:
+<pre>
+cd /tmp
+tar xfvj /path/to/the/mbsebbs-@VERSION@.tar.bz2
+</pre>
+To start the script type:
+<pre>
+cd mbsebbs-@VERSION@
+bash ./SETUP.sh
+</pre>
+Ubuntu users should do:
+<pre>
+cd mbsebbs-@VERSION@
+sudo bash ./SETUP.sh
+</pre>
+Yes, use <b>bash</b> as shell here. On some systems root doesn't use  bash
+as login shell, calling the script with bash forces the use of bash.
+The script does the following:
+<ol>
+ <li>Create the group <strong>bbs</strong>
+ <li>Create the user <strong>mbse</strong> On Ubuntu this user is added to the admin group.
+ <li>Create a <strong>.profile</strong> for user <strong>mbse</strong>
+ <li>Create and set owner of directory tree under /opt/mbse
+</ol>
+Then the script will ask you to give a password for user <strong>mbse</strong>
+This password is for system maintenance and for you to make changes to the
+bbs. You will need that frequently but you should not make that password
+easy to guess of course. The script will then continue again:
+<ol start="5">
+ <li>The user <strong>bbs</strong> is added.
+ <li>The password will be removed from user <strong>bbs</strong> This action
+will make changes in /etc/shadow (if you have that) otherwise in /etc/passwd.
+On FreeBSD it uses other tools to modify the master database.
+On NetBSD you have to do that manually, there are no tools to do that.
+ <li>If they don't exist in the file /etc/services the services fido, tfido
+and binkp will be added. 
+ <li>If they don't exist in the file /etc/inetd.conf the internet protocols
+for the mailer will be added. The <strong>inetd</strong> is restarted to
+activate the changes. If your distribution uses xinetd instead of inetd, an
+include file for xinetd is added instead.
+</ol>
+<p>&nbsp;<p>
+
+<h3>Step 3: Check the basic installation</h3>
+<p>
+The last screen of the script is about sanity checks. Perform those checks!
+If something is wrong, now is the time to fix it. Don't panic and remember
+the backups of the system files that are changed are in /etc with the 
+extension <strong>.mbse</strong> i.e: those were the original files.
+The installation logfile is copied to /opt/mbse.
+If everythings is allright, then remove the directory /tmp/mbsebbs-@VERSION@:
+<pre>
+cd /tmp
+rm -Rf mbsebbs-@VERSION@
+</pre>
+<p>&nbsp;<p>
+
+<h3>Step 4: Install the basic packages.</h3>
+<p>
+Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
+While in mbse's home directory (/opt/mbse) unpack the distribution archives:
+<pre>
+tar xfvj /path/to/mbsebbs-@VERSION@.tar.bz2
+</pre>
+You now have the subdirectory with sources in the right place. 
+Next build the binaries and install them using the following commands:
+<pre>
+cd ~/mbsebbs-@VERSION@
+./configure [--enable-optimize] [--enable-newsgate] [--enable-gdkdel]
+make
+su        <b>important, do not use "su -"</b>
+password: <em>enter root password here</em>
+make install
+exit
+</pre>
+Ubuntu users should do:
+<pre>
+cd ~/mbsebbs-@VERSION@
+./configure [--enable-optimize] [--enable-newsgate] [--enable-gdkdel]
+make
+sudo make install
+</pre>
+<b>Important:</b> it seems logical to use the <code>--enable-newsgate</code> option
+but it isn't. When you do, the mbnntp program is disabled and you cannot serve
+echomail as news to your users via internet. But you can gate echomail to the
+internet. Independant of your choice, you can allways make internet news available 
+for your bbs users. Only use --enable-newsgate if you really need to gate echomail
+to the internet.
+<p>
+To support Chinese the DELete key needs to be changed because it conflicts with one
+of the characters. If you want to use Chinese, use <code>--enable-gbkdel</code>
+to configure.
+<p>
+The last part of the installation procedure shows you the location of the bbs
+startup script that is added to your system. Remember this one for a moment.
+Because this is your first
+time installation, example menus and example textfiles are installed. 
+If they already exist on your systems (when you do an upgrade) they
+will not be installed again.
+<p>
+Now start the bbs for the first time (still as root) by executing the startup
+script you just saw on the screen followed by a space and the word <b>start</b>.
+For example:
+<pre>
+/etc/rc.d/init.d/mbsed start
+</pre>
+Ubuntu users do:
+<pre>
+sudo /etc/init.d/mbsebbs start
+</pre>
+This will start the <b>mbtask</b> daemon.
+After that the bbs will be opened for use.
+Check the file <b>/opt/mbse/log/mbtask.log</b> for startup problems.
+The first time <b>mbtask</b> is started on your system it will create a 
+lot of new configuration files with default settings.
+<p>&nbsp;<p>
+
+<h3>Step 5: Ready.</h3>
+<p>
+Now you have shell scripts in ~/etc, most of them are called by cron, some
+are called during system startup and shutdown. You also have some default
+configuration files, these are ttyinfo, modems, fidonet networks. In the
+default (english) directory you now have default menu datafiles and ansi
+screens. These are copies of my test system so you have to edit them to
+build your own bbs.<br>
+Editing ansi screens can be done on a GNU/Linux system with one of the
+following packages:
+<ol>
+ <li><strong>duhdraw</strong>, this is available from 2:280/2802 as 
+     <strong>duhdraw.tgz</strong> (68 Kbytes). 
+     The binaries are included in this archive, if you compile it yourself 
+     it may give trouble so if the binaries work, use these.</li>
+ <li><strong>bmdraw</strong> This editor is available from 
+     <A HREF="http://www.drastic.net/bmdraw/">http://www.drastic.net/bmdraw/</A>,
+     you can find the tar.gz file in 
+     <A HREF="http://www.drastic.net/bmdraw/files/bmd022.tgz">http://www.drastic.net/bmdraw/files/bmd022.tgz</A>, 
+     it's about 36 Kbytes. This is also a thedraw clone for Linux. 
+     Note, at my system I needed to run it as root.</li>
+ <li><strong>TetraDraw</strong> This is a very nice Ansi editor, you can
+     get this file as TETR~VC#.TGZ from 2:280/2802. The file is 157 Kbytes.
+</ol>
+You may also want to edit ~/etc/header.txt and ~/etc/footer.txt, these
+files are the top and bottom of the newfiles/allfiles listings.
+<P>
+Now the basic environment is finished, the next thing to do is
+<a href="setup/index.htm">configure the bbs</a>.
+<P>&nbsp;<P>
+
+<a href="index.htm"><img SRC="images/b_arrow.png" ALT="Back to Index" BORDER=0>Back to Index</a>
+
+</blockquote>
+</body>
+</html>

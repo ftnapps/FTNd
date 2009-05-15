@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: files.html,v 1.8 2005/08/11 21:10:03 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - BBS Setup - File Areas.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 11-Aug-2005</h5></div>
+<div align='center'><H1>MBSE BBS Setup - BBS Setup - File Areas.</H1></div>
+
+<H3>File Areas introduction.</H3>
+<P>
+This is the setup for the file areas in which users can up and download files.
+This database has fixed area numbers, the database can't be packed.
+Extending the database is allways possible. One important note,
+before you can set this up, you need to define the 
+<A HREF="newgroups.html">newfiles groups</A>.
+<P>
+If you change the path in an existing area, all files in that area are automatic
+moved to the new location.
+<P>&nbsp;<p>
+
+<H3>File Areas Setup.</H3>
+<P>
+<pre>
+<strong>Area Name  </strong>The area name.
+<strong>Path       </strong>The full path to the file area.
+<strong>Down Sec.  </strong>The download security level.
+<strong>Upl. Sec.  </strong>The upload security level.
+<strong>List Sec.  </strong>The security level to list the files in this area.
+<strong>Available  </strong>If this area is available. If you make an available
+           area unavailable the area is checked if there are 
+	   downloadable files in that area. If so, you can't remove 
+	   the area. If there are none you will be asked if you are 
+	   sure. After the area is made unavailable, the record is 
+	   filled with reasonable default values.
+<strong>Check New  </strong>Check this area for new files if a user logs in.
+<strong>Dupecheck  </strong>Check this area for duplicates if a user uploads a file.
+<strong>Free area  </strong>If all files in this area are free.
+<strong>Direct DL  </strong>Allow direct download from this area.
+<strong>Pwd upl.   </strong>Allow users to password protect their uploads.
+<strong>Filefind   </strong>Search in this area for filefind requests.
+<strong>Add alpha  </strong>Add .tic files alphabetic sorted or at the bottom of the list.
+<strong>File req.  </strong>Allow File Request from this area.
+<strong>BBS group  </strong>Not in use yet.
+<strong>New group  </strong>New files announce group. See <A HREF="newgroups.html">Newfiles groups</A> for more info.
+<strong>Min. age   </strong>Minimum user age to access this area.
+<strong>Password   </strong>The password for this area. If blank, no password is needed.
+<strong>DL days    </strong>How long must a file not been downloaded to (re)move it.
+<strong>FD days    </strong>How old must a file be to be (re)moved.
+<strong>Move area  </strong>The area to move the file to, if zero it is deleted.
+<strong>Archiver   </strong>The archiver to use to repack the files with.
+<strong>Upload     </strong>Alternate upload area. If a user uploads a file in this
+           area, it will be placed in the alternate area. If the
+           value is zero, the file will be placed in the current
+           file area. On CD-rom areas you must not leave this zero
+           unless you set the upload security level so high that
+           nobody can upload in this area.
+</pre>
+<P>
+<IMG SRC="../images/files.png" alt='File areas setup'>
+<P>
+
+<A HREF="bbs.html"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to BBS index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

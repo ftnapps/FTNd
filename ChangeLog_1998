@@ -1,0 +1,1393 @@
+$Id: ChangeLog_1998,v 1.1 2002/06/01 13:55:39 mbroek Exp $
+
+	MBSEBBS History in 1998.
+
+
+v0.00	Started work on the Rapidbbs sources to make new structures, 
+	headerfiles and makefiles.
+	The whole thing will include Fidonet echomail and tic file processing.
+
+v0.01	Until v0.06 lots of sourcecode fixes, bugs removed which became 
+	visible after writing the new header and makefiles. Included common
+	and jamapi libraries. The jamapi is not in use yet but will be the
+	final message base format.
+
+	Rewritten the mbse deamon. This deamon monitors the bbs and all the
+	utilities.
+
+	Written an import util to import textfiles from the databases exported
+	by a little Pascal program that exports the RA databases from the DOS
+	bbs.
+
+	Started writing a new setup utility. While doing this the old config
+	program is being stripped down.
+
+	Renamed the filelist program to allfiles.
+
+v0.06   In the internal mbsed server structure added information for user
+        online messages. Added ADIS:2,pid,flag; set users Do Not Disturb
+        flag, also changed the bbs to sent that flag.
+
+        Added Status commands to the mbsed, test for BBS open, and Zone
+        Mail Hour. 2 new statements in etc/mbsed.conf. The mbsebbs now
+        tests at startup for ZMH and BBS open. If it is closed the user is
+        disconnected with the reason why.
+
+v0.07	The new structures are ready. The bbs can run with local mail only.
+
+	Renamed the filepack program to mbfile, it will do a lot more later.
+
+	Removed the whoson program, the functions are in the setup program now.
+
+	Added in the setup program the oneliner editor, protocols editor,
+	language setup editor, limits editor.
+	The oneliner editor has an import facility to import plain textfiles
+	to add oneliners.
+
+	Changed structures again, lastcaller and ttyinfo.
+
+	Removed the usered program, the users editor is in setup now.
+
+	Fixed the download (non batching) function DownloadB, it does work
+	more or less. Changed the calling program from execl() to system()
+	to fix the stack problems. Now need testing voor carrier loss and
+	timeouts.
+
+	After testing with a DOS-PC (A real fast 286 10 MHz state of the art
+	of the eighties, directly connected to the tty port) the Good_Bye
+	function needed 5 seconds extra delay to be shure all data is 
+	send to the user. Also the parent died too fast so the mbsed server
+	wasn't notified when the client was logged off.
+
+	In the bbs chat.c added unlink the /tmp/.BusyChatting file so the
+	chat could be more than once in a session.
+
+	In the internal mbsed server structure added information for user
+	online messages. Added ADIS:2,pid,flag; set users Do Not Disturb
+	flag, also changed the bbs to sent that flag.
+
+	Added Status commands to the mbsed, test for BBS open, and Zone
+	Mail Hour. 2 new statements in etc/mbsed.conf. The mbsebbs now
+	tests at startup for ZMH and BBS open. If it is closed the user is 
+	disconnected with the reason why.
+
+v0.08	Added the JAM c api. This is a modified version for Linux.
+
+	Reading JAM messages and Quickscan JAM messages implemented. Removed
+	support for the old message base format. The function Msg_Post() does
+	not work anymore, must be rewritten to support JAM.
+
+	In the msgpack program removed all code for the old message base
+	format. Inluded support for client/server.
+
+	Removed all structures of the old message base format, the only
+	format left is JAM.
+
+
+v0.09	22-Mar-1998.
+	In Language data compiler removed output to screen for each compiled 
+	line. When finished compiling it reports the number of language lines.
+
+	Changed the number of lines for the line editor in Post_Msg() and
+	Reply_Msg() in a #define statement. In the language source it still
+	allways says 60 lines.
+
+	Bugfix in mbsetup: edit message area item 7 an 8 didn't work.
+
+	Start writing of man pages.
+
+	Start writing mbfido, the net- echomail tosser, scanner and packer.
+	Succeeded tossing echomail, no dupechecking, links checking or other
+	checks are done. No reply linking either.
+
+	mbsetup: Added Fidonet aka setup.
+
+	Moved JAM I/O functions to the common directory.
+
+	Created the mbmon program out of mbsetup. Removed those items from
+	mbsetup.
+
+	Start build of the dbase library, this library will contain functions
+	to access the configuration datafiles for all utilities except the
+	mbsetup program.
+
+v0.10	15-Apr-1998.
+	Allfiles changed to make use of the common and dbase libraries. Does
+	logging now of activities. Removed links to src/bbs/funcs4.c
+
+	Added fileareas and filesdatabase import to the import program.
+
+	Corrected file area mismatches in mbsebbs and fedit.
+
+	Mbsetup: finished global setup. Fixed pull filegroup and messagegroup.
+	Added edit bbs file areas. Changed format of fareas.data.
+
+	mbfido: Added first dupechecks, only logging. Fixed errors in dbase
+	search routines, caused mail to be tossed in the wrong directories.
+	Added tossing of bad (unknown areas) and dupe mail in the bad and 
+	dupe boards. Checks for .PKT destination implemented. Ideas for
+	netmail tracking written. Dupe checking seems to work, but I can't
+	compare it with my other tosser yet. Note after more testing:
+	it's better than GEcho's 1.11+ dupechecking.
+
+	allfiles: Opens header.txt now only before processing the areas.
+	Added footer.txt. Both files must be in the configfiles directory,
+	if they are not present, nothing will be inserted. Removed all code
+	that constantly opened and closed the output file. Added logging for
+	total processing time. Added new lines to the area headers. Areas
+	are only written if there are downloadable files in them. Download
+	counter now represents bbs downloads, ftp downloads and file requests.
+	The last two counters are not in use yet.
+
+v0.11	26-Apr-1998
+	mbsebbs: In the mail reader swapped From and To language fields, the
+	names were in the right place. Added the nodenumber after the from
+	name. Must be set for messagearea type (Local/Net/Echo).
+
+	mbfido: Corrected some loglevels.
+
+	userpack: rewritten from scratch. Deletes unix accounts as well, uses
+	/usr/sbin/userdel to do this, so shadow support works just fine.
+	This program must be run as setuid root setgid root.
+
+	structs.h: removed flags for Unixmode and all related flags.
+
+	mbuseradd: written. This is a setuid root setgid root version of
+	adduser, this program is called by newuser to create the unix account
+	of a bbs user. It also creates the homedirectory, the .profile file
+	and expires the unix account password. When a new created unix user
+	logs in he will be prompted for a new password.
+
+	newuser: lots of rewriting. Added inactivity timers. Now we have
+	always unix accounts and fido bbs accounts. It will also die 
+	nicely when the user did hangup on us or waited for idle timeout.
+
+	mbsebbs: Check for unix account, if it doesn't exist the user is
+	forced to create a unix account. If unix login we now have a pause()
+	at the same place the password prompt is so the user can see the
+	opening screen and read it.
+	Removed the code that there was a parent (guarding users logon time)
+	and a child process (running the user). There is only one process now.
+	Implemented keyboard input timers. The total onlinetime must be
+	guarded in another way now, ie. checking must be done at prompts.
+	In the mean time proper idletimeout, hangup and error conditions
+	will log the user off in a neat way and writing into the logs about
+	what happened is mostly solved.
+
+	mbsebbs and newuser: New users can only be handled by the newuser
+	program. Listed users only by the mbsebbs program. You need 2 accounts
+	without a password for this. Maybe I'll chain these 2 programs later.
+
+	misc: compiling is a mess again, more libraries are needed, time to
+	close this version.
+
+v0.12	07-May-1998.
+	mbsed: Rename the logfile from "mbsed" to "mbsed.log". The mbsed
+	logfile is opened and closed everytime now. Logfile cleanup utils
+	can now safely remove the logfile, make it smaller etc.
+
+	mbsebbs: Splitted misc.c into bye.c, pinfo.c and misc.c
+
+	dbase library: added userrecord search. Added netmailboard search.
+
+	mbfido: removed segmentation fault caused by a too long kludge, added
+	a check for the stringlength (512 bytes). Removed bugs in netmail
+	destination tests. Implementation of ftn netmail import into JAM area.
+	Only the first netmail area is used, no need for several areas now.
+
+	mbsebbs: Added aka display when reading netmail. Changed autowrap
+	to line 74. 
+	Added test for users handle when scanning new mail.
+	Removed test tlcap() when comparing names. The tosser should correct
+	the names. 
+	Changed the MsgSelectPrompt() to default return the lastread pointer 
+	instead of message 1. 
+	Changed Read_a_Message() so it will return TRUE if message read was ok,
+	FALSE otherwise. 
+	CheckMail() now starts searching at the users lastread pointer. It 
+	now also keeps track of messages to the user, and gives the option 
+	to read them. Reply is not possible yet, but posting isn't working 
+	also. 
+	Added a check that the receivername must exist to prevent false new 
+	mail.
+	Changed UserList() to skip the empty userbase records.
+	Place the users timecheck functions in a separate file, made it work
+	again. Inserted timecheck points at several prompts.
+	Changed the timebank to reflect new timecheck routine's.
+	Moved the exitinfo functions to a separate file, several other modules
+	now use new functions in this file instead of internal ones.
+	Changed FileArea_List() to work with options (F+ and F-) for direct
+	area change.
+	Improved the fatal menu error construction. The user now sees a message
+	and will logoff by SIGILL.
+
+v0.13	24-May-1998.
+	mbfido: 
+		Added a debug line to show flagfield of the original packet.
+		Added code to fill the message header MsgIdCRC and ReplyCRC
+		fields.
+		Added version info in the logfile.
+
+	mbsebbs:
+		Corrected unixmode login problem if there where more than one
+		field within the gecos field of the passwd file.
+		Added version info in the logfile.
+		Changed the setting of signal handlers, removed SIGINT, added
+		SIGILL.
+		Supress display goodby screen in case of a SIGHUP.
+		Display ttyinfo.comment instead if ttyname in connect info.
+		Added create/check for subdirectories wrk and tag in the users
+		homedirectory, wrk is for the users homedir fileoptions, tag
+		is where symlinks of tagged files area placed.
+		Corrected message diplayed to user when logging in during zone
+		mail hour.
+		Removed menu option GlobalDownload, see new feature below.
+		Implemented download file tagging in menus FileList and 
+		NewFilesScan.
+		Implemented download tagged files, the old download function
+		is gone.
+		Moved Change_Protocol and Set_Protocol from file.c to change.c
+		where they belong. Change_Protocol is now Chg_Protocol as all
+		other functions in change.c use the same naming convention.
+		Made KeywordScan and FilenameScan working without coredumps,
+		implemented file tagging.
+		Made enum vars for WhosDoingWhat.
+		Changed the internal filearea record number, area 1 is now 1,
+		not 0. This should prevent a lot of bugs.
+		Now setting large timeouts on the client/server guard during
+		filetransfers to prevent server disconnection. Changed mbsed
+		and common.a for that.
+		Added logging info when user is kicked out if the BBS is 
+		closed.
+		Split file.c into file.c and filesub.c
+		Added menu function 111, Copy file to home directory.
+		Download_Home, Delete_Home, List_Home, Upload_Home now all work
+		with the new directory structure. Upload and Download homedir
+		do not count uploaded/downloaded bytes, the user gets no ratio
+		bonus after upload, only the up/downloads are counted.
+		Quota check for users home directory. The value can be set
+		with the mbsetup program, value is MBytes.
+		Removed error message if user selected a menu option where he
+		has no access rights for. The user now sees nothing. If you 
+		want to give a response, use the menu system!
+		Reset colors to lightgray on black after logoff.
+		Added menu function EditTaglist.
+
+	mbsed:	
+		Invented two new commands, ATIM:1,n; which set a new client/
+		server timeout, and ADEF:0; which resets the client/server
+		timeout to 600 seconds.
+
+	common.a:
+		Implemented the two new client/server commands: ATIM and ADEF.
+
+	mbsetup:
+		In global BBS setup, added editing Users Quota.
+
+	import:
+		In FDB import, changed the filenames to lowercase.
+
+	allfiles:
+		Output list now contains CR/LF at the end of each line.
+
+	mbuseradd:
+		Added the line "export TERM=pcansi" to the generated .profile
+		in the new users home directory. This seems to work quite well
+		for all kinds of clients.
+
+
+
+v0.14	02-Jun-1998.
+	msgpack:
+		Renamed to mbmsg, it will do more as just packing messages.
+		Implemented using the msgbase.a library: Purging (Days old
+		and Max msgs), Packing deleted messages and Reply linking.
+		During pack the messages are renumbered and lastread pointers
+		are adjusted.
+
+	mbsetup:
+		Added edit messagebase storage type.
+
+	msgbase.a:
+		New library, universal message base library, must support
+		JAMmb, Fido *.MSG, Passthru, Usenet news and E-Mail.
+		This came original from LoraBBS, written by Marco Maccaferri.
+		I changed the sources to normal C code without objects, that
+		was the fastest method to mix it with the existing sources.
+		I dropped support for Hudson and Squish.
+		Only JAM is supported for a start.
+		The JAM module renumbers the messages while packing.
+		Added support for lastread pointers.
+		Changed all msg handling so that the messagetext must contain
+		all the kludges to be compatible with several message bases.
+		This means that the JAM module now handles the kludges in the
+		text, storing and retrieving it between the *.jhr files and 
+		text. This also means that the applications don't have to 
+		worry about kludges.
+
+	mbsebbs:
+		Changed mail.c to work with the new msgbase library, dropped
+		the old jamapi. Scanning new messages looks slower, maybe
+		the speed improvement must be made in the msbase library.
+		Applied all changes in the messagebase library to the bbs
+		program.
+
+	mbfido:
+		Applied all changes in the messagbase library in the tosser
+		module. While doing that I saw some bugs but they don't
+		mather anymore.
+
+
+
+v0.15	13-Jun-1998.
+	msgbase.a:
+		Implemented msgbase locking for JAM messagebase. Dropped
+		future support for other messagebase formats, I stick to
+		JAM and only JAM, it can do all we need, including mailer
+		netmail directory.
+		Implemented all possible attributes in the interface.
+
+	dbase.a:
+		Removed some bugs in dbmsgs.c
+		Added code to update the nodes and msgs data records if they
+		are changed.
+		During msgs record loading the group record will also be
+		loaded if it's defined. 
+		Added support for .tic area lookup.
+
+	mbmsg:
+		Implemented msgbase locking during msgbase updates.
+		Added colours.
+
+	mbfido:
+		Implemented msgbase locking during msgbase updates.
+		Implemented simple echomail forwarding in the queue.
+		Splitted tosspkt.c into importmsg.c echoout.c and tosspkt.c
+		to make the source more readable.
+		Started collecting SEEN-BY and ^APATH information in memory.
+		Started appending SEEN-BY entries during echomail forward.
+		Added code which should append SEEN-BY and PATH lines in 
+		outgoing echomail.
+		In the startup code changed the catching/ignoring of signals.
+		Activated mail send and received counters in the nodes
+		records.
+		Activated echomail received counters.
+		Started working on .tic file processing, using my own MBFIX
+		code (in Turbo Pascal) as a guide.
+
+	mbsed:
+		Changed the server locking in a more portable and secure way.
+		Added sequencer counter for generating MSGID numbers and
+		message packet numbers.
+		Removed a bug in response strings when the BBS is closed.
+		The signal SIGTERM is now ignored, we wait for SIGKILL only
+		so we keep running as long as possible.
+
+	mbmon:
+		Added support for sequence numbers display.
+
+	mbsebbs:
+		Removed a bug in the syntax of BBS closed messages.
+		Added a toggle switch to display message kludges for the sysop.
+		Added hilite color for quoted message lines in message read.
+
+	mbstat:
+		The BBS close command doesn't need a reason anymore.
+		Implemented the wait function. We only wait for users online
+		and utilities that we want to complete their actions. Depending
+		on the type of init program, if it uses shutdown scripts, you
+		can now wait for the system to become idle before the real 
+		system shutdown starts.
+
+
+	common.a:
+		Added a flag "show_log" to the Syslog function to suppress
+		logging to the screen.
+
+	mbsetup:
+		Added support to edit .tic areas.
+		Started working on the creation of a site document, this is
+		a complete overview of the whole setup.
+
+
+v0.16	06-Jul-1998.
+
+	General:
+		This version is the first version installed on the real BBS
+		server, line #2. While doing this I discovered lots of errors
+		in the Makefiles because I installed it from scratch. I also
+		found out that GEcho and or RA is screwing up some JAM bases
+		causing this program to dump core. Did some testing, download
+		and mail reading is ok.
+
+	mbsebbs:
+		NewfilesScan and show files listings now work with the file
+		upload dates instead of the real filedates.
+
+	mbfido:
+		It's possible to import .tic files into the bbs.
+		Unknown echomail areas now log with WriteError().
+		Added functions to pack mail for downlinks and put it in
+		the mailer outbound.
+		Because of small diffrences between ifcico and DOS mailers
+		running 2 mailers together still doesn't work for attached
+		files and mail.
+		Fixed a bug in outbound mail packets, the packed messages
+		didn't start with 0x0002 so downlinks didn't process the
+		messages. Output of echomail works now!
+		When processing large amounts of .tic files, the processing
+		stopped after about 30 files. Added 2 forgotten fclose
+		statements.
+		Added sorting functions for filenames with date/time. All
+		inbound processing is now sorted by date and time, oldest
+		files first.
+
+	common.a:
+		In mbfile.c changed file_cp() to copy file attributes as well.
+
+	userpack:
+		Changed commandline syntax.
+
+	mbmsg:
+		Changed commandline syntax.
+
+	mbstat:
+		Changed commandline syntax.
+		Added colors.
+		Does timeout after one hour waiting for the BBS to become free.
+
+	mbsetup:
+		Added setup for .tic magic records.
+		Improved logging reason when tossing messages not for us.
+
+	dbase.a:
+		Remove a bug where reading downlinks from areas base gave
+		nothing. (Introduced in 0.15).
+
+	mbmon:
+		Corrected the screen header.
+
+
+v0.17	30-Jul-1998
+
+	mbfido:
+		When importing files to the BBS the destination directory
+		is checked and created if it doesn't exist.
+		Improved checks when to rearchive incoming files.
+		Forgot to chdir back to the inbound when rearc failed.
+		Switching virus check off when the inbound file isn't an
+		compressed archive. Should check incoming *.exe (selfextracting 
+		archives).
+		Keep number of files now works.
+		TIC forwarding to downlinks implemented. There are 2 netmails
+		for each forwarded file, one for the file itself and one for
+		the .tic file. The subjectline is to short under Unix. The
+		second netmail is an empty one, lets see how this works.
+		Added cookies.
+		Packing ARCmail now checks for bundles older then 5 days and
+		creates new bundles if found.
+		Added netmail pack to ARCmail.
+		Improved errorlogging again when tossing bad echomail.
+		Scan for outgoing echomail from the bbs is working. It is a
+		complete messagebase scan for now.
+		TIC forwarding again with one netmail, I faked the subject
+		line, all files seem to come from C:\FILES\. This seems to
+		give no problems with the other end of the link.
+
+	mbmsg:
+		Improved debug logging.
+		Processing in only one area didn't work anymore.
+
+	mbsebbs:
+		Made post new message work.
+		Now unlocking and closeing the messagebase after a crash.
+		Moved the lineeditor to a seperate source module.
+		Reply to messages is working, also from scan for new mail.
+		Comment to sysop now works.
+		Removed the Voting door.
+
+
+v0.18	10-Aug-1998.
+
+	general:
+		New record structure for fidonet networks. This makes
+		it possible to use the same nodelist indexes as ifmail.
+		Note that de define -DHAS_NDBM_H may only be set if you
+		have done this also in the ifmail package! This is set
+		in ~/src/mbfido/Makefile
+
+	run_inout:
+		A shell script run from the mbse crontab (every minute) to
+		see if there is something to do. It scan's the protected
+		inbound and scan's for the ~/sema/mailout semafore.
+
+	mbsebbs:
+		Creates a ~/sema/mailout semafore if mail is entered.
+		Added extra debug logging during newmail scan. On the live
+		bbs mbsebbs keeps on dumping core probably due to RA or GEcho.
+		Most amusing is that after crashing mbsebbs, RA will see new
+		netmail again, as if only mbsebbs knows how to handle the
+		users lastread pointers and fixes them for RA; sigh.
+
+	mbfido:
+		Start working on the netmail tracker/router. It works without
+		an external routing file, although hosts will need one.
+		It works on checking known nodes, then nodelists, and then
+		known nodes again. This is very experimental.
+
+	mbsetup:
+		Changed to the new fidonet structures.
+
+	import:
+		Changed to the new fidonet structures.
+
+	general:
+		Installed at 13-Aug-1998 at the BBS for testing.
+
+
+v0.19	14-Aug-1998
+
+	general:
+		Wrote some documentation about how to setup the ftp server
+		so that it works together with MBSE BBS.
+
+	mbsebbs:
+		After download the message "updating download counters" now
+		will first send a <CR> to overwrite the zmodem init string
+		on the users screen.
+		Added structures for bluewave.
+		Now scans for new files at logon.
+		Removed global variable sUserName, gave some strange results.
+		Added logging which msg area was active when a segmentation
+		fault occurs.
+
+	script:
+		A new subdirectory for /bin/sh scripts. Look out with this
+		one, if you modify the scripts in ~/etc or ~/bin directly
+		they will be overwritten with each new install.
+
+	mbuseradd:
+		Add each new user to /etc/ftpusers to prevent them to login
+		under their own name in the ftp server.
+
+	fbgen:
+		Setting umask to 002.
+
+	fileedit:
+		Removed, was obsolete.
+
+	import:
+		Setting umask to 007.
+
+	common.a:
+		mkdirs now creates directories with permission 0775.
+		Added dos<->unix filenames translation.
+		Rewrote tu() and tl() functions.
+
+	mbfile:
+		Setting umask to 002.
+		Now checks for files on disk, but missing in the fdb. Deletes
+		them when found (exept some).
+		Now when packing the fdb records marked for deletion, also
+		if the file is on disk, it is deleted.
+		Added some commands to the todo list.
+		With the check command it now reports the area number to the
+		mbsed server, so mbmon will display how far it is. This will
+		also avoid timeouts on large areas.
+		Now handles multiple commands in one run. Pack will run
+		automatic if there are files deleted.
+
+	mbfido:
+		Set a semafore "msglink" when the message base is modified.
+		Added more debug logging for files descriptions.
+		Implemented dos<->unix filename translation for tic file
+		forward.
+		File attaches in .flo files now are DOS filenames and .flo
+		files are now DOS-compatible.
+		If there are no more then 2 Long Description lines we asume
+		that there is a better single (old style) Description line.
+		There are uplinks that make a mess of these lines.
+		Netmail forwarding should work now as long as the nodes via
+		we must route are in our setup.
+
+	mbsed:
+		Added in wait for free the mbindex and mbuser programs.
+
+	mbindex:
+		Written. Heavlily based on Eugene Crosser's ifindex.
+
+	mbsetup:
+		Written the menu editor and removed the old mbconfig program.
+		Added some editor commands to the user editor.
+
+	mbuser:
+		Now leaves the records alone with the NeverDelete flag set.
+
+	mbmsg:
+		Added logging when a segmentation fault occurs which was the
+		last message area.
+
+
+v0.20	24-Aug-1998
+
+	common.a:
+		Moved from mbfido the modules ftn, falists, nlindex and 
+		nodelist to this library. More programs will need it.
+
+	mbindex:
+		Changed some loglevels. Removed the -force switch, compile
+		is always forced now.
+		Removed a bug to the path of the index files.
+
+	import:
+		Now using dos2unix pathname translation for fileareas and
+		mailareas import.
+
+	mbfido:
+		Changed some logging. Removed ftn, falists, nlindex and 
+		nodelist modules, they are now in the common library.
+
+
+v0.21	25-Aug-1998
+
+	mbindex:
+		Trashed the index files when a new nodelist in the setup
+		was added. (ifindex did this also). Now it will allways
+		force to recreate the index files.
+		Now sends username who started mbindex to mbsed.
+
+	mbfido:
+		Imported files into bbs areas now get filemode 0644 instead
+		of 0660 so the ftp/www clients will really see them.
+		Corrected the experimental replace test, could never work.
+		If after trigger the compile nodelist flag there came in
+		another file, the flag was reset.
+		Now sends username who started mbfido to mbsed.
+
+	mbsebbs:
+		Created a language crossreference listing. Corrected some
+		language numbers.
+		After changing the language, it is now confirmed in the
+		new selected language.
+		When the language file is missing, the error message no longer
+		comes from the missing language file, now it is hardcoded.
+		Minimum location length is now adjustable with mbsetup,
+		changed language prompt 74.
+		Replaced hardcoded messages in chat with language prompts
+		59 and 60.
+		Changed error logging in exitinfo.c
+		When reading messages the more prompt is now language prompt
+		61 instead of hardcoded.
+		Posting messages is now blocked for Noreply boards. Language
+		prompt 438.
+		In message readpanel now language prompts 211 and 212 for
+		Next reply: and Reply to: threads.
+		In message area select now using prompt 207.
+		In newmailscan, added prompt 218 and the Quit option.
+		In message status, added prompt 226.
+		Readpanel, added prompt 227.
+		Delete specific message subfunction does work now.
+		In display file with more, changed prompt 72.
+		Changed prompts in file.c and filesub.c.
+		The info screen is 1 character smaller, 79 characters, some
+		terminal programs did extra line wrapping.
+		Added new language file format, the datafile now includes
+		the keys users can press.
+		Moved the loading of user's preffered language more to the
+		begin of the login procedure.
+		When the user is unknown (ordinary BBS account), the newuser
+		programm is started. If that runs successfull (depends on the
+		user on-line), mbsebbs will be run again. It's probably wise
+		to merge these 2 programs.
+
+	mbsetup:
+		Minimum location length installed in menu 1.5
+
+	allfiles:
+		Now sends username who started allfiles to mbsed.
+
+	mbfile:
+		Now sends username who started mbfile to mbsed.
+
+	mbmsg:
+		Now sends username who started mbmsg to mbsed.
+
+	mbstat:
+		Now sends username who started mbstat to mbsed.
+
+	mbuser:
+		Now sends username who started mbuser to mbsed.
+		Did leave the users.data file owned by root. It is now
+		set to the owner and group of the "mbse" account.
+		Added screen output for non-quiet mode.
+
+	lang:
+		Changed to compile new language datafile format, including
+		the keys a user can press.
+
+	newuser:
+		Added new language file format, the datafile now includes
+		the keys users can press.
+		Now always asks Date of Birth, this is necessary for later 
+		checks.
+		At the end now engages mbsebbs.
+
+	mbuseradd:
+		Now uses the created gid and uid voor changing ownership
+		of files and directories.
+
+
+v0.22	06-Sep-1998
+
+	mbsetup:
+		Changed logfile to one master logfile.
+		Added menus for offline reader.
+
+	allfiles:
+		Changed logfile to one master logfile.
+
+	mbsebbs:
+		Changed logfile to one master logfile.
+		Started offline reader.
+
+	mbfile:
+		Changed logfile to one master logfile.
+		Corrected creating full path/filename in pack files.
+		Added creating and removing symlinks for file requests.
+		Now deletes files during "kill" instead of only marking.
+		Simplified log messages.
+		Added commandline switch "req", this will only check the
+		file request symlinks.
+
+	mbmsg:
+		Changed logfile to one master logfile.
+
+	fbgen:
+		Changed logfile to one master logfile.
+
+	newuser:
+		Changed logfile to one master logfile.
+
+	mbuser:
+		Changed logfile to one master logfile.
+
+	mbstat:
+		Changed logfile to one master logfile.
+
+	mbindex:
+		Changed logfile to one master logfile.
+
+	mbfido:
+		Changed logfile to one master logfile.
+		Added creating and deleting of symlinks for file requests.
+		Files removed from the filedatabase when running "keep files"
+		are now also removed from disk.
+		Removed some debug logging for netmail forwarding. It seems
+		to work.
+		Replace files now works more or less. Moved the fdb packer.
+
+	mbindex:
+		Only logs crash cause if errorlevel > 0.
+		Removed some invisible screen output in quiet mode. Cron did
+		notice this.
+
+	lang:
+		Renamed to mblang, also the source directory is now mblang.
+		The directory lang will now be used for language sources.
+
+
+v0.23	20-Sep-1998.
+
+	global:
+		Added #pragma pack(1) to ~/src/include/libs.h so that all
+		datafiles are now compatible over several hard and software
+		platforms. I needed this to implement the BlueWave Offline
+		Reader into the bbs. Increased the QWK tagname field to 20
+		characters.
+
+	mbsebbs:
+		Made menu execution logging more readable.
+		If a user has no archiver set, set default to ZIP at logon.
+		Changed logging in the Download Direct command.
+		Implemented first raw version of BlueWave Offline Reader.
+		Needs some security improvements, file requesting, filters
+		but it works for now.
+		Checking for a Unix account was done before the password was
+		checked, so if the password was wrong the user was asked for
+		a new Unix account again.
+
+	mbfido:
+		For netmail import now searches the netmail area on zone:net
+		match.
+
+	import:
+		Removed bugs when converting DOS to Unix paths which resulted
+		in corrupted pathnames.
+
+	mbsetup:
+		Corrected linefeed problem in language doc printing.
+		Horizontal line drawing now with low-ASCII instead of Alternate
+		Character Set.
+
+	mbmon:
+		Horizontal line drawing now with low-ASCII instead of Alternate
+		Character Set.
+		Corrected a color problem in View BBS Information, and added
+		display BBS startdate.
+
+
+v0.24	30-Sep-1998.
+
+	structs.h:
+		New fields in config.data: OLR_MaxMsgs, OLR_NewFileLimit, 
+		OLR_MaxFreq.
+		New fields in mareas.data: OLR_Default, OLR_Forced.
+		New fields in ttys.data: honor_zmh.
+		Added Areafilename field to group records.
+
+	mbsebbs:
+		Combined some functions from offline.c and mail.c into
+		msgutil.c
+		Messages posted with a OLR are now counted in the users record.
+		Closeing the bbs during Zone Mail Hour can now be set for each
+		individual line.
+		Now counting and marking the date/time when posting messages
+		in mareas.data.
+
+	mbsetup:
+		Corrected some sitedoc problems in global setup.
+		Added sitedoc printing for mail setup.
+		Added file and mailgroups setup to the nodes setup.
+		Added newfiles reports setup.
+		Added filefind areas setup.
+
+	mbfile:
+		Corrected spelling error.
+
+	mbaff:
+		New program. Announce new files and FileFind (Allfix).
+		
+	mbfido:
+		In .tic file processing if we were a pointaddress, the path
+		checking always gave an error. The check of our boss is
+		skipped now.
+		The correct .tic area and filedate is now set in the toberep
+		database.
+
+	mbmsg:
+		Improved initialisation.
+
+
+v0.25/a	12-Oct-1998.
+
+	general:
+		From now on version numbering will get /a (Alpha), /b (Beta)
+		and /g (Gamma) release extensions. This is necessary for 
+		live testing at my bbs.
+
+	mbfido:
+		The Cost field in the toberep.data file was not set.
+
+	msgbase.a:
+		Added extra screen output in certain error conditions.
+		Added a trick to generate a FromAddress from the Msgid
+		in case there is no FromAddress. This was left blank by
+		GEcho 1.11+ (DOS).
+
+	mbaff:
+		Added some IsDoing information for the monitor.
+		Setting ReplyCRC to -1 instead of 0 if it's an original 
+		message.
+		Minimum searchstring length is now 3 characters (hardcoded).
+		Added a check to see if there is a FromAddress and a Subject
+		before a message is added to the scanlist.
+
+	mbsebbs:
+		Corrected spelling error in OLR download logging.
+
+	mbsetup:
+		Changed some page layouts in the sitedocs, added some
+		forgotten formfeeds.
+
+
+v0.25/b	14-Oct-1998.
+
+	mbfido:
+		If the tic queue directory didn't exist, it is now created.
+		Netmail messages now have zone:net aka matching on the
+		destination and from addresses.
+		Started with the AreaMgr and FileMgr functions. It can respond
+		to %help.
+		Added the notify function.
+
+	mbsetup:
+		When picking a mailgroup in messages setup or a filegroup
+		in ticsetup, the ftn aka is copied from the group setup as
+		a default aka for that area.
+		When setting the area tag and if the OLR tagname is empty, the
+		area tag is copied there as a default.
+
+
+v0.26/a	17-Oct-1998.
+
+	general:
+		In some databases in the header there is now a time_t field
+		added. This is to mark the last statistics counters rollover.
+		Programs that count statistics must perform an rollover when
+		it's run on a new day, week or month.
+
+	warning:
+		To upgrade the databases, enter the setup for message areas,
+		tic areas, nodes, file groups and message groups and save
+		the databases.
+
+	mbfido:
+		Implemented new statistic counters.
+		Implemented rollover of the statistic counters every week and
+		new month.
+		Changed program locking, now it locks the whole program in 
+		stead of short moments.
+
+	mbsebbs:
+		Implemented new statistic counters.
+
+	mbaff:
+		It now counts the posted messages in the message area.
+		Corrected the announce message text.
+
+
+v0.26/b	20-Oct-1998
+
+	mbsetup:
+		Wrote the hatch manager. All basic functions are present now.
+		All databases that can be packed after deleting records can
+		do this now. During update those databases area sorted. This
+		is not for the message areas, files areas and the userbase.
+		These files may not be packed.
+
+
+
+v0.27/a	29-Oct-1998
+
+	general:
+		Changed the database format for the files. Added support for
+		long filenames. The .tic file area is also stored in the
+		records to make the rescan function work later.
+		The files database must be rebuild for this release!!!
+		The BBS and the rest of the programs now use different
+		loglevels.
+		Changed the sourcefile distribution name to mbseN_NN.tgz.
+
+	upgrade:
+		Delete all file databases!
+		mbsetup 1-5-20: set utils loglevel.
+		run mbfile check -debug to fix the files references.
+
+	dbase.a:
+		Functions added to connect and disconnect nodes from echimail
+		and file areas.
+		Now marking the nodes record invalid after update. This should
+		prevent corrupting the nodes.data file from now on.
+
+	common.a:
+		Added a function to convert ifcico addresses to internal fido
+		addresses.
+		Removed a pointer bug in the aka2str function.
+
+	mbfido:
+		Added most AreaMgr and FileMgr functions. Needs a lot of
+		code cleanup but most things work for now.
+		Now imports the TIC area name in the filedatabase. This can
+		later be used for %resend <area> requests.
+		The long filename field is filled with the dos filename for the
+		time being.
+
+
+v0.27/b	04-Nov-1998
+
+	general:
+		Changed the top Makefile, it "forgot" the script directory.
+		This release adds nodelist diff processing and hatching of
+		new files, for example the nodelist you just created.
+		Switched to compiling with ndbm.h, this is now default
+		because the nodelist can now be opened by several programs
+		at the same time (for reading). Support for dbm.h will be
+		dropped, it gives trouble and cannot be used on a multiline
+		system.
+		Created the semafore.doc document for semafore handling.
+
+	common.a:
+		Added the semafore functions.
+
+	import:
+		Implemented long filenames on files database import.
+
+
+	mbfido:
+		Changed the way of counting FILE_ID.DIZ lines in archives.
+		Made macro's in tic processing case insensitive.
+		Implemeted automatic hatching of files.
+		Creates the "mbindex" semafore when new nodelists have been
+		put in place.
+
+	mbuseradd:
+		Changed the contents of users .profile to:
+		. $MBSE_ROOT/etc/profile
+		The file $MBSE_ROOT/etc/profile contains the global startup
+		commands for normal bbs users.
+
+
+	mbsebbs:
+		Changed debug logging of DisplayFile function.
+		Logs the tty line comment after the username at login.
+		Linked with the new common/semafore functions.
+
+	mbdiff:
+		New program. Nodelist diff processor. Creates the "mailin"
+		semafore when it created a zipped nodelist.
+
+	mbsetup:
+		Added tic echo group pick in hatch and magic setup.
+		Removed setup of semafore path's, they are now hardcoded.
+
+	mbcico:
+		A quick hack of Eugene G. Crosser's ifcico. At this time
+		only the logging functions using mbsed are implemented.
+		It needs ~/etc/mbcico.conf for configuration together with
+		the standard database configuration. In time, the mbcico.conf
+		file will not be needed anymore. For testing in this release
+		it does the job.
+
+	mbaff:
+		Linked with the new common/semafore functions.
+		Creates also the msglink semafore when mail is written.
+
+	mbindex:
+		Removes the "mbindex" semafore when the nodelists are
+		successfull compiled. During compiling it places the
+		"compiling" semafore.
+
+	mbmsg:
+		Removes the "msglink" semafore when the messagebases are
+		linked.
+
+	mbstat:
+		Now maintains the semafore's "bbsopen", "bbsclosed", "zmh" and
+		"scanout" according to semafore.doc. You must schedule
+		"mbstat check" in the crontan at the start op ZMH and end of
+		ZMH both on summer and wintertime. If you did configure the
+		ZMH right in UTC in $MBSE_ROOT/etc/mbsed.conf this will work
+		if you did setup your timezone correctly.
+
+
+
+v0.28/a	18-Nov-1998.
+
+	general:
+		Modified the structs files to add a database for modems,
+		changed the tty database to link it with the modems, added
+		fields in the nodes database for the mailer, added fields
+		in the global config file to add setup for the mailer.
+		Dropped nodelist V21 flag, added V32T and VFC flags. The
+		U flags for modem capabilities must be implemented somehow.
+
+	upgrade:
+		To upgrade, enter the global setup and leave it, say yes to
+		save changes. Enter the nodes setup, enter one of the nodes
+		record, exit and save changes. Setup the modems database.
+		Enter the tty ports setup, link the modems to the POTS and 
+		ISDN lines and save it.
+
+	common.a:
+		In crc added crc16ccitt functions.
+		In clcomm the function IsDoing(char *) now accepts formatted
+		parameters.
+		Added function SetTTY(char *).
+		Added debug logging of nodelist flags.
+		Changed the way the nodelist flags are parsed, sometimes
+		U flags became standard flags, and standard flags became U
+		flags. 'U' became a flag also.
+		Moved some common files from mbcico and mbfido into the
+		library.
+
+	mbsetup:
+		Changed the lineeditor to accept the comma character.
+		Added modem setup, changed tty lines setup to pick a modem.
+		Changed nodes setup, finally added the statistics screen.
+		Changed fidonet setup, first zone is now called "primary zone"
+
+	mbfido:
+		Added IsDoing info during date rollover.
+		Removed a bug causing a segmentation fault when a mail packet
+		had an error.
+		Removed check that incoming packets must come from a node in
+		our setup. All received mail packets are now processed.
+		Echomail must still come from nodes in our setup, the rest goes
+		to /dev/null
+		Moved some sources to the common library.
+		In forward() changed the uppercase functions for the subject
+		line. The original filename became uppercase also.
+		Corrected debug logging for packet date, the month was 0-11 in
+		stead of 1-12.
+		Added logging for ftsc product name and version.
+
+	mbcico:
+		Added some EMSI extra logging.
+		Added more IsDoing info for mbmon.
+		Corrected the Makefile after testinstall on the live bbs.
+		Changed the order of the EMSI data to send to the remote
+		party to be more standard. McMail (maybe others too) didn't
+		recognize all options send too early.
+		Added EMSI logging for 'link', 'comp' and 'tranx'.
+		Moved some sources to the common library.
+		Completely rewritten the chat module. Everything received
+		from the modem is now logged. Because all modem responses
+		including echo from commands, are now logged, the aftercall
+		function (get modem aftercall or caller id), will go to the
+		logfile as well. (not tested, I have no CLIP capable modem).
+		Added patches from ifcico-3.0.cm.alpha-4.0 to filelist.c,
+		this should better handle files sent/notsent in failed
+		sessions.
+		Added counters for sent and received bytes.
+		Completely rewritten the scanout function. It now searches
+		only in the outbound directories defined in the setup.
+		In the fidonet networks of the setup the first defined zone
+		is the default zone for that domain. Other zones get a hex
+		extensions with zone number.
+		Scanning mail for the CallAll option now selects outside ZMH
+		only crash mail, during ZMH crash and normal mail. Logging
+		of selecting mail is improved.
+		When calling a node is failed for 30 attempts, the node will
+		not be called anymore. If the problem if corrected you now
+		must manually edit the .sts file or delete it to call that
+		node again. (Option for the future outbound manager). I think
+		that sessions errors do this after 3 attempts.
+		When calling a node, mbcico more ore less automatic selects
+		a tty with modem that matches the nodelist entries of the
+		node to call. ISDN is not yet supported. Also a best speed
+		test must set priority of ports to use.
+
+	mbmsg:
+		Supressed error message if there was no semafore "msglink"
+		to remove.
+
+	mbsed:
+		Added command SZMH, requesting Zone Mail Hour status.
+		Added command ATTY, setting a new tty port.
+
+	mbdiff:
+		Removed some unnecessary debug log information. This program
+		seems to work fine now. (Wow, only needed 2 releases for
+		this one).
+
+
+v0.28/b		09-Dec-1998
+
+	general:
+		Added structure for the mailer history file.
+
+	mbaff:
+		Removed some debugging logmessages.
+
+	mbsebbs:
+		Removed some debugging logmessages for newmail scan.
+		Removed some debugging logmessages from timer functions.
+
+	mbmsg:
+		Added program info logline.
+
+	mbcico:
+		Added monitor info during FTS-0001 sessions.
+
+	mbout:
+		New program, the Outbound Manager, many ideas stolen from other
+		programs of the ifmail package.
+
+
+
+v0.29/a		11-Dec-1998
+
+	common.a:
+		Opening of nodelists is now logged at debug level.
+		Added .pol files to pktname.c
+		Moved attach.c from mbfido to common library.
+		Nodelock now tests for own locks, if so, no error is given.
+
+	mbfido:
+		Worked on the uppercase bug again. It will only happen when
+		we must forward a file.
+		Moved attach.c to the common library.
+
+	mbout:
+		Implemented file requests.
+		Implemented creating and removing of .pol files to make and
+		remove polls.
+
+	mbcico:
+		Calls nodes when .pol file is present.
+		Made file requests working again, the .req files where not
+		added to the filelist to send.
+		When reading node options the NoEMSI and NoWazoo flags weren't
+		copied to the options.
+		Corrected a bug in yoohoo.c where it didn't initialize
+		remote->addr->name to NULL in checkhello(), this caused
+		a segmentation error and failing Yoohoo/2U2 sessions. Note
+		that this error is in ifcico as well.
+		Over TCP/IP with ifcico as other mailer EMSI, Yoohoo/2U2 and
+		FTS-0001 in- and outbound sessions are working. For other
+		mailers we will see if it will work in real live.
+
+
+v0.29/b		17-Dec-1998.
+
+	general:
+		Installed 0.29/alpha on the bbs.
+		Installed usleep() code in some utils. See usleep.doc for
+		details.
+		Changed the nodelist flag definitions to prevent conflicts
+		with system macro's.
+
+	common.a:
+		Locking and unlocking nodes gives better error logging. It
+		now also checks our own pid if the lock was already made 
+		instead of complaining.
+
+	mbfido:
+		Removed some bugs in logging in magic.c
+		Changed FILE_ID.DIZ file checking for empty lines.
+		Now always marks a file announced when importing into the bbs.
+		Added code to prevent terminal output in quiet mode.
+		Added usleep() code in statistics rollover.
+		Added usleep() code in importmsg. (sleep each message).
+		Added usleep() code in LoadTic. (sleep each .tic file).
+		Added usleep() code in scan for mail.
+		Removed error message when "mailout" semafore didn't exist
+		in scan for mail.
+
+	mbcico:
+		During outbound EMSI session we send the NRQ option flag,
+		requests on hold for us are not allowed when we callout.
+		When calling a node the first thing now is lock the node
+		to prevent further checking if the node is already locked.
+		Putstatus is logged for studying status updates.
+		Experimental status resetting of all nodes after successfull
+		session.
+
+	mball:
+		Renamed from allfiles.
+		Now creates allfiles and newfiles reports. Honors maximum 
+		security level to include in the lists (no flags yet).
+		Optional parameter -zip will create allfiles.zip and
+		newfiles.zip.
+		Installed usleep() code.
+		It is finished.
+
+	mbout:
+		No more error message when a file attach in a .flo file is
+		nolonger on disk. This can happen if nodes don't poll often
+		enough.
+
+	mbmsg:
+		Installed usleep() code.
+		Removed color code output when in quiet mode.
+
+	mbaff:
+		Installed usleep() code.
+		Now marks the file announced after scanning the bbs for
+		uploads.
+
+	mbfile:
+		Added the usleep() code.
+		Added some code to lower the disk i/o.
+
+	mbstat:
+		Now logs status of ZMH with the "check" command.
+
+	mbuseradd:
+		Added a check to see if the "shadow password suite" is
+		installed. It is absolutely necessary to have this.
+		If /etc/login.defs is present, the useradd program gets an
+		extra parameter "-M", to override the creating of the users
+		home directory. (Found on Redhat 5.1).
+		Added an extra check if reading the /etc/passwd file failed.
+		Added newline characters after some error messages.
+
+
+v0.29/b2	24-Dec-1998
+
+	general:
+		Added modem.stripdash and ttyinfo.portspeed in structs.h
+
+	common.a:
+		Changed logging functions in clcomm.c, repeated messages are
+		now counted and reported how many there were. A full filesystem
+		will hopefully not happen anymore.
+		Added the Nopper function, this one can be called often but
+		only once a minute a NOP is send to the server to prevent a
+		timeout disconnect.
+
+	mbcico:
+		Removed some debugging logs. Added some return codes from the
+		tty drivers in zmodem send and receive.	(removed later, it
+		didn't work).
+		Added Nopper code in file transfer protocols.
+
+	mbout:
+		When creating a poll the node's status record is reset, so if
+		the node was undiable, it will start polling again. This will
+		not happen for sessions handshake errors and port errors.
+
+	mbsetup:
+		In edit tty added edit portspeed.
+		In edit modem added edit stripdash.
+
+	mbsed:
+		Corrected ZMH status response.
+	
+	mbstat:
+		Corrected ZMH status check.
+
+
+v0.29/b3	28-Dec-1998.
+
+	mbcico:
+		Inserted new ttyio code from the German version made by
+		P. Saratxaga and T. Tanaka. I hope the Zmodem problems will
+		now be solved.
+		Added Hydra filetransfer protocol.
+		Removed Janus, it wasn't implemented anyway.
+		Corrected modem init routine.
+		Implemented aftercall function.
+
+	mbsetup:
+		Removed setup to disable Janus protocol.
+
+
+v0.29/b4	29-Dec-1998.
+
+	general:
+		Changed the Makefiles. Now only in ~/src/CONFIG you can place
+		extra defines.
+		Added compile switches -Wshadow -Wwrite-strings 
+		-Wstrict-prototypes. This gave a lot of code cleanup, maybe some
+		strange errors are gone.
+
+	common.a:
+		Corrected the repeative log counter.
+		Included in nlindex.c HAS_BSD_DB
+
+	mbcico:
+		Improved ttyio logging, maybe we can better see what is going
+		wrong when transfering files.
+		EMSI compatibility protocol now gives Hydra first, then Direct
+		Zap.
+		Added file transfer counters to Hydra. Changed Hydra logging
+		a bit.
+
+	mbindex:
+		Changed nodebld.c to inlcude HAS_BSD_DB
+
+	mbuser:
+		Did some screen output when it was in quiet moded.
+
+

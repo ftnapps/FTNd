@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: archiver.html,v 1.5 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Archiver programs.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 09-Nov-2003</h5></div>
+<div align='center'><H1>MBSE BBS Setup - archiver programs</H1></div>
+
+To process mail, files and test new uploads you need archivers to process those
+files. For each (un)archiver you must setup the full path and filename and
+commandline switches. Archivers and unarchivers may be different programs such
+as <strong>zip</strong> and <strong>unzip</strong>.<p>
+There is a little 
+difference in processing mail and files, mail will always work on the same
+directory, while for ticfile processing the archives can contain subdirectories.
+So it is obvious that for rearchiving a file you need the recursive
+switches to keep the directory structure within an archive as it was.<P>
+There is also a special command to replace a banner in an archive. This is when
+you receive files with the banner of your uplink in it and you want to replace
+it with the add of your own bbs and you don't want to mess with the files in
+the archive. <P>
+The last option is to extract the file FILE_ID.DIZ from the 
+archive, this can be used for file description when the file is imported in
+your bbs. To make life a little more easy, during the first bbs setup the most
+common archivers already configured. You only need to make sure that they are
+really present on your system.
+<p>
+When you configured the sources and build mbse, the configure script searched
+for excisting archivers. When mbsetup was run the first time, when mbtask was
+started, the archivers found on your system are already configured with the
+right paths and enabled.
+If you want the refresh the archivers configuration again after you added new
+archiver programs, then remove /opt/mbse/etc/archiver.data. Compile the whole
+bbs again, start with <code>make clean</code> and <code>./configure</code>.
+After you reinstalled the binaries, run <b>mbsetup</b> and the new archivers are
+automagic added to the setup. Of course, you can also add new archivers
+manually. Archivers that were not originally found but are known, are present in
+the setup but are disabled.
+<p>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

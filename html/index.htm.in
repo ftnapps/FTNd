@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: index.htm.in,v 1.13 2007/03/01 19:12:54 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Running a BBS under Linux.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
+<div align=center><h1>MBSE BBS System Guide @VERSION@</h1></div>
+<div align=right><h5>Last update 01-Mar-2007</h5></div>
+
+
+<h3><a NAME="top"></a>Introduction</h3>
+
+<A HREF=images/mbsebbs.png><IMG SRC="images/mbsebbs-s.png" align=right alt='Screenshot'></A>
+
+<ul>
+  <li><a href="intro.html">Introduction to MBSE BBS</a></li>
+</ul>
+<P>&nbsp;<P>
+
+<h3>Release Notes</h3>
+
+<ul>
+  <li><a href="known_bugs.html">Known Bugs</a></li>
+  <li><a href="license/index.htm">Licenses</a></li>
+</ul>
+<P>&nbsp;<P>
+
+<h3>MBSE BBS Reference Manual</h3>
+
+<ol>
+  <li><a href="flow.html">Running a BBS under Linux</a></li>
+  <li><a href="dist.html">Which distribution to use</a></li>
+  <li><a href="basic.html">Basic installation MBSE BBS</a></li>
+  <li><a href="upgrade.html">Upgrade MBSE BBS</a></li>
+  <li><a href="setup/index.htm">Configuring the bbs with mbsetup</a>
+  <ol>
+  <li><A HREF="setup/global.html">Edit Global configuration</a>
+  <li><A HREF="setup/fidonet.html">Edit Fido networks</a>
+  <li><A HREF="setup/archiver.html">Edit Archiver programs</a>
+  <li><A HREF="setup/virscan.html">Edit Virus scanners</a>
+  <li><A HREF="setup/modems.html">Edit Modem types</a>
+  <li><A HREF="setup/ttyinfo.html">Edit TTY lines info</a>
+  <li><A HREF="setup/nodes.html">Edit Fidonet nodes</a>
+  <li><A HREF="setup/bbs.html">Edit BBS setup</a>
+   <ol>
+    <li><A HREF="setup/security.html">Edit Security limits</a>
+    <li><A HREF="setup/language.html">Edit Language setup</A>
+    <li><A HREF="menus/index.htm">Edit BBS menus</a>
+    <li><A HREF="setup/files.html">Edit File areas</a>
+    <li><A HREF="setup/protocol.html">Edit Transfer protocols</a>
+    <li><A HREF="setup/oneliner.html">Edit Oneliners</a>
+   </ol>
+   <li><A HREF="setup/mail.html">Edit Mail setup</A>
+   <ol>
+    <li><A HREF="setup/emgroup.html">Echo mail groups</a>
+    <li><A HREF="setup/emareas.html">Echo mail areas</a>
+   </ol>
+   <li><A HREF="setup/tic.html">Edit File echo's setup</a>
+   <ol>
+    <li><A HREF="setup/fegroup.html">Edit Fileecho groups</a>
+    <li><A HREF="setup/fileecho.html">Edit Fileecho areas</a>
+    <li><A HREF="setup/hatch.html">Edit Hatch manager</a>
+    <li><A HREF="setup/magic.html">Edit Magic files</a>
+   </ol>
+   <li><A HREF="setup/newgroups.html">Edit Newfiles groups</a>
+   <li><A HREF="setup/newfiles.html">Edit Newfiles reports</a>
+   <li><A HREF="setup/filefind.html">Edit Filefind setup</a>
+   <li><A HREF="setup/fdb.html">Edit Files database</a>
+   <li><A HREF="setup/users.html">Edit BBS users</a>
+   <li><A HREF="setup/services.html">Edit Services</a>
+   <li><A HREF="setup/domains.html">Edit Domains</A>
+   <li><A HREF="setup/taskmgr.html">Edit task manager</A>
+   <li><A HREF="setup/route.html">Edit Routing Table</a>
+   <li><A HREF="setup/chat.html">Edit Internet BBS Chat</A>
+   <li><A HREF="setup/softinfo.html">Show software information</a>
+   <li><A HREF="setup/sitedoc.html">Create site documents</a>
+  </ol></li>
+  <li><a href="invoking.html">Starting and Stopping the BBS</a></li>
+  <li><a href="mgetty.html">Setup mgetty for the BBS</a></li>
+  <li><a href="programs/index.htm">Programs and utilities</a>
+  <ol>
+    <li><a href="programs/mbaff.html">mbaff, Announce newfiles and filefind</a></li>
+    <li><a href="programs/mball.html">mball, Allfiles and newfiles list creator</a></li>
+    <li><a href="programs/mbcico.html">mbcico, The Fidonet mailer ala ifcico</a></li>
+    <li><a href="programs/mbdiff.html">mbdiff, Nodelist difference processor</a></li>
+    <li><a href="programs/mbfido.html">mbfido, Fidonet mail and files procesor</a></li>
+    <li><a href="programs/mbfile.html">mbfile, Files database maintenance program</a></li>
+    <li><a href="programs/mbindex.html">mbindex, Nodelist index compiler</a></li>
+    <li><a href="programs/mblang.html">mblang, Language datafile compiler</a></li>
+    <li><a href="programs/mblogin.html">mblogin, Unix login replacement</a></li>
+    <li><a href="programs/mbmon.html">mbmon, The monitor program</a></li>
+    <li><a href="programs/mbmsg.html">mbmsg, The messagebase utility program</a></li>
+    <li><a href="programs/mbnntp.html">mbnntp, The news server</a></li>
+    <li><a href="programs/mbout.html">mbout, The mailer outbound program</a></li>
+    <li><a href="programs/mbpasswd.html">mbpasswd, The passwd wrapper</a></li>
+    <li><a href="programs/mbsebbs.html">mbsebbs, The bbs program</a></li>
+    <li><a href="programs/mbseq.html">mbseq, Sequence number creator</a></li>
+    <li><a href="programs/mbsetup.html">mbsetup, The setup program</a></li>
+    <li><a href="programs/mbstat.html">mbstat, The bbs status change program</a></li>
+    <li><a href="programs/mbtask.html">mbtask, The taskmanager for the bbs system</a></li>
+    <li><a href="programs/mbtoberep.html">mbtoberep, The toberep.data lister</a></li>
+    <li><a href="programs/mbuser.html">mbuser, The userbase maintenance program</a></li>
+    <li><a href="programs/mbuseradd.html">mbuseradd, The useradd wrapper</a></li>
+  </ol></li>
+  <li><a href="routing.html">Netmail routing behaviour</a></li>
+  <li><a href="intergate.html">Fido to Internet Gateway</a></li>
+  <li><a href="postfix.html">Email Gateway - Postfix setup.</a></li>
+  <li><a href="nodelist.html">Nodediff and Nodelist processing</a></li>
+  <li><a href="ups.html">Using UPS semafore's</a></li>
+  <li><a href="doors.html">Running DOS doors on MBSE BBS</a></li>
+  <li><a href="errcodes.html">Error return codes</a></li>
+</ol>
+<P>&nbsp;<P>
+
+<h3>Other Notes</h3>
+
+<ul>
+  <li><a href="faq.html">Frequently Asked Questions</a></li>
+  <li><a href="ftsc/index.htm">Fidonet Standard Commitee documents</a></li>
+  <li><a href="misc/index.htm">Miscellaneous documents</a></li>
+</ul>
+
+<hr>
+<a href=".."><img SRC="images/b_arrow.png" ALT="Back" BORDER=0>Back</a>&nbsp;
+<a href="#top"><img SRC="images/uarrow.png" ALT="Top" BORDER=0>Top</a>
+</blockquote>
+
+</body>
+</html>

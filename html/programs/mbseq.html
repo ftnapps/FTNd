@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: mbseq.html,v 1.5 2003/11/08 18:49:36 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbseq - Sequence number creator.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 31-Jan-2001</h5></div>
+<div align="center"><H1>mbseq - Sequence number creator</H1></div>
+
+<H3>Synopsis.</H3>
+<P>
+<code><strong>mbseq</strong></code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbseq</strong> writes a eight character hexadecimal unique sequence
+number to the stdout. This number is received from <strong>mbsed</strong>
+which keeps track of the generated sequence numbers. This written number can
+be used in shell scripts to create unique filenames for Fidonet .pkt files,
+for example:
+<P>
+<code>
+cp temp.pkt `mbseq`.pkt
+</code>
+<P>&nbsp;<P>
+
+<H3>Bugs.</H3>
+<P>
+Nah, it's only 50 lines code, what could go wrong?
+<P>
+
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

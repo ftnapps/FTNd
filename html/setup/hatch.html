@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: hatch.html,v 1.5 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - File Echo's Setup - Hatch Manager.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 10-May-2002</h5></div>
+<div align='center'><H1>MBSE BBS Setup - File Echo's Setup - Hatch Manager.</H1></div>
+
+<H3>Introduction.</H3>
+<P>
+Hatch files is nothing more than entering a new file into a file echo. That
+file is searched for on your system in a specific directory with a certain
+filemask. This can be for example a new created nodelist or an allfiles listing.
+Everytime <strong>mbfido tic</strong> is run it will scan for files defined
+in this setup. If such a file is found, a special .tic file is written and 
+stored in the mailers inbound directory. When the <strong>mbfido</strong>
+starts processing .tic files, that new hatched file will be processed as if
+it was received form another system. To let this work, you obviously need
+an existing TIC area.<P>
+The filenames to hatch may be long filenames as long as there are no spaces in
+it. In the TIC file a short filename will be created for the old style tic
+processors. The long filename is inserted in the TIC file as well. The short
+filenames are created in the same way as windows does.
+<P>&nbsp;<P>
+
+<H3>Hatch Manager Setup.</H3>
+<P>
+<pre>
+<strong>Mask    </strong>The path and filename mask to search for. 
+        "?" matches any character, "#" matches digits and "@" matches
+        upper or lowercase letters. Except for the "@" the test is
+	case sensitive.
+<strong>Area    </strong>The area to hatch this file in.
+<strong>Replace </strong>The filename to replace, ie. "nodelist.z*"
+<strong>Magic   </strong>The filerequest magic name, ie. "nodelist"
+<strong>Desc    </strong>The description of the file, %12 in the description
+        means copy the 12th character of the name in place.
+<strong>Dupe    </strong>Check for duplicates.
+<strong>Active  </strong>If this area is active.
+<strong>Deleted </strong>If this area must be deleted.
+<strong>Days    </strong>The days in the week to scan for this file.
+<strong>Month   </strong>The dates in the month to scan for this file.
+</pre>
+<P>
+
+<IMG SRC="../images/hatch.png" alt='Hatch manager setup'>
+<P>
+
+<A HREF="tic.html"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to File Echo's Setup</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

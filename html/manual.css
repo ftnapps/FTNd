@@ -1,0 +1,30 @@
+/*
+ * $Id: manual.css,v 1.5 2003/11/08 16:48:03 mbroek Exp $
+ *
+ * stylesheet for the MBSE BBS manual.
+ */
+
+
+BODY      { background-color: white; font: 12pt sans-serif,helvetica,arial; }
+
+/*
+ * H1 is the page header, H3 the paragraph header, H5 is topright update date.
+ */
+H1        { color: red; font: 16pt sans-serif,helvetica,arial;  font-weight: bold }
+H2	  { color: red; font: 14pt sans-serif,helvetica,arial;  font-weight: bold }
+H3        { position: relative; left: 60px; color: black; font: 14pt sans-serif,helvetica,arial; font-weight: bold }
+H5        { color: black; font: 10pt sans-serif,helvetica,arial; }
+
+A:link	  { color: blue }
+A:visited { color: blue }
+A:active  { color: red  }
+
+TABLE     { color: black; }
+TH	  { font-family: Arial, Helvetica; font-size: 12pt; font-weight: bold; }
+TD        { font-family: Arial, Helvetica; font-size: 12pt; }
+
+PRE       { color: green; font-family: fixed; }
+CODE      { color: green; font-family: fixed; }
+HR        { border-top: solid medium navy }
+
+

@@ -1,0 +1,973 @@
+$Id: ChangeLog_2002,v 1.1 2003/07/06 10:06:45 mbroek Exp $
+
+	MBSEBBS History in 2002.
+
+
+v0.36.00	26-Dec-2002 - stable release
+
+	update:
+		These are the total update instructions for the upgrade from
+		v0.33.21 until v0.36.00. Read and perform this upgrade with 
+		great care, this one is quite complicated.
+                Make sure you don't have download files with case differences
+                in download directories like FileName.zip and FILENAME.ZIP.
+                With this upgrade files with such names will be deleted!
+                Rename them before you upgrade!
+		Make sure your outbound is empty, "mbout stat" should not show
+		anything in the outbounds. You may delete ~/bin/mbfido before
+		you do this so when you deliver all pending mail no new mail
+		will be tossed. New mail will stay in your inbound now.
+		Now backup your whole bbs and download areas!
+		Compile the new bbs programs, do not yet install them.
+		Shutdown the bbs with "mbstat close". Kill the mbtask daemon.
+		Depending on your distribution as root you can do
+		"/etc/rc.d/init.d/mbsed stop", the location may vary.
+                Delete ~/etc/lastcall.data
+                Delete ~/etc/archiver.data
+                Delete ~/etc/virscan.data
+		Because the macro template files are changed and you may have
+		personalized them, these files are not automatic upgraded. If
+		you want them to be upgraded delete all files in 
+		~/english/macro .
+		Now install all new binaries (su to root, make install).
+		Delete ~/bin/mbfido again (to prevent tossing mail).
+		Back as user mbse again, start mbtask by typing mbtask at the
+		commandline. Now you are ready to check and update the changes.
+                Start mbsetup, enter global configuration and exit and save.
+                This will set defaults for area-/filemgr logging and security.
+                The noderecords are updated with new security flags.
+                This will setup the new outbound queue path, default is
+                /opt/mbse/var/queue.
+                The filegroups, ticgroups, tic areas and message areas are
+                updated with default security flags.
+                In mbsetup enter Edit Fidonet Nodes. You might want to check
+		if all the session passwords are still ok. Also check all 
+		nodes if the Pack mail flag is ok, this setting now also 
+		affects echomail!
+		In nodes screen 1, enter item 2: "Outbox dir" to set a outbox
+		directory if you want that. This will propose a directory name,
+		change that if you like to for example to a system or sysop 
+		name. Don't use spaces!
+                Check new settings in nodes setup, screen 6, items 9 and 10.
+		Item 9 does not work if the node uses BBBS and maybe others.
+		If the node uses Allfix or MBSE, 9 and 10 can be Yes.
+                Check TIC magic records (menu 10.4), all filenames tested are
+                now uppercase 8.3 names, adjust your filemasks.
+                In mbsetup enter the Edit Archiver Programs. The new values
+                should now be set. Do the same for Virus scanners.
+		This is all for mbsetup.
+                Run "mbfile check". This will create an error in the logfile
+                for each file! It will update the filenames on disk to have
+                both short and long filenames. Just ignore the errors but check
+                for real deleted files.
+		Now you are ready, install the binaries again so that mbfido
+		is present again and you can toss mail. Do this with
+		"mbstat set mailin", after a while all mail and files will be
+		tossed and you are back in bussines again.
+		Have fun.
+
+	changes:
+		See all changes from development version 0.35.01 upto 0.33.07.
+
+
+				MBSEBBS History.
+
+v0.35.07	11-Dec-2002 - 26-Dec-2002
+
+	general:
+		On FreeBSD the lsz and lrz programs are found as alternate for
+		lz and sz.
+
+	common.a:
+		For testing purposes of the ESLF (Extended St. Louis Format)
+		nodelist, debugging is added to show the information in the
+		ESLF lines. Only visible with utilities debug 's'.
+
+	mbsebbs:
+		With menu 201 there is now a new optional data parameter N.
+		When used if a user selects a different message area, areas
+		with new unread mail are marked with a yellow star.
+		Also with menu 201 these is now options U+ and U-, which 
+		takes the user to the next or previous Unread message area.
+
+	mbfile:
+		The index command displays LFN names in the webpages again.
+		The real download still sends the 8.3 name.
+
+	mbfido:
+		Better detection of zone information in netmails when netmail
+		was stored in a netmail packet of a different network and the
+		netmail misses a lot of kludges. Better logging of processed
+		netmails.
+		If a TIC file woth lowercase 8.3 filename is received the name
+		is forced to uppercase 8.3.
+
+	mbcico:
+		Code cleanup in opentcp, better handling of given ports and
+		better logging.
+
+
+v0.35.06	13-Nov-2002 - 11-Dec-2002
+
+	templates:
+		The html templates are changed by Joachim Kuwan and now they
+		are valid html files validated at http://validator.w3.org/
+		This upgrade is not automatic because you might have personal
+		changes in the templates that I do not want to overwrite.
+		Another one changed is areamgr.status, that one had an error
+		and did display garbage for the routevia address.
+		They are in ~/mbsebbs-0.xx.xx/examples/templates.tar and should
+		go into ~/english/macro/
+		Some other templates are changed because they had spelling
+		errors, you may want to replace all templates.
+
+	general:
+		Added better support for 8.3 and long filenames by creating
+		symbolic links in the download directories.
+
+	common.a:
+		Changed the LFN name mangle functions to prevent 8.3 name 
+		collisions. Now the basepart is 4 characters followed by the
+		tilde char and then a 3 characters code calculated from the
+		16 bits crc of the original filename. Original this was base 5
+		followed by a tilde and 2 characters code calculated from the
+		checksum of the string modulo 1849. Both methods are different
+		then what MS does.
+		Added long extension to 3 char extensions for mpeg, smil, perl,
+		jpeg and tiff.
+		The unpack function doesn't complain anymore when it was
+		testing for the archive format on files smaller then 257 bytes.
+
+	mbsebbs:
+		Several user input functions don't allow comma's anymore.
+		Uploaded files will now also have a symbolic link to then
+		long filename from the real 8.3 filename.
+		Filesearch on filename now uses regexp to find the files.
+		The caller id didn't show up when the info was available.
+		A user with only a limit on download files or download Kb could
+		not download at all.
+
+	mbfido:
+		TIC file forwarding now uses a list of qualified systems to
+		forward to, and with this information builds more reliable
+		seen-by lines.
+		Imported tic files with a new banner file in the archive got
+		the wrong filetime in the files database. The mbfile check
+		command would detect and correct this.
+		TIC files added to the bbs will now also have a long filename
+		symbolic link.
+		With TIC file attaches, the filename attached is the 8.3 name.
+		TIC processing completly modified to make better LFN support,
+		internal everything works on the 8.3 filename.
+		When writing ticfiles for downlinks, the To line now depends
+		on the new nodes setting.
+		When writing ticfiles for downlinks, the format of the Seenby
+		lines now depends on the new nodes setting.
+		When adding unpacked mail for a directory node, the mail
+		packets had the wrong filename.
+		Changed some logging to debug with auto create areas.
+		Request messages sent to the uplinks are now logged in the
+		manager logfile.
+		Removed heavy debugging on some parts of RFC message 
+		processing.
+		During toss the Nopper code is called to prevent timeout when
+		a very large packet is tossed that takes longer then 10 mins.
+		When more then 1024 dupes were tossed, mbfido crashed because
+		a temp file wasn't closed.
+		The echomail dupecheck doesn't check the seconds of the message
+		date anymore. This will catch some rescanned dupes that modify
+		the seconds of the original messages.
+
+	mbcico:
+		With filetransfer errors, the attempts counter was not 
+		increased.
+
+	mbfile:
+		Finished complete support for 8.3 and long filenames.
+		The check function now creates symbolic links in the download
+		areas with the 8.3 filename to the long filename so that the
+		files seem to exist under both names.
+		The delete and move functions can now use 8.3 or long
+		filenames as argument.
+		The index function now creates web pages with the uppercase
+		8.3 filename (including thumbnails) because webservers don't
+		allow downloads from symlinks and the LFN is a symlink. You
+		could allow your webserver to do this but this is a big 
+		security hole.
+
+	mbsetup:
+		In filedatabase editor, if a file is deleted the name is
+		displayed in light blue.
+		Added setup switches in nodes setup, files, to toggle sending
+		advanced seen-by lines and the To line in ticfiles.
+
+	mbtask:
+		The outbound status didn't show the new error codes.
+
+
+v0.35.05	19-Oct-2002 - 13-Nov-2002.
+
+	general:
+		There is now a mberrors.h file that defines all errorcodes
+		returned by all programs.
+
+	faq:
+		Changed the section about ftp feeds.
+		Added Q&A about failing internet polls.
+
+	mbsebbs:
+		Email posted at the bbs was not signed with the signature.
+		Fixed the bug where the filearea number was lost. This was
+		caused when a user was logged off before the login procedure
+		was complete.
+		If user was displaying the whoson list and there was no
+		matching isdoing action then browsing will be displayed 
+		instead of system error.
+		Sends Unix name instead of long name to mbtask.
+		During login the OS and CPU type is displayed.
+
+	mbnewusr:
+		Sends Unix name instead of long name to mbtask.
+		During login the OS and CPU type is displayed.
+
+	mbmon:
+		In screen 1, username field decreased ro 8 characters and the
+		doing field is increased to 26 characters.
+
+	mbcico:
+		Fixed crash with incoming YooHoo session with bad password.
+		Still used the phone override fields for hostname override
+		with internet calls if there was something filled in.
+		For inbound sessions if the remote is listed in some nodelist,
+		mbtask is updated with the sysop name and location.
+
+	mbout:
+		The stat command now also shows what is on hold for a node
+		with an directory outbound (ftp node). Status is always hold.
+
+	mbmsg:
+		The summary counters in the logfile are increased to 6 digits.
+
+	mbsetup:
+		When installing the default unarchivers (new installations)
+		the rar is used to unarchive instead of unrar when available,
+		rar is compiled static and prefered.
+		Added support for the nomarch unarchiver. Files are extracted
+		with the -U switch for nodelists.
+		Removed from Screen 1.13 the unused switches Res Future and
+		Repl ext. Fixed some help texts.
+		Added in screen 1.14 settings for Plus All, Notify, Passwd and
+		Pause.
+		Removed the default Virnet record from the fidonet setup.
+		In node setup the pack netmail switch is renamed and is now 
+		for all mail. Default for new records is Yes.
+		Added length check when importing taglines.
+		Now writes also ~/etc/msg.txt for MsgEd after messagebase is
+		updated.
+		When a new echomail area was created with a default group
+		setting, then when the group was selected setup would create
+		the jam basepath itself instead of using the base from the
+		group.
+		New JAM areas will not have spaces anymore in the pathnames.
+		Spaces are replaced by underscores.
+
+	mbfido:
+		With ticfile processing, the KeepDate setup setting now works.
+		The FileMgr requests now honor the setting of the switches
+		Plus All, Notify, Passwd, Message, Tic on/off and Pause.
+		The AreaMgr reuqests now honor the setting of the switches
+		Plus All, Notify, Passwd and Pause.
+		Echomail is now also packed or not according to the packmail
+		switch in mbsetup.
+		Statistics count for exported echomail now works.
+		Email posted in the email box in full domain mode was refused
+		by SMTP servers because of bad address formatting.
+		Addex extra check to prevent overflow of arcmail packets
+		extension. This is logged with a warning when this happens.
+		If filenames were exhausted and the last one (ending on z) is
+		truncated in the outbound (has been sent already) it is erased
+		before the archiver is called to reuse that filename again.
+		When mail/files were moved to the inbound from a directory
+		node, this was not processed in the same session.
+		Moved the ^aTID kludge to the top of the exported message
+		after the last kludge so people won't complain anymore.
+		With local hatched files, the aka of the tic area was not added
+		to the seenby list.
+
+	mbtask:
+		Removed debug logging of "does" info.
+
+
+v0.35.04	29-Sep-2002 - 19-Oct-2002.
+
+	general:
+		Added mail and files security flags for nodes.
+
+        clcomm.a:
+                Added Mgrlog function, logs default to manager.log. Does also
+                log to Syslog with level '+'.
+
+	mbfido:
+		Area- and FileMgr requests are now also logged in manager.log
+                Auto created and removed areas are also logged in manager.log
+		Auto created area now get the link security from the group.
+		With message areas auto update it should now only delete
+		missing echomail areas.
+		File attaches to our own points were placed in the node's
+		outbound directory instead of the point outbound.
+		Files and echomail security flags implemented.
+		Echomail rescan will also work with newsgroups.
+		Removed some debug logging with files replace.
+		Fixed trashing news dupes file when mbfido was called multiple
+		times. Improved program locking.
+		Netmail received for a zone/net without netmail board will be
+		stored in the badmail area.
+
+	mbsetup:
+		Added setup for the nodes record for security flags.
+                Added setup for the ticgroups default security flags.
+		Added setup for the mailgroups default security flags.
+		Added setup for the tic areas security flags.
+		Added setup for the message areas security flags.
+		Menu 14, edit files database had the wrong selection prompt.
+		Fixed backspace/delete key issue.
+
+	mbmon:
+		Fixed backspace/delete key issue.
+
+	mbindex:
+		Removed debug logging.
+
+
+v0.35.03	06-Jul-2002 - 29-Sep-2002
+
+	general:
+		Now compiles and installs on HP-PARISC hardware, tested with
+		Debian 3.0 on a HP 712/80.
+
+	common.a:
+		Added nodelist override to the nodelist lookup function.
+		Added protection against emty rfc headers with only a space.
+		Added test for HA archiver.
+
+	mbinet.a:
+		If during a connect a newsserver refuses the connection then
+		don't close our side of the connection. This is a temporary
+		solution, we should disconnect with timeout instead.
+
+	lang:
+		Corrected a spelling error in the Dutch language file.
+
+	mbcico:
+		Changed IsDoing information.
+		Makes use of the node nodelist override settings.
+		Fixed a bug that mbcico refused to do internet calls when one
+		of the No IBN, No ITN or No IFC flags was set.
+
+	mbout:
+		Makes use of the node nodelist override settings.
+		The file attach function now adds the file to the queue, by
+		setting the semafore mailin mbfido will place the file in the
+		real outbound.
+
+	mbfido:
+		Rollover now only sets IsDoing when it really does a date
+		rollover.
+		When a new tic area was created the first file received for
+		that area was refused.
+		Fixed a few problems with local UUCP created netmails.
+		Added routing tables for special cases. Most systems don't
+		need this.
+		The route test command now works exactly as netmails do.
+		Implemented directory inbound tossing and outbound queueing.
+		Rewrote the outbound queue system, the queue now works for
+		files also.
+		Removed debug logline with extract of FILE_ID.DIZ.
+		When a file is imported with a name that is already present,
+		the existing filerecord is updated and not replaced.
+		There are people using M$ wordprocessors to create TIC files,
+		there is now better filtering to get that garbage out of the
+		received tic files. We will forward plain ascii of course.
+		Fixed the outbound queue to send to nodes not in the setup.
+		When mbfido stops with error 110 it doesn't remove any locks
+		because this error is only being used before that main lock is
+		made.
+		Changed the error codes during init until the main lock is 
+		made, this must prevent destroying a another lock.
+		Added extra check to unlock directory function to check that
+		only the owned lock is removed.
+
+	newuser:
+		Check for Unix accounts is now case sensitive.
+		Check existing usernames now also checks handles.
+		Check for existing Unix names now also includes the name ping
+		and services names.
+		Check for handle now also checks Unix names.
+		The setting for single usernames does work again.
+
+	mbsebbs:
+		Check existing usernames now also checks handles.
+		When a user paged the sysop for a chat, after the timer was
+		expired, the bbs crashed.
+		Fixed a problem with extra spaces in UUCP replyto address.
+		Added test for HA archiver.
+		When changing a Handle, Unix names are checked as forbidden
+		names as well.
+		Improved import of FILE_ID.DIZ with file uploads. Only if
+		FILE_ID.DIZ is processed successfull the user will see that
+		this file has been used.
+		Corrected length for manual file description to prevent string
+		overflow.
+		Added missing space in message to user about file unpack.
+
+	mbtask:
+		Changed logging of multiple logmessages that are equal.
+		Changed semafore debug logmessages.
+		Fixed log problem not always showing the Call flag.
+		Now forces callmode to None if the callflag was cleared.
+		The test to add a node to the calllist now also checks the
+		internal call flag.
+		Makes use of the node nodelist override settings.
+		Added default setting for outbound queue.
+
+	mbsetup:
+		Enabled setting of nodelist override settings in menu 7.x.3
+		After nodes setup edit the semafore scanout is set.
+		When a JAM messagebase path is changed in one of the message
+		area, filefind and newfiles records are automatic updated if
+		they were connected to that area.
+		Added setup for routing the table.
+		Corrected several page layouts for printing on A4 paper.
+		Added setup for nodes connected via directories (we are the
+		FTP server side).
+		Added setup setting for outbound queue in global setup.
+		Added support for default setup of the HA archiver.
+		Changed Rubout key to do the same as Backspace. (experimental)
+
+	mbmon:
+		Changed Rubout key to do the same as Backspace. (experimental)
+
+	script:
+		The bbsdoor.sh and rundoor.sh scripts are now only installed
+		if they were not installed before.
+		Added better support for different locations of the external
+		editor joe.
+
+	examples:
+		With the aid of a little utility (endian) the right menus are
+		now installed on little or big endian machines.
+
+
+v0.35.02	22-Jun-2002 - 06-Jul-2002
+
+	general:
+		Added checks for GoldED in external program checks.
+		Added new empty path /opt/mbse/var/boxes.
+		Implemented nodes private outbound boxes.
+		Revised the dependencies for all sourcefiles.
+
+	common.a:
+		Added debug nodelist IFT flag for logging.
+		Added archive detection for tar, gzip and compress.
+
+	mbsetup:
+		Changed node records layout into 8 screens to be able to add
+		more settings. New settings not in use yet are disabled.
+		Added settings for node contact information. This is private
+		for mbsetup use only.
+		Implemented nodes special outbound box setup. When you enter
+		that item for the first time, it fills this with a suggested
+		path.
+		Changed description and filetype for default tar gzipped files
+		in archiver setup.
+		Added default records for bzip2 and uncompressed tar files.
+
+	mbcico:
+		Implemented nodes special outbound boxes.
+		Corrected a problem with getting modem aftercall info from ISDN
+		modems.
+
+	mbout:
+		Implemented nodes special outbound boxes.
+
+	mbfido:
+		In newsmode when a mesage is received with an illegal formated
+		date headerline, the date is replaced with the current date 
+		and time. Possible cause: SunMail 1.0
+		When reading taglists if there was no description after the
+		tag, mbfido would crash.
+		Filefind netmail replies now set the private flag.
+		Removed debugging messages displaying the incoming tic files.
+		The mbfido test command now needs a extra parameter, the final
+		destination to test. It doesn't use the internal fixed table
+		anymore.
+
+	mbindex:
+		Fixed a crash when a pointlist contained Point,5,reservered,
+		and nothing more.
+		Added nopper code to prevent timeout on slow systems with 
+		large pointlists to compile.
+
+	mbsebbs:
+		The email address in new created .signature files is only
+		added if global Give Email is true and in the userecord the
+		email is also enabled.
+		The whoson list now supports the /H and /U optional data to
+		display handles or unix names.
+		The send online message now supports the /H and /U optional
+		data to use handles or unix names.
+		The display userlist function now supports the /H and /U
+		optional data to use handles or unix names.
+		The display lastcaller list now also supports the /U optional
+		data to display Unix names.
+		Code cleanup in offline reader.
+		Messages posted using BlueWave format now correct the timezone
+		difference.
+		Messages posted using BlueWave now show the tearline of the
+		OLR client if this is present.
+		When messages are uploaded with BlueWave or QWK the netmail.jam
+		or echomail.jam is updated.
+		With QWK messages upload, if a tearline is already present, it
+		will not be added again.
+
+	mbmsg:
+		The isdoing messages now has the area number included.
+
+	mbtask:
+		When first run the goldnode command is only filled in if it
+		exists in the mbtask configuration.
+		Implemented nodes special outbound boxes.
+		Added debug info for isdoing messages.
+
+
+v0.35.01	05-Jun-2002 - 22-Jun-2002
+
+	general:
+		Added structures for netmail routing file.
+		Expanded nodes structures for FTP and Directory transfers.
+		Splitted nodes session/mail password in mail and session
+		password.
+		Added more external program checks to get the right paths of
+		archivers, virus scanners etc for default settings in the
+		setup.
+
+	mbtask:
+		Removed some debug logging and corrected some spelling.
+		The ping test now also works if operations are suspended.
+		Rewrote the ping state machine.
+
+	mbcico:
+		Now uses the new session password field for session handshake.
+		The binkp version string now includes the OS and CPU type.
+		If a transmitted file via binkp is skipped by the remote it
+		will stay in the queue for the next session.
+		The binkp protocol now supports the CRC option proposed by
+		Tobias Ernst. This unofficial extension is also supported by
+		Irex and patched BinkP versions.
+		Better error handling for error conditions during a binkp
+		session.
+		Fixed a problem with the calculated filetransfer speed with
+		large files on fast connections.
+
+	mbout:
+		Removed a small memory leak.
+
+	mbfido:
+		When creating uplink area requests the from aka used is now
+		the aka defined in the group.
+		Removed several memory leaks again.
+		Fixed a bug when a news article was received with a header
+		line without a key value such as created by wrong configured
+		newsreaders.
+
+	mbfile:
+		Added -v commandline switch to suppress virus checking for the
+		adopt and import commands. Use with great care.
+
+	mbsebbs:
+		Bluewave reply packets now also process an incoming *.olc file
+		so now bluewave if fully Bluewave V3 compatible. Internally it
+		works by converting the *.olc file to a *.pdq file. Patch made
+		by Redy Rodriguez.
+
+	mbsetup:
+		Upgrades the nodes records, the new session password is copied
+		from the old combined mail/session password.
+		In nodes submenu 14 the session and mail passwords can now be
+		edited seperatly. This will change again!
+		Archivers, file transfer protocols and virus scanners  found 
+		during first configure of this program are automatic installed
+		in the setup and enabled. Others are shown there with default
+		paths but are disabled, they can be used as examples.
+		Fixed crashing mbsetup in menus 10.3.2, 10.4.5 and 10.4.6.
+		Menu 1.1 system aka's now has the option to move aka's to 
+		other positions. Added some check's on the main aka's.
+
+	mbtask:
+		The pinger now uses a fixed sequence number to check if this 
+		is the problem that sometimes the internet seems down.
+
+
+v0.33.21	04-Jun-2002
+
+		This is the final release of the 0.33.20 development version.
+
+
+v0.33.20        10-Feb-2002 - 04-Jun-2002
+
+	upgrade:
+		Remove /opt/mbse/etc/safe.data
+		Compile sources and install binaries. Restart the BBS.
+		Enter mbsetup, this will upgrade the databases.
+		Go into global configuration, exit and save, this will update
+		the main configuration (add default macro path).
+		Edit the message groups and file groups for new settings.
+		Run mbfile check to fix download directory permissions.
+		Check the setting in menu 10.2.13 if it does what you want it
+		to do.
+
+	general:
+		Added structures for area maintenance with area lists.
+		Installing the maptabs don't give any errors anymore when
+		installed as user mbse. The location of the source isn't
+		important anymore to install the maptabs.
+		Updated German, Spanish and Galego languages.
+		The location of the sourcefiles is not important anymore.
+		Added detection of vpopmail in default installation path.
+		Changed language prompts 372, 373, 387, 388, 389, 390 and 438.
+		Added the turbodiesel macro language so that reports can be
+		customized per language and reports. Thanks to Redy Rodriguez
+		for finding this one and implement it into mbse bbs.
+		Splitted the No TCP settings in No IBN, No IFC and No ITN.
+		Removed settings for Non-hold mail and Pickup Primary.
+		Removed several setting for http setup, this is now handled
+		by the macro templates.
+		The rc files for joe, the external editor are now copied to
+		/usr/lib/joe or /etc/joe depending on your distribution.
+		Several readme files are now in a new html file, the FAQ.
+
+	common.a:
+		Added 2 functions to return the OS name and CPU family.
+		Added a function to return the right tearline.
+		Added support for ext3 filesystem in diskspace check.
+		Fixed lharc archives return code to LHA.
+		Changed mkprod.awk script to support Debian Woody.
+		The aka2str function now onmits the @ if there is no domain
+		information.
+
+	clcomm.a
+		Added counter for mailer TCP/IP sessions.
+
+	diesel.a
+		New library for parsing macro templates.
+
+	msgbase.a:
+		Improved logging for opening message bases.
+		Added function to delete a JAM message base.
+		Fix for corrupting LastRead pointers on FreeBSD systems.
+
+	mbsetup:
+		In message groups added default settings for auto area
+		creation.
+		Added servicename filemgr to the filemgr services.
+		When adding or deleting a message area, several extra checks
+		are done. The JAM base is also removed when deleting.
+		Layout for message area editor changed, more logical now.
+		If selecting a file/mailgroup in node edit that is outside the
+		visible range of groups, the view is adjusted.
+		If changing the path in an existing file area, the files in
+		that area are moved to the new path.
+		It is now possible to move file areas.
+		It is now possible to move JAM message bases.
+		Added edit of external message editor in menu 1.4.
+		Added edit of NoPrompt setting in menus for doors.
+		Changed edit of message editor in user editor.
+		Double noderecords are automatic removed with error logging.
+		Corrected screen layout in menu 1.4.11.
+		When editing analogue modem lines, the locked portspeed was
+		in a lot of cases set to 0.
+		In newfiles and filefind reports sets default template files
+		during init.
+		When adding a new newfiles or filefind record some defaults
+		are automatic filled in.
+		Splitted no TCP into no IBN, no IFC and no ITN in global and
+		nodes setup.
+		When editing a new message area, and the area was made active,
+		all entered data was erased.
+		Removed setting for http setup which are now in the macro
+		templates.
+		Changed the screen layout of menu 10.2 a bit as suggested by
+		Vince Coen.
+		Fixed a non understandable logmessage in check if nodes are
+		connected to file and or mail groups.
+		It is now possible to reset a users time left for today.
+		The top statusbar now displays the bbs Free/Down/Busy status.
+		Some dangerous menus cannot be entered anymore while some
+		programs are being used, ie. the bbs must be free. When these
+		menus are entered, the bbs will be closed for use.
+		Added menu 8.6, edit BBS list entries.
+		Fixed numbering of menu 8.7, edit oneliners.
+		Added menu 8.8 for safe crackers data. If the safe is cracked
+		it can now be reset.
+		Protected convert-all setting in menus 10.1 and 10.2 when no
+		default archiver is defined.
+		Changed page layout in site.doc
+		Changed the confusing No Touch setting in tic areas to Touch.
+
+	mbmon:
+		The top statusbar now displays the bbs Free/Down/Busy status.
+		Removed nonsense error message when stopped on a signal.
+
+	mbfido:
+		In AreaMgr and FileMgr changed aka matching for area 
+		connections. Code cleanups.
+		In FileMgr when %tick=on/off command was received, mbfido
+		crashed.
+		Implemented auto area create comparing a new received echo
+		from a uplink which has a echomail taglist in one of the
+		mailgroups defined. The area is created with the defaults
+		from the mailgroup.
+		If mbfido fails to unzip a incoming mailarchive, a second
+		attempt is done after a sync() and one second delay. This
+		seems to be a kernel flush problem.
+		The same goes for adding .pkt files to the outbound, a second
+		try is done after a sync() to add the .pkt to the archive.
+		In the To field of a created TIC file there is now a comma
+		between the sysop name and fidonet aka.
+		When creating a filefind netmail reply there was no 
+		destination address.
+		Corrected spelling errors in the Areamgr and Filemgr help
+		messages.
+		Removed some debug logging from the RFC->FTN gate.
+		Implemented the FileMgr and AreaMgr pause and resume commands.
+		Changed logging when AreaMgr/FileMgr commands did fail.
+		Some checks improved and fixed some potential sigsegv crashes.
+		Reduced aka match level for (dis)connect areas to zone, net.
+		This should fix problems on systems with multiple aka's when
+		the first aka is not the aka in the areas.
+		In mgr result reports, lines with connected areas do now also
+		display the aka to which they are connected.
+		The file forward function now always puts a 8.3 filename in
+		the outgoing ticfile. For most files nothing is changed.
+		AreaMgr and FileMgr netmails are now split into more netmails
+		when the become too large.
+		When a downlink requests an echomail area which is not yet 
+		available, and there is a areas file for some uplink, the area
+		is automatic created and a areamgr request is sent to the 
+		uplink to connect that area. The area is created with the
+		defaults from the mailgroup.
+		Experimental patch in mkftnhdr to create a To address in news
+		articles where a Reply-To: header is present.
+		It was not possible to disconnect file areas.
+		Added nopper code to full mailscan.
+		Fixed a problem that caused a SIGSEGV when a node was in the
+		ticfiles setup to forward file to and there was no noderecord.
+		When a ticfile was received while our aka is in the path, the
+		bad tic counter wasn't increased.
+		Made error message in AddMsgHdr function more clear.
+		Removed experimental patch in news->ftn gate were wrong To:
+		address was created.
+		The mbfido news functions doesn't abort anymore when a 
+		newsgroup didn't exist.
+		For points in echomail no seen-by entry is added.
+		The AreaMgr and FileMgr responses and notify messages now use
+		the diesel macro language.
+		The tic file forward function now uses only filenames in the
+		subject of the netmail messages without the path.
+		The tic file forward netmails now uses template forward.tic
+		When started a second time it doesn't destroy the lockfile
+		anymore.
+		When a converted email to news listserver message is processed
+		that has a header line starting with X-MS-, the headerline is
+		suppressed because there is no key for this header. This looks
+		like a new kind of M$ standard. mbnews crashed on this one.
+		Fixed a small problem in magic filename testing.
+		In rfc2ftn the Approved: header now becomes a kludge instead
+		of being plain passed.
+		Auto file area create implemented, it can use plain tagfiles
+		or filegate.zxx formatted files.
+		The mbfido web command now uses macro templates.
+		Areamgr uplink requests the sender name is now set to the
+		sysop's name, so he/she will get to read the responses.
+		New command: areas. This will read all defined area lists for
+		files and mail groups that have the Auto Change set to Yes.
+		Missing areas are created, areas not present anymore are
+		removed if they are empty. Good for bulk areas create.
+		When missing areas are created, uplink requests are sent to
+		connect the areas.
+		Added more checks to processing of file_id.diz files. Also 
+		when it is illegal formatted the already processed lines are
+		cleared to prevent later malformatted descriptions.
+		The hatch and magic processors now scan the filenames to test
+		using the regexp library, this should be more reliable.
+		Increased the size of the buffer for filesort.
+		Improved error reporting when file copy fails.
+		When a virus scanner is started, de mbtask connection timeout
+                is set to one hour.
+		Changed the confusing No Touch setting in tic areas to Touch.
+		When a file to be attached doesn't exist, a error message is
+		logged and the attach is treaded as an error.
+
+	mbmsg:
+		When creating non-existend message bases, the path is created
+		first if it doesn't exist.
+		Removed nonsense error message when stopped on a signal.
+
+	mbfile:
+		The mbfile index command now creates the html pages using the
+		macro templates html.main and html.areas. The files.css file
+		is no longer needed.
+		The check function now checks download directory permissions
+		and tries to correct errors.
+		Missing download directories are created mode 0775.
+		Moved check for empty areas to mbfile check function.
+		The mbfile move command now also moves the thumbnails.
+		Better console error reporting when files are copied.
+		Removed nonsense error message when stopped on a signal.
+		The html file indexes now have better translation from ANSI
+		to low ascii and html codes.
+		The import function didn't import files starting with the
+		letter 't'.
+		When a virus scanner is started, de mbtask connection timeout
+		is set to one hour.
+		The virus scanner was sometimes not executed in the right 
+		directory with the adopt and import functions.
+
+	mball:
+		Will not crash anymore when it needs more then 10 minutes to
+		create the allfiles and newfiles lists.
+		Removed nonsense error message when stopped on a signal.
+
+	mbaff:
+		The High-ascii table to translate to lowercase has now the
+		right values to translate the ansi graphics.
+		Now uses the template newfiles and filefind to create the 
+		reports.
+		Removed nonsense error message when stopped on a signal.
+
+	mbdiff:
+		Removed nonsense error message when stopped on a signal.
+		Improved error reporting when copy fails.
+
+	mbindex:
+		Removed nonsense error message when stopped on a signal.
+
+	mbtask:
+		Removed some debug logging.
+		Creates the semafore is_inet when the internet connections is
+		available, and removes it when it is down.
+		Added test for ISDN/modem lines in use. If a line status 
+		change lasted 5 seconds or longer, the oubound will be
+		rescanned.
+		Lots of code cleanup.
+		No setup setting anymore for maximum POTS and ISDN lines, this
+		is now automatic.
+		mbtask will now update internal counters how many ISDN and POTS
+		lines are free to use for dialout.
+		For ISDN and POTS calls, mbtask now decides which tty to use,
+		mbcico gets the tty to use as option on the commandline.
+		Keeps track of the number of mailers running.
+		Added default path for arealists.
+		Keeps track of total mailer TCP/IP sessions and will not start
+		new sessions if the limit from the setup is reached. This will
+		hopefully prevent that mbcico will use too much bandwidth on
+		TCP/IP trafic.
+		Splitted no TCP settings in no IBN, no IFC and no ITN.
+		Improved the ping tests, better errorlogging and suppresion of
+		icmp replies that are not for mbtask. Better protected against
+		flood pings. This should fixes the problem that the internet
+		seemed down while it was available.
+
+	mbcico:
+		Fixed binkp driver to accept incoming unprotected sessions.
+		If a binkp session comes in and there already is a session
+		with that node, mbcico stopts the binkp session with an error.
+		Remove some obsolete code that is handled by mbtask.
+		Added some debug logmessages in ttyio.
+		Added experimental support for binkp GET command frame, under
+		test now, seems to work, although the offset request is not
+		supported.
+		Registers TCP/IP sessions with mbtask.
+		All filetransfer times and cps rates are calculated in mSecs.
+		Splitted no TCP settings in no IBN, no IFC and no ITN.
+		Removed settings for Non-hold mail and Pickup Primary.
+		Removed nonsense error message when stopped on a signal.
+		Fixed some small problems with the history data log. Added tty
+		information when it is available.
+
+	mbout:
+		The status display has now 9 digits for the outbound size.
+		New command, mbout reset <node>, unconditionally resets the
+		nodes "try" counter, ie. make an undiable node try to call 
+		again.
+		The status command displays the call attempts.
+		Removed nonsense error message when stopped on a signal.
+
+	mbsebbs:
+		On some systems the download taglists contained garbage after
+		the short filename causing wrong filenames at the users side.
+		Added support for external message editor written by Redy.
+		Doors are now passed the parameter to display a prompt after
+		the door or return silently.
+		Fixed lharc file return code to LHA.
+		Calling file transfer protocols now uses the execute call
+		instead of system.
+		Improved error logging for file downloads.
+		When a user has no Location filled in, the bbs doesn't crash
+		anymore.
+		The new files scan colored areasnames bar length is corrected.
+		Fixed the problems with the safecracker door. Removed the
+		cheat codes and added a delay for the display of the safe
+		opening.
+		Removed nonsense error message when stopped on a signal.
+
+	mbnewusr:
+		New users have the default internal fullscreen editor.
+		Removed nonsense error message when stopped on a signal.
+
+	mbuser:
+		If a new user has registered and not yet used the bbs, mbuser
+		would kill that user because the last login date wasn't set.
+		It will use the registration date instead.
+
+	mbstat:
+		The timeout for the wait command was wrong due to a wrong
+		upsdown semafore test.
+		Corrected a spelling error.
+
+	hatch:
+		A new shellscript to hatch files in a tic area.
+
+	mbuseradd:
+		Added support for vpopmail, vadduser command.
+
+	mbpasswd:
+		Added support for vpopmail, vpasswd command.
+		Corrected a define for temp variable.
+
+	mbuser:
+		Added support for vpopmail, vdeluser command.
+
+	examples:
+		The Makefile now selects the right little or big endian menu
+		files to install.
+		Rebuild the menus and txtfiles for the new external editor.
+		Removed the mbsetup door from the sample sysop menus.
+		Added templates.tar, these are the default english macro files
+		for the diesel library.
+
+	rundoor.sh
+		Called door.bat instead of doors.bat
+
+	installinit.sh
+		Modified for SuSE 7.1 and later, the location of the startup
+		script moved from /sbin to /etc. Patch by Joachim Kuwan.
+		Also modified init.SuSE for Yast2 on SuSE 8.0
+
+	mbse.stop:
+		Added path /usr/local/bin for FreeBSD. Needs the psmisc 
+		package from the ports collection to work.
+
+	init.Debian
+		Changed user from mbtask to mbse.
+

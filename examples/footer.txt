@@ -1,0 +1,9 @@
+
+MBSE Support BBS is the main development system for the MBSE BBS package.
+MBSE BBS is available from 2:280/2802, magic request is MBSEBBS.
+Also available at http://www.mbse.eu
+
+MBSE  Support  BBS  es  el sistema principal de sdesarrollo  de  paquete
+MBSE BBS.
+MBSE BBS esta disponible en 2:280/2802, peticion de magic MBSEBBS.
+Tambien esta disponible en http://www.mbse.eu

@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: dropfile.html,v 1.6 2003/11/08 21:02:35 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>BBS doors dropfiles.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align=right><h5>Last update 23-May-2003</h5></div>
+<div align=center><H1>BBS doors dropfiles.</H1></div>
+
+<h3>Dropfiles for Unix BBS systems.</h3>
+<p>
+Not all options that are available under DOS or OS/2 can be used with Unix
+BBS systems and must be faked. The doorfiles are written in the users
+homedirectory when the user starts a door.
+<p>&nbsp;<P>
+
+<h3>DOOR.SYS format.</h3>
+<P>
+The door.sys format is a 52 lines ascii textfile, each line is terminated with 
+a cr/lf pair. In the setup it is possible to force the creation of MM-DD-YYYY
+dates instead of the MM-DD-YY style. Newer doors sometimes need that.
+<pre>
+Line	Description
+-----	-----------------------------------------------------------------
+1	Port, 5 characters in DOS format, COM1: or COM0:
+2	Effective Baudrate, 19200 or 0 for COM0:
+3	Databits, always 8
+4	Nodenumber, 1..9999
+5	Locked baudrate, 19200 or tty portspeed for COM0:
+6	Screen display, Y=snoop on, N=snoop off, on Unix allways Y.
+7	Printer Y=on N=off, on Unix always N
+8	Page Bell Y=on N=off, on Unix allways Y
+9	Caller alarm Y=on N=off, on Unix allways Y
+10	Users first name and lastname
+11	Users location
+12	Voice/Home phone
+13	Work/Dataphone
+14	Users password.
+15	Security level, 0..32768
+16	Users number of calls
+17	Users last call date MM-DD-YY or MM-DD-YYYY
+18	Seconds remaining this call
+19	Time left in minutes
+20	ANSI, "GR" is yes, otherwise "NG"
+21	Screen length
+22	User mode, always N
+23	Always blank
+24	Always blank
+25	Subscription expire date MM-DD-YY or MM-DD-YYYY
+26	Users record number
+27	Default protocol
+28	Users total number of uploads
+29	Users total number of downloads
+30	Users daily download kilobytes total
+31	Daily download kilobyte limit
+32	Users date of birth MM-DD-YY or MM-DD-YYYY
+33	Path to users database files, cannot be used on Unix
+34	Path to message database files, cannot be used on Unix
+35	Sysop first and last name
+36	Users handle
+37	Next event starting time, "none" on Unix
+38	Error-free connection Y=Yes or N=No, always Y
+39	Always set to N
+40	Always set to Y
+41	Text color as defined in setup 7 = gray.
+42	Always 0
+43	Last new files scan date MM-DD-YY or MM-DD-YYYY
+44	Time of this call HH:MM
+45	Time of last call HH:MM
+46	Always set to 32768
+47	Number of files downloaded today
+48	Total kilobytes uploaded
+49	Total kilobytes downloaded
+50	Comment stored in users record
+51	Always set to 0
+52	Total number of messages posted
+</pre>
+<p>&nbsp;<p>
+
+<h3>DOOR.SYS format.</h3>
+<p>
+The door32.sys format is a 11 lines ascii textfile, each line is terminated with
+a cr/lf pair.
+<pre>   
+Line	Description
+-----	-----------------------------------------------------------------
+1	Com type: 1=serial, 2=telnet, with mbse always 1
+2	Com port: 1 or 0 for local mode
+3	Effective baudrate: 19200 or 0
+4	BBS name
+5	User record number
+6	User's real name
+7	User's handle
+8	User's security level
+9	Time left in minutes
+10	Graphicsmode: 1 or 0
+11	Node (line) number
+</pre>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

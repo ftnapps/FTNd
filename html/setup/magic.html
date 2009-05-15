@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: magic.html,v 1.5 2003/11/09 14:46:32 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - File Echo's Setup - Magic Files Setup.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align='right'><h5>Last update 10-May-2002</h5></div>
+<div align='center'><H1>MBSE BBS Setup - File Echo's Setup - Magics Files Setup.</H1></div>
+
+<H3>Introduction.</H3>
+<P>
+Magics are special actions that you can perform on files received in a .tic
+area. The actions are: copy file to a directory, unpack file in a directory,
+set number of files to keep, move file to another .tic area, update magic
+request alias, adopt file into another area, store in another path, 
+delete file (don't process it further) and execute a command. The edit screen
+is different for all kinds of actions you select. More than one magic record
+may exist for each area. With all these actions you can for example can setup 
+processing of nodediff's and unpacking nodelists in the nodelist directory.
+If you use the execute command, you can only execute commands that are in the
+directory $MBSE_ROOT/bin, ie. /opt/mbse/bin.
+<P>&nbsp;<P>
+
+<H3>Magics Setup.</H3>
+<P>
+<pre>
+<strong>Magic     </strong>The action to perform, select with the spacebar.
+<strong>Filemask  </strong>The filemask to scan for. "?" Matches all characters,
+          "#" matches any digit and "@" any upper or lowercase letter.
+	  Except for the "@" the test is case sensitive.
+<strong>Active    </strong>If this magic is active.
+<strong>Deleted   </strong>If this magic must be deleted.
+<strong>Area      </strong>The area in which this magic is found.
+<strong>To path   </strong>The destination path. (Copy, Other path and Unpack).
+<strong>To area   </strong>The destination area. (Adopt and Move).
+<strong>Command   </strong>The command to execute. (Execute).
+<strong>Keep #    </strong>The number of files to keep. (Keep).
+<strong>Compile   </strong>Trigger "compile nodelists". (Copy, Unpack and Execute).
+</pre>
+<P>&nbsp;<P>
+
+<H3>Macro's</H3>
+<P>
+In the commandline for the magic execute command you may use macro's to replace
+parts of the commandline. The following macro's are defined:
+<pre>
+<strong>%F   </strong>Replaced by the full path and filename of the file.
+<strong>%P   </strong>Replaced by the full path to the file.
+<strong>%N   </strong>Replaced by the filename without dot and extension.
+<strong>%E   </strong>Replaced by the extension of the filename.
+<strong>%L   </strong>The last 2 characters of the filename extension.
+<strong>%D   </strong>The day number of the year, 3 digits.
+<strong>%C   </strong>The last 2 digits of the day number of the year.
+<strong>%A   </strong>The .tic area name.
+</pre>
+
+<P>
+<IMG SRC="../images/magic.png" alt='Magic setup'>
+<P>
+
+<A HREF="tic.html"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to File Echo's Setup</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

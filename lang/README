@@ -1,0 +1,43 @@
+$Id: README,v 1.5 2007/02/17 12:14:20 mbse Exp $
+
+			LANGUAGE SOURCES FOR MBSE BBS.
+			==============================
+
+
+This directory contains the language sources for MBSE BBS. The file
+Language.xref is only a reference file with linenumbers and source
+references. The files source.en, source.nl and source.de are the 
+real language sources. The resulting files language.nl, language.en
+and language.de are placed in the ~/share/int directory where the bbs 
+will expect them to be.
+
+If you make your own language files, use Language.xref as a guide.
+The syntax for each language line is:
+
+KEYS|Language line
+
+The keys are the keys that the users must press for the right response.
+Order is important. The "|" character is a seperator, the rest of the
+language line is the line shown to the user. Trailing spaces are important!
+
+If you do create language sources then I would like that you make them
+public available and send them to me so I can include them in the
+source distribution.
+
+Michiel.
+
+
+Current language maintainters:
+
+en		Michiel Broek <mbroek@users.sourceforge.net>
+nl		Michiel Broek <mbroek@users.sourceforge.net>
+es		Redy Rodriguez <redy@users.sourceforge.net>
+gl		Redy Rodriguez <redy@users.sourceforge.net>
+de		Harald Wuensch <Harald.Wuensch@gecits-eu.com>
+germandu	Malte Tychsen <2:240/9350@fidonet> (alternative german).
+fr		Francois Thunus <2:270/24@fidonet>
+
+If you want to use the germandu language instead of the default german
+language then run "mblang germandu.txt language.de" and install the
+file laguage.de in /opt/mbse/share/int.
+

@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: ipmailer.html,v 1.5 2003/11/08 21:02:36 mbroek Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Integration of IP-Nodes in the nodelist.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<PRE>
+Publication:    FSP-????
+Revision:       1
+Title:          Integration of IP-Nodes in the nodelist (FTS-0005)
+Author:         Lothar Behet, 2:2446/301
+Revision Date:  25 October 1998
+Expiry Date:
+----------------------------------------------------------------------
+
+Contents:
+1. Required fields according to FTS-0005, basic flags for ip-nodes
+2. Optional extensions
+3. Addendum
+----------------------------------------------------------------------
+
+1.  Description of the nodelist format
+--------------------------------------
+
+Every node entry contains the following 8 fields:
+
+keyword,node_number,node_name,location,sysop_name,
+phone_number,baud_rate,flags
+
+Certain fields have defined values according to FTS-0005.
+
+1.1.	Implementation for IP-connectivity
+	Because of the limited characterset in the phone_field and
+	to avoid any misinterpretion by conventional dialing, the
+	ip-specific address-information is entered in another field
+	and there are additional flags required.
+
+1.1.1.  Field #1 (keyword) is PVT for an ip-only node without
+	conventional phone number related connectivity. In this
+	case, the phone field contains "-Unpublished-" according
+	to FTS-0005.
+
+1.1.2.  Field #2 (node_number) contains the node number within his
+	net and zone.
+
+1.1.3.  Field #3 (node_name) is used for the FQDN (Fully Qualified
+	Domain Name) or the ip-address.
+
+1.1.4.  Field #4 (location) contains the geographical location of
+	the node. While some nets/regions cannot supply their
+	ip-only nodes with a adequate link, these nodes may be
+	collected in a seperate net or region, until their original
+	net/region support additional ip-connectivity. This special
+	net/region is definitely a temporary solution for routing
+	within a region or zone!
+
+1.1.5.  Field #5 (sysop_name) represants the name of the system
+	operator.
+
+1.1.6.  Field #6 (phone_number) contains the phone_number for
+	conventional connectivity. In case of an ip-only node
+	it must contain "-Unpublished-".
+
+1.1.7.  Field #7 (baud_rate) contains the maximum baud rate for
+	conventional connectivity or 300 in case of an ip_only node.
+
+1.1.8.  Field #8 (flags) represents operational definitions for the
+	node.
+	Note that these are user flags.
+	The ip-flags consist of two parts:
+	A basic transport and an optional non-standard port,
+	seperated by a colon.
+	The default port may be omitted, but is listed as optional
+	parameter in this document. In some cases, two flag names
+	are mentioned:
+	The second one is supported by some software nowadays, but
+	these values may conflict with other programs, which not
+	completely decode the length of each individual flag (i.e.
+	TELN conflicts with the T-flag for online-time)
+	Additional flags for ip-nodes are:
+
+1.1.8.1.  IBN[:24554] (Argus: BND[:24554])
+	BinkP protocol
+
+1.1.8.2.  IFC[:60179]
+	Raw protocol as used by ifcico
+
+1.1.8.3.  ITN[:23] (Argus: TEL[:23])
+	Telnet protocol. Some variants of ifcico support Telnet
+	on port 60177, which should be added as additional flag
+	ITN:60177.
+
+1.1.8.4.  IVM[:3141]
+	Vmodem protocol
+
+1.1.8.5.  IP
+	General flag for special protocol specifications, if the
+	flags conforming to 1.1.8.1. to 1.1.8.4. are not relevant.
+
+1.1.9.  Comments on the proposed nodelist flags
+	The additional flagnames in () are supported at this moment
+	by Argus, based on the use in z2r50. But the TEL[NET]-flag
+	stays in conflict with the generally in all zones and
+	regions used T-flag (online time according to FSC-0062).
+
+
+2.  Optional extensions for future use
+--------------------------------------
+
+While the above mentioned flags (1.1.8.1 to 1.1.8.4) define a
+minimum set of operational flags for ip-nodes, several additions
+are already foreseeable at this moment.
+
+2.1.	Additional sessions_handshake parameters
+	There is at least one program, which supports several
+	transport protocols according to chapter 1.1.8. on a
+	single port. If other programs should imitate this habit,
+	then the following extension to the flag suite 1.1.8.
+	(transport[:port[:handshake]])is advised:
+
+2.1.1.  FTS-0001 session handshake:   1
+2.1.2.  Yoohoo session handshake  :   Y
+2.1.3.  EMSI sessions handshake   :   E
+2.1.4.  BinkP sessions handshake  :   B
+
+2.2.	Non-handshaking protocols
+	While the definitions until this chapter describe direct
+	handshaking sessions with optional password authentification,
+	there are several other methods for the tunneling of fidonet
+	data via the internet available.
+	The setup of these connections does not rely on the nodelist
+	(at this moment of writing), but we can think of standard
+	setup procedures to use the nodelist for configuration of
+	this additional transport methods.
+	Therefore the following flags 2.2.1. to 2.2.4. are advised
+	for at least informational purpose.
+
+2.2.1.  IFT
+	FTP (File Transfer Protocol)
+
+2.2.2.  ITX
+	TransX, an Email based variant
+
+2.2.3.  IUC
+	Uuencoded packet (one packet per message)
+
+2.2.4.  IEM
+	Email based (generally, without exact specification at
+	this moment)
+
+
+3.  Addendum
+------------
+
+This proposal is based on a maximum compatibility to generally used
+definitions and standards within the Fidonet community.
+Future developments might make additions necessary, if they can not
+be expressed with the existing set of flags as defined by this FSP.
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+
+</BODY>
+</HTML>
+

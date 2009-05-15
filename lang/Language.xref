@@ -1,0 +1,480 @@
+0	user.c newuser.c		|Please enter your First and Last name: 
+1	user.c 				|Please enter your Last name: 
+2	user.c				|Disconnecting user ...
+3	user.c				|Scanning User File ...
+4	user.c				YN|Did you spell your name correctly? [Y/n] 
+5	newuser.c			|You need to login again with the name:
+6	user.c		 		|This is a PRIVATE System. Type "off" to leave
+7	filesub.c			|Mark file number or press <Enter> to stop 
+8	user.c filesub.c		|Password: 
+9	user.c				|Maximum login attempts have been exceeded ...
+10	user.c				|Either your NAME or PASSWORD is incorrect
+11	mail.c email.c			HR|Export to (H)ome or (R)ules directory: 
+12	mail.c email.c			|Message exported to rules directory as 
+13	dispfile.c			|No rules found for this area
+14	mail.c				|You are not allowed to delete that message
+15	change.c			|Offline Reader: Extended Info turned ON
+16	change.c			|Offline Reader: Extended Info turned OFF
+17	file.c				|This is not a plain textfile.
+18	user.c				|You may only login
+19	user.c				|times at the same time
+20	door.c				|The door is in use by another user, try again later
+21	mail.c				YN| Is this correct [y/N]: 
+22	mail.c				|Could not parse
+23	change.c			|Select your preferred character set
+24	change.c			|Select character set (Enter to Quit):
+25	change.c			|Character set now set to: 
+26	newuser.c			YN|Check for new mail at login [Y/n]: 
+27	newuser.c			YN|Check for new files at login [Y/n]: 
+28	page.c				|Enter a short reason for chat
+29	chat.c				|The Sysop cannot use the bbs to chat! Use mbmon to chat
+30	chat.c				|Sorry, the chatserver is not available
+31	mbsebbs.c			|line 
+32	.c				|
+33	.c				|
+34	.c				|
+35	.c				|In use for internationalization
+36	.c				|In use for internationalization
+37	newuser.c			|MBSE Bulletin Board System - NEW USER REGISTRATION
+38	newuser.c			|Use this name: 
+39	newuser.c			|Please enter new password   : 
+40	newuser.c user.c		|Please enter password again : 
+41	newuser.c user.c		|Your passwords do not match! Try again.
+42	newuser.c change.c user.c	|Your password must contain at least 
+43	newuser.c change.c user.c	|characters! Try again.
+44					|
+45	newuser.c change.c		|Please enter you Voice Number
+46	mail.c				|Message exported to your private directory as: 
+47	newuser.c change.c		|Please enter a proper phone number
+48	newuser.c change.c		|Please enter you Data Number
+49	newuser.c change.c		|Please enter your location: 
+50	newuser.c			|Please enter a longer location
+51	newuser.c			MF|What is your sex? (M)ale or (F)emale: 
+52	newuser.c			|Male
+53	newuser.c			|Female
+54	newuser.c			|Please answer M or F
+55	newuser.c			|Unknown
+56	newuser.c change.c		|Please enter your Date of Birth DD-MM-YYYY: 
+57	newuser.c			|Sorry you entered this year by mistake.
+58	newuser.c			|Please enter the correct date format
+59	chat.c				|*** Sysop is starting chat ***
+60	chat.c				|*** Sysop has terminated chat ***
+61	mail.c misc.c file.c		YN=|More (Y/n/=) 
+62	newuser.c			YN|Would you like Hot-Keyed menus? [Y/n]: 
+63	newuser.c			|Please answer Y or N
+64					|
+65	newuser.c			|None
+66	offline.c			|Tag Offline Reader message areas
+67	newuser.c			|Your user account has been created:
+68	newuser.c			|Login Name : 
+69	newuser.c			|Password   : 
+70	newuser.c			|not displayed
+71	newuser.c			|New user registration completed.
+72	misc.c				|Could not find
+73	change.c			|Old Location: 
+74	change.c			|Please enter a longer location (min 
+75					|
+76					|
+77 	mail.c				|Message doesn't exist
+78	change.c			|News bulletins turned ON
+79	change.c			|News bulletins turned OFF
+80					|
+81					|
+82	mail.c				|Private message, not owner
+83	change.c			|Please enter the correct date format
+84	misc.c				|Todays Callers to 
+85	misc.c				|#    User Name           Device  TimeOn  Calls  Location
+86	change.c			|Can't open archiver file.
+87	change.c			|Select your preferred archiver
+88	change.c			|Select Archiver (Enter to Quit): 
+89	change.c			|Archiver now set to:
+90	.c				|
+91	.c				|
+92	.c				|
+93	.c				|
+94	.c				|
+95	.c				|
+96	.c				|
+97	.c				|
+98	.c				|
+99	.c				|
+100	.c				|
+101	.c				|
+102	.c				|
+103	.c				|
+104	.c				|
+105	.c				|
+106	.c				|
+107	signature.c			|Edit message signature
+108	.c				|The FROM, TO and SUBJECT fields are optional.
+109	.c				|   From: 
+110	.c				|     To: 
+111	.c				|Subject: 
+112	.c				|  Type up to 4 lines 74 Characters per line
+113	signature.c			|Functions available:
+114	signature.c			LREAS|(L)ist, (R)eplace text, (E)dit line, (A)bort, (S)ave
+115	signature.c			|Select: 
+116	signature.c file.c		|Aborting...
+117	signature.c			|Returning to 
+118	signature.c			|Edit which line: 
+119	signature.c			|Line does not exist.
+120	change.c			|Old Password: 
+121	change.c			|New password: 
+122	change.c			|Confirm new password: 
+123	change.c			|Passwords do not match!
+124	change.c			|Password Change Successful
+125	change.c			|Old password incorrect!
+126	funcs.c				|User List
+127	funcs.c				|Enter Username search string or (Enter) for all users: 
+128	funcs.c				|Name                     Location                      Last On       Calls
+129	funcs.c				|Could not find search string ...
+130	timecheck.c			|Time limit exceeded ... disconnecting!
+131	filesub.c			YN=M|More (Y/n/=) M=Mark 
+132	filesub.c			|Scanning
+133	filesub.c			|with
+134	funcs.c				|TIME STATISTICS for 
+135	funcs.c mbsebbs.c		|on
+136	funcs.c				|Current Time          : 
+137	funcs.c				|Current Date          : 
+138	funcs.c				|Connect time          : 
+139	funcs.c				|Time used today       : 
+140	funcs.c				|Time remaining today  : 
+141	funcs.c				|Daily time limit      : 
+142	mail.c				|You have 
+143	mail.c				YN|messages, read your mail now? [Y/n]: 
+144	mail.c				|You have no new mail in your mail box ...
+145	change.c			|Hotkeys are now ON
+146	change.c			|Hotkeys are now OFF
+147	funcs.c				|On
+148	funcs.c				|Off
+149	newuser.c			|User name already exists
+150	mail.c				|Checking your mail box ...
+151	page.c				|MBSE BBS Chat
+152	page.c				|The SysOp is currently speaking to somebody else.
+153	page.c				|Try paging him again in a few minutes ...
+154	page.c				|You have paged the Sysop the maximum times allowed.
+155	page.c				|Sysop currently is not available ... please leave a comment
+156	mail.c				|Posting message in area: 
+157	mail.c				|From     : 
+158	mail.c				|To       : 
+159	mail.c				|Verifying user ...
+160	mail.c				|User not found. Try again, or (Enter) to quit
+161	mail.c				|Subject  : 
+162	mail.c				YN|Abort Message [y/N] ?: 
+163	mail.c				YN|Private [y/N]: 
+164	lineedit.c			|Begin your message now, Blank line to end
+165	lineedit.c			|Maximum of 60 lines, 73 characters per line
+166	lineedit.c			|Maximum message length exceeded
+167	lineedit.c			|Functions available: (Current Message: 
+168	lineedit.c			|Lines)
+169	lineedit.c			|L - List message      S - Save message      C - Continue message
+170	lineedit.c			|Q - Quit message      D - Delete line       I - Insert line
+171	lineedit.c			|T - Text edit         E - Edit line         R - Replace line
+172	lineedit.c			LSCQDITERZ|Z - Center line                                             
+173	lineedit.c			|Select
+174	lineedit.c			|Continue
+175	lineedit.c file.c		|Delete
+176	lineedit.c			|Delete starting at line 
+177	lineedit.c			|Aborted.
+178	lineedit.c			|Please enter a number in the range of 
+179	lineedit.c			|Delete ending   at line 
+180	lineedit.c			|Edit
+181	lineedit.c			|Enter line # to edit 
+182	lineedit.c			|Insert
+183	lineedit.c			|Enter line # to insert text before 
+184	lineedit.c			|List
+185	lineedit.c			|Enter line # to replace 
+186	lineedit.c signature.c		|Line reads:
+187	lineedit.c			|Unchanged.
+188	lineedit.c			|Line now reads:
+189	lineedit.c mail.c		|Quit
+190	lineedit.c			YN|Are you sure [y/N]: 
+191	lineedit.c			|Message aborted.
+192	lineedit.c			|No
+193	lineedit.c			|Text Edit
+194	lineedit.c			|Enter line # to edit 
+195	lineedit.c signature.c		|Text to replace  : 
+196	lineedit.c signature.c		|Replacement text : 
+197	lineedit.c			|Line now reads: 
+198	lineedit.c			|Save
+199	filesub.c			|Possible VIRUS found!
+200	filesub.c offline.c		|Ok
+201	filesub.c offline.c		|Unpacking archive
+202	mail.c				|Saving message to disk 
+203	lineedit.c			|Enter line # to center 
+204	lineedit.c			|Line is maximum length and cannot be centered
+205	mail.c				|There are no messages in this area.
+206	mail.c				|Date    : 
+207	mail.c file.c			YN=|More (Y/n/=/Area #): 
+208	mail.c				|To      : 
+209	mail.c				|From    : 
+210	mail.c				|Subject : 
+211	mail.c				|Next reply:
+212	mail.c				|Reply to:
+213	mail.c				|messages in
+214	mail.c				ANLREQDX|(A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (D)elete, (Q)uit, e(X)port
+215	mail.c				|(A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (Q)uit, e(X)port
+216	mail.c				|Next
+217	filesub.c offline.c		|ERROR
+218	mail.c				RNQ|(R)eply, (N)ext, (Q)uit: 
+219	mail.c				|Enter to keep Subject.
+220	mail.c				|#     From                 To                   Subject                        
+221	mail.c				|Message area 
+222	mail.c				|contains 
+223	mail.c				|messages.
+224	mail.c				|Please enter a message between 
+225	mail.c				|Message number [
+226	mail.c				|Area  Type  description                                      Messages Personal
+227	mail.c				|thread
+228	offline.c			|Enter the name of the conference, or ? for a list: 
+229	offline.c			|Conference           Area  Msgs   Description
+230	mail.c				|Deleting message 
+231	mail.c				| Message Areas
+232	file.c mail.c			|Select Area: 
+233	file.c mail.c			|Invalid area specified - Please try again ...
+234	file.c mail.c			|Password is incorrect
+235	file.c mail.c			|Password is correct
+236	file.c 				|You don't have enough security to list this area
+237	filesub.c			|Can't open file database for this area
+238	filesub.c file.c		|Uploaded by: 
+239	file.c				|D E L E T E D
+240					|
+241	mail.c				YN|Node not known, continue anayway [y/N]: 
+242	file.c				|Total Files: 
+243	filesub.c			|FATAL: Unable to open areas database
+244	filesub.c			|You do not have enough access to download from this area.
+245	file.c mail.c			|Please enter filename: 
+246	file.c				|No filename entered, Aborting.
+247	file.c offline.c		|Illegal Filename!
+248	file.c				|Sorry that file is unavailable for download
+249	file.c filesub.c		|You have
+250	file.c filesub.c		|extra download KBytes.
+251	filesub.c			|You do not have enough time to download that file.
+252	filesub.c			|You do not have enough bytes to download " 
+253	filesub.c			|You must upload before you can download.
+254	filesub.c			|Kilobytes currently available: 
+255	file.c				|Checking your marked downloads, please wait...
+256	offline.c			|Untag Offline Reader message areas
+257	filesub.c			|Found FILEID.DIZ in
+258	file.c				|No files marked for download.
+259	.c				|
+260	offline.c			|You have selected the following Conference(s):
+261	file.c				|Filename            Size        Date
+262	change.c			|Protocol: Can't open protocol file.
+263	change.c			|Select your preferred file transfer protcol
+264	change.c			|Select Protocol (Enter to Quit): 
+265	change.c			|Invalid selection, please try again!
+266	change.c			|Protocol now set to: 
+267	file.c				|Enter keyword to use for Search: 
+268	file.c				|File Search by Keyword
+269	file.c				|Accepts wildcards such as : *.zip, *.gz, *.*
+270					|                          : *.zip is the same as .zip
+271	file.c				|Enter filename to search for : 
+272	file.c				|File Search by Filename
+273	file.c				YN|Search for new since your last call [Y/n]: 
+274	file.c				|Enter new date to search for [DD-MM-YYYY]: 
+275	file.c				|File Search by Date
+276	.c				|
+277	offline.c			|Offline Reader Download
+278	file.c				|You do not have enough access to upload to this area.
+279	file.c				|You have not enough diskspace free to copy this file
+280	file.c				|files(
+281	file.c				|bytes) marked for download.
+282	file.c				|The file already exists on the system
+283	file.c offline.c		|Please start your upload now ...
+284	filesub.c			|Upload was unsuccessful for: 
+285	filesub.c			YN|Do you want to password protect your upload ? [y/N]: 
+286	filesub.c			|REMEMBER: Passwords are "CaSe SeNsITiVe!"
+287	filesub.c			|Please enter description of file
+288	filesub.c			|Your upload time has been returned to you. Thank you for your upload!
+289	file.c				|Start copy: 
+290	file.c				|Can't open directory for listing: 
+291	file.c				|Home directory listing for 
+292	file.c				|Please enter filename to delete: 
+293	file.c				|Sorry you may not delete hidden files ...
+294	file.c				|Unable to delete file ...
+295	file.c				|Invalid filename, please try again ...
+296	file.c				|File does not exist, please try again ...
+297	offline.c			|Forum                Description                               Msgs. Pers.   
+298	file.c				| File Areas
+299	file.c				|Please enter Area Password:  
+300	bbslist.c			|Adding BBS 
+301	bbslist.c			|BBS Name: 
+302	bbslist.c			|Response needed ...
+303	bbslist.c			|Phone Number: 
+304	bbslist.c			|Sysop Name: 
+305	bbslist.c			|BBS Software: 
+306	bbslist.c			|Storage (GigaByte): 
+307	bbslist.c			|Speeds: 
+308	bbslist.c			YN|Would you like to add a extended discription? [Y/n]: 
+309	bbslist.c			|Please a enter discription for 
+310	bbslist.c			|BBS Listing 
+311	bbslist.c			|#    BBS Name               Number         Software        GigaByte   Speed
+312	bbslist.c			|Search for a BBS 
+313	bbslist.c			|Please enter 3 letters of BBS to search for: 
+314	bbslist.c			|I need at least 3 letters ...
+315	bbslist.c			YN|View this BBS? [Y/n]: 
+316	bbslist.c			|Could not find the BBS Listed ...
+317	bbslist.c			|Show a BBS 
+318	bbslist.c			|Please enter number to list: 
+319	bbslist.c oneline.c		|Record does not exist
+320	bbslist.c			| Record        : 
+321	bbslist.c			| BBS Name      : 
+322	bbslist.c			| Number        : 
+323	bbslist.c			| Software      : 
+324	bbslist.c			| GigaByte      : 
+325	bbslist.c			| Speeds        : 
+326	bbslist.c			| Sysop Name    : 
+327	bbslist.c			| Available     :  
+328	bbslist.c			| Date of Entry : 
+329	bbslist.c			| Entry Name    : 
+330	bbslist.c			|Delete BBS 
+331	bbslist.c oneline.c mail.c		|Please enter number to delete: 
+332	bbslist.c oneline.c		|Record 
+333	bbslist.c oneline.c		|does not belong to you.
+334	bbslist.c oneline.c		|already marked for deletion
+335	bbslist.c			|marked for deletion 
+336	bbslist.c			|The Sysop will purge the list once he has 
+337	bbslist.c			|seen you have marked a record for deletion.
+338	offline.c			|Total messages found:
+339	menu.c				|Unknown Menu Command!
+340	signature.c			|Saving...
+341	oneline.c			|MBSE BBS Oneliners will randomly appear on the main menu.
+342	oneline.c			|Obscene or libellous oneliners will be deleted!!
+343	oneline.c			|Please enter your oneliner below. You have 75 characters.
+344	oneline.c			|Oneliner added
+345	oneline.c			| # A Date       User            Description
+346	oneline.c			| # Description 
+347	oneline.c			|Please enter number to list:  
+348	mbsebbs.c			|Connected from 
+349	file.c				|File(s)    : 
+350	file.c				|Size       : 
+351	file.c				|Protocol   : 
+352	file.c				|Updating download counter, please wait ...
+353	file.c				|Failed!
+354	file.c				|Bytes
+355	file.c				|  #  Area Active     Size  Cost File
+356	file.c lineedit.c		|Yes
+357	file.c				|No
+358 	file.c				TE|(T)oggle active, (E)rase all, (ENTER) to continue: 
+359	file.c				|Enter file number, 1..
+360	filesub.c			|Marked: 
+361	file.c				|No files tagged.
+362	lineedit.c			|Replace
+363	newuser.c			|Loading BBS, please wait ...
+364	offline.c			|New or deleted mail areas at 
+365	offline.c			|Area  State  Type     Description
+366	change.c			|New Mail check is now ON
+367	change.c			|New Mail check is now OFF 
+368	file.c				|Delete file: 
+369	file.c				YN|Are you Sure? [Y/n]: 
+370	change.c			|New Files check is now ON 
+371	change.c			|New Files check is now OFF
+372	change.c			|Now using the
+373	change.c			12|Select: 1) Fullscreen editor, 2) External editor 
+374	offline.c			|No messages found to download!
+375	funcs4.c			|Press (Enter) to continue: 
+376	lineedit.c			|Center
+377	offline.c			|Too much messages. Only the first
+378	change.c			|Select your preferred language
+379	change.c			|Select Language: 
+380	change.c			|Language now set to: 
+381	funcs4.c			|The system will now ask you for a "Unix Account"
+382	funcs4.c			|Your "Unix Account" is created, you may use it the next time you call.
+383	funcs4.c			|Please enter a login name (Maximum 8 characters)
+384	funcs4.c			|ie. John Doe, login = jdoe
+385	funcs4.c			|login > 
+386	funcs4.c			|That login name already exists, please choose another one.
+387	change.c			|Line
+388	change.c			|Fullscreen
+389	change.c			|External
+390	change.c		        |Editor
+391	offline.c			|New    
+392	offline.c			|Local    
+393	offline.c			|Netmail  
+394	offline.c			|Echomail 
+395	offline.c			|News     
+396	offline.c			|E-Mail   
+397	offline.c			|Del
+398	funcs4.c			|Jan
+399	funcs4.c			|Feb
+400	funcs4.c			|Mar
+401	funcs4.c			|Apr
+402	funcs4.c			|May
+403	funcs4.c			|Jun
+404	funcs4.c			|Jul
+405	funcs4.c			|Aug
+406	funcs4.c			|Sep
+407	funcs4.c			|Oct
+408	funcs4.c			|Nov
+409	funcs4.c			|Dec
+410	newuser.c timeout.c		|Autologout: idletime reached.
+411	offline.c			|will be packed!
+412	newuser.c change.c		|Enter your handle (Enter for none): 
+413	user.c				|You are now ready to use the bbs
+414	exitinfo.c			|Callers On-Line to 
+415	exitinfo.c			|Name                          Device   Status         Location
+416	change.c			|Do not disturb turned OFF
+417	change.c			|Do not disturb turned ON
+418	exitinfo.c			|Browsing
+419	exitinfo.c			|Downloading
+420	exitinfo.c			|Uploading
+421	exitinfo.c			|Msg Section
+422	exitinfo.c			|External Door
+423	exitinfo.c			|Chatting
+424	exitinfo.c			|Listing Files
+425	offline.c			YN|Do you want to download these messages [Y/n]? 
+426	exitinfo.c			|Banking Door
+427	exitinfo.c			|Safe Door
+428	exitinfo.c			|WhosOn List
+429	exitinfo.c			|Offline Reader
+430	exitinfo.c			|Please enter username to send message to: 
+431	exitinfo.c			|Sorry, there is no user on
+432	exitinfo.c			|doesn't wish to be disturbed
+433	exitinfo.c			|Please enter in message to send (Max 76 Characters)
+434	misc.c				|** Message ** from
+435	user.c				|Your password is expired, new password : 
+436	funcs.c				|Press ENTER to continue 
+437	mail.c				|Posting not allowed, this area is Read Only!
+438	change.c			1|Select: 1) Fullscreen editer
+439	offline.c			|Offline Reader Upload
+440	offline.c			|Invalid packet received
+441	offline.c			|Unknown compression type
+442	offline.c file.c		|Archiver not available
+443	offline.c			|Unknown type mailpacket
+444	offline.c			|BlueWave Offline download
+445	offline.c			|Preparing packet
+446	offline.c			|Packing with
+447	offline.c			|Download failed
+448	offline.c			|Download successfull
+449	offline.c			|Updating lastread pointers
+450	offline.c			|Processing BlueWave reply packet
+451	offline.c			|ERROR in packet
+452	offline.c			|Import messages
+453	offline.c mail.c		|No Write access to area
+454	offline.c			|Messages imported
+455	offline.c			|Processing Offline Configuration
+456	offline.c			|Message areas selected
+457	offline.c			|Processing file requests
+458	offline.c			|QWK Offline Download
+459	offline.c			|Processing QWK reply packet
+460	offline.c			|ASCII Offline Download
+461	mail.c				YN|Crash [y/N]: 
+462	mail.c				YN|Warning: node is not CM, send immediate [y/N]: 
+463	mail.c				YN|Attach file [y/N]: 
+464	mail.c				|File
+465	mail.c				|will be attached
+466	mail.c				|File not within
+467	email.c				|mailbox  - Incoming and outgoing email
+468	email.c				|archive  - Archive of your email
+469	email.c				|trash    - Trashcan, your old email
+470	email.c				|Area # 
+471	funcs.c				|minutes.
+472	change.c			|Fullscreen Editor shortcut keys set to Emacs
+473	change.c			|Fullscreen Editor shortcut keys set to Wordstar
+474	newuser.c change.c		|Your address, maximum 3 lines (only visible for the sysop):
+475	newuser.c change.c		|You need to enter your address here
+476	change.c			|Old address:
+477	mail.c				|Use your alias (
+478	mail.c				YN|) to post this message [Y/n]: 
+479	mail.c				|No more areas with unread messages

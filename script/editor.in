@@ -1,0 +1,102 @@
+#!/bin/bash
+#
+# $Id: editor.in,v 1.10 2007/03/03 16:12:45 mbse Exp $
+#
+# Script to start joe editor as external editor for MBSE BBS
+# Written by Redy Rodriguez.
+
+### Function to kill the editor when no time left
+function alarma
+{
+	sleep $1m 
+	killall $2 >/dev/null 2>&1 
+}
+
+## Set term environmment 
+if [ -f /usr/share/terminfo/a/ansi.sys ]; then
+  export JOETERM=ansi.sys
+else
+  export JOETERM=nansi.sys
+fi
+
+## Read variables from data.msg
+. $HOME/data.msg
+
+## Read time left from door.sys
+TIME=`head -n19 $HOME/door.sys  |tail -n1  |tr -d "[:cntrl:]"`
+
+## Set preferred editor and parameters
+EDITOR=@joebin@/bbsjoe
+PARAM="$HOME/edit.msg"
+
+# Using joe with emacs keys:
+# You can make a bbsjmacsrc file with emacs keys and put it
+# in /usr/lib/joe, and then a symlink to joe called bbsjmacs
+# in /usr/bin (dirs can change in other distros), and then
+# uncomment next line. If user select Emacs keys then this
+# editor was selected.
+
+if [ "BBSFSEDKEYS" = "1" ]; then EDITOR=@joebin@/bbsjmacs; fi
+
+
+## Setting Language environmment for msg header
+case $BBSLANGUAGE in
+     ## Spanish
+     S)
+         LANGAREA='AREA    '
+         LANGFROM='De      '
+           LANGTO='Para    '
+           LANGRE='Asunto  '
+         ;;
+     ## Galician
+     G)
+         LANGAREA='AREA    '
+         LANGFROM='De      '
+           LANGTO='Para    '
+           LANGRE='Asunto  '
+         ;;
+     ## Italian
+     I)
+         LANGAREA='AREA    '
+         LANGFROM='Da      '
+           LANGTO='A       '
+           LANGRE='Oggetto '
+         ;;
+     ## German
+     D)
+         LANGAREA='BEREICH '
+	 LANGFROM='Von     '
+	   LANGTO='An      '
+	   LANGRE='Betreff '
+	 ;;
+     ## Dutch
+     N)
+         LANGAREA='GEBIED  '
+	 LANGFROM='Van     '
+	   LANGTO='Aan     '
+	   LANGRE='Betrefd '
+	 ;;
+
+     ## Languages not set defaults to english.
+     *)
+         LANGAREA='AREA    '
+         LANGFROM='From    '
+           LANGTO='To      '
+           LANGRE='Subject '
+         ;;
+esac
+
+## Set Alarm to kill editor when no time left 
+alarma $TIME $EDITOR &
+
+## Draw header and call editor
+echo -e "[2J[1;1H[0m[1;44m                                                                                 "
+echo -e "[1;1H[0m[1;44m$LANGAREA: [31m$AREANUM[37m [33m$AREA"
+echo -e "[2;1H[0m[1;33m$LANGFROM: [32m$MSGFROM [36m$MSGFROMADDR"
+echo -e "[3;1H[0m[1;33m$LANGTO: [0;32m$MSGTO [36m$MSGTOADDR"
+echo -e "[4;1H[0m[1;33m$LANGRE: [0;32m$MSGSUBJECT"
+echo -e "[5;1H[0m"
+$EDITOR $PARAM
+## kill alarm
+killall sleep >/dev/null 2>&1
+clear

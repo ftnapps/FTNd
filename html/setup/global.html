@@ -1,0 +1,439 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<!-- $Id: global.html,v 1.40 2007/03/01 19:12:55 mbse Exp $ -->
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Global Setup.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<div align="right"><h5>Last update 01-Mar-2007</h5></div>
+<div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
+
+In this setup you can edit all global settings for MBSE BBS. All sections will
+be discussed below.
+<P>
+
+<h3>1.1. Fidonet Aka's.</h3>
+<p>
+Here you can enter 40 fidonet addresses. These are 5d addresses. Make sure you
+group the different zone's together, strange things will happen if you don't
+group them.
+<p>
+
+<h3>1.2. Edit Registration Info.</H3>
+<P>
+<pre>
+<strong>BBS Name   </strong>The name of your BBS
+<strong>Maildomain </strong>Your internet mail domain name (or system host.domain.com 
+             if you don't have a maildomain).
+<strong>Sysop uid  </strong>The Unix name of your Sysop account
+<strong>Sysop Fido </strong>The Fidonet name of your Sysop account
+<strong>Location   </strong>The Location of your BBS
+<strong>OLR id     </strong>The packet name for Offline mail downloads.
+<strong>Comment    </strong>A comment line for your BBS
+<strong>Origin     </strong>The default origin line for echomail
+<strong>Newuser    </strong>The default username &quot;bbs&quot; for new users.
+<strong>My FQDN    </strong>My real internet Full Qualified Domain Name.
+</pre>
+A note abou the last item, My FQDN. This <b>MUST</b> be the name that is
+returned with <code>nslookup 1.2.3.4</code> (use your internet IP adress there)
+if you have a fixed IP address. Systems that are on a dynamic IP address and use
+some sort of dyndns service <b>may</b> put that dyndns FQDN in there. Using this will
+cause the other system to do twice as much dns resolve actions, so use this only
+when needed. Another note, what you put in here has nothing to do with mail or
+mail domains, that needs to be in the second option of this screen. The My FQDN
+field is used by the Internet BBS Chatserver (IBC) to allow bbs systems to build
+a chat network.
+<P>
+
+<h3>1.3. Edit Global Filenames.</H3>
+<P>
+<pre>
+<strong>System logfile    </strong>The name of the main logfile
+<strong>Error logfile     </strong>The name of the errors logfile
+<strong>Debug logfile     </strong>The name of the debug logfile
+<strong>Mgr logfile       </strong>The name of the area-/filemgr logfile
+<strong>Default menu      </strong>The name of the default main menu
+<strong>Chat logfile      </strong>The name of the logfile for chatting
+<strong>Welcome logo      </strong>The name of the BBS logo ANSI file
+</pre>
+<P>
+
+<h3>1.4. Edit Global Paths</H3>
+<P>
+<pre>
+<strong>Home dirs         </strong>The path to the users home directories
+<strong>FTP base          </strong>The FTP base path, ie. /opt/mbse/ftp/pub
+<strong>Arealists         </strong>The path where area lists and filebone lists are stored
+<strong>Ext. edit         </strong>The full path and filename to the external editor
+<strong>Rules dir         </strong>The path to the directory to store area rules
+<strong>Magic's           </strong>Where the magic filerequests are kept
+<strong>DOS path          </strong>The DOS drive and path
+<strong>Unix path         </strong>The Translated DOS path in real
+<strong>LeaveCase         </strong>Leave outbound .flo filenames as is, No forces to uppercase
+
+<strong>Nodelists         </strong>The path to the nodelist directory
+<strong>Inbound           </strong>The unprotected fidonet inbound
+<strong>Prot inb.         </strong>The (password) protected fidonet inbound
+<strong>Outbound          </strong>The outbound for the main aka
+<strong>Out queue         </strong>The outbound queue for temporary files
+<strong>*.msgs            </strong>A netmail directory from where *.msg mails are tossed
+                  These are *.msg files can be created by several doors. (Not in use yet)
+<strong>Bad TIC's         </strong>Where bad TIC files are saved
+<strong>TIC queue         </strong>Where TIC files for downlinks are kept
+<strong>TMail DOS         </strong>The T-Mail 8.3 (short) base path (empty = disable)
+<strong>TMail Win         </strong>The T-Mail long filename base path (empty = disable)
+</pre>
+If you fill in the DOS path then the DOS path and Unix path are translated
+to DOS paths in the flo files for outbound mail sessions. You only need this if
+another mailer uses the outbound that doesn't understand Unix paths.
+The DOS path is a fake, but it must match the other mailer.
+Note that the TIC queue must be somewere in the Unix path, otherwise it is
+impossible to create a DOS path from the path to the TIC files in that
+directory. To set this up correctly is also important if you use other mailers
+as well, for example binkd, or even a DOS binkly-style mailer running from
+a network. All those mailer must "see" the same file attaches in the .flo
+files. 
+<P>
+
+<h3>1.5. Edit BBS Configuration</H3>
+<p>
+<pre>
+<strong>Private system    </strong>Set to true when only pre-registered users are allowed
+<strong>Exclude Sysop     </strong>True is Sysop will be invisible
+<strong>Show connect      </strong>Show connection info at logon
+<strong>Ask protocols     </strong>Ask protocol before each up/download
+<strong>Sysop level       </strong>The Sysop security level
+<strong>Password Length   </strong>The minimum password length, should be 6.
+<strong>Password Char.    </strong>The password hiding character
+<strong>Idle timeout      </strong>The idle timeout in minutes
+<strong>Login Enters      </strong>Maximum times for only enter &lt;Enter&gt;
+<strong>Login Attempts    </strong>Maximum login attempts
+<strong>Homedir Quota     </strong>Maximum size in MBytes for each user
+<strong>Location length   </strong>The minimum length of the location (3 in Holland!)
+<strong>Show new msgarea  </strong>Show new available message areas at logon (for OLR users)
+<strong>OLR Max. msgs.    </strong>Maximum messages to download, 0 is no limit.
+<strong>OLR Newfile days  </strong>The maximum age for newfiles in the OLR packet
+<strong>OLR Max Filereq   </strong>Maximum filerequests allowed for OLR users
+<strong>BBS Log Level     </strong>What will be logged or not the BBS program
+<strong>Utils Log Level   </strong>What will be logged or not for utilities
+<strong>Utils slowly      </strong>Should utilities release <A HREF="../misc/usleep.html">timeslices</A>
+<strong>CrashMail level   </strong>Minimum level to allow sending netmail crash
+<strong>FileAttach level  </strong>Minimum level to allow attach files to netmail
+<strong>Min diskspace MB  </strong>At which low diskspace level utilities should stop working.
+<strong>Simult. logins    </strong>Maximum simultaneous logins allowed, 0 is unlimited, 1 is adviced.
+<strong>Child priority    </strong>Subproces nice priority, 0=high, 15=low CPU load.
+<strong>Filesystem sync   </strong>Call sync before and after execute.
+<strong>Default language  </strong>Default language (English).
+</pre>
+The minimum diskspace setting is to prevent that files get corrupted if your filesystem
+is full. All drives are checked except CD-roms and floppies and the /boot directory if that
+one is on a separate filesystem. Ext2, ext3, reiserfs, msdos and vfat partitions
+are checked. The lowest free diskspace found counts. Default is 10 MB.
+<p>
+The Child priority sets the nice value for example zip/unzip, virus scanners
+etc. Modern fast hardware will do fine with a low setting, older (pre PII)
+hardware may need 15 to prevent a too heavy CPU load.
+<p>
+The filesystem sync setting is to call sync before and after the execute call,
+such as when unzip is called. Almost all GNU/Linux systems need this because GNU/Linux
+uses asynchronous directory changes. Since Linux 2.5.19 it should be possible to
+mount filesystems synchronous. If this setting is No on asynchronous filesystems
+mail and files can get corrupted. XxxxBSD systems use synchronous directory
+updates and don't need this switch. If you don't know what all this is about,
+leave this to the default setting.
+<p>
+Choice of default language. English is the best choice because that is the only 
+language that is complete in the default installation. In the user setup another 
+language may be used, the language set here is then used as a backup.
+<p>
+
+<h3>1.6. User flag Descriptions.</h3>
+<p>
+In this menu you can give the 32 users flags a meaningfull description.
+<p>
+
+<h3>1.7. New users defaults.</h3>
+<p>
+<pre>
+<strong>Access level      </strong>The access level and flags after registration
+<strong>Cap. Username     </strong>Capitalize the username
+<strong>Ask Sex           </strong>Ask for Male/Female
+<strong>Ask Voicephone    </strong>Ask for voice phonenumber
+<strong>Ask Dataphone     </strong>Ask for data phonenumber
+<strong>Telephone scan    </strong>Scan for duplicate numbers
+<strong>Ask Handle        </strong>Ask for handle (nickname)
+<strong>Ask Birth date    </strong>Ask for birthdate (needed for checks)
+<strong>Ask Location      </strong>Ask for users location
+<strong>Ask Hot-Keys      </strong>Ask for hot-keyed menus (default is yes)
+<strong>One word names    </strong>Allow one word names
+<strong>Ask address       </strong>Ask user for his/her home address
+<strong>Give email        </strong>Give new users email access (default is yes)
+<strong>Ask Screenlen     </strong>Ask new users to set their screen length
+<strong>Do newmail check  </strong>Yes/No or Ask new user if for newmail check at logon
+<strong>Do newfiles check </strong>Yes/No or Ask new user if for newfiles check at logon
+</pre>
+<p>
+
+<h3>1.8. Text Colors.</h3>
+<p>
+Several prompts use different colors. They can be changed with the following
+menu.
+<P>
+<IMG SRC="../images/mbsetup1.6.png" alt='Colors setup'>
+<IMG SRC="../images/mbsetup1.6.S.png" alt='Colors setup'>
+<P>
+
+<h3>1.9. Sysop paging</h3>
+<p>
+For sysop chat a protocol is used to communicate with the mbtask daemon which
+has a very simple IRC like chatserver. For sysop/user chat a forced channel
+with the name #sysop is used.
+<pre>
+<strong>Page length       </strong>The length of a page in seconds
+<strong>Page times        </strong>Maximum number of times a user may page the sysop
+<strong>Sysop area        </strong>Message from user to Sysop area number
+<strong>Ask reason        </strong>Ask reason for chat, this will be logged
+<strong>Log Chat          </strong>Log the chat conversation
+<strong>Prompt Chk.       </strong>Check at menu prompts for Sysop breaking in
+<strong>Freeze Time       </strong>Freeze users time during chat
+</pre><p>
+
+<h3>1.10. Fileecho Processing.</h3>
+<p>
+A note, when you change the number of Systems or Groups, the databases affected
+will be updated automatic.
+<pre>
+<strong>Keep days         </strong>How long TIC files should be kept on hold
+<strong>Hatch pwd         </strong>The internal hatch password. Make this weird.
+<strong>Drv space         </strong>The minimal free space on your disk in kilobytes
+<strong>Systems           </strong>The maximum number of connected nodes
+<strong>Groups            </strong>The maximum number of fileecho groups
+<strong>Max. dupes        </strong>The maximum number of entries in dupe database
+<strong>Keep date         </strong>Keep original filedate
+<strong>Keep netm         </strong>Keep sent netmails
+<strong>Loc resp          </strong>Respond to local created filefind messages
+<strong>Plus all          </strong>Allow filemgr +all command
+<strong>Notify            </strong>Allow filemgr notify=on/off command
+<strong>Passwd            </strong>Allow filemgr/areamgr passwd command
+<strong>Message           </strong>Allow filemgr message=on/off command
+<strong>Tic on/off        </strong>Allow filemgr tic=on/off command
+<strong>Pause             </strong>Allow filemgr pause/resume commands
+</pre><p>
+When you change one of the <b>Allow filemgr</b> settings, you also need to edit
+the file /opt/mbse/english/macro/filemgr.help to reflect the new settings.
+Default all these switches are set to Yes.
+
+<p>
+<h3>1.11. Edit Fidonet mail and echomail processing.</h3>
+<p>
+Note that the first 2 mailboards must also exist in the normal mail areas if
+you want to see what is in them. Here they are defined for quick access of the
+tosser. For the Max. systems and groups see 1.12. If you use MBSE BBS together
+with a DOS based BBS (using DOSEMU or mars netware emulator), you can set the
+behaviour of the outbound to 4d. addressing instead of 5d. This option may
+dissapear in the future.<br>
+Another option is present, this is the <strong>pktdate</strong> option. This
+is the full path and filename to an external program that can inspect and 
+correct the mail .pkt files. Originally I put this in to run pktname of Tobias
+Ernst of 2:2476/418 to fix y2k problems in the incoming mail. At this time
+most y2k fixes are build in, but in case you need it it's there. To make it
+clear; the y2ktools written by Tobias are static compiled for GNU/Linux and they
+should run on all GNU/Linux i386 versions. Until now, I still use pktdate because
+it is necessary.<br>
+
+<pre>
+<strong>Badboard          </strong>The path and filename of the bad messages
+<strong>Dupeboard         </strong>The path and filename of the duplicate messages
+<strong>Pktdate           </strong>Full path and filename of a .pkt preprocessor
+<strong>Max pkts.         </strong>Maximum Kb. of mail packets before a new one is created.
+<strong>Max arcs.         </strong>Maximum size in Kilobytes of an arcmail file
+<strong>Keep days         </strong>How many day should we keep ARCmail on hold
+<strong>Echo dupes        </strong>Maximum number of entries in the echomail dupe database
+<strong>Reject old        </strong>Reject echomail messages older then n days
+<strong>Max msgs          </strong>Default maximum number of messages in each area
+<strong>Days old          </strong>Default number of days old to keep messages
+<strong>Max systems       </strong>Maximum number of nodes to connect to echomail
+<strong>Max groups        </strong>Maximum number of echomail groups
+<strong>4d address        </strong>Use 4d. addressing (not needed you only use MBSE BBS)
+<strong>Split at          </strong>Gently split messages after n KBytes (12..60)
+<strong>Force at          </strong>Force split of messages after n KBytes (16..63)
+<strong>Plus all          </strong>Allow areamgr +all command 
+<strong>Notify            </strong>Allow areamgr notify=on/off command
+<strong>Passwd            </strong>Allow areamgr/filemgr passwd command
+<strong>Pause             </strong>Allow areamgr pause/resume commands
+</pre><p>
+When you change one of the <b>Allow areamgr</b> settings, you also need to edit
+the file /opt/mbse/english/macro/areamgr.help to reflect the new settings.
+Default all these switches are set to Yes.
+<P>
+A note about the splitting of messages. Some tossers can't handle 
+messages greater than 16 KBytes, these tossers are rare these days. Most
+tossers can handle messages of 32 KBytes. To set these values on the safe
+side set "Split at" to 27 and "Force at" to 31. This means that a long
+newfile report will be split after 27 KBytes when a new group of files
+should start in the report. If it can't find that point because a large
+number of files is in the group that is just being processed, the message
+split will be forced right after the file that passes the 31 KBytes limit.
+I use values of 1 KBytes below maximum for overhead such as SEEN-BY and
+PATH lines. Values larger then 32 KBytes is not a good idea, recent tests
+in May 1999 have shown that your messages will not reach all systems
+if they are larger then 32 KBytes. Splitting is used for newfiles reports
+and gated news articles to Fidonet.
+<P>
+
+<h3>1.12. Edit Internet mail and news processing.</h3>
+<p>
+Email and news is setup here. There are three possible configurations which you
+can set with 1.12.11:
+<ul>
+  <li><strong>No internet</strong>. If you don't have any connection to the internet
+      use this setting. Email will come from the default Fidonet UUCP gate and will be send out
+      via the UUCP gate. Users have email addresses like
+      <strong>user@f2802.n280.z2.fidonet.org</strong> Note, the username is their
+      Unix name when sending email.
+  <li><strong>No maildomain</strong>. If have internet but don't have your own
+      maildomain (most dialup systems) you should use this mode. 
+      Email will be sent via your local SMTP port, then through your
+      own sendmail (or whatever you use) to your ISP. 
+      As soon as you are connected to the internet
+      the mail will be sent to your ISP's mailer. In your sendmail you should
+      define the mailer of your ISP as Smarthost. Incoming email will still come
+      from the UUCP gate. Users have email addresses like
+      <strong>user@f2802.n280.z2.fidonet.org</strong> Incoming email comes from
+      the default Fidonet UUCP gate.
+      Note, the username is their Unix name. 
+      If you have your own maildomain, don't use this option, use the next option:
+  <li><strong>Own maildomain</strong>. If you are permanent connected to the internet
+      either with a static or dynamic IP address use this option. Use this option
+      also if you have an UUCP domain and have a dialup UUCP connection. Also
+      you can use this for dialup if you have your own maildomain without UUCP,
+      you will then fetch the mail from a multidrop mailbox (POP or IMAP) and
+      send the mail using SMTP via the SMTP mailer of your provider.<br>
+      If you have a dynamic IP address you can still get a DNS name from for
+      example <A HREF="http://www.dynip.com">dynip.com</A>
+      Incoming email will come directly from the internet, but if someone sends
+      email via the UUCP gate it is also accepted. Users have email addresses like
+      <strong>user@yourbbs.domain.org</strong>. Note, the username is their
+      Unix name and yourbbs.domain.org must be an existing internet domain.
+</ul>
+A word of wisdom from my side, configuration of the internet, ppp, sendmail etc. is not discussed
+here, see the HOWTO's and other documentation that exists at <A HREF="http://www.linuxdoc.org">
+www.linuxdoc.org</A>, it's all there.
+
+<pre>
+<strong>POP3 node         </strong>The POP3 node to use, should be localhost
+<strong>POP3 user@domain  </strong>Use user@domain to login in the POP3 server
+<strong>SMTP node         </strong>The SMTP node to use, should be localhost
+<strong>NNTP node         </strong>The NNTP node to use, should be localhost
+<strong>NNTP m.r.         </strong>If the NNTP server needs the Mode Reader command
+<strong>NNTP user         </strong>The username for the NNTP server if needed
+<strong>NNTP pass         </strong>The password for the NNTP server if needed
+<strong>News dupes        </strong>The number of entries for the news dupes database.
+<strong>Email aka         </strong>The Fidonet aka to use for the fidonet.org UUCP gate
+<strong>UUCP aka          </strong>The default Fidonet UUCP gate, 2:292/875@fidonet
+<strong>Emailmode         </strong>The email mode, discussed above
+<strong>News mode         </strong>Newsfeed mode, INN, rnews or UUCP.
+<strong>Articles          </strong>The default maximum newsarticles to fetch per group.
+<strong>Split at          </strong>Gently split newfiles reports after n KBytes (12..60)
+<strong>Force at          </strong>Force split of newfiles reports after n KBytes (16..63)
+<strong>Control ok        </strong>Allow news control messages to be gated
+<strong>No regate         </strong>Don't regate already gated messages
+
+In rnews mode the NNTP entries are replaced by:
+
+<strong>Path rnews        </strong>The full path and filename to the rnews binary.
+
+In UUCP mode the NNTP entries are replaced by:
+
+<strong>UUCP path         </strong>The full path to the uucppublic directory.
+<strong>UUCP node         </strong>The UUCP nodename of your ISP.
+</pre><p>
+
+
+<P>
+<h3>1.13. Allfiles and Newfiles lists.</h3>
+<p>
+These are the settings that affect the generation of newfiles and allfiles reports.
+<pre>
+<strong>New days          </strong>The number of days old files are &quot;newfiles&quot;
+<strong>Security          </strong>The highest security level to include files in the reports
+<strong>Groups            </strong>The number of newfile groups the newfiles database can hold
+</pre><p>
+
+<h3>1.14. Mailer Setup.</h3>
+<p>
+Note that you can't disable FTS-0001 sessions as that is a mandatory session
+protocol in Fidonet. There are 40 phonenumber translations present, this is for
+countries with lots of telephone operators with all kind of prefixes for
+carrier select functions. The setting of TCP/IP flags is important too, this
+gives the information what this system will do. If you only enter IBN as TCP/IP
+flags then the system will only call IBN nodes (binkp). The default is
+XX,CM and TCP/IP systems (internet) should use the XX,CM,IBN,IFC flags.
+If you cannot do TCP/IP connections, leave TCP/IP "phone" empty. The three
+TCP/IP fields are used to give your system information via EMSI or binkp to
+the other nodes.
+<pre>
+<strong>Mailer logl.      </strong>The logging level for mailer sessions
+<strong>TCP/IP "phone"    </strong>The TCP/IP "phone" number (IP address or domain name)
+<strong>TCP/IP flags      </strong>The TCP/IP capability flags for TCP/IP sessions
+<strong>TCP/IP speed      </strong>The TCP/IP linespeed
+<strong>Timeout reset     </strong>The timout for normal modem commands
+<strong>Timeout connect   </strong>The timeout for waiting for connect
+<strong>Dial delay        </strong>The maximum delay between calls, minimum is 10 seconds.
+<strong>No Filerquests    </strong>Disable filerequests
+<strong>No callout        </strong>Disable callout
+<strong>No EMSI session   </strong>Disable EMSI
+<strong>No YooHoo/2U2     </strong>Disable FTS-0006 sessions
+<strong>No Zmodem         </strong>Disable zmodem protocol
+<strong>No Zedzap         </strong>Disable zedzap protocol
+<strong>No Hydra          </strong>Disable Hydra protocol
+<strong>No MD5            </strong>Disable binkp MD5 passwords
+<strong>Zero Locks OK     </strong>Allow zero byte lockfiles from another OS
+<strong>Phonetrans 1..40  </strong>Maximum 40 phone number translations
+<strong>Max. files        </strong>Maximum files to request, 0 is unlimited 
+<strong>Max. MBytes       </strong>Maximum MBytes to request, 0 is unlimited
+</pre>
+
+<h3>1.15. Edit HTML pages setup.</h3>
+<p>
+Here you setup the HTML pages that can be created with the <strong>
+mbfile web</strong> command. These are HTML pages of your download
+areas and indexes of all areas. If there are pictures in these areas
+thumbnails are created if you have the <strong>convert</strong>
+command available. The document root is the same as defined in your
+web server. The link to ftp must be created from that directory to
+your ftp base directory. To do that become root, cd to the document root
+and type <strong>ln -s /var/spool/mbse/ftp files</strong> In this case the link
+is called <strong>files</strong>. Note that all download areas are accesible,
+there is no user authentication yet available.
+<pre>
+<strong>Docs root         </strong>The path to the httpd documents root.
+<strong>Link to ftp       </strong>The link to the ftp directory.
+<strong>URL name          </strong>The URL of your webserver.
+<strong>Charset           </strong>The default character set, ISO-8859-1.
+<strong>Author name       </strong>The author name you want in the HTTP headers.
+<strong>Convert command   </strong>The graphics convert command. (ImageMagick needed).
+<strong>Files/page        </strong>The number of files to display per web page.
+<strong>Hist. limit       </strong>Limit the number of mailhistory.html lines, 0 is unlimited.
+</pre>
+<P>
+
+<h3>1.16. Manager flag Descriptions.</h3>
+<p>
+In this menu you can give the 32 area-/filemgr flags a meaningfull description.
+<p>
+
+<A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>
+<A HREF="../"><IMG SRC="../images/b_arrow.png" ALT="Home" Border="0">Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
