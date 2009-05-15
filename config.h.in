@@ -1,0 +1,273 @@
+/* config.h.in.  */
+/* $Id: config.h.in,v 1.49 2007/08/25 21:01:03 mbse Exp $ */
+
+#undef SHORTRIGHT
+#undef COPYRIGHT
+#undef VERSION_MAJOR
+#undef VERSION_MINOR
+#undef VERSION_REVISION
+#undef VERSION
+
+/* According to Sun we MUST define this in the source */
+#define _REENTRANT 1
+
+/* Compile experimental code (may not be present) */
+#undef USE_EXPERIMENT
+
+/* Compile full newsgate */
+#undef USE_NEWSGATE
+
+/* Has strcasestr function  */
+#undef HAVE_STRCASESTR
+
+/* If you have gettimeofday function  */
+#undef HAVE_DECLARED_TIMEZONE
+#undef HAVE_TM_GMTOFF
+
+/* From unix: */
+#undef SHADOW_PASSWORD
+#undef AGING
+#undef ATT_AGE
+#undef ATT_COMMENT
+#undef AUTH_METHODS
+#undef CKDEFS
+#undef DOUBLESIZE
+
+/* Defined if you have libcrack.  */
+#undef HAVE_LIBCRACK
+
+/* Defined if you have the ts&szs cracklib.  */
+#undef HAVE_LIBCRACK_HIST
+
+/* Defined if it includes *Pw functions.  */
+#undef HAVE_LIBCRACK_PW
+
+/* Defined if you have libutil.h */
+#undef HAVE_LIBUTIL_H
+
+/* Defined if you have util.h */
+#undef HAVE_UTIL_H
+
+/* Defined if you have sys/types.h */
+#undef HAVE_SYS_TYPES_H
+
+/* Defined if it includes *Pw functions.  */
+#undef HAVE_LIBCRACK_PW
+
+#undef KEEP_NIS_AT_END
+
+/* Define to support the MD5-based password hashing algorithm.  */
+#undef MD5_CRYPT
+#undef PAM
+
+/* Define to support OPIE one-time password logins.  */
+#undef OPIE
+#undef SW_CRYPT
+
+/* Define to 1 if NLS is requested.  */
+#undef ENABLE_NLS
+
+/* Path for lastlog file.  */
+#undef LASTLOG_FILE
+
+/* Define to support /etc/login.access login access control.  */
+#undef LOGIN_ACCESS
+
+/* Path to vpopmail.  */
+#undef _VPOPMAIL_PATH
+
+/* Path for wtmp file.  */
+#undef _WTMP_FILE
+
+/* Define if you have the updwtmp function.  */
+#undef HAVE_UPDWTMP
+
+/* Define if you have the updwtmpx function.  */
+#undef HAVE_UPDWTMPX
+
+/* Define if you have the <lastlog.h> header file.  */
+#undef HAVE_LASTLOG_H
+
+/* Define if you have the initgroups function.  */
+#undef HAVE_INITGROUPS
+
+/* Define if you have ut_host in struct utmp.  */
+#undef UT_HOST
+
+/* Path for utmp file.  */
+#undef _UTMP_FILE
+
+/* Define if you have the `a64l' function. */
+#undef HAVE_A64L
+
+/* Define if you have the `c64i' function. */
+#undef HAVE_C64I
+
+/* Define if you have the <dirent.h> header file, and it defines `DIR'. */
+#undef HAVE_DIRENT_H
+
+/* Define if you have the `fchmod' function. */
+#undef HAVE_FCHMOD
+
+/* Define if you have the `fchown' function. */
+#undef HAVE_FCHOWN
+
+/* Define if you have the `fdatasync' function. */
+#undef HAVE_FDATASYNC
+
+/* Define if you have the `fsync' function. */
+#undef HAVE_FSYNC
+
+/* Define if you have the `gettimeofday' function. */
+#undef HAVE_GETTIMEOFDAY
+
+/* Define if you have the <gshadow.h> header file. */
+#undef HAVE_GSHADOW_H
+
+/* Define if you have the `lckpwdf' function. */
+#undef HAVE_LCKPWDF
+
+/* Define if you have the <ndir.h> header file, and it defines `DIR'. */
+#undef HAVE_NDIR_H
+
+/* Define if you have the `putpwent' function. */
+#undef HAVE_PUTPWENT
+
+/* Define if you have the putspent function.  */
+#undef HAVE_PUTSPENT
+
+/* Define if you have the putgrent function.  */
+#undef HAVE_PUTGRENT
+
+/* Define if you have the <shadow.h> header file. */
+#undef HAVE_SHADOW_H
+
+/* Define if `tm_zone' is member of `struct tm'. */
+#undef HAVE_STRUCT_TM_TM_ZONE
+
+/* Define if you have the <sys/dir.h> header file, and it defines `DIR'. */
+#undef HAVE_SYS_DIR_H
+
+/* Define if you have the <sys/ndir.h> header file, and it defines `DIR'. */
+#undef HAVE_SYS_NDIR_H
+
+/* Define if you have the <sys/resource.h> header file. */
+#undef HAVE_SYS_RESOURCE_H
+
+/* Define if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/vfs.h> header file. */
+#undef HAVE_SYS_VFS_H
+
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible. */
+#undef HAVE_SYS_WAIT_H
+
+/* Define if you have the <sys/termio.h> header file.  */
+#undef HAVE_SYS_TERMIO_H
+
+/* Define if you have the <sys/termios.h> header file.  */
+#undef HAVE_SYS_TERMIOS_H
+
+/* Define if you have the <termios.h> header file.  */
+#undef HAVE_TERMIO_H
+
+/* Define if you have the <termios.h> header file. */
+#undef HAVE_TERMIOS_H
+
+/* Define if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define if you have the <usersec.h> header file. */
+#undef HAVE_USERSEC_H
+
+/* Define if you have the <sgtty.h> header file.  */
+#undef HAVE_SGTTY_H
+
+/* Define if you have the <utmp.h> header file.  */
+#undef HAVE_UTMP_H
+
+/* Define if you have the <utmpx.h> header file.  */
+#undef HAVE_UTMPX_H
+
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
+/* Define if you have the memset function.  */
+#undef HAVE_MEMSET
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define as the return type of signal handlers (`int' or `void'). */
+#undef RETSIGTYPE
+
+/* Define if the `S_IS*' macros in <sys/stat.h> do not work properly. */
+#undef STAT_MACROS_BROKEN
+
+/* Define if you have the statfs function */
+#undef HAVE_STATFS
+
+/* Define if you have the statvfs function */
+#undef HAVE_STATVFS
+
+/* Define if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define if you can safely include both <sys/time.h> and <time.h>. */
+#undef TIME_WITH_SYS_TIME
+
+/* Define if your <sys/time.h> declares `struct tm'. */
+#undef TM_IN_SYS_TIME
+
+/* Define if `lex' declares `yytext' as a `char *' by default, not a `char[]'.  */
+#undef YYTEXT_POINTER
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
+
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef gid_t
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef mode_t
+
+/* Define to `long' if <sys/types.h> does not define. */
+#undef off_t
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef pid_t
+
+/* Define to `unsigned' if <sys/types.h> does not define. */
+#undef size_t
+
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef uid_t
+
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef ssize_t
+
+/* Define as `fork' if `vfork' does not work. */
+#undef vfork
+
+/* Define if you have the <zlib.h> header file. */
+#undef HAVE_ZLIB_H
+
+/* Define if you have the <bzlib.h> header file. */
+#undef HAVE_BZLIB_H
+
+/* Define if machine is bigendian */
+#undef WORDS_BIGENDIAN
+
+/* Define if Del != 207 */
+#define GBK_DEL @GBK_DEL@
+
+/* Define if you have the <crypt.h> header file. */
+#undef HAVE_CRYPT_H
+
+/* Define if you have the <iconv.h> header file. */
+#undef HAVE_ICONV_H
+
+/* Define if you have the <GeoIP.h> header file. */
+#undef HAVE_GEOIP_H
+

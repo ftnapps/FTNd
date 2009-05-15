@@ -2,10 +2,13 @@
 FILE_ID.DIZ
 INSTALL
 Makefile.global
-autom4te.cache
-config.cache
 config.h
 config.log
 config.status
 paths.h
 stamp-h
+html/basic.html
+html/index.htm
+html/upgrade.html
+script/editor
+unix/login.defs
