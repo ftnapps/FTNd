@@ -664,7 +664,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	 * Add all our system aka's to the seenby lines in the same zone,
 	 * omit aka's already in the seenby list.
 	 */
-	for (i = 0; i < 40; i++) {
+	for (i = 0; i < 39; i++) {
 	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
 		p_from = fido2faddr(CFG.aka[i]);
 		if (! in_list(p_from, sbl, TRUE)) {
