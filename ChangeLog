@@ -9,6 +9,15 @@ v0.95.5		29-Nov-2008
 		Newsservers can be connected with a port number from the
 		setup.
 
+	mbfido:
+		Fixed a possible array subscript overflow.
+
+	mbaff:
+		Fixed a possible array subscript overflow.
+
+	mbfile:
+		Fixed a possible array subscript overflow.
+
 	mbsetup:
 		In screen 1.12 a nntp port number can be set.
 		Added a switch to force authentication on connect with nntp

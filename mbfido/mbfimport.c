@@ -316,7 +316,7 @@ void ImportFiles(int Area)
 					line++;
 					pos = 0;
 				    } else {
-					if (pos == 49) {
+					if (pos == 48) {
 					    f_db.Desc[line][pos] = '\0';
 					    pos = 0;
 					    line++;
@@ -371,7 +371,7 @@ void ImportFiles(int Area)
 				    line++;
 				    pos = 0;
 				} else {
-				    if (pos == 49) {
+				    if (pos == 48) {
 					f_db.Desc[line][pos] = '\0';
 					pos = 0;
 					line++;
