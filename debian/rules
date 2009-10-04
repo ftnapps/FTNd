@@ -56,6 +56,8 @@ install: build
 
 	# Add here commands to install the package into debian/mbsebbs.
 	##$(MAKE) prefix=$(CURDIR)/debian/mbsebbs/opt install
+	# Lintian overrides file
+	install -c -m 444 debian/mbsebbs.lintian-overrides debian/mbsebbs/usr/share/lintian/overrides/mbsebbs
 
 
 # Build architecture-independent files here.
