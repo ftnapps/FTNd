@@ -589,7 +589,8 @@ int main(int argc, char **argv)
 	}
 	temp = calloc(10240, sizeof(char));
 	while (fgets(temp, 10240, stdin))
-	    fprintf(ofp, temp);
+	    (void)fputs(temp, ofp);
+	//    fprintf(ofp, temp);
 	free(temp);
 
 	for (envrecip = &envrecip_start; *envrecip; envrecip = &((*envrecip)->next)) {
@@ -790,7 +791,7 @@ int TossMail(void)
 	    if ((rc = unpack(fname)) == 0) {
 		files_ok++;
 		rc = TossPkts();
-		chdir(inbound);
+		(void)chdir(inbound);
 	    } else 
 		WriteError("Error unpacking file %s", fname);
 	else

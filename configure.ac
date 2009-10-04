@@ -1,5 +1,4 @@
 # Process this file with autoconf to produce a configure script.
-# $Id: configure.ac,v 1.29 2008/11/29 13:59:33 mbse Exp $
 
 AC_INIT(lib/mbselib.h)
 AM_CONFIG_HEADER(config.h)
@@ -13,7 +12,7 @@ AC_SUBST(SUBDIRS)
 PACKAGE="mbsebbs"
 MAJOR="0"
 MINOR="95"
-REVISION="5"
+REVISION="6"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2008 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2008 M. Broek"

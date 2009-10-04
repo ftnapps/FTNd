@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: hatch.c,v 1.17 2005/12/03 15:09:06 mbse Exp $
  * Purpose ...............: Hatch files
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2009
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,8 +50,7 @@ void Hatch()
     FILE	*fp;
     struct tm	*Tm;
     time_t	Now;
-    int		LastDay;
-    int		HatchToday;
+    int		LastDay, HatchToday;
 
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('+', "Pass: hatch files");
@@ -76,7 +74,7 @@ void Hatch()
 	return;
     }
 
-    fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
+    (void)fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
 
     while (fread(&hatch, hatchhdr.recsize, 1, fp) == 1) {
 	if (hatch.Active) {

@@ -1,13 +1,12 @@
 /*****************************************************************************
  *
- * $Id: flock.c,v 1.5 2004/02/21 17:22:02 mbroek Exp $
  * Purpose ...............: File locker
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2009
  *   
- * Michiel Broek		FIDO:		2:2801/16
- * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
  * 1971 BV IJmuiden
  * the Netherlands
  *
@@ -35,46 +34,44 @@
 
 int f_lock(char *fn)
 {
-	int lfd=-1;
-	struct flock fl;
-	struct stat st;
+    int		    lfd=-1;
+    struct flock    fl;
+    struct stat	    st;
 
-	if (fn) {
-		if ((lfd = open(fn,O_RDWR | O_CREAT)) < 0) {
-			perror("");
-			WriteError("Error opening file %s", fn);
-			return -1;
-		}
-
-		fl.l_type=F_WRLCK;
-		fl.l_whence=0;
-		fl.l_start=0L;
-		fl.l_len=0L;
-		fl.l_pid=getpid();
-
-		if (fcntl(lfd,F_SETLK,&fl) != 0) {
-			if (errno != EAGAIN)
-				Syslog('+', "Error locking file %s",fn);
-			close(lfd);
-			return -1;
-		}
-
-		if (stat(fn,&st) != 0) {
-			perror("");
-			WriteError("Error accessing file %s",fn);
-			close(lfd);
-			return -1;
-		}
+    if (fn) {
+	if ((lfd = open(fn, O_RDWR | O_CREAT, 0644)) < 0) {
+	    WriteError("$Error opening file %s", fn);
+	    return -1;
 	}
-	return lfd;
+
+	fl.l_type=F_WRLCK;
+	fl.l_whence=0;
+	fl.l_start=0L;
+	fl.l_len=0L;
+	fl.l_pid=getpid();
+
+	if (fcntl(lfd,F_SETLK,&fl) != 0) {
+	    if (errno != EAGAIN)
+		Syslog('+', "Error locking file %s",fn);
+	    close(lfd);
+	    return -1;
+	}
+
+	if (stat(fn,&st) != 0) {
+	    WriteError("$Error accessing file %s",fn);
+	    close(lfd);
+	    return -1;
+	}
+    }
+    return lfd;
 }
 
 
 
 void funlock(int fd)
 {
-	close(fd);
-	return;
+    close(fd);
+    return;
 }
 
 
