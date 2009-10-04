@@ -1,0 +1,7 @@
+# debian/source.lintian-overrides for MBSE BBS
+
+#    Per upstream:  MBSE BBS is assumed to be in an /opt installation 
+# and has not been tested using any other configuration.
+mbsebbs: dir-or-file-in-opt
+mbsebbs: file-in-unusual-dir
+
