@@ -1,5 +1,5 @@
 Source: mbsebbs
-Section: network
+Section: comm
 Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.org>
 Build-Depends: debhelper (>= 5), autotools-dev, libbz2-dev, libz-dev
