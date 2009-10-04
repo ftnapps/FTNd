@@ -1,6 +1,17 @@
-$Id: ChangeLog,v 1.1225 2008/12/28 12:28:25 mbse Exp $
 
-v0.95.5		29-Nov-2008
+v0.95.6		04-Oct-2009
+
+	general:
+		This may need more patches for Ubuntu 9.10.
+
+	mbfido:
+		Patch to compile on Ubuntu 9.10.
+
+	hatch:
+		Patch to compile on Ubuntu 9.10.
+
+
+v0.95.5		29-Nov-2008 - 04-Oct-2009
 
 	upgrade:
 		Start mbsetup, enter global setup, leave and save.
