@@ -5,6 +5,9 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# Use dpatch                                                                                                                                       
+include /usr/share/dpatch/dpatch.make
+
 # Set MBSE_ROOT to mbse installation directory.
 export MBSE_ROOT=/opt/mbse
 
@@ -22,7 +25,8 @@ else
 	CFLAGS += -O2
 endif
 
-config.status: configure
+configure: configure-stamp
+configure-stamp: patch-stamp
 	dh_testdir
 	# Add here commands to configure the package.
 	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/opt/mbse CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
@@ -38,7 +42,8 @@ build-stamp:  config.status
 
 	touch $@
 
-clean:
+clean: cleanall unpatch
+cleanall:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp 
@@ -89,4 +94,4 @@ binary-arch: build install
 	dh_builddeb
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
+.PHONY: build clean binary-indep binary-arch binary install patch unpatch
