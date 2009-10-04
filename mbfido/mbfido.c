@@ -740,7 +740,7 @@ int TossMail(void)
      * First toss any netmail packets.
      */
     maxrc = rc = TossPkts();
-    chdir(inbound);
+    (void)chdir(inbound);
 
     /*
      * Scan the directory for ARCmail archives. The archive extension
