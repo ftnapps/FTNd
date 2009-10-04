@@ -7,5 +7,4 @@
 version=3
 
 # Check upstream download directory for new versions
-http://www.mbse.eu/mbse/mbsebbs/download/ mbsebbs-(.*)\.tar\.bz2
-
+http://www.mbse.eu/mbse/mbsebbs/download/mbsebbs-(.*)\.tar\.bz2
