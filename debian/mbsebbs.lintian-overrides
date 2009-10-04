@@ -5,3 +5,7 @@
 mbsebbs: dir-or-file-in-opt
 mbsebbs: file-in-unusual-dir
 
+# Multiple standard directories are distributed empty because they
+# are required for usage during the operation of the program but 
+# are not otherwise automatically created.
+mbsebbs: package-contains-empty-directory
