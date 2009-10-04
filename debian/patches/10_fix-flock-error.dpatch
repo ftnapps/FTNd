@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 10_fix-flock-error.dpatch by Robert James Clay <jame@rocasa.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP:  Error at flock.c:43 - call to open missing mode declared with attribute
+## DP: error:  open with O_CREAT in second argument needs 3 arguments.
+## DP: 
+## DP: In Ubuntu, this issue is the result of an enforcment of using the correct form
+## DP: of the open() call:  reference https://wiki.ubuntu.com/CompilerFlags.
+
+@DPATCH@
+diff -urNad mbsebbs_0.92.0~/mbfido/flock.c mbsebbs_0.92.0/mbfido/flock.c
+--- mbsebbs_0.92.0~/mbfido/flock.c	2009-10-04 18:50:46.000000000 -0400
++++ mbsebbs_0.92.0/mbfido/flock.c	2009-10-04 18:56:35.281977640 -0400
+@@ -40,7 +40,7 @@
+ 	struct stat st;
+ 
+ 	if (fn) {
+-		if ((lfd = open(fn,O_RDWR | O_CREAT)) < 0) {
++		if ((lfd = open(fn,O_RDWR | O_CREAT,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) < 0) {
+ 			perror("");
+ 			WriteError("Error opening file %s", fn);
+ 			return -1;
