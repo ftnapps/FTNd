@@ -24,9 +24,50 @@ case "$1" in
     getent group bbs >dev/null 2>&1 || addgroup --system bbs
     getent passwd mbse >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbse --ingroup bbs --shell /bin/bash --gecos "MBSE BBS Admin" mbse || adduser mbse uucp || adduser mbse dialout || adduser mbse dip
 
-    # Install example bash profile if one is not already present
+    # Install example bash profile if it is not already present
     if [ ! -e "/opt/mbse/.profile" ]; then
 	install -m 440 /usr/share/doc/mbsebbs/examples/profile.mbse /opt/mbse/.profile
+    fi
+
+    # Install example bbbsdoor.sh script if it is not already present
+    if [ ! -e "/opt/mbse/bin/bbsdoor.sh" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/bbsdoor.sh /opt/mbse/bin/bbsdoor.sh
+    fi
+    # Install example editor script if it is not already present
+    if [ ! -e "/opt/mbse/bin/editor" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/editor /opt/mbse/bin/editor
+    fi
+    # Install example hatch script if it is not already present
+    if [ ! -e "/opt/mbse/bin/hatch" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/hatch /opt/mbse/bin/hatch
+    fi
+    # Install example mbsedos script if it is not already present
+    if [ ! -e "/opt/mbse/bin/mbsedos" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/mbsedos /opt/mbse/bin/mbsedos
+    fi
+    # Install example rundoor.sh script if it is not already present
+    if [ ! -e "/opt/mbse/bin/rundoor.sh" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/rundoor.sh /opt/mbse/bin/rundoor.sh
+    fi
+    # Install example runvirtual.sh script if it is not already present
+    if [ ! -e "/opt/mbse/bin/runvirtual.sh" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/runvirtual.sh /opt/mbse/bin/runvirtual.sh
+    fi
+    # Install example maint script if it is not already present
+    if [ ! -e "/opt/mbse/bin/adm/maint" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/maint /opt/mbse/bin/adm/maint
+    fi
+    # Install example midnight script if it is not already present
+    if [ ! -e "/opt/mbse/bin/adm/midnight" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/midnight /opt/mbse/bin/adm/midnight
+    fi
+    # Install example monthly script if it is not already present
+    if [ ! -e "/opt/mbse/bin/adm/monthly" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/monthly /opt/mbse/bin/adm/monthly
+    fi
+    # Install example weekly script if it is not already present
+    if [ ! -e "/opt/mbse/bin/adm/weekly" ]; then
+	install -m 750 /usr/share/doc/mbsebbs/examples/weekly /opt/mbse/bin/adm/weekly
     fi
     ;;
 
