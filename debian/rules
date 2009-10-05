@@ -75,7 +75,7 @@ binary-arch: build install
 	dh_testroot
 	dh_installchangelogs ChangeLog
 	dh_installdocs -XREADME
-	dh_installexamples -XMakefile -Xinit. -XREADME -Xsetup.mbse examples/* script/* debian/examples/*
+	dh_installexamples -XMakefile -Xinit. -X.in -XREADME -Xsetup.mbse examples/* script/* debian/examples/*
 	dh_install
 	dh_installmenu
 #	dh_installdebconf	
