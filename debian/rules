@@ -59,8 +59,9 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/mbsebbs.
-	##$(MAKE) prefix=$(CURDIR)/debian/mbsebbs/opt install
+	# Add here commands to install the package into debian/mbsebbs.  Most files are being installed
+	#using debian/install but the text, etc files are being done this way.
+	$(MAKE) -c examples/Makefile prefix=$(CURDIR)/debian/mbsebbs/opt all
 	# Lintian overrides file
 	install -c -m 444 debian/mbsebbs.lintian-overrides debian/mbsebbs/usr/share/lintian/overrides/mbsebbs
 
