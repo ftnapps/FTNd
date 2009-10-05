@@ -1,11 +1,20 @@
 #!/bin/sh
 #
-# Note: this is not 100% Debian style, at least it works for now.
-# $Id: init.Debian,v 1.10 2007/09/02 12:50:32 mbse Exp $
-# 
-# description: Starts and stops the MBSE BBS.
+# description: Starts and stops the MBSE BBS task monitor.
 #
-# For Debian SYSV init style.
+# For Debian SYSV init style, with LSB information.
+
+### BEGIN INIT INFO
+# Provides:          mbsebbs
+# Required-Start:    $network $local_fs
+# Required-Stop:
+# Should-Start:      $named
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start the task monitor for MBSE BBS
+# Description:       Start the task monitor for MBSE BBS
+### END INIT INFO
 
 # Find the MBSE_ROOT from the /etc/passwd file.
 MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
