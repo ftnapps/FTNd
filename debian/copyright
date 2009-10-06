@@ -31,5 +31,20 @@ The Debian packaging is (C) 2008-2009, Robert James Clay <jame@rocasa.org> and
 is licensed under the GPL, see above.
 
 
-# Please also look if there are files or directories which have a
-# different copyright/license attached and list them here.
+# HydraCom copyrights
+The HydraCom files mbcico/hydra.h and mbcico/hydra.c are licensed under the GPL, 
+see above, and are copyrighted as follows:
+
+Copyright (C) 1997-2007 Michiel Broek
+Copyright (C) 1996-1998 Christof Meerwald
+Copyright (C) 1991-1993 Arjen G. Lentz 
+
+
+# JAMlib related files
+The JAM Library files lib/jam.h, lib/jamsys.h
+Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats Birch, and Mats Wallin.
+
+lib/jammsg.c and lib/jammsg.h
+Original written in C++ by Marco Maccaferri for LoraBBS and was distributed under GNU GPL,
+see above.  This version is modified for use with MBSE BBS and utilities and is also 
+copyrighted:  Copyright (C) 1997-2007 Michiel Broek
