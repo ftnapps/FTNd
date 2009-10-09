@@ -20,10 +20,6 @@ set -e
 
 case "$1" in
     configure)
-    # configure 'mbse' user and 'bbs' group
-    getent group bbs >dev/null 2>&1 || addgroup --system bbs
-    getent passwd mbse >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbse --ingroup bbs --shell /bin/bash --gecos "MBSE BBS Admin" mbse || adduser mbse uucp || adduser mbse dialout || adduser mbse dip
-
     # Install example bash profile if it is not already present
     if [ ! -e "/opt/mbse/.profile" ]; then
 	install -m 440 /usr/share/doc/mbsebbs/examples/profile.mbse /opt/mbse/.profile

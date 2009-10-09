@@ -16,6 +16,9 @@ set -e
 
 case "$1" in
     install|upgrade)
+        # configure 'mbse' user and 'bbs' group
+        getent group bbs >dev/null 2>&1 || addgroup --system bbs
+        getent passwd mbse >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbse --ingroup bbs --shell /bin/bash --gecos "MBSE BBS Admin" mbse || adduser mbse uucp || adduser mbse dialout || adduser mbse dip
     ;;
 
     abort-upgrade)
