@@ -3,6 +3,7 @@ Section: comm
 Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.org>
 Build-Depends: debhelper (>= 5), autotools-dev, libbz2-dev, libz-dev
+Depends: adduser
 Standards-Version: 3.7.2
 Vcs-Browser: http://fido.mbse.eu/cgi-bin/viewvc.cgi/mbsebbs/?pathrev=mbsebbs-0_92_00_release
 Homepage: http://www.mbse.eu/mbse/mbsebbs
