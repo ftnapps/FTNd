@@ -62,3 +62,5 @@ opt/mbse/var/sema
 opt/mbse/var/ticqueue
 opt/mbse/var/unknown
 usr/share/lintian/overrides
+usr/share/mbsebbs
+usr/share/mbsebbs/int
