@@ -3,12 +3,14 @@ Debian TODO for MBSE BBS
 
 Packaging
 ----------
-- Configure user:group mbse:bbs in the preinst is failing.
+- The /opt/mbse dirs are being installed with root ownership instead of mbse:bbs
+- mbtask should be root:root, not root:bbs
+- With purge; remove user:group mbse:bbs?  Remove /opt/mbse directory?
+- With at least purge, if not also remove:  remove statoverrides
 - The English Text, macro, & menu files are being installed automatically during 
-the initial installation;  need to install the others.
-- W: mbsebbs source: debian-rules-ignores-make-clean-error line 52 
+  the initial installation;  need to install the others.
 - configure is not being rerun automatically.  In debian/rules clean target,
-remove the config.guess etc files so that it will be rerun automatically?
+  remove the config.guess etc files so that it will be rerun automatically?
 - Create man pages for executables;  for instance, using help2man.
 - Create an mbsebbs-dbg package?   (Check references.)
 - Create & use debian/po, so that any debconf messages can be translated?
@@ -18,4 +20,4 @@ Configuration:
 -  Run mbsetup as part of postinst for a new installation?
 
 
- -- Robert James Clay <jame@rocasa.us>  Tue,  1 Dec 2009 23:39 
+ -- Robert James Clay <jame@rocasa.us>  Wed,  2 Dec 2009 17:31
