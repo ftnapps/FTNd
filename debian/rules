@@ -59,9 +59,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/mbsebbs.  Most files are being installed
-	#using debian/install but the text, etc files are being done this way.
-	$(MAKE) -c examples/Makefile prefix=$(CURDIR)/debian/mbsebbs/opt/mbse all
+	# Add here commands to install the package into debian/mbsebbs.
+	# Note that most files are being installed using debian/install.
 	# Lintian overrides file
 	install -c -m 444 debian/mbsebbs.lintian-overrides debian/mbsebbs/usr/share/lintian/overrides/mbsebbs
 
@@ -76,7 +75,7 @@ binary-arch: build install
 	dh_testroot
 	dh_installchangelogs ChangeLog
 	dh_installdocs -XREADME
-	dh_installexamples -XMakefile -Xinit. -X.in -XREADME -Xsetup.mbse examples/* script/* debian/examples/*
+	dh_installexamples -XMakefile -Xinit. -X.in -XREADME -Xsetup.mbse script/* debian/examples/*
 	dh_install
 	dh_installmenu
 #	dh_installdebconf	
