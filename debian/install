@@ -9,6 +9,14 @@ mbfido/mbindex	/opt/mbse/bin
 mbfido/mbmsg	/opt/mbse/bin
 examples/footer.txt	/usr/share/mbsebbs/etc
 examples/header.txt	/usr/share/mbsebbs/etc
+examples/menus-en.tar	/usr/share/mbsebbs/int
+examples/menus-es.tar	/usr/share/mbsebbs/int
+examples/templates-de.tar	/usr/share/mbsebbs/int
+examples/templates-en.tar	/usr/share/mbsebbs/int
+examples/templates-es.tar	/usr/share/mbsebbs/int
+examples/templates-nl.tar	/usr/share/mbsebbs/int
+examples/txtfiles-en.tar	/usr/share/mbsebbs/int
+examples/txtfiles-es.tar	/usr/share/mbsebbs/int
 lang/language.de	/usr/share/mbsebbs/int
 lang/language.en	/usr/share/mbsebbs/int
 lang/language.es	/usr/share/mbsebbs/int
