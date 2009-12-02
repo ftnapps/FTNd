@@ -3,16 +3,14 @@ Debian TODO for MBSE BBS
 
 Packaging
 ----------
-- Configure user:group mbse:bbs -  in preinst/postinst script?
-- Set environmental variable $MBSE_ROOT;  required for program execution.
-- Text, macro, & menu files are not being installed automatically during 
-the initial installation.
-- Some files & standard directories are not being installed.
+- Configure user:group mbse:bbs in the preinst is failing.
+- The English Text, macro, & menu files are being installed automatically during 
+the initial installation;  need to install the others.
+- W: mbsebbs source: debian-rules-ignores-make-clean-error line 52 
 - configure is not being rerun automatically.  In debian/rules clean target,
 remove the config.guess etc files so that it will be rerun automatically?
 - Create man pages for executables;  for instance, using help2man.
 - Create an mbsebbs-dbg package?   (Check references.)
-- Create debian/README.Source file.
 - Create & use debian/po, so that any debconf messages can be translated?
 - Configure script explicitly tests for programs only needed by run time system.
 
@@ -20,4 +18,4 @@ Configuration:
 -  Run mbsetup as part of postinst for a new installation?
 
 
- -- Robert James Clay <jame@rocasa.org>  Sun,  2 Oct 2009 13:29 
+ -- Robert James Clay <jame@rocasa.us>  Tue,  1 Dec 2009 23:39 
