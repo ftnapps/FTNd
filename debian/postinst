@@ -86,12 +86,12 @@ case "$1" in
     fi
     
     # Create menu directory if not already present
-    if [ ! -d "/opt/mbse/share/int/menu/" ]; then
-	mkdir --mode=755 /opt/mbse/share/int/menu
+    if [ ! -d "/opt/mbse/share/int/menus/" ]; then
+	mkdir --mode=755 /opt/mbse/share/int/menus
     fi
     # Install english text menu files if that directory is not already present
-    if [ ! -d "/opt/mbse/share/int/menu/en/" ]; then
-	/bin/mkdir --mode=755 /opt/mbse/share/int/menu/en
+    if [ ! -d "/opt/mbse/share/int/menus/en/" ]; then
+	/bin/mkdir --mode=755 /opt/mbse/share/int/menus/en
 	/bin/tar xfC /usr/share/mbsebbs/int/menus-en.tar /opt/mbse/share/int/menus/en
     fi
     
