@@ -66,6 +66,15 @@ case "$1" in
 	install -m 750 /usr/share/doc/mbsebbs/examples/weekly /opt/mbse/bin/adm/weekly
     fi
     
+    # Install example footer.txt file if it is not already present
+    if [ ! -e "/opt/mbse/etc/footer.txt" ]; then
+	install -m 750 /usr/share/mbsebbs/etc/footer.txt /opt/mbse/etc/footer.txt
+    fi
+    # Install example header.txt file if it is not already present
+    if [ ! -e "/opt/mbse/etc/header.txt" ]; then
+	install -m 750 /usr/share/mbsebbs/etc/header.txt /opt/mbse/etc/header.txt
+    fi
+    
     #	Remove if present then install the stat override for setuid mbtask
     dpkg-statoverride --remove /opt/mbse/bin/mbtask >/dev/null 2>&1 || true
     dpkg-statoverride --update --add root bbs 6711 /opt/mbse/bin/mbtask
