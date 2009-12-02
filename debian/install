@@ -7,6 +7,8 @@ mbfido/mbfido	/opt/mbse/bin
 mbfido/mbfile	/opt/mbse/bin
 mbfido/mbindex	/opt/mbse/bin
 mbfido/mbmsg	/opt/mbse/bin
+examples/footer.txt	/usr/share/mbsebbs/etc
+examples/header.txt	/usr/share/mbsebbs/etc
 lang/language.de	/usr/share/mbsebbs/int
 lang/language.en	/usr/share/mbsebbs/int
 lang/language.es	/usr/share/mbsebbs/int
