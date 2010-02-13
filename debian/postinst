@@ -81,8 +81,8 @@ case "$1" in
     fi
     # Install english text macro files if that directory is not already present
     if [ ! -d "/opt/mbse/share/int/macro/en/" ]; then
-	/bin/mkdir --mode=755 /opt/mbse/share/int/macro/en
-	/bin/tar xfC /usr/share/mbsebbs/int/templates-en.tar /opt/mbse/share/int/macro/en
+	mkdir --mode=755 /opt/mbse/share/int/macro/en
+	tar xfC /usr/share/mbsebbs/int/templates-en.tar /opt/mbse/share/int/macro/en
     fi
     
     # Create menu directory if not already present
@@ -91,8 +91,8 @@ case "$1" in
     fi
     # Install english text menu files if that directory is not already present
     if [ ! -d "/opt/mbse/share/int/menus/en/" ]; then
-	/bin/mkdir --mode=755 /opt/mbse/share/int/menus/en
-	/bin/tar xfC /usr/share/mbsebbs/int/menus-en.tar /opt/mbse/share/int/menus/en
+	mkdir --mode=755 /opt/mbse/share/int/menus/en
+	tar xfC /usr/share/mbsebbs/int/menus-en.tar /opt/mbse/share/int/menus/en
     fi
     
     # Create txtfiles directory if not already present
@@ -101,8 +101,8 @@ case "$1" in
     fi
     # Install english text txtfiles files if that directory is not already present
     if [ ! -d "/opt/mbse/share/int/txtfiles/en/" ]; then
-	/bin/mkdir --mode=755 /opt/mbse/share/int/txtfiles/en
-	/bin/tar xfC /usr/share/mbsebbs/int/txtfiles-en.tar /opt/mbse/share/int/txtfiles/en
+	mkdir --mode=755 /opt/mbse/share/int/txtfiles/en
+	tar xfC /usr/share/mbsebbs/int/txtfiles-en.tar /opt/mbse/share/int/txtfiles/en
     fi
     
     #	Remove if present then install the stat override for setuid mbtask
