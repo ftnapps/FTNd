@@ -112,7 +112,7 @@ case "$1" in
     dpkg-statoverride --remove /opt/mbse/bin/mbtask >/dev/null 2>&1 || true
     dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbtask
 
-    #	Remove if present then install the stat override for setuid mbtask
+    #	Remove if present then install the stat override for setuid mbnewusr
     dpkg-statoverride --remove /opt/mbse/bin/mbnewusr >/dev/null 2>&1 || true
     dpkg-statoverride --update --add mbse bbs 4755 /opt/mbse/bin/mbnewusr
     ;;
