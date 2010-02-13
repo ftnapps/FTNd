@@ -1,6 +1,5 @@
 mbsebbs (0.92.0-1) UNRELEASED; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release of MBSE BBS as a Debian package. 
 
- -- Robert James Clay <jame@rocasa.org>  Tue, 23 Jul 2008 22:11:43 -0500
-
+ -- Robert James Clay <jame@rocasa.org>  Sat, 13 Feb 2010 08:56:08 -0500
