@@ -25,6 +25,7 @@ else
 	CFLAGS += -O2
 endif
 
+config.status: configure
 configure: configure-stamp
 configure-stamp: patch-stamp
 	dh_testdir
