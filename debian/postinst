@@ -105,6 +105,9 @@ case "$1" in
 	tar xfC /usr/share/mbsebbs/int/txtfiles-en.tar /opt/mbse/share/int/txtfiles/en
     fi
     
+    #  Set default user:group for mbse install
+    chmod -R mbse:bbs /opt/mbse
+    
     #	Remove if present then install the stat override for setuid mbtask
     dpkg-statoverride --remove /opt/mbse/bin/mbtask >/dev/null 2>&1 || true
     dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbtask
