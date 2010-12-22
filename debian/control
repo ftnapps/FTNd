@@ -11,7 +11,7 @@ Package: mbsebbs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Recommends: xinetd, zip, unzip, telnetd-ssl, openssh-server
-Suggests: arc, arj, unrar-free, unzoo, zoo, lha, joe, dosemu, dosemu-freedos, tetradraw
+Suggests: arc, arj, unrar-free, zoo, lha, joe, dosemu, dosemu-freedos, tetradraw
 Description: MBSE BBS System for Unix
  MBSE BBS is a full Fidonet capable ANSI BBS 
  package including a mailer, tosser, ticfile 
