@@ -53,3 +53,5 @@ mbsetup/*.o
 mbtask/*.o
 mbutils/*.o
 unix/*.o
+autom4te.cache/*
+
