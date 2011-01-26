@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: ledit.c,v 1.63 2008/02/17 16:10:18 mbse Exp $
  * Purpose ...............: Line Editor
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2010
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -105,7 +104,7 @@ int check_free(void)
 	    Syslog('+', "The BBS is closed");
 	    return TRUE;
 	} else {
-	    errmsg("Cannon continue, failed to close the bbs");
+	    errmsg("Cannot continue, failed to close the bbs");
 	    return FALSE;
 	}
     }
