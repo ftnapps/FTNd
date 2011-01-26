@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: mbout.c,v 1.29 2007/09/02 11:17:31 mbse Exp $
  * Purpose: MBSE BBS Outbound Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2010
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -326,6 +325,8 @@ int main(int argc, char *argv[])
 
 	if (argv[4][0] == '-')
 	    Fatal((char *)"Invalid filename given", MBERR_COMMANDLINE);
+	if (argv[4][0] != '/')
+	    Fatal((char *)"Must use absolute path/filename (or ~/path/filename)", MBERR_COMMANDLINE);
 	if (file_exist(argv[4], R_OK) != 0)
 	    Fatal((char *)"File doesn't exist", MBERR_COMMANDLINE);
 

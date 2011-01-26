@@ -1,10 +1,9 @@
 /****************************************************************************
  *
- * $Id: m_global.c,v 1.92 2008/12/28 12:20:14 mbse Exp $
  * Purpose ...............: Global Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2010
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1725,8 +1724,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	return page;
 
     page = newpage(fp, page);
-    addtoc(fp, toc, 0, 0, page, (char *)"System inormation");
-    addtoc(fp, toc, 0, 1, page, (char *)"System inormation");
+    addtoc(fp, toc, 0, 0, page, (char *)"System information");
+    addtoc(fp, toc, 0, 1, page, (char *)"System information");
 
     wp = open_webdoc((char *)"global.html", (char *)"Global Configuration", NULL);
     fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");

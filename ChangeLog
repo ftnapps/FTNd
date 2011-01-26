@@ -1,3 +1,14 @@
+v0.95.10       26-Aug-2010 (released by Vince Coen).
+
+	mbsetup:
+		Minor cosmetic errors eg, inormation (information) etc in site
+		docs & update copyright dates for m_global.c & ledit.c.
+
+	mbout:
+		Check that when using file attach mode that path is absolute
+		eg, starts with '/' ('~/ is changed to '/opt/mbse/ etc)
+
+
 v0.95.7/8      12-Jul-2010 (released by Vince Coen).
 
 	general:
@@ -6,6 +17,7 @@ v0.95.7/8      12-Jul-2010 (released by Vince Coen).
 
 	NOTE:   I am incrementing the version minor number for every build as
 		mbse does not use build number.
+
 
 v0.95.6		04-Oct-2009
 
