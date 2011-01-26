@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: nntp.c,v 1.16 2008/12/28 12:20:14 mbse Exp $
  * Purpose ...............: MBSE BBS Internet Library
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -249,7 +248,7 @@ int nntp_cmd(char *cmd, int resp)
 	if (strncmp(p, rsp, strlen(rsp))) {
 		WriteError("NNTP> %s", cmd);
 		WriteError("NNTP< %s", p);
-		memset(&resp, 0, sizeof(rsp));
+		memset(rsp, 0, sizeof(rsp));
 		strncpy(rsp, p, 3);
 		return atoi(rsp);
 	}

@@ -1,3 +1,20 @@
+v0.95.11	14-Jan-2011 (patches by Scott Street).
+
+	mbselib:
+		Fixed memory corruption error in mbnntp.
+		Added sysop in nodelist search function.
+
+	mbsebbs:
+		Fixed several (possible) buffer overflows, some serious ones.
+		Added lookup sysop in nodelist for netmail messages.
+
+	mbtask:
+		Fixed several (possible) buffer overflows.
+
+	lang:
+		Added language prompts 480 and 481.
+
+
 v0.95.10       26-Aug-2010 (released by Vince Coen).
 
 	mbsetup:

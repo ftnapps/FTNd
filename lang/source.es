@@ -478,3 +478,5 @@ YN|Adjuntar fichero [s/N]:
 |Usar tu alias (
 SN|) para este mensaje [S/n]: 
 |No hay mas areas con mensajes no leidos
+|Addresse not in Nodelist
+|Found Addresse in Nodelist

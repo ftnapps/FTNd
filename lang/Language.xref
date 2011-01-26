@@ -478,3 +478,5 @@
 477	mail.c				|Use your alias (
 478	mail.c				YN|) to post this message [Y/n]: 
 479	mail.c				|No more areas with unread messages
+480	mail.c				|Addresse not in Nodelist
+481	mail.c				|Found Addresse in Nodelist

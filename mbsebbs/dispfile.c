@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: dispfile.c,v 1.26 2007/09/02 15:04:36 mbse Exp $
  * Purpose ...............: Display ANSI/ASCII textfiles
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -314,7 +313,7 @@ int DisplayFile(char *filename)
 			    break;
 
 		default:    snprintf(tmp1, sizeof(tmp1)-1, "%c", buf[x]);
-			    strncat(out, tmp1, sizeof(out));
+			    strncat(out, tmp1, sizeof(out)-1);
 	    } /* switch */
 	} /* for */
 

@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: m_lang.c,v 1.25 2007/02/17 12:14:27 mbse Exp $
  * Purpose ...............: Setup Languages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -126,7 +125,7 @@ void UpgradeLanguage(char *name, char *lc)
 		WriteError("$Can't move %s to %s", lang.xMenuPath, temp);
 	    } else {
 		Syslog('+', "Moved %s to %s", lang.xMenuPath, temp);
-		snprintf(lang.xMenuPath, PATH_MAX, temp);
+		snprintf(lang.xMenuPath, sizeof(lang.xMenuPath), temp);
 	    }
 	} else {
 	    Syslog('+', "%s already upgraded", temp);
@@ -140,7 +139,7 @@ void UpgradeLanguage(char *name, char *lc)
 		WriteError("$Can't move %s to %s", lang.xTextPath, temp);
 	    } else {
 		Syslog('+', "Moved %s to %s", lang.xTextPath, temp);
-		snprintf(lang.xTextPath, PATH_MAX, temp);
+		snprintf(lang.xTextPath, sizeof(lang.xTextPath), temp);
 	    }
 	} else {
 	    Syslog('+', "%s already upgraded", temp);
@@ -154,7 +153,7 @@ void UpgradeLanguage(char *name, char *lc)
 		WriteError("$Can't move %s to %s", lang.xMacroPath, temp);
 	    } else {
 		Syslog('+', "Moved %s to %s", lang.xMacroPath, temp);
-		snprintf(lang.xMacroPath, PATH_MAX, temp);
+		snprintf(lang.xMacroPath, sizeof(lang.xMacroPath), temp);
 	    }
 	} else {
 	    Syslog('+', "%s already upgraded", temp);

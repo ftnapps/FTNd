@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * $Id: mail.c,v 1.69 2008/02/12 19:59:45 mbse Exp $
  * Purpose ...............: Message reading and writing.
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -503,8 +502,38 @@ void Post_Msg()
 	    } else if (msgs.Type == NETMAIL) {
 		x = FALSE;
 		Enter(1);
-		pout(YELLOW, BLACK, (char *)"Address  : ");
 		FidoNode = calloc(61, sizeof(char));
+                /*
+                 * Search for Name in Sysop Index of Nodelist
+                 */
+                node_list *nodesSysop;
+                node_list *thisNode;
+                node_list *prevNode;
+ 
+                if ( NULL ==( nodesSysop=searchSysop(Msg.To) )){
+                        snprintf(msg, 81, "%s\r\n\n", (char*)Language(480));
+                        pout(RED, BLACK, msg);
+                } else {
+                        snprintf(msg, 81, "%s\r\n\n", (char*)Language(481));
+                        pout(GREEN, BLACK, msg);
+                        thisNode = nodesSysop;
+                        while ( thisNode != NULL ){
+                                snprintf(msg, 81, "(%d:%d/%d:%d) %s @ %s\r\n",
+                                        thisNode->addr.zone, thisNode->addr.net,
+                                        thisNode->addr.node, thisNode->addr.point,
+                                        thisNode->Name, thisNode->Location);
+                                pout(CYAN, BLACK, msg);
+                                prevNode = thisNode;
+                                thisNode = thisNode->next;
+                                free( prevNode );
+                        }
+                        pout(YELLOW, BLACK, (char *)"\r\n");
+                }
+                /*
+                 * End Search
+                 */
+ 
+                pout(YELLOW, BLACK, (char *)"Address  : ");
 		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 		GetstrC(FidoNode, 60);
 
@@ -1610,9 +1639,9 @@ void Reply_Msg(int IsReply)
 	Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
     Msg_New();
 
-    strncpy(Msg.Replyid, msgid, 101);
-    strncpy(Msg.ReplyTo, replyto, 101);
-    strncpy(Msg.ReplyAddr, replyaddr, 101);
+    strncpy(Msg.Replyid, msgid, sizeof(Msg.Replyid));
+    strncpy(Msg.ReplyTo, replyto, sizeof(Msg.ReplyTo));
+    strncpy(Msg.ReplyAddr, replyaddr, sizeof(Msg.ReplyAddr));
 
     /* From     : */
     if (Alias_Option()) {
