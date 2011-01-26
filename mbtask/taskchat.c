@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: taskchat.c,v 1.63 2006/05/27 13:19:53 mbse Exp $
  * Purpose ...............: mbtask - chat server
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -455,23 +454,23 @@ void chat_connect_r(char *data, char *buf)
 	     * Now put welcome message into the ringbuffer and report success.
 	     */
 	    temp = calloc(81, sizeof(char));
-	    snprintf(temp, 200, "MBSE BBS v%s chat server; type /help for help", VERSION);
+	    snprintf(temp, 80, "MBSE BBS v%s chat server; type /help for help", VERSION);
 	    system_msg(usr_list[i].pid, temp);
-	    snprintf(temp, 200, "Welcome to the Internet BBS Chat Network");
+	    snprintf(temp, 80, "Welcome to the Internet BBS Chat Network");
 	    system_msg(usr_list[i].pid, temp);
-	    snprintf(temp, 200, "Current connected servers:");
+	    snprintf(temp, 80, "Current connected servers:");
 	    system_msg(usr_list[i].pid, temp);
 	    for (j = 0; j < MAXIBC_SRV; j++) {
 		if (strlen(srv_list[j].server)) {
-		    snprintf(temp, 200, "  %d user%s at '%s'",
+		    snprintf(temp, 80, "  %d user%s at '%s'",
 			    srv_list[j].users, (srv_list[j].users == 1) ? " ":"s", srv_list[j].fullname);
 		    system_msg(usr_list[i].pid, temp);
 		    count += srv_list[j].users;
 		}
 	    }
-	    snprintf(temp, 200, "There %s %d user%s connected", (count != 1)?"are":"is", count, (count != 1)?"s":"");
+	    snprintf(temp, 80, "There %s %d user%s connected", (count != 1)?"are":"is", count, (count != 1)?"s":"");
 	    system_msg(usr_list[i].pid, temp);
-	    snprintf(buf, 200, "100:0;");
+	    snprintf(buf, 80, "100:0;");
 	    free(realname);
 	    free(nick);
 	    free(temp);

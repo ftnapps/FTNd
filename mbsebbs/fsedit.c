@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: fsedit.c,v 1.28 2007/08/25 18:32:08 mbse Exp $
  * Purpose ...............: FullScreen Message editor.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -395,8 +394,11 @@ int FsWordWrap()
 	    if ((WCol == 80) && (Col >= WCol))
 		WCol = strlen((char *)tmpLine)+1; 
 	    else {
-		if (tmpLine[strlen((char *)tmpLine)] != ' ')
-		    snprintf((char *)tmpLine + strlen((char *)tmpLine), 1, " ");
+		if (tmpLine[strlen((char *)tmpLine)] != ' '){
+		    int tmpLength=strlen((char *)tmpLine);
+		    tmpLine[tmpLength] = ' ';
+		    tmpLine[tmpLength+1] = '\0';
+		}
 		WCol = strlen((char *)tmpLine);
 	    }
 	    snprintf(Message[CurRow+1], TEXTBUFSIZE +1, "%s", strcat((char *)tmpLine, Message[CurRow+1]));

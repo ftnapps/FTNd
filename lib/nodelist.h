@@ -41,6 +41,16 @@ typedef struct	_node {
 
 
 
+typedef struct         _node_list {
+	struct  _node_list *next;
+	faddr   addr;
+	char    Name[80];
+	char    Sysop[80];
+	char    Location[80];
+} node_list;
+
+
+
 /*
  * Memory array structures read from nodelist.conf
  */
@@ -122,7 +132,7 @@ nodelist_service    *nl_service;
 int		initnl(void);
 void		deinitnl(void);
 node		*getnlent(faddr *);
-
+node_list	*searchSysop(char *);
 
 #endif
 

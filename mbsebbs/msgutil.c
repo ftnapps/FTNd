@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: msgutil.c,v 1.24 2005/10/11 20:49:48 mbse Exp $
  * Purpose ...............: Utilities for message handling.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -160,7 +159,7 @@ void Add_Headkludges(faddr *dest, int IsReply)
     time_t	    tt;
     faddr	    *Node;
 
-    temp = calloc(128, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
 
     switch (msgs.Type) {
 	case LOCALMAIL:	Msg.Localmail = TRUE;

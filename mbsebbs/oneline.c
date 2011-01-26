@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: oneline.c,v 1.15 2007/02/26 14:48:23 mbse Exp $
  * Purpose ...............: Oneliner functions.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -196,7 +195,7 @@ char *Oneliner_Get()
     /*
      * Get a random oneliner
      */
-    sFileName = calloc(128, sizeof(char));
+    sFileName = calloc(PATH_MAX, sizeof(char));
     snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
