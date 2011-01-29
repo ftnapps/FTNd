@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: session.c,v 1.37 2007/10/14 13:15:34 mbse Exp $
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -63,7 +62,8 @@ int	session_state = STATE_BAD;
 
 static	char *data=NULL;
 
-struct  sockaddr_in peeraddr;
+struct  sockaddr_in peeraddr4;
+struct	sockaddr_in6 peeraddr6;
 
 
 char *typestr(int);
@@ -103,6 +103,17 @@ void geoiplookup(GeoIP* gi, char *hostname, int i)
 	    Syslog('+', "GeoIP location: %s, %s %s\n", country_name, country_code, country_continent);
 	}
     }
+    if (GEOIP_COUNTRY_EDITION_V6 == i) {
+	country_id = GeoIP_id_by_name_v6(gi, hostname);
+	country_code = GeoIP_country_code[country_id];
+	country_name = GeoIP_country_name[country_id];
+	country_continent = GeoIP_country_continent[country_id];
+	if (country_code == NULL) {
+	    Syslog('+', "%s: IP Address not found\n", GeoIPDBDescription[i]);
+	} else {
+	    Syslog('+', "GeoIP location: %s, %s %s\n", country_name, country_code, country_continent);
+	}
+    }
 }
 #endif
 
@@ -111,12 +122,12 @@ void geoiplookup(GeoIP* gi, char *hostname, int i)
 int session(faddr *a, node *nl, int role, int tp, char *dt)
 {
     int	    rc = MBERR_OK; 
-    socklen_t	addrlen = sizeof(struct sockaddr_in);
+    socklen_t	addrlen = sizeof(struct sockaddr_in6);
     fa_list *tmpl;
     int	    Fdo = -1, input_pipe[2], output_pipe[2];
     pid_t   ipid, opid;
+    char    str[INET6_ADDRSTRLEN];
 #ifdef	HAVE_GEOIP_H
-    char    *hostname;
     GeoIP   *gi;
 #endif
 
@@ -124,18 +135,26 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
     session_type = tp;
     nlent = nl;
 
-    if (getpeername(0,(struct sockaddr*)&peeraddr,&addrlen) == 0) {
-	Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
-			addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
+    if (getpeername(0,(struct sockaddr *)&peeraddr6, &addrlen) == 0) {
+	/*
+	 * Copy IPv4 part into the IPv6 structure. There has to be a better way
+	 * to deal with mixed incoming sockets ???
+	 */
+	memcpy(&peeraddr4, &peeraddr6, sizeof(struct sockaddr_in));
+	if ((peeraddr6.sin6_family == AF_INET6) && (inet_ntop(AF_INET6, &peeraddr6.sin6_addr, str, sizeof(str)))) {
+	    Syslog('s', "IPv6 TCP connection: len=%d, port=%hu, addr=%s", addrlen, ntohs(peeraddr6.sin6_port), str);
+	} else if ((peeraddr4.sin_family == AF_INET) && (inet_ntop(AF_INET, &peeraddr4.sin_addr, str, sizeof(str))))  {
+	    Syslog('s', "IPv4 TCP connection: len=%d, port=%hu, addr=%s", addrlen, ntohs(peeraddr4.sin_port), str);
+	}
 	if (role == 0) {
 	    if (tcp_mode == TCPMODE_IBN) {
-		Syslog('+', "Incoming IBN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
+		Syslog('+', "Incoming IBN/TCP connection from %s", str);
 		IsDoing("Incoming IBN/TCP");
 	    } else if (tcp_mode == TCPMODE_IFC) {
-		Syslog('+', "Incoming IFC/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
+		Syslog('+', "Incoming IFC/TCP connection from %s", str);
 		IsDoing("Incoming IFC/TCP");
 	    } else if (tcp_mode == TCPMODE_ITN) {
-		Syslog('+', "Incoming ITN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
+		Syslog('+', "Incoming ITN/TCP connection from %s", str);
 		IsDoing("Incoming ITN/TCP");
 	    } else if (tcp_mode == TCPMODE_NONE) {
 		WriteError("Unknown TCP connection, parameter missing");
@@ -145,13 +164,21 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	session_flags |= SESSION_TCP;
 
 #ifdef	HAVE_GEOIP_H
-	hostname = inet_ntoa(peeraddr.sin_addr);
 	_GeoIP_setup_dbfilename();
-	if (GeoIP_db_avail(GEOIP_COUNTRY_EDITION)) {
-	    if ((gi = GeoIP_open_type(GEOIP_COUNTRY_EDITION, GEOIP_STANDARD)) != NULL) {
-		geoiplookup(gi, hostname, GEOIP_COUNTRY_EDITION);
+	if (peeraddr6.sin6_family == AF_INET6) {
+	    if (GeoIP_db_avail(GEOIP_COUNTRY_EDITION_V6)) {
+		if ((gi = GeoIP_open_type(GEOIP_COUNTRY_EDITION_V6, GEOIP_STANDARD)) != NULL) {
+		    geoiplookup(gi, str, GEOIP_COUNTRY_EDITION_V6);
+		}
+		GeoIP_delete(gi);
 	    }
-	    GeoIP_delete(gi);
+	} else if (peeraddr6.sin6_family == AF_INET) {
+	    if (GeoIP_db_avail(GEOIP_COUNTRY_EDITION)) {
+	    	if ((gi = GeoIP_open_type(GEOIP_COUNTRY_EDITION, GEOIP_STANDARD)) != NULL) {
+		    geoiplookup(gi, str, GEOIP_COUNTRY_EDITION);
+	    	}
+	    	GeoIP_delete(gi);
+	    }
 	}
 #endif
 
@@ -163,7 +190,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	     * since it's now on stadin and stdout.
 	     */
 	    Fdo = dup(0);
-	    Syslog('s', "session: new socket %d", Fdo);
 
 	     /*
 	      * Close stdin and stdout so that when we create the pipes to

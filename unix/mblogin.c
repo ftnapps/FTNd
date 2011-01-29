@@ -448,34 +448,12 @@ int main(int argc, char **argv)
     STRFCPY(tty, utent.ut_line);
 
     if (hflg) {
-#ifdef UT_ADDR
-	struct hostent *he;
-
-        /*
-         * Fill in the ut_addr field (remote login IP address).
-         * XXX - login from util-linux does it, but this is not
-         * the right place to do it.  The program that starts
-         * login (telnetd, rlogind) knows the IP address, so it
-         * should create the utmp entry and fill in ut_addr.
-         * gethostbyname() is not 100% reliable (the remote host
-         * may be unknown, etc.).  --marekm
-         */
-
-        if ((he = gethostbyname(hostname))) {
-	    utent.ut_addr = *((int32_t *)(he->h_addr_list[0]));
-#endif
-#ifdef UT_HOST
-	    strncpy(utent.ut_host, hostname, sizeof(utent.ut_host));
-#endif
-#if HAVE_UTMPX_H
-	    strncpy(utxent.ut_host, hostname, sizeof(utxent.ut_host));
-#endif
-	    /*
-	     * Add remote hostname to the environment.  I think
-	     * (not sure) I saw it once on Irix.  --marekm
-	     */
-	    addenv("REMOTEHOST", hostname);
-	}
+	/*
+	 * Add remote hostname to the environment.  I think
+	 * (not sure) I saw it once on Irix.  --marekm
+	 */
+	addenv("REMOTEHOST", hostname);
+    }
 
 #ifdef __linux__ 
 	/* workaround for init/getty leaving junk in ut_host at least in some

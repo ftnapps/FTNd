@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: opentcp.c,v 1.27 2006/07/17 18:54:16 mbse Exp $
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -59,26 +58,32 @@ static int	tcp_is_open = FALSE;
 
 
 
-/* opentcp() was rewritten by Martin Junius */
-
-int opentcp(char *name)
+/*
+ * Parameter may be:
+ *    host.example.com  
+ *    host.example.com:portnumber
+ *    host.example.com:portname
+ */
+int opentcp(char *servname)
 {
     struct servent	*se;
-    struct hostent	*he;
     struct sockaddr_in  server;
-    int			a1, a2, a3, a4, GotPort = FALSE;
-    char		*errmsg, *portname;
-    short		portnum;
+    int			rc, GotPort = FALSE;
+    char		*portname, *ipver = NULL, servport[20], ipstr[INET6_ADDRSTRLEN];
+    u_int16_t		portnum;
+    struct addrinfo	hints, *res=NULL, *p;
 
-    Syslog('+', "Open TCP connection to \"%s\"", MBSE_SS(name));
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
 
+    Syslog('+', "Open TCP connection to \"%s\"", MBSE_SS(servname));
     tcp_is_open = FALSE;
-    server.sin_family = AF_INET;
 
     /*
      * Get port number from name argument if there is a : part
      */
-    if ((portname = strchr(name,':'))) {
+    if ((portname = strchr(servname,':'))) {
 	*portname++='\0';
 	if ((portnum = atoi(portname))) {
 	    server.sin_port=htons(portnum);
@@ -112,23 +117,16 @@ int opentcp(char *name)
 	    default:		server.sin_port = htons(FIDOPORT);
 	}
     }
+    snprintf(servport, 19, "%d", ntohs(server.sin_port));
 
     /*
-     * Get IP address for the hostname
+     * Lookup hostname and return list of IPv4 and or IPv6 addresses.
      */
-    if (sscanf(name,"%d.%d.%d.%d",&a1,&a2,&a3,&a4) == 4)
-	server.sin_addr.s_addr = inet_addr(name);
-    else if ((he = gethostbyname(name)))
-	memcpy(&server.sin_addr,he->h_addr,he->h_length);
-    else {
-	switch (h_errno) {
-	    case HOST_NOT_FOUND:    errmsg = (char *)"Authoritative: Host not found"; break;
-	    case TRY_AGAIN:	    errmsg = (char *)"Non-Authoritive: Host not found"; break;
-	    case NO_RECOVERY:	    errmsg = (char *)"Non recoverable errors"; break;
-	    case NO_ADDRESS:	    errmsg = (char *)"Host has no IP address"; break;
-	    default:		    errmsg = (char *)"Unknown error"; break;
-	}
-	Syslog('+', "No IP address for %s: %s\n", name, errmsg);
+    if ((rc = getaddrinfo(servname, servport, &hints, &res))) {
+	if (rc == EAI_SYSTEM)
+	    WriteError("opentcp: getaddrinfo() failed");
+	else
+	    Syslog('+', "Host not found --> %s\n", gai_strerror(rc));
 	return -1;
     }
 
@@ -142,29 +140,68 @@ int opentcp(char *name)
     close(0);
     close(1);
 
-    if ((fd = socket(AF_INET,SOCK_STREAM,0)) != 0) {
-        WriteError("$Cannot create socket (got %d, expected 0)", fd);
-        open("/dev/null",O_RDONLY);
-        open("/dev/null",O_WRONLY);
-        return -1;
+    /*
+     * In case a node has a A and AAAA dns entry, we now have a list of
+     * possible connections to make, we try them until we succeed.
+     * Most likely, the first one is ok.
+     * Nice that this also works for clustered hosts, not that we will
+     * find any in fidonet, but .....
+     */
+    for (p = res; p != NULL; p = p->ai_next) {
+	void	*addr;
+
+	rc = 0;
+	if (p->ai_family == AF_INET) {
+	    struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+	    addr = &(ipv4->sin_addr);
+	    ipver = (char *)"IPv4";
+	} else {
+	    struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+	    addr = &(ipv6->sin6_addr);
+	    ipver = (char *)"IPv6";
+	}
+	inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+	Syslog('+', "Trying %s %s port %s", ipver, ipstr, servport);
+
+    	if ((fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) != 0) {
+	    if (fd > 0)
+		WriteError("Cannot create socket (got %d, expected 0)", fd);
+	    else
+            	WriteError("$Cannot create socket");
+            rc = -1;
+    	} else {
+    	    if (dup(fd) != 1) {
+        	WriteError("$Cannot dup socket");
+        	rc = -1;
+            } else {
+    		clearerr(stdin);
+    		clearerr(stdout);
+    		if (connect(fd, p->ai_addr, p->ai_addrlen) == -1) {
+        	    Syslog('+', "$Cannot connect %s port %s", ipstr, servport);
+		    close(fd+1);	/* close duped socket	*/
+		    close(fd);		/* close this socket	*/
+		    rc = -1;
+    		} else {
+		    /*
+		     * Connected, leave this loop
+		     */
+		    break;
+		}
+	    }
+	}
     }
-    if (dup(fd) != 1) {
-        WriteError("$Cannot dup socket");
-        open("/dev/null",O_WRONLY);
-        return -1;
-    }
-    clearerr(stdin);
-    clearerr(stdout);
-    if (connect(fd,(struct sockaddr *)&server,sizeof(server)) == -1) {
-        Syslog('+', "$Cannot connect %s",inet_ntoa(server.sin_addr));
+    if (rc == -1) {
+	open("/dev/null", O_RDONLY);
+	open("/dev/null", O_WRONLY);
+	freeaddrinfo(res);
 	return -1;
     }
 
     f_flags=0;
-
-    Syslog('+', "Established %s/TCP connection with %s, port %d", 
+    Syslog('+', "Established %s/TCP %s connection with %s, port %s", 
 	(tcp_mode == TCPMODE_IFC) ? "IFC":(tcp_mode == TCPMODE_ITN) ?"ITN":(tcp_mode == TCPMODE_IBN) ? "IBN":"Unknown",
-	inet_ntoa(server.sin_addr), (int)ntohs(server.sin_port));
+	ipver, ipstr, servport);
+    freeaddrinfo(res);
     c_start = time(NULL);
     carrier = TRUE;
     tcp_is_open = TRUE;
@@ -181,7 +218,7 @@ void closetcp(void)
     if (!tcp_is_open)
 	return;
 
-    shutdown(fd, 2);
+    shutdown(fd, SHUT_RDWR);
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
 
