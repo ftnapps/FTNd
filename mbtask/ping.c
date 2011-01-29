@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: ping.c,v 1.41 2006/05/22 12:09:15 mbse Exp $
  * Purpose ...............: mbtask - ping functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -349,7 +348,7 @@ void check_ping(void)
 
 	ping_next = (time_t)(now + 20);
 
-	if (inet_aton(pingaddress, &paddr)) {
+	if (inet_pton(AF_INET, pingaddress, &paddr)) {
 	    pingresult[pingnr - 1] = FALSE;
 	    rc = ping_send(paddr);
 	    if (rc) {

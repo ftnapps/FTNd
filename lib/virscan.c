@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: virscan.c,v 1.3 2008/02/25 12:11:42 mbse Exp $
  * Purpose ...............: Scan a file for virusses
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -43,43 +42,55 @@ extern pid_t	mypid;
  *          1 = Virus found.
  *          2 = Internal error.
  */
-int clam_stream_check(char *server, char *port, char *filename)
+int clam_stream_check(char *servname, char *servport, char *filename)
 {
     struct sockaddr_in	sa_in;
-    struct addrinfo	hints, *res;
+    struct addrinfo	hints, *res = NULL, *p;
     int			s, ss, buf_len = 0, err;
-    char		buf[1024], *buf_c, *port_s;
+    char		buf[1024], *buf_c, *port_s, *ipver = NULL, ipstr[INET6_ADDRSTRLEN];
     FILE		*fp;
 
-    Syslog('f', "clam_stream_check(%s, %s, %s)", server, port, filename);
+    Syslog('f', "clam_stream_check(%s, %s, %s)", servname, servport, filename);
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = PF_INET;
+    hints.ai_family   = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((err = getaddrinfo(server, port, &hints, &res)) != 0) {
-	WriteError("getaddrinfo(%s:%s): %s\n", server, port, gai_strerror(err));
+    if ((err = getaddrinfo(servname, servport, &hints, &res)) != 0) {
+	WriteError("getaddrinfo(%s:%s): %s\n", servname, servport, gai_strerror(err));
 	return 2;
     }
 
-    while (res) {
-	s = socket(PF_INET, SOCK_STREAM, 0);
-	if (s == -1) {
+    for (p = res; p != NULL; p = p->ai_next) {
+	void	*addr;
+
+	if (p->ai_family == AF_INET) {
+	    struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+	    addr = &(ipv4->sin_addr);
+	    ipver = (char *)"IPv4";
+	} else {
+	    struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+	    addr = &(ipv6->sin6_addr);
+	    ipver = (char *)"IPv6";
+	}
+	inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+	Syslog('+', "Trying %s %s port %s", ipver, ipstr, servport);
+
+	if ((s = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
 	    WriteError("$socket()");
 	    return 2;
 	}
 
-	if (connect(s, res->ai_addr, sizeof(struct sockaddr)) == -1) {
-	    struct sockaddr_in *sa = (struct sockaddr_in *)res->ai_addr;
-	    WriteError("$connect(%s:%d)", inet_ntoa(sa->sin_addr), (int)ntohs(sa->sin_port));
-	    res = res->ai_next;
+	if (connect(s, p->ai_addr, p->ai_addrlen) == -1) {
+	    WriteError("$connect %s port %s", ipstr, servport);
+	    p = p->ai_next;
 	    close(s);
 	} else {
 	    break;
 	}
     }
 
-    if (res == NULL) {
-	WriteError("unable to connect to %s", server);
+    if (p == NULL) {
+	WriteError("unable to connect to %s", servname);
 	return 2;
     }
 

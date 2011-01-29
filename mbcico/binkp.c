@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * $Id: binkp.c,v 1.135 2007/08/26 14:02:28 mbse Exp $
  * Purpose .................: Fidonet binkp protocol
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -72,7 +71,7 @@ extern char	*tempinbound;
 extern char	*ttystat[];
 extern int	Loaded;
 extern pid_t	mypid;
-extern struct sockaddr_in   peeraddr;
+extern struct sockaddr_in   peeraddr4;
 extern int	most_debug;
 extern int	laststat;
 extern int	crashme;
@@ -693,7 +692,7 @@ SM_STATE(WaitConn)
 	SM_ERROR;
     }
 
-    if (!CFG.NoMD5 && ((bp.MD_Challenge = MD_getChallenge(NULL, &peeraddr)) != NULL)) {
+    if (!CFG.NoMD5 && ((bp.MD_Challenge = MD_getChallenge(NULL, &peeraddr4)) != NULL)) {
 	/*
 	 * Answering site MUST send CRAM message as very first M_NUL
 	 */

@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: pop3.c,v 1.8 2007/08/25 15:29:14 mbse Exp $
  * Purpose ...............: MBSE BBS Internet Library
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -33,81 +32,78 @@
 #include "mbinet.h"
 
 
-static int		pop3sock = -1;	/* TCP/IP socket		*/
-struct hostent		*php;		/* Host info remote		*/
-struct servent		*psp;		/* Service information		*/
-struct sockaddr_in	pop3_loc;	/* For local socket address	*/
-struct sockaddr_in	pop3_rem;	/* For remote socket address	*/
+static int	pop3sock = -1;	/* TCP/IP socket		*/
 
 
 
 int pop3_connect(void)
 {
-	socklen_t addrlen;
-	char	*p;
+    char		*q, *ipver = NULL, ipstr[INET6_ADDRSTRLEN];
+    struct addrinfo	hints, *res = NULL, *p;
+    int			rc;
 
-	if (!strlen(CFG.popnode)) {
-		WriteError("POP3: host not configured");
-		return -1;
+    if (!strlen(CFG.popnode)) {
+	WriteError("POP3: host not configured");
+	return -1;
+    }
+
+    Syslog('+', "POP3: connecting host: %s", CFG.popnode);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((rc = getaddrinfo(CFG.popnode, "pop3", &hints, &res)) != 0) {
+	WriteError("getaddrinfo %s: %s\n", CFG.popnode, gai_strerror(rc));
+	return -1;
+    }
+
+    for (p = res; p != NULL; p = p->ai_next) {
+	void	*addr;
+
+	if (p->ai_family == AF_INET) {
+	    struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+	    addr = &(ipv4->sin_addr);
+	    ipver = (char *)"IPv4";
+	} else {
+	    struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+	    addr = &(ipv6->sin6_addr);
+	    ipver = (char *)"IPv6";
 	}
+	inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+	Syslog('+', "Trying %s %s port pop3", ipver, ipstr);
 
-	Syslog('+', "POP3: connecting host: %s", CFG.popnode);
-	memset(&pop3_loc, 0, sizeof(struct sockaddr_in));
-	memset(&pop3_rem, 0, sizeof(struct sockaddr_in));
-
-	pop3_rem.sin_family = AF_INET;
-
-	if ((php = gethostbyname(CFG.popnode)) == NULL) {
-		WriteError("POP3: can't find host %s", CFG.popnode);
-		return -1;
+	if ((pop3sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+	    WriteError("$socket()");
+	    return -1;
+	} else {
+	    if (connect(pop3sock, p->ai_addr, p->ai_addrlen) == -1) {
+	    	WriteError("$connect %s port pop3", ipstr);
+	    	close(pop3sock);
+	    } else {
+	    	break;
+	    }
 	}
+    }
+    if (p == NULL) {
+	return -1;	/* Not connected */
+    }
 
-	pop3_rem.sin_addr.s_addr = ((struct in_addr *)(php->h_addr))->s_addr;
+    q = pop3_receive();
+    if (strlen(q) == 0) {
+	WriteError("POP3: no response from server");
+	pop3_close();
+	return -1;
+    }
 
-	if ((psp = getservbyname("pop3", "tcp")) == NULL) {
-		/*
-		 * RedHat doesn't follow IANA specs and uses pop-3 in /etc/services
-		 */
-		if ((psp = getservbyname("pop-3", "tcp")) == NULL) {
-			WriteError("POP3: can't find service port for pop3/tcp");
-			return -1;
-		}
-	}
-	pop3_rem.sin_port = psp->s_port;
+    if (strncmp(q, "+OK", 3)) {
+	WriteError("POP3: bad response: %s", q);
+	pop3_close();
+	return -1;
+    }
 
-	if ((pop3sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-		WriteError("$POP3: unable to create tcp socket");
-		return -1;
-	}
+    Syslog('+', "POP3: %s", q);
 
-	if (connect(pop3sock, (struct sockaddr *)&pop3_rem, sizeof(struct sockaddr_in)) == -1) {
-		WriteError("$POP3: cannot connect tcp socket");
-		return -1;
-	}
-
-	addrlen = sizeof(struct sockaddr_in);
-
-	if (getsockname(pop3sock, (struct sockaddr *)&pop3_loc, &addrlen) == -1) {
-		WriteError("$POP3: unable to read socket address");
-		return -1;
-	}
-
-	p = pop3_receive();
-	if (strlen(p) == 0) {
-		WriteError("POP3: no response from server");
-		pop3_close();
-		return -1;
-	}
-
-	if (strncmp(p, "+OK", 3)) {
-		WriteError("POP3: bad response: %s", p);
-		pop3_close();
-		return -1;
-	}
-
-	Syslog('+', "POP3: %s", p);
-	
-	return pop3sock;
+    return pop3sock;
 }
 
 

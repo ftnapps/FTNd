@@ -1,3 +1,20 @@
+	mbselib:
+		The virus stream scanner can now uses IPv4 and/or IPv6 to
+		connect to the clamav server and can use server clusters too.
+		Connect smtp, pop3 and nntp upgraded to IPv4 and IPv6 use.
+
+	mbcico:
+		Can accept both IPv6 and IPv4 calls.
+		Can call IPv4 and IPv6 nodes.
+
+	mbtask:
+		Upgraded the ping function to newer system calls. Note that
+		for now I leave the interbbs chat IPv4 only.
+
+	mblogin:
+		Don't use gethostbyname function.
+
+
 v0.95.11	14-Jan-2011 (patches by Scott Street).
 
 	mbselib:

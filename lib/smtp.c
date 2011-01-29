@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: smtp.c,v 1.10 2007/08/25 15:29:14 mbse Exp $
  * Purpose ...............: MBSE BBS Internet Library
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -34,84 +33,86 @@
 
 
 static int		smtpsock = -1;	/* TCP/IP socket		*/
-struct hostent		*shp;		/* Host info remote		*/
-struct servent		*ssp;		/* Service information		*/
-struct sockaddr_in	smtp_loc;	/* For local socket address	*/
-struct sockaddr_in	smtp_rem;	/* For remote socket address	*/
 
 
 
 int smtp_connect(void)
 {
-	socklen_t addrlen;
-	char	*p, temp[40];
+    char                *q, *ipver = NULL, ipstr[INET6_ADDRSTRLEN], temp[41];
+    struct addrinfo     hints, *res = NULL, *p;
+    int                 rc;
 
-	if (smtpsock != -1)
-		return smtpsock;
-
-	if (!strlen(CFG.smtpnode)) {
-		WriteError("SMTP: host not configured");
-		return -1;
-	}
-
-	Syslog('+', "SMTP: connecting host: %s", CFG.smtpnode);
-	memset(&smtp_loc, 0, sizeof(struct sockaddr_in));
-	memset(&smtp_rem, 0, sizeof(struct sockaddr_in));
-
-	smtp_rem.sin_family = AF_INET;
-
-	if ((shp = gethostbyname(CFG.smtpnode)) == NULL) {
-		WriteError("SMTP: can't find host %s", CFG.smtpnode);
-		return -1;
-	}
-
-	smtp_rem.sin_addr.s_addr = ((struct in_addr *)(shp->h_addr))->s_addr;
-
-	if ((ssp = getservbyname("smtp", "tcp")) == NULL) {
-		WriteError("SMTP: can't find service port for smtp/tcp");
-		return -1;
-	}
-	smtp_rem.sin_port = ssp->s_port;
-
-	if ((smtpsock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-		WriteError("$SMTP: unable to create tcp socket");
-		return -1;
-	}
-
-	if (connect(smtpsock, (struct sockaddr *)&smtp_rem, sizeof(struct sockaddr_in)) == -1) {
-		WriteError("$SMTP: can't connect tcp socket");
-		return -1;
-	}
-
-	addrlen = sizeof(struct sockaddr_in);
-
-	if (getsockname(smtpsock, (struct sockaddr *)&smtp_loc, &addrlen) == -1) {
-		WriteError("$SMTP: unable to read socket address");
-		return -1;
-	}
-
-	p = smtp_receive();
-	if (strlen(p) == 0) {
-		WriteError("SMTP: no response");
-		smtp_close();
-		return -1;
-	}
-
-	if (strncmp(p, "220", 3)) {
-		WriteError("SMTP: bad response: %s", p);
-		smtp_close();
-		return -1;
-	}
-
-	Syslog('+', "SMTP: %s", p);
-	
-	snprintf(temp, 40, "HELO %s\r\n", CFG.sysdomain);
-	if (smtp_cmd(temp, 250)) {
-		smtp_close();
-		return -1;
-	}
-
+    if (smtpsock != -1)
 	return smtpsock;
+
+    if (!strlen(CFG.smtpnode)) {
+	WriteError("SMTP: host not configured");
+	return -1;
+    }
+
+    Syslog('+', "SMTP: connecting host: %s", CFG.smtpnode);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((rc = getaddrinfo(CFG.popnode, "smtp", &hints, &res)) != 0) {
+        WriteError("getaddrinfo %s: %s\n", CFG.popnode, gai_strerror(rc));
+        return -1;
+    }
+
+    for (p = res; p != NULL; p = p->ai_next) {
+        void    *addr;
+
+        if (p->ai_family == AF_INET) {
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+            addr = &(ipv4->sin_addr);
+            ipver = (char *)"IPv4";
+        } else {
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+            addr = &(ipv6->sin6_addr);
+            ipver = (char *)"IPv6";
+        }
+        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+        Syslog('+', "Trying %s %s port pop3", ipver, ipstr);
+
+        if ((smtpsock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+            WriteError("$socket()");
+            return -1;
+        } else {
+            if (connect(smtpsock, p->ai_addr, p->ai_addrlen) == -1) {
+                WriteError("$connect %s port pop3", ipstr);
+                close(smtpsock);
+            } else {
+                break;
+            }
+        }
+    }
+    if (p == NULL) {
+        return -1;      /* Not connected */
+    }
+
+    q = smtp_receive();
+    if (strlen(q) == 0) {
+	WriteError("SMTP: no response");
+	smtp_close();
+	return -1;
+    }
+
+    if (strncmp(q, "220", 3)) {
+	WriteError("SMTP: bad response: %s", q);
+	smtp_close();
+	return -1;
+    }
+
+    Syslog('+', "SMTP: %s", q);
+
+    snprintf(temp, 40, "HELO %s\r\n", CFG.sysdomain);
+    if (smtp_cmd(temp, 250)) {
+	smtp_close();
+	return -1;
+    }
+
+    return smtpsock;
 }
 
 

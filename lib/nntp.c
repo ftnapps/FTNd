@@ -32,19 +32,15 @@
 #include "mbinet.h"
 
 
-static int		nntpsock = -1;	/* TCP/IP socket		*/
-struct hostent		*nhp;		/* Host info remote		*/
-struct servent		*nsp;		/* Service information		*/
-struct sockaddr_in	nntp_loc;	/* For local socket address	*/
-struct sockaddr_in	nntp_rem;	/* For remote socket address	*/
-
+static int	nntpsock = -1;	/* TCP/IP socket		*/
 
 
 
 int nntp_connect(void)
 {
-    socklen_t	addrlen;
-    char	*p;
+    char                *q, *ipver = NULL, ipstr[INET6_ADDRSTRLEN], servport[10];
+    struct addrinfo     hints, *res = NULL, *p;
+    int                 rc;
 
     if (nntpsock != -1)
 	return nntpsock;
@@ -54,46 +50,57 @@ int nntp_connect(void)
 	return -1;
     }
 	
-    Syslog('+', "NNTP: connecting host: %s:%d", CFG.nntpnode, CFG.nntpport);
-    memset(&nntp_loc, 0, sizeof(struct sockaddr_in));
-    memset(&nntp_rem, 0, sizeof(struct sockaddr_in));
+    snprintf(servport, 9, "%d", CFG.nntpport);
+    Syslog('+', "NNTP: connecting host: %s port %s", CFG.nntpnode, servport);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
 
-    nntp_rem.sin_family = AF_INET;
-	
-    if ((nhp = gethostbyname(CFG.nntpnode)) == NULL) {
-	WriteError("NNTP: can't find host %s", CFG.nntpnode);
-	return -1;
+    if ((rc = getaddrinfo(CFG.popnode, servport, &hints, &res)) != 0) {
+        WriteError("getaddrinfo %s:%s %s\n", CFG.popnode, servport, gai_strerror(rc));
+        return -1;
     }
 
-    nntp_rem.sin_addr.s_addr = ((struct in_addr *)(nhp->h_addr))->s_addr;
-    nntp_rem.sin_port = htons(CFG.nntpport);
+    for (p = res; p != NULL; p = p->ai_next) {
+        void    *addr;
 
-    if ((nntpsock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-	WriteError("$NNTP: unable to create tcp socket");
-	return -1;
+        if (p->ai_family == AF_INET) {
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+            addr = &(ipv4->sin_addr);
+            ipver = (char *)"IPv4";
+        } else {
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+            addr = &(ipv6->sin6_addr);
+            ipver = (char *)"IPv6";
+        }
+        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+        Syslog('+', "Trying %s %s port %s", ipver, ipstr, servport);
+
+        if ((nntpsock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+            WriteError("$socket()");
+            return -1;
+        } else {
+            if (connect(nntpsock, p->ai_addr, p->ai_addrlen) == -1) {
+                WriteError("$connect %s port %s", ipstr, servport);
+                close(nntpsock);
+            } else {
+                break;
+            }
+        }
+    }
+    if (p == NULL) {
+        return -1;      /* Not connected */
     }
 
-    if (connect(nntpsock, (struct sockaddr *)&nntp_rem, sizeof(struct sockaddr_in)) == -1) {
-	WriteError("$NNTP: cannot connect tcp socket");
-	return -1;
-    }
-
-    addrlen = sizeof(struct sockaddr_in);
-
-    if (getsockname(nntpsock, (struct sockaddr *)&nntp_loc, &addrlen) == -1) {
-	WriteError("$NNTP: unable to read socket address");
-	return -1;
-    }
-
-    p = nntp_receive();
-    if (strlen(p) == 0) {
+    q = nntp_receive();
+    if (strlen(q) == 0) {
 	WriteError("NNTP: no response");
 	nntp_close();
 	return -1;
     }
-    Syslog('+', "NNTP: %s", p);
+    Syslog('+', "NNTP: %s", q);
 
-    if ((strncmp(p, "480", 3) == 0) || CFG.nntpforceauth) {
+    if ((strncmp(q, "480", 3) == 0) || CFG.nntpforceauth) {
 	/*
 	 *  Must login with username and password
 	 */
@@ -102,8 +109,8 @@ int nntp_connect(void)
 	    nntp_close();
 	    return -1;
 	}
-    } else if (strncmp(p, "200", 3)) {
-	WriteError("NNTP: bad response: %s", p);
+    } else if (strncmp(q, "200", 3)) {
+	WriteError("NNTP: bad response: %s", q);
 //		nntp_close();  FIXME: Don't close, the other end might have done that already
 		//		      If we do also, this program hangs. Must be fixed!
 	return -1;
@@ -112,20 +119,20 @@ int nntp_connect(void)
     if (CFG.modereader) {
 	Syslog('+', "NNTP: setting mode reader");
 	nntp_send((char *)"MODE READER\r\n");
-	p = nntp_receive();
-	Syslog('+', "NNTP: %s", p);
-	if (strncmp(p, "480", 3) == 0) {
+	q = nntp_receive();
+	Syslog('+', "NNTP: %s", q);
+	if (strncmp(q, "480", 3) == 0) {
 	    /*
 	     *  Must login with username and password
 	     */
-	    Syslog('+', "NNTP: %s", p);
+	    Syslog('+', "NNTP: %s", q);
 	    if (nntp_auth() == FALSE) {
 		WriteError("NNTP: authorisation failure");
 		nntp_close();
 		return -1;
 	    }
-	} else if (strncmp(p, "200", 3)) {
-	    WriteError("NNTP: bad response: %s", p);
+	} else if (strncmp(q, "200", 3)) {
+	    WriteError("NNTP: bad response: %s", q);
 	    nntp_close();
 	    return -1;
 	}
