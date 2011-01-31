@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 19-Jun-2005</h5></div>
+<div align="right"><h5>Last update 31-Jan-2011</h5></div>
 <div align="center"><H1>mbcico - The Fidonet mailer.</H1></div>
 
 This is work in progress....
@@ -67,6 +67,8 @@ nodelist request flag is XX. This binkp implementation uses zlib packet
 compression opt PLZ (FSP-1032) to increase the transfer speed and to lower
 the network bandwith usage. There is also support for the stream compression
 modes GZ and BZ2 (compatible with binkd).
+<P>
+Since januari 2011 mbcico can use both IPv4 and IPv6 TCP/IP connections.
 <P>
 Outbound directory structure is BinkleyTerm compatible, with domains and
 point subdirectories (full 5d). There are separate "protected" and
@@ -148,8 +150,9 @@ To answer TCP/IP calls the following lines should be added to /etc/inetd.conf:
 <P><PRE>
 binkd   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ibn
 fido    stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ifc
-tfido   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t itn	
+tfido   stream  tcp6    nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t itn	
 </PRE><P>
+The tfido line is configured to answer on IPv4 and IPv6.
 If your system uses xinetd the file /etc/xinetd.d/mbsebbs could be:
 <P><PRE>
 #:MBSE BBS services are defined here.
