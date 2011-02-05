@@ -68,40 +68,40 @@ case "$1" in
     
     # Install example footer.txt file if it is not already present
     if [ ! -e "/opt/mbse/etc/footer.txt" ]; then
-	install -m 750 /usr/share/mbsebbs/etc/footer.txt /opt/mbse/etc/footer.txt
+	install -m 640 /usr/share/mbsebbs/etc/footer.txt /opt/mbse/etc/footer.txt
     fi
     # Install example header.txt file if it is not already present
     if [ ! -e "/opt/mbse/etc/header.txt" ]; then
-	install -m 750 /usr/share/mbsebbs/etc/header.txt /opt/mbse/etc/header.txt
+	install -m 640 /usr/share/mbsebbs/etc/header.txt /opt/mbse/etc/header.txt
     fi
     
     # Install the English BBS language file if it is not already present
     if [ ! -e "/opt/mbse/share/int/language.en" ]; then
-	install -m 750 /usr/share/mbsebbs/int/language.en /opt/mbse/share/int/language.en
+	install -m 640 /usr/share/mbsebbs/int/language.en /opt/mbse/share/int/language.en
     fi
     # Install the Spanish BBS language file if it is not already present
     if [ ! -e "/opt/mbse/share/int/language.es" ]; then
-	install -m 750 /usr/share/mbsebbs/int/language.es /opt/mbse/share/int/language.es
+	install -m 640 /usr/share/mbsebbs/int/language.es /opt/mbse/share/int/language.es
     fi
     # Install the German BBS language file if it is not already present
     if [ ! -e "/opt/mbse/share/int/language.de" ]; then
-	install -m 750 /usr/share/mbsebbs/int/language.de /opt/mbse/share/int/language.de
+	install -m 640 /usr/share/mbsebbs/int/language.de /opt/mbse/share/int/language.de
     fi
     # Install the French BBS language file if it is not already present
     if [ ! -e "/opt/mbse/share/int/language.fr" ]; then
-	install -m 750 /usr/share/mbsebbs/int/language.fr /opt/mbse/share/int/language.fr
+	install -m 640 /usr/share/mbsebbs/int/language.fr /opt/mbse/share/int/language.fr
     fi
     # Install the Galician BBS language file if it is not already present
     if [ ! -e "/opt/mbse/share/int/language.gl" ]; then
-	install -m 750 /usr/share/mbsebbs/int/language.gl /opt/mbse/share/int/language.gl
+	install -m 640 /usr/share/mbsebbs/int/language.gl /opt/mbse/share/int/language.gl
     fi
     # Install the Dutch BBS language file if it is not already present
     if [ ! -e "/opt/mbse/share/int/language.nl" ]; then
-	install -m 750 /usr/share/mbsebbs/int/language.nl /opt/mbse/share/int/language.nl
+	install -m 640 /usr/share/mbsebbs/int/language.nl /opt/mbse/share/int/language.nl
     fi
     # Install the Chinese BBS language file if it is not already present
     if [ ! -e "/opt/mbse/share/int/language.zh" ]; then
-	install -m 750 /usr/share/mbsebbs/int/language.zh /opt/mbse/share/int/language.zh
+	install -m 640 /usr/share/mbsebbs/int/language.zh /opt/mbse/share/int/language.zh
     fi
 
     # Create macros directory if not already present
