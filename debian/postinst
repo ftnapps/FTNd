@@ -171,6 +171,11 @@ case "$1" in
     dpkg-statoverride --update --add mbse bbs 4755 /opt/mbse/bin/mbnewusr
 
     #	Remove if present then install the stat override for setuid root and 
+    #	setgid root for mbuser (-rws--s--x)
+    dpkg-statoverride --remove /opt/mbse/bin/mbuser >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbuser
+
+    #	Remove if present then install the stat override for setuid root and 
     #	setgid root for mbuseradd (-rws--s--x)
     dpkg-statoverride --remove /opt/mbse/bin/mbuseradd >/dev/null 2>&1 || true
     dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbuseradd
