@@ -113,6 +113,21 @@ case "$1" in
 	mkdir --mode=755 /opt/mbse/share/int/macro/en
 	tar xfC /usr/share/mbsebbs/int/templates-en.tar /opt/mbse/share/int/macro/en
     fi
+    # Install spanish text macro files if that directory is not already present
+    if [ ! -d "/opt/mbse/share/int/macro/es/" ]; then
+	mkdir --mode=755 /opt/mbse/share/int/macro/es
+	tar xfC /usr/share/mbsebbs/int/templates-es.tar /opt/mbse/share/int/macro/es
+    fi
+    # Install german text macro files if that directory is not already present
+    if [ ! -d "/opt/mbse/share/int/macro/de/" ]; then
+	mkdir --mode=755 /opt/mbse/share/int/macro/de
+	tar xfC /usr/share/mbsebbs/int/templates-de.tar /opt/mbse/share/int/macro/de
+    fi
+    # Install dutch text macro files if that directory is not already present
+    if [ ! -d "/opt/mbse/share/int/macro/nl/" ]; then
+	mkdir --mode=755 /opt/mbse/share/int/macro/nl
+	tar xfC /usr/share/mbsebbs/int/templates-nl.tar /opt/mbse/share/int/macro/nl
+    fi
     
     # Create menu directory if not already present
     if [ ! -d "/opt/mbse/share/int/menus/" ]; then
