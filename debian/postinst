@@ -123,6 +123,11 @@ case "$1" in
 	mkdir --mode=755 /opt/mbse/share/int/menus/en
 	tar xfC /usr/share/mbsebbs/int/menus-en.tar /opt/mbse/share/int/menus/en
     fi
+    # Install spanish text menu files if that directory is not already present
+    if [ ! -d "/opt/mbse/share/int/menus/es/" ]; then
+	mkdir --mode=755 /opt/mbse/share/int/menus/es
+	tar xfC /usr/share/mbsebbs/int/menus-es.tar /opt/mbse/share/int/menus/es
+    fi
     
     # Create txtfiles directory if not already present
     if [ ! -d "/opt/mbse/share/int/txtfiles/" ]; then
@@ -132,6 +137,11 @@ case "$1" in
     if [ ! -d "/opt/mbse/share/int/txtfiles/en/" ]; then
 	mkdir --mode=755 /opt/mbse/share/int/txtfiles/en
 	tar xfC /usr/share/mbsebbs/int/txtfiles-en.tar /opt/mbse/share/int/txtfiles/en
+    fi
+    # Install spanish text txtfiles files if that directory is not already present
+    if [ ! -d "/opt/mbse/share/int/txtfiles/es/" ]; then
+	mkdir --mode=755 /opt/mbse/share/int/txtfiles/es
+	tar xfC /usr/share/mbsebbs/int/txtfiles-es.tar /opt/mbse/share/int/txtfiles/es
     fi
     
     #  Set default user:group for mbse install
