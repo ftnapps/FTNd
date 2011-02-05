@@ -1,24 +1,52 @@
 Debian TODO for MBSE BBS
 -------------------------
 
-
 Packaging
 ----------
-- Redo how the executables etc are being installed, as at least some of them
-  are not being installed with the correct permissions and/or ownership.
+
+- Change patching system from dpatch to quilt, as a step in changing from a
+  format 1.0 package to a format 3.0 package.
+
+- Reference line 53 in debian/rules;  only run the 'Make distclean' if the
+  Makefile.global file is actually present.
 - configure is not being rerun automatically.  In debian/rules clean target,
   remove the config.guess etc files so that it will be rerun automatically?
+  Or does the make distclean take care of that when run?
+
+- Configure script explicitly tests for programs only needed by run time system,
+  so create patches to configure script that says that the programs are present.
+  Will that need a build-depends for those programs? Or can just use Suggests?
+
+- Create a debian/mbsebbs.logrotate file, so that dh_installlogrotate can install
+  it.  And/or also provide an example file?  Or just a note in the debian readme?
+
+- Create man pages for executables;  for instance, using help2man or html2man?.
+  Or create basic man pages that points to the html documentation?
+
 - With purge; remove user:group mbse:bbs.  Remove /opt/mbse directory.
 - With at least purge, if not also remove:  remove statoverrides
-- The English Text, macro, & menu files are being installed automatically during 
-  the initial installation;  need to install the others.
-- Create man pages for executables;  for instance, using help2man.
+
+- Now using dh_lintian to install the package lintian overrides file. If need
+  source package Lintian overrides, create debian/source.lintian-overrides.
+
 - Create an mbsebbs-dbg package?   (Check references.)
+
 - Create & use debian/po, so that any debconf messages can be translated?
-- Configure script explicitly tests for programs only needed by run time system.
 
+- Update standards version to 'current' in debian/control, check if any changes
+   are neccessary 
+
+- One change that is neccessary;  debian/copyright is now supposed to be encoded in UTF-8.
+    shows as:
+file debian/copyright
+debian/copyright: ASCII English text
+    should be something like:
+debian/copyright: UTF-8 Unicode English text
+
+  
 Configuration:
--  Run mbsetup as part of postinst for a new installation?
+- Run mbsetup as part of postinst for a new installation?  Or just advise that it should
+  be run asap after a new install?  (Perhaps put a note about it in debian/News?)
 
 
- -- Robert James Clay <jame@rocasa.us>  Mon, 15 Feb 2010 10:15
+ -- Robert James Clay <jame@rocasa.us>  Sat,  5 Feb 2011 12:07
