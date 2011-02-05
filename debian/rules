@@ -62,8 +62,6 @@ install: build
 
 	# Add here commands to install the package into debian/mbsebbs.
 	# Note that most files are being installed using debian/install.
-	# Lintian overrides file
-	install -c -m 444 debian/mbsebbs.lintian-overrides debian/mbsebbs/usr/share/lintian/overrides/mbsebbs
 
 
 # Build architecture-independent files here.
@@ -81,6 +79,7 @@ binary-arch: build install
 	dh_installmenu
 #	dh_installdebconf	
 	dh_installlogrotate
+	dh_lintian
 	dh_installinit
 	dh_installman
 	dh_link
