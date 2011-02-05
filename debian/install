@@ -39,6 +39,7 @@ mbutils/mbstat	/opt/mbse/bin
 mbutils/mbtoberep	/opt/mbse/bin
 mbutils/mbuser	/opt/mbse/bin
 script/doors.bat	/opt/mbse/bin
+unix/login.defs	/opt/mbse/etc
 unix/mblogin	/opt/mbse/bin
 unix/mbpasswd	/opt/mbse/bin
 unix/mbuseradd	/opt/mbse/bin
