@@ -185,6 +185,11 @@ case "$1" in
     dpkg-statoverride --remove /opt/mbse/bin/mbpasswd >/dev/null 2>&1 || true
     dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbpasswd
 
+    #	Remove if present then install the stat override owndership by
+    #   root for mblogin.
+    dpkg-statoverride --remove /opt/mbse/bin/mblogin >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 0755 /opt/mbse/bin/mblogin
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
