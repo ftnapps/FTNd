@@ -50,7 +50,7 @@ cleanall:
 	rm -f build-stamp 
 
 	# Add here commands to clean up after the build process.
-	$(MAKE) distclean
+	#$(MAKE) distclean	# Should only be run if Makefile.global is present.
 
 	dh_clean 
 
