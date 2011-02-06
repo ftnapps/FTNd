@@ -190,6 +190,10 @@ case "$1" in
     dpkg-statoverride --remove /opt/mbse/bin/mblogin >/dev/null 2>&1 || true
     dpkg-statoverride --update --add root root 0755 /opt/mbse/bin/mblogin
 
+    #	Remove if present then install the stat setting for /opt/mbse/tmp
+    dpkg-statoverride --remove /opt/mbse/tmp >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add mbse bbs 0770 /opt/mbse/tmp
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
