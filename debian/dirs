@@ -43,6 +43,8 @@ opt/mbse/var/run
 opt/mbse/var/sema
 opt/mbse/var/ticqueue
 opt/mbse/var/unknown
+opt/mbse/var/www
+opt/mbse/var/www/stat
 usr/share/lintian/overrides
 usr/share/mbsebbs
 usr/share/mbsebbs/etc
