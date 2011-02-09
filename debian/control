@@ -4,6 +4,7 @@ Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.us>
 Build-Depends: debhelper (>= 5), libc6-dev, autotools-dev, libbz2-dev, libz-dev, dpatch
 Standards-Version: 3.7.2
+Vcs-Git: git://git.rocasa.org/mbsedeb.git
 Vcs-Browser: http://git.rocasa.org/gitweb.cgi/mbsedeb.git
 Homepage: http://www.mbse.eu/mbse/mbsebbs
 
