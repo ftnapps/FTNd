@@ -17,9 +17,6 @@ Packaging
   so create patches to configure script that says that the programs are present.
   Will that need a build-depends for those programs? Or can just use Suggests?
 
-- Create a debian/mbsebbs.logrotate file, so that dh_installlogrotate can install
-  it.  And/or also provide an example file?  Or just a note in the debian readme?
-
 - Create man pages for executables;  for instance, using help2man or html2man?.
   Or create basic man pages that points to the html documentation?
 
@@ -33,20 +30,29 @@ Packaging
 
 - Create & use debian/po, so that any debconf messages can be translated?
 
-- Update standards version to 'current' in debian/control, check if any changes
-   are neccessary 
-
-- One change that is neccessary;  debian/copyright is now supposed to be encoded in UTF-8.
-    shows as:
-file debian/copyright
-debian/copyright: ASCII English text
-    should be something like:
-debian/copyright: UTF-8 Unicode English text
-
   
 Configuration:
 - Run mbsetup as part of postinst for a new installation?  Or just advise that it should
   be run asap after a new install?  (Perhaps put a note about it in debian/News?)
 
+- example logrotate.d file
+- Create a debian/mbsebbs.logrotate file, so that dh_installlogrotate can install
+  it?  And/or also provide an example file?  Or just a note in the debian readme?
 
- -- Robert James Clay <jame@rocasa.us>  Sat,  5 Feb 2011 12:07
+- Add note about needing an FTN Nodelist
+
+- Add a note about configuring html Docs root (1.15), URL Name, Author
+name. perhaps a note about the 'Hist. Limit'
+Example docs root => /opt/mbse/var/www
+- Create an example stats index file.
+
+- Add a note, with details and/or pointing to example files, for configuring a web server.
+(don't think it's already in the documentation?)
+
+- Add a note about configuring html Docs root (1.15), URL Name, Author
+name. perhaps a note about the 'Hist. Limit'
+Example docs root => /opt/mbse/var/www
+- will need to add a note about updating the config for that?
+
+
+ -- Robert James Clay <jame@rocasa.us>  Wed,  9 Feb 2011 19:59
