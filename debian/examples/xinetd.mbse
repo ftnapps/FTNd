@@ -1,5 +1,8 @@
 #:MBSE BBS services are defined here.
 #
+# Modifications for Debian packaging: 
+#    Robert James Clay <jame@rocasa.us>, 9 Feb 2011
+#
 # Author: Michiel Broek <mbse@mbse.eu>, 27-Sep-2004
 
 service binkp
@@ -46,7 +49,50 @@ service telnet
 	log_on_failure += USERID
 	socket_type	= stream
 	user		= root
-	server		= /usr/sbin/telnetd
+	server		= /usr/sbin/in.telnetd
 	server_args	= -L /opt/mbse/bin/mblogin
 	wait		= no
 }
+
+# Telnet using SSL to the bbs using mblogin, disabled by default.
+#
+service telnets
+{
+	disable		= yes
+	protocol	= tcp
+	instances	= 10
+	flags		= REUSE
+	log_on_failure += USERID
+	socket_type	= stream
+	user		= root
+	server		= /usr/sbin/in.telnetd
+	server_args	= -L /opt/mbse/bin/mblogin
+	wait		= no
+}
+
+# NNTP to the bbs using mbnntp, disabled by default.
+#
+service nntp
+{
+	disable		= yes
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = mbse
+	instances       = 10
+	server          = /opt/mbse/bin/mbnntp
+}
+
+# NNTP using SSL to the bbs using mbnntp, disabled by default.
+#
+service nntps
+{
+	disable		= yes
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = mbse
+	instances       = 10
+	server          = /opt/mbse/bin/mbnntp
+}
+
