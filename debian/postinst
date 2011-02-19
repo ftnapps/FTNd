@@ -194,6 +194,10 @@ case "$1" in
     dpkg-statoverride --remove /opt/mbse/tmp >/dev/null 2>&1 || true
     dpkg-statoverride --update --add mbse bbs 0770 /opt/mbse/tmp
 
+    #	Remove if present then install the stat setting for /opt/mbse/etc
+    dpkg-statoverride --remove /opt/mbse/etc >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add mbse bbs 0770 /opt/mbse/etc
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
