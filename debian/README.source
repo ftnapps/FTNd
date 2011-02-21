@@ -11,29 +11,61 @@ as part of the packaging process.
 Patching the source archive
 ============================
 
-This package uses dpatch to manage all modifications to the upstream
-source. Changes are stored in the source package as diffs in
+This package uses quilt to manage all modifications to the upstream
+source.  Changes are stored in the source package as diffs in
 debian/patches and applied during the build.
 
-To get the fully patched source after unpacking the source package, cd
-to the root level of the source package and run:
+To configure quilt to use debian/patches instead of patches, you want
+either to export QUILT_PATCHES=debian/patches in your environment
+or use this snippet in your ~/.quiltrc:
 
-    debian/rules patch
+    for where in ./ ../ ../../ ../../../ ../../../../ ../../../../../; do
+        if [ -e ${where}debian/rules -a -d ${where}debian/patches ]; then
+                export QUILT_PATCHES=debian/patches
+                break
+        fi
+    done
 
-Removing a patch is as simple as removing its entry from the
-debian/patches/00list file, and please also remove the patch file
-itself.
+To get the fully patched source after unpacking the source package, cd to
+the root level of the source package and run:
 
-Creating a new patch is done with "dpatch-edit-patch patch XX_patchname"
-where you should replace XX with a new number and patchname with a
-descriptive shortname of the patch. You can then simply edit all the
-files your patch wants to edit, and then simply "exit 0" from the shell
-to actually create the patch file.
+    quilt push -a
 
-To tweak an already existing patch, call "dpatch-edit-patch XX_patchname"
-and replace XX_patchname with the actual filename from debian/patches
-you want to use.
+The last patch listed in debian/patches/series will become the current
+patch.
 
-To clean up afterwards again, "debian/rules unpatch" will do the
-work for you - or you can of course choose to call
-"fakeroot debian/rules clean" all together.
+To add a new set of changes, first run quilt push -a, and then run:
+
+    quilt new <patch>
+
+where <patch> is a descriptive name for the patch, used as the filename in
+debian/patches.  Then, for every file that will be modified by this patch,
+run:
+
+    quilt add <file>
+
+before editing those files.  You must tell quilt with quilt add what files
+will be part of the patch before making changes or quilt will not work
+properly.  After editing the files, run:
+
+    quilt refresh
+
+to save the results as a patch.
+
+Alternately, if you already have an external patch and you just want to
+add it to the build system, run quilt push -a and then:
+
+    quilt import -P <patch> /path/to/patch
+    quilt push -a
+
+(add -p 0 to quilt import if needed). <patch> as above is the filename to
+use in debian/patches.  The last quilt push -a will apply the patch to
+make sure it works properly.
+
+To remove an existing patch from the list of patches that will be applied,
+run:
+
+    quilt delete <patch>
+
+You may need to run quilt pop -a to unapply patches first before running
+this command.
