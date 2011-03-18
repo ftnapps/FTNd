@@ -1,7 +1,8 @@
-# profile for mbse                                                                                       
-#                                                                                                        
-export PATH=$HOME/bin:$PATH                                                                              
-export MBSE_ROOT=$HOME                                                                                   
-export GOLDED=$HOME/etc                                                                                  
-# For xterm on the Gnome desktop:                                                                        
-cd $HOME 
+# profile for mbse
+#
+export PATH=$HOME/bin:$PATH
+export MBSE_ROOT=$HOME
+export GOLDED=$HOME/etc
+# For xterm on the Gnome desktop:
+cd $HOME
+
