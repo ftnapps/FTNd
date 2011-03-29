@@ -56,8 +56,8 @@ int nntp_connect(void)
     hints.ai_family   = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((rc = getaddrinfo(CFG.popnode, servport, &hints, &res)) != 0) {
-        WriteError("getaddrinfo %s:%s %s\n", CFG.popnode, servport, gai_strerror(rc));
+    if ((rc = getaddrinfo(CFG.nntpnode, servport, &hints, &res)) != 0) {
+        WriteError("getaddrinfo %s:%s %s\n", CFG.nntpnode, servport, gai_strerror(rc));
         return -1;
     }
 
