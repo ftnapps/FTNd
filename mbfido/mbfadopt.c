@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: mbfadopt.c,v 1.28 2008/02/17 17:50:14 mbse Exp $
  * Purpose: File Database Maintenance - Adopt file
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -47,7 +46,7 @@ void AdoptFile(int Area, char *File, char *Description)
     FILE		*fp;
     char		*temp, *temp2, *tmpdir, *unarc, *pwd, *lname, *fileid;
     char		Desc[256], TDesc[256];
-    int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
+    int			MustRearc = FALSE, UnPacked = FALSE;
     int			IsVirus = FALSE, File_Id = FALSE;
     int			i, j, k, lines = 0, File_id_cnt = 0;
     struct FILE_record	f_db;
@@ -100,7 +99,6 @@ void AdoptFile(int Area, char *File, char *Description)
 	}
 
 	if ((unarc = unpacker(File))) {
-	    IsArchive = TRUE;
 	    if (strlen(area.Archiver) && (strcmp(unarc, area.Archiver) == 0))
 		MustRearc = TRUE;
 	    UnPacked = UnpackFile(temp);

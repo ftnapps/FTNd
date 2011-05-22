@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: m_marea.c,v 1.58 2007/03/02 15:29:51 mbse Exp $
  * Purpose ...............: Message Areas Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -708,7 +707,6 @@ void MsgGlobal(void)
     fidoaddr	a1, a2;
     int		menu = 0, marea, Areas, akan = 0, Found, charset = FTNC_CP437;
     int		Total, Done, netbrd, daysold, maxmsgs, maxarticles;
-    int		offset;
     securityrec	rs, ws, ss, as;
     sysconnect	S, Sc;
 
@@ -865,7 +863,7 @@ void MsgGlobal(void)
 	    Total = Done = 0;
 
 	    for (marea = 1; marea <= Areas; marea++) {
-		offset = LoadMsgRec(marea, FALSE);
+		LoadMsgRec(marea, FALSE);
 		if (msgs.Active && strlen(msgs.Group)) {
 		    for (tmp = mgr; tmp; tmp = tmp->next) {
 			if (tmp->tagged && (strcmp(tmp->group, msgs.Group) == 0)) {
@@ -1665,7 +1663,7 @@ char *PickMsgarea(char *shdr)
 
 int GroupInMarea(char *Group)
 {
-	int	Area = 0, RetVal = 0, systems;
+	int	Area = 0, RetVal = 0;
 	FILE	*no;
 	char	temp[PATH_MAX];
 
@@ -1676,7 +1674,6 @@ int GroupInMarea(char *Group)
 	fread(&msgshdr, sizeof(msgshdr), 1, no);
 	fseek(no, 0, SEEK_SET);
 	fread(&msgshdr, msgshdr.hdrsize, 1, no);
-	systems = msgshdr.syssize / sizeof(sysconnect);
 
 	while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
 		Area++;

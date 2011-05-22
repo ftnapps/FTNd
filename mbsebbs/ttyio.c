@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: ttyio.c,v 1.4 2006/03/20 19:13:14 mbse Exp $
  * Purpose ...............: tty I/O for mbsebbs and mbnewusr
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -61,7 +60,6 @@ char *ttystat[]= {(char *)"Ok",
 static int tty_read(char *, int, int);
 static int tty_read(char *buf, int size, int tot)
 {
-    time_t	    now;
     int		    rc;
     fd_set	    readfds, writefds, exceptfds;
     struct timeval  seltimer;
@@ -69,8 +67,6 @@ static int tty_read(char *buf, int size, int tot)
     if (size == 0) 
 	return 0;
     tty_status = 0;
-
-    now = time(NULL);
 
     FD_ZERO(&readfds);
     FD_ZERO(&writefds);

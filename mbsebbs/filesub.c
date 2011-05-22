@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: filesub.c,v 1.51 2008/02/17 18:46:38 mbse Exp $
  * Purpose ...............: All the file sub functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -773,7 +772,7 @@ int ImportFile(char *fn, int Area, int fileid, off_t Size)
 int Addfile(char *File, int AreaNum, int fileid)
 {
     FILE    *id, *pPrivate;
-    int	    iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
+    int	    iDesc = 1, GotId = FALSE, lines, i, j;
     char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[PATH_MAX], msg[81]; 
     struct  stat statfile; 
     struct _fdbarea *fdb_area = NULL;
@@ -980,7 +979,6 @@ int Addfile(char *File, int AreaNum, int fileid)
 	if ((pPrivate = fopen(temp, "a+")) == NULL)
 	    WriteError("$Can't open %s", temp);
 	else {
-	    iPrivate = TRUE;
 	    fprintf(pPrivate, "****************************************************");
 	    fprintf(pPrivate, "\nUser        : %s", fdb.Uploader);
 	    fprintf(pPrivate, "\nFile        : %s (%s)", fdb.LName, fdb.Name);

@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: mbuser.c,v 1.5 2007/02/11 13:19:37 mbse Exp $
  * Purpose ...............: User Pack Util
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -175,8 +174,8 @@ void UserPack(int days, int level, int pack)
 {
     FILE    *fin, *fout;
     char    *fnin, *fnout, *cmd;
-    int	    oldsize, curpos;
-    int	    updated, delete = 0, rc, highest = 0, record = 0, sysop = FALSE;
+    int	    oldsize;
+    int	    updated, delete = 0, highest = 0, record = 0, sysop = FALSE;
     time_t  Last;
 
     fnin  = calloc(PATH_MAX, sizeof(char));
@@ -258,7 +257,6 @@ void UserPack(int days, int level, int pack)
      */
     if (days && level) {
 	fseek(fout, sizeof(usrhdr), SEEK_SET);
-	curpos = sizeof(usrhdr);
 
 	while (fread(&usr, sizeof(usr), 1, fout)  == 1) {
 	    /*
@@ -318,22 +316,22 @@ void UserPack(int days, int level, int pack)
 			WriteError("Cannot delete unix account %s", usr.Name);
 		    } else {
 #ifndef __FreeBSD__
-			rc = execute_str((char *)"/usr/sbin/userdel ", usr.Name, NULL,
+			execute_str((char *)"/usr/sbin/userdel ", usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 #else
-			rc = execute_str((char *)"/usr/sbin/pw userdel ", usr.Name, NULL,
+			execute_str((char *)"/usr/sbin/pw userdel ", usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 #endif
 #ifdef _VPOPMAIL_PATH
 			cmd = xstrcpy((char *)_VPOPMAIL_PATH);
 			cmd = xstrcat(cmd, (char *)"/vdeluser ");
-			rc = execute_str(cmd, usr.Name, NULL, (char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
+			execute_str(cmd, usr.Name, NULL, (char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 			free(cmd);
 #endif
 			if (chdir(CFG.bbs_usersdir) == 0) {
 			    cmd = xstrcpy((char *)"-Rf ");
 			    cmd = xstrcat(cmd, usr.Name);
-			    rc = execute_pth((char *)"rm", cmd, (char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
+			    execute_pth((char *)"rm", cmd, (char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 			    free(cmd);
 			}
 		    }

@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: offline.c,v 1.61 2008/02/12 19:59:45 mbse Exp $
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -2659,8 +2658,6 @@ char *StripSpaces(char *String, int Size)
 
 void OLR_DownASCII(void)
 {
-    struct  tm      *tp;
-    time_t          Now;
     char            Pktname[32], *Work, *Temp, *cwd = NULL, Atag[60], Kinds[12], *p;
     int		    Area = 0, i, rc = 0;
     FILE            *fp = NULL, *tf, *mf, *af, *inf;
@@ -2685,8 +2682,6 @@ void OLR_DownASCII(void)
     Work = calloc(PATH_MAX, sizeof(char));
     Temp = calloc(PATH_MAX, sizeof(char));
 	
-    Now = time(NULL);
-    tp = localtime(&Now);
     Syslog('+', "Preparing ASCII packet");
 
     snprintf(Temp, PATH_MAX, "%s.MSG", CFG.bbsid);

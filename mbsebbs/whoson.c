@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: whoson.c,v 1.19 2007/02/25 20:28:13 mbse Exp $
  * Purpose ...............: Who's online functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -50,7 +49,7 @@ extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;
  */
 void WhosOn(char *OpData)
 {
-    char	    buf[128], *Heading, *cnt, *isdoing, *location, *device;
+    char	    buf[128], *Heading, *isdoing, *location, *device;
     char	    *fullname, *temp, msg[81], wstr[128];;
     int		    x, Start = TRUE;
     FILE	    *fp;
@@ -100,7 +99,7 @@ void WhosOn(char *OpData)
 		/*
 		 * We are only interested in copies of the mbsebbs program
 		 */
-		cnt = strtok(buf, ",");
+		strtok(buf, ",");
 		strtok(NULL, ",");
 		device   = xstrcpy(strtok(NULL, ","));
 		fullname = xstrcpy(cldecode(strtok(NULL, ",")));

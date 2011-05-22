@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: m_ticarea.c,v 1.29 2006/02/24 20:33:28 mbse Exp $
  * Purpose ...............: TIC Areas Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -557,7 +556,6 @@ void TicGlobal(void)
     fidoaddr	a1, a2;
     int		menu = 0, areanr, Areas, akan = 0, Found;
     int		Total, Done;
-    int		offset;
     sysconnect	S, Sc;
     securityrec	as;
 
@@ -659,7 +657,7 @@ void TicGlobal(void)
 	    Total = Done = 0;
 
 	    for (areanr = 1; areanr <= Areas; areanr++) {
-		offset = LoadTicRec(areanr, FALSE);
+		LoadTicRec(areanr, FALSE);
 		if (tic.Active && strlen(tic.Group)) {
 		    for (tmp = mgr; tmp; tmp = tmp->next) {
 			if (tmp->tagged && (strcmp(tmp->group, tic.Group) == 0)) {
@@ -1199,7 +1197,7 @@ int GroupInTic(char *Group)
 {
         char            temp[PATH_MAX];
         FILE            *no;
-        int             systems, Area = 0, RetVal = 0;
+        int             Area = 0, RetVal = 0;
 
         snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
         if ((no = fopen(temp, "r")) == NULL)
@@ -1208,7 +1206,6 @@ int GroupInTic(char *Group)
         fread(&tichdr, sizeof(tichdr), 1, no);
         fseek(no, 0, SEEK_SET);
         fread(&tichdr, tichdr.hdrsize, 1, no);
-        systems = tichdr.syssize / sizeof(sysconnect);
 
         while ((fread(&tic, tichdr.recsize, 1, no)) == 1) {
 		Area++;

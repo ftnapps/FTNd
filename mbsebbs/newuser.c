@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * $Id: newuser.c,v 1.39 2008/11/26 21:55:25 mbse Exp $
  * Purpose ...............: New User login under Unix, creates both
  *			    BBS and unix accounts.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -77,7 +76,6 @@ int newuser(void)
 {
     FILE	    *pUsrConfig;
     int		    i, x, Found, iLang, recno = 0, Count = 0, badname;
-    unsigned int    crc;
     char	    temp[PATH_MAX], *FullName, *temp1, *temp2, *Phone1, *Phone2;
     int		    offset;
     struct userrec  us;
@@ -171,7 +169,6 @@ int newuser(void)
 		language(LIGHTRED, BLACK, 41);
 		Enter(1);
 	    } else {
-		crc = StringCRC32(tu(temp1));
 		break;
 	    }
 	} else {

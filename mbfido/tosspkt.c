@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: tosspkt.c,v 1.28 2006/06/05 10:12:27 mbse Exp $
  * Purpose ...............: Toss a single *.pkt file
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -141,7 +140,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 	int flags, int cost, FILE *fp, unsigned int tzone)
 {
     char	*buf, *marea = NULL;
-    int		echomail = FALSE, rc = 0, bad = 0, Known = FALSE, FirstLine, size = 0;
+    int		echomail = FALSE, rc = 0, bad = 0, FirstLine, size = 0;
     sysconnect	Link;
 
     if (CFG.slow_util && do_quiet)
@@ -160,7 +159,6 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 	StatAdd(&nodes.MailRcvd, 1);
 	UpdateNode();
 	SearchNode(Link.aka);
-	Known = TRUE;
     }
 
     buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));

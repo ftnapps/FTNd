@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: ports.c,v 1.19 2006/05/22 12:09:15 mbse Exp $
  * Purpose ...............: mbtask - mode portlists
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -112,7 +111,6 @@ void load_ports()
 {
     FILE	    *fp;
     pp_list	    new;
-    int		    stdflag;
     char	    *p, *q, *capflags = NULL;
     nodelist_modem  **tmpm;
     
@@ -137,14 +135,11 @@ void load_ports()
 	    strncpy(new.tty, ttyinfo.tty, 6);
 
 	    capflags = xstrcpy((char *)"flags:");
-	    stdflag = TRUE;
 	    q = xstrcpy(ttyinfo.flags);
 	    for (p = q; p; p = q) {
 		if ((q = strchr(p, ',')))
 		    *q++ = '\0';
-		if ((strncasecmp(p, "U", 1) == 0) && (strlen(p) == 1)) {
-		    stdflag = FALSE;
-		} else {
+		if (strncasecmp(p, "U", 1) || (strlen(p) != 1)) {
 		    for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next))
 			if (strcasecmp(p, (*tmpm)->name) == 0) {
 			    new.mflags |= (*tmpm)->value;

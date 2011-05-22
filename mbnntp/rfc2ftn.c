@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: rfc2ftn.c,v 1.19 2008/08/31 21:10:51 mbse Exp $
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -168,7 +167,6 @@ int rfc2ftn(FILE *fp)
     FILE            *ofp, *qfp;
     fa_list         *sbl = NULL, *ptl = NULL, *tmpl;
     faddr           *ta, *fta;
-    unsigned int    svmsgid, svreply;
     int             sot_kludge = FALSE, eot_kludge = FALSE, tinyorigin = FALSE;
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
@@ -193,8 +191,6 @@ int rfc2ftn(FILE *fp)
     }
 
     fmsg->area = xstrcpy(msgs.Tag);
-    svmsgid = fmsg->msgid_n;
-    svreply = fmsg->reply_n;
     if ((p = hdr((char *)"Message-ID",msg))) {
 	ftnmsgid(p, &fmsg->msgid_a, &fmsg->msgid_n, fmsg->area);
 	hash_update_s(&fmsg->msgid_n, fmsg->area);

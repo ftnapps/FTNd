@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: chat.c,v 1.11 2005/08/28 13:45:26 mbse Exp $
  * Purpose ...............: Fidonet mailer - modem chat
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -146,7 +145,7 @@ void almhdl(int sig)
 int expect_str(int, int, char *);
 int expect_str(int timeout, int aftermode, char *Phone)
 {
-    int		    matched = FALSE, smatch = FALSE, ematch = FALSE, ioerror = FALSE, i, rc;
+    int		    matched = FALSE, smatch = FALSE, ioerror = FALSE, i, rc;
     char	    inbuf[256];
     unsigned char   ch = '\0';
     int		    eol = FALSE;
@@ -188,7 +187,6 @@ int expect_str(int timeout, int aftermode, char *Phone)
 	    if (strlen(modem.error[i]))
 		if (strncmp(modem.error[i], inbuf, strlen(modem.error[i])) == 0) {
 		    matched = TRUE;
-		    ematch  = TRUE;
 		    Syslog('+', "chat: got \"%s\", aborting", printable(inbuf, 0));
 		}
 

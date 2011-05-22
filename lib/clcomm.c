@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: clcomm.c,v 1.32 2007/03/03 14:28:39 mbse Exp $
  * Purpose ...............: Client/Server communications
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -484,7 +483,7 @@ unsigned int sequencer()
  */
 int enoughspace(unsigned int needed)
 {
-    char	    *buf, *res;
+    char	    *buf;
     int		    rc = 3, cnt;
     unsigned int    avail = 0L;
 
@@ -493,7 +492,7 @@ int enoughspace(unsigned int needed)
 
     if (socket_send(buf) == 0) {
 	snprintf(buf, SS_BUFSIZE, "%s", socket_receive());
-	res = strtok(buf, ":");
+	strtok(buf, ":");
 	cnt = atoi(strtok(NULL, ","));
 	if (cnt == 1) {
 	    rc = atoi(strtok(NULL, ";"));

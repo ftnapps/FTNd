@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: mbsnmp.c,v 1.3 2008/02/23 21:42:17 mbse Exp $
  * Purpose ...............: SNMP passthru support.
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -90,7 +89,7 @@ int main(int argc, char **argv)
 {
     int		    i, getnext = FALSE, group = 0, sub = 0, params, val = 0;
     char	    *t1, *t2, *saveptr1 = NULL, *saveptr2 = NULL, *token1, *token2; 
-    char	    *base_save, *req_save, *envptr = NULL, *req_oid, *base_oid, *resp, *type;
+    char	    *base_save, *envptr = NULL, *req_oid, *base_oid, *resp, *type;
     struct passwd   *pw;
 
     /*
@@ -136,7 +135,6 @@ int main(int argc, char **argv)
 		CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     base_save = xstrcpy(base_oid);
-    req_save  = xstrcpy(req_oid);
     for (i = 1, t1 = base_oid, t2 = req_oid; ; i++, t1 = NULL, t2 = NULL) {
 	token1 = strtok_r(t1, ".", &saveptr1);
 	token2 = strtok_r(t2, ".", &saveptr2);
