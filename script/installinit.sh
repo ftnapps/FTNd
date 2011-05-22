@@ -311,8 +311,10 @@ if [ "$DISTNAME" = "Arch Linux" ]; then
     echo "You are running Arch Linux"
     log "+" "Adding Arch Linux init script"
     DISTINIT="/etc/rc.d/mbsebbs"
-
-
+    cp init.Arch $DISTINIT
+    chmod 755 $DISTINIT
+    echo "Add mbsebbs to /etc/rc.conf"
+    log "+" "Arch Linux init script installed"
 fi
 
 
