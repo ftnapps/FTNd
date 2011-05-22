@@ -1,3 +1,10 @@
+
+v0.95.12	22-May-2011
+
+	general:
+		Removed several compiler warnings.
+		Added invisible markers in the html manual.
+
 	mbselib:
 		The virus stream scanner can now uses IPv4 and/or IPv6 to
 		connect to the clamav server and can use server clusters too.
