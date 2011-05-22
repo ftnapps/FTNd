@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: mbmsg.c,v 1.34 2007/09/02 11:17:32 mbse Exp $
  * Purpose ...............: Message Base Maintenance
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -423,7 +422,7 @@ void LinkArea(char *Path, int Areanr)
  */
 void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, int Areanr)
 {
-    unsigned int    Number, TotalMsgs = 0, Highest, *Active, Counter = 0;
+    unsigned int    Number, TotalMsgs = 0, *Active, Counter = 0;
     int		    i, DelCount = 0, DelAge = 0, Done;
     time_t	    Today, MsgDate;
 
@@ -455,7 +454,6 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, int Areanr)
 		Active = NULL;
 
 	    Number  = Msg_Lowest();
-	    Highest = Msg_Highest();
 
 	    do {
 		if (CFG.slow_util && do_quiet)

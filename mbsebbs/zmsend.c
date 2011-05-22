@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: zmsend.c,v 1.23 2006/03/20 19:13:14 mbse Exp $
  * Purpose ...............: Zmodem sender
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -205,14 +204,9 @@ static int sendzfile(char *rn)
 {
     int		    rc = 0;
     struct stat	    st;
-    struct flock    fl;
     int		    bufl;
     int		    sverr;
 
-    fl.l_type   = F_RDLCK;
-    fl.l_whence = 0;
-    fl.l_start  = 0L;
-    fl.l_len    = 0L;
     if (txbuf == NULL) 
 	txbuf = malloc(MAXBLOCK + 1024);
 

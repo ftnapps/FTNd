@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: taskcomm.c,v 1.43 2008/02/10 19:31:11 mbse Exp $
  * Purpose ...............: MBSE BBS Daemon
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -86,7 +85,7 @@ char *exe_cmd(char *in)
     static char	cmd[4];
     static char	token[SS_BUFSIZE];
     static char	ebuf[19];
-    static char	*cnt, var1[16];
+    static char	var1[16];
     int		result;
     char	*buf;
 
@@ -481,7 +480,7 @@ char *exe_cmd(char *in)
      *  100:0;
      */
     if (strncmp(cmd, "GMON", 4) == 0) {
-	cnt = strtok(token, ",");
+	strtok(token, ",");
 	strcpy(var1, strtok(NULL, ";"));
 	buf = calloc(SS_BUFSIZE, sizeof(char));
 	get_reginfo_r(atoi(var1), buf);
@@ -521,7 +520,7 @@ char *exe_cmd(char *in)
      *  201:1,16;
      */
     if (strncmp(cmd, "GLCR", 4) == 0) {
-        cnt = strtok(token, ",");
+        strtok(token, ",");
         strcpy(var1, strtok(NULL, ";"));
 	buf = calloc(SS_BUFSIZE, sizeof(char));
 	get_lastcallerrec_r(atoi(var1), buf);

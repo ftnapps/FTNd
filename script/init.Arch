@@ -1,0 +1,61 @@
+#!/bin/bash
+
+. /etc/rc.conf
+. /etc/rc.d/functions
+
+MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+export MBSE_ROOT
+
+case "$1" in
+start)
+	stat_busy "Starting MBSE BBS"
+	rm -f ${MBSE_ROOT}/var/run/*
+	rm -f ${MBSE_ROOT}/var/sema/*
+	rm -f ${MBSE_ROOT}/var/*.LCK
+	rm -f ${MBSE_ROOT}/tmp/mb*
+	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
+	add_daemon mbtask
+	sleep 2
+	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    stat_done
+	else
+	    stat_fail
+	    exit 1
+	fi
+	;;
+stop)
+	stat_busy "Stopping MBSE BBS"
+	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	    stat_append "logoff users"
+	    su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+	    stat_append " done, stopping mbtask"
+	    kill -15 `cat ${MBSE_ROOT}/var/run/mbtask`
+	    i=10; doit=1;
+	    while let 'i > 0' && let 'doit != 0'
+	    do
+		if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		    stat_append "."
+		    sleep 1
+		    let i=i-1
+		else
+		    doit=0
+		fi
+	    done
+	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		kill -9 `cat ${MBSE_ROOT}/var/run/mbtask`
+	    fi
+	fi
+	rm_daemon mbtask
+	stat_done
+	;;
+restart)
+	$0 stop
+	sleep 1
+	$0 start
+	;;
+*)
+	echo "usage: $0 {start|stop|restart}"
+	;;
+esac
+exit 0

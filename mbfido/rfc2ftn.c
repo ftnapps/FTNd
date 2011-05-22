@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: rfc2ftn.c,v 1.55 2008/08/31 21:10:51 mbse Exp $
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -132,7 +131,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     FILE            *ofp;
     fa_list         *sbl = NULL, *ptl = NULL, *tmpl;
     faddr           *ta, *fta;
-    unsigned int    svmsgid, svreply, acup_n = 0;
+    unsigned int    acup_n = 0;
     int             sot_kludge = FALSE, eot_kludge = FALSE, tinyorigin = FALSE;
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
@@ -142,12 +141,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (recipient)
 	Syslog('m', "Recipient: %s", ascfnode(recipient, 0xff));
     rewind(fp);
-//  Syslog('m', "========== RFC Start");
-//  while ((fgets(temp, 4095, fp)) != NULL) {
-//	Syslogp('m', printable(temp, 0));
-//  }
-//  Syslog('m', "========== RFC end");
-//  rewind(fp);
     msg = parsrfc(fp);
 
     newsmode = hdr((char *)"Newsgroups", msg) ?TRUE:FALSE;
@@ -175,8 +168,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     
     if (newsmode)
 	fmsg->area = xstrcpy(msgs.Tag);
-    svmsgid = fmsg->msgid_n;
-    svreply = fmsg->reply_n;
     if ((p = hdr((char *)"Message-ID",msg))) {
 	ftnmsgid(p, &fmsg->msgid_a, &fmsg->msgid_n, fmsg->area);
 	hash_update_s(&fmsg->msgid_n, fmsg->area);

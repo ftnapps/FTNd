@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * $Id: hydra.c,v 1.36 2007/08/25 18:32:07 mbse Exp $
  * Purpose ...............: Fidonet mailer - Hydra protocol driver
  * Remark ................: See below for more copyright details and credits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -1405,7 +1404,6 @@ int hydra_batch(int role, file_list *to_send)
 		     */
 		    else if ((rxlen > 41) && (rxbuf[rxlen - 1] == 0)) {
 			time_t timestamp;
-			time_t orgstamp;
 			int filesize, tt;
 			char dosname[8 + 1 + 3 + 1], *Name;
 
@@ -1413,7 +1411,6 @@ int hydra_batch(int role, file_list *to_send)
 			timestamp = (time_t)tt;
 
 			/* convert timestamp to UNIX time */
-			orgstamp = timestamp;
 			timestamp = sl2mtime(timestamp);
 
 			/*

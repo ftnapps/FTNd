@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: xmrecv.c,v 1.15 2007/08/26 12:21:16 mbse Exp $
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -125,7 +124,7 @@ SM_NAMES
 SM_EDECL
 
 	int		tmp, i;
-	int		SEAlink = FALSE, Slo = FALSE;
+	int		SEAlink = FALSE;
 	int		crcmode = session_flags & FTSC_XMODEM_CRC;
 	int		count=0,junk=0,cancount=0;
 	int		header = 0;
@@ -192,7 +191,6 @@ SM_STATE(waitblk0)
 	} else {
 		switch (header) {
 		case EOT:	Syslog('x', "got EOT");
-				Slo = FALSE;
 				if (ackd_blk == -1L)
 					last=1;
 				else {
@@ -457,7 +455,6 @@ SM_STATE(checktelink)
 		remtime=sl2mtime(((time_t)xmblk.data[4])+ ((time_t)xmblk.data[5]<<8)+
 			((time_t)xmblk.data[6]<<16)+ ((time_t)xmblk.data[7]<<24));
 		if (xmblk.data[40]) {
-			Slo = TRUE;
 			remote_flags |= FTSC_XMODEM_SLO;
 		} else 
 			remote_flags &= ~FTSC_XMODEM_SLO;
@@ -519,7 +516,6 @@ SM_STATE(recvm7)
 
 SM_STATE(goteof)
 
-	Slo = FALSE;
 	closeit(1);
 	if (ackd_blk == -1L) 
 		last=1;

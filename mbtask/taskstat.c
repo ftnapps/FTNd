@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: taskstat.c,v 1.35 2008/02/10 13:29:42 mbse Exp $
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -443,11 +442,11 @@ int sem_set(char *sem, int value)
 
 void sem_status_r(char *data, char *buf)
 {
-    char	*cnt, *sem;
+    char	*sem;
     int		value;
 
     snprintf(buf, 40, "200:1,16;");
-    cnt = strtok(data, ",");
+    strtok(data, ",");
     sem = strtok(NULL, ";");
 
     if (!strcmp(sem, "scanout")) {

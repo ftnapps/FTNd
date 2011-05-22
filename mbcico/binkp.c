@@ -1806,7 +1806,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     unsigned short  header = 0;
     int		    rc, id;
 #ifdef HAVE_ZLIB_H
-    int		    rcz, last;
+    int		    rcz;
     uLongf	    zlen;
     Bytef	    *zbuf;
 
@@ -1833,7 +1833,6 @@ int binkp_send_frame(int cmd, char *buf, int len)
     }
 
 #ifdef HAVE_ZLIB_H
-    last = bp.cmpblksize;
     /*
      * Only use compression for DATA blocks larger then 20 bytes.
      * Also, don't send PLZ blocks if GZ or BZ2 mode is active.
@@ -2433,7 +2432,7 @@ int binkp_process_messages(void)
     the_queue	*tmpq, *oldq;
     binkp_list	*tmp;
     file_list	*tsl;
-    int		Found, rmode;
+    int		Found;
     char	*lname, *ropts;
     time_t	ltime;
     int		lsize, loffs;
@@ -2446,20 +2445,13 @@ int binkp_process_messages(void)
     for (tmpq = tql; tmpq; tmpq = tmpq->next) {
 	Syslog('+', "Binkp: %s \"%s\"", bstate[tmpq->cmd], printable(tmpq->data, 0));
 	if (tmpq->cmd == MM_GET) {
-	    rmode = CompNone;
 	    snprintf(lname, 512, "%s", strtok(tmpq->data, " \n\r"));
 	    lsize = atoi(strtok(NULL, " \n\r"));
 	    ltime = atoi(strtok(NULL, " \n\r"));
 	    loffs = atoi(strtok(NULL, " \n\r"));
 	    snprintf(ropts, 512, "%s", printable(strtok(NULL, " \n\r\0"), 0));
 	    Syslog('b', "Binkp: m_file options \"%s\"", ropts);
-	    if (strcmp((char *)"GZ", ropts) == 0)
-    		rmode = CompGZ;
-	    else if (strcmp((char *)"BZ2", ropts) == 0)
-		rmode = CompBZ2;
-	    else
-		 if (strcmp((char *)"NZ", ropts) == 0) {
-		rmode = CompNone;
+	    if (strcmp((char *)"NZ", ropts) == 0) {
 #ifdef	HAVE_ZLIB_H
 		bp.GZwe = bp.GZthey = No;
 #endif

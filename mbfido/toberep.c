@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: toberep.c,v 1.18 2005/11/12 12:52:30 mbse Exp $
  * Purpose ...............: Add a file to the To-Be-Reported database 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,7 +44,7 @@ int Add_ToBeRep(struct _filerecord report)
     char		*fname;
     struct _filerecord	Temp;
     FILE		*tbr;
-    int			rc, Found = FALSE;
+    int			Found = FALSE;
 
     fname = calloc(PATH_MAX, sizeof(char));
     snprintf(fname, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
@@ -67,8 +66,8 @@ int Add_ToBeRep(struct _filerecord report)
 		 * If it's a later received file, update the record
 		 */
 		if (report.Fdate > Temp.Fdate) {
-		    rc = fseek(tbr, - sizeof(Temp), SEEK_CUR);
-		    rc = fwrite(&report, sizeof(Temp), 1, tbr);
+		    fseek(tbr, - sizeof(Temp), SEEK_CUR);
+		    fwrite(&report, sizeof(Temp), 1, tbr);
 		    fclose(tbr);
 		    return TRUE;
 		}

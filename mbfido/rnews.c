@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * $Id: rnews.c,v 1.15 2005/10/11 20:49:47 mbse Exp $
  * Purpose ...............: rnews function
  * Remarks ...............: Most of these functions are borrowed from inn.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -269,7 +268,6 @@ static int Process(char *article)
 {
 	HEADER	*hp;
 	char	*p;
-	char	*id = NULL;
 	FILE	*fp;
 
 	/*
@@ -287,7 +285,6 @@ static int Process(char *article)
 			return FALSE;
 		}
 		if (IS_MESGID(hp)) {
-			id = p;
 			continue;
 		}
 	}

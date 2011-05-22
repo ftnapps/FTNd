@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: respfreq.c,v 1.22 2008/11/26 22:01:01 mbse Exp $
  * Purpose ...............: Fidonet mailer - respond to filerequests
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -159,7 +158,6 @@ file_list *respfreq(char *nm, char *pw, char *dt)
     time_t		upd = 0L;
     int			newer = 1, Send;
     FILE		*fa, *fi;
-    int			Area;
     struct FILEIndex	idx;
     struct _fdbarea	*fdb_area = NULL;
 
@@ -246,7 +244,6 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 	WriteError("$Can't open %s", p);
 	return NULL;
     }
-    Area = 0L;
     free(p);
 
     Syslog('f', "Start search ...");

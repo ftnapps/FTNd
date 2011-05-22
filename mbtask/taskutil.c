@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: taskutil.c,v 1.32 2007/02/26 21:02:31 mbse Exp $
  * Purpose ...............: MBSE BBS Task Manager, utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -356,7 +355,7 @@ int file_exist(char *path, int mode)
 int mkdirs(char *name, mode_t mode)
 {
     char    buf[PATH_MAX], *p, *q;
-    int     rc, last = 0, oldmask;
+    int     last = 0, oldmask;
 
     memset(&buf, 0, sizeof(buf));
     strncpy(buf, name, sizeof(buf)-1);
@@ -367,7 +366,7 @@ int mkdirs(char *name, mode_t mode)
     oldmask = umask(000);
     while ((q = strchr(p, '/'))) {
         *q = '\0';
-        rc = mkdir(buf, mode);
+        mkdir(buf, mode);
         last = errno;
         *q = '/';
         p = q+1;

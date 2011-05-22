@@ -1,6 +1,4 @@
 #
-# $Id: installinit.sh,v 1.22 2008/11/18 21:03:08 mbse Exp $
-#
 # Installation script to install bootscripts.
 #
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:${MBSE_ROOT}/bin
@@ -87,6 +85,10 @@ if [ "$OSTYPE" = "Linux" ]; then
     elif [ -f /etc/gentoo-release ]; then
 	DISTNAME="Gentoo"
 	DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
+    elif [ -f /etc/arch-release ]; then
+	DISTNAME="Arch Linux"
+	# No version, this is a rolling release system
+	DISTVERS="N/A"
     else
 	DISTNAME="Unknown"
 	log "!" "unknown distribution, collecting data"
@@ -297,6 +299,20 @@ if [ "$DISTNAME" = "Gentoo" ]; then
        rc-update add mbsebbs default
        echo "Gentoo install ready."
        log "+" "Gentoo init script installed"
+fi
+
+
+#--------------------------------------------------------------------------
+#
+#  Adding scripts for Arch Linux
+#
+#
+if [ "$DISTNAME" = "Arch Linux" ]; then
+    echo "You are running Arch Linux"
+    log "+" "Adding Arch Linux init script"
+    DISTINIT="/etc/rc.d/mbsebbs"
+
+
 fi
 
 

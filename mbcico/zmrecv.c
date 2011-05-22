@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: zmrecv.c,v 1.15 2007/08/26 14:02:28 mbse Exp $
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -483,20 +482,16 @@ int ackbibi(void)
  */
 int procheader(char *Name)
 {
-	register char *openmode, *p;
+	register char *p;
 	static	int dummy;
 	char	ctt[32];
 
-	Syslog('z', "procheader \"%s\"",printable(Name,0));
-	/* set default parameters and overrides */
-	openmode = (char *)"w";
+	Syslog('z', "procheader \"%s\"", printable(Name,0));
 
 	/*
 	 *  Process ZMODEM remote file management requests
 	 */
 	Thisbinary = (zconv != ZCNL);	/* Remote ASCII override */
-	if (zmanag == ZMAPND)
-		openmode = (char *)"a";
 
 	Bytesleft = DEFBYTL; 
 	Filemode = 0; 

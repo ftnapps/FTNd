@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: mbmon.c,v 1.59 2007/09/02 11:17:32 mbse Exp $
  * Purpose ...............: Monitor Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -80,7 +79,7 @@ static void die(int onsig)
 void ShowSysinfo(void)
 {
     int	    ch;
-    char    buf[128], *cnt, *lc;
+    char    buf[128], *lc;
 
     clr_index();
     set_color(WHITE, BLACK);
@@ -103,7 +102,7 @@ void ShowSysinfo(void)
 	if (socket_send(buf) == 0) {
 	    snprintf(buf, 128, "%s", socket_receive());
 	    if (strncmp(buf, "100:7,", 6) == 0) {
-		cnt = strtok(buf, ",");
+		strtok(buf, ",");
 		mbse_mvprintw( 7,26, "%s", strtok(NULL, ","));
 		mbse_mvprintw( 8,26, "%s", strtok(NULL, ","));
 		mbse_mvprintw( 9,26, "%s", strtok(NULL, ","));
@@ -125,7 +124,7 @@ void ShowSysinfo(void)
 void ShowLastcaller(void)
 {
     int	    records, maxrows, ch, i, y, o;
-    char    buf[128], *cnt;
+    char    buf[128];
 	
     clr_index();
     set_color(WHITE, BLACK);
@@ -144,7 +143,7 @@ void ShowLastcaller(void)
 	if (socket_send(buf) == 0) {
 	    snprintf(buf, 128, "%s", socket_receive());
 	    if (strncmp(buf, "100:1,", 6) == 0) {
-		cnt = strtok(buf, ",");
+		strtok(buf, ",");
 		records = atoi(strtok(NULL, ";"));
 	    }
 	}
@@ -161,7 +160,7 @@ void ShowLastcaller(void)
 		if (socket_send(buf) == 0) {
 		    snprintf(buf, 128, "%s", socket_receive());
 		    if (strncmp(buf, "100:9,", 6) == 0) {
-			cnt = strtok(buf, ",");
+			strtok(buf, ",");
 			mbse_mvprintw(y, 1, "%2d", i);
 			mbse_mvprintw(y, 4, "%s", cldecode(strtok(NULL, ",")));
 			mbse_mvprintw(y,19, "%s", cldecode(strtok(NULL, ",")));
@@ -186,7 +185,7 @@ void ShowLastcaller(void)
 void system_moni(void)
 {
     int	    ch, y, eof;
-    char    *cnt, buf[128];
+    char    buf[128];
     time_t  start, now;
 
     clr_index();
@@ -220,7 +219,7 @@ void system_moni(void)
 			 */
 			eof = 1;
 		    } else {
-			cnt = strtok(buf, ",");
+			strtok(buf, ",");
 			mbse_mvprintw(y, 1, (char *)"%.5s", strtok(NULL, ","));
 			mbse_mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
 			mbse_mvprintw(y,14, (char *)"%.8s", cldecode(strtok(NULL, ",")));
@@ -250,7 +249,7 @@ void system_moni(void)
 void system_stat(void)
 {
     int	    ch;
-    char    buf[256], *cnt;
+    char    buf[256];
     time_t  now;
 
     clr_index();
@@ -289,12 +288,12 @@ void system_stat(void)
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), 256);
 	    set_color(LIGHTGRAY, BLACK);
-	    cnt = strtok(buf, ",");
+	    strtok(buf, ",");
 	    now = atoi(strtok(NULL, ","));
 	    mbse_mvprintw(7, 30, "%s", ctime(&now));
 	    now = atoi(strtok(NULL, ","));
 	    mbse_mvprintw(8, 30, "%s", ctime(&now));
-	    cnt = strtok(NULL, ",");
+	    strtok(NULL, ",");
 	    mbse_mvprintw(9, 30, (char *)"%s ", strtok(NULL, ","));
 	    mbse_mvprintw(10,30, (char *)"%s ", strtok(NULL, ","));
 	    mbse_mvprintw(14,30, (char *)"%s ", strtok(NULL, ","));

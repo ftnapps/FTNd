@@ -1,10 +1,9 @@
 /*****************************************************************************
  * 
- * $Id: nodelist.c,v 1.37 2007/07/09 18:43:53 mbse Exp $
  * Purpose ...............: Read nodelists information
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -354,7 +353,7 @@ void deinitnl(void)
  */
 int initnl(void)
 {
-    int		    i, rc = 0, Found;
+    int		    i, rc = 0;
     FILE	    *dbf, *fp;
     char	    *filexnm, buf[256], *p, *q;
     struct _nlfil   fdx;
@@ -449,8 +448,6 @@ int initnl(void)
 	}
 	fclose(dbf);
     }
-
-    Found = FALSE;
 
     /*
      * Howmany TCP sessions are allowd
