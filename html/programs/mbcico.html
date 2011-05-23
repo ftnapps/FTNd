@@ -14,7 +14,7 @@
 <BODY>
 <BLOCKQUOTE>
 <!-- MBSEADVERT -->
-<div align="right"><h5>Last update 31-Jan-2011</h5></div>
+<div align="right"><h5>Last update 23-May-2011</h5></div>
 <div align="center"><H1>mbcico - The Fidonet mailer.</H1></div>
 
 This is work in progress....
@@ -177,6 +177,7 @@ service tfido
 	instances       = 10
 	server          = /opt/mbse/bin/mbcico
 	server_args     = -t itn
+        flags           = IPv6
 }
 
 service fido
@@ -190,6 +191,8 @@ service fido
 	server_args     = -t ifc
 }
 </PRE><P>
+If you want to use IPv6, add the line flags = IPv6 to the protocol
+like in the example of tfido.
 In the file /etc/services the following lines must be present:
 <P><PRE>
 binkd           24554/tcp               # mbcico IBN mode

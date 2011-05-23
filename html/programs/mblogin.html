@@ -14,7 +14,7 @@
 <BODY>
 <BLOCKQUOTE>
 <!-- MBSEADVERT -->
-<DIV align=right><h5>Last update 25-Aug-2007</h5></DIV>
+<DIV align=right><h5>Last update 23-May-2011</h5></DIV>
 <DIV align=center><H1>mblogin - Unix login replacement for MBSE BBS.</H1></DIV>
 
 <H3>Synopsis.</H3>
@@ -50,7 +50,7 @@ using telnet. The changes you need to make are different for each operating
 system mbse supports. The right lines for your distribution should already
 be present, but they are not set active, in other words, you still need to
 make changes to allow telnet login to work.
-I will describe how to use it from inetd. 
+First I will describe how to use it from inetd. 
 When you make changes to your system to
 change the telnet login, make sure you are already logged into your system as root
 from another terminal. If you make a mistake and can't login anymore you will be
@@ -82,7 +82,7 @@ logins such as ssh, rlogin and login on local consoles.
 <H3>How to use from xinetd.</H3>
 <P>
 This is how to use xinetd, Read the section above also.
-Here is a tested setups:
+Here is a tested setup:
 This has to be done as root. You have to create a service under /etc/xinetd.d
 named telnet if you dont have it yet installed, if it is already installed just
 modify the server_args line to match this:
@@ -93,19 +93,23 @@ Your /etc/xinetd.d/telnet file should look something like this:
 <pre>
 service telnet
 {
-        flags = REUSE
+        protocol        = tcp
+        instances       = 10	
+        flags           = IPv6
         log_on_failure += USERID
-        socket_type = stream
-        user = root
-        server = /usr/sbin/telnetd
-        server_args = -L /opt/mbse/bin/mblogin
-        wait = no
+        socket_type     = stream
+        user            = root
+        server          = /usr/sbin/telnetd
+        server_args     = -L /opt/mbse/bin/mblogin
+        wait            = no
 }
 </pre>
 This will replace the standard login program on xinetd systems to the mblogin
 program, so that next time someone logs into your bbs they will be presented the
 issue file on /opt/mbse/etc file and the login prompt for the BBS instead of the
-standard login prompt.
+standard login prompt. Note that on some systems the server_args need -E instead
+of -L. If you don't have IPv6 enabled on your system, you must remove the
+flags = IPv6 line.
 <p>&nbsp;<p>
 
 
