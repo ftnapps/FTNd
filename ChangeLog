@@ -1,6 +1,8 @@
 
 	general:
 		Added support for Arch Linux.
+		Added some IPv6 configurations to the manual.
+
 
 
 v0.95.12	22-May-2011
