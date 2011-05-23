@@ -110,6 +110,9 @@ if [ "$OSTYPE" = "Linux" ]; then
     elif [ -f /etc/gentoo-release ]; then
         DISTNAME="Gentoo"
         DISTVERS=$( cat /etc/gentoo-release | awk '{ print $5 }' )
+    elif [ -f /etc/arch-release ]; then
+	DISTNAME="Arch Linux"
+	DISTVERS="N/A"
     else
         DISTNAME="Unknown"
     fi
@@ -136,8 +139,8 @@ log "+" "Detected \"${OSTYPE}\" (${HOSTTYPE}) \"${DISTNAME}\" version \"${DISTVE
 if [ "$DISTNAME" = "Unknown" ]; then
     cat << EOF
 
-    Your are trying to install MBSE BBS on $OSTYPE system, however
-    the distribution is unknown.
+    Your are trying to install MBSE BBS on a $OSTYPE system, however
+    that distribution is unknown.
 
 EOF
     log "!" "Aborted, OS is $OSTYPE, distribution is unknown"
@@ -195,6 +198,16 @@ if [ "$DISTNAME" = "Ubuntu" ]; then
 	echo "    'sudo apt-get install xinetd' will install that for you. ***"
 	echo "*** SETUP aborted ***"
 	log "!" "Aborted, Ubuntu without xinetd package"
+	exit 2
+    fi
+fi
+
+if [ "$DISTNAME" = "Arch Linux" ]; then
+    if [ ! -f /etc/xinetd.d/servers ]; then
+	echo "*** You seem to be using Arch Linux but have not yet installed xinetd."
+	echo "    'pacman -S xinetd' will install that for you. ***"
+	echo "*** SETUP aborted ***"
+	log "!" "Aborted, Arch Linux without xinetd package"
 	exit 2
     fi
 fi
