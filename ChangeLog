@@ -2,6 +2,7 @@
 	general:
 		Added support for Arch Linux.
 		Added some IPv6 configurations to the manual.
+		Changed META description lines in the manual.
 
 
 
