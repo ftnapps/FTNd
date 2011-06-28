@@ -4,6 +4,9 @@
 		Added some IPv6 configurations to the manual.
 		Changed META description lines in the manual.
 
+	mbfile:
+		Each html file index page now has an unique name to help
+		search engines.
 
 
 v0.95.12	22-May-2011
