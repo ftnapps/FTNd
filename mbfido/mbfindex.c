@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id: mbfindex.c,v 1.50 2007/02/26 21:02:31 mbse Exp $
  * Purpose: File Database Maintenance - Build index for request processor
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -63,22 +62,6 @@ static char *months[]= {(char *)"Jan",(char *)"Feb",(char *)"Mar",
 			(char *)"Oct",(char *)"Nov",(char *)"Dec"};
 
 
-
-/*
- * Translate a string from ANSI to safe HTML characters
- */
-/*
-char *To_Html(char *);
-char *To_Html(char *inp)
-{
-    static char	temp[1024];
-
-    memset(&temp, 0, sizeof(temp));
-    strncpy(temp, chartran(inp), sizeof(temp) -1);
-
-    return temp;
-}
-*/
 
 
 void tidy_index(Findex **);
@@ -248,25 +231,28 @@ void pagelink(FILE *fa, char *Path, int inArea, int Current)
 FILE *newpage(char *, char *, time_t, int, int, FILE *);
 FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current, FILE *fi)
 {
-        char            linebuf[1024], outbuf[1024];
-        static FILE*    fa;
+    char            linebuf[1024], outbuf[1024];
+    static FILE*    fa;
 
-        lastfile = Current;
-        if (Current)
-                snprintf(linebuf, 1024, "%s/index%d.temp", Path, Current / CFG.www_files_page);
-        else
-                snprintf(linebuf, 1024, "%s/index.temp", Path);
-        if ((fa = fopen(linebuf, "w")) == NULL) {
-                WriteError("$Can't create %s", linebuf);
-        } else {
-                snprintf(linebuf, 1024, "%s", Name);
-                html_massage(linebuf, outbuf, 1024);
-		MacroVars("ab", "ss", rfcdate(later), outbuf);
-                pagelink(fa, Path, inArea, Current);
-		MacroRead(fi, fa);
-                return fa;
-        }
-        return NULL;
+    lastfile = Current;
+    if (Current)
+	snprintf(linebuf, 1024, "%s/index%d.temp", Path, Current / CFG.www_files_page);
+    else
+	snprintf(linebuf, 1024, "%s/index.temp", Path);
+    if ((fa = fopen(linebuf, "w")) == NULL) {
+	WriteError("$Can't create %s", linebuf);
+    } else {
+	if (Current)
+	    snprintf(linebuf, 1024, "%s page %d", Name, (Current / CFG.www_files_page) + 1);
+	else
+	    snprintf(linebuf, 1024, "%s", Name);
+	html_massage(linebuf, outbuf, 1024);
+	MacroVars("ab", "ss", rfcdate(later), outbuf);
+	pagelink(fa, Path, inArea, Current);
+	MacroRead(fi, fa);
+	return fa;
+    }
+    return NULL;
 }
 
 
