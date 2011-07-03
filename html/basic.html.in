@@ -14,7 +14,7 @@
 <BODY>
 <BLOCKQUOTE>
 <!-- MBSEADVERT -->
-<div align="right"><h5>Last update 14-Oct-2007</h5></div>
+<div align="right"><h5>Last update 3-Jul-2011</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -34,7 +34,7 @@ some features. Here is a short list of these packages:
      support for binkp BZ2 compression.</li>
  <li><b>GeoIP</b>. Allows logging of the origin of the network connections by country and continent.
      You need at least GeoIP 1.4.3 to compile without errors. See
-     <A HREF="http://www.maxmind.com/app/geoip_country">www.maxmind.com</A>.
+     <A HREF="http://www.maxmind.com/app/geoip_country" rel="nofollow">www.maxmind.com</A>.
  </ol>
 If you use Gentoo or Ubuntu, read the files README.Gentoo or README.Ubuntu. The last one may be usefull
 for Debian users too.
@@ -44,7 +44,7 @@ for Debian users too.
 <p>
 MBSE BBS is default installed in <b>/opt/mbse</b>. It should be possible to install the bbs in a different
 location but this is not supported. Many have tried, and and only a few have succeeded. See
-<A HREF="http://www.pathname.com/fhs/">Filesystem Hierarchy Standard</A> for more info.
+<A HREF="http://www.pathname.com/fhs/" rel="nofollow">Filesystem Hierarchy Standard</A> for more info.
 The default filesystem layout looks like this:<br>
 <pre>
 /opt/mbse                       0775  Default MBSE_ROOT
@@ -264,12 +264,6 @@ following packages:
      <strong>duhdraw.tgz</strong> (68 Kbytes). 
      The binaries are included in this archive, if you compile it yourself 
      it may give trouble so if the binaries work, use these.</li>
- <li><strong>bmdraw</strong> This editor is available from 
-     <A HREF="http://www.drastic.net/bmdraw/">http://www.drastic.net/bmdraw/</A>,
-     you can find the tar.gz file in 
-     <A HREF="http://www.drastic.net/bmdraw/files/bmd022.tgz">http://www.drastic.net/bmdraw/files/bmd022.tgz</A>, 
-     it's about 36 Kbytes. This is also a thedraw clone for Linux. 
-     Note, at my system I needed to run it as root.</li>
  <li><strong>TetraDraw</strong> This is a very nice Ansi editor, you can
      get this file as TETR~VC#.TGZ from 2:280/2802. The file is 157 Kbytes.
 </ol>
