@@ -3,6 +3,7 @@
 		Added support for Arch Linux.
 		Added some IPv6 configurations to the manual.
 		Changed META description lines in the manual.
+		Fixed a six year old documentation error.
 
 	mbfile:
 		Each html file index page now has an unique name to help
