@@ -8,7 +8,7 @@ config.status
 paths.h
 stamp-h
 html/basic.html
-html/index.htm
+html/index.html
 html/upgrade.html
 script/editor
 script/installinit.log

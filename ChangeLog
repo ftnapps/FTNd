@@ -4,6 +4,7 @@
 		Added some IPv6 configurations to the manual.
 		Changed META description lines in the manual.
 		Fixed a six year old documentation error.
+		All manual pages have only the .html extention.
 
 	mbfile:
 		Each html file index page now has an unique name to help

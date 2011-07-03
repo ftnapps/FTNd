@@ -9,7 +9,7 @@ H_BASE		= dist.html manual.css errcodes.html \
 		  intergate.html intro.html invoking.html faq.html \
 		  known_bugs.html mgetty.html routing.html nodelist.html
 
-H_FTSC		= ftsc/index.htm
+H_FTSC		= ftsc/index.html
 
 H_IMAGES	= images/b_arrow.png  images/magic.png        images/nodes1.png \
 		  images/connec.png   images/mbsetup0.png     images/nodes2.png \
@@ -36,21 +36,21 @@ H_IMAGES	= images/b_arrow.png  images/magic.png        images/nodes1.png \
 		  images/mbmon2.png   images/mbmon1-tn.png    images/mbmon2-tn.png \
 		  images/nodes11.png
 
-H_LICENSE	= license/copying.html license/hydracom.html license/index.htm \
+H_LICENSE	= license/copying.html license/hydracom.html license/index.html \
 		  license/jam.html
 
-H_MENUS		= menus/control.html  menus/index.htm     menus/menu100.html \
+H_MENUS		= menus/control.html  menus/index.html    menus/menu100.html \
 		  menus/menu300.html  menus/menu500.html  \
 		  menus/menu0.html    menus/menu200.html  menus/menu400.html
 
-H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.htm \
+H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.html \
 		  misc/jam.html        misc/semafore.html   misc/filefind.html \
 		  misc/ftpserver.html  misc/ipmailer.html   misc/outbound.html \
 		  misc/usleep.html     misc/webserver.html
 
 H_PROGS		= programs/mbfido.html     programs/mbmon.html \
 		  programs/mbtoberep.html  programs/mblogin.html \
-		  programs/index.htm       programs/mbcico.html \
+		  programs/index.html      programs/mbcico.html \
 		  programs/mbfile.html     programs/mbmsg.html \
 		  programs/mbseq.html      programs/mbuser.html \
 		  programs/mbaff.html      programs/mbdiff.html \
@@ -61,8 +61,8 @@ H_PROGS		= programs/mbfido.html     programs/mbmon.html \
 		  programs/mbstat.html     programs/mbpasswd.html \
 		  programs/mbtask.html
 
-H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
-		  setup/language.html setup/oneliner.html \
+H_SETUP		= setup/archiver.html  setup/index.html     setup/bbs.html \
+		  setup/language.html  setup/oneliner.html \
 		  setup/emareas.html   setup/magic.html    setup/mail.html \
 		  setup/protocol.html  setup/emgroup.html  setup/chat.html \
 		  setup/fdb.html       setup/security.html setup/sitedoc.html \
@@ -74,9 +74,9 @@ H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
 		  setup/hatch.html     setup/virscan.html  setup/services.html \
 		  setup/domains.html   setup/taskmgr.html  setup/route.html
 
-H_OTHER		= index.htm basic.html upgrade.html
+H_OTHER		= index.html basic.html upgrade.html
 
-H_IN		= index.htm.in basic.html.in upgrade.html.in
+H_IN		= index.html.in basic.html.in upgrade.html.in
 
 FILES		= $(H_IN) $(H_BASE) $(H_FTSC) $(H_IMAGES) $(H_LICENSE) $(H_MENUS) $(H_MISC) $(H_PROGS) $(H_SETUP) Makefile
 

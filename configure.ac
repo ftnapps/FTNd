@@ -369,7 +369,7 @@ AC_OUTPUT(
 	INSTALL 
 	FILE_ID.DIZ
 	script/editor
-	html/index.htm
+	html/index.html
 	html/basic.html
 	html/upgrade.html
 )

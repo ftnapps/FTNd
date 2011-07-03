@@ -277,10 +277,10 @@ You may also want to edit ~/etc/header.txt and ~/etc/footer.txt, these
 files are the top and bottom of the newfiles/allfiles listings.
 <P>
 Now the basic environment is finished, the next thing to do is
-<a href="setup/index.htm">configure the bbs</a>.
+<a href="setup/index.html">configure the bbs</a>.
 <P>&nbsp;<P>
 
-<a href="index.htm"><img SRC="images/b_arrow.png" ALT="Back to Index" BORDER=0>Back to Index</a>
+<a href="index.html"><img SRC="images/b_arrow.png" ALT="Back to Index" BORDER=0>Back to Index</a>
 
 </blockquote>
 </body>
