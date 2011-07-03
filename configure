@@ -7400,7 +7400,7 @@ $as_echo "$vpop" >&6; }
 done
 
 
-ac_config_files="$ac_config_files Makefile.global paths.h unix/login.defs INSTALL FILE_ID.DIZ script/editor html/index.htm html/basic.html html/upgrade.html"
+ac_config_files="$ac_config_files Makefile.global paths.h unix/login.defs INSTALL FILE_ID.DIZ script/editor html/index.html html/basic.html html/upgrade.html"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -8121,7 +8121,7 @@ do
     "INSTALL") CONFIG_FILES="$CONFIG_FILES INSTALL" ;;
     "FILE_ID.DIZ") CONFIG_FILES="$CONFIG_FILES FILE_ID.DIZ" ;;
     "script/editor") CONFIG_FILES="$CONFIG_FILES script/editor" ;;
-    "html/index.htm") CONFIG_FILES="$CONFIG_FILES html/index.htm" ;;
+    "html/index.html") CONFIG_FILES="$CONFIG_FILES html/index.html" ;;
     "html/basic.html") CONFIG_FILES="$CONFIG_FILES html/basic.html" ;;
     "html/upgrade.html") CONFIG_FILES="$CONFIG_FILES html/upgrade.html" ;;
 

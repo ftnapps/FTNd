@@ -32,7 +32,7 @@
 
 <ul>
   <li><a href="known_bugs.html">Known Bugs</a></li>
-  <li><a href="license/index.htm">Licenses</a></li>
+  <li><a href="license/index.html">Licenses</a></li>
 </ul>
 <P>&nbsp;<P>
 
@@ -43,7 +43,7 @@
   <li><a href="dist.html">Which distribution to use</a></li>
   <li><a href="basic.html">Basic installation MBSE BBS</a></li>
   <li><a href="upgrade.html">Upgrade MBSE BBS</a></li>
-  <li><a href="setup/index.htm">Configuring the bbs with mbsetup</a>
+  <li><a href="setup/index.html">Configuring the bbs with mbsetup</a>
   <ol>
   <li><A HREF="setup/global.html">Edit Global configuration</a>
   <li><A HREF="setup/fidonet.html">Edit Fido networks</a>
@@ -56,7 +56,7 @@
    <ol>
     <li><A HREF="setup/security.html">Edit Security limits</a>
     <li><A HREF="setup/language.html">Edit Language setup</A>
-    <li><A HREF="menus/index.htm">Edit BBS menus</a>
+    <li><A HREF="menus/index.html">Edit BBS menus</a>
     <li><A HREF="setup/files.html">Edit File areas</a>
     <li><A HREF="setup/protocol.html">Edit Transfer protocols</a>
     <li><A HREF="setup/oneliner.html">Edit Oneliners</a>
@@ -88,7 +88,7 @@
   </ol></li>
   <li><a href="invoking.html">Starting and Stopping the BBS</a></li>
   <li><a href="mgetty.html">Setup mgetty for the BBS</a></li>
-  <li><a href="programs/index.htm">Programs and utilities</a>
+  <li><a href="programs/index.html">Programs and utilities</a>
   <ol>
     <li><a href="programs/mbaff.html">mbaff, Announce newfiles and filefind</a></li>
     <li><a href="programs/mball.html">mball, Allfiles and newfiles list creator</a></li>
@@ -127,8 +127,8 @@
 
 <ul>
   <li><a href="faq.html">Frequently Asked Questions</a></li>
-  <li><a href="ftsc/index.htm">Fidonet Standard Commitee documents</a></li>
-  <li><a href="misc/index.htm">Miscellaneous documents</a></li>
+  <li><a href="ftsc/index.html">Fidonet Standard Commitee documents</a></li>
+  <li><a href="misc/index.html">Miscellaneous documents</a></li>
 </ul>
 
 <hr>
