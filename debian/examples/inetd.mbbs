@@ -1,0 +1,6 @@
+#:MBSE-BBS: bbs service
+binkp	stream	tcp	nowait	mbse	/opt/mbsebbs/bin/mbcico	mbcico -t ibn
+fido	stream	tcp	nowait	mbse	/opt/mbsebbs/bin/mbcico	mbcico -t ifc
+tfido	stream	tcp	nowait	mbse	/opt/mbsebbs/bin/mbcico	mbcico -t itn
+# Telnet to the BBS
+#telnet	stream	tcp	nowait	root	/usr/sbin/tcpd	in.telnetd -L /opt/mbsebbs/bin/mblogin
