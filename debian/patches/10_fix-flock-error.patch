@@ -1,4 +1,4 @@
-Author: Robert James Clay <jame@rocasa.org>
+Author: Robert James Clay <jame@rocasa.us>
 Description: Error at flock.c:43 - call to open missing mode declared with attribute
 error:  open with O_CREAT in second argument needs 3 arguments.
 
