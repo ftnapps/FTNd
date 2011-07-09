@@ -1,9 +1,5 @@
-#robots.txt for bbs.rocasa.org
+#robots.txt for bbbsdeb.github.com
 
 User-agent: *
-Disallow: /CVS 
-Disallow: /bbbs 
-Disallow: /icons
-Disallow: /stats/CVS 
 
 
