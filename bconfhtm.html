@@ -11,7 +11,7 @@
     <link rel="stylesheet alternative" type="text/css" href="print.css" media="screen" title="Print Preview" />
     <link rel="stylesheet" type="text/css" href="print.css" media="print" />
 
-    <title>bbbsdeb.github.com/mrtgbbbs Index </title>
+    <title>bbbsdeb.github.com/bconfhtm Index </title>
   </head>
 
   <body>
@@ -30,9 +30,9 @@
       </div>
 
       <div class="midHeader">
-        <h1 class="headerTitle" lang="en">mrtgbbbs</h1> 
+        <h1 class="headerTitle" lang="en">bconfhtm</h1> 
         <div class="headerSubTitle" title="bbbsdeb at GitHub">
-             Perl script for reading the MRTG information from BBBS
+             Create a BBBS BCONF html page 
         </div>
 
         <br class="doNotDisplay doNotPrint" />
@@ -63,19 +63,15 @@
        
         <div class="twoThirds noBorderOnLeft">
 
-        <p> The traffic statistics for <a href="http://www.bbbs.net/">BBBS</a> can be obtained periodically
-            directly from the BBS, using the capability that <a href="http://bbbs.net">BBBS</a>
-            has to provide information usable by <a href="http://people.ee.ethz.ch/~oetiker/webtools/mrtg/">MRTG</a>
-            (Multi Router Traffic Grapher) to display such statistics.  The BBBS
-            documention has a writeup on a python script which can be used to collect the
-            information from an operational BBBS system;  not being content with that,
-            and knowing that python is not available in as many places as Perl,
-            I created a Perl version of the script which I named <b>mrtgbbbs.pl</b>.
+        <p>Perl script that creates an html page from a file resulting from the
+             <a href="http://www.bbbs.net/">BBBS</a> command <i>bbbs bconf</i> and
+             an HTML template file. Requires the HTML::Template module.
+
             The code for it was originally hosted in the 
             <a href="http://ftnpl.svn.sourceforge.net/viewvc/ftnpl/trunk/scripts/BBBS/mrtgbbbs/">SVN</a>
              repository at the <i>Perl for FTN Systems</i> (<a href="http://ftnpl.sourceforge.net">ftnpl</a>)
              project at <a href="http://sourceforge.net">Sourceforge</a>.
-            </p>
+        </p>
 
         </div>
       </div>
@@ -84,10 +80,11 @@
 
           <ul type="DISC">Quicklinks
 
-            <li><a href="http://github.com/bbbsdeb/mrtgbbbs">bbbsdeb/mrtgbbbs</a></li>
-            <li><a href="https://github.com/bbbsdeb/mrtgbbbs/issues">mrtgbbbs issues</a></li>
-            <li><a href="https://github.com/bbbsdeb/mrtgbbbs/commits/master">mrtgbbbs commits</a></li>
-            <li>Original <a href="http://ftnpl.svn.sourceforge.net/viewvc/ftnpl/trunk/scripts/BBBS/mrtgbbbs/">SVN</a> repository</li>
+            <li><a href="http://github.com/bbbsdeb/bconfhtm">bbbsdeb/bconfhtm</a></li>
+            <li>bconfhtm <a href="https://github.com/bbbsdeb/bconfhtm/issues">issues</a></li>
+            <li>bconfhtm <a href="https://github.com/bbbsdeb/bconfhtm/commits/master">commits</a></li>
+
+            <li>Original <a href="http://ftnpl.svn.sourceforge.net/viewvc/ftnpl/trunk/scripts/BBBS/bconfhtm/">SVN</a> repository</li>
 
           </ul>
 
@@ -102,7 +99,7 @@
     <div id="footer">
       <span class="doNotPrint">
         For comments or questions about this website, please contact the
-        <a href="mailto:jame@rocasa.us" title="NB: jame (at) rocasa.us">Webmaster</a>
+        <a href="mailto:jame@rocasa.us" title="NB: jame (at) rocasa.us"> Webmaster</a>
       </span>
 
     </div>

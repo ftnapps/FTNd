@@ -1,82 +1,141 @@
-<HTML>
-<HEAD>
- <TITLE>Debian packaging for BBBS</TITLE>
- <META NAME="author" content="Robert James Clay">
- <META NAME="keywords" CONTENT="BBBS, FDN, Files, Distribution,Fidonet">
- <META NAME="description" CONTENT="BBBS FDN Information">
- <LINK REL="stylesheet" HREF="bbbs.css" TYPE="text/css"> 
-</HEAD>
-<BODY>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<H1 align="center">BBBS DEB</H1>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-US">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <meta name="author" content="Robert James Clay" />
+    <meta name="generator" content="Robert James Clay" />
 
-<P ALIGN="center">
-    [<A HREF="index.html">Home</A>]
-    [<A HREF="mrtgbbbs.html">mrtg stats</A>]
-    [<A HREF="about.html">About</A>]
-</p>
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen, tv, projection" title="Default" />
+    <link rel="stylesheet alternative" type="text/css" href="print.css" media="screen" title="Print Preview" />
+    <link rel="stylesheet" type="text/css" href="print.css" media="print" />
+
+    <title>bbbsdeb.github.com Index </title>
+  </head>
+
+  <body>
+    <!-- For non-visual user agents: -->
+      <div id="top"><a href="#mainbody" class="doNotDisplay doNotPrint">Skip to main content.</a></div>
+
+    <!-- ##### Header ##### -->
+
+    <div id="header">
+      <div class="superHeader">
+<!--
+        <span>Related Sites:</span>
+        <a href="https://www.bbbs.net" title="BBS Home Page">BBBS</a> |
+        <a href="http://ftn.rocasa.us" title="Rocasa FTN">FTN</a>
+-->
+      </div>
+
+      <div class="midHeader">
+        <h1 class="headerTitle" lang="en">BBBSDEB</h1> 
+        <div class="headerSubTitle" title="bbbsdeb at GitHub">
+             Projects related to the BBBS Application
+        </div>
+
+        <br class="doNotDisplay doNotPrint" />
+
+        <div class="headerLinks">
+          <span class="doNotDisplay">Tools:</span>
+<!--
+          <a href="index.html">sitemap &laquo;</a>
+          <span class="doNotDisplay">|</span>
+          <a style="cursor: help;" title="Thanks to CSS, this page is already printer friendly!">printer-friendly version &laquo;</a>
+-->
+        </div>
+      </div>
+
+      <div class="subHeader">
+        <span class="doNotDisplay">Navigation:</span>
+        <a href="index.html">Home</a> |
+        <a href="pkg-bbbs.html">pkg-bbbs</a> |
+        <a href="mrtgbbbs.html">mrtgbbbs</a> |
+        <a href="bconfhtm.html">bconfhtm</a>
+      </div>
+    </div>
+
+    <!-- ##### Main Body ##### -->
+
+    <div id="mainbody">
+      <div class="rowOfBoxes">
+       
+        <div class="twoThirds noBorderOnLeft">
+
+        <p>This project is for projects and other packaging related to BBBS, which is a complete
+
+            <a href="http://en.wikipedia.org/wiki/Bulletin_board_system">BBS</a>
+
+            package with WWW/InterNet/modem/ISDN/LAN based access modes; see the BBBS
+            <a href="http://www.bbbs.net/">home page</a> for details regarding the BBBS
+            application itself.</p>
+
+        <ul>
+
+            <li><a href="pkg-bbbs.html"<b>pkg-bbbs</b></a> - The installer package <i>bbbs-installer</i> downloads the archive from the www.bbbs.net web site,
+                or uses the one in the tmp directory if already present, then installs the application to the system.
+                The package <i>bbbs-equivs</i> is for when you have manually installed BBBS and would like to make
+                it like a standard Debian installed package.
+            </li>
+
+            <li><a href="mrtgbbbs.html"><b>mrtgbbbs</b></a> -  The Perl script <i>mrtgbbbs.pl</i> can be used to collect statisical information
+                from an operational <a href="http://www.bbbs.net/">BBBS</a> system.
+            </li>
+
+            <li><a href="bconfhtm.html"><b>bconfhtm</b></a> -  The Perl script <i>bconfhtm.pl</i> can be used to create an html page from a
+                 file resulting from the <a href="http://www.bbbs.net/">BBBS</a> command <i>bbbs bconf</i> and
+                 an HTML template file.
+            </li>
+
+            <li><b>pkt-bterm</b> - There is also the BTERM program from the same authors; packaging for that
+                 has been started but is not very far along yet.
+            </li>
+
+        </ul>
 
 
-<H2 align="center">Debian packaging for BBBS (BBBSDEB)</H2>
+        </div>
+      </div>
+    </div>
+        <div class="oneThird">
 
-<!--<P align="center">-->
-<P>This project is about creating debian packaging for BBBS, which is a complete BBS package with WWW/InterNet/modem/ISDN/LAN
- based access modes; see the BBBS home page, http://www.bbbs.net/, for more details.</P>
+          <ul type="DISC">Quicklinks
 
-<P>The installer package <I>bbbs-installer</I> downloads the archive from the www.bbbs.net web site,
- or uses the one in the tmp directory if already present, then installs the application to the system.</P>
+            <li><a href="http://github.com/bbbsdeb">github.com/bbbsdeb</a></li>
+<!--
+            <li><a href="https://github.com/bbbsdeb/bbbsdeb.github.com/issues">Website issues</a></li>
+-->
+          </ul>
 
-<P>The package <I>bbbs-equivs</I> is for when you have manually installed BBBS and would like to make
- it like a standard Debian installed package.</P>
+          <ul type="DISC">
 
-<P>There is also the BTERM program from the same authors; packaging for that has been started but is not very far along yet.</P>
+            <li><a href="pkg-bbbs.html">bbbsdeb/pkg-bbbs</a></li>
+            <li><a href="mrtgbbbs.html">bbbsdeb/mrtgbbbs</a></li>
+            <li><a href="bconfhtm.html">bbbsdeb/bconfhtm</a></li>
 
-<TABLE align="center" width="70%">
-  <TR><TH>Link</TH><TH>Description</TH></TR>
+          </ul>
 
-  <TR>
-   <TD><A HREF="https://bbs.rocasa.us/bbbs?id=;userid=Anonymous;do=r223">bbs.bbbs.deb</A></TD>
-   <TD>BBBS Debian packaging conference.  Distributed as the BBBSDEB echo and as a mailing list.</TD>
-  </TR>
+          <p class="filler"><!-- Filler para to extend left vertical line --></p>
+          <p class="filler"><!-- Filler para to extend left vertical line --></p>
+          <p class="filler"><!-- Filler para to extend left vertical line --></p>
+          <p class="filler"><!-- Filler para to extend left vertical line --></p>
+          <p class="filler"><!-- Filler para to extend left vertical line --></p>
+          <p class="filler"><!-- Filler para to extend left vertical line --></p>
 
-  <TR>
-   <TD><A HREF="https://bbs.rocasa.us/bbbs?id=;userid=Anonymous;do=r218">bbs.bbbs</A></TD>
-   <TD>The International BBBS Support Echo.  Distributed as the BBBS.ENGLISH echo and as a mailing list (by the author).</TD>
-  </TR>
+        </div>
+      </div>
 
-  <TR>
-   <TD><A HREF="https://bbs.rocasa.us/bbbs?id=;userid=Anonymous;do=l/apps/bbbs/linux/,21">BBBS-L</A></TD>
-   <TD>BBBS and BTerm for Linux File Distribution (<A HREF="http://bbs/rocas/us/bbbsfdn.html">FDN</A>)</TD>
-  </TR>
+    <!-- ##### Footer ##### -->
 
-  <TR>
-   <TD><A HREF="http://git.rocasa.org/gitweb.cgi/bbbsdeb.git?a=shortlog;h=refs/heads/bbbs-installer">bbbs-installer</A></TD>
-   <TD>Branch for the BBBS Installer package in the code repository</TD>
-  </TR>
+    <div id="footer">
+      <span class="doNotPrint">
+        For comments or questions about this website, please contact the
+        <a href="mailto:jame@rocasa.us" title="NB: jame (at) rocasa.us"> Webmaster</a>
+      </span>
 
-  <TR>
-   <TD><A HREF="http://git.rocasa.org/gitweb.cgi/bbbsdeb.git?a=shortlog;h=refs/heads/bbbs-equivs">bbbs-equivs</A></TD>
-   <TD>Branch for the BBBS Equivelents package in the code repository</TD>
-  </TR>
+    </div>
 
-</TABLE>
+  </body>
 
-
-<H2 ALIGN="center">Email or Netmail contact info</H2>
-<TABLE ALIGN="center">
- <TR><TD>
-  <UL>
-   <LI><A href="mailto:Jame.Clay@bbs.rocasa.us">Jame.Clay@bbs.rocasa.us</A> or <A href="mailto:jame@rocasa.us">jame@rocasa.us</A></LI>
-   <LI>If you have access to&nbsp;<A HREF="http://ftn.rocasa.us/Fidonet.html">Fidonet</A>, you can netmail me at 1:120/546.</LI>
-   <LI>If you have access to&nbsp;<A HREF="http://ftn.rocasa.us/SysopsTechNet.html">Sysops TechNet</A>, you can also netmail me at 111:4150/402.</LI>
-  </UL>
- </TD></TR>
-</TABLE>
-
-
-<FONT SIZE="-2">
- <CENTER>Copyright &#169 2010 Robert James Clay</CENTER>
-</FONT>
-
-</BODY>
-</HTML>
+</html>
