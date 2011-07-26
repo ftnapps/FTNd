@@ -5,7 +5,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# Use quilt                                                                                                                                       
+# Use quilt
 include /usr/share/quilt/quilt.make
 
 # Set MBSE_ROOT to mbse installation directory.
@@ -20,48 +20,48 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 CFLAGS = -Wall
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
+    CFLAGS += -O0
 else
-	CFLAGS += -O2
+    CFLAGS += -O2
 endif
 
 config.status: configure
 configure: configure-stamp
 configure-stamp: $(QUILT_STAMPFN)
-	dh_testdir
-	# Add here commands to configure the package.
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/opt/mbse CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+    dh_testdir
+    # Add here commands to configure the package.
+    ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/opt/mbse CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
 
 
 build: build-stamp
 
 build-stamp:  configure
-	dh_testdir
+    dh_testdir
 
-	# Add here commands to compile the package.
-	$(MAKE)
+    # Add here commands to compile the package.
+    $(MAKE)
 
-	touch $@
+    touch $@
 
 clean: cleanall unpatch
 cleanall:
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp 
+    dh_testdir
+    dh_testroot
+    rm -f build-stamp 
 
-	# Add here commands to clean up after the build process.
-	#$(MAKE) distclean	# Should only be run if Makefile.global is present.
+    # Add here commands to clean up after the build process.
+    #$(MAKE) distclean	# Should only be run if Makefile.global is present.
 
-	dh_clean 
+    dh_clean 
 
 install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k 
-	dh_installdirs
+    dh_testdir
+    dh_testroot
+    dh_clean -k 
+    dh_installdirs
 
-	# Add here commands to install the package into debian/mbsebbs.
-	# Note that most files are being installed using debian/install.
+    # Add here commands to install the package into debian/mbsebbs.
+    # Note that most files are being installed using debian/install.
 
 
 # Build architecture-independent files here.
@@ -70,28 +70,28 @@ binary-indep: build install
 
 # Build architecture-dependent files here.
 binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs ChangeLog
-	dh_installdocs -XREADME
-	dh_installexamples -XMakefile -Xinit. -X.in -XREADME -Xsetup.mbse script/* debian/examples/*
-	dh_install -XMakefile -X.in 
-	dh_installmenu
-#	dh_installdebconf	
-	dh_installlogrotate
-	dh_lintian
-	dh_installinit
-	dh_installman
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-#	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
+    dh_testdir
+    dh_testroot
+    dh_installchangelogs ChangeLog
+    dh_installdocs -XREADME
+    dh_installexamples -XMakefile -Xinit. -X.in -XREADME -Xsetup.mbse script/* debian/examples/*
+    dh_install -XMakefile -X.in 
+    dh_installmenu
+#   dh_installdebconf
+    dh_installlogrotate
+    dh_lintian
+    dh_installinit
+    dh_installman
+    dh_link
+    dh_strip
+    dh_compress
+    dh_fixperms
+#   dh_makeshlibs
+    dh_installdeb
+    dh_shlibdeps
+    dh_gencontrol
+    dh_md5sums
+    dh_builddeb
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install patch unpatch

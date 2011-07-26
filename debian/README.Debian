@@ -13,7 +13,7 @@ mbsebbs for Debian
 IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat
    That indicates that the entry for it is missing from the file.  Add
    a line such this to the /etc/services file:
-fido		60179/udp			# MBSE BBS Chatserver
+fido        60179/udp           # MBSE BBS Chatserver
 
 
  -- Robert James Clay <jame@rocasa.us>  Mon,  4 Jul 2011 15:49:33 -0400
