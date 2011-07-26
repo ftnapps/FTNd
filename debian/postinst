@@ -21,182 +21,182 @@ set -e
 case "$1" in
     configure)
     # Install example bash profile if it is not already present
-    if [ ! -e "/opt/mbsebbs/.profile" ]; then
-        install -m 440 /usr/share/doc/mbsebbs/examples/profile.mbbs /opt/mbsebbs/.profile
+    if [ ! -e "/opt/mbse/.profile" ]; then
+        install -m 440 /usr/share/doc/mbsebbs/examples/profile.mbbs /opt/mbse/.profile
     fi
 
     # Install example bbbsdoor.sh script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/bbsdoor.sh" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/bbsdoor.sh /opt/mbsebbs/bin/bbsdoor.sh
+    if [ ! -e "/opt/mbse/bin/bbsdoor.sh" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/bbsdoor.sh /opt/mbse/bin/bbsdoor.sh
     fi
     # Install example editor script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/editor" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/editor /opt/mbsebbs/bin/editor
+    if [ ! -e "/opt/mbse/bin/editor" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/editor /opt/mbse/bin/editor
     fi
     # Install example hatch script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/hatch" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/hatch /opt/mbsebbs/bin/hatch
+    if [ ! -e "/opt/mbse/bin/hatch" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/hatch /opt/mbse/bin/hatch
     fi
     # Install example mbsedos script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/mbsedos" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/mbsedos /opt/mbsebbs/bin/mbsedos
+    if [ ! -e "/opt/mbse/bin/mbsedos" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/mbsedos /opt/mbse/bin/mbsedos
     fi
     # Install example rundoor.sh script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/rundoor.sh" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/rundoor.sh /opt/mbsebbs/bin/rundoor.sh
+    if [ ! -e "/opt/mbse/bin/rundoor.sh" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/rundoor.sh /opt/mbse/bin/rundoor.sh
     fi
     # Install example runvirtual.sh script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/runvirtual.sh" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/runvirtual.sh /opt/mbsebbs/bin/runvirtual.sh
+    if [ ! -e "/opt/mbse/bin/runvirtual.sh" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/runvirtual.sh /opt/mbse/bin/runvirtual.sh
     fi
     # Install example maint script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/adm/maint" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/maint /opt/mbsebbs/bin/adm/maint
+    if [ ! -e "/opt/mbse/bin/adm/maint" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/maint /opt/mbse/bin/adm/maint
     fi
     # Install example midnight script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/adm/midnight" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/midnight /opt/mbsebbs/bin/adm/midnight
+    if [ ! -e "/opt/mbse/bin/adm/midnight" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/midnight /opt/mbse/bin/adm/midnight
     fi
     # Install example monthly script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/adm/monthly" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/monthly /opt/mbsebbs/bin/adm/monthly
+    if [ ! -e "/opt/mbse/bin/adm/monthly" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/monthly /opt/mbse/bin/adm/monthly
     fi
     # Install example weekly script if it is not already present
-    if [ ! -e "/opt/mbsebbs/bin/adm/weekly" ]; then
-        install -m 750 /usr/share/doc/mbsebbs/examples/weekly /opt/mbsebbs/bin/adm/weekly
+    if [ ! -e "/opt/mbse/bin/adm/weekly" ]; then
+        install -m 750 /usr/share/doc/mbsebbs/examples/weekly /opt/mbse/bin/adm/weekly
     fi
 
     # Install example footer.txt file if it is not already present
-    if [ ! -e "/opt/mbsebbs/etc/footer.txt" ]; then
-        install -m 640 /usr/share/mbsebbs/etc/footer.txt /opt/mbsebbs/etc/footer.txt
+    if [ ! -e "/opt/mbse/etc/footer.txt" ]; then
+        install -m 640 /usr/share/mbsebbs/etc/footer.txt /opt/mbse/etc/footer.txt
     fi
     # Install example header.txt file if it is not already present
-    if [ ! -e "/opt/mbsebbs/etc/header.txt" ]; then
-        install -m 640 /usr/share/mbsebbs/etc/header.txt /opt/mbsebbs/etc/header.txt
+    if [ ! -e "/opt/mbse/etc/header.txt" ]; then
+        install -m 640 /usr/share/mbsebbs/etc/header.txt /opt/mbse/etc/header.txt
     fi
 
     # Install the English BBS language file if it is not already present
-    if [ ! -e "/opt/mbsebbs/share/int/language.en" ]; then
-        install -m 640 /usr/share/mbsebbs/int/language.en /opt/mbsebbs/share/int/language.en
+    if [ ! -e "/opt/mbse/share/int/language.en" ]; then
+        install -m 640 /usr/share/mbsebbs/int/language.en /opt/mbse/share/int/language.en
     fi
     # Install the Spanish BBS language file if it is not already present
-    if [ ! -e "/opt/mbsebbs/share/int/language.es" ]; then
-        install -m 640 /usr/share/mbsebbs/int/language.es /opt/mbsebbs/share/int/language.es
+    if [ ! -e "/opt/mbse/share/int/language.es" ]; then
+        install -m 640 /usr/share/mbsebbs/int/language.es /opt/mbse/share/int/language.es
     fi
     # Install the German BBS language file if it is not already present
-    if [ ! -e "/opt/mbsebbs/share/int/language.de" ]; then
-        install -m 640 /usr/share/mbsebbs/int/language.de /opt/mbsebbs/share/int/language.de
+    if [ ! -e "/opt/mbse/share/int/language.de" ]; then
+        install -m 640 /usr/share/mbsebbs/int/language.de /opt/mbse/share/int/language.de
     fi
     # Install the French BBS language file if it is not already present
-    if [ ! -e "/opt/mbsebbs/share/int/language.fr" ]; then
-        install -m 640 /usr/share/mbsebbs/int/language.fr /opt/mbsebbs/share/int/language.fr
+    if [ ! -e "/opt/mbse/share/int/language.fr" ]; then
+        install -m 640 /usr/share/mbsebbs/int/language.fr /opt/mbse/share/int/language.fr
     fi
     # Install the Galician BBS language file if it is not already present
-    if [ ! -e "/opt/mbsebbs/share/int/language.gl" ]; then
-        install -m 640 /usr/share/mbsebbs/int/language.gl /opt/mbsebbs/share/int/language.gl
+    if [ ! -e "/opt/mbse/share/int/language.gl" ]; then
+        install -m 640 /usr/share/mbsebbs/int/language.gl /opt/mbse/share/int/language.gl
     fi
     # Install the Dutch BBS language file if it is not already present
-    if [ ! -e "/opt/mbsebbs/share/int/language.nl" ]; then
-        install -m 640 /usr/share/mbsebbs/int/language.nl /opt/mbsebbs/share/int/language.nl
+    if [ ! -e "/opt/mbse/share/int/language.nl" ]; then
+        install -m 640 /usr/share/mbsebbs/int/language.nl /opt/mbse/share/int/language.nl
     fi
     # Install the Chinese BBS language file if it is not already present
-    if [ ! -e "/opt/mbsebbs/share/int/language.zh" ]; then
-        install -m 640 /usr/share/mbsebbs/int/language.zh /opt/mbsebbs/share/int/language.zh
+    if [ ! -e "/opt/mbse/share/int/language.zh" ]; then
+        install -m 640 /usr/share/mbsebbs/int/language.zh /opt/mbse/share/int/language.zh
     fi
 
     # Create macros directory if not already present
-    if [ ! -d "/opt/mbsebbs/share/int/macro/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/macro
+    if [ ! -d "/opt/mbse/share/int/macro/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/macro
     fi
     # Install english text macro files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/macro/en/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/macro/en
-        tar xfC /usr/share/mbsebbs/int/templates-en.tar /opt/mbsebbs/share/int/macro/en
+    if [ ! -d "/opt/mbse/share/int/macro/en/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/macro/en
+        tar xfC /usr/share/mbsebbs/int/templates-en.tar /opt/mbse/share/int/macro/en
     fi
     # Install spanish text macro files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/macro/es/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/macro/es
-        tar xfC /usr/share/mbsebbs/int/templates-es.tar /opt/mbsebbs/share/int/macro/es
+    if [ ! -d "/opt/mbse/share/int/macro/es/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/macro/es
+        tar xfC /usr/share/mbsebbs/int/templates-es.tar /opt/mbse/share/int/macro/es
     fi
     # Install german text macro files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/macro/de/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/macro/de
-        tar xfC /usr/share/mbsebbs/int/templates-de.tar /opt/mbsebbs/share/int/macro/de
+    if [ ! -d "/opt/mbse/share/int/macro/de/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/macro/de
+        tar xfC /usr/share/mbsebbs/int/templates-de.tar /opt/mbse/share/int/macro/de
     fi
     # Install dutch text macro files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/macro/nl/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/macro/nl
-        tar xfC /usr/share/mbsebbs/int/templates-nl.tar /opt/mbsebbs/share/int/macro/nl
+    if [ ! -d "/opt/mbse/share/int/macro/nl/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/macro/nl
+        tar xfC /usr/share/mbsebbs/int/templates-nl.tar /opt/mbse/share/int/macro/nl
     fi
 
     # Create menu directory if not already present
-    if [ ! -d "/opt/mbsebbs/share/int/menus/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/menus
+    if [ ! -d "/opt/mbse/share/int/menus/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/menus
     fi
     # Install english text menu files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/menus/en/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/menus/en
-        tar xfC /usr/share/mbsebbs/int/menus-en.tar /opt/mbsebbs/share/int/menus/en
+    if [ ! -d "/opt/mbse/share/int/menus/en/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/menus/en
+        tar xfC /usr/share/mbsebbs/int/menus-en.tar /opt/mbse/share/int/menus/en
     fi
     # Install spanish text menu files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/menus/es/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/menus/es
-        tar xfC /usr/share/mbsebbs/int/menus-es.tar /opt/mbsebbs/share/int/menus/es
+    if [ ! -d "/opt/mbse/share/int/menus/es/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/menus/es
+        tar xfC /usr/share/mbsebbs/int/menus-es.tar /opt/mbse/share/int/menus/es
     fi
 
     # Create txtfiles directory if not already present
-    if [ ! -d "/opt/mbsebbs/share/int/txtfiles/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/txtfiles
+    if [ ! -d "/opt/mbse/share/int/txtfiles/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/txtfiles
     fi
     # Install english text txtfiles files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/txtfiles/en/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/txtfiles/en
-        tar xfC /usr/share/mbsebbs/int/txtfiles-en.tar /opt/mbsebbs/share/int/txtfiles/en
+    if [ ! -d "/opt/mbse/share/int/txtfiles/en/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/txtfiles/en
+        tar xfC /usr/share/mbsebbs/int/txtfiles-en.tar /opt/mbse/share/int/txtfiles/en
     fi
     # Install spanish text txtfiles files if that directory is not already present
-    if [ ! -d "/opt/mbsebbs/share/int/txtfiles/es/" ]; then
-        mkdir --mode=755 /opt/mbsebbs/share/int/txtfiles/es
-        tar xfC /usr/share/mbsebbs/int/txtfiles-es.tar /opt/mbsebbs/share/int/txtfiles/es
+    if [ ! -d "/opt/mbse/share/int/txtfiles/es/" ]; then
+        mkdir --mode=755 /opt/mbse/share/int/txtfiles/es
+        tar xfC /usr/share/mbsebbs/int/txtfiles-es.tar /opt/mbse/share/int/txtfiles/es
     fi
 
     #  Set default user:group for mbsebbs install
-    chown -R mbsebbs:bbs /opt/mbsebbs
+    chown -R mbse:bbs /opt/mbse
 
     #   Remove if present then install the stat override for setuid mbtask
-    dpkg-statoverride --remove /opt/mbsebbs/bin/mbtask >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/mbsebbs/bin/mbtask
+    dpkg-statoverride --remove /opt/mbse/bin/mbtask >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbtask
 
     #   Remove if present then install the stat override for setuid mbnewusr
-    dpkg-statoverride --remove /opt/mbsebbs/bin/mbnewusr >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add mbsebbs bbs 6750 /opt/mbsebbs/bin/mbnewusr
+    dpkg-statoverride --remove /opt/mbse/bin/mbnewusr >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add mbse bbs 6750 /opt/mbse/bin/mbnewusr
 
     #   Remove if present then install the stat override for setuid root and 
     #   setgid root for mbuser (-rws--s--x)
-    dpkg-statoverride --remove /opt/mbsebbs/bin/mbuser >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/mbsebbs/bin/mbuser
+    dpkg-statoverride --remove /opt/mbse/bin/mbuser >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbuser
 
     #   Remove if present then install the stat override for setuid root and 
     #   setgid root for mbuseradd (-rws--s--x)
-    dpkg-statoverride --remove /opt/mbsebbs/bin/mbuseradd >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/mbsebbs/bin/mbuseradd
+    dpkg-statoverride --remove /opt/mbse/bin/mbuseradd >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbuseradd
 
     #   Remove if present then install the stat override for setuid root and 
     #   setgid root for mbpasswd (-rws--s--x)
-    dpkg-statoverride --remove /opt/mbsebbs/bin/mbpasswd >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/mbsebbs/bin/mbpasswd
+    dpkg-statoverride --remove /opt/mbse/bin/mbpasswd >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/mbse/bin/mbpasswd
 
     #   Remove if present then install the stat override owndership by
     #   root for mblogin.
-    dpkg-statoverride --remove /opt/mbsebbs/bin/mblogin >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 0755 /opt/mbsebbs/bin/mblogin
+    dpkg-statoverride --remove /opt/mbse/bin/mblogin >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 0755 /opt/mbse/bin/mblogin
 
-    #   Remove if present then install the stat setting for /opt/mbsebbs/tmp
-    dpkg-statoverride --remove /opt/mbsebbs/tmp >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add mbsebbs bbs 0770 /opt/mbsebbs/tmp
+    #   Remove if present then install the stat setting for /opt/mbse/tmp
+    dpkg-statoverride --remove /opt/mbse/tmp >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add mbse bbs 0770 /opt/mbse/tmp
 
-    #   Remove if present then install the stat setting for /opt/mbsebbs/etc
-    dpkg-statoverride --remove /opt/mbsebbs/etc >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add mbsebbs bbs 0770 /opt/mbsebbs/etc
+    #   Remove if present then install the stat setting for /opt/mbse/etc
+    dpkg-statoverride --remove /opt/mbse/etc >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add mbse bbs 0770 /opt/mbse/etc
 
     ;;
 

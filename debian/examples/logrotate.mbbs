@@ -1,4 +1,4 @@
-/opt/mbsebbs/log/*.log {
+/opt/mbse/log/*.log {
   rotate 7
   daily
   compress

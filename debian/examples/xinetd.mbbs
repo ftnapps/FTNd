@@ -12,7 +12,7 @@ service binkp
     wait            = no
     user            = mbsebbs
     instances       = 10
-    server          = /opt/mbsebbs/bin/mbcico
+    server          = /opt/mbse/bin/mbcico
     server_args     = -t ibn
 }
 
@@ -23,7 +23,7 @@ service fido
     wait            = no
     user            = mbsebbs
     instances       = 10
-    server          = /opt/mbsebbs/bin/mbcico
+    server          = /opt/mbse/bin/mbcico
     server_args     = -t ifc
 }
 
@@ -34,7 +34,7 @@ service tfido
     wait            = no
     user            = mbsebbs
     instances       = 10
-    server          = /opt/mbsebbs/bin/mbcico
+    server          = /opt/mbse/bin/mbcico
     server_args     = -t itn
 }
 
@@ -50,7 +50,7 @@ service telnet
     socket_type     = stream
     user            = root
     server          = /usr/sbin/in.telnetd
-    server_args     = -L /opt/mbsebbs/bin/mblogin
+    server_args     = -L /opt/mbse/bin/mblogin
     wait            = no
 }
 
@@ -66,7 +66,7 @@ service telnets
     socket_type     = stream
     user            = root
     server          = /usr/sbin/in.telnetd
-    server_args     = -L /opt/mbsebbs/bin/mblogin
+    server_args     = -L /opt/mbse/bin/mblogin
     wait            = no
 }
 
@@ -80,7 +80,7 @@ service nntp
     wait            = no
     user            = mbsebbs
     instances       = 10
-    server          = /opt/mbsebbs/bin/mbnntp
+    server          = /opt/mbse/bin/mbnntp
 }
 
 # NNTP using SSL to the bbs using mbnntp, disabled by default.
@@ -93,6 +93,6 @@ service nntps
     wait            = no
     user            = mbsebbs
     instances       = 10
-    server          = /opt/mbsebbs/bin/mbnntp
+    server          = /opt/mbse/bin/mbnntp
 }
 

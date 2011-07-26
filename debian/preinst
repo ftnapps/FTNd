@@ -18,8 +18,8 @@ case "$1" in
     install|upgrade)
         # configure 'mbsebbs' user and 'bbs' group
         getent group bbs >/dev/null 2>&1 || addgroup --system bbs
-        getent passwd mbsebbs >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbsebbs --ingroup bbs --shell /bin/bash --gecos "MBSE BBS Admin" mbsebbs || adduser mbsebbs uucp || adduser mbsebbs dialout || adduser mbsebbs dip
-        getent passwd bbs >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbsebbs/home/bbs --ingroup bbs --shell /opt/mbsebbs/bin/mbnewusr --gecos "MBSE BBS Login" bbs || passwd -d bbs
+        getent passwd mbse >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbse --ingroup bbs --shell /bin/bash --gecos "MBSE BBS Admin" mbse || adduser mbse uucp || adduser mbse dialout || adduser mbse dip
+        getent passwd bbs >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbse/home/bbs --ingroup bbs --shell /opt/mbse/bin/mbnewusr --gecos "MBSE BBS Login" bbs || passwd -d bbs
     ;;
 
     abort-upgrade)
