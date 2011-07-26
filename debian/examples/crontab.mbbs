@@ -21,6 +21,6 @@
 #  From here you should enter your outgoing mailslots, when to send mail etc.
 
 # Mail slot example.
-#00 02 * * *    export MBSE_ROOT=/opt/mbse; \$MBSE_ROOT/bin/mbout poll f16.n2801.z2 -quiet
-#00 03 * * *    export MBSE_ROOT=/opt/mbse; \$MBSE_ROOT/bin/mbout stop f16.n2801.z2 -quiet
+#00 02 * * *    export MBSE_ROOT=/opt/mbsebbs; \$MBSE_ROOT/bin/mbout poll f16.n2801.z2 -quiet
+#00 03 * * *    export MBSE_ROOT=/opt/mbsebbs; \$MBSE_ROOT/bin/mbout stop f16.n2801.z2 -quiet
 
