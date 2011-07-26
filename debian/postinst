@@ -22,7 +22,7 @@ case "$1" in
     configure)
     # Install example bash profile if it is not already present
     if [ ! -e "/opt/mbsebbs/.profile" ]; then
-	install -m 440 /usr/share/doc/mbsebbs/examples/profile.mbse /opt/mbsebbs/.profile
+	install -m 440 /usr/share/doc/mbsebbs/examples/profile.mbbs /opt/mbsebbs/.profile
     fi
 
     # Install example bbbsdoor.sh script if it is not already present
