@@ -57,7 +57,7 @@ cleanall:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_clean -k
 	dh_installdirs
 
     # Add here commands to install the package into debian/mbsebbs.
@@ -73,11 +73,10 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs ChangeLog
-	dh_installdocs -XREADME
+	dh_installdocs 
 	dh_installexamples -XMakefile -Xinit. -X.in -XREADME -Xsetup.mbse script/* debian/examples/*
 	dh_install -XMakefile -X.in 
 	dh_installmenu
-#	dh_installdebconf
 	dh_installlogrotate
 	dh_lintian
 	dh_installinit
@@ -86,7 +85,6 @@ binary-arch: build install
 	dh_strip
 	dh_compress
 	dh_fixperms
-#	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
