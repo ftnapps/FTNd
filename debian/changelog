@@ -1,5 +1,5 @@
-mbsebbs (0.92.0-1~8) UNRELEASED; urgency=low
+mbsebbs (0.92.0-1) stable; urgency=low
 
   * Initial release of MBSE BBS as a Debian package. 
 
- -- Robert James Clay <jame@rocasa.us>  Sat, 30 Jul 2011 18:28:23 -0400
+ -- Robert James Clay <jame@rocasa.us>  Sun, 31 Jul 2011 10:45:45 -0400
