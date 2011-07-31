@@ -1,19 +1,42 @@
 mbsebbs for Debian
 ------------------
 
+    MBSE BBS is installed to /opt/mbse.  The user IDs mbse and bbs are also
+    installed for use by MBSE BBS but their passwords are not set as part of
+    the installation..
+
+    The initial setup of MBSE BBS should be done by becoming the MBSE BBS
+    system user (mbse) and running the mbsetup program.  That sets up any
+    configuration files that are not already present.  The first user added
+    to the system becomes the Sysop by default, and can be done by logging
+    in as the bbs user.
+
+    The /usr/share/mbsebbs directory is where the standard language, menu,
+    template, and txtfiles archives are installed during the package
+    installations and/or updates. During an initial install, they are then
+    copied to the standard /opt/mbse/share/int directories for use by the
+    MBSE BBS system.
+
+    The standard html files are installed to /usr/share/doc/mbsebbs/html,
+    with a softlink to there from /opt/mbse/html.
+
     An example crontab is available as doc/mbsebbs/examples/crontab.mbse,
     which can be installed using the crontab command as the user mbse.
 
     Configuring inetd or xinetd.  For inetd;  the information in
-   doc/mbsebbs/examples/inetd.mbbs could be added to /etc/inetd.conf.
-   For xinetd: the doc/mbsebbs/examples/xinetd.mbbs could be installed
-   as /etc/xinetd.d/mbsebbs.
+    doc/mbsebbs/examples/inetd.mbbs could be added to /etc/inetd.conf.
+    For xinetd: the doc/mbsebbs/examples/xinetd.mbbs could be installed
+    as /etc/xinetd.d/mbsebbs.
+
+    An FTN nodelist is needed for the installation, when the system is
+    configured for FTN uplinks.
 
     If you get an error message such as this when mbtask is started: 
 IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat
-   That indicates that the entry for it is missing from the file.  Add
-   a line such this to the /etc/services file:
+
+    That indicates that the entry for it is missing from the file.  Add
+    a line such as this to the /etc/services file:
 fido        60179/udp           # MBSE BBS Chatserver
 
 
- -- Robert James Clay <jame@rocasa.us>  Mon,  4 Jul 2011 15:49:33 -0400
+ -- Robert James Clay <jame@rocasa.us>  Sun, 31 Jul 2011 10:36:33 -0400
