@@ -3,9 +3,15 @@ Debian TODO for MBSE BBS
 
 Packaging
 ----------
+- With purge; remove user:group mbse:bbs.  Remove /opt/mbse directory.
+- With at least purge, if not also remove:  remove statoverrides
 
-- Change patching system from dpatch to quilt, as a step in changing from a
-  format 1.0 package to a format 3.0 package.
+- Create a basic man page that points to the html documentation?
+
+- Create man pages for executables;  for instance, using help2man or html2man?.
+
+- The README and README.Ubuntu files from the source archive do not need
+  to be installed with the MBSE BBS package.
 
 - Reference line 53 in debian/rules;  only run the 'Make distclean' if the
   Makefile.global file is actually present.
@@ -17,11 +23,10 @@ Packaging
   so create patches to configure script that says that the programs are present.
   Will that need a build-depends for those programs? Or can just use Suggests?
 
-- Create man pages for executables;  for instance, using help2man or html2man?.
-  Or create basic man pages that points to the html documentation?
-
-- With purge; remove user:group mbse:bbs.  Remove /opt/mbse directory.
-- With at least purge, if not also remove:  remove statoverrides
+- Changing things like the default installation directory from /opt/mbse to
+  /opt/mbsebbs, or the user from mbse to mbsebbs, requires changes to the 
+  configure.ac file.  Like for the item above, that can be done using the patch
+  system.
 
 - Now using dh_lintian to install the package lintian overrides file. If need
   source package Lintian overrides, create debian/source.lintian-overrides.
@@ -30,29 +35,20 @@ Packaging
 
 - Create & use debian/po, so that any debconf messages can be translated?
 
-  
+
 Configuration:
 - Run mbsetup as part of postinst for a new installation?  Or just advise that it should
   be run asap after a new install?  (Perhaps put a note about it in debian/News?)
 
-- example logrotate.d file
-- Create a debian/mbsebbs.logrotate file, so that dh_installlogrotate can install
-  it?  And/or also provide an example file?  Or just a note in the debian readme?
-
-- Add note about needing an FTN Nodelist
-
 - Add a note about configuring html Docs root (1.15), URL Name, Author
-name. perhaps a note about the 'Hist. Limit'
-Example docs root => /opt/mbse/var/www
+  name. perhaps a note about the 'Hist. Limit'
+  Example docs root => /opt/mbse/var/www
+
 - Create an example stats index file.
-
-- Add a note, with details and/or pointing to example files, for configuring a web server.
-(don't think it's already in the documentation?)
-
-- Add a note about configuring html Docs root (1.15), URL Name, Author
-name. perhaps a note about the 'Hist. Limit'
-Example docs root => /opt/mbse/var/www
 - will need to add a note about updating the config for that?
 
+- Add a note, with details and/or pointing to example files, for configuring a
+  web server. (don't think it's already in the documentation?)
 
- -- Robert James Clay <jame@rocasa.us>  Wed,  9 Feb 2011 19:59
+
+ -- Robert James Clay <jame@rocasa.us>  Sun, 31 Jul 2011 09:03
