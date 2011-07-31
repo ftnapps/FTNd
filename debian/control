@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 6.0.7~), autotools-dev, libbz2-dev, libz-dev, quilt
 Standards-Version: 3.8.4
 Vcs-Git: git://git.rocasa.org/mbbsdeb.git
 Vcs-Browser: http://git.rocasa.org/gitweb.cgi/mbbsdeb.git
-Homepage: http://www.mbse.eu/mbse/mbsebbs
+Homepage: http://www.mbse.eu/bbsing/mbsebbs
 
 Package: mbsebbs
 Architecture: any
