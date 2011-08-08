@@ -5,7 +5,7 @@
 . /etc/rc.conf
 . /etc/rc.d/functions
 
-MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+MBSE_ROOT=$(cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}')
 export MBSE_ROOT
 
 case "$1" in
@@ -16,7 +16,7 @@ start)
 	rm -f ${MBSE_ROOT}/var/*.LCK
 	rm -f ${MBSE_ROOT}/tmp/mb*
 	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
-	add_daemon mbtask
+	add_daemon mbsebbs
 	sleep 2
 	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
 	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
@@ -45,10 +45,10 @@ stop)
 		fi
 	    done
 	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-		kill -9 `cat ${MBSE_ROOT}/var/run/mbtask`
+		kill -9 $(cat ${MBSE_ROOT}/var/run/mbtask)
 	    fi
 	fi
-	rm_daemon mbtask
+	rm_daemon mbsebbs
 	stat_done
 	;;
 restart)
