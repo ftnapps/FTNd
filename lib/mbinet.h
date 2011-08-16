@@ -1,7 +1,7 @@
 #ifndef _MBINET_H
 #define	_MBINET_H
 
-/* $Id$ */
+/* $Id: mbinet.h,v 1.2 2004/01/04 12:35:50 mbroek Exp $ */
 
 int	smtp_connect(void);
 int	smtp_send(char *);

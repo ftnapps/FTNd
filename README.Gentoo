@@ -1,4 +1,4 @@
-$Id$
+$Id: README.Gentoo,v 1.4 2004/09/26 11:40:55 mbse Exp $
 
 Unlike most distributions, Gentoo doesn't install programs that may be usefull
 for mbsebbs by default. Before you run ./configure emerge the following

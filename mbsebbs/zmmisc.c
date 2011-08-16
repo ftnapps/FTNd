@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: zmmisc.c,v 1.25 2006/05/23 19:27:37 mbse Exp $
  *
  *   Z M . C
  *    Copyright 1994 Omen Technology Inc All Rights Reserved

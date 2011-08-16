@@ -1,4 +1,4 @@
-$Id$
+$Id: README.Ubuntu,v 1.2 2007/09/02 10:00:40 mbse Exp $
 
 Unlike most distributions, Ubuntu doesn't install programs that may be usefull
 for mbsebbs by default. Before you run ./configure install the following

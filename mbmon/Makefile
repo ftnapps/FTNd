@@ -1,6 +1,6 @@
 # Makefile for the mbsetup.
 # Copyright (c) 1997-2001 by M. Broek.
-# $Id$
+# $Id: Makefile,v 1.16 2007/05/27 12:50:47 mbse Exp $
 
 include ../Makefile.global
 

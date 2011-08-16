@@ -1,6 +1,6 @@
 # Makefile for MBSE BBS under Linux
 # Copyright (c) 1998, 2000 by M. Broek.
-# $Id$
+# $Id: Makefile,v 1.10 2007/02/17 12:14:20 mbse Exp $
 
 include ../Makefile.global
 

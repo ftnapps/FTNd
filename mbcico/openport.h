@@ -1,7 +1,7 @@
 #ifndef	_OPENPORT_H
 #define	_OPENPORT_H
 
-/* $Id$ */
+/* $Id: openport.h,v 1.2 2003/10/13 21:36:31 mbroek Exp $ */
 
 void	linedrop(int);
 void	interrupt(int);

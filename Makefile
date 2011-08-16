@@ -1,5 +1,5 @@
 # Top-level makefile for MBSE BBS package
-# $Id$
+# $Id: Makefile,v 1.73 2007/09/01 15:35:47 mbse Exp $
 
 include Makefile.global
 

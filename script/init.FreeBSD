@@ -2,7 +2,7 @@
 #
 # description: Starts and stops MBSE BBS. 
 #
-# $Id$
+# $Id: init.FreeBSD,v 1.12 2007/07/09 18:46:51 mbse Exp $
 #
 # /usr/local/etc/rc.d/mbse.sh
 #

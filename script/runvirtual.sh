@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id$
+# $Id: runvirtual.sh,v 1.2 2004/08/09 21:30:30 mbse Exp $
 #
 # runvirtual.sh - Never call this script directly, create a symlink
 #              to this file with the name of the door. For example

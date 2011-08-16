@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: announce.c,v 1.37 2007/03/02 13:23:36 mbse Exp $
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
@@ -118,7 +118,7 @@ void Uploads()
 			for (j = 0; j < 25; j++) {
 			    if (strlen(fdb.Desc[j])) {
 				snprintf(T_File.LDesc[k], 49, "%s", fdb.Desc[j]);
-				T_File.LDesc[k][49] = '\0';
+				T_File.LDesc[k][48] = '\0';
 				k++;
 			    }
 			}

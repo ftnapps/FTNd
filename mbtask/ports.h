@@ -1,7 +1,7 @@
 #ifndef _PORTS_H
 #define	_PORTS_H
 
-/* $Id$ */
+/* $Id: ports.h,v 1.4 2006/02/04 13:39:51 mbse Exp $ */
 
 
 /*

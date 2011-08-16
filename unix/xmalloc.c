@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: xmalloc.c,v 1.3 2005/08/27 12:06:49 mbse Exp $
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.

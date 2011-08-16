@@ -1,6 +1,6 @@
 #:MBSE-BBS: bbs startup
 #
-# $Id$
+# $Id: init.OpenBSD,v 1.2 2007/07/09 18:46:51 mbse Exp $
 #
 # Added to /etc/rc.local by mbse bbs install
 #

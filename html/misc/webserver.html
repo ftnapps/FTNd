@@ -1,18 +1,18 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
-<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
 <META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
-<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="description" lang="en" content="MBSE BBS Manual - Howto setup an webserver to work with MBSE BBS">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>Howto setup an webserver to work with MBSE BBS.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
+<!-- MBSEADVERT -->
 <div align='right'><h5>Last update 03-Jan-2006</h5></div>
 <div align='center'><H1>How to setup an webserver to work with MBSE BBS.</H1></div>
 
@@ -23,7 +23,7 @@ structure.
 Note that even if you don't setup a webserver you must still create a 
 structure like this for the fidonet mailer, if you don't, 
 <strong>mail and files will get lost!</strong>
-This description is written for <A HREF="http://www.apache.org">Apache</A>,
+This description is written for <A HREF="http://www.apache.org" rel="nofollow">Apache</A>,
 this is installed on most GNU/Linux and xxxBSD distributions. 
 For the directory structure, read the setup for
 <A HREF="ftpserver.html">the FTP server</A>.
@@ -43,7 +43,7 @@ Screen 1.19:
 </pre>
 The base ftp path is the default which mbse bbs installs. The Docs root for the
 apache httpd server is different on each distribution, in this example it is set
-for <A HREF="http://www.slackware.com">Slackware 8.0</A>. Because the directory
+for <A HREF="http://www.slackware.com" rel="nofollow">Slackware 8.0</A>. Because the directory
 /var/www/htdocs has nothing to do with /opt/mbse/ftp/pub we make an alias link
 named <b>files</b>. For the URL name you must fill in the real internet name how
 your bbs is reached. If someone types this in, he must get the index.html from
@@ -114,7 +114,7 @@ for the files that are downloaded from the webserver.
 <P>
 
 <P>
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+<A HREF="index.html"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

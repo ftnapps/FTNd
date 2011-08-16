@@ -1,7 +1,7 @@
 #ifndef _CHANGE_H
 #define _CHANGE_H
 
-/* $Id$ */
+/* $Id: change.h,v 1.7 2007/02/25 20:28:08 mbse Exp $ */
 
 int  Chg_Language(int);		/* Change language			*/
 void Chg_Password(void);	/* Change BBS Password			*/

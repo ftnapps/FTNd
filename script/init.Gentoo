@@ -1,6 +1,6 @@
 #!/sbin/runscript
 #
-# $Id$
+# $Id: init.Gentoo,v 1.9 2007/07/09 18:46:51 mbse Exp $
 #
 # description: Starts and stops the MBSE BBS.
 #

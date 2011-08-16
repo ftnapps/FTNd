@@ -1,7 +1,7 @@
 #ifndef _NODE_H
 #define _NODE_H
 
-/* $Id$ */
+/* $Id: m_node.h,v 1.3 2003/01/31 21:49:30 mbroek Exp $ */
 
 int	    CountNoderec(void);
 int	    OpenNoderec(void);

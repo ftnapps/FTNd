@@ -1,4 +1,4 @@
-# $Id$
+# $Id: mkprod.awk,v 1.6 2004/02/21 14:24:04 mbroek Exp $
 #
 
 BEGIN	{

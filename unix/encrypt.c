@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: encrypt.c,v 1.4 2005/04/12 17:25:42 mbse Exp $
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyright ....: Julianne Frances Haugh and others.

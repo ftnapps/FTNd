@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: gmtoffset.c,v 1.9 2005/10/11 20:49:42 mbse Exp $
  * Purpose ...............: Calculate UTC offset 
  * Source ................: Eugene G. Crosser's ifmail package.
  *

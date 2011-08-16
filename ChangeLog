@@ -1,6 +1,91 @@
-$Id$
+v0.95.13	08-Aug-2011
 
-v0.95.5		29-Nov-2008
+	general:
+		Added support for Arch Linux.
+		Added some IPv6 configurations to the manual.
+		Changed META description lines in the manual.
+		Fixed a six year old documentation error.
+		All manual pages have only the .html extention.
+
+	mbfile:
+		Each html file index page now has an unique name to help
+		search engines.
+
+
+v0.95.12	22-May-2011
+
+	general:
+		Removed several compiler warnings.
+		Added invisible markers in the html manual.
+
+	mbselib:
+		The virus stream scanner can now uses IPv4 and/or IPv6 to
+		connect to the clamav server and can use server clusters too.
+		Connect smtp, pop3 and nntp upgraded to IPv4 and IPv6 use.
+
+	mbcico:
+		Can accept both IPv6 and IPv4 calls.
+		Can call IPv4 and IPv6 nodes.
+
+	mbtask:
+		Upgraded the ping function to newer system calls. Note that
+		for now I leave the interbbs chat IPv4 only.
+
+	mblogin:
+		Don't use gethostbyname function.
+
+
+v0.95.11	14-Jan-2011 (patches by Scott Street).
+
+	mbselib:
+		Fixed memory corruption error in mbnntp.
+		Added sysop in nodelist search function.
+
+	mbsebbs:
+		Fixed several (possible) buffer overflows, some serious ones.
+		Added lookup sysop in nodelist for netmail messages.
+
+	mbtask:
+		Fixed several (possible) buffer overflows.
+
+	lang:
+		Added language prompts 480 and 481.
+
+
+v0.95.10       26-Aug-2010 (released by Vince Coen).
+
+	mbsetup:
+		Minor cosmetic errors eg, inormation (information) etc in site
+		docs & update copyright dates for m_global.c & ledit.c.
+
+	mbout:
+		Check that when using file attach mode that path is absolute
+		eg, starts with '/' ('~/ is changed to '/opt/mbse/ etc)
+
+
+v0.95.7/8      12-Jul-2010 (released by Vince Coen).
+
+	general:
+		Cosmetics and exp. code.
+		And a few others I don't remember.
+
+	NOTE:   I am incrementing the version minor number for every build as
+		mbse does not use build number.
+
+
+v0.95.6		04-Oct-2009
+
+	general:
+		This may need more patches for Ubuntu 9.10.
+
+	mbfido:
+		Patch to compile on Ubuntu 9.10.
+
+	hatch:
+		Patch to compile on Ubuntu 9.10.
+
+
+v0.95.5		29-Nov-2008 - 04-Oct-2009
 
 	upgrade:
 		Start mbsetup, enter global setup, leave and save.
@@ -8,6 +93,15 @@ v0.95.5		29-Nov-2008
 	mbselib:
 		Newsservers can be connected with a port number from the
 		setup.
+
+	mbfido:
+		Fixed a possible array subscript overflow.
+
+	mbaff:
+		Fixed a possible array subscript overflow.
+
+	mbfile:
+		Fixed a possible array subscript overflow.
 
 	mbsetup:
 		In screen 1.12 a nntp port number can be set.

@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: createm.h,v 1.4 2005/08/10 18:57:22 mbse Exp $ */
 
 #ifndef	_CREATEM_H
 #define	_CREATEM_H

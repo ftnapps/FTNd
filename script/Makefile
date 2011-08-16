@@ -1,5 +1,5 @@
 # Makefile for MBSE BBS under Linux
-# $Id$
+# $Id: Makefile,v 1.23 2005/08/17 18:55:16 mbse Exp $
 
 include ../Makefile.global
 

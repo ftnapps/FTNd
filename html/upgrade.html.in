@@ -1,19 +1,19 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
-<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
 <META NAME="Language" content='en'>
 <META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
-<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="description" lang="en" content="MBSE BBS Manual - Upgrade MBSE BBS">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>Upgrade MBSE BBS.</TITLE>
 <LINK rel=stylesheet HREF="manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
+<!-- MBSEADVERT -->
 <div align="right"><h5>Last update 02-Sep-2007</h5></div>
 <div align="center"><h1>Upgrade MBSE BBS</h1></div>
 
@@ -89,7 +89,7 @@ In the directory /opt/mbse/bin and /opt/mbse/etc are new scripts installed. They
 extension <b>.new</b> and you need to examine these to see if you can simply copy these over
 your current ones.
 <p>
-<a href="index.htm"><img SRC="images/b_arrow.png" ALT="Back to Index" BORDER=0>Back to Index</a>
+<a href="index.html"><img SRC="images/b_arrow.png" ALT="Back to Index" BORDER=0>Back to Index</a>
 
 </blockquote>
 </body>

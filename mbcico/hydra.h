@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: hydra.h,v 1.4 2003/10/22 21:11:40 mbroek Exp $ */
 /* 
  * As this file has been derived from the HydraCom source, here is the
  * original copyright information:

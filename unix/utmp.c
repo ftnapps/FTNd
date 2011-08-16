@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: utmp.c,v 1.7 2004/12/28 15:30:53 mbse Exp $
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyright ....: Julianne Frances Haugh and others.

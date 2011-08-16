@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * $Id$
  * Purpose .................: Fidonet binkp protocol
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -72,7 +71,7 @@ extern char	*tempinbound;
 extern char	*ttystat[];
 extern int	Loaded;
 extern pid_t	mypid;
-extern struct sockaddr_in   peeraddr;
+extern struct sockaddr_in   peeraddr4;
 extern int	most_debug;
 extern int	laststat;
 extern int	crashme;
@@ -693,7 +692,7 @@ SM_STATE(WaitConn)
 	SM_ERROR;
     }
 
-    if (!CFG.NoMD5 && ((bp.MD_Challenge = MD_getChallenge(NULL, &peeraddr)) != NULL)) {
+    if (!CFG.NoMD5 && ((bp.MD_Challenge = MD_getChallenge(NULL, &peeraddr4)) != NULL)) {
 	/*
 	 * Answering site MUST send CRAM message as very first M_NUL
 	 */
@@ -1807,7 +1806,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     unsigned short  header = 0;
     int		    rc, id;
 #ifdef HAVE_ZLIB_H
-    int		    rcz, last;
+    int		    rcz;
     uLongf	    zlen;
     Bytef	    *zbuf;
 
@@ -1834,7 +1833,6 @@ int binkp_send_frame(int cmd, char *buf, int len)
     }
 
 #ifdef HAVE_ZLIB_H
-    last = bp.cmpblksize;
     /*
      * Only use compression for DATA blocks larger then 20 bytes.
      * Also, don't send PLZ blocks if GZ or BZ2 mode is active.
@@ -2434,7 +2432,7 @@ int binkp_process_messages(void)
     the_queue	*tmpq, *oldq;
     binkp_list	*tmp;
     file_list	*tsl;
-    int		Found, rmode;
+    int		Found;
     char	*lname, *ropts;
     time_t	ltime;
     int		lsize, loffs;
@@ -2447,20 +2445,13 @@ int binkp_process_messages(void)
     for (tmpq = tql; tmpq; tmpq = tmpq->next) {
 	Syslog('+', "Binkp: %s \"%s\"", bstate[tmpq->cmd], printable(tmpq->data, 0));
 	if (tmpq->cmd == MM_GET) {
-	    rmode = CompNone;
 	    snprintf(lname, 512, "%s", strtok(tmpq->data, " \n\r"));
 	    lsize = atoi(strtok(NULL, " \n\r"));
 	    ltime = atoi(strtok(NULL, " \n\r"));
 	    loffs = atoi(strtok(NULL, " \n\r"));
 	    snprintf(ropts, 512, "%s", printable(strtok(NULL, " \n\r\0"), 0));
 	    Syslog('b', "Binkp: m_file options \"%s\"", ropts);
-	    if (strcmp((char *)"GZ", ropts) == 0)
-    		rmode = CompGZ;
-	    else if (strcmp((char *)"BZ2", ropts) == 0)
-		rmode = CompBZ2;
-	    else
-		 if (strcmp((char *)"NZ", ropts) == 0) {
-		rmode = CompNone;
+	    if (strcmp((char *)"NZ", ropts) == 0) {
 #ifdef	HAVE_ZLIB_H
 		bp.GZwe = bp.GZthey = No;
 #endif

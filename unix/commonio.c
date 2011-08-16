@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: commonio.c,v 1.3 2005/07/14 19:25:58 mbse Exp $
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyright ....: Julianne Frances Haugh and others.

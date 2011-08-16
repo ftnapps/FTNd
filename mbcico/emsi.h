@@ -1,7 +1,7 @@
 #ifndef EMSI_H
 #define EMSI_H
 
-/* $Id$ */
+/* $Id: emsi.h,v 1.2 2003/02/23 21:00:49 mbroek Exp $ */
 
 #define LCODE_PUA 0x0001
 #define LCODE_PUP 0x0002

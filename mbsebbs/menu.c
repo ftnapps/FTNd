@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id$
  * Purpose ...............: Display and handle the menus.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -89,7 +88,7 @@ void InitMenu()
 void menu()
 {
     FILE    *pMenuFile;
-    int	    iFoundKey = FALSE, Key, IsANSI;
+    int	    Key, IsANSI;
     char    temp[81], *Input, *sMenuPathFileName, buf[81];
 
     Input = calloc(PATH_MAX, sizeof(char));
@@ -236,7 +235,6 @@ void menu()
 				fclose(pMenuFile);
 			    }
 			    DoMenu(le_int(menus.MenuType));
-			    iFoundKey = TRUE;
 			    break;
 			}
 		    }

@@ -1,5 +1,5 @@
 # Copyright (c) M. Broek, 1997-2001
-# $Id$
+# $Id: Makefile,v 1.26 2008/12/01 19:26:29 mbse Exp $
 
 include ../Makefile.global
 

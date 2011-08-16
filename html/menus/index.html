@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" content="Michiel Broek">
+<META NAME="Language" content='en'>
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual - Menu System">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Menu System.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<!-- MBSEADVERT -->
+<div align=right><h5>Last update 11-Oct-2003</h5></div>
+<div align=center><H1>MBSE BBS Menu System</H1></div>
+
+<P>Menus sections:
+<A HREF="menu0.html">Global menus</A>&nbsp;
+<A HREF="menu100.html">File areas</A>&nbsp;
+<A HREF="menu200.html">Message areas</A>&nbsp;
+<A HREF="menu300.html">User settings</A>&nbsp;
+<A HREF="menu400.html">Onliners</A>&nbsp;
+<A HREF="menu500.html">BBS lists</A>&nbsp;
+<A HREF="control.html">ANSI Control Codes</A>
+</P>
+<P>
+<HR>
+
+<H3>Introduction.</H3>
+<P>
+One of the most powerfull features of the BBS is it's menu system. You
+have complete control over each individual menu item which can be restricted
+according to criteria such as security levels.
+<P>&nbsp;<P>
+
+<H3>ANSI Screens.</H3>
+<P>
+For the menus to work properly you can draw ANSI screens, this
+is what the users will see. For GNU/Linux there is "Duh DRAW" written by Ben
+Fowler, see sunsite.unc.edu /pub/Lunux/docs.
+If you can't find it or have no internet access, you can also use 
+THEDRAW. This utility can be found on many BBS'es around the world. Unfortunatly
+it is a DOS program so you will need dosemu on your GNU/Linux box or a seperate
+DOS computer. You can define main screens and include screens for each
+menu, the include screen may for example show the keys that you have available
+in every menu. See the list of <A HREF="control.html">control codes</A>.
+<P>&nbsp;<P>
+
+<H3>Display lines.</H3>
+<P>
+It is also possible to display menu lines with the buildin display option.
+The used colors are selectable, a normal color and a bright color.
+The normal color is the default, you can toggle bright on and of using
+the ^ in the display line. If you end a menu display line with a ; then
+no newline is send after that line. If you want to output teh ^ or ; characters
+you need to escape them with a backslash like this: \; or \^. The order of menu
+entries is important.
+<P>&nbsp;<P>
+
+<H3>Automatic commands.</H3>
+<P>
+A menu function is usually executed when a user presses the hot-key
+assigned to that particular menu item. But menu functions can also be executed
+automatically. Each menu item contains an AutoExec field. By default this
+field is set to No, but by toggling it to Yes, the menu item can be made
+to execute when it is played back (displayed) by the BBS. </P>
+<P>
+As you read through the menu function types outlined in this chapter,
+you may come to realize that this is a very powerfull feature. For example,
+when used with the menu function that displays a text file, you can design
+very elaborate, graphical text file menus that you wouldn't normally be
+able to display in a line-by-line menu. </P>
+<P>
+Automatic menu execution can be used in many other instances as well.
+Just to give you some ideas, it might be used to display a text file to
+users who have a security level equal to or greater than a certain level.
+Yet another use is to execute multiple function menus which are used to
+execute several functions when a single command is entered. 
+<P>&nbsp;<P>
+
+<H3>Multiple languages.</H3>
+<P>
+For each language you can define a set of menus. Only for the default
+language all menus must exist. It makes sense to make the filenames of
+your menus for each language the same and not to translate them. If a menu
+is missing for a non default language, the menu from the default language
+path is used instead. 
+<P>&nbsp;<P>
+
+<H3>Editing a menu.</H3>
+<P>
+The order of the menu lines in the setup is not important except for
+the autoexec menus, they must be placed in the right order from start,
+ie. begin with the menu specific screen display, then the global include
+display and finally show the prompt.
+<P>
+
+<IMG SRC="../images/e_menu.png" ALT='Menu editer' Border="0">
+<OL>
+<LI><B>Selection key.</B> This is the key a user must press to activate
+this menu. This field is ignored when AutoExec is set to Yes. </LI>
+
+<LI><B>Type nr.</B> this is the menu type to execute. For a description
+of all available types see the links at the top of this page.</LI>
+
+<LI><B>Optional data.</B> Some menus need optional data, for example the
+function goto another menu needs the name of that menu file here. </LI>
+
+<LI><B>Display.</B> What is to be displayed to the user. You can use this instead
+of ANSI screens.
+</LI>
+
+<LI><B>Security.</B> This is the minimum security level to execute this
+selection. The security is a level number combined with 32 bitmapped flags.
+NOTE: level 0 and no flags means
+everyone can select this menu. Good for logout options and all other options
+everyone must be able to execute. </LI>
+
+<LI><B>Min. age.</B> The minumum age the user must be to execute this selection.
+You may want to restrict access to certain areas to users older than 18
+years. If you leave this to 0, every one can execute this menu. </LI>
+
+<LI><B>Lo-colors.</B> The normal display color for the display line.
+</LI>
+
+<LI><B>Hi-colors.</B> The bright display color for the display line.</LI>
+
+<LI><B>AutoExec.</B> If this is an automatic executed selection. </LI>
+
+<LI><B>Door Name</B> The name of the door that will be displayed to other users.
+This name is also used to count the same doors running if the door only allows a
+single user. It is important that you use the same name in every language menu
+file for the same door. This item is only visible with menu type 7.</LI>
+
+<LI><B>Y2K style</B> Writes the dates in the door.sys file in the new style,
+with 4 digit year numbers, else the old 2 digit style is used. This item
+is only visible with menu type 7.</LI>
+
+<LI><B>No door.sys</B> Suppress writing of a door.sys file in the users
+home directory. This item is only visible with menu type 7.</LI>
+
+<LI><B>Use Comport</B> Writes COM1: with 19200 as baudrate to the door.sys file, 
+this is for dosemu with the vmodem patch. This item is only visible with menu
+type 7.</LI>
+
+<LI><B>Run nosuid</B> If set to Yes the door will run in non-suid mode.
+Most doors need this. This item is only visible
+with menu type 7.</LI>
+
+<LI><B>No Prompt</B> If set to Yes then when the door is finished there will be
+no prompt to press Enter, instead the bbs menu will show up immediatly. This
+item is only visible with menu type 7.</LI>
+
+<LI><B>Single User</B> Set to yes of the door only allows one user at the same
+time. Make sure you have set a unique name that must be the same for the door in
+every language file so that the bbs is able to count the instances of the door
+running. This item is only visible with menu type 7.</LI>
+
+<LI><B>Hidden door</B> Set to yes to hide the door from being visible for other
+users. If someone is using that door the whoson list displays "External Door"
+instead of the door name. This may be good to hide some special sysop only
+doors. This item is only visible with menu type 7.</LI>
+
+</OL>
+<P>&nbsp;<P>
+
+<H3>Final warning.</H3>
+<P>
+If a submenu is missing, the BBS falls back to the main menu. This menu
+must be called &quot;main&quot; (or else set another name in the global
+setup) or your BBS won't start and complain. Submenus may be nested 50
+levels deep. 
+<P>
+
+<A HREF="../index.html"><IMG SRC="../images/b_arrow.png" ALT="Back" BORDER=0>Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

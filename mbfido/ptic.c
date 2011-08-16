@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id$
  * Purpose ...............: Process 1 .tic file
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -67,9 +66,8 @@ extern	int	check_dupe;
  */
 int ProcessTic(fa_list **sbl, orphans **opl)
 {
-    time_t	    Now;
     int		    First, Listed = FALSE, DownLinks = 0, MustRearc = FALSE;
-    int		    UnPacked = FALSE, IsArchive = FALSE, rc, i, j, k, File_Id = FALSE;
+    int		    UnPacked = FALSE, IsArchive = FALSE, rc, i, j, k;
     char	    *Temp, *unarc = NULL, *cmd = NULL;
     char	    temp1[PATH_MAX], temp2[PATH_MAX], sbe[24], TDesc[1024];
     unsigned int    crc, crc2, Kb;
@@ -80,8 +78,6 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     faddr	    *p_from;
     qualify	    *qal = NULL, *tmpq;
     orphans	    *topl;
-
-    Now = time(NULL);
 
     if (TIC.TicIn.PathError) {
 	WriteError("Our Aka is in the path");
@@ -454,9 +450,6 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 		Syslog('f', "Found %s", Temp);
 		snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), Temp);
 		snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-		if (file_cp(temp1, temp2) == 0) {
-		    File_Id = TRUE;
-		}
 	    } else {
 		Syslog('f', "Didn't find a FILE_ID.DIZ");
 	    }
@@ -472,13 +465,9 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 		    snprintf(temp1, PATH_MAX, "%s/tmp", getenv("MBSE_ROOT"));
 		    chdir(temp1);
 		    snprintf(temp1, PATH_MAX, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.TicIn.File);
-		    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
-			File_Id = TRUE;
-		    } else {
+		    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
 			snprintf(temp1, PATH_MAX, "%s/%s file_id.diz", TIC.Inbound, TIC.TicIn.File);
-			if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
-			    File_Id = TRUE;
-			}
+			execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 		    }
 		    free(cmd);
 		}
@@ -664,7 +653,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	 * Add all our system aka's to the seenby lines in the same zone,
 	 * omit aka's already in the seenby list.
 	 */
-	for (i = 0; i < 40; i++) {
+	for (i = 0; i < 39; i++) {
 	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
 		p_from = fido2faddr(CFG.aka[i]);
 		if (! in_list(p_from, sbl, TRUE)) {

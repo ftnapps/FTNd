@@ -2,7 +2,7 @@
 #define	_BINKP_H
 
 
-/* $Id$ */
+/* $Id: binkp.h,v 1.11 2005/09/12 13:47:09 mbse Exp $ */
 
 /*
 

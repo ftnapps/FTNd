@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id$
+# $Id: rundoor.sh,v 1.8 2004/11/05 11:53:47 mbse Exp $
 #
 # Never call this script directly, create a symlink to this file with the 
 # name of the door. For example to run the door ilord do:

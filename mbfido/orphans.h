@@ -1,7 +1,7 @@
 #ifndef	_ORPHANS_H
 #define	_ORPHANS_H
 
-/* $Id$ */
+/* $Id: orphans.h,v 1.1 2005/11/12 12:33:06 mbse Exp $ */
 
 /*
  * Linked list of orpaned ticfiles.

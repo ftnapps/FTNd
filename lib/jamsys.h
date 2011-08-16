@@ -1,5 +1,5 @@
 /*
-**  $Id$
+**  $Id: jamsys.h,v 1.2 2005/10/11 20:49:42 mbse Exp $
 **
 **  JAM(mbp) - The Joaquim-Andrew-Mats Message Base Proposal
 **

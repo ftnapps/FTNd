@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Note: this is not 100% Debian style, at least it works for now.
-# $Id$
+# $Id: init.Debian,v 1.10 2007/09/02 12:50:32 mbse Exp $
 # 
 # description: Starts and stops the MBSE BBS.
 #

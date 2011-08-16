@@ -1,4 +1,4 @@
-/* $Id$
+/* $Id: parsedate.c,v 1.10 2005/10/11 20:49:46 mbse Exp $
 **
 ** $ Revision: 1.2 $
 **

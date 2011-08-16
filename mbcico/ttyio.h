@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: ttyio.h,v 1.6 2004/01/25 13:42:09 mbroek Exp $ */
 
 #ifndef TTYIO_H
 #define TTYIO_H

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: user.c,v 1.43 2007/03/03 14:38:31 mbse Exp $
  * Purpose ...............: Main user login procedure.  Checks for limits, 
  *                          new ratio's cats all the welcome screens, and 
  *                          does a lot of checking in general.

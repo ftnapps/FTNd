@@ -1,4 +1,4 @@
-/* $Id$
+/* $Id: pw_util.h,v 1.3 2004/12/28 15:30:53 mbse Exp $
  *
  * Copyright (c) 1994
  *	The Regents of the University of California.  All rights reserved.

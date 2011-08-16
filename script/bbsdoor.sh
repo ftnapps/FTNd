@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#  $Id$
+#  $Id: bbsdoor.sh,v 1.7 2004/08/11 14:18:31 mbse Exp $
 #
 #  Initialize DOS environment before starting a bbs door.
 #  Parameters: $1 = name of the door

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#  $Id$
+#  $Id: checkbasic,v 1.3 2006/07/02 11:07:36 mbse Exp $
 #
 #  checkbasic - A script for mbse bbs that checks if your
 #		installation is correct. If it is then

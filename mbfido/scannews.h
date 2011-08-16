@@ -1,7 +1,7 @@
 #ifndef	_SCANNEWS_H
 #define	_SCANNEWS_H
 
-/* $Id$ */
+/* $Id: scannews.h,v 1.3 2005/10/11 20:49:47 mbse Exp $ */
 
 #define MAX_MSGID_LEN 196
 #define MAX_GRP_LEN 128

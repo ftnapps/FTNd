@@ -2,7 +2,7 @@
 #
 # description: Starts and stops MBSE BBS. 
 #
-# $Id$
+# $Id: init.Slackware,v 1.7 2007/07/09 18:46:51 mbse Exp $
 #
 # /etc/rc.d/init.d for Slackware
 #

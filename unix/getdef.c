@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: getdef.c,v 1.4 2005/08/30 17:53:35 mbse Exp $
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyright ....: Julianne Frances Haugh and others.

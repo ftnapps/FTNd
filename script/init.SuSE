@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id$
+# $Id: init.SuSE,v 1.7 2007/07/09 18:46:51 mbse Exp $
 #
 # /sbin/init.d/mbsed for SuSE
 

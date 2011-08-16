@@ -1,7 +1,7 @@
 #ifndef _TASKIBC_H
 #define	_TASKIBC_H
 
-/* $Id$ */
+/* $Id: taskibc.h,v 1.28 2006/05/25 19:17:49 mbse Exp $ */
 
 #define MAXIBC_NCS      50                  /* Maximum Neighbour ChatServers    */
 #define MAXIBC_SRV      200                 /* Maximum Servers in chatnetwork   */

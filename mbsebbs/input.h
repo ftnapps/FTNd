@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: input.h,v 1.6 2005/10/11 20:49:48 mbse Exp $ */
 
 #ifndef _INPUT_H
 #define _INPUT_H

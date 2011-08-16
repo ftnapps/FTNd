@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id$
+# $Id: CRON.sh,v 1.6 2005/08/26 10:42:43 mbse Exp $
 #
 # Crontab setup script for MBSE BBS
 

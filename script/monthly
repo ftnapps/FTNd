@@ -2,7 +2,7 @@
 #
 # MBSE BBS Monthly - Should be run at the first day of the month at 01:30
 #
-# $Id$
+# $Id: monthly,v 1.5 2005/08/26 10:42:11 mbse Exp $
 
 if [ "$MBSE_ROOT" = "" ]; then
    export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`

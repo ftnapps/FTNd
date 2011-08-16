@@ -1,7 +1,7 @@
 #ifndef _FILESUB_H
 #define	_FILESUB_H
 
-/* $Id$ */
+/* $Id: filesub.h,v 1.6 2005/10/11 20:49:48 mbse Exp $ */
 
 FILE		*OpenFareas(int);
 int		CheckBytesAvailable(int);

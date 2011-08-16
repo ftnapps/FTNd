@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id$
  * Purpose ...............: Line Editor
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -69,7 +68,6 @@ int yes_no(char *T_)
 void errmsg(const char *format, ...)
 {
 	char	*t;
-	int	ch;
 	va_list	va_ptr;
 
 	t = calloc(256, sizeof(char));
@@ -84,7 +82,7 @@ void errmsg(const char *format, ...)
 	clrtoeol();
 	mbse_mvprintw(LINES - 3, 6, t);
 	putchar(7);
-	ch = readkey(LINES - 3, strlen(t) + 6, LIGHTGRAY, BLACK);
+	readkey(LINES - 3, strlen(t) + 6, LIGHTGRAY, BLACK);
 	mbse_locate(LINES - 3, 6);
 	clrtoeol();
 	free(t);
@@ -105,7 +103,7 @@ int check_free(void)
 	    Syslog('+', "The BBS is closed");
 	    return TRUE;
 	} else {
-	    errmsg("Cannon continue, failed to close the bbs");
+	    errmsg("Cannot continue, failed to close the bbs");
 	    return FALSE;
 	}
     }

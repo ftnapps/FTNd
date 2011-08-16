@@ -1,6 +1,6 @@
 # Makefile for the library files.
 # Copyright (c) 1997, 2001 by M. Broek.
-# $Id$
+# $Id: Makefile,v 1.53 2008/02/17 16:10:18 mbse Exp $
 
 include ../Makefile.global
 

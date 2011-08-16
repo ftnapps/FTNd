@@ -1,5 +1,5 @@
 # Makefile for mbnntpd
-# $Id$
+# $Id: Makefile,v 1.11 2007/05/27 12:50:47 mbse Exp $
 
 include ../Makefile.global
 

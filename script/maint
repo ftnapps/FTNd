@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id$
+# $Id: maint,v 1.5 2004/09/14 20:37:59 mbse Exp $
 #
 # MBSE BBS Maintenance - Should be run from user 'mbse' crontab.
 

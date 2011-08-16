@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: pw_util.c,v 1.11 2004/12/28 15:30:53 mbse Exp $
  * Purpose ...............: FreeBSD/NetBSD password utilities.
  * Remark ................: Taken from FreeBSD and modified for MBSE BBS.
  *

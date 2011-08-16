@@ -1,7 +1,7 @@
 #ifndef	_MBMSG_H
 #define	_MBMSG_H
 
-/* $Id$ */
+/* $Id: mbmsg.h,v 1.4 2005/10/11 20:49:47 mbse Exp $ */
 
 void	ProgName(void);
 void	Help(void);

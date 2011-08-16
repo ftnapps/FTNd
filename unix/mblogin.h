@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: mblogin.h,v 1.3 2003/12/23 18:33:42 mbroek Exp $ */
 
 #ifndef	_MBLOGIN_H
 #define	_MBLOGIN_H

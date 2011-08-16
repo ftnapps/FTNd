@@ -1,7 +1,7 @@
 #ifndef _TASKCHAT_H
 #define	_TASKCHAT_H
 
-/* $Id$ */
+/* $Id: taskchat.h,v 1.10 2006/02/13 19:26:31 mbse Exp $ */
 
 void chat_msg(char *, char *, char *);
 void system_shout(const char *, ...);

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: setugid.c,v 1.3 2003/08/15 20:05:36 mbroek Exp $
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyright ....: Julianne Frances Haugh and others.

@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: nodelist.h,v 1.9 2007/03/03 14:28:41 mbse Exp $ */
 
 #ifndef _NODELIST_H
 #define	_NODELIST_H
@@ -38,6 +38,16 @@ typedef struct	_node {
 	unsigned	can_pots    : 1;	/* Can do POTS or ISDN	*/
 	unsigned	can_ip	    : 1;	/* Can do TCP/IP	*/
 } node;
+
+
+
+typedef struct         _node_list {
+	struct  _node_list *next;
+	faddr   addr;
+	char    Name[80];
+	char    Sysop[80];
+	char    Location[80];
+} node_list;
 
 
 
@@ -122,7 +132,7 @@ nodelist_service    *nl_service;
 int		initnl(void);
 void		deinitnl(void);
 node		*getnlent(faddr *);
-
+node_list	*searchSysop(char *);
 
 #endif
 

@@ -1,7 +1,7 @@
 #ifndef SCANOUT_H
 #define SCANOUT_H
 
-/* $Id$ */
+/* $Id: scanout.h,v 1.3 2002/06/24 20:34:08 mbroek Exp $ */
 
 
 #define OUT_PKT 0

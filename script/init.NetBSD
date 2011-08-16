@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id$
+# $Id: init.NetBSD,v 1.6 2007/07/09 18:46:51 mbse Exp $
 #
 
 # PROVIDE: mbsebbs

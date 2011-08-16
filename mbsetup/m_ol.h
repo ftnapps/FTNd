@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: m_ol.h,v 1.4 2004/03/29 20:41:26 mbroek Exp $ */
 
 #ifndef _OL_H
 #define _OL_H

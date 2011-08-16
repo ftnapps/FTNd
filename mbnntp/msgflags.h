@@ -1,7 +1,7 @@
 #ifndef _MSGFLAGS_H
 #define	_MSGFLAGS_H
 
-/* $Id$ */
+/* $Id: msgflags.h,v 1.2 2004/06/20 14:38:11 mbse Exp $ */
 
 #ifndef	USE_NEWSGATE
 

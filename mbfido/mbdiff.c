@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: mbdiff.c,v 1.32 2008/11/26 22:12:28 mbse Exp $
  * Purpose ...............: Nodelist diff processor
  * Original ideas ........: Eugene G. Crosser.
  * 

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: ftn.c,v 1.11 2005/10/11 20:49:42 mbse Exp $
  * Purpose ...............: Fidonet Technology Network functions
  * Remark ................: From ifmail with patches from P.Saratxaga
  *

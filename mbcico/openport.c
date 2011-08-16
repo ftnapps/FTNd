@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * $Id$
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -387,7 +386,7 @@ static struct termios tios;
 int tty_raw(int speed)
 {
     int	    rc;
-    speed_t tspeed, is, os;
+    speed_t tspeed;
 
     Syslog('t', "Set tty raw");
     tspeed = transpeed(speed);
@@ -414,8 +413,8 @@ int tty_raw(int speed)
     if ((rc = tcsetattr(0,TCSADRAIN,&tios)))
 	WriteError("$tcsetattr(0,TCSADRAIN,raw) return %d",rc);
 
-    is = cfgetispeed(&tios);
-    os = cfgetospeed(&tios);
+    cfgetispeed(&tios);
+    cfgetospeed(&tios);
 
     return rc;
 }

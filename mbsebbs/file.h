@@ -1,7 +1,7 @@
 #ifndef _FILE_H
 #define _FILE_H
 
-/* $Id$ */
+/* $Id: file.h,v 1.3 2005/10/11 20:49:48 mbse Exp $ */
 
 void File_RawDir(char *);	/* Raw Directory List of a Directory         */
 void File_List(void);		/* List files in current Area                */

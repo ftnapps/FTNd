@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $Id$
+ * $Id: pwdcheck.c,v 1.2 2003/08/15 20:05:36 mbroek Exp $
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.

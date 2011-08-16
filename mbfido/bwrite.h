@@ -1,7 +1,7 @@
 #ifndef	_BWRITE_H
 #define	_BWRITE_H
 
-/* $Id$ */
+/* $Id: bwrite.h,v 1.2 2005/10/11 20:49:47 mbse Exp $ */
 
 int iwrite(int, FILE *);
 int lwrite(int, FILE *);

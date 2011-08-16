@@ -478,3 +478,5 @@ JN|Bestand meesturen [j/N]:
 |Use your alias (
 YN|) to post this message [Y/n]: 
 |Geen gebieden meer met ongelezen berichten
+|Geadresseerde niet in de Nodelijst
+|Geadresseerde gevonden in de nodelijst

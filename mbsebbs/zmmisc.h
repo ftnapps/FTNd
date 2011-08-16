@@ -1,7 +1,7 @@
 #ifndef	_ZMMISC_H
 #define	_ZMMISC_H
 
-/* $Id$ */
+/* $Id: zmmisc.h,v 1.15 2006/03/18 18:32:23 mbse Exp $ */
 
 
 #ifndef OK

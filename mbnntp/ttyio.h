@@ -1,7 +1,7 @@
 #ifndef TTYIO_H
 #define TTYIO_H
 
-/* $Id$ */
+/* $Id: ttyio.h,v 1.2 2004/04/12 11:50:34 mbroek Exp $ */
 
 #define FLUSHOUT() tty_flushout()
 #define FLUSHIN() tty_flushin()

@@ -1,7 +1,7 @@
 #ifndef	_MBINDEX_H
 #define	_MBINDEX_H
 
-/* $Id$ */
+/* $Id: mbindex.h,v 1.4 2004/07/10 15:03:49 mbse Exp $ */
 
 typedef	struct	_fd_list {
     struct _fd_list	*next;

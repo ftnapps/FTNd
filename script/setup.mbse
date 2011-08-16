@@ -3,7 +3,7 @@
 #
 # System setup script for Slackware
 #
-# $Id$
+# $Id: setup.mbse,v 1.2 2005/02/27 14:31:04 mbse Exp $
 #
 T_PX=$1
 TMP=/var/log/setup/tmp

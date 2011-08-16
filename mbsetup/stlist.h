@@ -1,7 +1,7 @@
 #ifndef _STLIST_H
 #define _STLIST_H
 
-/* $Id$ */
+/* $Id: stlist.h,v 1.2 2005/10/11 20:49:49 mbse Exp $ */
 
 typedef struct _st_list {
 	struct _st_list	*next;

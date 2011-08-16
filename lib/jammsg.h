@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: jammsg.h,v 1.3 2005/10/11 20:49:42 mbse Exp $ */
 
 #ifndef	_JAMMSG_H
 #define	_JAMMSG_H

@@ -1,7 +1,7 @@
 #ifndef _MBFIDO_H
 #define _MBFIDO_H
 
-/* $Id$ */
+/* $Id: mbfido.h,v 1.2 2005/08/10 18:57:22 mbse Exp $ */
 
 void	Help(void);
 void	ProgName(void);

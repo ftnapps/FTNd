@@ -1,5 +1,5 @@
 /* config.h.in.  */
-/* $Id$ */
+/* $Id: config.h.in,v 1.49 2007/08/25 21:01:03 mbse Exp $ */
 
 #undef SHORTRIGHT
 #undef COPYRIGHT

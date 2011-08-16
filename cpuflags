@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id$
+# $Id: cpuflags,v 1.2 2004/09/25 10:47:33 mbse Exp $
 #
 # Small script to try to find out the CPU optimisation flags.
 # Based on ideas found in the NetBSD cpuflags script.

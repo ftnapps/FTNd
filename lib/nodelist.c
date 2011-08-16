@@ -1,10 +1,9 @@
 /*****************************************************************************
  * 
- * $Id$
  * Purpose ...............: Read nodelists information
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
+ * Copyright (C) 1997-2011
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -354,7 +353,7 @@ void deinitnl(void)
  */
 int initnl(void)
 {
-    int		    i, rc = 0, Found;
+    int		    i, rc = 0;
     FILE	    *dbf, *fp;
     char	    *filexnm, buf[256], *p, *q;
     struct _nlfil   fdx;
@@ -449,8 +448,6 @@ int initnl(void)
 	}
 	fclose(dbf);
     }
-
-    Found = FALSE;
 
     /*
      * Howmany TCP sessions are allowd
@@ -1159,6 +1156,92 @@ retdummy:
     free(mydomain);
 
     return &nodebuf;
+}
+
+
+
+node_list *searchSysop( char *SysopName )
+{
+       char nodeuserpath[256]; 
+       FILE *fp;
+       char fixedSysopName[36];
+       nlusr nluEntry;
+       faddr addr;
+       node_list *result;
+       node *nlEntry;
+
+       Syslog('n', "searchSysop: Arg(%s) started", SysopName );
+       
+       result = NULL;
+       snprintf(nodeuserpath, 256, "%s/%s", CFG.nodelists, "node.users");
+       if ((fp = fopen(nodeuserpath, "r")) == NULL) {
+               WriteError("$Can't open %s", nodeuserpath);
+               return NULL;
+       }
+
+       /* 
+        * fixup incoming sysop name to have _ for space
+        */
+       memset( fixedSysopName, 0, 36 );
+       int i;
+       for ( i=0; i<strlen( SysopName ); i++ ){
+               if ( SysopName[i] == ' ' ){
+                       fixedSysopName[i] = '_';
+               } else {
+                       fixedSysopName[i] = SysopName[i];
+               }
+       }
+
+       while (fread(&nluEntry, sizeof(nluEntry), 1, fp) == 1) {
+
+               if ( strcmp( fixedSysopName, nluEntry.user ) == 0 ){
+
+                       addr.zone = nluEntry.zone;
+                       addr.net = nluEntry.net;
+                       addr.node = nluEntry.node;
+                       addr.point = nluEntry.point;
+                       addr.name = fixedSysopName;
+                       addr.domain = NULL;
+
+                       nlEntry = getnlent( &addr );
+                       if ( NULL == nlEntry ) {
+                               /* yikes */
+                               Syslog('n',"searchSysop: Something terribly wrong happened with getnlent looking up (%d:%d/%d.%d)",
+                                       addr.zone, addr.net, addr.node, addr.point );
+                               return NULL;
+                       }
+                       Syslog('n',"searchSysop: found NL Entry: Name:(%s) @ (%s)", nlEntry->name, nlEntry->location);
+
+                       node_list *thisresult = result;
+                       if (thisresult == NULL) {
+                               result = malloc( sizeof(node_list));
+                               result->next = NULL;
+                               thisresult = result;
+                       } else {
+                               while ( thisresult->next != NULL ){
+                                       thisresult = thisresult->next;
+                               }
+                               thisresult->next = malloc( sizeof(node_list));
+                               thisresult = thisresult->next;
+                               thisresult->next = NULL;
+                       }
+                       thisresult->addr.zone = nlEntry->addr.zone;
+                       thisresult->addr.net = nlEntry->addr.net;
+                       thisresult->addr.node = nlEntry->addr.node;
+                       thisresult->addr.point = nlEntry->addr.point;
+                       strcpy( thisresult->Sysop, nlEntry->sysop );
+                       strcpy( thisresult->Location, nlEntry->location);
+                       strcpy( thisresult->Name, nlEntry->name );
+
+               }
+               if ( nluEntry.user[0] > fixedSysopName[0] ) { // Since list is sorted, abort once we get names that start after this one
+                       break;
+               }
+       }
+       fclose( fp );
+
+       Syslog('n', "searchSysop: Arg(%s) ended", SysopName );
+       return result;
 }
 
 

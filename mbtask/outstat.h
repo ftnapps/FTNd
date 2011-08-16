@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: outstat.h,v 1.9 2005/10/11 20:49:49 mbse Exp $ */
 
 #ifndef _OUTSTAT_H
 #define	_OUTSTAT_H

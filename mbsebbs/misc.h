@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: misc.h,v 1.3 2001/11/12 21:42:17 mbroek Exp $ */
 
 #ifndef _MISC_H
 #define _MISC_H

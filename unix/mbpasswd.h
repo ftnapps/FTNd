@@ -1,7 +1,7 @@
 #ifndef _MBPASSWD_H
 #define _MBPASSWD_H
 
-/* $Id$ */
+/* $Id: mbpasswd.h,v 1.4 2005/08/27 12:06:49 mbse Exp $ */
 
 
                                         /* danger - side effects */

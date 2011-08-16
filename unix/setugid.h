@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: setugid.h,v 1.1 2002/01/05 13:57:10 mbroek Exp $ */
 
 #ifndef _SETUGID_H
 #define	_SETUGID_H
