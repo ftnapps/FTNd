@@ -1,4 +1,4 @@
-mbsebbs (0.92.0-2~1) UNRELEASED; urgency=low
+mbsebbs (0.92.0+111209-1~1) UNRELEASED; urgency=low
 
   * Change Debian package source format to 3.0 (quilt).
   * Update Standards-Version to 3.9.2 in debian/control, no changes needed.
@@ -6,11 +6,11 @@ mbsebbs (0.92.0-2~1) UNRELEASED; urgency=low
   * Remove quilt from Build-Depends in debian/control as it is not needed with
     source format 3.0 (quilt).
 
- -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 20:38:02 -0500
+ -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 22:11:38 -0500
 
 mbsebbs (0.92.0+110522-1) experimental; urgency=low
 
-  * patches/fix-flock-error.patch no longer needed.
+  * Remove patches/fix-flock-error.patch as it is no longer needed.
 
  -- Robert James Clay <jame@rocasa.us>  Fri, 01 Jul 2011 15:12:22 -0400
 
