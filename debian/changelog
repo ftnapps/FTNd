@@ -1,8 +1,12 @@
-mbsebbs (0.92.0-2) UNRELEASED; urgency=low
+mbsebbs (0.92.0-2~1) UNRELEASED; urgency=low
 
-  * Update Debian packaging for MBSE BBS v0.92.0.
+  * Change Debian package source format to 3.0 (quilt).
+  * Update Standards-Version to 3.9.2 in debian/control, no changes needed.
+  * Do not need quilt references in debian/rules with source format 3.0 (quilt).
+  * Remove quilt from Build-Depends in debian/control as it is not needed with
+    source format 3.0 (quilt).
 
- -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 19:35:02 -0500
+ -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 20:38:02 -0500
 
 mbsebbs (0.92.0-1) stable; urgency=low
 
