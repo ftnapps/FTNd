@@ -5,9 +5,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# Use quilt
-include /usr/share/quilt/quilt.make
-
 # Set MBSE_ROOT to mbse installation directory.
 export MBSE_ROOT=/opt/mbse
 
@@ -27,7 +24,7 @@ endif
 
 config.status: configure
 configure: configure-stamp
-configure-stamp: $(QUILT_STAMPFN)
+configure-stamp: 
 	dh_testdir
     # Add here commands to configure the package.
 	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/opt/mbse CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
