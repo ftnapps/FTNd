@@ -8,6 +8,12 @@ mbsebbs (0.92.0-2~1) UNRELEASED; urgency=low
 
  -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 20:38:02 -0500
 
+mbsebbs (0.92.0+110522-1) experimental; urgency=low
+
+  * patches/fix-flock-error.patch no longer needed.
+
+ -- Robert James Clay <jame@rocasa.us>  Fri, 01 Jul 2011 15:12:22 -0400
+
 mbsebbs (0.92.0-1) stable; urgency=low
 
   * Initial release of MBSE BBS as a Debian package. 
