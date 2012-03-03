@@ -1,12 +1,14 @@
 mbsebbs (0.92.0+111209-1~1) UNRELEASED; urgency=low
 
+  * Set debhelper version as 7 in debian/compat.
   * Change Debian package source format to 3.0 (quilt).
+  * Update debhelper Build-Depends version to 7.0.50 in debian/control.
   * Update Standards-Version to 3.9.2 in debian/control, no changes needed.
   * Do not need quilt references in debian/rules with source format 3.0 (quilt).
   * Remove quilt from Build-Depends in debian/control as it is not needed with
     source format 3.0 (quilt).
 
- -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 22:11:38 -0500
+ -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 22:54:11 -0500
 
 mbsebbs (0.92.0+110522-1) experimental; urgency=low
 
