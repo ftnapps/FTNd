@@ -1,3 +1,9 @@
+mbsebbs (0.92.0-2) UNRELEASED; urgency=low
+
+  * Update Debian packaging for MBSE BBS v0.92.0.
+
+ -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 19:35:02 -0500
+
 mbsebbs (0.92.0-1) stable; urgency=low
 
   * Initial release of MBSE BBS as a Debian package. 
