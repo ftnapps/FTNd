@@ -20,12 +20,12 @@ mbsebbs for Debian
     The standard html files are installed to /usr/share/doc/mbsebbs/html,
     with a softlink to there from /opt/mbse/html.
 
-    An example crontab is available as doc/mbsebbs/examples/crontab.mbse,
+    An example crontab is available as doc/mbsebbs/examples/crontab.mbsebbs,
     which can be installed using the crontab command as the user mbse.
 
     Configuring inetd or xinetd.  For inetd;  the information in
-    doc/mbsebbs/examples/inetd.mbse could be added to /etc/inetd.conf.
-    For xinetd: the doc/mbsebbs/examples/xinetd.mbse
+    doc/mbsebbs/examples/inetd.mbsebbs could be added to /etc/inetd.conf.
+    For xinetd: the doc/mbsebbs/examples/xinetd.mbsebbs
      could be installed
     as /etc/xinetd.d/mbsebbs.
 
