@@ -45,6 +45,7 @@ opt/mbse/var/ticqueue
 opt/mbse/var/unknown
 opt/mbse/var/www
 opt/mbse/var/www/stat
+usr/local/lib/mbsebbs
 usr/share/lintian/overrides
 usr/share/mbsebbs
 usr/share/mbsebbs/etc

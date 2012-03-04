@@ -78,6 +78,7 @@ binary-arch: build install
 	dh_lintian
 	dh_installinit
 	dh_installman
+	dh_usrlocal
 	dh_link
 	dh_strip
 	dh_compress
