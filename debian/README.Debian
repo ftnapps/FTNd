@@ -1,12 +1,12 @@
 mbsebbs for Debian
 ------------------
 
-    MBSE BBS is installed to /opt/mbse.  The user IDs mbse and bbs are also
-    installed for use by MBSE BBS but their passwords are not set as part of
-    the installation..
+    MBSE BBS is installed to /opt/mbsebbs.  The user IDs mbsebbs and bbs are
+    also installed for use by MBSE BBS but their passwords are not set as part 
+    of the installation..
 
     The initial setup of MBSE BBS should be done by becoming the MBSE BBS
-    system user (mbse) and running the mbsetup program.  That sets up any
+    system user (mbsebbs) and running the mbsetup program.  That sets up any
     configuration files that are not already present.  The first user added
     to the system becomes the Sysop by default, and can be done by logging
     in as the bbs user.
@@ -14,14 +14,14 @@ mbsebbs for Debian
     The /usr/share/mbsebbs directory is where the standard language, menu,
     template, and txtfiles archives are installed during the package
     installations and/or updates. During an initial install, they are then
-    copied to the standard /opt/mbse/share/int directories for use by the
+    copied to the standard /opt/mbsebbs/share/int directories for use by the
     MBSE BBS system.
 
     The standard html files are installed to /usr/share/doc/mbsebbs/html,
-    with a softlink to there from /opt/mbse/html.
+    with a softlink to there from /opt/mbsebbs/html.
 
     An example crontab is available as doc/mbsebbs/examples/crontab.mbsebbs,
-    which can be installed using the crontab command as the user mbse.
+    which can be installed using the crontab command as the user mbsebbs.
 
     Configuring inetd or xinetd.  For inetd;  the information in
     doc/mbsebbs/examples/inetd.mbsebbs could be added to /etc/inetd.conf.
@@ -40,4 +40,4 @@ IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat
 fido        60179/udp           # MBSE BBS Chatserver
 
 
- -- Robert James Clay <jame@rocasa.us>  Sat, 03 Mar 2012 22::05:36 -0400
+ -- Robert James Clay <jame@rocasa.us>  Sat, 03 Mar 2012 01::53:05 -0400

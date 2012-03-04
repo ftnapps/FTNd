@@ -17,7 +17,7 @@
 ### END INIT INFO
 
 # Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+MBSE_ROOT=`cat /etc/passwd | grep ^mbsebbs: | awk -F ':' '{ print $6}'`
 
 if [ "$MBSE_ROOT" = "" ]; then
     echo "MBSE BBS: No 'mbsebbs' user in the password file."
@@ -44,11 +44,11 @@ case "$1" in
     rm -f $MBSE_ROOT/var/sema/*
     rm -f $MBSE_ROOT/var/*.LCK
     rm -f $MBSE_ROOT/tmp/mb*
-    su mbse -c '$MBSE_ROOT/bin/mbtask' >/dev/null
+    su mbsebbs -c '$MBSE_ROOT/bin/mbtask' >/dev/null
     echo -n "mbtask "
     sleep 2
     if [ -f $MBSE_ROOT/etc/config.data ]; then
-        su mbse -c '$MBSE_ROOT/bin/mbstat open -quiet'
+        su mbsebbs -c '$MBSE_ROOT/bin/mbstat open -quiet'
         echo -n "opened "
     fi
     echo "done."
@@ -57,7 +57,7 @@ case "$1" in
     echo -n "Stopping $DESC: "
     if [ -f $MBSE_ROOT/var/run/mbtask ]; then
         echo -n "logoff users "
-        su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
+        su mbsebbs -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
         echo -n " stopping mbtask"
         pid=$( cat $MBSE_ROOT/var/run/mbtask )
         kill $pid
