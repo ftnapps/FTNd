@@ -1,20 +1,44 @@
-Debian TODO for MBSE BBS
--------------------------
+Debian TODO for mbsebbs
+-----------------------
+
+
+    from lintian check of test build for 0.92.0+111209-1~1
+
+W: mbsebbs source: debian-rules-missing-recommended-target build-arch
+W: mbsebbs source: debian-rules-missing-recommended-target build-inde
+
+E: mbsebbs: dir-or-file-in-opt (74! I think these are the ones that are no longer overridable) 
+
+W: mbsebbs: package-contains-vcs-control-file usr/share/doc/mbsebbs/html/.cvsignore
+E: mbsebbs: init.d-script-missing-dependency-on-remote_fs etc/init.d/mbsebbs: required-start
+E: mbsebbs: init.d-script-missing-dependency-on-remote_fs etc/init.d/mbsebbs: required-stop
+W: mbsebbs: executable-not-elf-or-script usr/share/mbsebbs/int/txtfiles-es.tar
+N: 32 tags overridden (32 info)
+N: Some overrides were ignored, since the tags were marked "non-overridable".
+
+- Create a debian/create-orig-source script
+    1)  Create an orig archive from a mercurial export from the authors
+        repository.  
+    a) just the tip?
+    b) a specific changeset
+
+    2)  Create an orig archive from a release archive, downloaded.
 
 Packaging
 ----------
-- With purge; remove user:group mbse:bbs.  Remove /opt/mbse directory.
-- With at least purge, if not also remove:  remove statoverrides
+- Change the installation directory to /usr/lib/mbsebbs
+- Change the user name from mbse to mbsebbs?  
 
-- Create a basic man page that points to the html documentation?
+-    Add note to readme.debian regarding manually setting password for bbs user
+ to "bbs".  Same for system user mbsebbs 
 
-- Create man pages for executables;  for instance, using help2man or html2man?.
-
-- The README and README.Ubuntu files from the source archive do not need
-  to be installed with the MBSE BBS package.
+-    Add example(s) for mbbs nginx config?
 
 - Reference line 53 in debian/rules;  only run the 'Make distclean' if the
-  Makefile.global file is actually present.
+  Makefile.global file is actually present.  Try something like this:
+ if test -e Makefile.global; then $(MAKE) distclean; fi
+
+
 - configure is not being rerun automatically.  In debian/rules clean target,
   remove the config.guess etc files so that it will be rerun automatically?
   Or does the make distclean take care of that when run?
@@ -23,32 +47,30 @@ Packaging
   so create patches to configure script that says that the programs are present.
   Will that need a build-depends for those programs? Or can just use Suggests?
 
-- Changing things like the default installation directory from /opt/mbse to
-  /opt/mbsebbs, or the user from mbse to mbsebbs, requires changes to the 
-  configure.ac file.  Like for the item above, that can be done using the patch
-  system.
+- Create man pages for executables;  for instance, using help2man or html2man?.
+  Or create basic man pages that points to the html documentation?
 
-- Now using dh_lintian to install the package lintian overrides file. If need
-  source package Lintian overrides, create debian/source.lintian-overrides.
+- With purge; remove user:group mbsebbs:bbs.  Remove /opt/mbsebbs directory.
+- With at least purge, if not also remove:  remove statoverrides
 
-- Create an mbsebbs-dbg package?   (Check references.)
+- Add creation of a mbsebbs-dbg package (ref http://wiki.debian.org/DebugPackage)
 
 - Create & use debian/po, so that any debconf messages can be translated?
 
-
+  
 Configuration:
 - Run mbsetup as part of postinst for a new installation?  Or just advise that it should
   be run asap after a new install?  (Perhaps put a note about it in debian/News?)
 
-- Add a note about configuring html Docs root (1.15), URL Name, Author
-  name. perhaps a note about the 'Hist. Limit'
-  Example docs root => /opt/mbse/var/www
+- Add note about needing an FTN Nodelist
 
+- Add a note about configuring html Docs root (1.15), URL Name, Author
+name. perhaps a note about the 'Hist. Limit'
+Example docs root => /opt/mbsebbs/var/www
 - Create an example stats index file.
 - will need to add a note about updating the config for that?
 
-- Add a note, with details and/or pointing to example files, for configuring a
-  web server. (don't think it's already in the documentation?)
+- Add a note, with details and/or pointing to example files, for configuring a web server.
+(don't think it's already in the documentation?)
 
-
- -- Robert James Clay <jame@rocasa.us>  Sun, 31 Jul 2011 09:03
+ -- Robert James Clay <jame@rocasa.us>  Sun, 03 Mar 2012 00:30

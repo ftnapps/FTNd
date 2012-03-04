@@ -1,14 +1,19 @@
-mbsebbs (0.92.0+111209-1~1) UNRELEASED; urgency=low
+mbsebbs (0.92.0+111209-1) experimental; urgency=low
 
   * Set debhelper version as 7 in debian/compat.
+  * Use debian/mbsebbs.links instead of debian/links.
   * Change Debian package source format to 3.0 (quilt).
+  * Update name of index page for html manual for doc-base.
+  * Create the bin/mbmail & bin/mbnews softlinks to bin/mbfido.
+  * Use 'mbse' as the extension for the example files instead of 'mbbs'.
   * Update debhelper Build-Depends version to 7.0.50 in debian/control.
   * Update Standards-Version to 3.9.2 in debian/control, no changes needed.
+  * Install /usr/local/lib/mbsebbs directory for sysop scripts with package.
   * Do not need quilt references in debian/rules with source format 3.0 (quilt).
   * Remove quilt from Build-Depends in debian/control as it is not needed with
     source format 3.0 (quilt).
 
- -- Robert James Clay <jame@rocasa.us>  Fri, 02 Mar 2012 22:54:11 -0500
+ -- Robert James Clay <jame@rocasa.us>  Sun, 04 Mar 2012 01:02:56 -0500
 
 mbsebbs (0.92.0+110522-1) experimental; urgency=low
 
