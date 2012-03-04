@@ -24,8 +24,9 @@ mbsebbs for Debian
     which can be installed using the crontab command as the user mbse.
 
     Configuring inetd or xinetd.  For inetd;  the information in
-    doc/mbsebbs/examples/inetd.mbbs could be added to /etc/inetd.conf.
-    For xinetd: the doc/mbsebbs/examples/xinetd.mbbs could be installed
+    doc/mbsebbs/examples/inetd.mbse could be added to /etc/inetd.conf.
+    For xinetd: the doc/mbsebbs/examples/xinetd.mbse
+     could be installed
     as /etc/xinetd.d/mbsebbs.
 
     An FTN nodelist is needed for the installation, when the system is
@@ -39,4 +40,4 @@ IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat
 fido        60179/udp           # MBSE BBS Chatserver
 
 
- -- Robert James Clay <jame@rocasa.us>  Sun, 31 Jul 2011 10:36:33 -0400
+ -- Robert James Clay <jame@rocasa.us>  Sat, 03 Mar 2012 22::05:36 -0400
