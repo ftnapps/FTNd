@@ -1,3 +1,18 @@
+mbsebbs (0.92.0+111209-2~1) UNRELEASED; urgency=low
+
+  * Use mbsebbs instead of mbse in paths and as system user.
+  * Initial change to a minimal debian/rules using dh command.
+  * Use 'mbsebbs' as the extension for the example files instead of 'mbse'.
+  * Changes to debian/patches/:
+    - Add 10_configure-ac.patch for updating OWNER & AC_PREFIX_DEFAULT for
+      the package build.
+    - Add 15_Makefile-global-in.patch for updating paths in Makefile.global.in
+      file for the package build.
+    - Add 20_Makefile.patch to not run the checkbasic script during the package
+      build.
+
+ -- Robert James Clay <jame@rocasa.us>  Mon, 05 Mar 2012 15:12:43 -0500
+
 mbsebbs (0.92.0+111209-1) experimental; urgency=low
 
   * Set debhelper version as 7 in debian/compat.
