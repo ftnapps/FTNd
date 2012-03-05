@@ -22,7 +22,7 @@ Index: mbsebbs/Makefile.global.in
 +ETCDIR		= @prefix@/opt/mbsebbs/etc
 +DOCDIR		= @prefix@/usr/share/doc/mbsebbs
 +VARDIR		= @prefix@/opt/mbsebbs/var
-+INTDIR		= @prefix@/opt/mbsebbs//share/int
++INTDIR		= @prefix@/opt/mbsebbs/share/int
  OWNER		= @OWNER@
  GROUP		= @GROUP@
  ROWNER		= @ROWNER@
