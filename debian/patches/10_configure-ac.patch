@@ -1,0 +1,29 @@
+Description: Use mbsebbs instead of mbse as user and base directory.
+ In the configure.ac file, change the OWNER setting from "mbse" to "mbsebbs",
+ and change the AC_PREFIX_DEFAULT from "/opt/mbse" to "/opt/mbsebbs".
+ .
+ This is for the Debian package build.
+Author: Robert James Clay <jame@rocasa.us>
+
+Index: mbsebbs/configure.ac
+===================================================================
+--- mbsebbs.orig/configure.ac	2011-12-09 03:39:44.000000000 -0500
++++ mbsebbs/configure.ac	2012-03-05 14:05:07.000000000 -0500
+@@ -17,7 +17,7 @@
+ COPYRIGHT="Copyright (C) 1997-2011 Michiel Broek, All Rights Reserved"
+ SHORTRIGHT="Copyright (C) 1997-2011 M. Broek"
+ GROUP="bbs"
+-OWNER="mbse"
++OWNER="mbsebbs"
+ ROWNER="`id -un root`"
+ RGROUP="`id -gn root`"
+ AC_SUBST(PACKAGE)
+@@ -29,7 +29,7 @@
+ AC_SUBST(OWNER)
+ AC_SUBST(ROWNER)
+ AC_SUBST(RGROUP)
+-AC_PREFIX_DEFAULT(/opt/mbse)
++AC_PREFIX_DEFAULT(/opt/mbsebbs)
+ AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+ AC_DEFINE_UNQUOTED(VERSION_MAJOR, $MAJOR)
+ AC_DEFINE_UNQUOTED(VERSION_MINOR, $MINOR)
