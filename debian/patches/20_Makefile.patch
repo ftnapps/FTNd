@@ -1,0 +1,18 @@
+Description: Updates to Makefile for package build.
+ Remove the call to the checkbasic script for package build.
+ .
+ This is for the Debian package build.
+Author: Robert James Clay <jame@rocasa.us>
+
+Index: mbsebbs/Makefile
+===================================================================
+--- mbsebbs.orig/Makefile	2011-12-09 03:39:44.000000000 -0500
++++ mbsebbs/Makefile	2012-03-05 14:54:38.000000000 -0500
+@@ -36,7 +36,6 @@
+ 		@echo ""
+ 
+ install:
+-		@./checkbasic
+ 		@if [ "`id -un`" != "root" ] ; then \
+ 			echo; echo " Must be root to install!"; echo; exit 3; \
+ 		fi
