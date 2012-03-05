@@ -1,1 +1,2 @@
 10_configure-ac.patch
+20_Makefile-global-in.patch

@@ -1,0 +1,28 @@
+Description: Include opt/mbsebbs in Makefile.global.in paths.
+ Add the path opt/mbsebbs/ before the directories for BINDIR, ETCDIR,
+ VARDIR, and INTDIR.  Set DOCDIR to usr/share/doc/mbsebbs.
+ .
+ This is for the Debian package build.
+Author: Robert James Clay <jame@rocasa.us>
+
+Index: mbsebbs/Makefile.global.in
+===================================================================
+--- mbsebbs.orig/Makefile.global.in	2011-12-09 03:39:44.000000000 -0500
++++ mbsebbs/Makefile.global.in	2012-03-05 14:28:32.000000000 -0500
+@@ -10,11 +10,11 @@
+ # for make install, where to put binaries and what owner to set
+ SUBDIRS		= @SUBDIRS@
+ PREFIX		= @prefix@
+-BINDIR		= @prefix@/bin
+-ETCDIR		= @prefix@/etc
+-DOCDIR		= @prefix@/doc
+-VARDIR		= @prefix@/var
+-INTDIR		= @prefix@/share/int
++BINDIR		= @prefix@/opt/mbsebbs/bin
++ETCDIR		= @prefix@/opt/mbsebbs/etc
++DOCDIR		= @prefix@/usr/share/doc/mbsebbs
++VARDIR		= @prefix@/opt/mbsebbs/var
++INTDIR		= @prefix@/opt/mbsebbs//share/int
+ OWNER		= @OWNER@
+ GROUP		= @GROUP@
+ ROWNER		= @ROWNER@
