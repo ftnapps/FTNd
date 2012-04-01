@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for mbsebbs
+# preinst script for ftnd
 #
 # see: dh_installdeb(1)
 
@@ -16,10 +16,8 @@ set -e
 
 case "$1" in
     install|upgrade)
-        # configure 'mbsebbs' user and 'bbs' group
-        getent group bbs >/dev/null 2>&1 || addgroup --system bbs
-        getent passwd mbse >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbse --ingroup bbs --shell /bin/bash --gecos "MBSE BBS Admin" mbse || adduser mbse uucp || adduser mbse dialout || adduser mbse dip
-        getent passwd bbs >/dev/null 2>&1 || adduser --system --quiet --home /opt/mbse/home/bbs --ingroup bbs --shell /opt/mbse/bin/mbnewusr --gecos "MBSE BBS Login" bbs || passwd -d bbs
+        # configure 'ftnd' user 
+        getent passwd ftnd >/dev/null 2>&1 || adduser --system --quiet --home /opt/ftnd --ingroup ftn --shell /bin/bash --gecos "FTNd Admin" ftnd || adduser ftnd uucp || adduser ftnd dialout || adduser ftnd dip
     ;;
 
     abort-upgrade)

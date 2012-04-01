@@ -1,0 +1,10 @@
+# Defaults for ftnd initscript
+# sourced by /etc/init.d/ftnd
+# installed at /etc/default/ftnd by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+# Additional options that are passed to the Daemon.
+DAEMON_OPTS=""

@@ -1,0 +1,10 @@
+Document: ftnd
+Title: Debian FTNd Manual
+Author: Robert James Clay, Michiel Broek
+Abstract: This manual describes the usage and 
+ operation of FTNd for Unix.
+Section: Network/Communication
+
+Format: HTML
+Index: /usr/share/doc/ftnd/html/index.html
+Files: /usr/share/doc/ftnd/html/*.html

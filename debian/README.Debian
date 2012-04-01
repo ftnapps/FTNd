@@ -1,33 +1,32 @@
-mbsebbs for Debian
+ftnd for Debian
 ------------------
 
-    MBSE BBS is installed to /opt/mbsebbs.  The user IDs mbsebbs and bbs are
-    also installed for use by MBSE BBS but their passwords are not set as part 
+    FTNd is currently installed to /opt/ftnd.  The user IDs ftnd and ftn are
+    also installed for use by FTNd but their passwords are not set as part 
     of the installation..
 
-    The initial setup of MBSE BBS should be done by becoming the MBSE BBS
-    system user (mbsebbs) and running the mbsetup program.  That sets up any
-    configuration files that are not already present.  The first user added
-    to the system becomes the Sysop by default, and can be done by logging
-    in as the bbs user.
+    The initial setup of FTNd should be done by becoming the FTNd system user
+    (ftnd) and running the ftnsetup program.  That sets up any configuration
+    files that are not already present.  The first user added to the system
+    becomes the Sysop by default.
 
-    The /usr/share/mbsebbs directory is where the standard language, menu,
+    The /usr/share/ftnd directory is where the standard language, menu,
     template, and txtfiles archives are installed during the package
     installations and/or updates. During an initial install, they are then
-    copied to the standard /opt/mbsebbs/share/int directories for use by the
-    MBSE BBS system.
+    copied to the standard /opt/ftnd/share/int directories for use by the
+    FTNd system.
 
-    The standard html files are installed to /usr/share/doc/mbsebbs/html,
-    with a softlink to there from /opt/mbsebbs/html.
+    The standard html files are installed to /usr/share/doc/ftnd/html,
+    with a softlink to there from /opt/ftnd/html.
 
-    An example crontab is available as doc/mbsebbs/examples/crontab.mbsebbs,
-    which can be installed using the crontab command as the user mbsebbs.
+    An example crontab is available as doc/ftnd/examples/crontab.ftnd,
+    which can be installed using the crontab command as the user ftnd.
 
     Configuring inetd or xinetd.  For inetd;  the information in
-    doc/mbsebbs/examples/inetd.mbsebbs could be added to /etc/inetd.conf.
-    For xinetd: the doc/mbsebbs/examples/xinetd.mbsebbs
+    doc/ftnd/examples/inetd.ftnd could be added to /etc/inetd.conf.
+    For xinetd: the doc/ftnd/examples/xinetd.ftnd
      could be installed
-    as /etc/xinetd.d/mbsebbs.
+    as /etc/xinetd.d/ftnd.
 
     An FTN nodelist is needed for the installation, when the system is
     configured for FTN uplinks.
@@ -37,7 +36,7 @@ IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat
 
     That indicates that the entry for it is missing from the file.  Add
     a line such as this to the /etc/services file:
-fido        60179/udp           # MBSE BBS Chatserver
+fido        60179/udp           # FTNd Chatserver
 
 
- -- Robert James Clay <jame@rocasa.us>  Sat, 03 Mar 2012 01::53:05 -0400
+ -- Robert James Clay <jame@rocasa.us>  Sun,  1 Apr 2012 01::53:05 -0400

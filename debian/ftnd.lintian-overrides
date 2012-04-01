@@ -1,11 +1,11 @@
-# debian/source.lintian-overrides for MBSE BBS
+# debian/source.lintian-overrides for FTNd
 
-#    Per upstream:  MBSE BBS is assumed to be in an /opt installation 
+#    Per upstream:  FTNd is assumed to be in an /opt installation 
 # and has not been tested using any other configuration.
-mbsebbs: dir-or-file-in-opt
-mbsebbs: file-in-unusual-dir
+ftnd: dir-or-file-in-opt
+ftnd: file-in-unusual-dir
 
 # Multiple standard directories are distributed empty because they
 # are required for usage during the operation of the program but 
 # are not otherwise automatically created.
-mbsebbs: package-contains-empty-directory
+ftnd: package-contains-empty-directory

@@ -1,0 +1,219 @@
+#!/bin/sh
+# postinst script for ftnd
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+case "$1" in
+    configure)
+    # Install example bash profile if it is not already present
+    if [ ! -e "/opt/ftnd/.profile" ]; then
+        install -m 440 /usr/share/doc/ftnd/examples/profile.ftnd /opt/ftnd/.profile
+    fi
+
+    # Install example bbbsdoor.sh script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/bbsdoor.sh" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/bbsdoor.sh /opt/ftnd/bin/bbsdoor.sh
+    fi
+    # Install example editor script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/editor" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/editor /opt/ftnd/bin/editor
+    fi
+    # Install example hatch script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/hatch" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/hatch /opt/ftnd/bin/hatch
+    fi
+    # Install example ftndos script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/ftndos" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/ftnsedos /opt/ftnd/bin/ftndos
+    fi
+    # Install example rundoor.sh script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/rundoor.sh" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/rundoor.sh /opt/ftnd/bin/rundoor.sh
+    fi
+    # Install example runvirtual.sh script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/runvirtual.sh" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/runvirtual.sh /opt/ftnd/bin/runvirtual.sh
+    fi
+    # Install example maint script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/adm/maint" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/maint /opt/ftnd/bin/adm/maint
+    fi
+    # Install example midnight script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/adm/midnight" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/midnight /opt/ftnd/bin/adm/midnight
+    fi
+    # Install example monthly script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/adm/monthly" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/monthly /opt/ftnd/bin/adm/monthly
+    fi
+    # Install example weekly script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/adm/weekly" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/weekly /opt/ftnd/bin/adm/weekly
+    fi
+
+    # Install example footer.txt file if it is not already present
+    if [ ! -e "/opt/ftnd/etc/footer.txt" ]; then
+        install -m 640 /usr/share/ftnd/etc/footer.txt /opt/ftnd/etc/footer.txt
+    fi
+    # Install example header.txt file if it is not already present
+    if [ ! -e "/opt/ftnd/etc/header.txt" ]; then
+        install -m 640 /usr/share/ftnd/etc/header.txt /opt/ftnd/etc/header.txt
+    fi
+
+    # Install the English BBS language file if it is not already present
+    if [ ! -e "/opt/ftnd/share/int/language.en" ]; then
+        install -m 640 /usr/share/ftnd/int/language.en /opt/ftnd/share/int/language.en
+    fi
+    # Install the Spanish BBS language file if it is not already present
+    if [ ! -e "/opt/ftnd/share/int/language.es" ]; then
+        install -m 640 /usr/share/ftnd/int/language.es /opt/ftnd/share/int/language.es
+    fi
+    # Install the German BBS language file if it is not already present
+    if [ ! -e "/opt/ftnd/share/int/language.de" ]; then
+        install -m 640 /usr/share/ftnd/int/language.de /opt/ftnd/share/int/language.de
+    fi
+    # Install the French BBS language file if it is not already present
+    if [ ! -e "/opt/ftnd/share/int/language.fr" ]; then
+        install -m 640 /usr/share/ftnd/int/language.fr /opt/ftnd/share/int/language.fr
+    fi
+    # Install the Galician BBS language file if it is not already present
+    if [ ! -e "/opt/ftnd/share/int/language.gl" ]; then
+        install -m 640 /usr/share/ftnd/int/language.gl /opt/ftnd/share/int/language.gl
+    fi
+    # Install the Dutch BBS language file if it is not already present
+    if [ ! -e "/opt/ftnd/share/int/language.nl" ]; then
+        install -m 640 /usr/share/ftnd/int/language.nl /opt/ftnd/share/int/language.nl
+    fi
+    # Install the Chinese BBS language file if it is not already present
+    if [ ! -e "/opt/ftnd/share/int/language.zh" ]; then
+        install -m 640 /usr/share/ftnd/int/language.zh /opt/ftnd/share/int/language.zh
+    fi
+
+    # Create macros directory if not already present
+    if [ ! -d "/opt/ftnd/share/int/macro/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/macro
+    fi
+    # Install english text macro files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/macro/en/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/macro/en
+        tar xfC /usr/share/ftnd/int/templates-en.tar /opt/ftnd/share/int/macro/en
+    fi
+    # Install spanish text macro files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/macro/es/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/macro/es
+        tar xfC /usr/share/ftnd/int/templates-es.tar /opt/ftnd/share/int/macro/es
+    fi
+    # Install german text macro files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/macro/de/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/macro/de
+        tar xfC /usr/share/ftnd/int/templates-de.tar /opt/ftnd/share/int/macro/de
+    fi
+    # Install dutch text macro files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/macro/nl/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/macro/nl
+        tar xfC /usr/share/ftnd/int/templates-nl.tar /opt/ftnd/share/int/macro/nl
+    fi
+
+    # Create menu directory if not already present
+    if [ ! -d "/opt/ftnd/share/int/menus/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/menus
+    fi
+    # Install english text menu files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/menus/en/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/menus/en
+        tar xfC /usr/share/ftnd/int/menus-en.tar /opt/ftnd/share/int/menus/en
+    fi
+    # Install spanish text menu files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/menus/es/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/menus/es
+        tar xfC /usr/share/ftnd/int/menus-es.tar /opt/ftnd/share/int/menus/es
+    fi
+
+    # Create txtfiles directory if not already present
+    if [ ! -d "/opt/ftnd/share/int/txtfiles/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/txtfiles
+    fi
+    # Install english text txtfiles files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/txtfiles/en/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/txtfiles/en
+        tar xfC /usr/share/ftnd/int/txtfiles-en.tar /opt/ftnd/share/int/txtfiles/en
+    fi
+    # Install spanish text txtfiles files if that directory is not already present
+    if [ ! -d "/opt/ftnd/share/int/txtfiles/es/" ]; then
+        mkdir --mode=755 /opt/ftnd/share/int/txtfiles/es
+        tar xfC /usr/share/ftnd/int/txtfiles-es.tar /opt/ftnd/share/int/txtfiles/es
+    fi
+
+    #  Set default user:group for ftnd install
+    chown -R ftnd:ftn /opt/ftnd
+
+    #   Remove if present then install the stat override for setuid ftntask
+    dpkg-statoverride --remove /opt/ftnd/bin/ftntask >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftntask
+
+    #   Remove if present then install the stat override for setuid ftnnewusr
+    dpkg-statoverride --remove /opt/ftnd/bin/ftnnewusr >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add ftnd bbs 6750 /opt/ftnd/bin/ftnnewusr
+
+    #   Remove if present then install the stat override for setuid root and 
+    #   setgid root for ftnuser (-rws--s--x)
+    dpkg-statoverride --remove /opt/ftnd/bin/ftnuser >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftnuser
+
+    #   Remove if present then install the stat override for setuid root and 
+    #   setgid root for ftnuseradd (-rws--s--x)
+    dpkg-statoverride --remove /opt/ftnd/bin/ftnuseradd >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftnuseradd
+
+    #   Remove if present then install the stat override for setuid root and 
+    #   setgid root for ftnpasswd (-rws--s--x)
+    dpkg-statoverride --remove /opt/ftnd/bin/ftnpasswd >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftnpasswd
+
+    #   Remove if present then install the stat override owndership by
+    #   root for ftnlogin.
+    dpkg-statoverride --remove /opt/ftnd/bin/ftnlogin >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add root root 0755 /opt/ftnd/bin/ftnlogin
+
+    #   Remove if present then install the stat setting for /opt/ftnd/tmp
+    dpkg-statoverride --remove /opt/ftnd/tmp >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add ftnd bbs 0770 /opt/ftnd/tmp
+
+    #   Remove if present then install the stat setting for /opt/ftnd/etc
+    dpkg-statoverride --remove /opt/ftnd/etc >/dev/null 2>&1 || true
+    dpkg-statoverride --update --add ftnd bbs 0770 /opt/ftnd/etc
+
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
+
+#DEBHELPER#
+
+exit 0
+
+

@@ -1,27 +1,22 @@
-Source: mbsebbs
+Source: ftnd
 Section: comm
 Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.us>
 Build-Depends: debhelper (>= 7.0.50), autotools-dev, libbz2-dev, libz-dev
-Standards-Version: 3.9.2
-Vcs-Git: git://github.com/jame/mbsebbs.git
-Vcs-Browser: http://github.com/jame/mbsebbs
-Homepage: http://www.mbse.eu/bbsing/mbsebbs
+Standards-Version: 3.9.3
+Vcs-Git: git://github.com/jame/ftnd.git
+Vcs-Browser: http://github.com/jame/ftnd
+Homepage: http://jame.github.com/ftnd
 
-Package: mbsebbs
+Package: ftnd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
-Recommends: xinetd, arc, zip, unzip, telnetd-ssl, openssh-server
+Recommends: xinetd, arc, zip, unzip
 Suggests: arj, unrar-free, zoo, lha, ha, joe, dosemu, dosemu-freedos, tetradraw
-Description: MBSE BBS System for Unix
- MBSE BBS is a full Fidonet capable ANSI BBS 
+Description: FTNd Services for Unix
+ FTNd is a full Fidonet capable mailer 
  package including a mailer, tosser, ticfile 
  processor, filefind and other utilities. 
- The bbs supports full configurable ANSI
- menus, multiple languages, standard file 
- transfer protocols, native GNU/Linux doors,
- DOS doors using dosemu and BlueWave and QWK
- offline readers.
  The mailer supports FTS-0001, YooHoo/2U2,
  EMSI protocols over modem, TCP/IP IFC and
  Binkp protocols. Zedzap, Zmodem, Telink and

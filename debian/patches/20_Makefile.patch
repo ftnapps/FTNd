@@ -4,10 +4,10 @@ Description: Updates to Makefile for package build.
  This is for the Debian package build.
 Author: Robert James Clay <jame@rocasa.us>
 
-Index: mbsebbs/Makefile
+Index: ftnd/Makefile
 ===================================================================
---- mbsebbs.orig/Makefile	2011-12-09 03:39:44.000000000 -0500
-+++ mbsebbs/Makefile	2012-03-05 14:54:38.000000000 -0500
+--- ftnd.orig/Makefile	2011-12-09 03:39:44.000000000 -0500
++++ ftnd/Makefile	2012-03-05 14:54:38.000000000 -0500
 @@ -36,7 +36,6 @@
  		@echo ""
  

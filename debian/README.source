@@ -1,11 +1,4 @@
-    README.source for MBSE BBS
-
-
-Obtaining the source archive
-=============================
-The source archive was originally downloaded from http://www.mbse.eu/mbse/mbsebbs/download/
-as the file mbsebbs-0.92.0.tar.bz2.  It was recreated and renamed to mbsebbs_0.92.0.orig.tar.gz
-as part of the packaging process.
+    README.source for FTNdz
 
 
 Patching the source archive

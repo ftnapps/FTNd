@@ -1,12 +1,12 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# debian/rules for mbsebbs.
+# debian/rules for ftnd.
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# Set MBSE_ROOT to mbse installation directory.
-export MBSE_ROOT=/opt/mbsebbs
+# Set FTND_ROOT to ftnd installation directory.
+export FTND_ROOT=/opt/ftnd
 
 
 %:

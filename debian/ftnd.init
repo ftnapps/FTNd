@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# description: Starts and stops the FTNd task monitor.
+#
+# For Debian SYSV init style, with LSB information.
+
+### BEGIN INIT INFO
+# Provides:          ftnd
+# Required-Start:    $network $local_fs
+# Required-Stop:
+# Should-Start:      $named
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start the task monitor for FTNd
+# Description:       Start the task monitor for FTNd
+### END INIT INFO
+
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+if [ "$FTND_ROOT" = "" ]; then
+    echo "MBSE BBS: No 'ftnd' user in the password file."
+    exit 1
+fi
+
+if [ ! -d $FTND_ROOT ]; then 
+    echo "MBSE BBS: Home directory '$FTND_ROOT' not found."
+    exit 1
+fi
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:$FTND_ROOT/bin
+DAEMON=$FTND_ROOT/bin/mbtask
+NAME=ftnd
+DESC="MBSE BBS"
+
+export FTND_ROOT
+
+# See how we were called.
+case "$1" in
+  start)
+    echo -n "Starting $DESC: "
+    rm -f $FTND_ROOT/var/run/*
+    rm -f $FTND_ROOT/var/sema/*
+    rm -f $FTND_ROOT/var/*.LCK
+    rm -f $FTND_ROOT/tmp/mb*
+    su ftnd -c '$FTND_ROOT/bin/mbtask' >/dev/null
+    echo -n "mbtask "
+    sleep 2
+    if [ -f $FTND_ROOT/etc/config.data ]; then
+        su ftnd -c '$FTND_ROOT/bin/mbstat open -quiet'
+        echo -n "opened "
+    fi
+    echo "done."
+    ;;
+  stop)
+    echo -n "Stopping $DESC: "
+    if [ -f $FTND_ROOT/var/run/mbtask ]; then
+        echo -n "logoff users "
+        su ftnd -c '$FTND_ROOT/bin/mbstat close wait -quiet' >/dev/null
+        echo -n " stopping mbtask"
+        pid=$( cat $FTND_ROOT/var/run/mbtask )
+        kill $pid
+        i=10 
+        doit=1
+        while [ $i -gt 0 ] && [ $doit = 1 ]
+        do
+        if [ -f $FTND_ROOT/var/run/mbtask ]; then
+            echo -n "."
+            sleep 1
+            i=`expr $i - 1`
+        else
+            doit=0
+        fi
+        done
+        if [ -f $FTND_ROOT/var/run/mbtask ]; then
+            kill -9 `cat $FTND_ROOT/var/run/mbtask`
+        fi
+        echo " done."
+    else
+        echo "already stopped."
+    fi
+    ;;
+  force-reload|restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|force-reload}" >&2
+    exit 1
+esac
+exit 0

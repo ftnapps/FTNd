@@ -1,4 +1,4 @@
-# profile for mbsebbs
+# profile for ftnd
 #
 export PATH=$HOME/bin:$PATH
 export MBSE_ROOT=$HOME
