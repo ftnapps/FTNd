@@ -1,5 +1,5 @@
-ftnd (0.0.1-1) UNRELEASED; urgency=low
+FTNd (0.01-1) UNRELEASED; urgency=low
 
   * Initial release of FTNd as a Debian package. 
 
- -- Robert James Clay <jame@rocasa.us>  Sun,  1 Apr 2012 11:45:13 -0400
+ -- Robert James Clay <jame@rocasa.us>  Sun,  1 Apr 2012 22:41:13 -0400
