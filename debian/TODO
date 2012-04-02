@@ -1,41 +1,52 @@
-Debian TODO for ftnd
------------------------
+Debian TODO for FTNd
+--------------------
 
-Packaging
+Packaging:
 ----------
-- 
 
-- Review copyright & licenses & convert debian/copyright to DEP-5
+- Add reference to the NNTP interface, since that will be a primary interface.
 
-- Add note to readme.debian regarding manually setting password for system user ftnd?
+- Move any needed permissions fixes from debian/ftn.postinst to debian/rules.
+
+- Add note to README.Debian regarding manually setting password for system user ftnd?
 
 - Add example(s) for ftnd nginx config?
 
 - Create man pages for executables;  for instance, using help2man or html2man?.
-  Or create basic man pages that points to the html documentation?
+  Or create basic man pages that points to the html documentation? Or change 
+  upstream files to a source type that can be used to create html & man pages
+  as neccessary.
 
-- With purge; remove user:group ftnd:ftn?  Remove /opt/ftnd directory.
-- With at least purge, if not also remove:  remove statoverrides
+- With purge; remove user:group ftnd:ftnbbs?  Remove /opt/ftnd directory.
+- With at least purge, if not also remove:  remove statoverrides (Won't be an issue
+  after they're removed from ftnd.postinst.)
 
 - Add creation of a ftnd-dbg package (ref http://wiki.debian.org/DebugPackage)
 
-- Change the installation directory to /usr/lib/ftnd
+- Change the installation directory to /usr/lib/ftnd?
 
 - Create & use debian/po, so that any debconf messages can be translated?
 
+
 Configuration:
+--------------
+
 - Run ftnsetup as part of postinst for a new installation?  Or just advise that it should
   be run asap after a new install?  (Perhaps put a note about it in debian/News?)
 
 - Add note about needing an FTN Nodelist
 
 - Add a note about configuring html Docs root (1.15), URL Name, Author
-name. perhaps a note about the 'Hist. Limit'
-Example docs root => /opt/ftnd/var/www
+    name. perhaps a note about the 'Hist. Limit'
+    Example docs root => /opt/ftnd/var/www
+
 - Create an example stats index file.
+
 - will need to add a note about updating the config for that?
 
 - Add a note, with details and/or pointing to example files, for configuring a web server.
 (don't think it's already in the documentation?)
 
- -- Robert James Clay <jame@rocasa.us>  Sun, 01 Apr 2012 12:15
+
+
+ -- Robert James Clay <jame@rocasa.us>  Sun, 01 Apr 2012 23:33
