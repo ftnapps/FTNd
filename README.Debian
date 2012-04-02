@@ -1,0 +1,28 @@
+README.Debian
+
+Unlike many distributions, Debian may not install programs that may be useful
+for FTNd by default. Before you run ./configure install the following
+packages to make FTNd run with most features:
+
+Package     Provides
+----------- --------------------------------------------------------------
+xinetd      Icoming TCP/IP networking.
+libc6-dev   To allow compiling of programs.
+libz-dev    To allow mailer zlib compression.
+libbz2-dev  To allow mailer bz2 compression.
+automake    To rebuild configure if needed.
+telnetd-ssl Telnet (SSL) sessions to the bbs.
+arj         ARJ archiver.
+rar         RAR archiver.
+lha         LHArc archiver.
+arc         Arc archiver.
+zoo         ZOO archiver.
+lrzsz       Zmodem, Ymodem file transfers for the bbs (obsolete).
+joe         External editor for the bbs.
+
+Install these programs by using 'sudo apt-get install Package'.
+The xinetd and libc6-dev package are mandatory!
+
+
+sudo bash /path/to/SETUP.sh
+

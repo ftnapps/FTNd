@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - ftnpasswd">
+<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>FTNd Programs - ftnpasswd - The passwd wrapper.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+
+<div align="right"><h5>Last update 01-Apr-2012</h5></div>
+<div align="center"><H1>ftnpasswd - The password wrapper.</H1></div>
+
+<H3>Description.</h3>
+<P>
+<strong>ftnpasswd</strong> is the wrapper for the <strong>passwd</strong> program
+is present on all GNU/Linux systems. To use <b>passwd</b> to change the password of 
+another user is only allowed by <b>root</b>. The ftnpasswd program overcomes this limitation.
+The wrapper <b>ftnpasswd</b> is run from the bbs by user <b>ftnd</b> when a new
+user is being registered to set his password. It can also be started from the
+bbs when an existing user changes his password. If you as sysop use
+<strong>ftnsetup</strong> to change a users password it will be used too.
+His password under Unix is then always the same as his password in the bbs program. 
+This is necessary for the user to be able to get his email using the pop3 protocol.<P> 
+You never need to run <strong>ftnpasswd</strong> by hand, in fact it is protected so that
+it can only be started by the bbs or ftnsetup.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+<strong>ftnpasswd</strong> must be installed setuid root and setgid root, ls -la looks like this:<br>
+<pre>
+-rws--s--x   1 root     root         6644 Jun 26 21:23 /opt/ftnd/bin/ftnpasswd*
+</pre>
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+Not mentioned here because <b>ftnpasswd</b> is only called by other programs,
+running manually is not supported.
+<P>
+
+
+<A HREF="index.html"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.html"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

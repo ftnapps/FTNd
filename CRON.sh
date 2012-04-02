@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# $Id: CRON.sh,v 1.6 2005/08/26 10:42:43 mbse Exp $
+# CRON.sh
 #
-# Crontab setup script for MBSE BBS
+# Crontab setup script for FTNd
 
-echo "MBSE BBS for Unix crontab setup. Checking your system..."
+echo "FTNd for Unix crontab setup. Checking your system..."
 
 # Basic checks.
 if [ `whoami` != "mbse" ]; then
@@ -18,8 +18,8 @@ EOF
 	exit 2
 fi
 
-if [ "$MBSE_ROOT" = "" ]; then
-	echo "*** The MBSE_ROOT variable doesn't exist ***"
+if [ "$FTND_ROOT" = "" ]; then
+	echo "*** The FTND_ROOT variable doesn't exist ***"
 	echo "*** SETUP aborted ***"
 	exit 2
 fi
@@ -36,7 +36,7 @@ if [ "`crontab -l`" != "" ]; then
 	exit 2
 fi
 
-MHOME=$MBSE_ROOT
+MHOME=$FTND_ROOT
 
 clear
 cat << EOF
@@ -58,12 +58,12 @@ EOF
 echo -n "Hit Return to continue or Control-C to abort: "
 read junk
 
-echo "Installing MBSE BBS crontab..."
+echo "Installing FTNd crontab..."
 
 crontab - << EOF
 #-------------------------------------------------------------------------
 #
-#  Crontab for mbse bbs.
+#  Crontab for FTNd.
 #
 #-------------------------------------------------------------------------
 
@@ -84,8 +84,8 @@ crontab - << EOF
 #  From here you should enter your outgoing mailslots, when to send mail etc.
 
 # Mail slot example.
-#00 02 * * *	export MBSE_ROOT=$MHOME; \$MBSE_ROOT/bin/mbout poll f16.n2801.z2 -quiet
-#00 03 * * *	export MBSE_ROOT=$MHOME; \$MBSE_ROOT/bin/mbout stop f16.n2801.z2 -quiet
+#00 02 * * *    export FTND_ROOT=$MHOME; \$FTND_ROOT/bin/mbout poll f544.n120.z1 -quiet
+#00 03 * * *    export FTND_ROOT=$MHOME; \$FTND_ROOT/bin/mbout stop f544.n120.z1 -quiet
 
 EOF
 

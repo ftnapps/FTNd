@@ -1,108 +1,108 @@
 #!/bin/sh
 #
-# $Id: init.NetBSD,v 1.6 2007/07/09 18:46:51 mbse Exp $
+# init.NetBSD
 #
 
-# PROVIDE: mbsebbs
+# PROVIDE: FTNd
 # REQUIRE: root beforenetlkm mountcritlocal tty
 
-#	it does not really require beforenetlkm.
+#   it does not really require beforenetlkm.
 
 . /etc/rc.subr
 
-name="mbsebbs"
+name="FTNd"
 rcvar=$name
-start_cmd="mbsebbs_start"
-stop_cmd="mbsebbs_stop"
-reload_cmd="mbsebbs_reload"
+start_cmd="FTNd_start"
+stop_cmd="FTNd_stop"
+reload_cmd="FTNd_reload"
 extra_commands="reload"
 
 
-mbsebbs_start()
+FTNd_start()
 {
-    echo -n "Starting mbsebbs:"
+    echo -n "Starting FTNd:"
 
-    # Find the MBSE_ROOT from the /etc/passwd file.
-    MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+    # Find the FTND_ROOT from the /etc/passwd file.
+    FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
 
-    if [ "${MBSE_ROOT}" = "" ]
+    if [ "${FTND_ROOT}" = "" ]
     then
-	echo " no 'mbse' user in the password file."
-	return
+        echo " no 'ftnd' user in the password file."
+        return
     fi
 
-    if [ ! -d ${MBSE_ROOT} ]
+    if [ ! -d ${FTND_ROOT} ]
     then
-	echo " home directory '${MBSE_ROOT}' not found."
-	return
+        echo " home directory '${FTND_ROOT}' not found."
+        return
     fi
 
-    export MBSE_ROOT
+    export FTND_ROOT
 
-    rm -f ${MBSE_ROOT}/var/run/*
-    rm -f ${MBSE_ROOT}/var/sema/*
-    rm -f ${MBSE_ROOT}/var/*.LCK
-    rm -f ${MBSE_ROOT}/tmp/mb*
-    su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null 2>&1
-    echo -n " mbtask"
+    rm -f ${FTND_ROOT}/var/run/*
+    rm -f ${FTND_ROOT}/var/sema/*
+    rm -f ${FTND_ROOT}/var/*.LCK
+    rm -f ${FTND_ROOT}/tmp/ftn*
+    su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null 2>&1
+    echo -n " ftntask"
     sleep 2
-    if [ -f ${MBSE_ROOT}/etc/config.data ]; then
-	su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
-	echo ", opened bbs"
+    if [ -f ${FTND_ROOT}/etc/config.data ]; then
+        su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+        echo ", opened bbs"
     fi
 }
 
 
-mbsebbs_stop()
+FTNd_stop()
 {
-    echo -n "Stopping mbsebbs:"
+    echo -n "Stopping FTNd:"
 
-    # Find the MBSE_ROOT from the /etc/passwd file.
-    MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
-    
-    if [ "${MBSE_ROOT}" = "" ]; then
-	echo " no 'mbse' user in the password file."
-	return
+    # Find the FTND_ROOT from the /etc/passwd file.
+    FTND_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
+
+    if [ "${FTND_ROOT}" = "" ]; then
+        echo " no 'ftnd' user in the password file."
+        return
     fi
 
-    if [ ! -d ${MBSE_ROOT} ]
+    if [ ! -d ${FTND_ROOT} ]
     then
-	echo " home directory '${MBSE_ROOT}' not found."
-	return
+        cho " home directory '${FTND_ROOT}' not found."
+        return
     fi
 
-    export MBSE_ROOT
+    export FTND_ROOT
 
-    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-	echo -n " logoff users"
-	su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
-	kill -15 `cat ${MBSE_ROOT}/var/run/mbtask`
-	sleep 1
-	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-	    echo -n "."
-	    sleep 1
-	fi
-	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-	    echo -n "."
-	    sleep 1
-	fi
-	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-	    echo -n "."
-	    sleep 1
-	fi
-	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-	    kill -9 `cat ${MBSE_ROOT}/var/run/mbtask`
-	fi
-	echo " done"
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n " logoff users"
+        su ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
+        kill -15 `cat ${FTND_ROOT}/var/run/ftntask`
+        sleep 1
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n "."
+        sleep 1
+    fi
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n "."
+        sleep 1
+    fi
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n "."
+        sleep 1
+    fi
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        kill -9 `cat ${FTND_ROOT}/var/run/ftntask`
+    fi
+    echo " done"
     else
-	echo " was not running"
+        echo " was not running"
     fi
 }
 
-mbsebbs_reload()
+FTNd_reload()
 {
-    mbsebbs_stop
-    mbsebbs_start
+    FTNd_stop
+    FTNd_start
 }
 
 load_rc_config $name

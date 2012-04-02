@@ -1,14 +1,14 @@
 #!/bin/sh
 #
-# MBSE BBS Monthly - Should be run at the first day of the month at 01:30
+# FTNd Monthly - Should be run at the first day of the month at 01:30
 #
-# $Id: monthly,v 1.5 2005/08/26 10:42:11 mbse Exp $
+# $Id: monthly,v 1.5 2005/08/26 10:42:11 ftn Exp $
 
 if [ "$MBSE_ROOT" = "" ]; then
-   export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+   export MBSE_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
 fi
-if [ "`id -un`" != "mbse" ] ; then
-   echo "Must be run by user 'mbse'"
+if [ "`id -un`" != "ftnd" ] ; then
+   echo "Must be run by user 'ftnd'"
    exit 1
 fi
 
@@ -20,4 +20,4 @@ done
 
 # Check files database and download areas.
 # 
-$MBSE_ROOT/bin/mbfile check index -quiet
+$MBSE_ROOT/bin/ftnfile check index -quiet

@@ -1,23 +1,23 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(lib/mbselib.h)
+AC_INIT(lib/ftndlib.h)
 AM_CONFIG_HEADER(config.h)
-SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbutils mbnntp mbtask mbsetup unix lang examples html script"
+SUBDIRS="lib ftncico ftnfido ftnmon ftnsebbs ftnutils ftnnntp ftntask ftnsetup unix lang examples html script"
 AC_SUBST(SUBDIRS)
 
 #
-# General settings for MBSE BBS
+# General settings for FTNd
 # After changeing the version number, run autoconf!
 #
-PACKAGE="mbsebbs"
+PACKAGE="FTNd"
 MAJOR="0"
-MINOR="95"
-REVISION="14"
+MINOR="01"
+REVISION="0"
 VERSION="$MAJOR.$MINOR.$REVISION"
-COPYRIGHT="Copyright (C) 1997-2011 Michiel Broek, All Rights Reserved"
-SHORTRIGHT="Copyright (C) 1997-2011 M. Broek"
-GROUP="bbs"
-OWNER="mbse"
+COPYRIGHT="Copyright (C) 2012 Robert James Clay, 1997-2011 Michiel Broek, All Rights Reserved"
+SHORTRIGHT="Copyright (C) 2012 R.J. Clay, 1997-2011 M. Broek"
+GROUP="ftnbbs"
+OWNER="ftnd"
 ROWNER="`id -un root`"
 RGROUP="`id -gn root`"
 AC_SUBST(PACKAGE)
@@ -29,7 +29,7 @@ AC_SUBST(GROUP)
 AC_SUBST(OWNER)
 AC_SUBST(ROWNER)
 AC_SUBST(RGROUP)
-AC_PREFIX_DEFAULT(/opt/mbse)
+AC_PREFIX_DEFAULT(/opt/ftnd)
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 AC_DEFINE_UNQUOTED(VERSION_MAJOR, $MAJOR)
 AC_DEFINE_UNQUOTED(VERSION_MINOR, $MINOR)

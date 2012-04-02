@@ -1,19 +1,19 @@
-			New installation procedure.
-			---------------------------
+            Installation procedure.
+            -----------------------
 
 The old initial system setup was a little tricky and didn't work on some
 systems. This procedure is tested on Slackware, RedHat, Mandrake, SuSE and Debian.
 I have not tested on other distributions. Installation is now done by a
 script which will do the dirty work. This script can be executed once only,
 unless you undo all changes the script has done. Basicly, if you already
-have installed MBSE BBS, or there are parts left of an old installation, the
+have installed FTNd, or there are parts left of an old installation, the
 script will abort and inform you why. I hope this will give a better and more
 universal setup on most distributions. 
 
 
 
-		Installing MBSE BBS for the first time.
-		---------------------------------------
+        Installing FTNd for the first time.
+        ------------------------------------
 
 Login as root and type the following commands to do the basic install:
 
@@ -35,7 +35,7 @@ su
 [type rootpassword]
 make install
 exit
-@prefix@/bin/mbtask
+@prefix@/bin/ftntask
 
 Note: On XxxBSD systems, use gmake instead of make.
 The next step is to read the documentation in @prefix@/html with a browser.
@@ -43,10 +43,10 @@ After your system is configured and tested type "sh ./CRON.sh" to install
 a default crontab for the bbs.
 
 
-		Upgrading MBSE BBS on a running system.
-		---------------------------------------
+        Upgrading FTNd on a running system.
+        -----------------------------------
 
-Login as user "mbse", backup your bbs configuration, and then type the 
+Login as user "ftnd", backup your configuration, and then type the 
 following commands:
 
 cd
@@ -156,7 +156,7 @@ Installation Names
    By default, `make install' will install the package's files in
 `@prefix@/bin', `@prefix@/etc', etc.  You can specify an
 installation prefix other than `@prefix@' by giving `configure' the
-option `--prefix=PATH'. This is NOT ADVISED for MBSE BBS!!!
+option `--prefix=PATH'. This is NOT ADVISED for FTNd!!!
 
    You can specify separate installation prefixes for
 architecture-specific files and architecture-independent files.  If you

@@ -1,12 +1,10 @@
-# Top-level makefile for MBSE BBS package
-# $Id: Makefile,v 1.73 2007/09/01 15:35:47 mbse Exp $
+# Top-level makefile for FTNd package
+# Makefile
 
 include Makefile.global
 
 OTHER		= AUTHORS ChangeLog COPYING DEBUG CRON.sh FILE_ID.DIZ.in \
 		  INSTALL.in Makefile Makefile.global.in NEWS cpuflags \
-		  ChangeLog_1998 ChangeLog_1999 ChangeLog_2000 ChangeLog_2001 \
-		  ChangeLog_2002 ChangeLog_2003 ChangeLog_2004 ChangeLog_2005 \
 		  README SETUP.sh \
 		  TODO UPGRADE aclocal.m4 checkbasic config.h.in configure \
 		  configure.ac \
@@ -17,14 +15,14 @@ TARFILE		= ${PACKAGE}-${VERSION}.tar.bz2
 
 
 all depend:
-		@if [ -z ${MBSE_ROOT} ] ; then \
-			echo; echo " MBSE_ROOT is not set!"; echo; exit 3; \
+		@if [ -z ${FTND_ROOT} ] ; then \
+			echo; echo " FTND_ROOT is not set!"; echo; exit 3; \
 		else \
 			for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done; \
 		fi
 
 help:
-		@echo "         Help for MBSE BBS make:"
+		@echo "         Help for FTNd make:"
 		@echo ""
 		@echo "make [all]                 Compile all sources"
 		@echo "make install               Install everything (must be root)"

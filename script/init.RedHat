@@ -1,10 +1,10 @@
 #!/bin/sh
 #
 # chkconfig: 345 95 05
-# description: Starts and stops MBSE BBS.
+# description: Starts and stops FTNd.
 #
 # For RedHat, Fedora Core, E-Smith and Mandrake SYSV init style.
-# $Id: init.RedHat,v 1.9 2007/07/09 18:46:51 mbse Exp $
+# init.RedHat
 #
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -15,57 +15,57 @@
 # Check that networking is up.
 [ ${NETWORKING} = "no" ] && exit 1
 
-# Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
 
-if [ "${MBSE_ROOT}" = "" ]
+if [ "${FTND_ROOT}" = "" ]
 then
-    echo "MBSE BBS: No 'mbse' user in the password file."
+    echo "FTNd: No 'ftnd' user in the password file."
     exit 1
 fi
 
-if [ ! -d ${MBSE_ROOT} ]
+if [ ! -d ${FTND_ROOT} ]
 then
-    echo "MBSE BBS: Home directory '${MBSE_ROOT}' not found."
+    echo "FTNd: Home directory '${FTND_ROOT}' not found."
     exit 1
 fi
 
-export MBSE_ROOT
+export FTND_ROOT
 
 
 # See how we were called.
 #
 case "$1" in
     start)
-	echo -n "Starting MBSE BBS: "
-	rm -f ${MBSE_ROOT}/var/run/*
-	rm -f ${MBSE_ROOT}/var/sema/*
-	rm -f ${MBSE_ROOT}/var/*.LCK
-	rm -f ${MBSE_ROOT}/tmp/mb*
-	su - mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
-	echo -n "mbtask "
+	echo -n "Starting FTNd: "
+	rm -f ${FTND_ROOT}/var/run/*
+	rm -f ${FTND_ROOT}/var/sema/*
+	rm -f ${FTND_ROOT}/var/*.LCK
+	rm -f ${FTND_ROOT}/tmp/ftn*
+	su - ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
+	echo -n "ftntask "
 	sleep 2
-	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
-	    su - mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	if [ -f ${FTND_ROOT}/etc/config.data ]; then
+	    su - ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
 	    echo "opened"
 	fi
-	touch /var/lock/subsys/mbsed
+	touch /var/lock/subsys/ftnd
 	;;
     stop)
-	echo -n "Shutting down MBSE BBS: "
-	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	echo -n "Shutting down FTNd: "
+	if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
 	    echo -n "logoff users "
-	    su - mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+	    su - ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
 	    echo -n "done, "
-	    echo -n "stop mbtask: "
-	    killproc mbtask -15
-	    rm -f /var/lock/subsys/mbsed
+	    echo -n "stop ftntask: "
+	    killproc ftntask -15
+	    rm -f /var/lock/subsys/ftnd
 	    sleep 3
 	fi
 	echo ""
 	;;
   status)
-	status mbtask
+	status ftntask
 	;;
   restart|reload)
 	$0 stop

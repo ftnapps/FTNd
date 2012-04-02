@@ -1,131 +1,133 @@
 
-			MBSE BBS V0.95.14 TODO list.
-			----------------------------
+            FTNd V0.00.01 TODO list.
+            ----------------------------
 
-	These are a list of things that must be implemented one way or
-	another. Some things are urgent and necessary to operate the bbs
-	without human intervention, others are just for comfort, or nice.
-	I think this list will always contain items, I only hope the urgent
-	matters will be removed.
-	Note that most goodies are still in my mind instead of in this file.
-	Classes: U = Urgent.
-		 N = Normal, second priority.
-                 L = Cosmetic or nice to have.
-	         W = Feature request.
-		 X = Will not be done unless it's really needed.
+    These are a list of things that must be implemented one way or
+    another. Some things are urgent and necessary to operate the bbs
+    without human intervention, others are just for comfort, or nice.
+    I think this list will always contain items, I only hope the urgent
+    matters will be removed. Note that some of these were brought over
+    from the MBSE BBS TODO, which FTNd is derived.
+
+    Classes:
+         U = Urgent.
+         N = Normal, second priority.
+         L = Cosmetic or nice to have.
+         W = Feature request.
+         X = Will not be done unless it's really needed.
 
 everything:
-	N: In BSO the i flavor should have been d flavor.
+    N: In BSO the i flavor should have been d flavor.
 
-	W: Increase size of Unix usernames > 8. The limit on Slackware is 32
-	   characters, defined in utmp.h in UT_NAMESIZE
+    W: Increase size of Unix usernames > 8. The limit on Slackware is 32
+       characters, defined in utmp.h in UT_NAMESIZE
 
-	W: Add personal message area.
+    W: Add personal message area.
 
-	N: The ttyinfo.tty field is too short for NetBSD.
+    N: The ttyinfo.tty field is too short for NetBSD.
 
-	W: Implement topic groups for file and message areas, with access level
-	   control.
+    W: Implement topic groups for file and message areas, with access level
+       control.
 
-	W: Switch to MySQL as database backend. This can also solve some other
-	   limitations. A php API should be added too.
+    W: Switch to MySQL as database backend. This can also solve some other
+       limitations. A php API should be added too.
 
-mbsebbs:
-	W: OLR, implement file requests.
+ftnbbs:
+    W: OLR, implement file requests.
 
-	N: Only count posted messages in local mail areas.
+    N: Only count posted messages in local mail areas.
 
-	X: OLR: include private email area in download packets. See also global
+    X: OLR: include private email area in download packets. See also global
            wish for private mail areas.
 
-	X: OLR: implement some global settings from the offline configuration.
+    X: OLR: implement some global settings from the offline configuration.
 
-	N: OLR: qwk, check netmail entered from reader, fido address missing?
+    N: OLR: qwk, check netmail entered from reader, fido address missing?
 
-	X: Implement kermit protocol, external versions don't work right.
+    X: Implement kermit protocol, external versions don't work right.
 
 
-mbfido:
-	N: Don't log an error if no file_id.diz is found.
+ftnfido:
+    N: Don't log an error if no file_id.diz is found.
 
-	W: Check all .flo files for dead attachments.
+    W: Check all .flo files for dead attachments.
 
-	W: Check all .flo files for to old attachments.
+    W: Check all .flo files for to old attachments.
 
-	W: Count posted messages during mailscan.
+    W: Count posted messages during mailscan.
 
-	W: Code cleanup and make a structure in this program. Remove duplicate
-	   or similar functions.
+    W: Code cleanup and make a structure in this program. Remove duplicate
+       or similar functions.
 
-	N: Process GoldED filerequest netmails with the filereq flag set, we
-	   should create a .req file with the contents of the subject line.
+    N: Process GoldED filerequest netmails with the filereq flag set, we
+       should create a .req file with the contents of the subject line.
 
-	N: Process To: and Cc: lines in messages gated from Fido to Internet.
+    N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
-	N: Investigate a method to scan and filter messages using the gateway.
+    N: Investigate a method to scan and filter messages using the gateway.
 
-	W: Add macro's for stats of all months.
+    W: Add macro's for stats of all months.
 
-	X: Implement file requests for directory nodes.
+    X: Implement file requests for directory nodes.
 
-	W: Add %from command to areamgr/filemgr.
+    W: Add %from command to areamgr/filemgr.
 
-	W: Add netmail notification of changed areas.
+    W: Add netmail notification of changed areas.
 
-	W: Make it possible to only virus scan the complete archives.
+    W: Make it possible to only virus scan the complete archives.
 
-	W: Let mbfido areas with a special switch update area descriptions.
+    W: Let ftnfido areas with a special switch update area descriptions.
 
-	W: Send rulefile via netmail for each new connected mail area.
+    W: Send rulefile via netmail for each new connected mail area.
 
-	W: Send notifications to downlinks about changed areas from uplink.
+    W: Send notifications to downlinks about changed areas from uplink.
 
-	W: Add statistic mail messages. Via AMC??
+    W: Add statistic mail messages. Via AMC??
 
-	N: Hatch statistics are not updated.
+    N: Hatch statistics are not updated.
 
-	W: Copy personal mail to a personal message area.
+    W: Copy personal mail to a personal message area.
 
-	W: Someday make retoss from bad possible (volonteers?).
+    W: Someday make retoss from bad possible (volonteers?).
 
-	W: AreaMgr %rescan should auto connect disconnected areas.
+    W: AreaMgr %rescan should auto connect disconnected areas.
 
-mbcico:
-	W: Implement binkp option ND and NDA.
+ftncico:
+    W: Implement binkp option ND and NDA.
 
-mbnntp:
-	N: fetched mail doesn't get the status Rcvd if it was for the user.
+ftnnntp:
+    N: fetched mail doesn't get the status Rcvd if it was for the user.
 
-	N: Do a better job for message linking by newsclients. This is a
-	   problem because we use the message numbers and messages are
-	   sometimes renumbered. This will make some clients try to fetch
-	   the wrong messages because they cache the message id's.
+    N: Do a better job for message linking by newsclients. This is a
+       problem because we use the message nuftners and messages are
+       sometimes renumbered. This will make some clients try to fetch
+       the wrong messages because they cache the message id's.
 
-	N: Lastread pointers are not updated.
+    N: Lastread pointers are not updated.
 
-	N: Investigate a method to scan and filter messages using the gateway.
+    N: Investigate a method to scan and filter messages using the gateway.
 
-mbaff:
-	W: Rewrite filefind search algorithm.
+ftnaff:
+    W: Rewrite filefind search algorithm.
 
-mbsetup:
-	U: Menu 7.x.4.1 password length too large?
+ftnsetup:
+    U: Menu 7.x.4.1 password length too large?
 
-	U: Add check for empty data files.
+    U: Add check for empty data files.
 
-	N: Add a check for double areatag names. See MySQL plan.
+    N: Add a check for double areatag names. See MySQL plan.
 
-	N: Use some sort of sorting for the system aka's and make sure the
-	   main aka with zone's is listed first. Having zone's mixed gives
-	   too high outbound stats and the outbound is scanned multiple times.
+    N: Use some sort of sorting for the system aka's and make sure the
+       main aka with zone's is listed first. Having zone's mixed gives
+       too high outbound stats and the outbound is scanned multiple times.
 
-	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
-	   See MySQL plan.
+    N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
+       See MySQL plan.
 
-	W: Add global setup in menus 9.1 and 10.1 at least to change uplink
-	   data.
+    W: Add global setup in menus 9.1 and 10.1 at least to change uplink
+       data.
 
-	W: See if a check can be made in file groups setup for the areas file
-	   format, if a filegate list is installed and the filegate switch
-	   setting is wrong, a lot of wrong areas will be created.
+    W: See if a check can be made in file groups setup for the areas file
+       format, if a filegate list is installed and the filegate switch
+       setting is wrong, a lot of wrong areas will be created.
 

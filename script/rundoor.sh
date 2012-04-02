@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# $Id: rundoor.sh,v 1.8 2004/11/05 11:53:47 mbse Exp $
+# rundoor.sh
 #
 # Never call this script directly, create a symlink to this file with the 
 # name of the door. For example to run the door ilord do:
-#   cd /opt/mbse/bin
+#   cd /opt/ftnd/bin
 #   ln -s rundoor.sh ilord
 #
 # In the bbs menu use the following line for Opt. Data:
-#   /opt/mbse/bin/ilord /N [novirtual]
+#   /opt/ftnd/bin/ilord /N [novirtual]
 #
 # The optional "novirtual" second paramter disables the use of the virtual
 # comport in dosemu, this is for dos programs that are not doors.
@@ -29,7 +29,7 @@ if [ "$1" != "" ]; then
     cat ~/door32.sys >$DOSDRIVE/doors/node$1/door32.sys
     # Create .dosemu directory for the user.
     if [ ! -d $HOME/.dosemu ]; then
-	mkdir $HOME/.dosemu
+        mkdir $HOME/.dosemu
     fi
     # Looks cheap, see above, but this does an upgrade too
     if [ ! -d $HOME/.dosemu/drives ]; then
@@ -40,7 +40,7 @@ if [ "$1" != "" ]; then
         touch $HOME/.dosemu/disclaimer
     fi
 else
-    exit 1    
+    exit 1
 fi
 
 # run the dos emulator with the door.

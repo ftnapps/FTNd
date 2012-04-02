@@ -1,5 +1,5 @@
-# Compile-time configuration for MBSE FidoNet/Internet BBS
-# $Id: Makefile.global.in,v 1.16 2007/05/27 14:12:52 mbse Exp $
+# Compile-time configuration for FTNd FidoNet/Internet Services
+# Makefile.global.in
 
 MAJOR		= @MAJOR@
 MINOR		= @MINOR@

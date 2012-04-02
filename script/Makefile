@@ -1,12 +1,12 @@
-# Makefile for MBSE BBS under Linux
-# $Id: Makefile,v 1.23 2005/08/17 18:55:16 mbse Exp $
+# Makefile for FTNd under Linux
+# Makefile 
 
 include ../Makefile.global
 
-OTHER		= Makefile README maint midnight weekly monthly installinit.sh setup.mbse \
+OTHER		= Makefile README maint midnight weekly monthly installinit.sh setup.ftnd \
 		  bbsdoor.sh rundoor.sh runvirtual.sh init.Debian init.RedHat init.FreeBSD init.NetBSD \
 		  init.Slackware init.SuSE init.Gentoo hatch editor.in bbsjoerc bbsjmacsrc \
-		  doors.bat mbsedos
+		  doors.bat ftnbbsdos
 
 ####################################################################################################
 
@@ -87,7 +87,7 @@ install:
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0750 runvirtual.sh  ${BINDIR}/runvirtual.sh.new" ; \
 		fi
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0640 doors.bat    ${VARDIR}/dosemu/c
-		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0700 mbsedos      ${BINDIR}
+		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0700 ftnbbsdos      ${BINDIR}
 		@bash ./installinit.sh
 
 filelist:	Makefile

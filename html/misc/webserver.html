@@ -5,20 +5,20 @@
 <META http-equiv="Content-Style-Type" content="text/css">
 <META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
-<META name="description" lang="en" content="MBSE BBS Manual - Howto setup an webserver to work with MBSE BBS">
-<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
-<TITLE>Howto setup an webserver to work with MBSE BBS.</TITLE>
+<META name="description" lang="en" content="FTNd Manual - Howto setup an webserver to work with FTNd">
+<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Howto setup an webserver to work with FTNd.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<!-- MBSEADVERT -->
-<div align='right'><h5>Last update 03-Jan-2006</h5></div>
-<div align='center'><H1>How to setup an webserver to work with MBSE BBS.</H1></div>
+
+<div align='right'><h5>Last update 01-Apr-2012</h5></div>
+<div align='center'><H1>How to setup an webserver to work with FTNd.</H1></div>
 
 <H3>Introduction</H3>
 <P>
-To let a webserver work with MBSE BBS you must organize a special file
+To let a webserver work with FTNd you must organize a special file
 structure.
 Note that even if you don't setup a webserver you must still create a 
 structure like this for the fidonet mailer, if you don't, 
@@ -29,11 +29,11 @@ For the directory structure, read the setup for
 <A HREF="ftpserver.html">the FTP server</A>.
 <P>&nbsp;<P>
 
-<H3>Important settings in mbsetup.</H3>
+<H3>Important settings in ftnsetup.</H3>
 <P>
 Screen 1.18:
 <pre>
-1.  Base path      /opt/mbse/ftp/pub
+1.  Base path      /opt/ftnd/ftp/pub
 </pre>
 Screen 1.19:
 <pre>
@@ -41,17 +41,17 @@ Screen 1.19:
 2.  Link to ftp    files
 3.  URL name       http://www.mbse.ym
 </pre>
-The base ftp path is the default which mbse bbs installs. The Docs root for the
+The base ftp path is the default which FTNd installs. The Docs root for the
 apache httpd server is different on each distribution, in this example it is set
 for <A HREF="http://www.slackware.com" rel="nofollow">Slackware 8.0</A>. Because the directory
-/var/www/htdocs has nothing to do with /opt/mbse/ftp/pub we make an alias link
+/var/www/htdocs has nothing to do with /opt/ftnd/ftp/pub we make an alias link
 named <b>files</b>. For the URL name you must fill in the real internet name how
 your bbs is reached. If someone types this in, he must get the index.html from
 the directory /var/www/htdocs, the docs root. I just assume you have your http
 server up and running.
 <p>
-Now you can run the command <b>mbfile index</b>, this will create a main index
-in the directory /opt/mbse/ftp/pub and additional index.html files in all your
+Now you can run the command <b>ftnfile index</b>, this will create a main index
+in the directory /opt/ftnd/ftp/pub and additional index.html files in all your
 download areas.
 <P>&nbsp;<P>
 
@@ -62,10 +62,10 @@ As root edit your httpd.conf file, it is possible that you find it in
 &lt;IfModule mod_alias.c&gt; and &lt;/IfModule&gt; insert the following lines:
 <pre>
     #
-    # Alias for MBSE BBS download areas.
+    # Alias for FTNd download areas.
     #
-    Alias /files/ /opt/mbse/ftp/pub/
-    &lt;Directory "/opt/mbse/ftp/pub"&gt;
+    Alias /files/ /opt/ftnd/ftp/pub/
+    &lt;Directory "/opt/ftnd/ftp/pub"&gt;
         Options Indexes MultiViews FollowSymLinks
         AllowOverride None
         Order allow,deny
@@ -73,10 +73,10 @@ As root edit your httpd.conf file, it is possible that you find it in
     &lt;/Directory&gt;
 
     #
-    # Alias to access the MBSE BBS documenatation
+    # Alias to access the FTNd documenatation
     #
-    Alias /mbseman/ /opt/mbse/html/
-    &lt;Directory "/opt/mbse/html"&gt;
+    Alias /ftndman/ /opt/ftnd/html/
+    &lt;Directory "/opt/ftnd/html"&gt;
         Options Indexes MultiViews
         AllowOverride None
         Order allow,deny
@@ -85,7 +85,7 @@ As root edit your httpd.conf file, it is possible that you find it in
 </pre>
 Then restart Apache with the command <b>apachectl restart</b> Now if you access
 your webserver with for example http://www.mybbs.com/files/ you must be able to
-browse the filelists. If you use http://www.mybbs.com/mbseman/ you must be able
+browse the filelists. If you use http://www.mybbs.com/ftndman/ you must be able
 to browse this documentation online.
 <P>&nbsp;<P>
 
@@ -106,10 +106,10 @@ This are some snapshots of how this will look like, click to enlarge:
 If you want to increase the download counters when files are downloaded via www
 you must make sure that the web logs the downloads to a <b>access_log</b>
 file, for example /var/log/apache/access_log. 
-This logfile must be readable by user mbse and must be in <b>combined</b>
+This logfile must be readable by user ftnd and must be in <b>combined</b>
 format. You can set this in your apache configuration file.
-Then in <b>mbsetup</b> menu 1.13.4 enter full filename and path to this logfile.
-The <b>mball</b> program will parse this file and increase the download counters
+Then in <b>ftnsetup</b> menu 1.13.4 enter full filename and path to this logfile.
+The <b>ftnall</b> program will parse this file and increase the download counters
 for the files that are downloaded from the webserver.
 <P>
 

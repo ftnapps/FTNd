@@ -1,28 +1,24 @@
-$Id: README,v 1.8 2006/07/03 20:27:21 mbse Exp $
+        FTNd System for Unix
+        --------------------
 
-				MBSE BBS Packages.
+FTNd is a full Fidonet capable package including a mailer, tosser, ticfile
+processor, filefind and other utilities. The bbs supports full configurable
+ANSI menus, multiple languages, standard file transfer protocols, native
+GNU/Linux doors, DOS doors using dosemu and BlueWave and QWK offline readers.
 
+The mailer supports FTS-0001, YooHoo/2U2,EMSI protocols over modem, TCP/IP
+IFC and Binkp protocols. Zedzap, Zmodem, Telink and Hydra file transfer
+protocols.  Full FTN mail support, including automatic routing for hub and host
+systems. Internal mail format is JAM (c) messagebase. Full tic file support,
+including extended tic files.
 
-Distribution naming scheme:
+FTNd was forked and derived from MBSE BBS, which is the more traditional BBS
+system. It may or may not retain the BBS component (ftnbbs) as it moves away
+from that;  that depends in part on how users end up being handled.
 
-mbsebbs-0.33.18.tar.bz2
-  |     | |  |
-  |     | |  +-------- minor patchlevel 
-  |     | +----------- minor version
-  |     +------------- major version
-  +------------------- package name
-
-For fidonet distribution, the tar archive and FILE_ID.DIZ are
-zipped together in a file like mbb03318.zip
-
-The odd minor version numbers are developent versions only. From 0.35.1 and up
-these will not be released anymore but are only available via cvs.
-
-The even minor version numbers will be stable releases, they will be available
-at http://www.mbse.eu and at 2:280/2802. The first version using this
-scheme is 0.36.00
+OS: GNU/Linux and *BSD, 32/64 bit versions.
+Copyright by Robert James Clay, Michiel Broek
+Released under the terms of the GNU Public License.
 
 For first time installing, see the file INSTALL. After installation, the html
-guide is installed in /opt/mbse/html.
-
-
+guide is installed in /opt/ftnd/html or /usr/share/doc/ftnd/html.

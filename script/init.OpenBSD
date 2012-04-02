@@ -1,33 +1,33 @@
-#:MBSE-BBS: bbs startup
+#:FTNd: startup
 #
-# $Id: init.OpenBSD,v 1.2 2007/07/09 18:46:51 mbse Exp $
+# init.OpenBSD
 #
-# Added to /etc/rc.local by mbse bbs install
+# Added to /etc/rc.local by FTNd install
 #
-echo -n "Starting mbsebbs:"
+echo -n "Starting ftndbbs:"
 
-# Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
 
-if [ "${MBSE_ROOT}" = "" ]
+if [ "${FTND_ROOT}" = "" ]
 then
-	echo " no 'mbse' user in the password file."
+	echo " no 'ftnd' user in the password file."
 else
-    if [ ! -d ${MBSE_ROOT} ]
+    if [ ! -d ${FTND_ROOT} ]
     then
-	echo " home directory '${MBSE_ROOT}' not found."
+	echo " home directory '${FTND_ROOT}' not found."
     else
-    	export MBSE_ROOT
+    	export FTND_ROOT
 
-    	rm -f ${MBSE_ROOT}/var/run/*
-    	rm -f ${MBSE_ROOT}/var/sema/*
-    	rm -f ${MBSE_ROOT}/var/*.LCK
-    	rm -f ${MBSE_ROOT}/tmp/mb*
-    	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null 2>&1
-    	echo -n " mbtask"
+    	rm -f ${FTND_ROOT}/var/run/*
+    	rm -f ${FTND_ROOT}/var/sema/*
+    	rm -f ${FTND_ROOT}/var/*.LCK
+    	rm -f ${FTND_ROOT}/tmp/ftn*
+    	su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null 2>&1
+    	echo -n " ftntask"
     	sleep 2
-    	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
-	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+    	if [ -f ${FTND_ROOT}/etc/config.data ]; then
+	    su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
 	    echo ", opened bbs"
     	fi
     fi

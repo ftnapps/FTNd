@@ -1,6 +1,6 @@
--= MBSE BBS System v@VERSION@ for Unix =-
-MBSE BBS is a full Fidonet capable ANSI bbs 
-package including a mailer, tosser, ticfile 
+-= FTNd System v@VERSION@ for Unix =-
+FTNd is a full Fidonet capable package
+including a mailer, tosser, ticfile 
 processor, filefind and other utilities. 
 The bbs supports full configurable ANSI
 menus, multiple languages, standard file 
@@ -17,8 +17,8 @@ Internal mail format is JAM (c) messagebase.
 Full tic file support, including extended
 tic files.
 OS: GNU/Linux and *BSD, 32/64 bit versions.
-Originating sites 2:280/2802@fidonet and
-http://www.mbse.eu/
-Copyright by Michiel Broek.
+Originating sites 1:12/419@fidonet and
+http://rocasa.org/FTNd
+Copyright by Robert James Clay
 Released under the terms of the GNU Public
 License.

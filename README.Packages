@@ -1,0 +1,22 @@
+                FTNd Packages.
+
+Distribution naming scheme:
+
+mbsebbs-0.1.18.tar.bz2
+  |     | |  |
+  |     | |  +-------- minor patchlevel 
+  |     | +----------- minor version
+  |     +------------- major version
+  +------------------- package name
+
+For fidonet distribution, the tar archive and FILE_ID.DIZ are
+zipped together in a file like ftnd001.zip
+
+The odd minor version numbers are development versions only.
+
+The even minor version numbers will be stable releases and 
+will usually not have a 'minor patchlevel' of other than
+zero, except possibly for such things as debian packages. 
+
+For first time installing, see the file INSTALL. After installation, the html
+guide is installed in /opt/ftnd/html or /usr/share/doc/ftnd/html.

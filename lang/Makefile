@@ -1,6 +1,6 @@
-# Makefile for MBSE BBS under Linux
+# Makefile for FTNd under Linux
+# Copyright (c) 2012 by Robert James Clay.
 # Copyright (c) 1998, 2000 by M. Broek.
-# $Id: Makefile,v 1.10 2007/02/17 12:14:20 mbse Exp $
 
 include ../Makefile.global
 
@@ -18,25 +18,25 @@ install: ${LDAT}
 		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${LDAT} ${INTDIR}
 
 language.en:	source.en
-		../mbutils/mblang language.en source.en
+		../ftnutils/ftnlang language.en source.en
 
 language.nl:	source.nl
-		../mbutils/mblang language.nl source.nl
+		../ftnutils/ftnlang language.nl source.nl
 
 language.es:	source.es
-		../mbutils/mblang language.es source.es
+		../ftnutils/ftnlang language.es source.es
 
 language.gl:	source.gl
-		../mbutils/mblang language.gl source.gl
+		../ftnutils/ftnlang language.gl source.gl
 
 language.de:	source.de
-		../mbutils/mblang language.de source.de
+		../ftnutils/ftnlang language.de source.de
 
 language.fr:	source.fr
-		../mbutils/mblang language.fr source.fr
+		../ftnutils/ftnlang language.fr source.fr
 
 language.zh:	source.zh
-		../mbutils/mblang language.zh source.zh
+		../ftnutils/ftnlang language.zh source.zh
 
 
 filelist:	Makefile

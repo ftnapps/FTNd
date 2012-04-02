@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# ftnbbsdos
+
+if [ "`whoami`" != "ftnd" ]; then
+    echo "Only user 'ftnd' is allowed"
+    exit 1
+fi
+
+# Save initial umask and set group read/write for dos
+UMASK=`umask`
+umask 007
+
+# Run DOS
+if [ "$TERM" == "linux" ]; then
+    dosemu.bin -f $FTND_ROOT/etc/dosemu/dosemu.conf
+else
+    dosemu.bin -X -f $FTND_ROOT/etc/dosemu/dosemu.conf
+fi
+
+# Restore umask
+umask $UMASK

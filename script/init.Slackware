@@ -1,56 +1,56 @@
 #!/bin/sh
 #
-# description: Starts and stops MBSE BBS. 
+# description: Starts and stops FTNd. 
 #
-# $Id: init.Slackware,v 1.7 2007/07/09 18:46:51 mbse Exp $
+# init.Slackware
 #
 # /etc/rc.d/init.d for Slackware
 #
 
-# Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=`cat /etc/passwd | grep ^mbse: | awk -F ':' '{ print $6}'`
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
 
-if [ "${MBSE_ROOT}" = "" ]
+if [ "${FTND_ROOT}" = "" ]
 then
-    echo "MBSE BBS: No 'mbse' user in the password file."
+    echo "FTNd: No 'ftnd' user in the password file."
     exit 1
 fi
 
-if [ ! -d ${MBSE_ROOT} ]
+if [ ! -d ${FTND_ROOT} ]
 then
-    echo "MBSE BBS: Home directory '${MBSE_ROOT}' not found."
+    echo "FTNd: Home directory '${FTND_ROOT}' not found."
     exit 1
 fi
 
-export MBSE_ROOT
+export FTND_ROOT
 
 # See how we were called.
 case "$1" in
     start)
-        echo -n "MBSE BBS starting:"
-	rm -f ${MBSE_ROOT}/var/run/*
-	rm -f ${MBSE_ROOT}/var/sema/*
-	rm -f ${MBSE_ROOT}/var/*.LCK
-	rm -f ${MBSE_ROOT}/tmp/mb*
-	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
-	echo -n " mbtask"
+        echo -n "FTNd starting:"
+	rm -f ${FTND_ROOT}/var/run/*
+	rm -f ${FTND_ROOT}/var/sema/*
+	rm -f ${FTND_ROOT}/var/*.LCK
+	rm -f ${FTND_ROOT}/tmp/mb*
+	su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
+	echo -n " ftntask"
 	sleep 2
-	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
-	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	if [ -f ${FTND_ROOT}/etc/config.data ]; then
+	    su ftnd -c '${FTND_ROOT}/bin/mbstat open -quiet'
 	    echo " and opened the bbs."
 	fi
         ;;
     stop)
-        echo -n "MBSE BBS shutdown:"
-        if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+        echo -n "FTNd shutdown:"
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
             echo -n " logoff users "
-            su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
-            echo -n "done, stopping mbtask"
-	    kill -15 `cat ${MBSE_ROOT}/var/run/mbtask`
+            su ftnd -c '${FTND_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+            echo -n "done, stopping ftntask"
+	    kill -15 `cat ${FTND_ROOT}/var/run/ftntask`
 	    i=10; doit=1;
 	    while let 'i > 0' && let 'doit != 0'
 	    do
-		if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+		if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
 		    echo -n "."
 		    sleep 1
 		    let i=i-1
@@ -58,8 +58,8 @@ case "$1" in
 		    doit=0
 		fi
 	    done
-	    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-		kill -9 `cat ${MBSE_ROOT}/var/run/mbtask`
+	    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+		kill -9 `cat ${FTND_ROOT}/var/run/ftntask`
 	    fi
 	    echo " done."
 	else
@@ -67,11 +67,11 @@ case "$1" in
 	fi
         ;;
     status)
-	echo -n "MBSE BBS status: "
-	if [ ! -f ${MBSE_ROOT}/var/run/mbtask ]; then
-	    echo "mbtask is NOT running"
+	echo -n "FTNd status: "
+	if [ ! -f ${FTND_ROOT}/var/run/ftntask ]; then
+	    echo "ftntask is NOT running"
 	else
-	    echo "mbtask running with pid `cat ${MBSE_ROOT}/var/run/mbtask`"
+	    echo "ftntask running with pid `cat ${FTND_ROOT}/var/run/ftntask`"
 	fi
         ;;
     restart|reload)
