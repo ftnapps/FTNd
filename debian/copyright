@@ -1,46 +1,53 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: FTNd
+Upstream-Contact: Robert James Clay <jame@rocasa.us>
 
-Upstream Author: Robert James Clay <jame@rocasa.us>
-
+Files: *
 Copyright:    2012   Robert James Clay <jame@rocasa.us>
-Copyright: 1998-2012 Michiel Broek <mbse@mbse.eu>
+           1998-2012 Michiel Broek <mbse@mbse.eu>
+License: GPL-2+
 
-License:
+Files: ftncico/hydra.h ftncico/hydra.c
+Comment: HydraCom copyrights
+Copyright: 1997-2007 Michiel Broek,
+           1996-1998 Christof Meerwald
+           1991-1993 Arjen G. Lentz 
+License: GPL-2+
 
-   This package is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
+Files: lib/jam.h lib/jamsys.h
+Comment: JAMlib related files
+Copyright: 1993 Joaquim Homrighausen,
+           1993 Andrew Milner,
+           1993 Mats Birch,
+           1993 Mats Wallin.
+License: GPL-2+
 
-   This package is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+Files: lib/jammsg.c lib/jammsg.h
+Comment: Originally written in C++ by Marco Maccaferri for LoraBBS and was distributed
+ under GNU GPL.  This version was modified for use with MBSE BBS and utilities and then
+ adapted to FTNd.
+Copyright:  1997-2007 Michiel Broek
+License: GPL-2+
 
-   You should have received a copy of the GNU General Public License
-   along with this package; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+Files: debian/*
+Comment: Copyright and License for debian directory files.
+Copyright: 2012, Robert James Clay <jame@rocasa.us>
+License: GPL-2+
 
-On Debian systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL-2'.
-
-The Debian packaging is (C) 2012, Robert James Clay <jame@rocasa.us> and
-is licensed under the GPL, see above.
-
-
-# HydraCom copyrights
-The HydraCom files ftncico/hydra.h and ftncico/hydra.c are licensed under the GPL, 
-see above, and are copyrighted as follows:
-
-Copyright (C) 1997-2007 Michiel Broek
-Copyright (C) 1996-1998 Christof Meerwald
-Copyright (C) 1991-1993 Arjen G. Lentz 
-
-
-# JAMlib related files
-The JAM Library files lib/jam.h, lib/jamsys.h
-Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats Birch, and Mats Wallin.
-
-lib/jammsg.c and lib/jammsg.h
-Original written in C++ by Marco Maccaferri for LoraBBS and was distributed under GNU GPL,
-see above.  This version is modified for use with FTNd and utilities and is also 
-copyrighted:  Copyright (C) 1997-2007 Michiel Broek
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-2'.
