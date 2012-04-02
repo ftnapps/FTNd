@@ -16,8 +16,10 @@ set -e
 
 case "$1" in
     install|upgrade)
-        # configure 'ftnd' user 
+        # configure 'ftnd' and 'ftnbbs' users, 'ftnbbs' group
+        getent group ftnbbs >/dev/null 2>&1 || addgroup --system ftnbbs
         getent passwd ftnd >/dev/null 2>&1 || adduser --system --quiet --home /opt/ftnd --ingroup ftn --shell /bin/bash --gecos "FTNd Admin" ftnd || adduser ftnd uucp || adduser ftnd dialout || adduser ftnd dip
+        getent passwd ftnbbs >/dev/null 2>&1 || adduser --system --quiet --home /opt/ftnd/home/ftnbbs --ingroup ftnbbs --shell /opt/ftnd/bin/ftnnewusr --gecos "FTNd BBS Login" ftnbbs || passwd -d ftnbbs
     ;;
 
     abort-upgrade)

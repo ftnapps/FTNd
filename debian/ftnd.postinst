@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for ftnd
+# postinst script for FTNd
 #
 # see: dh_installdeb(1)
 
@@ -160,7 +160,7 @@ case "$1" in
     fi
 
     #  Set default user:group for ftnd install
-    chown -R ftnd:ftn /opt/ftnd
+    chown -R ftnd:ftnbbs /opt/ftnd
 
     #   Remove if present then install the stat override for setuid ftntask
     dpkg-statoverride --remove /opt/ftnd/bin/ftntask >/dev/null 2>&1 || true
@@ -168,7 +168,7 @@ case "$1" in
 
     #   Remove if present then install the stat override for setuid ftnnewusr
     dpkg-statoverride --remove /opt/ftnd/bin/ftnnewusr >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add ftnd bbs 6750 /opt/ftnd/bin/ftnnewusr
+    dpkg-statoverride --update --add ftnd ftnbbs 6750 /opt/ftnd/bin/ftnnewusr
 
     #   Remove if present then install the stat override for setuid root and 
     #   setgid root for ftnuser (-rws--s--x)
@@ -192,11 +192,11 @@ case "$1" in
 
     #   Remove if present then install the stat setting for /opt/ftnd/tmp
     dpkg-statoverride --remove /opt/ftnd/tmp >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add ftnd bbs 0770 /opt/ftnd/tmp
+    dpkg-statoverride --update --add ftnd ftnbbs 0770 /opt/ftnd/tmp
 
     #   Remove if present then install the stat setting for /opt/ftnd/etc
     dpkg-statoverride --remove /opt/ftnd/etc >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add ftnd bbs 0770 /opt/ftnd/etc
+    dpkg-statoverride --update --add ftnd ftnbbs 0770 /opt/ftnd/etc
 
     ;;
 
