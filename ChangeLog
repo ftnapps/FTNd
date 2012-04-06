@@ -1,4 +1,9 @@
-v0.01  01-Apr-2011
+v0.02  06-Apr-2012
+
+    ftnmon/*:
+        Initial adaption of the ftnmon/* files for FTNd v0.02
+
+v0.01  01-Apr-2012
 
     general:
         Initial fork and adaption from MBSE BBS v0.95.14 to FTNd v0.01
