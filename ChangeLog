@@ -1,3 +1,8 @@
+v0.03  dd-mmm-2012
+
+    ftnutils/*:
+        Initial adaption of the ftnutils/* files for FTNd v0.03
+
 v0.02  06-Apr-2012
 
     ftnmon/*:
