@@ -1,5 +1,5 @@
-#ifndef	_MBSTAT_H
-#define	_MBSTAT_H
+#ifndef	_FTNSTAT_H
+#define	_FTNSTAT_H
 
 
 void Help(void);
