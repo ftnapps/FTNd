@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: mbstat.c,v 1.5 2007/09/02 11:17:33 mbse Exp $
- * Purpose ...............: Change BBS status
+ * ftnstat.c
+ * Purpose ...............: Change FTNd status
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2, or (at your option) any
- * later version.
+ * This is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2, or (at your option) any later
+ * version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbstat.h"
+#include "../lib/ftnddb.h"
+#include "ftnstat.h"
 
 
 extern	int	do_quiet;
@@ -44,26 +40,26 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("\nUsage:	mbstat [command] <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	ftnstat [command] <options>\n\n");
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	c  close	Close the BBS for users\n");
     printf("	o  open		Open the BBS for users\n");
     printf("	s  set semafore Set named semafore\n");
     printf("	w  wait		Wait until the BBS is free\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Semafore's are:\n\n");
-    mbse_colour(CYAN, BLACK);
-    printf("			mailout mailin mbindex newnews msglink\n");
+    ftnd_colour(CYAN, BLACK);
+    printf("			mailout mailin ftnindex newnews msglink\n");
     printf("			reqindex upsalarm upsdown do_inet\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-q -quiet	Quiet, no screen output\n");
-    mbse_colour(LIGHTGRAY, BLACK);
-    die(MBERR_COMMANDLINE);
+    ftnd_colour(LIGHTGRAY, BLACK);
+    die(FTNERR_COMMANDLINE);
 }
 
 
@@ -73,11 +69,11 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBSTAT: MBSE BBS %s Status Changer\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nFTNSTAT: FTNd %s Status Changer\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("        %s\n", COPYRIGHT);
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
 }
 
 
@@ -90,12 +86,12 @@ void die(int onsig)
 	Syslog('+', "Terminated on signal %d", onsig);
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
 
     t_end = time(NULL);
-    Syslog(' ', "MBSTAT finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNSTAT finished in %s", t_elapsed(t_start, t_end));
 
     ExitClient(onsig);
 }
@@ -113,7 +109,7 @@ int main(int argc, char **argv)
     struct passwd   *pw;
 
     InitConfig();
-    mbse_TermInit(1, 80, 24);
+    ftnd_TermInit(1, 80, 24);
     t_start = time(NULL);
 
     /*
@@ -126,7 +122,7 @@ int main(int argc, char **argv)
 	    signal(i, SIG_IGN);
     }
 
-    cmd = xstrcpy((char *)"Command line: mbstat");
+    cmd = xstrcpy((char *)"Command line: ftnstat");
 
     for (i = 1; i < argc; i++) {
 	cmd = xstrcat(cmd, (char *)" ");
@@ -151,16 +147,16 @@ int main(int argc, char **argv)
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbstat", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftnstat", CFG.location, CFG.logfile, 
 		CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
-    Syslog(' ', "MBSTAT v%s", VERSION);
+    Syslog(' ', "FTNSTAT v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("\n");
     }
 
@@ -185,7 +181,7 @@ int main(int argc, char **argv)
     if (!(do_open || do_close || do_wait || do_sema))
 	Help();
 
-    die(MBERR_OK);
+    die(FTNERR_OK);
     return 0;
 }
 
