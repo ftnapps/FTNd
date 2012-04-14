@@ -1,40 +1,36 @@
 /*****************************************************************************
  *
- * $Id: mball.c,v 1.9 2007/09/02 11:17:33 mbse Exp $
+ * ftnall.c
  * Purpose ...............: Creates allfiles listings
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2, or (at your option) any
- * later version.
+ * This is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2, or (at your option) any later
+ * version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftnselib.h"
+#include "../lib/ftnse.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnsedb.h"
 #include "dlcount.h"
-#include "mball.h"
+#include "ftnall.h"
 
 
 extern int	do_quiet;		/* Suppress screen output	*/
@@ -52,9 +48,9 @@ void ProgName()
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBALL: MBSE BBS %s Allfiles Listing Creator\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nMBALL: FTNd %s Allfiles Listing Creator\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("       %s\n", COPYRIGHT);
 }
 
@@ -90,12 +86,12 @@ void die(int onsig)
 	    WriteError("Terminated with error %d", onsig);
     }
 
-    ulockprogram((char *)"mball");
+    ulockprogram((char *)"ftnall");
     t_end = time(NULL);
     Syslog(' ', "MBALL finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -108,18 +104,18 @@ void Help()
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("\nUsage:	mball [command] <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	ftnall [command] <options>\n\n");
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	l  list		Create allfiles and newfiles lists\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("\n	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-q -quiet	Quiet mode\n");
     printf("	-z -zip		Create .zip archives\n");
-    mbse_colour(LIGHTGRAY, BLACK);
+    ftnd_colour(LIGHTGRAY, BLACK);
     printf("\n");
     die(MBERR_COMMANDLINE);
 }
@@ -133,7 +129,7 @@ int main(int argc, char **argv)
     struct passwd   *pw;
 
     InitConfig();
-    mbse_TermInit(1, 80, 24);
+    ftnd_TermInit(1, 80, 24);
     t_start = time(NULL);
     umask(000);
 
@@ -152,7 +148,7 @@ int main(int argc, char **argv)
     if (argc < 2)
 	Help();
 
-    cmd = xstrcpy((char *)"Command line: mball");
+    cmd = xstrcpy((char *)"Command line: ftnall");
 
     for (i = 1; i < argc; i++) {
 
@@ -172,7 +168,7 @@ int main(int argc, char **argv)
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mball", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftnall", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
@@ -181,13 +177,13 @@ int main(int argc, char **argv)
     free(cmd);
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("\n");
     }
 
-    if (lockprogram((char *)"mball")) {
+    if (lockprogram((char *)"ftnall")) {
 	if (!do_quiet)
-	    printf("Can't lock mball, abort.\n");
+	    printf("Can't lock ftnall, abort.\n");
 	die(MBERR_NO_PROGLOCK);
     }
 
@@ -297,11 +293,11 @@ void Masterlist()
 
     IsDoing("Create Allfiles list");
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open File Areas File: %s", sAreas);
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	die(MBERR_GENERAL);
     }
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -343,7 +339,7 @@ void Masterlist()
     BotBox(fp, fu, TRUE);
     BotBox(np, nu, TRUE);
 
-    snprintf(temp, PATH_MAX, "%s/etc/header.txt", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/header.txt", getenv("FTND_ROOT"));
     if (( pHeader = fopen(temp, "r")) != NULL) {
 	Syslog('+', "Inserting %s", temp);
 
@@ -368,7 +364,7 @@ void Masterlist()
 
 	    Nopper();
 
-	    if ((fdb_area = mbsedb_OpenFDB(AreaNr, 30)) == 0) {
+	    if ((fdb_area = ftnddb_OpenFDB(AreaNr, 30)) == 0) {
 		WriteError("Can't open Area %d (%s)! Skipping ...", AreaNr, area.Name);
 	    } else {
 		popdown = 0;
@@ -458,7 +454,7 @@ void Masterlist()
 			}
 		    }
 		}
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
     		}
 	}
     } /* End of While Loop Checking for Areas Done */
@@ -475,14 +471,14 @@ void Masterlist()
     MidLine((char *)"", fp, fu, TRUE);
     MidLine((char *)"", np, nu, TRUE);
 
-    snprintf(temp, 81, "Created by MBSE BBS v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
+    snprintf(temp, 81, "Created by FTNd v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
     MidLine(temp, fp, fu, TRUE);
     MidLine(temp, np, nu, TRUE);
 
     BotBox(fp, fu, TRUE);
     BotBox(np, nu, TRUE);
 
-    snprintf(temp, PATH_MAX, "%s/etc/footer.txt", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/footer.txt", getenv("FTND_ROOT"));
     if(( pHeader = fopen(temp, "r")) != NULL) {
 	Syslog('+', "Inserting %s", temp);
 
