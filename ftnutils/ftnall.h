@@ -1,5 +1,5 @@
-#ifndef	_MBALL_H
-#define	_MBALL_H
+#ifndef	_FTNALL_H
+#define	_FTNALL_H
 
 
 void ProgName(void);
