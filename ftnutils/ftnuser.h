@@ -1,5 +1,5 @@
-#ifndef	_MBUSER_H
-#define	_MBUSER_H
+#ifndef	_FTNUSER_H
+#define	_FTNUSER_H
 
 void	ProgName(void);
 void	Help(void);
