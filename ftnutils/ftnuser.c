@@ -1,36 +1,33 @@
 /*****************************************************************************
  *
+ * ftnuser.c
  * Purpose ...............: User Pack Util
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2, or (at your option) any
- * later version.
+ * This is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2, or (at your option) any later
+ * version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "mbuser.h"
 
 
@@ -51,7 +48,7 @@ int main(int argc, char **argv)
     struct passwd   *pw;
 
     InitConfig();
-    mbse_TermInit(1, 80, 24);
+    ftnd_TermInit(1, 80, 24);
     Days = 0;
     Level = 0;
 
@@ -95,32 +92,32 @@ int main(int argc, char **argv)
     InitClient(pw->pw_name, (char *)"mbuser", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', " ");
-    Syslog(' ', "MBUSER v%s", VERSION);
+    Syslog(' ', "FTNUSER v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
 
     if (enoughspace(CFG.freespace) == 0)
-	ExitClient(MBERR_DISK_FULL);
+	ExitClient(FTNERR_DISK_FULL);
 
     if (lockprogram((char *)"mbuser")) {
 	if (!do_quiet)
 	    printf("Can't lock mbuser, abort.\n");
-	ExitClient(MBERR_NO_PROGLOCK);
+	ExitClient(FTNERR_NO_PROGLOCK);
     }
 
     oldmask = umask(027);
     if (!do_quiet)
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
     UserPack(Days, Level, pack);
     umask(oldmask);
 
     ulockprogram((char *)"mbuser");
     t_end = time(NULL);
-    Syslog(' ', "MBUSER finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNUSER finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet)
-	mbse_colour(LIGHTGRAY, BLACK);
-    ExitClient(MBERR_OK);
+	ftnd_colour(LIGHTGRAY, BLACK);
+    ExitClient(FTNERR_OK);
     return 0;
 }
 
@@ -134,11 +131,11 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBUSER: MBSE BBS %s - User maintenance utility\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nFTNUSER: FTNd %s - User maintenance utility\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("        %s\n\n", COPYRIGHT);
-    mbse_colour(LIGHTGRAY, BLACK);
+    ftnd_colour(LIGHTGRAY, BLACK);
 }
 
 
@@ -148,21 +145,21 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
     printf("\nUsage:	mbuser [commands] <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	kill [n] [l]	Kill users not called in \"n\" days below level \"l\"\n");
     printf("	pack		Pack the userbase\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("\n	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-quiet		Quiet mode, (no screen output)\n\n");
 
-    mbse_colour(LIGHTGRAY, BLACK);
+    ftnd_colour(LIGHTGRAY, BLACK);
     printf("\n");
-    ExitClient(MBERR_COMMANDLINE);
+    ExitClient(FTNERR_COMMANDLINE);
 }
 
 
@@ -180,8 +177,8 @@ void UserPack(int days, int level, int pack)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("FTND_ROOT"));
 
     /*
      * First copy the users database, all packing will be done
