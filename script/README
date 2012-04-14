@@ -5,6 +5,6 @@ README
 
 If you use a distribution which is not supported here and want to have it 
 added, then send the file installinit.log found in this directory,
-SETUP.log (if exists) from the mbse main directory and a possible written
+SETUP.log (if exists) from the ftnd main directory and a possible written
 new init script you may have written.
 

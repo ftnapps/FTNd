@@ -17,8 +17,8 @@
 DOOR=`basename $0`
 COMMANDO="\"doors $DOOR $*\r\""
 
-/opt/mbse/bin/bbsdoor.sh $DOOR $1
-/usr/bin/sudo /opt/dosemu/bin/dosemu.bin -f /opt/mbse/etc/dosemu/dosemu.conf \
+/opt/ftnd/bin/bbsdoor.sh $DOOR $1
+/usr/bin/sudo /opt/dosemu/bin/dosemu.bin -f /opt/ftnd/etc/dosemu/dosemu.conf \
     -I "`echo -e serial { com 1 virtual }"\n" keystroke $COMMANDO`"
 reset
 tput reset

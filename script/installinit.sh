@@ -175,13 +175,13 @@ if [ "$DISTNAME" = "Slackware" ] || [ "$DISTNAME" = "Slamd64" ]; then
     log "+" "Adding SystemV Slackware $DISTVERS FTNd start/stop scripts"
     cp init.Slackware $DISTINIT
     chmod 755 $DISTINIT
-    if [ -f ${FTND_ROOT}/bin/mbse.start ]; then
+    if [ -f ${FTND_ROOT}/bin/ftnd.start ]; then
         echo "Removing old startup scripts"
-        rm ${FTND_ROOT}/bin/mbse.start ${FTND_ROOT}/bin/mbse.stop ${FTND_ROOT}/etc/rc ${FTND_ROOT}/etc/rc.shutdown
+        rm ${FTND_ROOT}/bin/ftnd.start ${FTND_ROOT}/bin/ftnd.stop ${FTND_ROOT}/etc/rc ${FTND_ROOT}/etc/rc.shutdown
     fi
     if [ -d /var/log/setup ]; then
-        cp setup.mbse /var/log/setup
-        chmod 755 /var/log/setup/setup.mbse
+        cp setup.ftnd /var/log/setup
+        chmod 755 /var/log/setup/setup.ftnd
         echo "Added setup script, as root use 'pkgtool' Setup to enable FTND at boot"
         log "+" "Added Slackware setup script for use with pkgtool"
     else
@@ -276,10 +276,10 @@ fi
 if [ "$DISTNAME" = "Debian" ]; then
     echo "You are running Debian Linux $DISTVERS"
     log "+" "Adding Debian SystemV init script"
-    DISTINIT="/etc/init.d/mbsebbs"
+    DISTINIT="/etc/init.d/ftndbbs"
     cp init.Debian $DISTINIT
     chmod 755 $DISTINIT
-    update-rc.d mbsebbs defaults
+    update-rc.d ftndbbs defaults
     echo "Debian install ready."
     log "+" "Debian SystemV init script installed"
 fi
@@ -293,10 +293,10 @@ fi
 if [ "$DISTNAME" = "Gentoo" ]; then
     echo "You are running Gentoo Linux $DISTVERS"
     log "+" "Adding Gentoo init script"
-    DISTINIT="/etc/init.d/mbsebbs"
+    DISTINIT="/etc/init.d/ftndbbs"
     cp init.Gentoo $DISTINIT
     chmod 755 $DISTINIT
-    rc-update add mbsebbs default
+    rc-update add ftndbbs default
     echo "Gentoo install ready."
     log "+" "Gentoo init script installed"
 fi
@@ -310,10 +310,10 @@ fi
 if [ "$DISTNAME" = "Arch Linux" ]; then
     echo "You are running Arch Linux"
     log "+" "Adding Arch Linux init script"
-    DISTINIT="/etc/rc.d/mbsebbs"
+    DISTINIT="/etc/rc.d/ftndbbs"
     cp init.Arch $DISTINIT
     chmod 755 $DISTINIT
-    echo "Add mbsebbs to /etc/rc.conf"
+    echo "Add ftndbbs to /etc/rc.conf"
     log "+" "Arch Linux init script installed"
 fi
 
@@ -327,7 +327,7 @@ if [ "$DISTNAME" = "NetBSD" ]; then
     #
     # NetBSD init
     #
-    DISTINIT="/etc/rc.d/mbsebbs"
+    DISTINIT="/etc/rc.d/ftndbbs"
     echo "Adding $DISTNAME style FTNd start/stop script"
     log "+" "Adding $DISTNAME style FTNd start/stop script"
     cp init.NetBSD $DISTINIT
@@ -344,7 +344,7 @@ if [ "$DISTNAME" = "FreeBSD" ]; then
     #
     # FreeBSD init
     # 
-    DISTINIT="/usr/local/etc/rc.d/mbse.sh"
+    DISTINIT="/usr/local/etc/rc.d/ftnd.sh"
     echo "Adding $DISTNAME style FTNd start/stop script"
     log "+" "Adding $DISTNAME style FTNd start/stop script"
     cp init.FreeBSD $DISTINIT
@@ -358,7 +358,7 @@ fi
 #
 #
 if [ "$DISTNAME" = "OpenBSD" ]; then
-    if [ "`grep MBSE-BBS /etc/rc.local`" = "" ]; then
+    if [ "`grep FTNd /etc/rc.local`" = "" ]; then
         #
         # OpenBSD init
         #

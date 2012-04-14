@@ -77,36 +77,36 @@ i=0;
 for f in `ls` 
 do
     if [ -f $f ]; then
-	echo -e "Enter description for $f (empty is skip file)"
-	echo -n ": "
-	read DESC
-	if [ ! -z "$DESC" ]; then
-	    echo -e "Replace filename (empty is none)"
-	    echo -n ": "
-	    read REPL
-	    echo -e "Magic filename (empty is no magic)"
-	    echo -n ": "
-	    read MAGIC
-	    let i=i+1
-	    FILE=$INBOUND/`$FTND_ROOT/bin/ftnseq`.tic
-	    echo "Hatch" > $FILE
-	    echo "Created FTNd hatch script v$HVERSION" >> $FILE
-	    echo "Area $GROUP" >> $FILE
-	    if [ ! -z "$REPL" ]; then
-		echo "Replaces $REPL" >> $FILE
-	    fi
-	    if [ ! -z "$MAGIC" ]; then
-		echo "Magic $MAGIC" >> $FILE
-	    fi		
-	    echo "Origin $AKA" >> $FILE
-	    echo "From $AKA" >> $FILE
-	    echo "File $f" >> $FILE
-	    echo "Fullname $f" >> $FILE
-	    echo "Pth `pwd`" >> $FILE
-	    echo "Desc $DESC" >> $FILE
-	    echo "Pw $HATCHPWD" >> $FILE
-	    echo -e "\nFile hatched\n"
-	fi
+        echo -e "Enter description for $f (empty is skip file)"
+        echo -n ": "
+        read DESC
+        if [ ! -z "$DESC" ]; then
+            echo -e "Replace filename (empty is none)"
+            echo -n ": "
+            read REPL
+            echo -e "Magic filename (empty is no magic)"
+            echo -n ": "
+            read MAGIC
+            let i=i+1
+            FILE=$INBOUND/`$FTND_ROOT/bin/ftnseq`.tic
+            echo "Hatch" > $FILE
+            echo "Created FTNd hatch script v$HVERSION" >> $FILE
+            echo "Area $GROUP" >> $FILE
+            if [ ! -z "$REPL" ]; then
+                echo "Replaces $REPL" >> $FILE
+            fi
+            if [ ! -z "$MAGIC" ]; then
+                echo "Magic $MAGIC" >> $FILE
+            fi
+            echo "Origin $AKA" >> $FILE
+            echo "From $AKA" >> $FILE
+            echo "File $f" >> $FILE
+            echo "Fullname $f" >> $FILE
+            echo "Pth `pwd`" >> $FILE
+            echo "Desc $DESC" >> $FILE
+            echo "Pw $HATCHPWD" >> $FILE
+            echo -e "\nFile hatched\n"
+        fi
     fi
 done
 

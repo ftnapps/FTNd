@@ -19,7 +19,7 @@
 
 DOOR=`basename $0`
 COMMANDO="\"doors $DOOR $*\r\""
-DOSDRIVE=${MBSE_ROOT}/var/dosemu/c
+DOSDRIVE=${FTND_ROOT}/var/dosemu/c
 
 # Prepare users home directory and node directory
 if [ "$1" != "" ]; then
@@ -45,8 +45,8 @@ fi
 
 # run the dos emulator with the door.
 if [ "$2" == "novirtual" ]; then
-    /usr/bin/dosemu.bin -f ${MBSE_ROOT}/etc/dosemu/dosemu.conf -I "`echo -e keystroke $COMMANDO`"
+    /usr/bin/dosemu.bin -f ${FTND_ROOT}/etc/dosemu/dosemu.conf -I "`echo -e keystroke $COMMANDO`"
 else
-    /usr/bin/dosemu.bin -f ${MBSE_ROOT}/etc/dosemu/virtual.conf -I "`echo -e keystroke $COMMANDO`"
+    /usr/bin/dosemu.bin -f ${FTND_ROOT}/etc/dosemu/virtual.conf -I "`echo -e keystroke $COMMANDO`"
 fi
 

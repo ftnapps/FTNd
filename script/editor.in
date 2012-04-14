@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# $Id: editor.in,v 1.10 2007/03/03 16:12:45 mbse Exp $
+# editor.in
 #
-# Script to start joe editor as external editor for MBSE BBS
+# Script to start joe editor as external editor for FTNd
 # Written by Redy Rodriguez.
 
 ### Function to kill the editor when no time left
 function alarma
 {
-	sleep $1m 
-	killall $2 >/dev/null 2>&1 
+    sleep $1m 
+    killall $2 >/dev/null 2>&1 
 }
 
 ## Set term environmment 
@@ -65,17 +65,17 @@ case $BBSLANGUAGE in
      ## German
      D)
          LANGAREA='BEREICH '
-	 LANGFROM='Von     '
-	   LANGTO='An      '
-	   LANGRE='Betreff '
-	 ;;
+         LANGFROM='Von     '
+         LANGTO='An      '
+         LANGRE='Betreff '
+     ;;
      ## Dutch
      N)
          LANGAREA='GEBIED  '
-	 LANGFROM='Van     '
-	   LANGTO='Aan     '
-	   LANGRE='Betrefd '
-	 ;;
+         LANGFROM='Van     '
+         LANGTO='Aan     '
+         LANGRE='Betrefd '
+     ;;
 
      ## Languages not set defaults to english.
      *)

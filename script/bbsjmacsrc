@@ -1,12 +1,12 @@
- $Id: bbsjmacsrc,v 1.2 2002/03/12 22:09:05 mbroek Exp $
+ bbsjmacsrc
 
                          Initialization file for JOE
                                 BBS Emacs Joe
 
  JOE looks for this file in:
-	1 - .jmacsrc
-	2 - $HOME/.jmacsrc
-	3 - /usr/local/lib/jmacsrc
+    1 - .jmacsrc
+    2 - $HOME/.jmacsrc
+    3 - /usr/local/lib/jmacsrc
 
  This file can include other files by placing the following include command
  in the first column:
@@ -19,32 +19,32 @@
 
  Put each option you want set in the first column:
 
- -option	Sets the option
- --option	Clears the option
+ -option    Sets the option
+ --option   Clears the option
 
--mid		Cursor is recentered when scrolling is necessary
- -marking	Text between ^KB and cursor is highlighted
--asis		Characters 128 - 255 shown as-is
--force		Force final newline when files are saved
--nobackups	If you don't want backup files to be created
- -lightoff	Turn off highlighting after block copy or move
---exask		^KX always confirms file name
--beep		Beep on errors and when cursor goes past extremes
- -nosta		Disable top-most status line
- -keepup	%k and %c status line escape sequences updated frequently
--pg 1		No. lines to keep for PgUp/PgDn
--csmode		^KF after a pervious search does a ^L instead
+-mid        Cursor is recentered when scrolling is necessary
+ -marking   Text between ^KB and cursor is highlighted
+-asis       Characters 128 - 255 shown as-is
+-force      Force final newline when files are saved
+-nobackups  If you don't want backup files to be created
+ -lightoff  Turn off highlighting after block copy or move
+--exask     ^KX always confirms file name
+-beep       Beep on errors and when cursor goes past extremes
+ -nosta     Disable top-most status line
+ -keepup    %k and %c status line escape sequences updated frequently
+-pg 1       No. lines to keep for PgUp/PgDn
+-csmode     ^KF after a pervious search does a ^L instead
  -backpath path Directory to store backup files
--nonotice	Disable copyright notice
- -noxon		Attempt to turn off ^S/^Q processing
- -orphan		Put extra files given on command line in orphaned buffers
-		instead of in windows
- -dopadding	Output pad characters (for when there is no tty handshaking)
- -lines nnn	Set no. screen lines
- -baud nnn	Set baud rate for terminal optimizations
- -columns nnn	Set no. screen columns
---help		Start with help on
--skiptop 4	Don't use top nnn lines of the screen
+-nonotice   Disable copyright notice
+ -noxon     Attempt to turn off ^S/^Q processing
+ -orphan    Put extra files given on command line in orphaned buffers
+            instead of in windows
+ -dopadding Output pad characters (for when there is no tty handshaking)
+ -lines nnn Set no. screen lines
+ -baud nnn  Set baud rate for terminal optimizations
+ -columns nnn   Set no. screen columns
+--help      Start with help on
+-skiptop 4  Don't use top nnn lines of the screen
 
  Status line definition strings.  -lmsg defines the left-justified string and
  -rmsg defines the right-justified string.  The first character of -rmsg is
@@ -92,34 +92,34 @@
 
  Here is a list of modes which can be set:
 
-	-wordwrap		Wordwrap
-	-autoindent		Auto indent
-	-overwrite		Overtype mode
-	-lmargin nnn		Left margin
-	-rmargin nnn		Right margin
-	-tab nnn		Tab width
-	-indentc nnn		Indentation character (32 for space, 9 for tab)
-	-istep nnn		Number of indentation columns
-	-french			One space after '.', '?' and '!' for wordwrap
-				and paragraph reformat instead of two.  Joe
-				does not change the spacing you give, but
-				sometimes it must put spacing in itself.  This
-				selects how much is inserted.
+    -wordwrap       Wordwrap
+    -autoindent     Auto indent
+    -overwrite      Overtype mode
+    -lmargin nnn    Left margin
+    -rmargin nnn    Right margin
+    -tab nnn        Tab width
+    -indentc nnn    Indentation character (32 for space, 9 for tab)
+    -istep nnn      Number of indentation columns
+    -french         One space after '.', '?' and '!' for wordwrap
+                    and paragraph reformat instead of two.  Joe
+                    does not change the spacing you give, but
+                    sometimes it must put spacing in itself.  This
+                    selects how much is inserted.
 
-	-spaces			TAB inserts spaces instead of tabs.
+    -spaces         TAB inserts spaces instead of tabs.
 
-	-linums			Enable line numbers on each line
-	-rdonly			File is read-only
-	-keymap name		Keymap to use if not 'main'
-	-lmsg			Status line definition strings-
-	-rmsg			see previous section for more info.
-	-mnew macro		Macro to execute when new files are loaded
-	-mold macro		Macro to execute when existing files are loaded
-	-msnew macro		Macro to execute when new files are saved
-	-msold macro		Macro to execute when existing files are saved
+    -linums         Enable line numbers on each line
+    -rdonly         File is read-only
+    -keymap name    Keymap to use if not 'main'
+    -lmsg           Status line definition strings-
+    -rmsg           see previous section for more info.
+    -mnew macro     Macro to execute when new files are loaded
+    -mold macro     Macro to execute when existing files are loaded
+    -msnew macro    Macro to execute when new files are saved
+    -msold macro    Macro to execute when existing files are saved
 
-	Macros for the above options are in the same format as in the key
-	binding section below- but without the key name strings.
+    Macros for the above options are in the same format as in the key
+    binding section below- but without the key name strings.
 
 *
 -wordwrap
@@ -215,18 +215,18 @@
 
  Section names you must provide:
 
-	:main		For editing window
-	:prompt		For prompt lines
-	:query		For single-character query lines
-	:querya		Singe-character query for quote
-	:querysr	Search & Replace single-character query
+    :main       For editing window
+    :prompt     For prompt lines
+    :query      For single-character query lines
+    :querya     Singe-character query for quote
+    :querysr    Search & Replace single-character query
 
  Other sections may be given as well for organization purposes or for
  use with the '-keymap' option.
 
  Use:
- :inherit name		To copy the named section into the current one
- :delete key		To delete a key sequence from the current section
+ :inherit name  To copy the named section into the current one
+ :delete key    To delete a key sequence from the current section
 
  Keys:
 
@@ -236,67 +236,67 @@
 
  You can also use termcap string capability names.  For example:
 
-	.ku		Up
-	.kd		Down
-	.kl		Left
-	.kr		Right
-	.kh		Home
-	.kH		End
-	.kI		Insert
-	.kD		Delete
-	.kP		PgUp
-	.kN		PgDn
-	.k1 - .k9	F1 - F9
-	.k0		F0 or F10... you decide.
-	.k;		F10
+    .ku     Up
+    .kd     Down
+    .kl     Left
+    .kr     Right
+    .kh     Home
+    .kH     End
+    .kI     Insert
+    .kD     Delete
+    .kP     PgUp
+    .kN     PgDn
+    .k1 - .k9   F1 - F9
+    .k0     F0 or F10... you decide.
+    .k;     F10
 
  Macros:
 
  Simple macros can be made by comma seperating 2 or more command names.  For
  example:
 
- bof,bol	^T Z		Goto beginning of last line
+ bof,bol    ^T Z    Goto beginning of last line
 
  Also quoted matter is typed in literally:
 
- bol,">",dnarw	.k1		Quote news article line
+ bol,">",dnarw  .k1 Quote news article line
 
  Macros may cross lines if they end with ,
 
-:windows		Bindings common to all windows
-type		^@ TO ÿ		Self insert
-abort		^G		Abort window
-abort		^X ^C
-abort		^C
-tw0		^X 0		Delete window: can make orphan buffers
-tw1		^X 1		Delete other windows: can make orphan buffers
-uarg		^U		Repeat prefix
-uarg		^[ -
-uarg		^[ 0 TO 9
-help		^X h		Help
-help		^X ^H
-hnext		^X .
-hprev		^X ,
-math		^[ m		Calculator
-math		^[ M
-nextw		^X o		Other window
-pgdn		.kN		Screen down
-pgdn		^V
-pgdn		^[ [ 6 ~
-pgup		.kP		Screen up
-pgup		^[ v
-pgup		^[ [ 5 ~
-play,"0"	^X e		Execute keyboard macro
-prevw		^X p		Previous window (uemacs)
-query		^X q		Query insert
-record,"0"	^X (		Record macro
-retype		^L		Refresh screen
-rtn		^M		Return
- shell		^Z		Suspend
- shell		^[ s		Suspend (uemacs)
-stop		^X )		Stop recording macro
+:windows    Bindings common to all windows
+type        ^@ TO ÿ		Self insert
+abort       ^G		Abort window
+abort       ^X ^C
+abort       ^C
+tw0         ^X 0		Delete window: can make orphan buffers
+tw1         ^X 1		Delete other windows: can make orphan buffers
+uarg        ^U		Repeat prefix
+uarg        ^[ -
+uarg        ^[ 0 TO 9
+help        ^X h		Help
+help        ^X ^H
+hnext       ^X .
+hprev       ^X ,
+math        ^[ m        Calculator
+math        ^[ M
+nextw       ^X o        Other window
+pgdn        .kN         Screen down
+pgdn        ^V
+pgdn        ^[ [ 6 ~
+pgup        .kP         Screen up
+pgup        ^[ v
+pgup        ^[ [ 5 ~
+play,"0"    ^X e        Execute keyboard macro
+prevw       ^X p        Previous window (uemacs)
+query       ^X q        Query insert
+record,"0"  ^X (        Record macro
+retype      ^L          Refresh screen
+rtn         ^M          Return
+ shell      ^Z          Suspend
+ shell      ^[ s        Suspend (uemacs)
+stop        ^X )        Stop recording macro
 
-:main			Text editing window
+:mai                    Text editing window
 :inherit windows
 
   Spell-check macros
@@ -305,213 +305,213 @@ stop		^X )		Stop recording macro
 :def spellword psh,nextword,markk,prevword,markb,filt,"cat >ispell.tmp;ispell ispell.tmp </dev/tty >/dev/tty;tr -d <ispell.tmp '\\012';/bin/rm ispell.tmp",rtn,retype,nextword
 :def toggleinsert mode,"T"  
 
-spellword	^[ $
+spellword       ^[ $
 toggleinsert    ^[ I
 toggleinsert    ^[ ^I
 toggleinsert    ^[ i
 
 
 
-ctrl		^Q		Quote Ctrl chars
-ctrl		`		Quote Ctrl chars
+ctrl            ^Q  Quote Ctrl chars
+ctrl            `   Quote Ctrl chars
 
   Macros of non-existant emacs functions
 
 psh,nextword,markk,prevword,markb,filt,
-"tr [a-z] [A-Z]",rtn,nextword	^[ u		Upcase word
+"tr [a-z] [A-Z]",rtn,nextword   ^[ u        Upcase word
 psh,nextword,markk,prevword,markb,filt,
-"tr [A-Z] [a-z]",rtn,nextword	^[ l		Downcase word
+"tr [A-Z] [a-z]",rtn,nextword   ^[ l        Downcase word
 psh,nextword,markk,prevword,markb,filt,
 "tr [A-Z] [a-z]",rtn,rtarw,markk,filt,
-"tr [a-z] [A-Z]",rtn,nextword	^[ c		Capitalize word
-psh,markk,filt,"tr [A-Z] [a-z]",rtn		^X ^L	Downcase region
-psh,markk,filt,"tr [a-z] [A-Z]",rtn		^X ^U	Upcase region
+"tr [a-z] [A-Z]",rtn,nextword   ^[ c        Capitalize word
+psh,markk,filt,"tr [A-Z] [a-z]",rtn     ^X ^L   Downcase region
+psh,markk,filt,"tr [a-z] [A-Z]",rtn     ^X ^U   Upcase region
 psh,ltarw,markb,rtarw,markk,rtarw,
-blkmove,rtarw	^T				Transpose chars
+blkmove,rtarw   ^T          Transpose chars
 psh,uparw,bol,markb,dnarw,markk,
-dnarw,blkmove,dnarw		^X ^T		Transpose lines
+dnarw,blkmove,dnarw     ^X ^T       Transpose lines
 psh,prevword,markb,nextword,
 nextword,prevword,markk,nextword,
-nextword,prevword,blkmove,nextword	^[ t	Transpose words
-eop,bop,markb,eop	^[ h			Mark paragraph
-nextword,prevword,markb,nextword	^[ @	Mark word
-"()",ltarw		^[ (			Insert ()
-bol,insc,delw		^[ ^			Delete indentation
-psh,markk,copy,msg,"Region saved",rtn	^[ w	Yank copy
+nextword,prevword,blkmove,nextword  ^[ t    Transpose words
+eop,bop,markb,eop   ^[ h            Mark paragraph
+nextword,prevword,markb,nextword    ^[ @    Mark word
+"()",ltarw      ^[ (            Insert ()
+bol,insc,delw       ^[ ^            Delete indentation
+psh,markk,copy,msg,"Region saved",rtn   ^[ w    Yank copy
 mode,"Rcol",rtn,
-msg,"Fill-column set",rtn		^X f	Set right margin
-bol,rtn,backw,rtn,rtn,uparw,delw	^X ^O	Delete blank lines
-" ",backw," ",insc,delw	^[ SP			Just one space
-" ",backw,insc,delw	^[ \			Delete horizontal space
-stop,msg,"Abort",rtn	^G			Abort message
-stop,msg,"Abort",rtn	^[ ^G			Abort message
-stop,msg,"Abort",rtn	^X ^G			Abort message
-psh,markk,blkdel	^W			Cut
- save,rtn		^X ^S			Save file
- ask			^X s
-drop,msg,"Mark set",rtn	^@			Drop anchor
- nextw,pgdn,prevw	^[ ^V			Scroll other window down
- nextw,pgup,prevw	^[ ^Z			Scroll other window up
- bol,nedge,pedge	^[ m			Gnu-emacs goto indentation
- nextw,nbuf,prevw	^X 4 b			Switch buffers other window
- nextw,edit,query,prevw	^X 4 f			Find file other window
- nextw,edit,query,prevw	^X 4 ^F
- nextw,tag,query,prevw	^X 4 .			Find tag other window
- ask,query,lose,query,abortbuf	^X ^C		Gnu-emacs: Abort buffer in window
-exsave			^X ^C			Save file and exit
-lose,query,abortbuf	^X k			Kill buffer in window
- lose,query,edit	^X ^V			Edit a file: no orphaned buffers
-psh,drop,fwrdc,query,markk,blkdel	^[ z	Cut to char
- psh,markk,blksave,">>",query	^X a		Append region to file
+msg,"Fill-column set",rtn       ^X f    Set right margin
+bol,rtn,backw,rtn,rtn,uparw,delw    ^X ^O   Delete blank lines
+" ",backw," ",insc,delw ^[ SP           Just one space
+" ",backw,insc,delw ^[ \                Delete horizontal space
+stop,msg,"Abort",rtn  ^G              Abort message
+stop,msg,"Abort",rtn  ^[ ^G           Abort message
+stop,msg,"Abort",rtn  ^X ^G           Abort message
+psh,markk,blkdel    ^W          Cut
+ save,rtn       ^X ^S           Save file
+ ask            ^X s
+drop,msg,"Mark set",rtn ^@          Drop anchor
+ nextw,pgdn,prevw   ^[ ^V           Scroll other window down
+ nextw,pgup,prevw   ^[ ^Z           Scroll other window up
+ bol,nedge,pedge    ^[ m            Gnu-emacs goto indentation
+ nextw,nbuf,prevw   ^X 4 b          Switch buffers other window
+ nextw,edit,query,prevw ^X 4 f      Find file other window
+ nextw,edit,query,prevw ^X 4 ^F
+ nextw,tag,query,prevw  ^X 4 .      Find tag other window
+ ask,query,lose,query,abortbuf  ^X ^C   Gnu-emacs: Abort buffer in window
+exsave          ^X ^C           Save file and exit
+lose,query,abortbuf ^X k        Kill buffer in window
+ lose,query,edit    ^X ^V       Edit a file: no orphaned buffers
+psh,drop,fwrdc,query,markk,blkdel   ^[ z    Cut to char
+ psh,markk,blksave,">>",query   ^X a    Append region to file
 retype,
-arg,"top+height/2-line",rtn,upslide	^L	Recenter
-arg,"top+height/2-line",rtn,dnarw	^[ r	Move to center line
+arg,"top+height/2-line",rtn,upslide ^L  Recenter
+arg,"top+height/2-line",rtn,dnarw   ^[ r    Move to center line
 swap,math,"z=line",rtn,
 swap,msg,math,"line-z",rtn,
-" lines in region",rtn			^[ =	Count lines region
-mode,"O"				^X ^Q	Toggle read-only
+" lines in region",rtn      ^[ =    Count lines region
+mode,"O"            ^X ^Q   Toggle read-only
 
- edit,rtn,filt,query,parserr		^X c	Compile
- nxterr					^X n
- prverr					^X p
+ edit,rtn,filt,query,parserr        ^X c    Compile
+ nxterr                 ^X n
+ prverr                 ^X p
 
-backs		^?		Backspace
-backs		^H
-backw		^[ ^?		Backspace word
-backw		^[ ^H
-bknd		^X '		Shell window (joe)
-bof		^[ <		Goto beginning of file
-bol		.kh		Goto beginning of line
-bol		^A
-bop		^[ p		(uemacs)
- bufed		^X b
- bknd		^[ '		Shell window
-crawlr		^X >		Scroll to the right
-crawll		^X <		Scroll to the left
-delch		.kD		Delete character
-delch		^D
-deleol		^K		Delete to end of line
-delw		^[ d		Delete word
-dnarw		.kd		Go down
-dnarw		^N
-dnarw		^[ O B
-dnarw		^[ [ B
-dnslide		^X ^N		Slide down (uemacs)
- edit		^X ^F		Edit a file: creates orphaned buffers
-eof		^[ >		Go to end of file
-eol		.kH		Go to end of line
-eol		^E
-eop		^[ n		(uemacs)
- execmd		^[ x
-insc		^C		(uemacs)
- ffirst		^S		Search forward
-isrch		^S
-ffirst		^\
- psh,markk,filt,query	^[ |		Filter block
-format		^[ q		Format paragraph
-gomark		^X /		Goto bookmark
-groww		^X ^		Enlarge window
-groww		^X z		(uemacs)
- insf		^X i		Insert a file
-yapp		^[ ^W		Append next kill
-line		^[ g		Goto line (uemacs)
-ltarw		.kl		Go left
-ltarw		^B
-ltarw		^[ O D
-ltarw		^[ [ D
- mode		^[ ^[		Change modes
- nbuf		^X ^B		Next buffer in current window
- nbuf		^X x		(uemacs)
- nextpos		^K =		Goto next position in position history
-nextword	^[ f		Goto next word
-notmod		^[ ~		Not modified
-open		^O		Split line
-open		^[ ^O
- pbuf		^X b		Previous buffer in current window
- prevpos		^K -	Goto previous position in position history
-prevword	^[ b		Previous word
-qrepl		^[ %		Query replace
- qrepl		^[ r		Query replace (uemacs)
-qrepl		^[ ^R		Query replace (uemacs)
-redo		^^		Redo changes
- rfirst		^R		Search backwards
-rsrch		^R		Incremental search backwards
-rindent		^X ^I		Indent to the right
-rindent		^[ ^\
-rtarw		.kr		Go right
-rtarw		^F
-rtarw		^[ O C
-rtarw		^[ [ C
- run		^[ !
- save		^X ^W		Write file
-setmark		^X j		Set bookmark
-shrinkw		^X ^Z		(uemacs)
-splitw		^X 2		Split window
-stat		^X l		Show status
-stat		^X =
-swap		^X ^X		Swap mark and cursor
-tag		^[ .		Tag search
-tomatch		^X g		Goto matching parenthasis (joe)
-tomatch		^[ ^F		(uemacs)
-txt		^X t		Prompt for text to insert
-undo		^_		Undo changes
-undo		^X u
-uparw		.ku		Go up
-uparw		^P
-uparw		^[ O A
-uparw		^[ [ A
-upslide		^X ^P		Slide up (uemacs)
-yank		^Y		Yank deleted text
-yankpop		^[ y		Yank-pop
+backs       ^?      Backspace
+backs       ^H
+backw       ^[ ^?   Backspace word
+backw       ^[ ^H
+bknd        ^X '    Shell window (joe)
+bof         ^[ <    Goto beginning of file
+bol         .kh     Goto beginning of line
+bol         ^A
+bop         ^[ p    (uemacs)
+ bufed      ^X b
+ bknd       ^[ '    Shell window
+crawlr      ^X >    Scroll to the right
+crawll      ^X <    Scroll to the left
+delch       .kD     Delete character
+delch       ^D
+deleol      ^K      Delete to end of line
+delw        ^[ d    Delete word
+dnarw       .kd     Go down
+dnarw       ^N
+dnarw       ^[ O B
+dnarw       ^[ [ B
+dnslide     ^X ^N       Slide down (uemacs)
+ edit       ^X ^F       Edit a file: creates orphaned buffers
+eof         ^[ >        Go to end of file
+eol         .kH         Go to end of line
+eol         ^E
+eop         ^[ n        (uemacs)
+ execmd     ^[ x
+insc        ^C          (uemacs)
+ ffirst     ^S          Search forward
+isrch       ^S
+ffirst      ^\
+ psh,markk,filt,query   ^[ |            Filter block
+format      ^[ q        Format paragraph
+gomark      ^X /        Goto bookmark
+groww       ^X ^        Enlarge window
+groww       ^X z        (uemacs)
+ insf       ^X i        Insert a file
+yapp        ^[ ^W       Append next kill
+line        ^[ g        Goto line (uemacs)
+ltarw       .kl         Go left
+ltarw       ^B
+ltarw       ^[ O D
+ltarw       ^[ [ D
+ mode       ^[ ^[       Change modes
+ nbuf       ^X ^B       Next buffer in current window
+ nbuf       ^X x        (uemacs)
+ nextpos    ^K =        Goto next position in position history
+nextword    ^[ f        Goto next word
+notmod      ^[ ~        Not modified
+open        ^O          Split line
+open        ^[ ^O
+ pbuf       ^X b        Previous buffer in current window
+ prevpos    ^K -        Goto previous position in position history
+prevword    ^[ b        Previous word
+qrepl       ^[ %        Query replace
+ qrepl      ^[ r        Query replace (uemacs)
+qrepl       ^[ ^R       Query replace (uemacs)
+redo        ^^          Redo changes
+ rfirst     ^R          Search backwards
+rsrch       ^R          Incremental search backwards
+rindent     ^X ^I       Indent to the right
+rindent     ^[ ^\
+rtarw       .kr         Go right
+rtarw       ^F
+rtarw       ^[ O C
+rtarw       ^[ [ C
+ run        ^[ !
+ save       ^X ^W       Write file
+setmark     ^X j        Set bookmark
+shrinkw     ^X ^Z       (uemacs)
+splitw      ^X 2        Split window
+stat        ^X l        Show status
+stat        ^X =
+swap        ^X ^X       Swap mark and cursor
+tag         ^[ .        Tag search
+tomatch     ^X g        Goto matching parenthasis (joe)
+tomatch     ^[ ^F       (uemacs)
+txt         ^X t        Prompt for text to insert
+undo        ^_          Undo changes
+undo        ^X u
+uparw       .ku         Go up
+uparw       ^P
+uparw       ^[ O A
+uparw       ^[ [ A
+upslide     ^X ^P       Slide up (uemacs)
+yank        ^Y          Yank deleted text
+yankpop     ^[ y        Yank-pop
 
-:prompt			Prompt windows
+:prompt                 Prompt windows
 :inherit main
-abort		^G
-abort		^C
-complete	^I
+abort       ^G
+abort       ^C
+complete    ^I
 
-:menu			Selection menus
+:menu                   Selection menus
 :inherit windows
-abort		^[ ^[
-backsmenu	^?
-backsmenu	^H
-bofmenu		^K U
-bofmenu		^K ^U
-bofmenu		^K u
-bolmenu		.kh
-bolmenu		^A
-dnarwmenu	.kd
-dnarwmenu	^N
-dnarwmenu	^[ [ B
-dnarwmenu	^[ O B
-eofmenu		^K V
-eofmenu		^K ^V
-eofmenu		^K v
-eolmenu		.kH
-eolmenu		^E
-ltarwmenu	.kl
-ltarwmenu	^B
-ltarwmenu	^[ [ D
-ltarwmenu	^[ O D
-rtarwmenu	.kr
-rtarwmenu	^F
-rtarwmenu	^[ [ C
-rtarwmenu	^[ O C
-rtn		SP
-rtn		^I
-rtn		^X H
-rtn		^X h
-rtn		^X ^H
-uparwmenu	.ku
-uparwmenu	^P
-uparwmenu	^[ [ A
-uparwmenu	^[ O A
+abort       ^[ ^[
+backsmenu   ^?
+backsmenu   ^H
+bofmenu         ^K U
+bofmenu     ^K ^U
+bofmenu     ^K u
+bolmenu     .kh
+bolmenu     ^A
+dnarwmenu   .kd
+dnarwmenu   ^N
+dnarwmenu   ^[ [ B
+dnarwmenu   ^[ O B
+eofmenu     ^K V
+eofmenu     ^K ^V
+eofmenu     ^K v
+eolmenu     .kH
+eolmenu     ^E
+ltarwmenu   .kl
+ltarwmenu   ^B
+ltarwmenu   ^[ [ D
+ltarwmenu   ^[ O D
+rtarwmenu   .kr
+rtarwmenu   ^F
+rtarwmenu   ^[ [ C
+rtarwmenu   ^[ O C
+rtn         SP
+rtn         ^I
+rtn         ^X H
+rtn         ^X h
+rtn         ^X ^H
+uparwmenu   .ku
+uparwmenu   ^P
+uparwmenu   ^[ [ A
+uparwmenu   ^[ O A
 
-:querysr		Search & replace query window
-type		^@ TO ÿ
+:querysr    Search & replace query window
+type        ^@ TO ÿ
 
-:query			Single-key query window
+:query      Single-key query window
 :inherit windows
 
-:querya			Single-key query window for quoting
-type		^@ TO ÿ
+:querya     Single-key query window for quoting
+type        ^@ TO ÿ

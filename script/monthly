@@ -2,10 +2,10 @@
 #
 # FTNd Monthly - Should be run at the first day of the month at 01:30
 #
-# $Id: monthly,v 1.5 2005/08/26 10:42:11 ftn Exp $
+# monthly 
 
-if [ "$MBSE_ROOT" = "" ]; then
-   export MBSE_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
+if [ "$FTND_ROOT" = "" ]; then
+   export FTND_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
 fi
 if [ "`id -un`" != "ftnd" ] ; then
    echo "Must be run by user 'ftnd'"
@@ -14,10 +14,10 @@ fi
 
 # While the system is on UPS battery power, don't start maintenance
 #
-while [ -f $MBSE_ROOT/var/sema/upsalarm ]; do
+while [ -f $FTND_ROOT/var/sema/upsalarm ]; do
    sleep 60
 done
 
 # Check files database and download areas.
 # 
-$MBSE_ROOT/bin/ftnfile check index -quiet
+$FTND_ROOT/bin/ftnfile check index -quiet

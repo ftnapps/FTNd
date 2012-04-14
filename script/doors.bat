@@ -1,8 +1,8 @@
 @echo off
 
-rem   $Id: doors.bat,v 1.1 2004/08/11 10:55:56 mbse Exp $
+rem   doors.bat
 
-rem   doors.bat started by mbsebbs when starting a door program.
+rem   doors.bat started by ftndbbs when starting a door program.
 rem   The first parameter must be tha name of the door, in the
 rem   c:\doors directory must be a .bat file with the name of
 rem   the door.

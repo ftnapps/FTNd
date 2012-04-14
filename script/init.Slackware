@@ -31,12 +31,12 @@ case "$1" in
 	rm -f ${FTND_ROOT}/var/run/*
 	rm -f ${FTND_ROOT}/var/sema/*
 	rm -f ${FTND_ROOT}/var/*.LCK
-	rm -f ${FTND_ROOT}/tmp/mb*
+	rm -f ${FTND_ROOT}/tmp/ftn*
 	su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
 	echo -n " ftntask"
 	sleep 2
 	if [ -f ${FTND_ROOT}/etc/config.data ]; then
-	    su ftnd -c '${FTND_ROOT}/bin/mbstat open -quiet'
+	    su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
 	    echo " and opened the bbs."
 	fi
         ;;
@@ -44,7 +44,7 @@ case "$1" in
         echo -n "FTNd shutdown:"
         if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
             echo -n " logoff users "
-            su ftnd -c '${FTND_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+            su ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
             echo -n "done, stopping ftntask"
 	    kill -15 `cat ${FTND_ROOT}/var/run/ftntask`
 	    i=10; doit=1;
