@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: dlcount.c,v 1.7 2007/10/16 14:29:29 mbse Exp $
+ * dlcount.c
  * Purpose ...............: Count WWW and FTP downloads
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2, or (at your option) any
- * later version.
+ * This is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2, or (at your option) any later
+ * version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftnlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftndb.h"
 #include "dlcount.h"
 
 static char *months[]={(char *)"Jan",(char *)"Feb",(char *)"Mar",
@@ -58,7 +54,7 @@ void dlcount(void)
      * Check if we have a mark when we did this the last time.
      * If not, create one and don't do anything. Run the next time.
      */
-    snprintf(temp, PATH_MAX, "%s/var/dlcount.stat", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/var/dlcount.stat", getenv("FTND_ROOT"));
     if ((lastcheck = file_time(temp)) == -1) {
 	Syslog('+', "Checking WWW downloads never done before, creating timestamp");
 	if ((fp = fopen(temp, "a"))) {
@@ -229,7 +225,7 @@ void count_download(char *filename, time_t filedate, off_t filesize, char *dltyp
     struct FILE_record  frec;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 
     if ((dfp = fopen(temp, "r"))) {
 
@@ -247,22 +243,22 @@ void count_download(char *filename, time_t filedate, off_t filesize, char *dltyp
 	    if (area.Available && (strcmp(temp, area.Path) == 0)) {
 		snprintf(temp, PATH_MAX, "%s", basename(filename));
 
-		if ((fdb_area = mbsedb_OpenFDB(i, 30))) {
+		if ((fdb_area = ftndb_OpenFDB(i, 30))) {
 		    while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (((strcasecmp(frec.Name, temp) == 0) || (strcasecmp(frec.LName, temp) == 0)) && 
 				(frec.Size == filesize)) {
 			    Syslog('+', "%s download %s from area %d", dltype, temp, i);
 			    frec.LastDL = filedate;
 			    frec.TimesDL++;
-			    if (mbsedb_LockFDB(fdb_area, 30)) {
+			    if (ftndb_LockFDB(fdb_area, 30)) {
 				fseek(fdb_area->fp, 0 - fdbhdr.recsize, SEEK_CUR);
 				fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
-				mbsedb_UnlockFDB(fdb_area);
+				ftndb_UnlockFDB(fdb_area);
 			    }
 			    break;
 			}
 		    }
-		    mbsedb_CloseFDB(fdb_area);
+		    ftndb_CloseFDB(fdb_area);
 		}
 		break;
 	    }
