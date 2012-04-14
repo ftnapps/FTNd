@@ -1,16 +1,21 @@
-v0.03  dd-mmm-2012
+2012-04-14  Robert James Clay  <jame@rocasa.us>
 
-    ftnutils/*:
-        Initial adaption of the ftnutils/* files for FTNd v0.03
+ - Version 0.03
 
-v0.02  06-Apr-2012
+ - ftnutils/*: Initial adaption of the ftnutils/* files.
 
-    ftnmon/*:
-        Initial adaption of the ftnmon/* files for FTNd v0.02
 
-v0.01  01-Apr-2012
+2012-04-06  Robert James Clay  <jame@rocasa.us>
 
-    general:
-        Initial fork and adaption from MBSE BBS v0.95.14 to FTNd v0.01
+ - Version 0.02
+
+ - ftnmon/*: Initial adaption of the ftnmon/* files.
+
+
+2012-04-01  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.01
+
+ - general: Initial fork and adaption from MBSE BBS v0.95.14 to FTNd v0.01
 
 

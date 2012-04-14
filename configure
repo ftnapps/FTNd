@@ -2285,18 +2285,18 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbutils mbnntp mbtask mbsetup unix lang
 
 
 #
-# General settings for MBSE BBS
+# General settings for FTNd
 # After changeing the version number, run autoconf!
 #
-PACKAGE="mbsebbs"
+PACKAGE="FTNd"
 MAJOR="0"
-MINOR="95"
-REVISION="14"
+MINOR="3"
+REVISION="0"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2011 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2011 M. Broek"
-GROUP="bbs"
-OWNER="mbse"
+GROUP="ftn"
+OWNER="ftnd"
 ROWNER="`id -un root`"
 RGROUP="`id -gn root`"
 
