@@ -1,7 +1,7 @@
 #ifndef	_COMMANDS_H
 #define	_COMMANDS_H
 
-/* $Id: commands.h,v 1.5 2005/02/14 19:57:19 mbse Exp $ */
+/* commands.h */
 
 #ifndef	USE_NEWSGATE
 

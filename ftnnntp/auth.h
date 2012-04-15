@@ -1,7 +1,7 @@
-#ifndef	_MBAUTH_H
-#define	_MBAUTH_H
+#ifndef	_FTNAUTH_H
+#define	_FTNAUTH_H
 
-/* $Id: auth.h,v 1.2 2004/06/20 14:38:11 mbse Exp $ */
+/* auth.h */
 
 #ifndef	USE_NEWSGATE
 

@@ -1,7 +1,7 @@
 #ifndef _MKFTNHDR_H
 #define	_MKFTNHDR_H
 
-/* $Id: mkftnhdr.h,v 1.3 2005/10/11 20:49:48 mbse Exp $ */
+/* mkftnhdr.h */
 
 #ifndef	USE_NEWSGATE
 

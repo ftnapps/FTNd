@@ -1,7 +1,7 @@
 #ifndef HASH_H
 #define HASH_H
 
-/* $Id: hash.h,v 1.3 2005/10/11 20:49:48 mbse Exp $ */
+/* hash.h */
 
 #ifndef	USE_NEWSGATE
 
