@@ -1,5 +1,12 @@
 2012-04-15  Robert James Clay  <jame@rocasa.us>
 
+ - Version 0.05
+
+ - script/*: Initial adaption of the ftnnntp/* files.
+
+
+2012-04-14  Robert James Clay  <jame@rocasa.us>
+
  - Version 0.04
 
  - script/*: Initial adaption of the script/* files.
