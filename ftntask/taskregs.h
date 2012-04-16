@@ -1,7 +1,7 @@
 #ifndef _TASKREGS_H
 #define _TASKREGS_H
 
-/* $Id: taskregs.h,v 1.10 2006/05/22 12:09:15 mbse Exp $ */
+/* taskregs.h */
 
 
 #define MAXCLIENT       100

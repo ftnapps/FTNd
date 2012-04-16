@@ -1,7 +1,7 @@
 #ifndef _PING_H
 #define _PING_H
 
-/* $Id: ping.h,v 1.6 2006/02/13 19:26:30 mbse Exp $ */
+/* ping.h,v */
 
 /*
  *  Defines. 

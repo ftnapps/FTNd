@@ -1,7 +1,7 @@
 #ifndef _MBTASK_H
 #define	_MBTASK_H
 
-/* $Id: mbtask.h,v 1.12 2006/02/13 19:26:30 mbse Exp $ */
+/* ftntask.h */
 
 
 /*
