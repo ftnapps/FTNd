@@ -1,34 +1,30 @@
 /*****************************************************************************
  *
- * Purpose ...............: MBSE BBS Task Manager
+ * Purpose ...............: FTNd Task Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../paths.h"
 #include "signame.h"
 #include "taskstat.h"
@@ -44,7 +40,7 @@
 #include "calllist.h"
 #include "ping.h"
 #include "taskchat.h"
-#include "mbtask.h"
+#include "ftntask.h"
 
 
 
@@ -121,7 +117,7 @@ void logtasks(void);
 
 /*
  *  Load main configuration, if it doesn't exist, create it.
- *  This is the case the very first time when you start MBSE BBS.
+ *  This is the case the very first time when you start FTNd.
  */
 void load_maincfg(void)
 {
@@ -136,7 +132,7 @@ void load_maincfg(void)
         /*
          * Fill Registration defaults
          */
-        snprintf(CFG.bbs_name, 36, "MBSE BBS");
+        snprintf(CFG.bbs_name, 36, "FTNd");
         uname((struct utsname *)&un); 
 #if defined(__USE_GNU)
         snprintf(CFG.sysdomain, 36, "%s.%s", un.nodename, un.domainname); 
@@ -147,8 +143,8 @@ void load_maincfg(void)
 #else
 #error "Don't know un.domainname on this OS"
 #endif
-        snprintf(CFG.comment, 56,  "MBSE BBS development");
-        snprintf(CFG.origin, 51,   "MBSE BBS. Made in the Netherlands");
+        snprintf(CFG.comment, 56,  "FTNd development");
+        snprintf(CFG.origin, 51,   "FTNd. Made in the Netherlands");
         snprintf(CFG.location, 36, "Earth");
 
         /*
@@ -166,25 +162,25 @@ void load_maincfg(void)
         /*
          * Fill Global defaults
          */
-        snprintf(CFG.bbs_usersdir, 65, "%s/home", getenv("MBSE_ROOT"));
-        snprintf(CFG.nodelists, 65, "%s/var/nodelist", getenv("MBSE_ROOT"));
-        snprintf(CFG.inbound, 65, "%s/var/unknown", getenv("MBSE_ROOT"));
-        snprintf(CFG.pinbound, 65, "%s/var/inbound", getenv("MBSE_ROOT"));
-        snprintf(CFG.outbound, 65, "%s/var/bso/outbound", getenv("MBSE_ROOT"));
-	snprintf(CFG.msgs_path, 65, "%s/var/msgs", getenv("MBSE_ROOT"));
-        snprintf(CFG.uxpath, 65, "%s", getenv("MBSE_ROOT"));
-        snprintf(CFG.badtic, 65, "%s/var/badtic", getenv("MBSE_ROOT"));
-        snprintf(CFG.ticout, 65, "%s/var/ticqueue", getenv("MBSE_ROOT"));
-        snprintf(CFG.req_magic, 65, "%s/var/magic", getenv("MBSE_ROOT"));
-	snprintf(CFG.alists_path, 65, "%s/var/arealists", getenv("MBSE_ROOT"));
-	snprintf(CFG.out_queue, 65, "%s/var/queue", getenv("MBSE_ROOT"));
-	snprintf(CFG.rulesdir, 65, "%s/var/rules", getenv("MBSE_ROOT"));
+        snprintf(CFG.bbs_usersdir, 65, "%s/home", getenv("FTND_ROOT"));
+        snprintf(CFG.nodelists, 65, "%s/var/nodelist", getenv("FTND_ROOT"));
+        snprintf(CFG.inbound, 65, "%s/var/unknown", getenv("FTND_ROOT"));
+        snprintf(CFG.pinbound, 65, "%s/var/inbound", getenv("FTND_ROOT"));
+        snprintf(CFG.outbound, 65, "%s/var/bso/outbound", getenv("FTND_ROOT"));
+	snprintf(CFG.msgs_path, 65, "%s/var/msgs", getenv("FTND_ROOT"));
+        snprintf(CFG.uxpath, 65, "%s", getenv("FTND_ROOT"));
+        snprintf(CFG.badtic, 65, "%s/var/badtic", getenv("FTND_ROOT"));
+        snprintf(CFG.ticout, 65, "%s/var/ticqueue", getenv("FTND_ROOT"));
+        snprintf(CFG.req_magic, 65, "%s/var/magic", getenv("FTND_ROOT"));
+	snprintf(CFG.alists_path, 65, "%s/var/arealists", getenv("FTND_ROOT"));
+	snprintf(CFG.out_queue, 65, "%s/var/queue", getenv("FTND_ROOT"));
+	snprintf(CFG.rulesdir, 65, "%s/var/rules", getenv("FTND_ROOT"));
 	CFG.leavecase = TRUE;
 
         /*
          * Newfiles reports
          */
-        snprintf(CFG.ftp_base, 65, "%s/ftp/pub", getenv("MBSE_ROOT"));
+        snprintf(CFG.ftp_base, 65, "%s/ftp/pub", getenv("FTND_ROOT"));
         CFG.newdays = 30;
         CFG.security.level = 20;
         CFG.new_split = 27;
@@ -292,8 +288,8 @@ void load_maincfg(void)
          */
         CFG.maxpktsize = 150;
         CFG.maxarcsize = 300;
-        snprintf(CFG.badboard, 65, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
-        snprintf(CFG.dupboard, 65, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
+        snprintf(CFG.badboard, 65, "%s/var/mail/badmail", getenv("FTND_ROOT"));
+        snprintf(CFG.dupboard, 65, "%s/var/mail/dupemail", getenv("FTND_ROOT"));
         snprintf(CFG.popnode, 65, "localhost");
         snprintf(CFG.smtpnode, 65, "localhost");
         snprintf(CFG.nntpnode, 65, "localhost");
@@ -359,7 +355,7 @@ void load_maincfg(void)
         if ((fp = fopen(cfgfn, "a+")) == NULL) {
 	    perror("");
             fprintf(stderr, "Can't create %s\n", cfgfn);
-            exit(MBERR_INIT_ERROR);
+            exit(FTNERR_INIT_ERROR);
         }
         fwrite(&CFG, sizeof(CFG), 1, fp);
         fclose(fp);
@@ -388,20 +384,20 @@ void load_taskcfg(void)
 	TCFG.maxload = 1.50;
 	snprintf(TCFG.zmh_start, 6, "02:30");
 	snprintf(TCFG.zmh_end, 6, "03:30");
-	snprintf(TCFG.cmd_mailout,  81, "%s/bin/mbfido scan web -quiet", getenv("MBSE_ROOT"));
-	snprintf(TCFG.cmd_mailin,   81, "%s/bin/mbfido tic toss web -quiet", getenv("MBSE_ROOT"));
-	snprintf(TCFG.cmd_newnews,  81, "%s/bin/mbfido news web -quiet", getenv("MBSE_ROOT"));
-	snprintf(TCFG.cmd_mbindex1, 81, "%s/bin/mbindex -quiet", getenv("MBSE_ROOT"));
+	snprintf(TCFG.cmd_mailout,  81, "%s/bin/ftnfido scan web -quiet", getenv("FTND_ROOT"));
+	snprintf(TCFG.cmd_mailin,   81, "%s/bin/ftnfido tic toss web -quiet", getenv("FTND_ROOT"));
+	snprintf(TCFG.cmd_newnews,  81, "%s/bin/ftnfido news web -quiet", getenv("FTND_ROOT"));
+	snprintf(TCFG.cmd_ftnindex1, 81, "%s/bin/ftnindex -quiet", getenv("FTND_ROOT"));
 	if (strlen(_PATH_GOLDNODE))
-	    snprintf(TCFG.cmd_mbindex2, 81, "%s -f -q", _PATH_GOLDNODE);
-	snprintf(TCFG.cmd_msglink,  81, "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
-	    snprintf(TCFG.cmd_reqindex, 81, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
+	    snprintf(TCFG.cmd_ftnindex2, 81, "%s -f -q", _PATH_GOLDNODE);
+	snprintf(TCFG.cmd_msglink,  81, "%s/bin/ftnmsg link -quiet", getenv("FTND_ROOT"));
+	    snprintf(TCFG.cmd_reqindex, 81, "%s/bin/ftnfile index -quiet", getenv("FTND_ROOT"));
 	TCFG.max_tcp  = 0;
 	snprintf(TCFG.isp_ping1, 41, "192.168.1.1");
 	snprintf(TCFG.isp_ping2, 41, "192.168.1.1");
 	if ((fp = fopen(tcfgfn, "a+")) == NULL) {
 	    Syslog('?', "$Can't create %s", tcfgfn);
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	}
 	fwrite(&TCFG, sizeof(TCFG), 1, fp);
 	fclose(fp);
@@ -508,22 +504,22 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
 		    WriteError("$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
-		    _exit(MBERR_EXEC_FAILED);
+		    _exit(FTNERR_EXEC_FAILED);
 		}
 		close(1);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
 		    WriteError("$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
-		    _exit(MBERR_EXEC_FAILED);
+		    _exit(FTNERR_EXEC_FAILED);
 		}
 		close(2);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
 		    WriteError("$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
-		    _exit(MBERR_EXEC_FAILED);
+		    _exit(FTNERR_EXEC_FAILED);
 		}
 		errno = 0;
 		rc = execv(vector[0],vector);
 		WriteError("$Launch: execv \"%s\" failed, returned %d", cmd, rc);
-		_exit(MBERR_EXEC_FAILED);
+		_exit(FTNERR_EXEC_FAILED);
 	default:
 		/* grandchild's daddy's process */
 		break;
@@ -630,7 +626,7 @@ int checktasks(int onsig)
 		/*
 		 * If a nodelist compiler is ready, reload the nodelists configuration
 		 */
-		if (task[i].tasktype == MBINDEX) {
+		if (task[i].tasktype == FTNINDEX) {
 		    deinitnl();
 		    initnl();
 		}
@@ -763,7 +759,7 @@ void die(int onsig)
 
     /*
      * Now check for users online and other programs not started
-     * under control of mbtask.
+     * under control of ftntask.
      */
     count = 30;
     while (count) {
@@ -805,7 +801,7 @@ void die(int onsig)
 	unlink(spath);
     }
 
-    Syslog(' ', "MBTASK finished");
+    Syslog(' ', "FTNTASK finished");
     exit(onsig);
 }
 
@@ -823,11 +819,11 @@ int locktask(char *root)
     tempfile = calloc(PATH_MAX, sizeof(char));
     lockfile = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(tempfile, PATH_MAX, "%s/var/run/mbtask.tmp", root);
-    snprintf(lockfile, PATH_MAX, "%s/var/run/mbtask", root);
+    snprintf(tempfile, PATH_MAX, "%s/var/run/ftntask.tmp", root);
+    snprintf(lockfile, PATH_MAX, "%s/var/run/ftntask", root);
 
     if ((fp = fopen(tempfile, "w")) == NULL) {
-	perror("mbtask");
+	perror("ftntask");
 	printf("Can't create lockfile \"%s\"\n", tempfile);
 	free(tempfile);
 	free(lockfile);
@@ -844,7 +840,7 @@ int locktask(char *root)
 	    return 0;
 	}
 	if ((fp = fopen(lockfile, "r")) == NULL) {
-	    perror("mbtask");
+	    perror("ftntask");
 	    printf("Can't open lockfile \"%s\"\n", tempfile);
 	    unlink(tempfile);
 	    free(tempfile);
@@ -852,7 +848,7 @@ int locktask(char *root)
 	    return 1;
 	}
 	if (fscanf(fp, "%u", &oldpid) != 1) {
-	    perror("mbtask");
+	    perror("ftntask");
 	    printf("Can't read old pid from \"%s\"\n", tempfile);
 	    fclose(fp);
 	    unlink(tempfile);
@@ -867,7 +863,7 @@ int locktask(char *root)
 		unlink(lockfile);
 		/* no return, try lock again */  
 	    } else {
-		perror("mbtask");
+		perror("ftntask");
 		printf("Kill for %u failed\n",oldpid);
 		unlink(tempfile);
 		free(tempfile);
@@ -875,7 +871,7 @@ int locktask(char *root)
 		return 1;
 	    }
 	} else {
-	    printf("Another mbtask is already running, pid=%u\n", oldpid);
+	    printf("Another ftntask is already running, pid=%u\n", oldpid);
 	    unlink(tempfile);
 	    free(tempfile);
 	    free(lockfile);
@@ -893,9 +889,9 @@ void ulocktask(void)
     FILE	    *fp;
     struct passwd   *pw;
 
-    pw = getpwnam((char *)"mbse");
+    pw = getpwnam((char *)"ftnd");
     lockfile = calloc(PATH_MAX, sizeof(char));
-    snprintf(lockfile, PATH_MAX, "%s/var/run/mbtask", pw->pw_dir);
+    snprintf(lockfile, PATH_MAX, "%s/var/run/ftntask", pw->pw_dir);
 
     if ((fp = fopen(lockfile, "r")) == NULL) {
 	WriteError("$Can't open lockfile \"%s\"", lockfile);
@@ -963,7 +959,7 @@ void check_sema(void)
 	 *  Since the upsdown semafore is permanent, the system WILL go down
 	 *  there is no point for this program to stay. Signal all tasks and stop.
 	 */
-	die(MBERR_UPS_ALARM);
+	die(FTNERR_UPS_ALARM);
     }
 
     /*
@@ -996,12 +992,12 @@ void start_scheduler(int port)
         printf("done\n");
 
     /*
-     * Registrate this server for mbmon in slot 0.
+     * Registrate this server for ftnmon in slot 0.
      */
     reginfo[0].pid = getpid();
     strcpy(reginfo[0].tty,   "-");
-    strcpy(reginfo[0].uname, "mbse");
-    strcpy(reginfo[0].prg,   "mbtask");
+    strcpy(reginfo[0].uname, "ftnd");
+    strcpy(reginfo[0].prg,   "ftntask");
     strcpy(reginfo[0].city,  "localhost");
     strcpy(reginfo[0].doing, "Start");
     reginfo[0].started = (int)time(NULL);
@@ -1009,14 +1005,14 @@ void start_scheduler(int port)
         printf("reginfo filled\n");
 
     Processing = TRUE;
-    TouchSema((char *)"mbtask.last");
+    TouchSema((char *)"ftntask.last");
 
     /*
      * Setup UNIX Datagram socket
      */
     if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
 	WriteError("$Can't create socket");
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     memset(&servaddr, 0, sizeof(servaddr));
@@ -1027,7 +1023,7 @@ void start_scheduler(int port)
 	close(sock);
 	sock = -1;
 	WriteError("$Can't bind socket %s", spath);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
     if (nodaemon)
         printf("sockets created\n");
@@ -1048,12 +1044,12 @@ void start_scheduler(int port)
 	ibcsock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (ibcsock == -1) {
 	    WriteError("$IBC: can't create listen socket");
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	}
 
 	if (bind(ibcsock, (struct sockaddr *)&myaddr_in, sizeof(struct sockaddr_in)) == -1) {
 	    WriteError("$IBC: can't bind listen socket");
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	}
 
 	srand(getpid());
@@ -1062,14 +1058,14 @@ void start_scheduler(int port)
 
     /*
      * The flag masterinit is set if a new config.data is created, this
-     * is true if mbtask is started the very first time. Then we run
-     * mbsetup init to create the default databases.
+     * is true if ftntask is started the very first time. Then we run
+     * ftnsetup init to create the default databases.
      */
     if (masterinit) {
 	pw = getpwuid(getuid());
 	cmd = xstrcpy(pw->pw_dir);
-	cmd = xstrcat(cmd, (char *)"/bin/mbsetup");
-	launch(cmd, (char *)"init", (char *)"mbsetup", MBINIT);
+	cmd = xstrcat(cmd, (char *)"/bin/ftnsetup");
+	launch(cmd, (char *)"init", (char *)"ftnsetup", FTNINIT);
 	free(cmd);
 	sleep(2);
 	masterinit = FALSE;
@@ -1123,7 +1119,7 @@ void scheduler(void)
     do {
 	/*
 	 * Poll UNIX Datagram socket and IBC UDP socket until the defined timeout of one second.
-	 * This means we listen if a MBSE BBS client program has something to tell us.
+	 * This means we listen if a FTNd client program has something to tell us.
 	 * Timeout is one second, after the timeout the rest of the mainloop is executed.
 	 */
 	pfd[0].fd = sock;
@@ -1156,7 +1152,7 @@ void scheduler(void)
         } else if (rc) {
 	    if (pfd[0].revents & POLLIN) {
 		/*
-		 * Process the clients request for mbtask commands.
+		 * Process the clients request for ftntask commands.
 		 */
 		memset(&buf, 0, sizeof(buf));
 		fromlen = sizeof(from);
@@ -1262,7 +1258,7 @@ void scheduler(void)
 	reginfo[0].lastcon = (int)time(NULL);
 
 	/*
-	 *  Touch the mbtask.last semafore to prove this daemon
+	 *  Touch the ftntask.last semafore to prove this daemon
 	 *  is actually running.
 	 *  Reload configuration data if some file is changed.
 	 */
@@ -1277,7 +1273,7 @@ void scheduler(void)
 	    if (tosswait)
 		tosswait--;
 	    olddo = tm.tm_min;
-	    TouchSema((char *)"mbtask.last");
+	    TouchSema((char *)"ftntask.last");
 	    if (file_time(tcfgfn) != tcfg_time) {
 		Syslog('+', "Task configuration changed, reloading");
 		load_taskcfg();
@@ -1341,38 +1337,38 @@ void scheduler(void)
 	     */
 	    running = checktasks(0);
 
-	    if (s_mailout && (!ptimer) && (!runtasktype(MBFIDO))) {
-	        launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
+	    if (s_mailout && (!ptimer) && (!runtasktype(FTNFIDO))) {
+	        launch(TCFG.cmd_mailout, NULL, (char *)"mailout", FTNFIDO);
 	        running = checktasks(0);
 		s_mailout = FALSE;
 	    }
 
-	    if (s_mailin && (!ptimer) && (!runtasktype(MBFIDO))) {
+	    if (s_mailin && (!ptimer) && (!runtasktype(FTNFIDO))) {
 		/*
 		 * Here we should check if no mailers are running. Only start
 		 * processing the inbound if no mailers are running, but on busy
 		 * systems this may hardly be the case. So we wait for 30 minutes
-		 * and if there are still mailers running, mbfido is started
+		 * and if there are still mailers running, ftnfido is started
 		 * anyway.
 		 */
 		if ((ipmailers + runtasktype(CM_ISDN) + runtasktype(CM_POTS)) == 0) {
 		    Syslog('i', "Mailin, no mailers running, start direct");
 		    tosswait = TOSSWAIT_TIME;
-		    launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+		    launch(TCFG.cmd_mailin, NULL, (char *)"mailin", FTNFIDO);
 		    running = checktasks(0);
 		    s_mailin = FALSE;
 		} else {
 		    Syslog('i', "Mailin, tosswait=%d", tosswait);
 		    if (tosswait == 0) {
-		        launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+		        launch(TCFG.cmd_mailin, NULL, (char *)"mailin", FTNFIDO);
 		        running = checktasks(0);
 		        s_mailin = FALSE;
 		    }
 		}
 	    }
 
-	    if (s_newnews && (!ptimer) && (!runtasktype(MBFIDO))) {
-	        launch(TCFG.cmd_newnews, NULL, (char *)"newnews", MBFIDO);
+	    if (s_newnews && (!ptimer) && (!runtasktype(FTNFIDO))) {
+	        launch(TCFG.cmd_newnews, NULL, (char *)"newnews", FTNFIDO);
 	        running = checktasks(0);
 	        s_newnews = FALSE;
 	    }
@@ -1384,14 +1380,14 @@ void scheduler(void)
 	     *  start them in parallel.
 	     */
 	    if (s_index && (!ptimer) && (!running)) {
-		if (strlen(TCFG.cmd_mbindex1)) {
-		    launch(TCFG.cmd_mbindex1, NULL, (char *)"compiler 1", MBINDEX);
+		if (strlen(TCFG.cmd_ftnindex1)) {
+		    launch(TCFG.cmd_ftnindex1, NULL, (char *)"compiler 1", FTNINDEX);
 		}
-		if (strlen(TCFG.cmd_mbindex2)) {
-		    launch(TCFG.cmd_mbindex2, NULL, (char *)"compiler 2", MBINDEX);
+		if (strlen(TCFG.cmd_ftnindex2)) {
+		    launch(TCFG.cmd_ftnindex2, NULL, (char *)"compiler 2", FTNINDEX);
 		}
-		if (strlen(TCFG.cmd_mbindex3)) {
-		    launch(TCFG.cmd_mbindex3, NULL, (char *)"compiler 3", MBINDEX);
+		if (strlen(TCFG.cmd_ftnindex3)) {
+		    launch(TCFG.cmd_ftnindex3, NULL, (char *)"compiler 3", FTNINDEX);
 		}
 		running = checktasks(0);
 		s_index = FALSE;
@@ -1402,7 +1398,7 @@ void scheduler(void)
 	     *  nothing else to do.
 	     */
 	    if (s_msglink && (!ptimer) && (!running)) {
-		launch(TCFG.cmd_msglink, NULL, (char *)"msglink", MBFIDO);
+		launch(TCFG.cmd_msglink, NULL, (char *)"msglink", FTNFIDO);
 		running = checktasks(0);
 		s_msglink = FALSE;
 	    }
@@ -1411,7 +1407,7 @@ void scheduler(void)
 	     *  Creating filerequest indexes, also only if nothing to do.
 	     */
 	    if (s_reqindex && (!ptimer) && (!running)) {
-		launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
+		launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", FTNFILE);
 		running = checktasks(0);
 		s_reqindex = FALSE;
 	    }
@@ -1484,7 +1480,7 @@ void scheduler(void)
 		    }
 		    if (found) {
 			cmd = xstrcpy(pw->pw_dir);
-			cmd = xstrcat(cmd, (char *)"/bin/mbcico");
+			cmd = xstrcat(cmd, (char *)"/bin/ftncico");
 			/*
 			 * For ISDN or POTS, select a free tty device.
 			 */
@@ -1516,7 +1512,7 @@ void scheduler(void)
 				    calllist[call_entry].addr.net,
 				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			}
-			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
+			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"ftncico", calllist[call_entry].callmode);
 			if (calllist[call_entry].taskpid)
 			    calllist[call_entry].calling = TRUE;
 			running = checktasks(0);
@@ -1548,7 +1544,7 @@ int main(int argc, char **argv)
     /*
      * Print copyright notices and setup logging.
      */
-    printf("MBTASK: MBSE BBS v%s Task Manager Daemon\n", VERSION);
+    printf("FTNTASK: FTNd v%s Task Manager Daemon\n", VERSION);
     printf("        %s\n\n", COPYRIGHT);
 
     /*
@@ -1574,16 +1570,16 @@ int main(int argc, char **argv)
     init_pingsocket();
 
     /*
-     *  mbtask is setuid root, drop privileges to user mbse.
+     *  ftntask is setuid root, drop privileges to user ftnd.
      *  This will stay forever like this, no need to become
      *  root again. The child can't even become root anymore.
      */
-    pw = getpwnam((char *)"mbse");
+    pw = getpwnam((char *)"ftnd");
     if (setuid(pw->pw_uid)) {
 	perror("");
-	fprintf(stderr, "can't setuid to mbse\n");
+	fprintf(stderr, "can't setuid to ftnd\n");
 	close(ping_isocket);
-	exit(MBERR_INIT_ERROR);
+	exit(FTNERR_INIT_ERROR);
     }
 
     /*
@@ -1595,17 +1591,17 @@ int main(int argc, char **argv)
 	fprintf(stderr, "can't setgid to bbs\n");
 	if (! nodaemon) {
 	    close(ping_isocket);
-	    exit(MBERR_INIT_ERROR);
+	    exit(FTNERR_INIT_ERROR);
 	}
     }
 
     umask(007);
     if (locktask(pw->pw_dir)) {
 	close(ping_isocket);
-        exit(MBERR_NO_PROGLOCK);
+        exit(FTNERR_NO_PROGLOCK);
     }
 
-    snprintf(cfgfn, PATH_MAX, "%s/etc/config.data", getenv("MBSE_ROOT"));
+    snprintf(cfgfn, PATH_MAX, "%s/etc/config.data", getenv("FTND_ROOT"));
     load_maincfg();
     if (nodaemon)
 	printf("main config loaded\n");
@@ -1615,12 +1611,12 @@ int main(int argc, char **argv)
 	printf("my pid is %d\n", mypid);
 
     Syslog(' ', " ");
-    Syslog(' ', "MBTASK v%s", VERSION);
+    Syslog(' ', "FTNTASK v%s", VERSION);
 
     if (nodaemon)
 	Syslog('+', "Starting in no-daemon mode");
 
-    snprintf(tcfgfn, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    snprintf(tcfgfn, PATH_MAX, "%s/etc/task.data", getenv("FTND_ROOT"));
     load_taskcfg();
 
     status_init();
@@ -1631,19 +1627,19 @@ int main(int argc, char **argv)
     } else {
 	chatport = se->s_port;
 	if (strlen(CFG.bbs_name) == 0) {
-	    WriteError("IBC: mbsetup 1.2.1 is empty, cannot start Internet BBS Chat");
+	    WriteError("IBC: ftnsetup 1.2.1 is empty, cannot start Internet BBS Chat");
 	    Run_IBC = FALSE;
 	} else if (strlen(CFG.myfqdn) == 0) {
 	    Run_IBC = FALSE;
-	    WriteError("IBC: mbsetup 1.2.10 is empty, cannot start Internet BBS Chat");
+	    WriteError("IBC: ftnsetup 1.2.10 is empty, cannot start Internet BBS Chat");
 	}
     }
 
     memset(&task, 0, sizeof(task));
     memset(&reginfo, 0, sizeof(reginfo));
     memset(&calllist, 0, sizeof(calllist));
-    snprintf(spath, PATH_MAX, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
-    snprintf(ttyfn, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(spath, PATH_MAX, "%s/tmp/ftntask", getenv("FTND_ROOT"));
+    snprintf(ttyfn, PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
     initnl();
     load_ports();
     check_ports();
@@ -1679,14 +1675,14 @@ int main(int argc, char **argv)
 	    /*
 	     * Just log this, some SElinux versions don't allow it.
 	     */
-//	    die(MBERR_INIT_ERROR);
+//	    die(FTNERR_INIT_ERROR);
 	}
 
 	frk = fork();
 	switch (frk) {
 	case -1:
 		Syslog('?', "$Unable to fork daemon");
-		die(MBERR_INIT_ERROR);
+		die(FTNERR_INIT_ERROR);
 	case 0:
 		/*
 		 *  Starting the deamon child process here. 
@@ -1694,17 +1690,17 @@ int main(int argc, char **argv)
 		fclose(stdin);
 		if (open("/dev/null", O_RDONLY) != 0) {
 		    Syslog('?', "$Reopen of stdin to /dev/null failed");
-		    _exit(MBERR_EXEC_FAILED);
+		    _exit(FTNERR_EXEC_FAILED);
 		}
 		fclose(stdout);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
 		    Syslog('?', "$Reopen of stdout to /dev/null failed");
-		    _exit(MBERR_EXEC_FAILED);
+		    _exit(FTNERR_EXEC_FAILED);
 		}
 		fclose(stderr);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
 		    Syslog('?', "$Reopen of stderr to /dev/null failed");
-		    _exit(MBERR_EXEC_FAILED);
+		    _exit(FTNERR_EXEC_FAILED);
 		}
 		mypid = getpid();
 		start_scheduler(chatport);
@@ -1716,14 +1712,14 @@ int main(int argc, char **argv)
 		 * in the lockfile before leaving.
 		 */
 		lockfile = calloc(PATH_MAX, sizeof(char));
-		snprintf(lockfile, PATH_MAX, "%s/var/run/mbtask", pw->pw_dir);
+		snprintf(lockfile, PATH_MAX, "%s/var/run/ftntask", pw->pw_dir);
 		if ((fp = fopen(lockfile, "w"))) {
 		    fprintf(fp, "%10u\n", frk);
 		    fclose(fp);
 		}
 		free(lockfile);
 		Syslog('+', "Starting daemon with pid %d", frk);
-		exit(MBERR_OK);
+		exit(FTNERR_OK);
 	}
     }
 

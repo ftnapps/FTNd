@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: taskdisk.c,v 1.35 2007/08/26 14:02:28 mbse Exp $
+ * taskdisk.c
  * Purpose ...............: Give status of all filesystems
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "taskdisk.h"
 #include "taskutil.h"
 
@@ -239,7 +235,7 @@ char *disk_reset(void)
 
 
 /*
- * Check free diskspace on all by mbse used filesystems.
+ * Check free diskspace on all by ftnd used filesystems.
  * The amount of needed space is given in MBytes.
  */
 void disk_check_r(char *token, char *buf)
@@ -488,7 +484,7 @@ void diskwatch(void)
 
         tidy_mfslist(&mfs);
 
-        add_path(getenv("MBSE_ROOT"));
+        add_path(getenv("FTND_ROOT"));
         add_path(CFG.alists_path);
         add_path(CFG.req_magic);
         add_path(CFG.bbs_usersdir);
@@ -503,7 +499,7 @@ void diskwatch(void)
         add_path(CFG.tmaillong);
 	
         temp = calloc(PATH_MAX, sizeof(char ));
-        snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+        snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
         if ((fp = fopen(temp, "r"))) {
 	    fread(&areahdr, sizeof(areahdr), 1, fp);
 	    fseek(fp, areahdr.hdrsize, SEEK_SET);
@@ -516,7 +512,7 @@ void diskwatch(void)
 	    fclose(fp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
         if ((fp = fopen(temp, "r"))) {
 	    fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	    fseek(fp, msgshdr.hdrsize, SEEK_SET);
@@ -529,25 +525,25 @@ void diskwatch(void)
 	    fclose(fp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
         if ((fp = fopen(temp, "r"))) {
 	    fread(&langhdr, sizeof(langhdr), 1, fp);
 	    fseek(fp, langhdr.hdrsize, SEEK_SET);
 
 	    while (fread(&lang, langhdr.recsize, 1, fp)) {
 	        if (lang.Available) {
-		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("FTND_ROOT"), lang.lc);
 		    add_path(temp);
-		    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("MBSE_ROOT"), lang.lc);
+		    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("FTND_ROOT"), lang.lc);
 		    add_path(temp);
-		    snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("MBSE_ROOT"), lang.lc);
+		    snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("FTND_ROOT"), lang.lc);
 		    add_path(temp);
 		}
 	    }
 	    fclose(fp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
         if ((fp = fopen(temp, "r"))) {
 	    fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
 	    fseek(fp, nodeshdr.hdrsize, SEEK_SET);
@@ -563,7 +559,7 @@ void diskwatch(void)
 	    fclose(fp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
         if ((fp = fopen(temp, "r"))) {
 	    fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
 	    fseek(fp, fgrouphdr.hdrsize, SEEK_SET);
@@ -575,7 +571,7 @@ void diskwatch(void)
 	    fclose(fp);
 	}
 	    
-	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
         if ((fp = fopen(temp, "r"))) {
 	    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
 	    fseek(fp, mgrouphdr.hdrsize, SEEK_SET);
@@ -587,7 +583,7 @@ void diskwatch(void)
 	    fclose(fp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("FTND_ROOT"));
 	if ((fp = fopen(temp, "r"))) {
 	    fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
 	    fseek(fp, hatchhdr.hdrsize, SEEK_SET);
@@ -599,7 +595,7 @@ void diskwatch(void)
 	    fclose(fp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("FTND_ROOT"));
         if ((fp = fopen(temp, "r"))) {
 	    fread(&magichdr, sizeof(magichdr), 1, fp);
 	    fseek(fp, magichdr.hdrsize, SEEK_SET);

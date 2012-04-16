@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: taskregs.c,v 1.27 2006/06/10 11:59:02 mbse Exp $
+ * taskregs.c
  * Purpose ...............: Buffers for registration information.
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2006 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "taskstat.h"
 #include "taskregs.h"
 #include "taskchat.h"
@@ -106,7 +102,7 @@ int reg_newcon(char *data)
 	reginfo[retval].silent = 1;
 
 	stat_inc_clients();
-	if (strcmp(prg, (char *)"mbcico") == 0)
+	if (strcmp(prg, (char *)"ftncico") == 0)
 	    mailers++;
 	Syslog('-', "Registered client pgm \"%s\", pid %d, slot %d, mailers %d, TCP/IP %d", 
 		prg, (int)pid, retval, mailers, ipmailers);
@@ -132,11 +128,11 @@ int reg_closecon(char *data)
 	return -1;
     }
 
-    if (strcmp(reginfo[rec].prg, (char *)"mbcico") == 0)
+    if (strcmp(reginfo[rec].prg, (char *)"ftncico") == 0)
 	mailers--;
     if (reginfo[rec].istcp)
 	ipmailers--;
-    if ((strcmp(reginfo[rec].prg, (char *)"mbsebbs") == 0) || (strcmp(reginfo[rec].prg, (char *)"mbmon") == 0))
+    if ((strcmp(reginfo[rec].prg, (char *)"ftnd") == 0) || (strcmp(reginfo[rec].prg, (char *)"ftnmon") == 0))
 	chat_cleanuser(pid);
 
     Syslog('-', "Unregistered client pgm \"%s\", pid %d, slot %d, mailers %d, TCP/IP %d", 
@@ -161,11 +157,11 @@ void reg_check(void)
 	if (reginfo[i].pid) {
 	    if (kill(reginfo[i].pid, 0) == -1) {
 		if (errno == ESRCH) {
-		    if (strcmp(reginfo[i].prg, (char *)"mbcico") == 0)
+		    if (strcmp(reginfo[i].prg, (char *)"ftncico") == 0)
 			mailers--;
 		    if (reginfo[i].istcp)
 			ipmailers--;
-		    if ((strcmp(reginfo[i].prg, (char *)"mbsebbs") == 0) || (strcmp(reginfo[i].prg, (char *)"mbmon") == 0))
+		    if ((strcmp(reginfo[i].prg, (char *)"ftnd") == 0) || (strcmp(reginfo[i].prg, (char *)"ftnmon") == 0))
 			chat_cleanuser(reginfo[i].pid);
 
 		    Syslog('?', "Stale registration found for pid %d (%s), mailers now %d, TCP/IP now %d", 
@@ -523,21 +519,21 @@ void reg_fre_r(char *buf)
 
     for (i = 1; i < MAXCLIENT; i++) {
 	if (reginfo[i].pid) {
-	    if ((!strncmp(reginfo[i].prg, "mbsebbs", 7)) ||
-		(!strncmp(reginfo[i].prg, "mbnewusr", 8)) ||
-		(!strncmp(reginfo[i].prg, "mbnntp", 6))) 
+	    if ((!strncmp(reginfo[i].prg, "ftnd", 7)) ||
+		(!strncmp(reginfo[i].prg, "ftnnewusr", 8)) ||
+		(!strncmp(reginfo[i].prg, "ftnnntp", 6))) 
 		users++;
 
-	    if ((!strncmp(reginfo[i].prg, "mbfido", 6)) ||
-		(!strncmp(reginfo[i].prg, "mbmail", 6)) ||
-		(!strncmp(reginfo[i].prg, "mball", 5)) ||
-	        (!strncmp(reginfo[i].prg, "mbaff", 5)) ||
-	        (!strncmp(reginfo[i].prg, "mbcico", 6)) ||
-	        (!strncmp(reginfo[i].prg, "mbfile", 6)) ||
-	        (!strncmp(reginfo[i].prg, "mbmsg", 5)) ||
-	        (!strncmp(reginfo[i].prg, "mbindex", 7)) ||
-	        (!strncmp(reginfo[i].prg, "mbdiff", 6)) ||
-	        (!strncmp(reginfo[i].prg, "mbuser", 6)))
+	    if ((!strncmp(reginfo[i].prg, "ftnfido", 6)) ||
+		(!strncmp(reginfo[i].prg, "ftnmail", 6)) ||
+		(!strncmp(reginfo[i].prg, "ftnall", 5)) ||
+	        (!strncmp(reginfo[i].prg, "ftnaff", 5)) ||
+	        (!strncmp(reginfo[i].prg, "ftncico", 6)) ||
+	        (!strncmp(reginfo[i].prg, "ftnfile", 6)) ||
+	        (!strncmp(reginfo[i].prg, "ftnmsg", 5)) ||
+	        (!strncmp(reginfo[i].prg, "ftnindex", 7)) ||
+	        (!strncmp(reginfo[i].prg, "ftndiff", 6)) ||
+	        (!strncmp(reginfo[i].prg, "ftnuser", 6)))
 		utils++;
 	}
     }
@@ -671,7 +667,7 @@ int reg_cancel(char *data)
 
 
 /*
- * Check paging status for from mbmon
+ * Check paging status for from ftnmon
  */
 void reg_checkpage_r(char *data, char *buf)
 {

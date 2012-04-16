@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: outstat.c,v 1.61 2007/09/16 12:58:53 mbse Exp $
- * Purpose ...............: mbtask - Scan mail outbound status
+ * outstat.c
+ * Purpose ...............: ftntask - Scan mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "taskutil.h"
 #include "taskstat.h"
 #include "scanout.h"
@@ -68,7 +64,7 @@ int load_node(fidoaddr n)
     int	    i, j = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
 	memset(&nodes, 0, sizeof(nodes));
@@ -137,19 +133,19 @@ void set_next(int hour, int min)
 char *callstatus(int status)
 {
     switch (status) {
-	case MBERR_OK:			return (char *)"Ok     ";
-	case MBERR_TTYIO_ERROR:		return (char *)"tty err";
-	case MBERR_NO_CONNECTION:	return (char *)"No conn";
-	case MBERR_MODEM_ERROR:		return (char *)"Mdm err";
-	case MBERR_NODE_LOCKED:		return (char *)"Locked ";
-	case MBERR_UNKNOWN_SESSION:	return (char *)"unknown";
-	case MBERR_NODE_NOT_IN_LIST:	return (char *)"Unlist ";
-	case MBERR_NODE_MAY_NOT_CALL:	return (char *)"Forbid ";
-	case MBERR_FTRANSFER:		return (char *)"Transf.";
-	case MBERR_NO_PORT_AVAILABLE:	return (char *)"No tty ";
-	case MBERR_NOT_ZMH:		return (char *)"No ZMH ";
-	case MBERR_SESSION_ERROR:	return (char *)"Badsess";
-	case MBERR_NO_IP_ADDRESS:	return (char *)"No IP  ";
+	case FTNERR_OK:			return (char *)"Ok     ";
+	case FTNERR_TTYIO_ERROR:		return (char *)"tty err";
+	case FTNERR_NO_CONNECTION:	return (char *)"No conn";
+	case FTNERR_MODEM_ERROR:		return (char *)"Mdm err";
+	case FTNERR_NODE_LOCKED:		return (char *)"Locked ";
+	case FTNERR_UNKNOWN_SESSION:	return (char *)"unknown";
+	case FTNERR_NODE_NOT_IN_LIST:	return (char *)"Unlist ";
+	case FTNERR_NODE_MAY_NOT_CALL:	return (char *)"Forbid ";
+	case FTNERR_FTRANSFER:		return (char *)"Transf.";
+	case FTNERR_NO_PORT_AVAILABLE:	return (char *)"No tty ";
+	case FTNERR_NOT_ZMH:		return (char *)"No ZMH ";
+	case FTNERR_SESSION_ERROR:	return (char *)"Badsess";
+	case FTNERR_NO_IP_ADDRESS:	return (char *)"No IP  ";
 	default:			Syslog('-', "callstatus(%d), unknown", status);
 					return (char *)"ERROR  ";
     }
@@ -164,10 +160,10 @@ char *callmode(int mode)
 	case CM_INET:	return (char *)"Inet   ";
 	case CM_ISDN:	return (char *)"ISDN   ";
 	case CM_POTS:	return (char *)"POTS   ";
-	case MBFIDO:	return (char *)"mbfido ";
-	case MBINDEX:	return (char *)"mbindex";
-	case MBFILE:	return (char *)"mbfile ";
-	case MBINIT:	return (char *)"mbinit ";
+	case FTNFIDO:	return (char *)"ftnfido ";
+	case FTNINDEX:	return (char *)"ftnindex";
+	case FTNFILE:	return (char *)"ftnfile ";
+	case FTNINIT:	return (char *)"ftninit ";
 	default:	return (char *)"None   ";
     }
 }
@@ -187,7 +183,7 @@ void checkdir(char *boxpath, faddr *fa, char flavor)
 
     temp = calloc(PATH_MAX, sizeof(char));
     buf  = calloc(PATH_MAX, sizeof(char));
-    pw = getpwnam((char *)"mbse");
+    pw = getpwnam((char *)"ftnd");
     ascfnode_r(fa, 0xff, buf);
     Syslog('o', "check filebox %s (%s) flavor %c", boxpath, buf, flavor);
     free(buf);
@@ -303,7 +299,7 @@ int outstat()
      * Check private outbound box for nodes in the setup.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	Syslog('?', "Error open %s, aborting", temp);
 	free(temp);

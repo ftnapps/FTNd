@@ -3,32 +3,28 @@
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "taskstat.h"
 #include "callstat.h"
 #include "outstat.h"
@@ -154,7 +150,7 @@ void status_init()
     size_t  cnt;
     int	    stat_fd;
 
-    snprintf(stat_fn, PATH_MAX, "%s/var/status.mbsed", getenv("MBSE_ROOT"));
+    snprintf(stat_fn, PATH_MAX, "%s/var/status.ftnd", getenv("FTND_ROOT"));
 
     /*
      * First check if this is the very first time we start the show.
@@ -176,7 +172,7 @@ void status_init()
     cnt = read(stat_fd, &status, sizeof(status_r));
     if ((cnt != sizeof(status_r)) && (cnt < 50))  {
 	printf("Error reading status file\n");
-	exit(MBERR_INIT_ERROR);
+	exit(FTNERR_INIT_ERROR);
     }
     status.startups++;
     status.laststart = (int)time(NULL);
@@ -186,7 +182,7 @@ void status_init()
     cnt = write(stat_fd, &status, sizeof(status_r));
     if (cnt != sizeof(status_r)) {
 	Syslog('?', "$Error rewrite status file\n");
-	exit(MBERR_INIT_ERROR);
+	exit(FTNERR_INIT_ERROR);
     }
     close(stat_fd);
 }
@@ -421,7 +417,7 @@ int sem_set(char *sem, int value)
 	s_mailin = value;
 	if (value)
 	    tosswait = TOSSWAIT_TIME;
-    } else if (!strcmp(sem, "mbindex")) {
+    } else if (!strcmp(sem, "ftnindex")) {
 	s_index = value;
     } else if (!strcmp(sem, "newnews")) {
 	s_newnews = value;
@@ -455,7 +451,7 @@ void sem_status_r(char *data, char *buf)
         value = s_mailout;
     } else if (!strcmp(sem, "mailin")) {
         value = s_mailin;
-    } else if (!strcmp(sem, "mbindex")) {
+    } else if (!strcmp(sem, "ftnindex")) {
         value = s_index;
     } else if (!strcmp(sem, "newnews")) {
         value = s_newnews;

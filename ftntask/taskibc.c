@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: taskibc.c,v 1.132 2007/02/11 20:29:53 mbse Exp $
- * Purpose ...............: mbtask - Internet BBS Chat (but it looks like...)
+ * taskibc.c
+ * Purpose ...............: ftntask - Internet BBS Chat (but it looks like...)
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2006 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "taskstat.h"
 #include "taskutil.h"
 #include "taskchat.h"
@@ -613,7 +609,7 @@ void check_servers(void)
     struct hostent  *he;
 
     now = time(NULL);
-    snprintf(scfgfn, PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(scfgfn, PATH_MAX, "%s/etc/ibcsrv.data", getenv("FTND_ROOT"));
     
     /*
      * Check if we reached the global reset time
@@ -651,7 +647,7 @@ void check_servers(void)
 	    /*
 	     * First add this server name to the servers database.
 	     */
-	    add_server(CFG.myfqdn, 0, (char *)"mbsebbs", (char *)VERSION, CFG.bbs_name, (char *)"none");
+	    add_server(CFG.myfqdn, 0, (char *)"ftnd", (char *)VERSION, CFG.bbs_name, (char *)"none");
 	}
 
 	/*
@@ -874,7 +870,7 @@ void check_servers(void)
 				    p = calloc(512, sizeof(char));
 				    snprintf(p, 512, "PASS %s 0100 %s\r\n", ncs_list[i].passwd, ncs_list[i].compress ? "Z":"");
 				    send_msg(i, p);
-				    snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  ncs_list[i].myname, ncs_list[i].token, 
+				    snprintf(p, 512, "SERVER %s 0 %d ftnd %s %s\r\n",  ncs_list[i].myname, ncs_list[i].token, 
 					    VERSION, CFG.bbs_name);
 				    send_msg(i, p);
 				    free(p);
@@ -1144,7 +1140,7 @@ int command_server(char *hostname, char *parameters)
 	p = calloc(512, sizeof(char));
 	snprintf(p, 512, "PASS %s 0100 %s\r\n", ncs_list[i].passwd, ncs_list[i].compress ? "Z":"");
 	send_msg(i, p);
-	snprintf(p, 512, "SERVER %s 0 %d mbsebbs %s %s\r\n",  ncs_list[i].myname, token, VERSION, CFG.bbs_name);
+	snprintf(p, 512, "SERVER %s 0 %d ftnd %s %s\r\n",  ncs_list[i].myname, token, VERSION, CFG.bbs_name);
 	send_msg(i, p);
 	snprintf(p, 512, "SERVER %s %d 0 %s %s %s\r\n", name, ihops, prod, vers, fullname);
 	broadcast(ncs_list[i].server, p);
