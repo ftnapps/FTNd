@@ -1,8 +1,15 @@
 2012-04-15  Robert James Clay  <jame@rocasa.us>
 
+ - Version 0.06
+
+ - ftntask/*: Initial adaption of the ftntask/* files.
+
+
+2012-04-15  Robert James Clay  <jame@rocasa.us>
+
  - Version 0.05
 
- - script/*: Initial adaption of the ftnnntp/* files.
+ - ftnnntp/*: Initial adaption of the ftnnntp/* files.
 
 
 2012-04-14  Robert James Clay  <jame@rocasa.us>
