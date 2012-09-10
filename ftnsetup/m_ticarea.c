@@ -3,32 +3,28 @@
  * Purpose ...............: TIC Areas Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -58,7 +54,7 @@ int CountTicarea(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -99,8 +95,8 @@ int OpenTicarea(void)
 	struct	_sysconnect syscon;
 	int	i, oldsystems;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/tic.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			TicUpdated = 0;
@@ -187,8 +183,8 @@ void CloseTicarea(int Force)
 	int	i;
 	struct	_sysconnect syscon;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/tic.temp", getenv("FTND_ROOT"));
 
 	if (TicUpdated == 1) {
 		if (Force || (yes_no((char *)"Tic areas database is changed, save changes")) == 1) {
@@ -239,7 +235,7 @@ int AppendTicarea(void)
 	struct	_sysconnect syscon;
 	int	i;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/tic.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&tic, 0, sizeof(tic));
 		/*
@@ -280,13 +276,13 @@ void EditTicSystem(sysconnect *Sys)
 	if (refresh) {
 	    clr_index();
 	    set_color(WHITE, BLACK);
-	    mbse_mvprintw( 5,6, "10.2.27 EDIT CONNECTION");
+	    ftnd_mvprintw( 5,6, "10.2.27 EDIT CONNECTION");
 	    set_color(CYAN, BLACK);
-	    mbse_mvprintw( 7,6, "1.      Aka");
-	    mbse_mvprintw( 8,6, "2.      Send to");
-	    mbse_mvprintw( 9,6, "3.      Recv from");
-	    mbse_mvprintw(10,6, "4.      Pause");
-	    mbse_mvprintw(11,6, "5.      Delete");
+	    ftnd_mvprintw( 7,6, "1.      Aka");
+	    ftnd_mvprintw( 8,6, "2.      Send to");
+	    ftnd_mvprintw( 9,6, "3.      Recv from");
+	    ftnd_mvprintw(10,6, "4.      Pause");
+	    ftnd_mvprintw(11,6, "5.      Delete");
 	    refresh = FALSE;
 	}
 
@@ -342,7 +338,7 @@ int EditTicConnections(FILE *fil)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 5, "10.2.27 TIC AREA CONNECTIONS");
+		ftnd_mvprintw( 5, 5, "10.2.27 TIC AREA CONNECTIONS");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 2;
@@ -373,7 +369,7 @@ int EditTicConnections(FILE *fil)
 					set_color(LIGHTBLUE, BLACK);
 					snprintf(temp, 81, "%3d.", o+i);
 				}
-				mbse_mvprintw(y, x, temp);
+				ftnd_mvprintw(y, x, temp);
 				y++;
 			}
 		}
@@ -409,38 +405,38 @@ void SetTicScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 4, 2, "10.2 EDIT TIC AREA");
+    ftnd_mvprintw( 4, 2, "10.2 EDIT TIC AREA");
     set_color(CYAN, BLACK);
     
-    mbse_mvprintw( 6, 2, "1.  Comment");
-    mbse_mvprintw( 7, 2, "2.  Area tag");
-    mbse_mvprintw( 8, 2, "3.  Security");
-    mbse_mvprintw( 9, 2, "4.  BBS area");
-    mbse_mvprintw(10, 2, "5.  Message");
-    mbse_mvprintw(11, 2, "6.  Group");
-    mbse_mvprintw(12, 2, "7.  Keep #");
-    mbse_mvprintw(13, 2, "8.  Fido aka");
-    mbse_mvprintw(14, 2, "9.  Convert");
-    mbse_mvprintw(15, 2, "10. Banner");
-    mbse_mvprintw(16, 2, "11. Replace");
+    ftnd_mvprintw( 6, 2, "1.  Comment");
+    ftnd_mvprintw( 7, 2, "2.  Area tag");
+    ftnd_mvprintw( 8, 2, "3.  Security");
+    ftnd_mvprintw( 9, 2, "4.  BBS area");
+    ftnd_mvprintw(10, 2, "5.  Message");
+    ftnd_mvprintw(11, 2, "6.  Group");
+    ftnd_mvprintw(12, 2, "7.  Keep #");
+    ftnd_mvprintw(13, 2, "8.  Fido aka");
+    ftnd_mvprintw(14, 2, "9.  Convert");
+    ftnd_mvprintw(15, 2, "10. Banner");
+    ftnd_mvprintw(16, 2, "11. Replace");
 
-    mbse_mvprintw( 9,41, "12. Dupecheck");
-    mbse_mvprintw(10,41, "13. Secure");
-    mbse_mvprintw(11,41, "14. Touch");
-    mbse_mvprintw(12,41, "15. Virus sc.");
-    mbse_mvprintw(13,41, "16. Announce");
-    mbse_mvprintw(14,41, "17. Upd magic");
-    mbse_mvprintw(15,41, "18. File_id");
-    mbse_mvprintw(16,41, "19. Conv.all");
+    ftnd_mvprintw( 9,41, "12. Dupecheck");
+    ftnd_mvprintw(10,41, "13. Secure");
+    ftnd_mvprintw(11,41, "14. Touch");
+    ftnd_mvprintw(12,41, "15. Virus sc.");
+    ftnd_mvprintw(13,41, "16. Announce");
+    ftnd_mvprintw(14,41, "17. Upd magic");
+    ftnd_mvprintw(15,41, "18. File_id");
+    ftnd_mvprintw(16,41, "19. Conv.all");
 
-    mbse_mvprintw( 9,60, "20. Send org.");
-    mbse_mvprintw(10,60, "21. Mandatory");
-    mbse_mvprintw(11,60, "22. Notified");
-    mbse_mvprintw(12,60, "23. Upl disc.");
-    mbse_mvprintw(13,60, "24. Deleted");
-    mbse_mvprintw(14,60, "25. Active");
-    mbse_mvprintw(15,60, "26. New SR");
-    mbse_mvprintw(16,60, "27. Systems");
+    ftnd_mvprintw( 9,60, "20. Send org.");
+    ftnd_mvprintw(10,60, "21. Mandatory");
+    ftnd_mvprintw(11,60, "22. Notified");
+    ftnd_mvprintw(12,60, "23. Upl disc.");
+    ftnd_mvprintw(13,60, "24. Deleted");
+    ftnd_mvprintw(14,60, "25. Active");
+    ftnd_mvprintw(15,60, "26. New SR");
+    ftnd_mvprintw(16,60, "27. Systems");
 } 
 
 
@@ -457,7 +453,7 @@ int LoadTicRec(int Area, int work)
 	if (work) 
 		working(1, 0, 0);
 
-	snprintf(mfile, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/tic.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -501,7 +497,7 @@ int SaveTicRec(int Area, int work)
 
 	if (work)
 		working(1, 0, 0);
-	snprintf(mfile, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/tic.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r+")) == 0) {
 		working(2, 0, 0);
 		return -1;
@@ -534,10 +530,10 @@ void ShowTicStatus(sysconnect S)
 {
 	clr_index();
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "Aka");
-	mbse_mvprintw( 8, 6, "Send to");
-	mbse_mvprintw( 9, 6, "Recv from");
-	mbse_mvprintw(10, 6, "Pause");
+	ftnd_mvprintw( 7, 6, "Aka");
+	ftnd_mvprintw( 8, 6, "Send to");
+	ftnd_mvprintw( 9, 6, "Recv from");
+	ftnd_mvprintw(10, 6, "Pause");
 	set_color(WHITE, BLACK);
 	show_str(  7,16,23, aka2str(S.aka));
 	show_bool( 8,16, S.sendto);
@@ -563,7 +559,7 @@ void TicGlobal(void)
      * Build the groups select array
      */
     working(1, 0, 0);
-    snprintf(tfile, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(tfile, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
     if ((fil = fopen(tfile, "r")) != NULL) {
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
 
@@ -587,15 +583,15 @@ void TicGlobal(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "10.2 GLOBAL EDIT TIC AREAS");
+	ftnd_mvprintw( 5, 6, "10.2 GLOBAL EDIT TIC AREAS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.   Delete connection");
-	mbse_mvprintw( 8, 6, "2.   Add new connection");
-	mbse_mvprintw( 9, 6, "3.   Replace connection");
-	mbse_mvprintw(10, 6, "4.   Change connection status");
-	mbse_mvprintw(11, 6, "5.   Change aka to use");
-	mbse_mvprintw(12, 6, "6.   Change security flags");
-	mbse_mvprintw(13, 6, "7.   Delete TIC area");
+	ftnd_mvprintw( 7, 6, "1.   Delete connection");
+	ftnd_mvprintw( 8, 6, "2.   Add new connection");
+	ftnd_mvprintw( 9, 6, "3.   Replace connection");
+	ftnd_mvprintw(10, 6, "4.   Change connection status");
+	ftnd_mvprintw(11, 6, "5.   Change aka to use");
+	ftnd_mvprintw(12, 6, "6.   Change security flags");
+	ftnd_mvprintw(13, 6, "7.   Delete TIC area");
 
 	memset(&a1, 0, sizeof(fidoaddr));
 	memset(&a2, 0, sizeof(fidoaddr));
@@ -629,25 +625,25 @@ void TicGlobal(void)
 	 * Show settings before proceeding
 	 */
 	switch (menu) {
-	    case 1: mbse_mvprintw(7, 6, "Delete aka %s", aka2str(a1));
+	    case 1: ftnd_mvprintw(7, 6, "Delete aka %s", aka2str(a1));
 		    break;
-	    case 2: mbse_mvprintw(7, 6, "Add aka %s", aka2str(a2));
+	    case 2: ftnd_mvprintw(7, 6, "Add aka %s", aka2str(a2));
 		    break;
 	    case 3: p = xstrcpy(aka2str(a1));
-		    mbse_mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
+		    ftnd_mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
 		    free(p);
 		    break;
 	    case 4: ShowTicStatus(S);
-		    mbse_mvprintw(14, 6, "Change the link status");
+		    ftnd_mvprintw(14, 6, "Change the link status");
 	    case 5: if (akan != -1)
-			mbse_mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
+			ftnd_mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
 		    break;
 	    case 6: set_color(CYAN, BLACK);
-		    mbse_mvprintw(7, 6, "Link security");
+		    ftnd_mvprintw(7, 6, "Link security");
 		    set_color(WHITE, BLACK);
-		    mbse_mvprintw(7,21, getflag(as.flags, as.notflags));
+		    ftnd_mvprintw(7,21, getflag(as.flags, as.notflags));
 		    break;
-	    case 7: mbse_mvprintw(7, 6, "Delete TIC areas");
+	    case 7: ftnd_mvprintw(7, 6, "Delete TIC areas");
 		    break;
 	}
 
@@ -790,7 +786,7 @@ void TicGlobal(void)
 		    fclose(ttfil);
 	    }
 
-	    mbse_mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
+	    ftnd_mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
 	    (void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
 	    if (Done)
 		TicUpdated = TRUE;
@@ -826,7 +822,7 @@ int EditTicRec(int Area)
 
     for (;;) {
 
-	snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 	if ((fp = fopen(temp, "r")) != NULL) {
 	    fread(&areahdr, sizeof(areahdr), 1, fp);
 	    fseek(fp, ((tic.FileArea - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
@@ -841,7 +837,7 @@ int EditTicRec(int Area)
 	set_color(WHITE, BLACK);
 	show_str( 6,16,55, tic.Comment);
 	show_str( 7,16,20, tic.Name);
-	mbse_mvprintw( 8,16,    getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
+	ftnd_mvprintw( 8,16,    getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
 	show_str( 9,16,24, temp);
 	show_str(10,16,14, tic.Message);
 	show_str(11,16,12, tic.Group);
@@ -1026,10 +1022,10 @@ void EditTicarea(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 3, "10.2 TIC AREA SETUP");
+		ftnd_mvprintw( 5, 3, "10.2 TIC AREA SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/tic.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&tichdr, sizeof(tichdr), 1, fil);
@@ -1048,7 +1044,7 @@ Comment);
 							set_color(LIGHTBLUE, BLACK);
 							snprintf(temp, 81, "%3d.", o + i);
 						}
-						mbse_mvprintw(y, 2, temp);
+						ftnd_mvprintw(y, 2, temp);
 						y++;
 					}
 				}
@@ -1133,11 +1129,11 @@ char *PickTicarea(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		snprintf(temp, 81, "%s.  TIC AREA SELECT", shdr);
-		mbse_mvprintw(5, 3, temp);
+		ftnd_mvprintw(5, 3, temp);
 		set_color(CYAN, BLACK);
 
 		if (records) {
-			snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&tichdr, sizeof(tichdr), 1, fil);
@@ -1154,7 +1150,7 @@ char *PickTicarea(char *shdr)
 						else
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-20s %-40s", o + i, tic.Name, tic.Comment);
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -1175,7 +1171,7 @@ char *PickTicarea(char *shdr)
 				o -= 10;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = tichdr.hdrsize + ((atoi(pick) -1) * (tichdr.recsize + tichdr.syssize));
 				fseek(fil, offset, SEEK_SET);
@@ -1199,7 +1195,7 @@ int GroupInTic(char *Group)
         FILE            *no;
         int             Area = 0, RetVal = 0;
 
-        snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+        snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
         if ((no = fopen(temp, "r")) == NULL)
                 return 0;
 
@@ -1231,7 +1227,7 @@ int NodeInTic(fidoaddr A)
 	char		temp[PATH_MAX];
 	sysconnect	S;
 
-	snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return 0;
 
@@ -1265,7 +1261,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
     int		refs, i, k, nr, systems, First = TRUE;
     sysconnect	System;
 
-    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -1304,7 +1300,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Area tag", tic.Name);
 	    add_webtable(wp, (char *)"Active", getboolean(tic.Active));
 	    add_webtable(wp, (char *)"Comment", tic.Comment);
-	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&areahdr, sizeof(areahdr), 1, ti);
 		fseek(ti, areahdr.hdrsize + (areahdr.recsize * (tic.FileArea -1)), SEEK_SET);
@@ -1390,7 +1386,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 		    status[2] = 'P';
 		fprintf(fp, "    Link %2d     %s %s\n", i+1, status, aka2str(System.aka));
 		if (wp != NULL) {
-		    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
 		    if ((ti = fopen(temp, "r"))) {
 			fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
 			fseek(ti, 0, SEEK_SET);
@@ -1425,7 +1421,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 	    
 	    fprintf(wp, "<HR>\n");
             fprintf(wp, "<H3>Hatch References</H3>\n");
-	    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("FTND_ROOT"));
 	    nr = refs = 0;
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&hatchhdr, sizeof(hatchhdr), 1, ti);
@@ -1454,7 +1450,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Magic References</H3>\n");
-	    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("FTND_ROOT"));
 	    nr = refs = 0;
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&magichdr, sizeof(magichdr), 1, ti);

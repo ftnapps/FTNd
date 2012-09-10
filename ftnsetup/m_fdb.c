@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: m_fdb.c,v 1.24 2005/10/11 20:49:48 mbse Exp $
+ * m_fdb.c
  * Purpose ...............: Edit Files DataBase.
  *
  *****************************************************************************
- * Copyright (C) 1999-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -48,23 +44,23 @@ void FHeader(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "14. EDIT FILE");
+    ftnd_mvprintw( 5, 2, "14. EDIT FILE");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "    FileName");
-    mbse_mvprintw( 8, 2, "    Long fn");
-    mbse_mvprintw( 9, 2, "    FileSize");
-    mbse_mvprintw(10, 2, "    FileDate");
-    mbse_mvprintw(11, 2, "    Last DL.");
-    mbse_mvprintw(12, 2, "    Upl.Date");
-    mbse_mvprintw(13, 2, "    TIC area");
-    mbse_mvprintw(14, 2, "    Magic");
-    mbse_mvprintw(15, 2, "1.  Uploader");
-    mbse_mvprintw(16, 2, "2.  Times DL");
-    mbse_mvprintw(17, 2, "3.  Password");
+    ftnd_mvprintw( 7, 2, "    FileName");
+    ftnd_mvprintw( 8, 2, "    Long fn");
+    ftnd_mvprintw( 9, 2, "    FileSize");
+    ftnd_mvprintw(10, 2, "    FileDate");
+    ftnd_mvprintw(11, 2, "    Last DL.");
+    ftnd_mvprintw(12, 2, "    Upl.Date");
+    ftnd_mvprintw(13, 2, "    TIC area");
+    ftnd_mvprintw(14, 2, "    Magic");
+    ftnd_mvprintw(15, 2, "1.  Uploader");
+    ftnd_mvprintw(16, 2, "2.  Times DL");
+    ftnd_mvprintw(17, 2, "3.  Password");
 
-    mbse_mvprintw(15,61, "4.  Deleted");
-    mbse_mvprintw(16,61, "5.  No Kill");
-    mbse_mvprintw(17,61, "6.  Announced");
+    ftnd_mvprintw(15,61, "4.  Deleted");
+    ftnd_mvprintw(16,61, "5.  No Kill");
+    ftnd_mvprintw(17,61, "6.  Announced");
 }
 
 
@@ -78,9 +74,9 @@ void EditFile()
 	show_str( 7,16,12, fdb.Name);
 	show_str( 8,16,64, fdb.LName);
 	show_int( 9,16,    fdb.Size);
-	mbse_mvprintw(10,16, (char *)"%s %s", StrDateDMY(fdb.FileDate), StrTimeHM(fdb.FileDate));
-	mbse_mvprintw(11,16, (char *)"%s %s", StrDateDMY(fdb.LastDL), StrTimeHM(fdb.LastDL));
-	mbse_mvprintw(12,16, (char *)"%s %s", StrDateDMY(fdb.UploadDate), StrTimeHM(fdb.UploadDate));
+	ftnd_mvprintw(10,16, (char *)"%s %s", StrDateDMY(fdb.FileDate), StrTimeHM(fdb.FileDate));
+	ftnd_mvprintw(11,16, (char *)"%s %s", StrDateDMY(fdb.LastDL), StrTimeHM(fdb.LastDL));
+	ftnd_mvprintw(12,16, (char *)"%s %s", StrDateDMY(fdb.UploadDate), StrTimeHM(fdb.UploadDate));
 	show_str(13,16,20, fdb.TicArea);
 	show_str(14,16,20, fdb.Magic);
 	show_str(15,16,36, fdb.Uploader);
@@ -118,7 +114,7 @@ void E_F(int areanr)
 
     clr_index();
 
-    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), areanr);
+    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), areanr);
     if ((fil = fopen(temp, "r+")) == NULL) {
 	working(2, 0, 0);
 	return;
@@ -135,13 +131,13 @@ void E_F(int areanr)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw(5, 4, "14.  EDIT FILES DATABASE");
+	ftnd_mvprintw(5, 4, "14.  EDIT FILES DATABASE");
 
 	y = 8;
 	working(1, 0, 0);
 
 	set_color(YELLOW, BLUE);
-	mbse_mvprintw(7, 1, "  Nr   Filename           Size Date       Time  Description                   ");
+	ftnd_mvprintw(7, 1, "  Nr   Filename           Size Date       Time  Description                   ");
 /*                      1234   12345678901234 12345678 12-34-1998 12:45 123456789012345678901234567890*/
 	set_color(CYAN, BLACK);
 
@@ -152,7 +148,7 @@ void E_F(int areanr)
 		fread(&fdb, fdbhdr.recsize, 1, fil);
 
 		set_color(WHITE, BLACK);
-		mbse_mvprintw(y, 1, (char *)"%4d.", o + i);
+		ftnd_mvprintw(y, 1, (char *)"%4d.", o + i);
 
 		snprintf(temp, PATH_MAX, "%s/%s", area.Path, fdb.LName);
 		Ondisk = ((stat(temp, &statfile)) != -1);
@@ -163,27 +159,27 @@ void E_F(int areanr)
 		    set_color(CYAN, BLACK);
 		else
 		    set_color(LIGHTRED, BLACK);
-		mbse_mvprintw(y, 8, (char *)"%-14s", fdb.Name);
+		ftnd_mvprintw(y, 8, (char *)"%-14s", fdb.Name);
 
 		if (Ondisk) {
 		    if (fdb.Size == statfile.st_size)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTRED, BLACK);
-		    mbse_mvprintw(y,23, (char *)"%8ld", fdb.Size);
+		    ftnd_mvprintw(y,23, (char *)"%8ld", fdb.Size);
 
 		    if (fdb.FileDate == statfile.st_mtime)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTRED, BLACK);
 		    Time = fdb.FileDate;
-		    mbse_mvprintw(y,32, (char *)"%s %s", StrDateDMY(Time), StrTimeHM(Time));
+		    ftnd_mvprintw(y,32, (char *)"%s %s", StrDateDMY(Time), StrTimeHM(Time));
 		}
 
 		set_color(CYAN, BLACK);
 		snprintf(temp, 81, "%s", fdb.Desc[0]);
 		temp[30] = '\0';
-		mbse_mvprintw(y,49, (char *)"%s", temp);
+		ftnd_mvprintw(y,49, (char *)"%s", temp);
 		y++;
 	    }
 	}
@@ -199,10 +195,10 @@ void E_F(int areanr)
 	showhelp(help);
 
 	while(TRUE) {
-	    mbse_mvprintw(LINES - 4, 6, "Enter your choice >");
+	    ftnd_mvprintw(LINES - 4, 6, "Enter your choice >");
 	    menu = (char *)"-";
 	    menu = edit_field(LINES - 4, 26, 6, '!', menu);
-	    mbse_locate(LINES - 4, 6);
+	    ftnd_locate(LINES - 4, 6);
 	    clrtoeol();
 
 	    if (strncmp(menu, "-", 1) == 0) {
@@ -282,10 +278,10 @@ void EditFDB()
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 4, "14. EDIT FILES DATABSE");
+	ftnd_mvprintw( 5, 4, "14. EDIT FILES DATABSE");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&areahdr, sizeof(areahdr), 1, fil);
@@ -307,7 +303,7 @@ void EditFDB()
 			    set_color(LIGHTBLUE, BLACK);
 			snprintf(temp, 81, "%3d.  %-32s", o + i, area.Name);
 			temp[37] = 0;
-			mbse_mvprintw(y, x, temp);
+			ftnd_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -329,7 +325,7 @@ void EditFDB()
 		o = o - 20;
 
 	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		offset = areahdr.hdrsize + ((atoi(pick) - 1) * areahdr.recsize);
 		fseek(fil, offset, SEEK_SET);
@@ -367,19 +363,19 @@ void InitFDB(void)
 	return;
     
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
     if ((fil = fopen(temp, "r")) != NULL) {
 	fread(&areahdr, sizeof(areahdr), 1, fil);
 
 	while (fread(&area, areahdr.recsize, 1, fil)) {
 	    Area++;
 	    if (area.Available) {
-		snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+		snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%d.data", getenv("FTND_ROOT"), Area);
 		if ((fp1 = fopen(temp, "r")) != NULL) {
 		    /*
 		     * Old area available, upgrade.
 		     */
-		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), Area);
 		    if ((fp2 = fopen(temp, "w+")) == NULL) {
 			WriteError("$Can't create %s", temp);
 		    } else {
@@ -392,7 +388,7 @@ void InitFDB(void)
 			    memset(&fdb, 0, fdbhdr.recsize);
 			    strncpy(fdb.Name, old.Name, sizeof(fdb.Name) -1);
 			    strncpy(fdb.LName, old.LName, sizeof(fdb.LName) -1);
-			    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+			    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 			    if ((ft = fopen(temp, "r")) != NULL) {
 				fread(&tichdr, sizeof(tichdr), 1, ft);
 				while (fread(&tic, tichdr.recsize, 1, ft)) {
@@ -452,17 +448,17 @@ void InitFDB(void)
 			Syslog('+', "Upgraded file area database %d", Area);
 		    }
 		    fclose(fp1);
-		    snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/fdb%d.data", getenv("FTND_ROOT"), Area);
 		    unlink(temp);
 		} // Old area type upgrade.
 
 		/*
 		 * Current area, check
 		 */
-		if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
+		if ((fdb_area = ftnddb_OpenFDB(Area, 30)) == NULL)
 		    WriteError("InitFDB(): database area %d might be corrupt", Area);
 		else
-		    mbsedb_CloseFDB(fdb_area);
+		    ftnddb_CloseFDB(fdb_area);
 	    }
 	}
 	fclose(fil);

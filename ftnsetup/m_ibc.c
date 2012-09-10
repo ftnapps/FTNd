@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_ibc.c,v 1.9 2008/02/28 22:05:14 mbse Exp $
+ * m_ibc.c
  * Purpose ...............: Setup Internet BBS Chat
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../paths.h"
 #include "screen.h"
 #include "mutil.h"
@@ -228,16 +224,16 @@ int EditIBCRec(int Area)
     crc = upd_crc32((char *)&ibcsrv, crc, sizeof(ibcsrv));
 
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "20. EDIT INTERNET BBS CHAT SERVER");
+    ftnd_mvprintw( 5, 2, "20. EDIT INTERNET BBS CHAT SERVER");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.  Comment");
-    mbse_mvprintw( 8, 2, "2.  Server");
-    mbse_mvprintw( 9, 2, "3.  Dyn. DNS");
-    mbse_mvprintw(10, 2, "4.  Myname");
-    mbse_mvprintw(11, 2, "5.  Password");
-    mbse_mvprintw(12, 2, "6.  Active");
-    mbse_mvprintw(13, 2, "7.  Deleted");
-    mbse_mvprintw(14, 2, "8.  Compress");
+    ftnd_mvprintw( 7, 2, "1.  Comment");
+    ftnd_mvprintw( 8, 2, "2.  Server");
+    ftnd_mvprintw( 9, 2, "3.  Dyn. DNS");
+    ftnd_mvprintw(10, 2, "4.  Myname");
+    ftnd_mvprintw(11, 2, "5.  Password");
+    ftnd_mvprintw(12, 2, "6.  Active");
+    ftnd_mvprintw(13, 2, "7.  Deleted");
+    ftnd_mvprintw(14, 2, "8.  Compress");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -316,7 +312,7 @@ void EditIBC(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 4, "20. INTERNET BBS CHAT SETUP");
+	ftnd_mvprintw( 5, 4, "20. INTERNET BBS CHAT SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    snprintf(temp, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
@@ -341,7 +337,7 @@ void EditIBC(void)
 			set_color(LIGHTBLUE, BLACK);
 		    snprintf(temp, 81, "%3d.  %s (%s)", i, ibcsrv.server, ibcsrv.comment);
 		    temp[37] = 0;
-		    mbse_mvprintw(y, x, temp);
+		    ftnd_mvprintw(y, x, temp);
 		    y++;
 		}
 		fclose(fil);

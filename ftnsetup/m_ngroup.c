@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_ngroup.c,v 1.19 2005/10/11 20:49:49 mbse Exp $
+ * m_ngroup.c
  * Purpose ...............: Setup NGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -52,7 +48,7 @@ int CountNGroup(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/ngroups.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -100,8 +96,8 @@ int OpenNGroup(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	int	oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/ngroups.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/ngroups.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			NGrpUpdated = 0;
@@ -156,8 +152,8 @@ void CloseNGroup(int force)
 	FILE	*fi, *fo;
 	st_list	*mgr = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/ngroups.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/ngroups.temp", getenv("FTND_ROOT"));
 
 	if (NGrpUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -201,7 +197,7 @@ int AppendNGroup(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/ngroups.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&ngroup, 0, sizeof(ngroup));
 		fwrite(&ngroup, sizeof(ngroup), 1, fil);
@@ -218,12 +214,12 @@ void NgScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "9.1 EDIT NEWFILES GROUP");
+	ftnd_mvprintw( 5, 6, "9.1 EDIT NEWFILES GROUP");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.  Name");
-	mbse_mvprintw( 8, 6, "2.  Comment");
-	mbse_mvprintw( 9, 6, "3.  Active");
-	mbse_mvprintw(10, 6, "4.  Deleted");
+	ftnd_mvprintw( 7, 6, "1.  Name");
+	ftnd_mvprintw( 8, 6, "2.  Comment");
+	ftnd_mvprintw( 9, 6, "3.  Active");
+	ftnd_mvprintw(10, 6, "4.  Deleted");
 }
 
 
@@ -243,7 +239,7 @@ int EditNGrpRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit NewfileGroup");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/ngroups.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -332,10 +328,10 @@ void EditNGroup(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "11. NEWFILES GROUPS SETUP");
+		ftnd_mvprintw( 5, 4, "11. NEWFILES GROUPS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/ngroups.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&ngrouphdr, sizeof(ngrouphdr), 1, fil);
@@ -357,7 +353,7 @@ void EditNGroup(void)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, ngroup.Name, ngroup.Comment);
 						temp[38] = '\0';
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -434,10 +430,10 @@ char *PickNGroup(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		snprintf(temp, 81, "%s.  NEWFILES GROUP SELECT", shdr);
-		mbse_mvprintw( 5, 4, temp);
+		ftnd_mvprintw( 5, 4, temp);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/ngroups.data", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&ngrouphdr, sizeof(ngrouphdr), 1, fil);
@@ -459,7 +455,7 @@ char *PickNGroup(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, ngroup.Name, ngroup.Comment);
 						temp[38] = '\0';
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -480,7 +476,7 @@ char *PickNGroup(char *shdr)
 				o = o - 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			snprintf(temp, PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/ngroups.data", getenv("FTND_ROOT"));
 			fil = fopen(temp, "r");
 			offset = sizeof(ngrouphdr) + ((atoi(pick) - 1) * ngrouphdr.recsize);
 			fseek(fil, offset, 0);
@@ -501,7 +497,7 @@ int newf_group_doc(FILE *fp, FILE *toc, int page)
     int	    i, groups, refs, nr;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/ngroups.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return page;
@@ -537,7 +533,7 @@ int newf_group_doc(FILE *fp, FILE *toc, int page)
     fseek(no, ngrouphdr.hdrsize, SEEK_SET);
     while ((fread(&ngroup, ngrouphdr.recsize, 1, no)) == 1) {
 	refs = 0;
-	snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 	if ((ip = fopen(temp, "r"))) {
 	    fread(&areahdr, sizeof(areahdr), 1, ip);
 	    nr = 0;
@@ -557,7 +553,7 @@ int newf_group_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    fclose(ip);
 	}
-	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
 	if ((ip = fopen(temp, "r"))) {
 	    fread(&fgrouphdr, fgrouphdr.hdrsize, 1, ip);
 	    while ((fread(&fgroup, fgrouphdr.recsize, 1, ip)) == 1) {
@@ -576,7 +572,7 @@ int newf_group_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    fclose(ip);
 	}
-	snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("FTND_ROOT"));
 	if ((ip = fopen(temp, "r"))) {
 	    fread(&newfileshdr, sizeof(newfileshdr), 1, ip);
 	    nr = 0;

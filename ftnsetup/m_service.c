@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_service.c,v 1.18 2008/02/28 22:05:14 mbse Exp $
+ * m_service.c
  * Purpose ...............: Service Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -51,7 +47,7 @@ int CountService(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/service.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -79,7 +75,7 @@ int CountService(void)
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 			snprintf(servrec.Service, 16, "allfix");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
-			snprintf(servrec.Service, 16, "mbtic");
+			snprintf(servrec.Service, 16, "ftntic");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 			snprintf(servrec.Service, 16, "raid");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
@@ -112,8 +108,8 @@ int OpenService(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	int	oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/service.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/service.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&servhdr, sizeof(servhdr), 1, fin);
@@ -160,8 +156,8 @@ void CloseService(int force)
 	FILE	*fi, *fo;
 	st_list	*hat = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/service.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/service.temp", getenv("FTND_ROOT"));
 
 	if (ServiceUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -205,7 +201,7 @@ int AppendService(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/service.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&servrec, 0, sizeof(servrec));
 		/*
@@ -225,12 +221,12 @@ void ServiceScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "16.  EDIT SERVICES");
+	ftnd_mvprintw( 5, 2, "16.  EDIT SERVICES");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Name");
-	mbse_mvprintw( 8, 2, "2.  Type");
-	mbse_mvprintw( 9, 2, "3.  Active");
-	mbse_mvprintw(10, 2, "4.  Deleted");
+	ftnd_mvprintw( 7, 2, "1.  Name");
+	ftnd_mvprintw( 8, 2, "2.  Type");
+	ftnd_mvprintw( 9, 2, "3.  Active");
+	ftnd_mvprintw(10, 2, "4.  Deleted");
 }
 
 
@@ -249,7 +245,7 @@ int EditServiceRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Service");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/service.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -338,10 +334,10 @@ void EditService(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "16.   SERVICE MANAGER");
+		ftnd_mvprintw( 5, 4, "16.   SERVICE MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/service.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&servhdr, sizeof(servhdr), 1, fil);
@@ -363,7 +359,7 @@ void EditService(void)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-15s %s", o+i, servrec.Service, getservice(servrec.Action));
 						temp[37] = 0;
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -418,7 +414,7 @@ int service_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *no;
     int	    j;
 
-    snprintf(temp, PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/service.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 

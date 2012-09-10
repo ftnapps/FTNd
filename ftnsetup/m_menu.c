@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_menu.c,v 1.38 2007/02/17 12:14:27 mbse Exp $
+ * m_menu.c
  * Purpose ...............: Edit BBS menus
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "mutil.h"
 #include "screen.h"
 #include "ledit.h"
@@ -58,10 +54,10 @@ char *select_menurec(int max)
     showhelp(help);
 
     for (;;) {
-	mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+	ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
 	menu = (char *)"-";
 	menu = edit_field(LINES - 3, 26, 6, '!', menu);
-	mbse_locate(LINES -3, 6);
+	ftnd_locate(LINES -3, 6);
 	clrtoeol();
 
 	if (strncmp(menu, "A", 1) == 0)
@@ -95,26 +91,26 @@ void Show_A_Menu(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "8.3. EDIT MENU ITEM");
+    ftnd_mvprintw( 5, 2, "8.3. EDIT MENU ITEM");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.  Sel. key");
-    mbse_mvprintw( 8, 2, "2.  Type nr.");
-    mbse_mvprintw( 9, 2, "3.  Opt. data");
-    mbse_mvprintw(11, 2, "4.  Display");
-    mbse_mvprintw(12, 2, "5.  Security");
-    mbse_mvprintw(13, 2, "6.  Min. age");
-    mbse_mvprintw(14, 2, "7.  Lo-colors");
-    mbse_mvprintw(15, 2, "8.  Hi-colors");
-    mbse_mvprintw(16, 2, "9.  Autoexec");
+    ftnd_mvprintw( 7, 2, "1.  Sel. key");
+    ftnd_mvprintw( 8, 2, "2.  Type nr.");
+    ftnd_mvprintw( 9, 2, "3.  Opt. data");
+    ftnd_mvprintw(11, 2, "4.  Display");
+    ftnd_mvprintw(12, 2, "5.  Security");
+    ftnd_mvprintw(13, 2, "6.  Min. age");
+    ftnd_mvprintw(14, 2, "7.  Lo-colors");
+    ftnd_mvprintw(15, 2, "8.  Hi-colors");
+    ftnd_mvprintw(16, 2, "9.  Autoexec");
     if (le_int(menus.MenuType) == 7) {
-	mbse_mvprintw(17, 2, "10. Door Name");
-	mbse_mvprintw(18, 2, "11. Y2K style");
-	mbse_mvprintw(13,42, "12. No door.sys");
-	mbse_mvprintw(14,42, "13. Use COMport");
-	mbse_mvprintw(15,42, "14. Run nosuid");
-	mbse_mvprintw(16,42, "15. No Prompt");
-	mbse_mvprintw(17,42, "16. Single User");
-	mbse_mvprintw(18,42, "17. Hidden door");
+	ftnd_mvprintw(17, 2, "10. Door Name");
+	ftnd_mvprintw(18, 2, "11. Y2K style");
+	ftnd_mvprintw(13,42, "12. No door.sys");
+	ftnd_mvprintw(14,42, "13. Use COMport");
+	ftnd_mvprintw(15,42, "14. Run nosuid");
+	ftnd_mvprintw(16,42, "15. No Prompt");
+	ftnd_mvprintw(17,42, "16. Single User");
+	ftnd_mvprintw(18,42, "17. Hidden door");
     }
 
     set_color(WHITE, BLACK);
@@ -151,14 +147,14 @@ int GetSubmenu(int Base, int Max)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 4, 2, "8.3 EDIT MENU - SELECT MENUTYPE");
+    ftnd_mvprintw( 4, 2, "8.3 EDIT MENU - SELECT MENUTYPE");
     set_color(CYAN, BLACK);
     y = 6;
     x = 2;
 
     for (i = 1; i <= Max; i++) {
 	snprintf(temp, 81, "%2d. %s", i, getmenutype(i - 1 + Base));
-	mbse_mvprintw(y, x, temp);
+	ftnd_mvprintw(y, x, temp);
 	y++;
 	if ((i % 13) == 0) {
 	    y = 6;
@@ -180,13 +176,13 @@ int GetMenuType(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "8.3 EDIT MENU - SELECT MENUTYPE");
+    ftnd_mvprintw( 5, 6, "8.3 EDIT MENU - SELECT MENUTYPE");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.  Global system menus");
-    mbse_mvprintw( 8, 6, "2.  File areas menus");
-    mbse_mvprintw( 9, 6, "3.  Message areas menus");
-    mbse_mvprintw(10, 6, "4.  User setting menus");
-    mbse_mvprintw(11, 6, "5.  Oneliner menus");
+    ftnd_mvprintw( 7, 6, "1.  Global system menus");
+    ftnd_mvprintw( 8, 6, "2.  File areas menus");
+    ftnd_mvprintw( 9, 6, "3.  Message areas menus");
+    ftnd_mvprintw(10, 6, "4.  User setting menus");
+    ftnd_mvprintw(11, 6, "5.  Oneliner menus");
 
     switch (select_menu(5)) {
 	case 1:	    return GetSubmenu(1, 22);
@@ -316,10 +312,10 @@ void EditMenu(char *Name)
     IsDoing("Edit Menu");
     working(1, 0, 0);
 
-    snprintf(mtemp, PATH_MAX, "%s/share/int/menus/%s/%s.tmp", getenv("MBSE_ROOT"), lang.lc, Name);
+    snprintf(mtemp, PATH_MAX, "%s/share/int/menus/%s/%s.tmp", getenv("FTND_ROOT"), lang.lc, Name);
     tmp = fopen(mtemp, "w+");
 
-    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s.mnu", getenv("MBSE_ROOT"), lang.lc, Name);
+    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s.mnu", getenv("FTND_ROOT"), lang.lc, Name);
     if ((fil = fopen(temp, "r")) != NULL) {
 	while (fread(&menus, sizeof(menus), 1, fil) == 1) {
 	    fwrite(&menus, sizeof(menus), 1, tmp);
@@ -333,7 +329,7 @@ void EditMenu(char *Name)
 	clr_index();
 	working(1, 0, 0);
 	snprintf(temp, 81, "8.3 EDIT MENU \"%s\" (%s)", Name, lang.Name);
-	mbse_mvprintw( 5, 6, tu(temp));
+	ftnd_mvprintw( 5, 6, tu(temp));
 	set_color(CYAN, BLACK);
 	fseek(tmp, 0, SEEK_SET);
 
@@ -346,13 +342,13 @@ void EditMenu(char *Name)
 		    fread(&menus, sizeof(menus), 1, tmp);
 		    if (menus.MenuKey[0] || menus.AutoExec) {
 			set_color(CYAN, BLACK);
-			mbse_mvprintw(y, 5, "%3d. ", o + i);
+			ftnd_mvprintw(y, 5, "%3d. ", o + i);
 			if (menus.AutoExec) {
 			    set_color(LIGHTRED, BLACK);
-			    mbse_mvprintw(y, 10,  "a");
+			    ftnd_mvprintw(y, 10,  "a");
 			    set_color(CYAN, BLACK);
 			} else {
-			    mbse_mvprintw(y, 10, "%1s", menus.MenuKey);
+			    ftnd_mvprintw(y, 10, "%1s", menus.MenuKey);
 			}
 			if (le_int(menus.MenuType) == 999 ) {
 			    snprintf(temp, 81, "%-29s %5d %s", menus.TypeDesc, 
@@ -362,10 +358,10 @@ void EditMenu(char *Name)
 				    le_int(menus.MenuSecurity.level), menus.OptionalData);
 			}
 			temp[68] = '\0';
-			mbse_mvprintw(y, 12, temp);
+			ftnd_mvprintw(y, 12, temp);
 		    } else {
 			set_color(LIGHTBLUE, BLACK);
-			mbse_mvprintw(y, 5, "%3d.", o + i);
+			ftnd_mvprintw(y, 5, "%3d.", o + i);
 		    }
 		    y++;
 		}
@@ -378,7 +374,7 @@ void EditMenu(char *Name)
 	    if (MenuUpdated) {
 		if (yes_no((char *)"Menu is changed, save changes") == 1) {
 		    working(1, 0, 0);
-		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s.mnu", getenv("MBSE_ROOT"), lang.lc, Name);
+		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s.mnu", getenv("FTND_ROOT"), lang.lc, Name);
 		    if ((fil = fopen(temp, "w+")) == NULL) {
 			working(2, 0, 0);
 		    } else {
@@ -410,7 +406,7 @@ void EditMenu(char *Name)
 	}
 
 	if (strncmp(pick, "D", 1) == 0) {
-	    mbse_mvprintw(LINES -3, 6, "Enter menu number (1..%d) to delete >", records);
+	    ftnd_mvprintw(LINES -3, 6, "Enter menu number (1..%d) to delete >", records);
 	    y = 0;
 	    y = edit_int(LINES -3, 44, y, (char *)"Enter record number");
 	    if ((y > 0) && (y <= records) && yes_no((char *)"Remove record")) {
@@ -427,11 +423,11 @@ void EditMenu(char *Name)
 
 	if (strncmp(pick, "M", 1) == 0) {
 	    from = too = 0;
-	    mbse_mvprintw(LINES -3, 6, "Enter menu number (1..%d) to move >", records);
+	    ftnd_mvprintw(LINES -3, 6, "Enter menu number (1..%d) to move >", records);
 	    from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
-	    mbse_locate(LINES -3, 6);
+	    ftnd_locate(LINES -3, 6);
 	    clrtoeol();
- 	    mbse_mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
+ 	    ftnd_mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
 	    too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number, other will move away");
 	    if ((from == too) || (from == 0) || (too == 0) || (from > records) || (too > records)) {
 		errmsg("That makes no sense");
@@ -509,7 +505,7 @@ void EditMenus(void)
 	clr_index();
 	mcount = 0;
 
-	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("FTND_ROOT"), lang.lc);
 	if ((dp = opendir(temp)) != NULL) {
 	    working(1, 0, 0);
 	
@@ -523,7 +519,7 @@ void EditMenus(void)
 	}
 
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "8.3 MENU EDIT: %s", lang.Name);
+	ftnd_mvprintw( 5, 6, "8.3 MENU EDIT: %s", lang.Name);
 	set_color(CYAN, BLACK);
 		
 	if (mcount) {
@@ -532,7 +528,7 @@ void EditMenus(void)
 	    set_color(CYAN, BLACK);
 	    for (i = 1; i <= mcount; i++) {
 		snprintf(temp, 81, "%2d. %s", i, menuname[i-1]);
-		mbse_mvprintw(y, x, temp);
+		ftnd_mvprintw(y, x, temp);
 		y++;
 		if ((i % 10) == 0) {
 		    x+=15;
@@ -549,11 +545,11 @@ void EditMenus(void)
 
 	if (strncmp(pick, "A", 1) == 0) {
 	    set_color(WHITE, BLACK);
-	    mbse_mvprintw(LINES -3, 6, (char *)"New menu name >");
+	    ftnd_mvprintw(LINES -3, 6, (char *)"New menu name >");
 	    memset(&temp, 0, sizeof(temp));
 	    strcpy(temp, edit_str(LINES -3, 22, 10, temp, (char *)"Enter a new ^menu^ name without extension"));
 	    if (strlen(temp)) {
-		p = xstrcpy(getenv("MBSE_ROOT"));
+		p = xstrcpy(getenv("FTND_ROOT"));
 		p = xstrcat(p, (char *)"/share/int/menus/");
 		p = xstrcat(p, lang.lc);
 		p = xstrcat(p, (char *)"/");
@@ -591,7 +587,7 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
     int		    j;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return page;
@@ -610,13 +606,13 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 	fprintf(ip, "<H3>BBS Menus for %s</H3>\n", lang.Name);
 	fprintf(ip, "<UL>\n");
 
-	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("FTND_ROOT"), lang.lc);
 	if ((dp = opendir(temp)) != NULL) {
 	    while ((de = readdir(dp))) {
 		if (de->d_name[0] != '.') {
 		    j = 0;
 		    fprintf(ip, "<LI><A HREF=\"menu_%s_%s.html\">%s</A></LI>\n", lang.LangKey, de->d_name, de->d_name);
-		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("MBSE_ROOT"), lang.lc, de->d_name);
+		    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("FTND_ROOT"), lang.lc, de->d_name);
 		    fprintf(fp, "\n    MENU %s (%s)\n\n", de->d_name, lang.Name);
 		    if ((mn = fopen(temp, "r")) != NULL) {
 			snprintf(temp, 81, "menu_%s_%s.html", lang.LangKey, de->d_name);

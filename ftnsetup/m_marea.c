@@ -3,35 +3,31 @@
  * Purpose ...............: Message Areas Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/msg.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -60,7 +56,7 @@ int CountMsgarea(void)
     int			count, i;
     struct _sysconnect	syscon;
 
-    snprintf(ffile, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -74,7 +70,7 @@ int CountMsgarea(void)
 	     */
 	    memset(&msgs, 0, sizeof(msgs));
 	    snprintf(msgs.Name, 41, "Local users chat");
-	    snprintf(msgs.Base, 65, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
+	    snprintf(msgs.Base, 65, "%s/var/mail/local/users", getenv("FTND_ROOT"));
 	    snprintf(msgs.QWKname, 21, "LOC_USERS");
 	    snprintf(msgs.Group, 13, "LOCAL");
 	    msgs.Active = TRUE;
@@ -101,7 +97,7 @@ int CountMsgarea(void)
 	     */
 	    memset(&msgs, 0, sizeof(msgs));
 	    snprintf(msgs.Name, 41, "Bad mail");
-	    snprintf(msgs.Base, 65, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
+	    snprintf(msgs.Base, 65, "%s/var/mail/badmail", getenv("FTND_ROOT"));
 	    snprintf(msgs.QWKname, 21, "BADMAIL");
 	    snprintf(msgs.Group, 13, "LOCAL");
 	    msgs.Active = TRUE;
@@ -125,7 +121,7 @@ int CountMsgarea(void)
 	     */
 	    memset(&msgs, 0, sizeof(msgs));
 	    snprintf(msgs.Name, 41, "Dupe mail");
-	    snprintf(msgs.Base, 65, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
+	    snprintf(msgs.Base, 65, "%s/var/mail/dupemail", getenv("FTND_ROOT"));
 	    snprintf(msgs.QWKname, 21, "DUPEMAIL");
 	    snprintf(msgs.Group, 13, "LOCAL");
 	    msgs.Active = TRUE;
@@ -185,15 +181,15 @@ int OpenMsgarea(void)
      * if they don't have a creation date. All new areas will get the
      * right date.
      */
-    snprintf(fnin, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    snprintf(fnin, PATH_MAX, "%s/etc/sysinfo.data", getenv("FTND_ROOT"));
     if ((fin = fopen(fnin, "r"))) {
 	fread(&SYSINFO, sizeof(SYSINFO), 1, fin);
 	start = SYSINFO.StartDate;
 	fclose(fin);
     }
 
-    snprintf(fnin,  PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/mareas.temp", getenv("FTND_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    MsgUpdated = 0;
@@ -291,8 +287,8 @@ void CloseMsgarea(int Force)
 {
 	char	fin[PATH_MAX], fout[PATH_MAX];
 
-	snprintf(fin,  PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/mareas.temp", getenv("FTND_ROOT"));
 
 	if (MsgUpdated == 1) {
 		if (Force || (yes_no((char *)"Messages database is changed, save changes") == 1)) {
@@ -345,7 +341,7 @@ int AppendMsgarea()
 	struct	_sysconnect syscon;
 	int	i;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/mareas.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		InitMsgRec();
 		fwrite(&msgs, sizeof(msgs), 1, fil);
@@ -373,14 +369,14 @@ void EditSystem(sysconnect *Sys)
 		if (refresh) {
 			clr_index();
 			set_color(WHITE, BLACK);
-			mbse_mvprintw( 5,6, "9.2.26 EDIT CONNECTION");
+			ftnd_mvprintw( 5,6, "9.2.26 EDIT CONNECTION");
 			set_color(CYAN, BLACK);
-			mbse_mvprintw( 7,6, "1.     Aka");
-			mbse_mvprintw( 8,6, "2.     Send to");
-			mbse_mvprintw( 9,6, "3.     Recv from");
-			mbse_mvprintw(10,6, "4.     Pause");
-			mbse_mvprintw(11,6, "5.     Excluded");
-			mbse_mvprintw(12,6, "6.     Delete");
+			ftnd_mvprintw( 7,6, "1.     Aka");
+			ftnd_mvprintw( 8,6, "2.     Send to");
+			ftnd_mvprintw( 9,6, "3.     Recv from");
+			ftnd_mvprintw(10,6, "4.     Pause");
+			ftnd_mvprintw(11,6, "5.     Excluded");
+			ftnd_mvprintw(12,6, "6.     Delete");
 			refresh = FALSE;
 		}
 		set_color(WHITE, BLACK);
@@ -436,7 +432,7 @@ int EditConnections(FILE *fil)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 5, "9.2.26  MESSAGE AREA CONNECTIONS");
+		ftnd_mvprintw( 5, 5, "9.2.26  MESSAGE AREA CONNECTIONS");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 2;
@@ -470,7 +466,7 @@ int EditConnections(FILE *fil)
 					set_color(LIGHTBLUE, BLACK);
 					snprintf(temp, 41, "%3d.", o+i);
 				}
-				mbse_mvprintw(y, x, temp);
+				ftnd_mvprintw(y, x, temp);
 				y++;
 			}
 		}
@@ -506,49 +502,49 @@ void SetScreen()
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 4, 2, "9.2 EDIT MESSAGE AREA");
+    ftnd_mvprintw( 4, 2, "9.2 EDIT MESSAGE AREA");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 6, 2, "1.  Area Name");
-    mbse_mvprintw( 7, 2, "2.  FTN area");
-    mbse_mvprintw( 8, 2, "3.  Group");
-    mbse_mvprintw( 9, 2, "4.  Newsgroup");
-    mbse_mvprintw(10, 2, "5.  JAM base");
-    mbse_mvprintw(11, 2, "6.  Origin");
-    mbse_mvprintw(12, 2, "7.  Fido Aka");
-    mbse_mvprintw(13, 2, "8.  QWK name");
-    mbse_mvprintw(14, 2, "9.  Area Type");
-    mbse_mvprintw(15, 2, "10. Msg Kinds");
-    mbse_mvprintw(16, 2, "11. Charset");
-    mbse_mvprintw(17, 2, "12. Active");
-    mbse_mvprintw(18, 2, "13. Days Old");
-    mbse_mvprintw(19, 2, "14. Max. Msgs");
+    ftnd_mvprintw( 6, 2, "1.  Area Name");
+    ftnd_mvprintw( 7, 2, "2.  FTN area");
+    ftnd_mvprintw( 8, 2, "3.  Group");
+    ftnd_mvprintw( 9, 2, "4.  Newsgroup");
+    ftnd_mvprintw(10, 2, "5.  JAM base");
+    ftnd_mvprintw(11, 2, "6.  Origin");
+    ftnd_mvprintw(12, 2, "7.  Fido Aka");
+    ftnd_mvprintw(13, 2, "8.  QWK name");
+    ftnd_mvprintw(14, 2, "9.  Area Type");
+    ftnd_mvprintw(15, 2, "10. Msg Kinds");
+    ftnd_mvprintw(16, 2, "11. Charset");
+    ftnd_mvprintw(17, 2, "12. Active");
+    ftnd_mvprintw(18, 2, "13. Days Old");
+    ftnd_mvprintw(19, 2, "14. Max. Msgs");
 
     switch (msgs.Type) {
-	case ECHOMAIL:  mbse_mvprintw(14,34, "15. Netreply");
+	case ECHOMAIL:  ftnd_mvprintw(14,34, "15. Netreply");
 			break;
-	case NEWS:	mbse_mvprintw(14,34, "15. Articles");
+	case NEWS:	ftnd_mvprintw(14,34, "15. Articles");
 			break;
-	default:	mbse_mvprintw(14,34, "15. N/A");
+	default:	ftnd_mvprintw(14,34, "15. N/A");
 			break;
     }
-    mbse_mvprintw(15,34, "16. Read Sec.");
-    mbse_mvprintw(16,34, "17. Write Sec.");
-    mbse_mvprintw(17,34, "18. Sysop Sec.");
-    mbse_mvprintw(18,34, "19. User Del.");
-    mbse_mvprintw(19,34, "20. Aliases");
+    ftnd_mvprintw(15,34, "16. Read Sec.");
+    ftnd_mvprintw(16,34, "17. Write Sec.");
+    ftnd_mvprintw(17,34, "18. Sysop Sec.");
+    ftnd_mvprintw(18,34, "19. User Del.");
+    ftnd_mvprintw(19,34, "20. Aliases");
 
-    mbse_mvprintw(13,58, "21. Quotes");
-    mbse_mvprintw(14,58, "22. Mandatory");
-    mbse_mvprintw(15,58, "23. UnSecure");
-    mbse_mvprintw(16,58, "24. OLR Default");
-    mbse_mvprintw(17,58, "25. OLR Forced");
+    ftnd_mvprintw(13,58, "21. Quotes");
+    ftnd_mvprintw(14,58, "22. Mandatory");
+    ftnd_mvprintw(15,58, "23. UnSecure");
+    ftnd_mvprintw(16,58, "24. OLR Default");
+    ftnd_mvprintw(17,58, "25. OLR Forced");
     switch (msgs.Type) {
 	case ECHOMAIL:
 	case NEWS:
-	case LIST:  mbse_mvprintw(18,58, "26. Connections");
+	case LIST:  ftnd_mvprintw(18,58, "26. Connections");
 		    break;
     }
-    mbse_mvprintw(19,58, "27. Security");
+    ftnd_mvprintw(19,58, "27. Security");
 } 
 
 
@@ -562,7 +558,7 @@ int LoadMsgRec(int Area, int work)
     sysconnect	System;
     int		i;
 
-    snprintf(mfile, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mareas.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -608,7 +604,7 @@ int SaveMsgRec(int Area, int work)
 
 	if (work)
 		working(1, 0, 0);
-	snprintf(mfile, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/mareas.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r+")) == 0) {
 		working(2, 0, 0);
 		return -1;
@@ -683,11 +679,11 @@ void ShowStatus(sysconnect S)
 {
 	clr_index();
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "Aka");
-	mbse_mvprintw( 8, 6, "Send to");
-	mbse_mvprintw( 9, 6, "Recv from");
-	mbse_mvprintw(10, 6, "Pause");
-	mbse_mvprintw(11, 6, "Excluded");
+	ftnd_mvprintw( 7, 6, "Aka");
+	ftnd_mvprintw( 8, 6, "Send to");
+	ftnd_mvprintw( 9, 6, "Recv from");
+	ftnd_mvprintw(10, 6, "Pause");
+	ftnd_mvprintw(11, 6, "Excluded");
 	set_color(WHITE, BLACK);
 	show_str(  7,16,23, aka2str(S.aka));
 	show_bool( 8,16, S.sendto);
@@ -714,7 +710,7 @@ void MsgGlobal(void)
      * Build the groups select array
      */
     working(1, 0, 0);
-    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) != NULL) {
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 
@@ -747,22 +743,22 @@ void MsgGlobal(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "9.2 GLOBAL EDIT MESSAGE AREAS");
+	ftnd_mvprintw( 5, 6, "9.2 GLOBAL EDIT MESSAGE AREAS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.  Delete connection");
-	mbse_mvprintw( 8, 6, "2.  Add new connection");
-	mbse_mvprintw( 9, 6, "3.  Replace connection");
-	mbse_mvprintw(10, 6, "4.  Change connection status");
-	mbse_mvprintw(11, 6, "5.  Change days old");
-	mbse_mvprintw(12, 6, "6.  Change max. messages");
-	mbse_mvprintw(13, 6, "7.  Change max. articles");
-	mbse_mvprintw(14, 6, "8.  Change bbs security");
-	mbse_mvprintw(15, 6, "9.  Change link security");
-	mbse_mvprintw(16, 6, "10. Change aka to use");
-	mbse_mvprintw( 7,41, "11. Change origin line");
-	mbse_mvprintw( 8,41, "12. Change netmail reply");
-	mbse_mvprintw( 9,41, "13. Change character set");
-	mbse_mvprintw(10,41, "14. Delete message area");
+	ftnd_mvprintw( 7, 6, "1.  Delete connection");
+	ftnd_mvprintw( 8, 6, "2.  Add new connection");
+	ftnd_mvprintw( 9, 6, "3.  Replace connection");
+	ftnd_mvprintw(10, 6, "4.  Change connection status");
+	ftnd_mvprintw(11, 6, "5.  Change days old");
+	ftnd_mvprintw(12, 6, "6.  Change max. messages");
+	ftnd_mvprintw(13, 6, "7.  Change max. articles");
+	ftnd_mvprintw(14, 6, "8.  Change bbs security");
+	ftnd_mvprintw(15, 6, "9.  Change link security");
+	ftnd_mvprintw(16, 6, "10. Change aka to use");
+	ftnd_mvprintw( 7,41, "11. Change origin line");
+	ftnd_mvprintw( 8,41, "12. Change netmail reply");
+	ftnd_mvprintw( 9,41, "13. Change character set");
+	ftnd_mvprintw(10,41, "14. Delete message area");
 
 	memset(&a1, 0, sizeof(fidoaddr));
 	memset(&a2, 0, sizeof(fidoaddr));
@@ -785,11 +781,11 @@ void MsgGlobal(void)
 		    S.pause = edit_bool(10,16,S.pause, (char *)"Is this node ^paused^");
 		    S.cutoff = edit_bool(11,16,S.cutoff, (char *)"Is this node ^excluded^");
 		    break;
-	    case 5: mbse_mvprintw(LINES -3, 5, "Days old");
+	    case 5: ftnd_mvprintw(LINES -3, 5, "Days old");
 		    E_INT(LINES -3, 14, daysold, (char *)"Enter new number of ^days old^")
-	    case 6: mbse_mvprintw(LINES -3, 5, "Max. messages");
+	    case 6: ftnd_mvprintw(LINES -3, 5, "Max. messages");
 		    E_INT(LINES -3, 19, maxmsgs, (char *)"Enter ^maximum messages^")
-	    case 7: mbse_mvprintw(LINES -3, 6, "Max. articles");
+	    case 7: ftnd_mvprintw(LINES -3, 6, "Max. articles");
 		    E_INT(LINES -3, 19, maxarticles, (char *)"Enter ^maximum news articles^ to fetch")
 	    case 8: rs = edit_sec(6, 5, rs, (char *)"9.2.8 READ SECURITY");
 		    ws = edit_sec(7, 5, ws, (char *)"9.2.8 WRITE SECURITY");
@@ -800,9 +796,9 @@ void MsgGlobal(void)
 	    case 10:akan = PickAka((char *)"9.2.8", TRUE);
 		    break;
 	    case 11:E_STR(LINES -3, 5, 64, mfile, "Enter new ^origin^ line");
-	    case 12:mbse_mvprintw(LINES -3, 5, "Netmail reply board");
+	    case 12:ftnd_mvprintw(LINES -3, 5, "Netmail reply board");
 		    E_INT(LINES -3, 25, netbrd, (char *)"The ^netmail reply^ board number")
-	    case 13:mbse_mvprintw(LINES -4, 6, "Character set to set");
+	    case 13:ftnd_mvprintw(LINES -4, 6, "Character set to set");
 		    charset = edit_charset(LINES -4,27, charset);
 		    break;
 	}
@@ -813,47 +809,47 @@ void MsgGlobal(void)
 	 * Show settings before proceeding
 	 */
 	switch (menu) {
-	    case 1: mbse_mvprintw(7, 6, "Delete aka %s", aka2str(a1));
+	    case 1: ftnd_mvprintw(7, 6, "Delete aka %s", aka2str(a1));
 		    break;
-	    case 2: mbse_mvprintw(7, 6, "Add aka %s", aka2str(a2));
+	    case 2: ftnd_mvprintw(7, 6, "Add aka %s", aka2str(a2));
 		    break;
 	    case 3: p = xstrcpy(aka2str(a1));
-		    mbse_mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
+		    ftnd_mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
 		    free(p);
 		    break;
 	    case 4: ShowStatus(S);
-		    mbse_mvprintw(14, 6, "Change the link status");
+		    ftnd_mvprintw(14, 6, "Change the link status");
 		    break;
-	    case 5: mbse_mvprintw(7, 6, "Change days old to %d", daysold);
+	    case 5: ftnd_mvprintw(7, 6, "Change days old to %d", daysold);
 		    break;
-	    case 6: mbse_mvprintw(7, 6, "Change maximum messages to %d", maxmsgs);
+	    case 6: ftnd_mvprintw(7, 6, "Change maximum messages to %d", maxmsgs);
 		    break;
-	    case 7: mbse_mvprintw(7, 6, "Change maximum news articles to fetch to %d", maxarticles);
+	    case 7: ftnd_mvprintw(7, 6, "Change maximum news articles to fetch to %d", maxarticles);
 		    break;
 	    case 8: set_color(CYAN, BLACK);
-		    mbse_mvprintw(7, 6, "Read security");
-		    mbse_mvprintw(8, 6, "Write security");
-		    mbse_mvprintw(9, 6, "Sysop security");
+		    ftnd_mvprintw(7, 6, "Read security");
+		    ftnd_mvprintw(8, 6, "Write security");
+		    ftnd_mvprintw(9, 6, "Sysop security");
 		    set_color(WHITE, BLACK);
 		    show_sec(7, 21, rs);
 		    show_sec(8, 21, ws);
 		    show_sec(9, 21, ss);
 		    break;
 	    case 9: set_color(CYAN, BLACK);
-		    mbse_mvprintw(7, 6, "Link security");
+		    ftnd_mvprintw(7, 6, "Link security");
 		    set_color(WHITE, BLACK);
-		    mbse_mvprintw(7,21, getflag(as.flags, as.notflags));
+		    ftnd_mvprintw(7,21, getflag(as.flags, as.notflags));
 		    break;
 	    case 10:if (akan != -1)
-			mbse_mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
+			ftnd_mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
 		    break;
-	    case 11:mbse_mvprintw(7, 6, "Origin: %s", mfile);
+	    case 11:ftnd_mvprintw(7, 6, "Origin: %s", mfile);
 		    break;
-	    case 12:mbse_mvprintw(7, 6, "New netmail reply board %d", netbrd);
+	    case 12:ftnd_mvprintw(7, 6, "New netmail reply board %d", netbrd);
 		    break;
-	    case 13:mbse_mvprintw(7, 6, "New character set %s", getftnchrs(charset));
+	    case 13:ftnd_mvprintw(7, 6, "New character set %s", getftnchrs(charset));
 		    break;
-	    case 14:mbse_mvprintw(7, 6, "Delete message areas");
+	    case 14:ftnd_mvprintw(7, 6, "Delete message areas");
 		    break;
 	}
 
@@ -1065,7 +1061,7 @@ void MsgGlobal(void)
 		tfil = NULL;
 	    }
 
-	    mbse_mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
+	    ftnd_mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
 	    (void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
 	    if (Done)
 		MsgUpdated = TRUE;
@@ -1252,7 +1248,7 @@ int EditMsgRec(int Area)
 				    if (temp[i] == '.')
 					temp[i] = '/';
 				}
-				snprintf(msgs.Base, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+				snprintf(msgs.Base, 65, "%s/var/mail/%s", getenv("FTND_ROOT"), temp);
 			    }
 			    free(temp);
 			    /*
@@ -1271,7 +1267,7 @@ int EditMsgRec(int Area)
 		    if (strcmp(oldpath, msgs.Base)) {
 			i = 0;
 			temp = calloc(PATH_MAX, sizeof(char));
-			snprintf(temp, PATH_MAX, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/scanmgr.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r+")) != NULL) {
 			    fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, fil);
 			    while (fread(&scanmgr, scanmgrhdr.recsize, 1, fil) == 1) {
@@ -1294,7 +1290,7 @@ int EditMsgRec(int Area)
 			}
 
 			i = 0;
-			snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r+")) != NULL) {
 			    fread(&newfileshdr, sizeof(newfileshdr), 1, fil);
 			    while (fread(&newfiles, newfileshdr.recsize, 1, fil) == 1) {
@@ -1437,10 +1433,10 @@ void EditMsgarea(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 3, "9.2 MESSAGE AREA SETUP");
+	ftnd_mvprintw( 5, 3, "9.2 MESSAGE AREA SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mareas.temp", getenv("FTND_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, fil);
@@ -1458,7 +1454,7 @@ void EditMsgarea(void)
 			    set_color(LIGHTBLUE, BLACK);
 			    snprintf(temp, 81, "%3d.", o+i);
 			}
-			mbse_mvprintw(y, 2, temp);
+			ftnd_mvprintw(y, 2, temp);
 			y++;
 		    }
 		}
@@ -1496,9 +1492,9 @@ void EditMsgarea(void)
 
 	if (strncmp(pick, "M", 1) == 0) {
 	    from = too = 0;
-	    mbse_mvprintw(LINES -3, 5, "From");
+	    ftnd_mvprintw(LINES -3, 5, "From");
 	    from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
-	    mbse_mvprintw(LINES -3,15, "To");
+	    ftnd_mvprintw(LINES -3,15, "To");
 	    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
 	    rc = 0;
 
@@ -1596,11 +1592,11 @@ char *PickMsgarea(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		snprintf(temp, 81, "%s.  MESSAGE AREA SELECT", shdr);
-		mbse_mvprintw(5, 3, temp);
+		ftnd_mvprintw(5, 3, temp);
 		set_color(CYAN, BLACK);
 
 		if (records) {
-			snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&msgshdr, sizeof(msgshdr), 1, fil);
@@ -1622,7 +1618,7 @@ char *PickMsgarea(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-31s", o + i, msgs.Name);
 						temp[38] = '\0';
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -1643,7 +1639,7 @@ char *PickMsgarea(char *shdr)
 				o -= 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = msgshdr.hdrsize + ((atoi(pick) - 1) * (msgshdr.recsize + msgshdr.syssize));
 				fseek(fil, offset, SEEK_SET);
@@ -1667,7 +1663,7 @@ int GroupInMarea(char *Group)
 	FILE	*no;
 	char	temp[PATH_MAX];
 
-	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return 0;
 
@@ -1699,7 +1695,7 @@ int NodeInMarea(fidoaddr A)
 	char		temp[PATH_MAX];
 	sysconnect	S;
 
-	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return 0;
 
@@ -1733,7 +1729,7 @@ void msged_areas(FILE *fp)
     int     i = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
         return;
 
@@ -1787,7 +1783,7 @@ void gold_areas(FILE *fp)
     int	    i = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return;
@@ -1824,7 +1820,7 @@ void gold_areas(FILE *fp)
 	     * Now try to find a real groupid
 	     */
 	    if (((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS)) && strlen(msgs.Group)) {
-		snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
 		if ((fil = fopen(temp, "r")) != NULL) {
 		    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 		    while (fread(&mgroup, mgrouphdr.recsize, 1, fil) == 1) {
@@ -1882,7 +1878,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
     else
 	LMiy = Miy - 1;
 	
-    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -2020,7 +2016,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 
 		    fprintf(fp, "    Link %2d          %s %s\n", j+1, status, aka2str(System.aka));
 		    if (wp != NULL) {
-			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
 			if ((ti = fopen(temp, "r"))) {
 			    fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
 			    fseek(ti, 0, SEEK_SET);

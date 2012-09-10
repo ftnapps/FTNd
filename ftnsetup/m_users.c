@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_users.c,v 1.34 2007/02/25 20:55:33 mbse Exp $
+ * m_users.c
  * Purpose ...............: Edit Users
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "screen.h"
 #include "mutil.h"
@@ -55,7 +51,7 @@ int CountUsers(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -94,8 +90,8 @@ int OpenUsers(void)
     char    fnin[PATH_MAX], fnout[PATH_MAX];
     int	    oldsize;
 
-    snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/users.temp", getenv("FTND_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    fread(&usrconfighdr, sizeof(usrconfighdr), 1, fin);
@@ -153,8 +149,8 @@ void CloseUsers(int force)
 {
 	char	fin[PATH_MAX], fout[PATH_MAX];
 
-	snprintf(fin,  PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/users.temp", getenv("FTND_ROOT"));
 
 	if (UsrUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -178,34 +174,34 @@ void Screen1(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mbse_mvprintw( 4, 2, "15. EDIT USER");
+        ftnd_mvprintw( 4, 2, "15. EDIT USER");
         set_color(CYAN, BLACK);
-        mbse_mvprintw( 6, 2, "1.  Full Name");
-        mbse_mvprintw( 7, 2, "2.  Security");
-        mbse_mvprintw( 8, 2, "3.  Expirydate");
-        mbse_mvprintw( 9, 2, "4.  Expiry Sec");
-        mbse_mvprintw(10, 2, "    Unix name");
-	mbse_mvprintw(11, 2, "    1st login");
-	mbse_mvprintw(12, 2, "    Last login");
-	mbse_mvprintw(13, 2, "    Pwdchange");
-        mbse_mvprintw(14, 2, "5.  Credit");
-        mbse_mvprintw(15, 2, "6.  Hidden");
-	mbse_mvprintw(16, 2, "7.  Deleted");
-	mbse_mvprintw(17, 2, "8.  No Kill");
-	mbse_mvprintw(18, 2, "9.  Comment");
+        ftnd_mvprintw( 6, 2, "1.  Full Name");
+        ftnd_mvprintw( 7, 2, "2.  Security");
+        ftnd_mvprintw( 8, 2, "3.  Expirydate");
+        ftnd_mvprintw( 9, 2, "4.  Expiry Sec");
+        ftnd_mvprintw(10, 2, "    Unix name");
+	ftnd_mvprintw(11, 2, "    1st login");
+	ftnd_mvprintw(12, 2, "    Last login");
+	ftnd_mvprintw(13, 2, "    Pwdchange");
+        ftnd_mvprintw(14, 2, "5.  Credit");
+        ftnd_mvprintw(15, 2, "6.  Hidden");
+	ftnd_mvprintw(16, 2, "7.  Deleted");
+	ftnd_mvprintw(17, 2, "8.  No Kill");
+	ftnd_mvprintw(18, 2, "9.  Comment");
 
-        mbse_mvprintw( 6,54, "10. Locked");
-        mbse_mvprintw( 7,54, "11. Guest");
-        mbse_mvprintw( 8,54, "12. Ext Info");
-        mbse_mvprintw( 9,54, "13. Email");
-	mbse_mvprintw(10,54, "    Calls");
-	mbse_mvprintw(11,54, "    Downlds");
-	mbse_mvprintw(12,54, "    Down Kb");
-	mbse_mvprintw(13,54, "    Uploads");
-	mbse_mvprintw(14,54, "    Upload Kb");
-	mbse_mvprintw(15,54, "    Posted");
-	mbse_mvprintw(16,54, "14. Time left");
-	mbse_mvprintw(17,54, "15. Screen 2");
+        ftnd_mvprintw( 6,54, "10. Locked");
+        ftnd_mvprintw( 7,54, "11. Guest");
+        ftnd_mvprintw( 8,54, "12. Ext Info");
+        ftnd_mvprintw( 9,54, "13. Email");
+	ftnd_mvprintw(10,54, "    Calls");
+	ftnd_mvprintw(11,54, "    Downlds");
+	ftnd_mvprintw(12,54, "    Down Kb");
+	ftnd_mvprintw(13,54, "    Uploads");
+	ftnd_mvprintw(14,54, "    Upload Kb");
+	ftnd_mvprintw(15,54, "    Posted");
+	ftnd_mvprintw(16,54, "14. Time left");
+	ftnd_mvprintw(17,54, "15. Screen 2");
 }
 
 
@@ -268,32 +264,32 @@ void Screen2(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 4, 2, "15. EDIT USER PRIVATE SETTINGS");
+	ftnd_mvprintw( 4, 2, "15. EDIT USER PRIVATE SETTINGS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 6, 2, "1.  Handle");
-	mbse_mvprintw( 7, 2, "2.  Location");
-	mbse_mvprintw( 8, 2, "3.  Address 1");
-	mbse_mvprintw( 9, 2, "4.  Address 2");
-	mbse_mvprintw(10, 2, "5.  Address 3");
-	mbse_mvprintw(11, 2, "6.  Voicephone");
-	mbse_mvprintw(12, 2, "7.  Dataphone");
-	mbse_mvprintw(13, 2, "8.  Birthdate");
-	mbse_mvprintw(14, 2, "9.  Password");
-	mbse_mvprintw(15, 2, "10. Sex");
-	mbse_mvprintw(16, 2, "11. Protocol");
-	mbse_mvprintw(17, 2, "12. Archiver");
-	mbse_mvprintw(18, 2, "13. Charset");
+	ftnd_mvprintw( 6, 2, "1.  Handle");
+	ftnd_mvprintw( 7, 2, "2.  Location");
+	ftnd_mvprintw( 8, 2, "3.  Address 1");
+	ftnd_mvprintw( 9, 2, "4.  Address 2");
+	ftnd_mvprintw(10, 2, "5.  Address 3");
+	ftnd_mvprintw(11, 2, "6.  Voicephone");
+	ftnd_mvprintw(12, 2, "7.  Dataphone");
+	ftnd_mvprintw(13, 2, "8.  Birthdate");
+	ftnd_mvprintw(14, 2, "9.  Password");
+	ftnd_mvprintw(15, 2, "10. Sex");
+	ftnd_mvprintw(16, 2, "11. Protocol");
+	ftnd_mvprintw(17, 2, "12. Archiver");
+	ftnd_mvprintw(18, 2, "13. Charset");
 
-	mbse_mvprintw( 7,63, "14. Language");
-	mbse_mvprintw( 8,63, "15. Hotkeys");
-	mbse_mvprintw( 9,63, "16. Silent");
-	mbse_mvprintw(10,63, "17. CLS");
-	mbse_mvprintw(11,63, "18. More");
-	mbse_mvprintw(12,63, "19. Editor");
-	mbse_mvprintw(13,63, "20. MailScan");
-	mbse_mvprintw(14,63, "21. ShowNews");
-	mbse_mvprintw(15,63, "22. NewFiles");
-	mbse_mvprintw(16,63, "23. Emacs");
+	ftnd_mvprintw( 7,63, "14. Language");
+	ftnd_mvprintw( 8,63, "15. Hotkeys");
+	ftnd_mvprintw( 9,63, "16. Silent");
+	ftnd_mvprintw(10,63, "17. CLS");
+	ftnd_mvprintw(11,63, "18. More");
+	ftnd_mvprintw(12,63, "19. Editor");
+	ftnd_mvprintw(13,63, "20. MailScan");
+	ftnd_mvprintw(14,63, "21. ShowNews");
+	ftnd_mvprintw(15,63, "22. NewFiles");
+	ftnd_mvprintw(16,63, "23. Emacs");
 }
 
 
@@ -361,8 +357,8 @@ int EditUsrRec2(void)
                             memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
                             strcpy(usrconfig.Password, temp);
 			    usrconfig.tLastPwdChange = time(NULL);
-			    Syslog('+', "%s/bin/mbpasswd %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
-			    snprintf(temp, PATH_MAX, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+			    Syslog('+', "%s/bin/ftnpasswd %s ******", getenv("FTND_ROOT"), usrconfig.Name);
+			    snprintf(temp, PATH_MAX, "%s/bin/ftnpasswd", getenv("FTND_ROOT"));
 			    memset(args, 0, sizeof(args));
 			    args[0] = temp;
 			    args[1] = usrconfig.Name;
@@ -435,7 +431,7 @@ void Reset_Time(void)
     FILE    *pLimits;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("FTND_ROOT"));
     if ((pLimits = fopen(temp,"r")) == NULL) {
 	WriteError("$Can't open %s", temp);
     } else {
@@ -472,7 +468,7 @@ int EditUsrRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Users");
 
-    snprintf(mfile, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/users.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -590,10 +586,10 @@ void EditUsers(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 3, "15.  USERS EDITOR");
+	ftnd_mvprintw( 5, 3, "15.  USERS EDITOR");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/users.temp", getenv("FTND_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&usrconfighdr, sizeof(usrconfighdr), 1, fil);
@@ -615,7 +611,7 @@ void EditUsers(void)
 			    set_color(LIGHTBLUE, BLACK);
 			snprintf(temp, 81, "%3d.  %-32s", o + i, usrconfig.sUserName);
 			temp[37] = 0;
-			mbse_mvprintw(y, x, temp);
+			ftnd_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -663,7 +659,7 @@ void users_doc(void)
     int	    nr = 0;
     time_t  tt;
 
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL)
 	return;
 

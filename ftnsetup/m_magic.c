@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_magic.c,v 1.22 2005/10/11 20:49:49 mbse Exp $
+ * m_magic.c
  * Purpose ...............: Edit Magics
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -53,7 +49,7 @@ int CountMagics(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/magic.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -90,8 +86,8 @@ int OpenMagics(void)
 	int	oldsize;
 	int	FieldPatch = FALSE;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/magic.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/magic.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&magichdr, sizeof(magichdr), 1, fin);
@@ -147,8 +143,8 @@ void CloseMagics(int force)
 	FILE	*fi, *fo;
 	st_list	*mag = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/magic.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/magic.temp", getenv("FTND_ROOT"));
 
 	if (MagicUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -193,7 +189,7 @@ int AppendMagics(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/magic.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&magic, 0, sizeof(magic));
 		fwrite(&magic, sizeof(magic), 1, fil);
@@ -210,33 +206,33 @@ void ScreenM(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "10.4. EDIT MAGIC");
+	ftnd_mvprintw( 5, 2, "10.4. EDIT MAGIC");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.   Magic");
-	mbse_mvprintw( 8, 2, "2.   Filemask");
-	mbse_mvprintw( 9, 2, "3.   Active");
-	mbse_mvprintw(10, 2, "4.   Deleted");
-	mbse_mvprintw(11, 2, "5.   Area");
+	ftnd_mvprintw( 7, 2, "1.   Magic");
+	ftnd_mvprintw( 8, 2, "2.   Filemask");
+	ftnd_mvprintw( 9, 2, "3.   Active");
+	ftnd_mvprintw(10, 2, "4.   Deleted");
+	ftnd_mvprintw(11, 2, "5.   Area");
 
 	switch(magic.Attrib) {
 		case MG_ADOPT:
 		case MG_MOVE:
-				mbse_mvprintw(12, 2, "6.   To Area");
+				ftnd_mvprintw(12, 2, "6.   To Area");
 				break;
 
 		case MG_EXEC:
-				mbse_mvprintw(12, 2, "6.   Command");
-				mbse_mvprintw(13, 2, "7.   Compile");
+				ftnd_mvprintw(12, 2, "6.   Command");
+				ftnd_mvprintw(13, 2, "7.   Compile");
 				break;
 
 		case MG_COPY:
 		case MG_UNPACK:
-				mbse_mvprintw(12, 2, "6.   To path");
-				mbse_mvprintw(13, 2, "7.   Compile");
+				ftnd_mvprintw(12, 2, "6.   To path");
+				ftnd_mvprintw(13, 2, "7.   Compile");
 				break;
 
 		case MG_KEEPNUM:
-				mbse_mvprintw(12, 2, "6.   Keep Num");
+				ftnd_mvprintw(12, 2, "6.   Keep Num");
 				break;
 	}
 }
@@ -289,7 +285,7 @@ int EditMagicRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Magics");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/magic.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -411,10 +407,10 @@ void EditMagics(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 2, "10.4.  MAGICS EDITOR");
+		ftnd_mvprintw( 5, 2, "10.4.  MAGICS EDITOR");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/magic.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&magichdr, sizeof(magichdr), 1, fil);
@@ -436,7 +432,7 @@ void EditMagics(void)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %s %s", o + i, getmagictype(magic.Attrib), magic.Mask);
 						temp[37] = 0;
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -491,7 +487,7 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *no;
     int	    nr = 0i, j;
 
-    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/magic.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 

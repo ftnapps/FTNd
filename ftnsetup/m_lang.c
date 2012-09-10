@@ -3,32 +3,28 @@
  * Purpose ...............: Setup Languages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -64,7 +60,7 @@ int CountLanguage(void)
     char    ffile[PATH_MAX];
     int	    count = 0;
 
-    snprintf(ffile, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -106,9 +102,9 @@ void UpgradeLanguage(char *name, char *lc)
     int	    rc;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/share/foo", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/share/foo", getenv("FTND_ROOT"));
     mkdirs(temp, 0770);
-    snprintf(temp, PATH_MAX, "%s/share/int/foo", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/share/int/foo", getenv("FTND_ROOT"));
     mkdirs(temp, 0770);
 
     if (strstr(lang.xMenuPath, name)) {
@@ -117,7 +113,7 @@ void UpgradeLanguage(char *name, char *lc)
 	/*
 	 * Now build old and new paths of the language files.
 	 */
-	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lc);
+	snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("FTND_ROOT"), lc);
 	if (strcmp(lang.xMenuPath, temp)) {
 	    mkdirs(temp, 0770);
 	    rc = rename(lang.xMenuPath, temp);
@@ -131,7 +127,7 @@ void UpgradeLanguage(char *name, char *lc)
 	    Syslog('+', "%s already upgraded", temp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("MBSE_ROOT"), lc);
+	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("FTND_ROOT"), lc);
 	if (strcmp(lang.xTextPath, temp)) {
 	    mkdirs(temp, 0770);
 	    rc = rename(lang.xTextPath, temp);
@@ -145,7 +141,7 @@ void UpgradeLanguage(char *name, char *lc)
 	    Syslog('+', "%s already upgraded", temp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("MBSE_ROOT"), lc);
+	snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("FTND_ROOT"), lc);
         if (strcmp(lang.xMacroPath, temp)) {
 	    mkdirs(temp, 0770);
 	    rc = rename(lang.xMacroPath, temp);
@@ -159,7 +155,7 @@ void UpgradeLanguage(char *name, char *lc)
 	    Syslog('+', "%s already upgraded", temp);
 	}
 
-	snprintf(temp, PATH_MAX, "%s/%s", getenv("MBSE_ROOT"), name);
+	snprintf(temp, PATH_MAX, "%s/%s", getenv("FTND_ROOT"), name);
 	rc = rmdir(temp);
 	if (rc) {
 	    WriteError("$Can't remove %s", temp);
@@ -186,8 +182,8 @@ int OpenLanguage(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	int	oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/language.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&langhdr, sizeof(langhdr), 1, fin);
@@ -254,8 +250,8 @@ void CloseLanguage(int force)
 	FILE	*fi, *fo;
 	st_list	*lan = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/language.temp", getenv("FTND_ROOT"));
 
 	if (LangUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -300,7 +296,7 @@ int AppendLanguage(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/language.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&lang, 0, sizeof(lang));
 		fwrite(&lang, sizeof(lang), 1, fil);
@@ -317,14 +313,14 @@ void s_lang(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "8.2 EDIT LANGUAGE");
+	ftnd_mvprintw( 5, 2, "8.2 EDIT LANGUAGE");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Select");
-	mbse_mvprintw( 8, 2, "2.  Name");
-	mbse_mvprintw( 9, 2, "3.  ISO name");
-	mbse_mvprintw(10, 2, "4.  Available");
-	mbse_mvprintw(11, 2, "5.  Security");
-	mbse_mvprintw(12, 2, "6.  Deleted");
+	ftnd_mvprintw( 7, 2, "1.  Select");
+	ftnd_mvprintw( 8, 2, "2.  Name");
+	ftnd_mvprintw( 9, 2, "3.  ISO name");
+	ftnd_mvprintw(10, 2, "4.  Available");
+	ftnd_mvprintw(11, 2, "5.  Security");
+	ftnd_mvprintw(12, 2, "6.  Deleted");
 }
 
 
@@ -345,7 +341,7 @@ int EditLangRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Language");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/language.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -436,10 +432,10 @@ void EditLanguage(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, "8.2 LANGUAGE SETUP");
+		ftnd_mvprintw( 5, 6, "8.2 LANGUAGE SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/language.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/language.temp", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&langhdr, sizeof(langhdr), 1, fil);
 				x = 4;
@@ -455,7 +451,7 @@ void EditLanguage(void)
 					else
 						set_color(LIGHTBLUE, BLACK);
 					snprintf(temp, 81, "%3d.  %s %-30s", i, lang.LangKey, lang.Name);
-					mbse_mvprintw(i + 6, x, temp);
+					ftnd_mvprintw(i + 6, x, temp);
 				}
 				fclose(fil);
 			}
@@ -520,10 +516,10 @@ int PickLanguage(char *nr)
 	clr_index();
 	set_color(WHITE, BLACK);
 	snprintf(temp, 81, "%s.  LANGUAGE SELECT", nr);
-	mbse_mvprintw( 5, 4, temp);
+	ftnd_mvprintw( 5, 4, temp);
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-		snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
 		if ((fil = fopen(temp, "r")) != NULL) {
 			fread(&langhdr, sizeof(langhdr), 1, fil);
 			x = 2;
@@ -539,7 +535,7 @@ int PickLanguage(char *nr)
 				else
 					set_color(LIGHTBLUE, BLACK);
 				snprintf(temp, 81, "%3d.  %s %-28s", i, lang.LangKey, lang.Name);
-				mbse_mvprintw(i + 6, x, temp);
+				ftnd_mvprintw(i + 6, x, temp);
 			}
 			strcpy(pick, select_pick(records, 20));
 
@@ -565,7 +561,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
     DIR		    *dp;
     struct dirent   *de;
 
-    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -604,7 +600,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
             fprintf(wp, "</TABLE>\n");
             fprintf(wp, "<HR>\n");
             fprintf(wp, "<H3>Menu files</H3>\n");
-	    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("MBSE_ROOT"), lang.lc);
+	    snprintf(temp, PATH_MAX, "%s/share/int/menus/%s", getenv("FTND_ROOT"), lang.lc);
 	    if ((dp = opendir(temp))) {
 		while ((de = readdir(dp))) {
 		    if (de->d_name[0] != '.') {
@@ -615,7 +611,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Text files</H3>\n");
-	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("MBSE_ROOT"), lang.lc);
+	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s", getenv("FTND_ROOT"), lang.lc);
 	    if ((dp = opendir(temp))) {
 		while ((de = readdir(dp))) {
 		    if (de->d_name[0] != '.') {
@@ -626,7 +622,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Macro template files</H3>\n");
-	    snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("MBSE_ROOT"), lang.lc);
+	    snprintf(temp, PATH_MAX, "%s/share/int/macro/%s", getenv("FTND_ROOT"), lang.lc);
 	    if ((dp = opendir(temp))) {
 		while ((de = readdir(dp))) {
 		    if (de->d_name[0] != '.') {

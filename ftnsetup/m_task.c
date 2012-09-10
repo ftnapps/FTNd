@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_task.c,v 1.17 2008/02/28 22:05:14 mbse Exp $
+ * m_task.c
  * Purpose ...............: Setup TaskManager.
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -51,7 +47,7 @@ int OpenTask(void)
 	FILE	*fin;
 	char	fnin[PATH_MAX];
 
-	snprintf(fnin, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
+	snprintf(fnin, PATH_MAX, "%s/etc/task.data", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		fread(&TCFG, sizeof(TCFG), 1, fin);
 		fclose(fin);
@@ -76,7 +72,7 @@ void CloseTask(void)
 	if (crc1 != crc2) {
 		if (yes_no((char *)"Configuration is changed, save changes") == 1) {
 			working(1, 0, 0);
-			snprintf(fin, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
+			snprintf(fin, PATH_MAX, "%s/etc/task.data", getenv("FTND_ROOT"));
 			if ((fp = fopen(fin, "w+")) != NULL) {
 				fwrite(&TCFG, sizeof(TCFG), 1, fp);
 				fclose(fp);
@@ -103,23 +99,23 @@ int EditTask()
 	IsDoing("Edit Taskmanager");
 
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 4, 1, "18.  EDIT TASK MANAGER");
+	ftnd_mvprintw( 4, 1, "18.  EDIT TASK MANAGER");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 6, 1, " 1.  Mailout");
-	mbse_mvprintw( 7, 1, " 2.  Mailin");
-	mbse_mvprintw( 8, 1, " 3.  Newnews");
-	mbse_mvprintw( 9, 1, " 4.  Index 1");
-	mbse_mvprintw(10, 1, " 5.  Index 2");
-	mbse_mvprintw(11, 1, " 6.  Index 3");
-	mbse_mvprintw(12, 1, " 7.  Msglink");
-	mbse_mvprintw(13, 1, " 8.  Reqindex");
-	mbse_mvprintw(14, 1, " 9.  Ping #1");
-	mbse_mvprintw(15, 1, "10.  Ping #2");
-	mbse_mvprintw(16, 1, "11.  Max TCP");
-	mbse_mvprintw(17, 1, "12.  Max Load");
+	ftnd_mvprintw( 6, 1, " 1.  Mailout");
+	ftnd_mvprintw( 7, 1, " 2.  Mailin");
+	ftnd_mvprintw( 8, 1, " 3.  Newnews");
+	ftnd_mvprintw( 9, 1, " 4.  Index 1");
+	ftnd_mvprintw(10, 1, " 5.  Index 2");
+	ftnd_mvprintw(11, 1, " 6.  Index 3");
+	ftnd_mvprintw(12, 1, " 7.  Msglink");
+	ftnd_mvprintw(13, 1, " 8.  Reqindex");
+	ftnd_mvprintw(14, 1, " 9.  Ping #1");
+	ftnd_mvprintw(15, 1, "10.  Ping #2");
+	ftnd_mvprintw(16, 1, "11.  Max TCP");
+	ftnd_mvprintw(17, 1, "12.  Max Load");
 
-	mbse_mvprintw(16,41, "13.  ZMH start");
-	mbse_mvprintw(17,41, "14.  ZMH end");
+	ftnd_mvprintw(16,41, "13.  ZMH start");
+	ftnd_mvprintw(17,41, "14.  ZMH end");
 
 
 	for (;;) {
@@ -127,9 +123,9 @@ int EditTask()
 		show_str( 6, 15,65, TCFG.cmd_mailout);
 		show_str( 7, 15,65, TCFG.cmd_mailin);
 		show_str( 8, 15,65, TCFG.cmd_newnews);
-		show_str( 9, 15,65, TCFG.cmd_mbindex1);
-		show_str(10, 15,65, TCFG.cmd_mbindex2);
-		show_str(11, 15,65, TCFG.cmd_mbindex3);
+		show_str( 9, 15,65, TCFG.cmd_ftnindex1);
+		show_str(10, 15,65, TCFG.cmd_ftnindex2);
+		show_str(11, 15,65, TCFG.cmd_ftnindex3);
 		show_str(12, 15,65, TCFG.cmd_msglink);
 		show_str(13, 15,65, TCFG.cmd_reqindex);
 		show_str(14, 15,40, TCFG.isp_ping1);
@@ -147,9 +143,9 @@ int EditTask()
 		case 1:	E_STR(  6,15,65,TCFG.cmd_mailout,    "The command to execute on semafore ^mailout^")
 		case 2: E_STR(  7,15,65,TCFG.cmd_mailin,     "The command to execute on semafore ^mailin^")
 		case 3: E_STR(  8,15,65,TCFG.cmd_newnews,    "The command to execute on semafore ^newnews^")
-		case 4: E_STR(  9,15,65,TCFG.cmd_mbindex1,   "The compiler 1 command to execute on semafore ^mbindex^")
-		case 5: E_STR( 10,15,65,TCFG.cmd_mbindex2,   "The compiler 2 command to execute on semafore ^mbindex^")
-		case 6: E_STR( 11,15,65,TCFG.cmd_mbindex3,   "The compiler 3 command to execute on semafore ^mbindex^")
+		case 4: E_STR(  9,15,65,TCFG.cmd_ftnindex1,   "The compiler 1 command to execute on semafore ^ftnindex^")
+		case 5: E_STR( 10,15,65,TCFG.cmd_ftnindex2,   "The compiler 2 command to execute on semafore ^ftnindex^")
+		case 6: E_STR( 11,15,65,TCFG.cmd_ftnindex3,   "The compiler 3 command to execute on semafore ^ftnindex^")
 		case 7: E_STR( 12,15,65,TCFG.cmd_msglink,    "The command to execute on semafore ^msglink^")
 		case 8: E_STR( 13,15,65,TCFG.cmd_reqindex,   "The command to execute on semafore ^reqindex^")
 		case 9: E_STR( 14,15,40,TCFG.isp_ping1,      "The ^IP address^ of host 1 to check the Internet Connection")
@@ -181,7 +177,7 @@ int task_doc(FILE *fp, FILE *toc, int page)
     char    temp[PATH_MAX];
     FILE    *wp, *no;
 
-    snprintf(temp, PATH_MAX, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/task.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
     fread(&TCFG, sizeof(TCFG), 1, no);
@@ -196,9 +192,9 @@ int task_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"Command on mailout", TCFG.cmd_mailout);
     add_webtable(wp, (char *)"Command on mailin", TCFG.cmd_mailin);
     add_webtable(wp, (char *)"Command on newnews", TCFG.cmd_newnews);
-    add_webtable(wp, (char *)"Command on mbindex 1", TCFG.cmd_mbindex1);
-    add_webtable(wp, (char *)"Command on mbindex 2", TCFG.cmd_mbindex1);
-    add_webtable(wp, (char *)"Command on mbindex 3", TCFG.cmd_mbindex2);
+    add_webtable(wp, (char *)"Command on ftnindex 1", TCFG.cmd_ftnindex1);
+    add_webtable(wp, (char *)"Command on ftnindex 2", TCFG.cmd_ftnindex1);
+    add_webtable(wp, (char *)"Command on ftnindex 3", TCFG.cmd_ftnindex2);
     add_webtable(wp, (char *)"Command on msglink", TCFG.cmd_msglink);
     add_webtable(wp, (char *)"Command on reqindex", TCFG.cmd_reqindex);
     fprintf(wp, "<TR><TD colspan=2>&nbsp;</TD></TR>\n");
@@ -222,9 +218,9 @@ int task_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "     Command on mailout     %s\n", TCFG.cmd_mailout);
     fprintf(fp, "     Command on mailin      %s\n", TCFG.cmd_mailin);
     fprintf(fp, "     Command on newnews     %s\n", TCFG.cmd_newnews);
-    fprintf(fp, "     Command on mbindex 1   %s\n", TCFG.cmd_mbindex1);
-    fprintf(fp, "     Command on mbindex 2   %s\n", TCFG.cmd_mbindex2);
-    fprintf(fp, "     Command on mbindex 3   %s\n", TCFG.cmd_mbindex3);
+    fprintf(fp, "     Command on ftnindex 1   %s\n", TCFG.cmd_ftnindex1);
+    fprintf(fp, "     Command on ftnindex 2   %s\n", TCFG.cmd_ftnindex2);
+    fprintf(fp, "     Command on ftnindex 3   %s\n", TCFG.cmd_ftnindex3);
     fprintf(fp, "     Command on msglink     %s\n", TCFG.cmd_msglink);
     fprintf(fp, "     Command on reqindex    %s\n\n", TCFG.cmd_reqindex);
 

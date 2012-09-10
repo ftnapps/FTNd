@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_route.c,v 1.13 2008/02/28 22:05:14 mbse Exp $
+ * m_route.c
  * Purpose ...............: Routing Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -54,7 +50,7 @@ int CountRoute(void)
     int	    count;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    snprintf(ffile, PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/route.data", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -95,8 +91,8 @@ int OpenRoute(void)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fnin,  PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/route.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/route.temp", getenv("FTND_ROOT"));
 
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
@@ -153,8 +149,8 @@ void CloseRoute(int force)
 
     fin  = calloc(PATH_MAX, sizeof(char));
     fout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fin,  PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
-    snprintf(fout, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/route.data", getenv("FTND_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/route.temp", getenv("FTND_ROOT"));
 
     if (RouteUpdated == 1) {
 	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -203,7 +199,7 @@ int AppendRoute(void)
     char    *ffile;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    snprintf(ffile, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/route.temp", getenv("FTND_ROOT"));
 
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&route, 0, sizeof(route));
@@ -290,15 +286,15 @@ void RouteScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 5, "19. EDIT ROUTING TABLE");
+    ftnd_mvprintw( 5, 5, "19. EDIT ROUTING TABLE");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 5, "1.  Mask");
-//  mbse_mvprintw( 8, 5, "2.  Src name");
-    mbse_mvprintw( 9, 5, "3.  Action");
-    mbse_mvprintw(10, 5, "4.  Dest addr");
-//  mbse_mvprintw(11, 5, "5.  Dest name");
-    mbse_mvprintw(12, 5, "6.  Active");
-    mbse_mvprintw(13, 5, "7.  Deleted");
+    ftnd_mvprintw( 7, 5, "1.  Mask");
+//  ftnd_mvprintw( 8, 5, "2.  Src name");
+    ftnd_mvprintw( 9, 5, "3.  Action");
+    ftnd_mvprintw(10, 5, "4.  Dest addr");
+//  ftnd_mvprintw(11, 5, "5.  Dest name");
+    ftnd_mvprintw(12, 5, "6.  Active");
+    ftnd_mvprintw(13, 5, "7.  Deleted");
 }
 
 
@@ -319,7 +315,7 @@ int EditRouteRec(int Area)
     IsDoing("Edit Route");
 
     mfile = calloc(PATH_MAX, sizeof(char));
-    snprintf(mfile, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/route.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	free(mfile);
@@ -436,10 +432,10 @@ void EditRoute(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 4, "19. ROUTING TABLE");
+	ftnd_mvprintw( 5, 4, "19. ROUTING TABLE");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/route.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/route.temp", getenv("FTND_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&routehdr, sizeof(routehdr), 1, fil);
@@ -459,7 +455,7 @@ void EditRoute(void)
 			    set_color(LIGHTBLUE, BLACK);
 			snprintf(temp, 81, "%3d.  %-25s %s %s", o + i, route.mask, get_routetype(route.routetype), aka2str(route.dest));
 //			temp[37] = 0;
-			mbse_mvprintw(y, x, temp);
+			ftnd_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -516,7 +512,7 @@ int route_doc(FILE *fp, FILE *toc, int page)
     int	    j;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/route.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return page;

@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: mbsetup.c,v 1.53 2008/02/28 22:05:14 mbse Exp $
+ * ftnsetup.c
  * Purpose ...............: Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -84,7 +80,7 @@ static void die(int onsig)
     int	    i;
 
     signal(onsig, SIG_IGN);
-    if ((!init) && (onsig != MBERR_NO_PROGLOCK))
+    if ((!init) && (onsig != FTNERR_NO_PROGLOCK))
 	screen_stop(); 
 
     if (exp_golded && (config_read() != -1)) {
@@ -93,9 +89,9 @@ static void die(int onsig)
 	/*
 	 * Export ~/etc/msg.txt for MsgEd.
 	 */
-	snprintf(temp, PATH_MAX, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/msg.txt", getenv("FTND_ROOT"));
 	if ((fp = fopen(temp, "w")) != NULL) {
-	    fprintf(fp, "; msg.txt -- Automatic created by mbsetup %s -- Do not edit!\n;\n", VERSION);
+	    fprintf(fp, "; msg.txt -- Automatic created by ftnsetup %s -- Do not edit!\n;\n", VERSION);
 	    fprintf(fp, "; Mail areas for MsgEd.\n;\n");
 	    msged_areas(fp);
 	    fclose(fp);
@@ -107,9 +103,9 @@ static void die(int onsig)
 	/*
 	 * Export ~/etc/golded.inc for GoldED
 	 */
-	snprintf(temp, PATH_MAX, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/golded.inc", getenv("FTND_ROOT"));
 	if ((fp = fopen(temp, "w")) != NULL) {
-	    fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
+	    fprintf(fp, "; GoldED.inc -- Automatic created by ftnsetup %s -- Do not edit!\n\n", VERSION);
 	    fprintf(fp, "; Basic information.\n;\n");
 	    if (strlen(CFG.sysop_name) && CFG.akavalid[0] && CFG.aka[0].zone) {
 		fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
@@ -121,12 +117,12 @@ static void die(int onsig)
 
 		gold_akamatch(fp);
 		fprintf(fp, "; JAM MessageBase Setup\n;\n");
-		fprintf(fp, "JAMPATH %s/tmp/\n", getenv("MBSE_ROOT"));
+		fprintf(fp, "JAMPATH %s/tmp/\n", getenv("FTND_ROOT"));
 		fprintf(fp, "JAMHARDDELETE NO\n\n");
 
 		fprintf(fp, "; Semaphore files\n;\n");
-		fprintf(fp, "SEMAPHORE NETSCAN    %s/var/sema/mailout\n", getenv("MBSE_ROOT"));
-		fprintf(fp, "SEMAPHORE ECHOSCAN   %s/var/sema/mailout\n\n", getenv("MBSE_ROOT"));
+		fprintf(fp, "SEMAPHORE NETSCAN    %s/var/sema/mailout\n", getenv("FTND_ROOT"));
+		fprintf(fp, "SEMAPHORE ECHOSCAN   %s/var/sema/mailout\n\n", getenv("FTND_ROOT"));
 
 		gold_areas(fp);
 	    }
@@ -139,12 +135,12 @@ static void die(int onsig)
 	free(temp);
     }
 
-    ulockprogram((char *)"mbsetup");
+    ulockprogram((char *)"ftnsetup");
     umask(oldmask);
     if (onsig && (onsig <= NSIG))
-	WriteError("MBSETUP finished on signal %s", SigName[onsig]);
+	WriteError("FTNSETUP finished on signal %s", SigName[onsig]);
     else
-	Syslog(' ', "MBSETUP finished");
+	Syslog(' ', "FTNSETUP finished");
     ExitClient(onsig);
 }
 
@@ -158,12 +154,12 @@ void soft_info(void)
 	temp = calloc(81, sizeof(char));
 	clr_index();
 	set_color(YELLOW, BLACK);
-	snprintf(temp, 81, "MBSE BBS (%s-%s)", OsName(), OsCPU());
+	snprintf(temp, 81, "FTNd (%s-%s)", OsName(), OsCPU());
 	center_addstr( 6, temp);
 	set_color(WHITE, BLACK);
 	center_addstr( 8, (char *)COPYRIGHT);
 	set_color(YELLOW, BLACK);
-	center_addstr(10, (char *)"Made in the Netherlands");
+	center_addstr(10, (char *)"Made in the United States");
 	set_color(WHITE, BLACK);
 #ifdef __GLIBC__
 	snprintf(temp, 81, "Compiled on glibc v%d.%d", __GLIBC__, __GLIBC_MINOR__);
@@ -176,7 +172,7 @@ void soft_info(void)
 #endif
 	center_addstr(12, temp);
 	set_color(LIGHTCYAN, BLACK);
-	center_addstr(14, (char *)"http://www.mbse.eu or 2:280/2802");
+	center_addstr(14, (char *)"http://ftn.rocasa.net or 1:120/544");
 	set_color(LIGHTGREEN, BLACK);
 	center_addstr(LINES -7, (char *)"This is free software; released under the terms of the GNU General");
 	center_addstr(LINES -6, (char *)"Public License as published by the Free Software Foundation.");
@@ -198,12 +194,12 @@ void site_docs(void)
     if (config_read() == -1)
 	return;
 
-    snprintf(temp, PATH_MAX, "%s/share/doc/site.doc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/share/doc/site.doc", getenv("FTND_ROOT"));
     mkdirs(temp, 0755);
     if ((fp = fopen(temp, "w")) == NULL)
 	return;
 
-    snprintf(temp1, PATH_MAX, "%s/tmp/toc.tmp", getenv("MBSE_ROOT"));
+    snprintf(temp1, PATH_MAX, "%s/tmp/toc.tmp", getenv("FTND_ROOT"));
     if ((toc = fopen(temp1, "w+")) == NULL) {
 	fclose(fp);
 	return;
@@ -215,12 +211,12 @@ void site_docs(void)
     Syslog('+', "Start creating sitedocs");
 
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "21.  CREATING SITEDOCS");
+    ftnd_mvprintw( 5, 6, "21.  CREATING SITEDOCS");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7,11, (char *)"Erasing directory         %s/share/doc/html", getenv("MBSE_ROOT"));
+    ftnd_mvprintw( 7,11, (char *)"Erasing directory         %s/share/doc/html", getenv("FTND_ROOT"));
     fflush(stdout);
 
-    snprintf(temp, PATH_MAX, "-r -f %s/share/doc/html", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "-r -f %s/share/doc/html", getenv("FTND_ROOT"));
     execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 
     if ((hp = open_webdoc((char *)"index.html", (char *)"BBS Site Documentation", NULL))) {
@@ -259,7 +255,7 @@ void site_docs(void)
         Syslog('+', "Can't create html documentation");
     }
 
-    mbse_mvprintw(8,11, (char *)"Creating site documents");
+    ftnd_mvprintw(8,11, (char *)"Creating site documents");
     fflush(stdout);
     horiz = 35;
     page = global_doc(fp, toc, page);
@@ -302,7 +298,7 @@ void site_docs(void)
     dotter();
     ol_doc();
     clrtoeol();
-    mbse_mvprintw( 8,11, (char *)"Created site documents in %s/share/doc", getenv("MBSE_ROOT"));
+    ftnd_mvprintw( 8,11, (char *)"Created site documents in %s/share/doc", getenv("FTND_ROOT"));
     fflush(stdout);
 
     /*
@@ -333,9 +329,9 @@ void site_docs(void)
     /*
      * Remove obsolete documents
      */
-    snprintf(temp, PATH_MAX, "%s/doc/xref.doc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/doc/xref.doc", getenv("FTND_ROOT"));
     unlink(temp);
-    snprintf(temp, PATH_MAX, "%s/doc/stat.doc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/doc/stat.doc", getenv("FTND_ROOT"));
     unlink(temp);
 
     center_addstr(LINES -4, (char *)"Press any key");
@@ -351,7 +347,7 @@ void initdatabases(void)
 	clr_index();
 	working(1, 0, 0);
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "     INIT DATABASES");
+	ftnd_mvprintw( 5, 6, "     INIT DATABASES");
 	IsDoing("Init Databases");
     }
 
@@ -400,19 +396,19 @@ int main(int argc, char *argv[])
      * Find out who is on the keyboard or automated the keyboard.
      */
     pw = getpwuid(geteuid());
-    if (strcmp(pw->pw_name, (char *)"mbse")) {
-	printf("ERROR: only user \"mbse\" may use this program\n");
-        exit(MBERR_INIT_ERROR);
+    if (strcmp(pw->pw_name, (char *)"ftnd")) {
+	printf("ERROR: only user \"ftnd\" may use this program\n");
+        exit(FTNERR_INIT_ERROR);
     }
 
     /*
      * Read the global configuration data, registrate connection
      */
-    config_check(getenv("MBSE_ROOT"));
+    config_check(getenv("FTND_ROOT"));
     config_read();
     if (strlen(CFG.debuglog) == 0)
 	snprintf(CFG.debuglog, 15, "debug.log");
-    InitClient(pw->pw_name, (char *)"mbsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log, CFG.mgrlog, CFG.debuglog);
+    InitClient(pw->pw_name, (char *)"ftnsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     /*
      * Setup several signals so when the program terminate's it
@@ -429,18 +425,18 @@ int main(int argc, char *argv[])
 
     do_quiet = TRUE;
     Syslog(' ', " ");
-    Syslog(' ', "MBSETUP v%s started by %s", VERSION, pw->pw_name);
+    Syslog(' ', "FTNSETUP v%s started by %s", VERSION, pw->pw_name);
     if (init)
-	Syslog('+', "Cmd: mbsetup init");
+	Syslog('+', "Cmd: ftnsetup init");
 
     if ((argc == 2) && (strncmp(tl(argv[1]), "i", 1) == 0))
 	init = TRUE;
     else
-	screen_start((char *)"MBsetup");
+	screen_start((char *)"ftnsetup");
     
-    if (lockprogram((char *)"mbsetup")) {
-	printf("\n\7Another mbsetup is already running, abort.\n\n");
-	die(MBERR_NO_PROGLOCK);
+    if (lockprogram((char *)"ftnsetup")) {
+	printf("\n\7Another ftnsetup is already running, abort.\n\n");
+	die(FTNERR_NO_PROGLOCK);
     }
 
     bbs_free = FALSE;
@@ -451,30 +447,30 @@ int main(int argc, char *argv[])
 	    IsDoing("Browsing Menu");
 	    clr_index();
 	    set_color(WHITE, BLACK);
-	    mbse_mvprintw( 5, 6, "0.    MAIN SETUP");
+	    ftnd_mvprintw( 5, 6, "0.    MAIN SETUP");
 	    set_color(CYAN, BLACK);
-	    mbse_mvprintw( 7, 6, "1.    Edit Global configuration");
-	    mbse_mvprintw( 8, 6, "2.    Edit Fido Networks");
-	    mbse_mvprintw( 9, 6, "3.    Edit Archiver Programs");
-	    mbse_mvprintw(10, 6, "4.    Edit Virus Scanners");
-	    mbse_mvprintw(11, 6, "5.    Edit Modem types");
-	    mbse_mvprintw(12, 6, "6.    Edit TTY lines info");
-	    mbse_mvprintw(13, 6, "7.    Edit Fidonet Nodes");
-	    mbse_mvprintw(14, 6, "8.    Edit BBS Setup");
-	    mbse_mvprintw(15, 6, "9.    Edit Mail Setup");
-	    mbse_mvprintw(16, 6, "10.   Edit File Echo's setup");
-	    mbse_mvprintw(17, 6, "11.   Edit Newfiles Groups");
-	    mbse_mvprintw( 7,46, "12.   Edit Newfiles Reports");
-	    mbse_mvprintw( 8,46, "13.   Edit FileFind Setup");
-	    mbse_mvprintw( 9,46, "14.   Edit Files Database");
-	    mbse_mvprintw(10,46, "15.   Edit BBS Users");
-	    mbse_mvprintw(11,46, "16.   Edit Services");
-	    mbse_mvprintw(12,46, "17.   Edit Domains");
-	    mbse_mvprintw(13,46, "18.   Edit Task Manager");
-	    mbse_mvprintw(14,46, "19.   Edit Routing Table");
-	    mbse_mvprintw(15,46, "20.   Edit Internet BBS Chat");
-	    mbse_mvprintw(16,46, "21.   Show software information");
-	    mbse_mvprintw(17,46, "22.   Create site documents");
+	    ftnd_mvprintw( 7, 6, "1.    Edit Global configuration");
+	    ftnd_mvprintw( 8, 6, "2.    Edit Fido Networks");
+	    ftnd_mvprintw( 9, 6, "3.    Edit Archiver Programs");
+	    ftnd_mvprintw(10, 6, "4.    Edit Virus Scanners");
+	    ftnd_mvprintw(11, 6, "5.    Edit Modem types");
+	    ftnd_mvprintw(12, 6, "6.    Edit TTY lines info");
+	    ftnd_mvprintw(13, 6, "7.    Edit Fidonet Nodes");
+	    ftnd_mvprintw(14, 6, "8.    Edit BBS Setup");
+	    ftnd_mvprintw(15, 6, "9.    Edit Mail Setup");
+	    ftnd_mvprintw(16, 6, "10.   Edit File Echo's setup");
+	    ftnd_mvprintw(17, 6, "11.   Edit Newfiles Groups");
+	    ftnd_mvprintw( 7,46, "12.   Edit Newfiles Reports");
+	    ftnd_mvprintw( 8,46, "13.   Edit FileFind Setup");
+	    ftnd_mvprintw( 9,46, "14.   Edit Files Database");
+	    ftnd_mvprintw(10,46, "15.   Edit BBS Users");
+	    ftnd_mvprintw(11,46, "16.   Edit Services");
+	    ftnd_mvprintw(12,46, "17.   Edit Domains");
+	    ftnd_mvprintw(13,46, "18.   Edit Task Manager");
+	    ftnd_mvprintw(14,46, "19.   Edit Routing Table");
+	    ftnd_mvprintw(15,46, "20.   Edit Internet BBS Chat");
+	    ftnd_mvprintw(16,46, "21.   Show software information");
+	    ftnd_mvprintw(17,46, "22.   Create site documents");
  
 	    switch(select_menu(22)) {
 		case 0:
@@ -550,7 +546,7 @@ int main(int argc, char *argv[])
 	} while (loop == 1);
     }
 
-    die(MBERR_OK);
+    die(FTNERR_OK);
     return 0;
 }
 

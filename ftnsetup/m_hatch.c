@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_hatch.c,v 1.20 2005/10/11 20:49:49 mbse Exp $
+ * m_hatch.c
  * Purpose ...............: Hatch Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -62,7 +58,7 @@ int CountHatch(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/hatch.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -100,8 +96,8 @@ int OpenHatch(void)
 	int	oldsize;
 	int	FieldPatch = FALSE;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/hatch.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/hatch.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&hatchhdr, sizeof(hatchhdr), 1, fin);
@@ -156,8 +152,8 @@ void CloseHatch(int force)
 	FILE	*fi, *fo;
 	st_list	*hat = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/hatch.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/hatch.temp", getenv("FTND_ROOT"));
 
 	if (HatchUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -203,7 +199,7 @@ int AppendHatch(void)
 	char	ffile[PATH_MAX];
 	int	i;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/hatch.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&hatch, 0, sizeof(hatch));
 		/*
@@ -226,18 +222,18 @@ void HatchScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "10.3 EDIT HATCH MANAGER");
+	ftnd_mvprintw( 5, 2, "10.3 EDIT HATCH MANAGER");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Mask");
-	mbse_mvprintw( 8, 2, "2.  Area");
-	mbse_mvprintw( 9, 2, "3.  Replace");
-	mbse_mvprintw(10, 2, "4.  Magic");
-	mbse_mvprintw(11, 2, "5.  Desc");
-	mbse_mvprintw(12, 2, "6.  Dupe");
-	mbse_mvprintw(13, 2, "7.  Active");
-	mbse_mvprintw(14, 2, "8.  Deleted");
-	mbse_mvprintw(15, 2, "9.  Days");
-	mbse_mvprintw(16, 2, "10. Month");
+	ftnd_mvprintw( 7, 2, "1.  Mask");
+	ftnd_mvprintw( 8, 2, "2.  Area");
+	ftnd_mvprintw( 9, 2, "3.  Replace");
+	ftnd_mvprintw(10, 2, "4.  Magic");
+	ftnd_mvprintw(11, 2, "5.  Desc");
+	ftnd_mvprintw(12, 2, "6.  Dupe");
+	ftnd_mvprintw(13, 2, "7.  Active");
+	ftnd_mvprintw(14, 2, "8.  Deleted");
+	ftnd_mvprintw(15, 2, "9.  Days");
+	ftnd_mvprintw(16, 2, "10. Month");
 }
 
 
@@ -250,12 +246,12 @@ void EditDates(void)
 	clr_index();
 	for (;;) {
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, "10.3.9 EDIT DATES IN MONTH");
+		ftnd_mvprintw( 5, 6, "10.3.9 EDIT DATES IN MONTH");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 5;
 		for (i = 0; i < 32; i++) {
-			mbse_mvprintw(y, x, (char *)"%2d.  %s", i+1, Month[i]);
+			ftnd_mvprintw(y, x, (char *)"%2d.  %s", i+1, Month[i]);
 			y++;
 			if (y == 17) {
 				y = 7;
@@ -307,10 +303,10 @@ void EditDays(void)
 	clr_index();
 	for (;;) {
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, "10.3.8 EDIT DAYS IN WEEK");
+		ftnd_mvprintw( 5, 6, "10.3.8 EDIT DAYS IN WEEK");
 		set_color(CYAN, BLACK);
 		for (i = 0; i < 7; i++)
-			mbse_mvprintw(7+i, 6, (char *)"%d.  %s", i+1, Days[i]);
+			ftnd_mvprintw(7+i, 6, (char *)"%d.  %s", i+1, Days[i]);
 		set_color(WHITE, BLACK);
 		for (i = 0; i < 7; i++)
 			show_bool(7+i,14, hatch.Days[i]);
@@ -340,7 +336,7 @@ int EditHatchRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Hatch");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/hatch.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -481,10 +477,10 @@ void EditHatch(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "10.3. HATCH MANAGER");
+		ftnd_mvprintw( 5, 4, "10.3. HATCH MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/hatch.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&hatchhdr, sizeof(hatchhdr), 1, fil);
@@ -506,7 +502,7 @@ void EditHatch(void)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-32s", o + i, hatch.Spec);
 						temp[37] = 0;
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -561,7 +557,7 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *no;
     int	    i, j, nr = 0, All;
 
-    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/hatch.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 

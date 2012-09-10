@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_mgroup.c,v 1.42 2006/03/29 18:51:36 mbse Exp $
+ * m_mgroup.c
  * Purpose ...............: Setup MGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2006 
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2006 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -56,7 +52,7 @@ int CountMGroup(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -110,8 +106,8 @@ int OpenMGroup(void)
     gedgrps = (unsigned int *)malloc(1001 * sizeof(unsigned int));
     memset(gedgrps, 0, 1001 * sizeof(unsigned int));
 
-    snprintf(fnin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/mgroups.temp", getenv("FTND_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    MGrpUpdated = 0;
@@ -157,7 +153,7 @@ int OpenMGroup(void)
 			if (temp[i] == '.')
 			    temp[i] = '/';
 		    }
-		    snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+		    snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("FTND_ROOT"), temp);
 		}
 		if (MGrpUpdated && !mgroup.LinkSec.level) {
 		    mgroup.LinkSec.level = 1;
@@ -193,8 +189,8 @@ void CloseMGroup(int force)
     st_list *mgr = NULL, *tmp;
 
     free(gedgrps);
-    snprintf(fin,  PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-    snprintf(fout, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/mgroups.temp", getenv("FTND_ROOT"));
 
     if (MGrpUpdated == 1) {
 	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -241,7 +237,7 @@ int AppendMGroup(void)
     char    ffile[PATH_MAX];
     int	    i;
 
-    snprintf(ffile, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/mgroups.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&mgroup, 0, sizeof(mgroup));
 	mgroup.StartDate = time(NULL);
@@ -269,31 +265,31 @@ void MgScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "9.1 EDIT MESSAGE GROUP");
+    ftnd_mvprintw( 5, 2, "9.1 EDIT MESSAGE GROUP");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.  Name");
-    mbse_mvprintw( 8, 2, "2.  Comment");
-    mbse_mvprintw( 9, 2, "3.  Base path");
-    mbse_mvprintw(10, 2, "4.  Read sec");
-    mbse_mvprintw(11, 2, "5.  Write sec");
-    mbse_mvprintw(12, 2, "6.  Sysop sec");
-    mbse_mvprintw(13, 2, "7.  Link sec");
-    mbse_mvprintw(14, 2, "8.  Start at");
-    mbse_mvprintw(15, 2, "9.  Net reply");
-    mbse_mvprintw(16, 2, "10. Users del");
-    mbse_mvprintw(17, 2, "11. Aliases");
-    mbse_mvprintw(18, 2, "12. Quotes");
-    mbse_mvprintw(19, 2, "13. Active");
+    ftnd_mvprintw( 7, 2, "1.  Name");
+    ftnd_mvprintw( 8, 2, "2.  Comment");
+    ftnd_mvprintw( 9, 2, "3.  Base path");
+    ftnd_mvprintw(10, 2, "4.  Read sec");
+    ftnd_mvprintw(11, 2, "5.  Write sec");
+    ftnd_mvprintw(12, 2, "6.  Sysop sec");
+    ftnd_mvprintw(13, 2, "7.  Link sec");
+    ftnd_mvprintw(14, 2, "8.  Start at");
+    ftnd_mvprintw(15, 2, "9.  Net reply");
+    ftnd_mvprintw(16, 2, "10. Users del");
+    ftnd_mvprintw(17, 2, "11. Aliases");
+    ftnd_mvprintw(18, 2, "12. Quotes");
+    ftnd_mvprintw(19, 2, "13. Active");
 
-    mbse_mvprintw(14,26, "14. Deleted");
-    mbse_mvprintw(15,26, "15. Auto change");
-    mbse_mvprintw(16,26, "16. User change");
-    mbse_mvprintw(17,26, "17. Use Aka");
-    mbse_mvprintw(18,26, "18. Uplink");
-    mbse_mvprintw(19,26, "19. Areas");
+    ftnd_mvprintw(14,26, "14. Deleted");
+    ftnd_mvprintw(15,26, "15. Auto change");
+    ftnd_mvprintw(16,26, "16. User change");
+    ftnd_mvprintw(17,26, "17. Use Aka");
+    ftnd_mvprintw(18,26, "18. Uplink");
+    ftnd_mvprintw(19,26, "19. Areas");
 
-    mbse_mvprintw(14,54, "20. Charset");
-    mbse_mvprintw(15,54, "21. GED grp");
+    ftnd_mvprintw(14,54, "20. Charset");
+    ftnd_mvprintw(15,54, "21. GED grp");
 }
 
 
@@ -334,7 +330,7 @@ int EditMGrpRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit MessageGroup");
 
-    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -360,7 +356,7 @@ int EditMGrpRec(int Area)
 	show_sec( 10,16,    mgroup.RDSec);
 	show_sec( 11,16,    mgroup.WRSec);
 	show_sec( 12,16,    mgroup.SYSec);
-	mbse_mvprintw( 13,22,    getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
+	ftnd_mvprintw( 13,22,    getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
 	show_int( 14,16,    mgroup.StartArea);
 	show_int( 15,16,    mgroup.NetReply);
 	show_bool(16,16,    mgroup.UsrDelete);
@@ -416,7 +412,7 @@ int EditMGrpRec(int Area)
 			    if (isupper(temp[i]))
 			        temp[i] = tolower(temp[i]);
 			}
-		        snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+		        snprintf(mgroup.BasePath, 65, "%s/var/mail/%s", getenv("FTND_ROOT"), temp);
 		    }
 		    break;
 	    case 2: E_STR(  8,16,55, mgroup.Comment,    "The ^desription^ for this message group")
@@ -510,10 +506,10 @@ void EditMGroup(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 4, "9.1 MESSAGE GROUPS SETUP");
+	ftnd_mvprintw( 5, 4, "9.1 MESSAGE GROUPS SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mgroups.temp", getenv("FTND_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
@@ -535,7 +531,7 @@ void EditMGroup(void)
 			    set_color(LIGHTBLUE, BLACK);
 			snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
 			temp[38] = '\0';
-			mbse_mvprintw(y, x, temp);
+			ftnd_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -618,10 +614,10 @@ char *PickMGroup(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		snprintf(temp, 81, "%s.  MESSAGE GROUP SELECT", shdr);
-		mbse_mvprintw( 5, 4, temp);
+		ftnd_mvprintw( 5, 4, temp);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
@@ -643,7 +639,7 @@ char *PickMGroup(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
 						temp[38] = '\0';
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -664,7 +660,7 @@ char *PickMGroup(char *shdr)
 				o = o - 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
 			fil = fopen(temp, "r");
 			offset = sizeof(mgrouphdr) + ((atoi(pick) - 1) * mgrouphdr.recsize);
 			fseek(fil, offset, 0);
@@ -685,7 +681,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
     int	    refs, i, j;
     time_t  tt;
 
-    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -750,7 +746,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Message Areas Reference</H3>\n");
 	    refs = 0;
-            snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+            snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&tichdr, sizeof(tichdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);
@@ -781,7 +777,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Nodes Reference</H3>\n");
 	    refs = 0;
-	    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);

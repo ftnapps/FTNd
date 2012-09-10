@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_bbs.c,v 1.12 2005/04/16 15:55:17 mbse Exp $
+ * m_bbs.c
  * Purpose ...............: BBS Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2004 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -50,14 +46,14 @@ void bbs_menu(void)
 
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, "8.    BBS SETUP");
+		ftnd_mvprintw( 5, 6, "8.    BBS SETUP");
 		set_color(CYAN, BLACK);
-		mbse_mvprintw( 7, 6, "1.    Edit Security Limits");
-		mbse_mvprintw( 8, 6, "2.    Edit Language Setup");
-		mbse_mvprintw( 9, 6, "3.    Edit BBS Menus");
-		mbse_mvprintw(10, 6, "4.    Edit File Areas");
-		mbse_mvprintw(11, 6, "5.    Edit Transfer Protocols");
-		mbse_mvprintw(12, 6, "6.    Edit Oneliners");
+		ftnd_mvprintw( 7, 6, "1.    Edit Security Limits");
+		ftnd_mvprintw( 8, 6, "2.    Edit Language Setup");
+		ftnd_mvprintw( 9, 6, "3.    Edit BBS Menus");
+		ftnd_mvprintw(10, 6, "4.    Edit File Areas");
+		ftnd_mvprintw(11, 6, "5.    Edit Transfer Protocols");
+		ftnd_mvprintw(12, 6, "6.    Edit Oneliners");
 
 		switch(select_menu(6)) {
 		case 0: return;

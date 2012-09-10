@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_new.c,v 1.24 2007/03/02 13:23:36 mbse Exp $
+ * m_new.c
  * Purpose ...............: Newfiles Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -55,7 +51,7 @@ int CountNewfiles(void)
 	char	ffile[PATH_MAX], group[13];
 	int	count, i;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/newfiles.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -66,7 +62,7 @@ int CountNewfiles(void)
 			memset(&newfiles, 0, sizeof(newfiles));
 
 			snprintf(newfiles.Comment, 56, "General newfiles announce");
-			snprintf(newfiles.Area, 51, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
+			snprintf(newfiles.Area, 51, "%s/var/mail/local/users", getenv("FTND_ROOT"));
 			snprintf(newfiles.Origin, 51, "%s", CFG.origin);
 			snprintf(newfiles.From, 36, "Sysop");
 			snprintf(newfiles.Too, 36, "All");
@@ -111,8 +107,8 @@ int OpenNewfiles(void)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fnin,  PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/newfiles.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/newfiles.temp", getenv("FTND_ROOT"));
 	
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
@@ -195,8 +191,8 @@ void CloseNewfiles(int force)
 	st_list	*new = NULL, *tmp;
 	int	i;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/newfiles.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/newfiles.temp", getenv("FTND_ROOT"));
 
 	if (NewUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -247,7 +243,7 @@ int AppendNewfiles(void)
 	char	ffile[PATH_MAX], group[13];
 	int	i;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/newfiles.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&newfiles, 0, sizeof(newfiles));
 		/*
@@ -275,21 +271,21 @@ void NewScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "12. EDIT NEW FILES REPORTS");
+	ftnd_mvprintw( 5, 2, "12. EDIT NEW FILES REPORTS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Comment");
-	mbse_mvprintw( 8, 2, "2.  Msg area");
-	mbse_mvprintw( 9, 2, "3.  Origin line");
-	mbse_mvprintw(10, 2, "4.  From name");
-	mbse_mvprintw(11, 2, "5.  To name");
-	mbse_mvprintw(12, 2, "6.  Subject");
-	mbse_mvprintw(13, 2, "7.  Language");
-	mbse_mvprintw(14, 2, "8.  Template");
-	mbse_mvprintw(15, 2, "9.  Aka to use");
-	mbse_mvprintw(16, 2, "10. Active");
-	mbse_mvprintw(17, 2, "11. Deleted");
-	mbse_mvprintw(16,42, "12. New groups");
-	mbse_mvprintw(17,42, "13. CHRS kludge");
+	ftnd_mvprintw( 7, 2, "1.  Comment");
+	ftnd_mvprintw( 8, 2, "2.  Msg area");
+	ftnd_mvprintw( 9, 2, "3.  Origin line");
+	ftnd_mvprintw(10, 2, "4.  From name");
+	ftnd_mvprintw(11, 2, "5.  To name");
+	ftnd_mvprintw(12, 2, "6.  Subject");
+	ftnd_mvprintw(13, 2, "7.  Language");
+	ftnd_mvprintw(14, 2, "8.  Template");
+	ftnd_mvprintw(15, 2, "9.  Aka to use");
+	ftnd_mvprintw(16, 2, "10. Active");
+	ftnd_mvprintw(17, 2, "11. Deleted");
+	ftnd_mvprintw(16,42, "12. New groups");
+	ftnd_mvprintw(17,42, "13. CHRS kludge");
 }
 
 
@@ -311,7 +307,7 @@ int EditNewRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Newfiles");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/ngroups.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) != NULL) {
 		fread(&ngrouphdr, sizeof(ngrouphdr), 1, fil);
 
@@ -322,7 +318,7 @@ int EditNewRec(int Area)
 		sort_grlist(&fgr);
 	}
 
-	snprintf(mfile, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/newfiles.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		tidy_grlist(&fgr);
@@ -469,10 +465,10 @@ void EditNewfiles(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 4, "12. NEWFILES REPORTS");
+	ftnd_mvprintw( 5, 4, "12. NEWFILES REPORTS");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/newfiles.temp", getenv("FTND_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&newfileshdr, sizeof(newfileshdr), 1, fil);
@@ -494,7 +490,7 @@ void EditNewfiles(void)
 			    set_color(LIGHTBLUE, BLACK);
 			snprintf(temp, 81, "%3d.  %-32s", o + i, newfiles.Comment);
 			temp[37] = 0;
-			mbse_mvprintw(y, x, temp);
+			ftnd_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -553,7 +549,7 @@ int new_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *no;
     int	    groups, i, j, nr = 0;
 
-    snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 

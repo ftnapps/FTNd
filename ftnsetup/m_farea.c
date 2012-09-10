@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: m_farea.c,v 1.48 2006/02/24 20:33:28 mbse Exp $
+ * m_farea.c
  * Purpose ...............: File Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2006 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -58,7 +54,7 @@ int CountFilearea(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -109,8 +105,8 @@ int OpenFilearea(void)
     char    fnin[PATH_MAX], fnout[PATH_MAX];
     int	    oldsize;
 
-    snprintf(fnin,  PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/fareas.temp", getenv("FTND_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    fread(&areahdr, sizeof(areahdr), 1, fin);
@@ -170,8 +166,8 @@ void CloseFilearea(int force)
 {
 	char	fin[PATH_MAX], fout[PATH_MAX];
 
-	snprintf(fin,  PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/fareas.temp", getenv("FTND_ROOT"));
 
 	if (FileUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -198,7 +194,7 @@ int AppendFilearea(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fareas.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&area, 0, sizeof(area));
 		/*
@@ -225,33 +221,33 @@ void FileScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 4, 2, "8.4 EDIT FILE AREA");
+	ftnd_mvprintw( 4, 2, "8.4 EDIT FILE AREA");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 6, 2, "1.  Area Name");
-	mbse_mvprintw( 7, 2, "2.  Path");
-	mbse_mvprintw( 8, 2, "3.  Down Sec.");
-	mbse_mvprintw( 9, 2, "4.  Upl. Sec.");
-	mbse_mvprintw(10, 2, "5.  List Sec.");
-	mbse_mvprintw(11, 2, "6.  Available");
-	mbse_mvprintw(12, 2, "7.  Check new");
-	mbse_mvprintw(13, 2, "8.  Dupecheck");
-	mbse_mvprintw(14, 2, "9.  Free area");
-	mbse_mvprintw(15, 2, "10. Direct DL");
-	mbse_mvprintw(16, 2, "11. Pwd upl.");
-	mbse_mvprintw(17, 2, "12. Filefind");
+	ftnd_mvprintw( 6, 2, "1.  Area Name");
+	ftnd_mvprintw( 7, 2, "2.  Path");
+	ftnd_mvprintw( 8, 2, "3.  Down Sec.");
+	ftnd_mvprintw( 9, 2, "4.  Upl. Sec.");
+	ftnd_mvprintw(10, 2, "5.  List Sec.");
+	ftnd_mvprintw(11, 2, "6.  Available");
+	ftnd_mvprintw(12, 2, "7.  Check new");
+	ftnd_mvprintw(13, 2, "8.  Dupecheck");
+	ftnd_mvprintw(14, 2, "9.  Free area");
+	ftnd_mvprintw(15, 2, "10. Direct DL");
+	ftnd_mvprintw(16, 2, "11. Pwd upl.");
+	ftnd_mvprintw(17, 2, "12. Filefind");
 
-	mbse_mvprintw(12,30, "13. Add alpha");
-	mbse_mvprintw(13,30, "14. File req.");
-	mbse_mvprintw(14,30, "15. BBS Group");
-	mbse_mvprintw(15,30, "16. New group");
-	mbse_mvprintw(16,30, "17. Min. age");
-	mbse_mvprintw(17,30, "18. Password");
+	ftnd_mvprintw(12,30, "13. Add alpha");
+	ftnd_mvprintw(13,30, "14. File req.");
+	ftnd_mvprintw(14,30, "15. BBS Group");
+	ftnd_mvprintw(15,30, "16. New group");
+	ftnd_mvprintw(16,30, "17. Min. age");
+	ftnd_mvprintw(17,30, "18. Password");
 
-	mbse_mvprintw(12,59, "19. DL days");
-	mbse_mvprintw(13,59, "20. FD days");
-	mbse_mvprintw(14,59, "21. Move area");
-	mbse_mvprintw(15,59, "22. Archiver");
-	mbse_mvprintw(16,59, "23. Upload");
+	ftnd_mvprintw(12,59, "19. DL days");
+	ftnd_mvprintw(13,59, "20. FD days");
+	ftnd_mvprintw(14,59, "21. Move area");
+	ftnd_mvprintw(15,59, "22. Archiver");
+	ftnd_mvprintw(16,59, "23. Upload");
 }
 
 
@@ -275,7 +271,7 @@ int EditFileRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit File Area");
 
-    snprintf(mfile, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/fareas.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -372,7 +368,7 @@ int EditFileRec(int Area)
 				        /*
 				         * The linked LFN
 				         */
-				        if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
+				        if ((fdb_area = ftnddb_OpenFDB(Area, 30))) {
 					    while (fread(&f_db, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 					        if (strcmp(f_db.LName, de->d_name) == 0) {
 						    /*
@@ -386,7 +382,7 @@ int EditFileRec(int Area)
 						    break;
 						}
 					    }
-					    mbsedb_CloseFDB(fdb_area);
+					    ftnddb_CloseFDB(fdb_area);
 					}
 				    }
 				}
@@ -406,19 +402,19 @@ int EditFileRec(int Area)
 	    case 5: E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
 	    case 6: Available = edit_bool(11, 16, area.Available, (char *)"Is this area ^available^");
 		    temp = calloc(PATH_MAX, sizeof(char));
-		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+		    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), Area);
 		    if (area.Available && !Available) {
 		        /*
 		         * Attempt to disable this area, but check first.
 		         */
-		        if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
+		        if ((fdb_area = ftnddb_OpenFDB(Area, 30))) {
 	    		    fseek(fdb_area->fp, 0, SEEK_END);
 			    files = ((ftell(fdb_area->fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
 			    if (files) {
 			        errmsg("There are stil %d files in this area", files);
 			        Available = TRUE;
 			    }
-			    mbsedb_CloseFDB(fdb_area);
+			    ftnddb_CloseFDB(fdb_area);
 			}
 		        if (!Available) {
 			    if (yes_no((char *)"Are you sure you want to delete this area") == 0)
@@ -455,8 +451,8 @@ int EditFileRec(int Area)
 		    } 
 		    if (!area.Available && Available) {
 		        area.Available = TRUE;
-		        if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
-			    mbsedb_CloseFDB(fdb_area);
+		        if ((fdb_area = ftnddb_OpenFDB(Area, 30))) {
+			    ftnddb_CloseFDB(fdb_area);
 			}
 		    }
 		    free(temp);
@@ -523,10 +519,10 @@ void EditFilearea(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "8.4 FILE AREA SETUP");
+		ftnd_mvprintw( 5, 4, "8.4 FILE AREA SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fareas.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&areahdr, sizeof(areahdr), 1, fil);
@@ -548,7 +544,7 @@ void EditFilearea(void)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-32s", o + i, area.Name);
 						temp[37] = 0;
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -574,12 +570,12 @@ void EditFilearea(void)
 
 		if (strncmp(pick, "M", 1) == 0) {
 		    from = too = 0;
-		    mbse_mvprintw(LINES -3, 5, "From");
+		    ftnd_mvprintw(LINES -3, 5, "From");
 		    from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
-		    mbse_mvprintw(LINES -3,15, "To");
+		    ftnd_mvprintw(LINES -3,15, "To");
 		    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
 
-		    snprintf(temp, PATH_MAX, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/fareas.temp", getenv("FTND_ROOT"));
 		    if ((fil = fopen(temp, "r+")) != NULL) {
 			fread(&areahdr, sizeof(areahdr), 1, fil);
 			offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
@@ -617,8 +613,8 @@ void EditFilearea(void)
 				offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
 				fseek(fil, offset, 0);
 				fwrite(&area, areahdr.recsize, 1, fil);
-				snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), from);
-				snprintf(new,  PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), too);
+				snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), from);
+				snprintf(new,  PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), too);
 				rename(temp, new);
 
 				/*
@@ -649,7 +645,7 @@ void EditFilearea(void)
 				/*
 				 * Update references in tic areas to this filearea.
 				 */
-				snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 				if ((tfil = fopen(temp, "r+")) == NULL) {
 				    WriteError("Can't update %s", temp);
 				} else {
@@ -717,10 +713,10 @@ int PickFilearea(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		snprintf(temp, 81, "%s.  FILE AREA SELECT", shdr);
-		mbse_mvprintw(5,3,temp);
+		ftnd_mvprintw(5,3,temp);
 		set_color(CYAN, BLACK);
 		if (records) {
-			snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&areahdr, sizeof(areahdr), 1, fil);
@@ -742,7 +738,7 @@ int PickFilearea(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-31s", o + i, area.Name);
 						temp[38] = '\0';
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -763,7 +759,7 @@ int PickFilearea(char *shdr)
 				o -= 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = areahdr.hdrsize + ((atoi(pick) - 1) * areahdr.recsize);
 				fseek(fil, offset, SEEK_SET);
@@ -793,7 +789,7 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
     FILE    *ti, *wp, *ip, *no;
     int	    i = 0, j = 0, tics;
 
-    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -859,7 +855,7 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 		fprintf(wp, "<HR>\n");
 		fprintf(wp, "<H3>TIC Areas Reference</H3>\n");
 		tics = 0;
-		snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 		if ((ti = fopen(temp, "r"))) {
 		    fread(&tichdr, sizeof(tichdr), 1, ti);
 		    fseek(ti, 0, SEEK_SET);

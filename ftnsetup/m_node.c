@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_node.c,v 1.69 2007/02/12 13:45:09 mbse Exp $
+ * m_node.c
  * Purpose ...............: Nodes Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -56,7 +52,7 @@ int CountNoderec(void)
     char    ffile[PATH_MAX];
     int	    count;
 
-    snprintf(ffile, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -98,8 +94,8 @@ int OpenNoderec(void)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fnin,  PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/nodes.temp", getenv("FTND_ROOT"));
 
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
@@ -219,8 +215,8 @@ void CloseNoderec(int Force)
 
     fin  = calloc(PATH_MAX, sizeof(char));
     fout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fin,  PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-    snprintf(fout, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/nodes.temp", getenv("FTND_ROOT"));
 
     if (NodeUpdated == 1) {
 	if (Force || (yes_no((char *)"Nodes database is changed, save changes") == 1)) {
@@ -295,7 +291,7 @@ int AppendNoderec(void)
     int	    i;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    snprintf(ffile, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/nodes.temp", getenv("FTND_ROOT"));
 
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&nodes, 0, sizeof(nodes));
@@ -339,7 +335,7 @@ int GroupInNode(char *Group, int Mail)
     int	    i, groups, RetVal = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return 0;
@@ -402,15 +398,15 @@ void E_UplMgr(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "7.10 EDIT NODE - UPLINK MANAGERS");
+    ftnd_mvprintw( 5, 6, "7.10 EDIT NODE - UPLINK MANAGERS");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.   Uplink AreaMgr program");
-    mbse_mvprintw( 8, 6, "2.   Uplink AreaMgr password");
-    mbse_mvprintw( 9, 6, "3.   Uplink AreaMgr is BBBS");
-    mbse_mvprintw(10, 6, "4.   Uplink FileMgr program");
-    mbse_mvprintw(11, 6, "5.   Uplink FileMgr password");
-    mbse_mvprintw(12, 6, "6.   Uplink FileMgr is BBBS");
-    mbse_mvprintw(13, 6, "7.   Our Area/Filemgr passwd");
+    ftnd_mvprintw( 7, 6, "1.   Uplink AreaMgr program");
+    ftnd_mvprintw( 8, 6, "2.   Uplink AreaMgr password");
+    ftnd_mvprintw( 9, 6, "3.   Uplink AreaMgr is BBBS");
+    ftnd_mvprintw(10, 6, "4.   Uplink FileMgr program");
+    ftnd_mvprintw(11, 6, "5.   Uplink FileMgr password");
+    ftnd_mvprintw(12, 6, "6.   Uplink FileMgr is BBBS");
+    ftnd_mvprintw(13, 6, "7.   Our Area/Filemgr passwd");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -447,14 +443,14 @@ void E_Mail(void)
 	if (show) {
 	    clr_index();
 	    set_color(WHITE, BLACK);
-	    mbse_mvprintw( 5, 6, "7.4  EDIT NODE - MAIL PROCESSING");
+	    ftnd_mvprintw( 5, 6, "7.4  EDIT NODE - MAIL PROCESSING");
 	    set_color(CYAN, BLACK);
-	    mbse_mvprintw( 7, 6, "1.   PKT password");
-	    mbse_mvprintw( 8, 6, "2.   Check PKT pwd");
-	    mbse_mvprintw( 9, 6, "3.   Mail forward");
-	    mbse_mvprintw(10, 6, "4.   ARCmail comp.");
-	    mbse_mvprintw(11, 6, "5.   ARCmail a..z");
-	    mbse_mvprintw(12, 6, "6.   Archiver");
+	    ftnd_mvprintw( 7, 6, "1.   PKT password");
+	    ftnd_mvprintw( 8, 6, "2.   Check PKT pwd");
+	    ftnd_mvprintw( 9, 6, "3.   Mail forward");
+	    ftnd_mvprintw(10, 6, "4.   ARCmail comp.");
+	    ftnd_mvprintw(11, 6, "5.   ARCmail a..z");
+	    ftnd_mvprintw(12, 6, "6.   Archiver");
 	    show = FALSE;
 	}
 
@@ -489,16 +485,16 @@ void E_Files(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "7.6  EDIT NODE - FILES PROCESSING");
+    ftnd_mvprintw( 5, 6, "7.6  EDIT NODE - FILES PROCESSING");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.   Files password");
-    mbse_mvprintw( 8, 6, "2.   Incl. message");
-    mbse_mvprintw( 9, 6, "3.   Send TIC file");
-    mbse_mvprintw(10, 6, "4.   Advanced TIC");
-    mbse_mvprintw(11, 6, "5.   Advanced SB");
-    mbse_mvprintw(12, 6, "6.   To line in TIC");
-    mbse_mvprintw(13, 6, "7.   File forward");
-    mbse_mvprintw(14, 6, "8.   TIC 4d address");
+    ftnd_mvprintw( 7, 6, "1.   Files password");
+    ftnd_mvprintw( 8, 6, "2.   Incl. message");
+    ftnd_mvprintw( 9, 6, "3.   Send TIC file");
+    ftnd_mvprintw(10, 6, "4.   Advanced TIC");
+    ftnd_mvprintw(11, 6, "5.   Advanced SB");
+    ftnd_mvprintw(12, 6, "6.   To line in TIC");
+    ftnd_mvprintw(13, 6, "7.   File forward");
+    ftnd_mvprintw(14, 6, "8.   TIC 4d address");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -536,16 +532,16 @@ void S_Stat(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "7.11 NODE STATISTICS");
+	ftnd_mvprintw( 5, 6, "7.11 NODE STATISTICS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 8,18, " This week  Last week This month Last month      Total");
-	mbse_mvprintw( 9,18, "---------- ---------- ---------- ---------- ----------");
-	mbse_mvprintw(10,6, "Files sent");
-	mbse_mvprintw(11,6, "Kbytes sent");
-	mbse_mvprintw(12,6, "Files rcvd");
-	mbse_mvprintw(13,6, "Kbytes rcvd");
-	mbse_mvprintw(14,6, "Mail sent");
-	mbse_mvprintw(15,6, "Mail rcvd");
+	ftnd_mvprintw( 8,18, " This week  Last week This month Last month      Total");
+	ftnd_mvprintw( 9,18, "---------- ---------- ---------- ---------- ----------");
+	ftnd_mvprintw(10,6, "Files sent");
+	ftnd_mvprintw(11,6, "Kbytes sent");
+	ftnd_mvprintw(12,6, "Files rcvd");
+	ftnd_mvprintw(13,6, "Kbytes rcvd");
+	ftnd_mvprintw(14,6, "Mail sent");
+	ftnd_mvprintw(15,6, "Mail rcvd");
 	set_color(WHITE, BLACK);
 
 	Now = time(NULL);
@@ -558,17 +554,17 @@ void S_Stat(void)
 	else
 		LMiy = Miy - 1;
 
-	mbse_mvprintw(10,18, (char *)"%10u %10u %10u %10u %10u", nodes.FilesSent.tweek, 
+	ftnd_mvprintw(10,18, (char *)"%10u %10u %10u %10u %10u", nodes.FilesSent.tweek, 
 		nodes.FilesSent.lweek, nodes.FilesSent.month[Miy], nodes.FilesSent.month[LMiy], nodes.FilesSent.total);
-	mbse_mvprintw(11,18, (char *)"%10u %10u %10u %10u %10u", nodes.F_KbSent.tweek, 
+	ftnd_mvprintw(11,18, (char *)"%10u %10u %10u %10u %10u", nodes.F_KbSent.tweek, 
 		nodes.F_KbSent.lweek, nodes.F_KbSent.month[Miy], nodes.F_KbSent.month[LMiy], nodes.F_KbSent.total);
-	mbse_mvprintw(12,18, (char *)"%10u %10u %10u %10u %10u", nodes.FilesRcvd.tweek, 
+	ftnd_mvprintw(12,18, (char *)"%10u %10u %10u %10u %10u", nodes.FilesRcvd.tweek, 
 		nodes.FilesRcvd.lweek, nodes.FilesRcvd.month[Miy], nodes.FilesRcvd.month[LMiy], nodes.FilesRcvd.total);
-	mbse_mvprintw(13,18, (char *)"%10u %10u %10u %10u %10u", nodes.F_KbRcvd.tweek, 
+	ftnd_mvprintw(13,18, (char *)"%10u %10u %10u %10u %10u", nodes.F_KbRcvd.tweek, 
 		nodes.F_KbRcvd.lweek, nodes.F_KbRcvd.month[Miy], nodes.F_KbRcvd.month[LMiy], nodes.F_KbRcvd.total);
-	mbse_mvprintw(14,18, (char *)"%10u %10u %10u %10u %10u", nodes.MailSent.tweek, 
+	ftnd_mvprintw(14,18, (char *)"%10u %10u %10u %10u %10u", nodes.MailSent.tweek, 
 		nodes.MailSent.lweek, nodes.MailSent.month[Miy], nodes.MailSent.month[LMiy], nodes.MailSent.total);
-	mbse_mvprintw(15,18, (char *)"%10u %10u %10u %10u %10u", nodes.MailRcvd.tweek, 
+	ftnd_mvprintw(15,18, (char *)"%10u %10u %10u %10u %10u", nodes.MailRcvd.tweek, 
 		nodes.MailRcvd.lweek, nodes.MailRcvd.month[Miy], nodes.MailRcvd.month[LMiy], nodes.MailRcvd.total);
 	set_color(CYAN, BLACK);
 	center_addstr(LINES - 4, (char *)"Press any key");
@@ -587,14 +583,14 @@ fidoaddr e_a(fidoaddr n, int x)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, (char *)"7.%d EDIT AKA", x);
+		ftnd_mvprintw( 5, 6, (char *)"7.%d EDIT AKA", x);
 		set_color(CYAN, BLACK);
-		mbse_mvprintw( 7, 6, "1.  Zone");
-		mbse_mvprintw( 8, 6, "2.  Net");
-		mbse_mvprintw( 9, 6, "3.  Node");
-		mbse_mvprintw(10, 6, "4.  Point");
-		mbse_mvprintw(11, 6, "    Domain");
-		mbse_mvprintw(12, 6, "5.  Delete");
+		ftnd_mvprintw( 7, 6, "1.  Zone");
+		ftnd_mvprintw( 8, 6, "2.  Net");
+		ftnd_mvprintw( 9, 6, "3.  Node");
+		ftnd_mvprintw(10, 6, "4.  Point");
+		ftnd_mvprintw(11, 6, "    Domain");
+		ftnd_mvprintw(12, 6, "5.  Delete");
 		set_color(WHITE, BLACK);
 		show_int( 7,17, n.zone);
 		show_int( 8,17, n.net);
@@ -605,7 +601,7 @@ fidoaddr e_a(fidoaddr n, int x)
 		switch(select_menu(5)) {
 		case 0:	return n;
 		case 1:	n.zone = edit_int_range(7, 17, n.zone, 1, 4095, (char *)"The ^zone^ number 1..4095");
-			snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
 
@@ -641,16 +637,16 @@ void N_Akas(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, "7.2  EDIT NODES AKA'S");
+		ftnd_mvprintw( 5, 6, "7.2  EDIT NODES AKA'S");
 		set_color(CYAN, BLACK);
 		y = 7; x = 6;
 		for (i = 0; i < 20; i++) {
 			if (i == 10) {
 				y = 7; x = 46;
 			}
-			mbse_mvprintw( y, x, (char *)"%d.", i + 1);
+			ftnd_mvprintw( y, x, (char *)"%d.", i + 1);
 			if (nodes.Aka[i].zone)
-				mbse_mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
+				ftnd_mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
 			y++;
 		}
 
@@ -689,24 +685,24 @@ void GeneralScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "7.1  EDIT NODE GENERAL");
+    ftnd_mvprintw( 5, 2, "7.1  EDIT NODE GENERAL");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.   Sysop name");
-    mbse_mvprintw( 8, 2, "2.   Outbox dir");
-    mbse_mvprintw( 9, 2, "3.   Pvt. phone");
-    mbse_mvprintw(10, 2, "4.   Pvt. fax");
-    mbse_mvprintw(11, 2, "5.   Pvt. Cellphone");
-    mbse_mvprintw(12, 2, "6.   Pvt. e-mail");
-    mbse_mvprintw(13, 2, "7.   Pvt. remark");
-    mbse_mvprintw(14, 2, "8.   Route via");
-    mbse_mvprintw(15, 2, "9.   Netmail direct");
-    mbse_mvprintw(16, 2, "10.  Netmail crash");
-    mbse_mvprintw(17, 2, "11.  Netmail hold");
-    mbse_mvprintw(18, 2, "12.  Pack mail");
+    ftnd_mvprintw( 7, 2, "1.   Sysop name");
+    ftnd_mvprintw( 8, 2, "2.   Outbox dir");
+    ftnd_mvprintw( 9, 2, "3.   Pvt. phone");
+    ftnd_mvprintw(10, 2, "4.   Pvt. fax");
+    ftnd_mvprintw(11, 2, "5.   Pvt. Cellphone");
+    ftnd_mvprintw(12, 2, "6.   Pvt. e-mail");
+    ftnd_mvprintw(13, 2, "7.   Pvt. remark");
+    ftnd_mvprintw(14, 2, "8.   Route via");
+    ftnd_mvprintw(15, 2, "9.   Netmail direct");
+    ftnd_mvprintw(16, 2, "10.  Netmail crash");
+    ftnd_mvprintw(17, 2, "11.  Netmail hold");
+    ftnd_mvprintw(18, 2, "12.  Pack mail");
 
-    mbse_mvprintw(16,42, "13.  Send notify");
-    mbse_mvprintw(17,42, "14.  Language");
-    mbse_mvprintw(18,42, "15.  Deleted");
+    ftnd_mvprintw(16,42, "13.  Send notify");
+    ftnd_mvprintw(17,42, "14.  Language");
+    ftnd_mvprintw(18,42, "15.  Deleted");
 }
 
 
@@ -744,10 +740,10 @@ void GeneralEdit(void)
 	case 1: E_STR( 7,23,35, nodes.Sysop,        "The name of the ^sysop^ for this node")
 	case 2: if (strlen(nodes.OutBox) == 0) {
 		    if (nodes.Aka[0].zone) {
-			snprintf(nodes.OutBox, 65, "%s/var/boxes/node%d_%d_%d", getenv("MBSE_ROOT"), 
+			snprintf(nodes.OutBox, 65, "%s/var/boxes/node%d_%d_%d", getenv("FTND_ROOT"), 
 				nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
 		    } else {
-			snprintf(nodes.OutBox, 65, "%s/var/boxes/%s", getenv("MBSE_ROOT"), nodes.Sysop);
+			snprintf(nodes.OutBox, 65, "%s/var/boxes/%s", getenv("FTND_ROOT"), nodes.Sysop);
 			for (i = (strlen(nodes.OutBox) - strlen(nodes.Sysop)); i < strlen(nodes.OutBox); i++) {
 			    nodes.OutBox[i] = tolower(nodes.OutBox[i]);
 			    if (nodes.OutBox[i] == ' ')
@@ -807,32 +803,32 @@ void SessionScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "7.3  EDIT NODE SESSION");
+    ftnd_mvprintw( 5, 6, "7.3  EDIT NODE SESSION");
     set_color(CYAN, BLACK);
 
-    mbse_mvprintw( 7, 6, "1.   Session passwd");
-    mbse_mvprintw( 8, 6, "2.   Dial command");
-    mbse_mvprintw( 9, 6, "3.   Phone number 1");
-    mbse_mvprintw(10, 6, "4.   Phone number 2");
-    mbse_mvprintw(11, 6, "5.   Nodelist flags");
-    mbse_mvprintw(12, 6, "6.   Inet hostname");
-    mbse_mvprintw(13, 6, "7.   Outbound sess.");
-    mbse_mvprintw(14, 6, "8.   Inbound sess.");
-    mbse_mvprintw(15, 6, "9.   No EMSI");
-    mbse_mvprintw(16, 6, "10.  No YooHoo/2U2");
-    mbse_mvprintw(17, 6, "11.  No Filerequest");
-    mbse_mvprintw(18, 6, "12.  Don't call");
-    mbse_mvprintw(19, 6, "13.  8.3 names");
-    mbse_mvprintw(20, 6, "14.  NR mode");
+    ftnd_mvprintw( 7, 6, "1.   Session passwd");
+    ftnd_mvprintw( 8, 6, "2.   Dial command");
+    ftnd_mvprintw( 9, 6, "3.   Phone number 1");
+    ftnd_mvprintw(10, 6, "4.   Phone number 2");
+    ftnd_mvprintw(11, 6, "5.   Nodelist flags");
+    ftnd_mvprintw(12, 6, "6.   Inet hostname");
+    ftnd_mvprintw(13, 6, "7.   Outbound sess.");
+    ftnd_mvprintw(14, 6, "8.   Inbound sess.");
+    ftnd_mvprintw(15, 6, "9.   No EMSI");
+    ftnd_mvprintw(16, 6, "10.  No YooHoo/2U2");
+    ftnd_mvprintw(17, 6, "11.  No Filerequest");
+    ftnd_mvprintw(18, 6, "12.  Don't call");
+    ftnd_mvprintw(19, 6, "13.  8.3 names");
+    ftnd_mvprintw(20, 6, "14.  NR mode");
 
-    mbse_mvprintw(13,41, "15.  No PLZ");
-    mbse_mvprintw(14,41, "16.  No GZ/BZ2");
-    mbse_mvprintw(15,41, "17.  No Zmodem");
-    mbse_mvprintw(16,41, "18.  No Zedzap");
-    mbse_mvprintw(17,41, "19.  No Hydra");
-    mbse_mvprintw(18,41, "20.  Binkp old esc");
-    mbse_mvprintw(19,41, "21.  No binkp/1.1");
-    mbse_mvprintw(20,41, "22.  Ign. Hold");
+    ftnd_mvprintw(13,41, "15.  No PLZ");
+    ftnd_mvprintw(14,41, "16.  No GZ/BZ2");
+    ftnd_mvprintw(15,41, "17.  No Zmodem");
+    ftnd_mvprintw(16,41, "18.  No Zedzap");
+    ftnd_mvprintw(17,41, "19.  No Hydra");
+    ftnd_mvprintw(18,41, "20.  Binkp old esc");
+    ftnd_mvprintw(19,41, "21.  No binkp/1.1");
+    ftnd_mvprintw(20,41, "22.  Ign. Hold");
 }
 
 
@@ -906,25 +902,25 @@ void DirectoryScreen(void)
 {   
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "7.8  EDIT NODE DIRECTORY SESSION");
-    mbse_mvprintw( 7, 2, "     Outbound settings");
+    ftnd_mvprintw( 5, 2, "7.8  EDIT NODE DIRECTORY SESSION");
+    ftnd_mvprintw( 7, 2, "     Outbound settings");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 8, 2, "1.   Files path");
-    mbse_mvprintw( 9, 2, "2.   Check for lock");
-    mbse_mvprintw( 9,41, "3.   Wait clear lock");
-    mbse_mvprintw(10, 2, "4.   Check lockfile");
-    mbse_mvprintw(11, 2, "5.   Create lock");
-    mbse_mvprintw(12, 2, "6.   Create lockfile");
+    ftnd_mvprintw( 8, 2, "1.   Files path");
+    ftnd_mvprintw( 9, 2, "2.   Check for lock");
+    ftnd_mvprintw( 9,41, "3.   Wait clear lock");
+    ftnd_mvprintw(10, 2, "4.   Check lockfile");
+    ftnd_mvprintw(11, 2, "5.   Create lock");
+    ftnd_mvprintw(12, 2, "6.   Create lockfile");
 
     set_color(WHITE, BLACK);
-    mbse_mvprintw(14, 2, "     Inbound settings");
+    ftnd_mvprintw(14, 2, "     Inbound settings");
     set_color(CYAN, BLACK);
-    mbse_mvprintw(15, 2, "7.   Files path");
-    mbse_mvprintw(16, 2, "8.   Check for lock");
-    mbse_mvprintw(16,41, "9.   Wait clear lock");
-    mbse_mvprintw(17, 2, "10.  Check lockfile");
-    mbse_mvprintw(18, 2, "11.  Create lock");
-    mbse_mvprintw(19, 2, "12.  Create lockfile");
+    ftnd_mvprintw(15, 2, "7.   Files path");
+    ftnd_mvprintw(16, 2, "8.   Check for lock");
+    ftnd_mvprintw(16,41, "9.   Wait clear lock");
+    ftnd_mvprintw(17, 2, "10.  Check lockfile");
+    ftnd_mvprintw(18, 2, "11.  Create lock");
+    ftnd_mvprintw(19, 2, "12.  Create lockfile");
 }
 
 
@@ -963,7 +959,7 @@ void DirectoryEdit(void)
 	    } else {
 		switch(pick) {
 		case 1:	if ((strlen(nodes.Dir_out_path) == 0) && (nodes.Aka[0].zone)) {
-			    snprintf(nodes.Dir_out_path, 65, "%s/var/bbsftp/node%d_%d_%d/outbound", getenv("MBSE_ROOT"),
+			    snprintf(nodes.Dir_out_path, 65, "%s/var/bbsftp/node%d_%d_%d/outbound", getenv("FTND_ROOT"),
 				nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
 			}
 			E_PTH( 8,23,56, nodes.Dir_out_path,    "^Outbound path^ for files and mail to this node", 0770)
@@ -1002,7 +998,7 @@ void DirectoryEdit(void)
 	    } else {
 		switch(pick) {
                 case 7: if ((strlen(nodes.Dir_in_path) == 0) && (nodes.Aka[0].zone)) {
-                            snprintf(nodes.Dir_in_path, 65, "%s/var/bbsftp/node%d_%d_%d/inbound", getenv("MBSE_ROOT"),
+                            snprintf(nodes.Dir_in_path, 65, "%s/var/bbsftp/node%d_%d_%d/inbound", getenv("FTND_ROOT"),
                                 nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
                         }
                         E_PTH(15,23,56, nodes.Dir_in_path,    "^Inbound path^ for files and mail from this node", 0770)
@@ -1059,7 +1055,7 @@ int EditNodeRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Fido Node");
 
-    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) != NULL) {
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 
@@ -1070,7 +1066,7 @@ int EditNodeRec(int Area)
 	sort_grlist(&egr);
     }
 
-    snprintf(mfile, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) != NULL) {
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
 
@@ -1081,7 +1077,7 @@ int EditNodeRec(int Area)
 	sort_grlist(&fgr);
     }
 
-    snprintf(mfile, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/nodes.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	tidy_grlist(&egr);
@@ -1128,19 +1124,19 @@ int EditNodeRec(int Area)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-        mbse_mvprintw( 5, 6, "7.   EDIT NODE -  %s, %s", nodes.Sysop, aka2str(nodes.Aka[0]));
+        ftnd_mvprintw( 5, 6, "7.   EDIT NODE -  %s, %s", nodes.Sysop, aka2str(nodes.Aka[0]));
         set_color(CYAN, BLACK);
-        mbse_mvprintw( 7, 6, "1.   General setup");
-	mbse_mvprintw( 8, 6, "2.   Aka's setup");
-	mbse_mvprintw( 9, 6, "3.   Session setup");
-	mbse_mvprintw(10, 6, "4.   Mail setup");
-	mbse_mvprintw(11, 6, "5.   Mail groups");
-	mbse_mvprintw(12, 6, "6.   Files setup");
-	mbse_mvprintw(13, 6, "7.   Files groups");
-	mbse_mvprintw(14, 6, "8.   Directory session");
-	mbse_mvprintw(15, 6, "9.   Security flags");
-	mbse_mvprintw(16, 6, "10.  Area/File managers");
-	mbse_mvprintw(17, 6, "11.  Statistics");
+        ftnd_mvprintw( 7, 6, "1.   General setup");
+	ftnd_mvprintw( 8, 6, "2.   Aka's setup");
+	ftnd_mvprintw( 9, 6, "3.   Session setup");
+	ftnd_mvprintw(10, 6, "4.   Mail setup");
+	ftnd_mvprintw(11, 6, "5.   Mail groups");
+	ftnd_mvprintw(12, 6, "6.   Files setup");
+	ftnd_mvprintw(13, 6, "7.   Files groups");
+	ftnd_mvprintw(14, 6, "8.   Directory session");
+	ftnd_mvprintw(15, 6, "9.   Security flags");
+	ftnd_mvprintw(16, 6, "10.  Area/File managers");
+	ftnd_mvprintw(17, 6, "11.  Statistics");
 
 	switch(select_menu(11)) {
 	case 0:	if (((nodes.Session_out == S_DIR) && (strlen(nodes.Dir_out_path) == 0)) ||
@@ -1260,10 +1256,10 @@ void EditNodes(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "7.  NODES SETUP");
+	ftnd_mvprintw( 5, 6, "7.  NODES SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/nodes.temp", getenv("FTND_ROOT"));
 	    working(1, 0, 0);
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
@@ -1285,7 +1281,7 @@ void EditNodes(void)
 			    set_color(LIGHTBLUE, BLACK); 
 			snprintf(temp, 81, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
 			temp[37] = 0;
-			mbse_mvprintw(y, x, temp);
+			ftnd_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -1371,10 +1367,10 @@ fidoaddr PullUplink(char *Hdr)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "%s.  UPLINK SELECT", Hdr);
+		ftnd_mvprintw( 5, 4, "%s.  UPLINK SELECT", Hdr);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
@@ -1396,7 +1392,7 @@ fidoaddr PullUplink(char *Hdr)
 							set_color(LIGHTBLUE, BLACK); 
 						snprintf(temp, 81, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
 						temp[37] = 0;
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -1418,7 +1414,7 @@ fidoaddr PullUplink(char *Hdr)
 				o = o - 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
 				fseek(fil, ((atoi(pick) -1) * (nodeshdr.recsize + nodeshdr.filegrp + nodeshdr.mailgrp)) + nodeshdr.hdrsize, SEEK_SET);
@@ -1431,16 +1427,16 @@ fidoaddr PullUplink(char *Hdr)
 				for (;;) {
 					clr_index();
 					set_color(WHITE, BLACK);
-					mbse_mvprintw( 5, 6, "%s.  SELECT NODE AKA", Hdr);
+					ftnd_mvprintw( 5, 6, "%s.  SELECT NODE AKA", Hdr);
 					set_color(CYAN, BLACK);
 					y = 7; x = 6;
 					for (i = 0; i < 20; i++) {
 						if (i == 10) {
 							y = 7; x = 46;
 						}
-						mbse_mvprintw( y, x, (char *)"%d.", i + 1);
+						ftnd_mvprintw( y, x, (char *)"%d.", i + 1);
 						if (nodes.Aka[i].zone)
-							mbse_mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
+							ftnd_mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
 						y++;
 					}
 
@@ -1472,7 +1468,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
     sysconnect	System;
     time_t	tt;
 
-    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -1757,7 +1753,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>TIC Areas</H3>\n");
 	    refs = 0;
-	    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&tichdr, tichdr.hdrsize, 1, ti);
 		systems = tichdr.syssize / sizeof(sysconnect);
@@ -1800,7 +1796,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Message Areas</H3>\n");
             nr = refs = 0;
-            snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+            snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
             if ((ti = fopen(temp, "r"))) {
                 fread(&msgshdr, msgshdr.hdrsize, 1, ti);
                 systems = msgshdr.syssize / sizeof(sysconnect);

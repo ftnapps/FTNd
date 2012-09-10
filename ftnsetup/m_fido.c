@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_fido.c,v 1.25 2005/10/11 20:49:48 mbse Exp $
+ * m_fido.c
  * Purpose ...............: Setup Fidonet structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -53,7 +49,7 @@ int CountFidonet(void)
     char    ffile[PATH_MAX];
     int	    count;
 
-    snprintf(ffile, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/fidonet.data", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -108,8 +104,8 @@ int OpenFidonet(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	int	oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/fidonet.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/fidonet.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&fidonethdr, sizeof(fidonethdr), 1, fin);
@@ -157,8 +153,8 @@ void CloseFidonet(int force)
 	FILE	*fi, *fo;
 	st_list	*fid = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/fidonet.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/fidonet.temp", getenv("FTND_ROOT"));
 
 	if (FidoUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -206,7 +202,7 @@ int AppendFidonet(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/fidonet.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&fidonet, 0, sizeof(fidonet));
 		fwrite(&fidonet, sizeof(fidonet), 1, fil);
@@ -234,7 +230,7 @@ int EditFidoRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Fidonet");
 
-    snprintf(mfile, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/fidonet.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -252,25 +248,25 @@ int EditFidoRec(int Area)
     crc = upd_crc32((char *)&fidonet, crc, sizeof(fidonet));
 
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "2.  EDIT FIDONET NETWORK");
+    ftnd_mvprintw( 5, 6, "2.  EDIT FIDONET NETWORK");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.  Comment");
-    mbse_mvprintw( 8, 6, "2.  Domain name");
-    mbse_mvprintw( 9, 6, "3.  Available");
-    mbse_mvprintw(10, 6, "4.  Deleted");
-    mbse_mvprintw(11, 6, "5.  Main Nodelist");
-    mbse_mvprintw(12, 6, "6.  Merge list #1");
-    mbse_mvprintw(13, 6, "7.  Merge list #2");
-    mbse_mvprintw(14, 6, "8.  Merge list #3");
-    mbse_mvprintw(15, 6, "9.  Merge list #4");
-    mbse_mvprintw(16, 6, "10. Merge list #5");
-    mbse_mvprintw(17, 6, "11. Merge list #6");
-    mbse_mvprintw(12,55, "12. Primary zone");
-    mbse_mvprintw(13,55, "13. Zone number #2");
-    mbse_mvprintw(14,55, "14. Zone number #3");
-    mbse_mvprintw(15,55, "15. Zone number #4");
-    mbse_mvprintw(16,55, "16. Zone number #5");
-    mbse_mvprintw(17,55, "17. Zone number #6");
+    ftnd_mvprintw( 7, 6, "1.  Comment");
+    ftnd_mvprintw( 8, 6, "2.  Domain name");
+    ftnd_mvprintw( 9, 6, "3.  Available");
+    ftnd_mvprintw(10, 6, "4.  Deleted");
+    ftnd_mvprintw(11, 6, "5.  Main Nodelist");
+    ftnd_mvprintw(12, 6, "6.  Merge list #1");
+    ftnd_mvprintw(13, 6, "7.  Merge list #2");
+    ftnd_mvprintw(14, 6, "8.  Merge list #3");
+    ftnd_mvprintw(15, 6, "9.  Merge list #4");
+    ftnd_mvprintw(16, 6, "10. Merge list #5");
+    ftnd_mvprintw(17, 6, "11. Merge list #6");
+    ftnd_mvprintw(12,55, "12. Primary zone");
+    ftnd_mvprintw(13,55, "13. Zone number #2");
+    ftnd_mvprintw(14,55, "14. Zone number #3");
+    ftnd_mvprintw(15,55, "15. Zone number #4");
+    ftnd_mvprintw(16,55, "16. Zone number #5");
+    ftnd_mvprintw(17,55, "17. Zone number #6");
     temp = calloc(18, sizeof(char));
 
     for (;;) {
@@ -405,10 +401,10 @@ void EditFidonet(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "2.  FIDONET SETUP");
+		ftnd_mvprintw( 5, 4, "2.  FIDONET SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/fidonet.temp", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
 				x = 2;
@@ -428,7 +424,7 @@ void EditFidonet(void)
 					}
 					snprintf(temp, 81, "%3d.  z%d: %-32s", i, fidonet.zone[0], fidonet.comment);
 					temp[38] = 0;
-					mbse_mvprintw(y, x, temp);
+					ftnd_mvprintw(y, x, temp);
 					y++;
 				}
 				fclose(fil);
@@ -474,7 +470,7 @@ void gold_akamatch(FILE *fp)
     faddr   *want, *ta;
     int     i;
 
-    snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("FTND_ROOT"));
     if ((fido = fopen(temp, "r")) == NULL)
 	return;
 
@@ -533,7 +529,7 @@ int fido_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *fido;
     int	    i, j;
 
-    snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fidonet.data", getenv("FTND_ROOT"));
     if ((fido = fopen(temp, "r")) == NULL)
 	return page;
 

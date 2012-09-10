@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: grlist.c,v 1.11 2005/08/29 19:43:25 mbse Exp $
+ * grlist.c
  * Purpose ...............: Group Listing utils
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "grlist.h"
 #include "ledit.h"
@@ -123,7 +119,7 @@ int E_Group(gr_list **fdp, char *title)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw(5, 6, (char *)"%s", title);
+    ftnd_mvprintw(5, 6, (char *)"%s", title);
     set_color(CYAN, BLACK);
 
     for (tmp = *fdp; tmp; tmp = tmp->next)
@@ -139,9 +135,9 @@ int E_Group(gr_list **fdp, char *title)
 	    j++;
 	    if ((j >= (o + 1)) && (j < (o + 41))) {
 		if (tmp->tagged)
-		    mbse_mvprintw(y, x, (char *)"%2d. + %s", j, tmp->group);
+		    ftnd_mvprintw(y, x, (char *)"%2d. + %s", j, tmp->group);
 		else
-		    mbse_mvprintw(y, x, (char *)"%2d.   %s", j, tmp->group);
+		    ftnd_mvprintw(y, x, (char *)"%2d.   %s", j, tmp->group);
 		y++;
 		if (y == 17) {
 		    y = 7;
@@ -159,7 +155,7 @@ int E_Group(gr_list **fdp, char *title)
 	    case -2:if ((o - 40) >= 0) {
 			clr_index();
 		        set_color(WHITE, BLACK);
-		        mbse_mvprintw(5, 5, (char *)"%s", title);
+		        ftnd_mvprintw(5, 5, (char *)"%s", title);
 		        set_color(CYAN, BLACK);
 		        o -= 40;
 		    }
@@ -167,7 +163,7 @@ int E_Group(gr_list **fdp, char *title)
 	    case -1:if ((o + 40) < n) {
 		        clr_index();
 			set_color(WHITE, BLACK);
-		        mbse_mvprintw(5, 5, (char *)"%s", title);
+		        ftnd_mvprintw(5, 5, (char *)"%s", title);
 		        set_color(CYAN, BLACK);
 		        o += 40;
 		    }
@@ -197,7 +193,7 @@ int E_Group(gr_list **fdp, char *title)
 			    o = ((i -1) / 40) * 40;
 			    clr_index();
 			    set_color(WHITE, BLACK);
-			    mbse_mvprintw(5, 5, (char *)"%s", title);
+			    ftnd_mvprintw(5, 5, (char *)"%s", title);
 			    set_color(CYAN, BLACK);
 		        }
 		    }

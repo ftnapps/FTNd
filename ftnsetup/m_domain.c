@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_domain.c,v 1.18 2008/02/28 22:05:14 mbse Exp $
+ * m_domain.c
  * Purpose ...............: Domain Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -51,7 +47,7 @@ int CountDomain(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/domain.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -111,8 +107,8 @@ int OpenDomain(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	int	oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/domain.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/domain.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&domainhdr, sizeof(domainhdr), 1, fin);
@@ -158,8 +154,8 @@ void CloseDomain(int force)
 	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/domain.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/domain.temp", getenv("FTND_ROOT"));
 
 	if (DomainUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -196,7 +192,7 @@ int AppendDomain(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/domain.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&domtrans, 0, sizeof(domtrans));
 		/*
@@ -216,12 +212,12 @@ void DomainScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "17.  EDIT DOMAINS");
+	ftnd_mvprintw( 5, 2, "17.  EDIT DOMAINS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Fidonet");
-	mbse_mvprintw( 8, 2, "2.  Internet");
-	mbse_mvprintw( 9, 2, "3.  Active");
-	mbse_mvprintw(10, 2, "4.  Deleted");
+	ftnd_mvprintw( 7, 2, "1.  Fidonet");
+	ftnd_mvprintw( 8, 2, "2.  Internet");
+	ftnd_mvprintw( 9, 2, "3.  Active");
+	ftnd_mvprintw(10, 2, "4.  Deleted");
 }
 
 
@@ -240,7 +236,7 @@ int EditDomainRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Domain");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/domain.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -332,10 +328,10 @@ void EditDomain(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "17.   DOMAIN MANAGER");
+		ftnd_mvprintw( 5, 4, "17.   DOMAIN MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&domainhdr, sizeof(domainhdr), 1, fil);
@@ -354,7 +350,7 @@ void EditDomain(void)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-31s  %-31s", o+i, domtrans.ftndom, domtrans.intdom);
 						temp[75] = 0;
-						mbse_mvprintw(y, 3, temp);
+						ftnd_mvprintw(y, 3, temp);
 						y++;
 					}
 				}
@@ -379,11 +375,11 @@ void EditDomain(void)
 		}
 
 		if (strncmp(pick, "D", 1) == 0) {
-			mbse_mvprintw(LINES -3, 6, "Enter domain number (1..%d) to delete >", records);
+			ftnd_mvprintw(LINES -3, 6, "Enter domain number (1..%d) to delete >", records);
 			y = 0;
 			y = edit_int(LINES -3, 44, y, (char *)"Enter record number");
 			if ((y > 0) && (y <= records) && yes_no((char *)"Remove record")) {
-				snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("FTND_ROOT"));
 				if ((fil = fopen(temp, "r+")) != NULL) {
 					offset = ((y - 1) * domainhdr.recsize) + domainhdr.hdrsize;
 					fseek(fil, offset, SEEK_SET);
@@ -399,16 +395,16 @@ void EditDomain(void)
 
 		if (strncmp(pick, "M", 1) == 0) {
 			from = too = 0;
-			mbse_mvprintw(LINES -3, 6, "Enter domain number (1..%d) to move >", records);
+			ftnd_mvprintw(LINES -3, 6, "Enter domain number (1..%d) to move >", records);
 			from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
-			mbse_locate(LINES -3, 6);
+			ftnd_locate(LINES -3, 6);
 			clrtoeol();
-			mbse_mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
+			ftnd_mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
 			too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number, other will move away");
 			if ((from == too) || (from == 0) || (too == 0) || (from > records) || (too > records)) {
 				errmsg("That makes no sense");
 			} else if (yes_no((char *)"Proceed move")) {
-				snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/domain.temp", getenv("FTND_ROOT"));
 				if ((fil = fopen(temp, "r+")) != NULL) {
 					fseek(fil, ((from -1) * domainhdr.recsize) + domainhdr.hdrsize, SEEK_SET);
 					fread(&tdomtrans, domainhdr.recsize, 1, fil);
@@ -467,7 +463,7 @@ int domain_doc(FILE *fp, FILE *toc, int page)
 	FILE		*no, *wp;
 	int		j;
 
-	snprintf(temp, PATH_MAX, "%s/etc/domain.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/domain.data", getenv("FTND_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return page;
 

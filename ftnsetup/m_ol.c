@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_ol.c,v 1.23 2005/10/11 20:49:49 mbse Exp $
+ * m_ol.c
  * Purpose ...............: Setup Oneliners.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/diesel.h"
 #include "screen.h"
 #include "mutil.h"
@@ -59,7 +55,7 @@ int CountOneline(void)
 	l_date = localtime(&Time);
 	snprintf(buf, 12, "%02d-%02d-%04d", l_date->tm_mday, l_date->tm_mon+1, l_date->tm_year+1900);
 
-	snprintf(ffile, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "created new %s", ffile);
@@ -122,8 +118,8 @@ int OpenOneline(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	int	oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/oneline.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&olhdr, sizeof(olhdr), 1, fin);
@@ -169,8 +165,8 @@ void CloseOneline(int force)
 {
 	char	fin[PATH_MAX], fout[PATH_MAX];
 
-	snprintf(fin,  PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/oneline.temp", getenv("FTND_ROOT"));
 
 	if (OnelUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -196,7 +192,7 @@ int AppendOneline(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/oneline.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&ol, 0, sizeof(ol));
 		fwrite(&ol, sizeof(ol), 1, fil);
@@ -224,7 +220,7 @@ int EditOnelRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Oneline");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/oneline.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -242,12 +238,12 @@ int EditOnelRec(int Area)
 	crc = upd_crc32((char *)&ol, crc, sizeof(ol));
 
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "8.7.1   EDIT ONELINER");
+	ftnd_mvprintw( 5, 2, "8.7.1   EDIT ONELINER");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Text");
-	mbse_mvprintw( 8, 2, "2.  User");
-	mbse_mvprintw( 9, 2, "3.  Date");
-	mbse_mvprintw(10, 2, "4.  Avail");
+	ftnd_mvprintw( 7, 2, "1.  Text");
+	ftnd_mvprintw( 8, 2, "2.  User");
+	ftnd_mvprintw( 9, 2, "3.  Date");
+	ftnd_mvprintw(10, 2, "4.  Avail");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -319,10 +315,10 @@ void EditOneline(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 2, "8.7.1 ONELINERS SETUP");
+		ftnd_mvprintw( 5, 2, "8.7.1 ONELINERS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/oneline.temp", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&olhdr, sizeof(olhdr), 1, fil);
@@ -344,7 +340,7 @@ void EditOneline(void)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-32s", o + i, ol.Oneline);
 						temp[38] = '\0';
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -401,7 +397,7 @@ void PurgeOneline(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "8.7.2   ONELINERS PURGE");
+    ftnd_mvprintw( 5, 6, "8.7.2   ONELINERS PURGE");
     set_color(CYAN, BLACK);
     working(1, 0, 0);
 
@@ -413,7 +409,7 @@ void PurgeOneline(void)
     IsDoing("Purge Oneliners");
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r")) == NULL) {
 	free(sFileName);
@@ -428,9 +424,9 @@ void PurgeOneline(void)
     }
 
     snprintf(temp, 81, "%d records, %d records to purge", recno, iCount);
-    mbse_mvprintw(7, 6, temp);
+    ftnd_mvprintw(7, 6, temp);
     if (iCount == 0) {
-	mbse_mvprintw(9, 6, "Press any key");
+	ftnd_mvprintw(9, 6, "Press any key");
 	readkey(9, 20, LIGHTGRAY, BLACK);
 	free(sFileName);
 	return;
@@ -471,7 +467,7 @@ void ImportOneline(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw(5, 6, "8.7.3  IMPORT ONELINERS");
+    ftnd_mvprintw(5, 6, "8.7.3  IMPORT ONELINERS");
     set_color(CYAN, BLACK);
     temp = calloc(PATH_MAX, sizeof(char));
     memset(temp, 0, sizeof(temp));
@@ -490,13 +486,13 @@ void ImportOneline(void)
 
     if ((Imp = fopen(temp, "r")) == NULL) {
 	working(2, 0, 0);
-	mbse_mvprintw(21, 6, temp);
+	ftnd_mvprintw(21, 6, temp);
 	readkey(22, 6, LIGHTGRAY, BLACK);
 	free(temp);
 	return;
     }
 
-    snprintf(temp, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     /*
      * Check if database exists, if not create a new one
@@ -517,7 +513,7 @@ void ImportOneline(void)
     if ((pOneline = fopen(temp, "a+")) == NULL) {
 	working(2, 0, 0);
 	fclose(Imp);
-	mbse_mvprintw(21, 6, temp);
+	ftnd_mvprintw(21, 6, temp);
 	readkey(22, 6, LIGHTGRAY, BLACK);
 	free(temp);
 	return;
@@ -547,7 +543,7 @@ void ImportOneline(void)
 
     snprintf(temp, 81, "Imported %d oneliners, skipped %d long/empty lines", recno, skipped);
     Syslog('+', temp);
-    mbse_mvprintw(21, 6, temp);
+    ftnd_mvprintw(21, 6, temp);
     readkey(21, 7 + strlen(temp), LIGHTGRAY, BLACK);
     free(temp);
 }
@@ -559,11 +555,11 @@ void ol_menu(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "8.7   ONELINER SETUP");
+	ftnd_mvprintw( 5, 6, "8.7   ONELINER SETUP");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.    Edit Oneliners");
-	mbse_mvprintw( 8, 6, "2.    Purge Oneliners");
-	mbse_mvprintw( 9, 6, "3.    Import Oneliners");
+	ftnd_mvprintw( 7, 6, "1.    Edit Oneliners");
+	ftnd_mvprintw( 8, 6, "2.    Purge Oneliners");
+	ftnd_mvprintw( 9, 6, "3.    Import Oneliners");
 
 	switch(select_menu(3)) {
 	    case 0: return;
@@ -586,7 +582,7 @@ void ol_doc(void)
     int	    nr = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r"))) {
 	if ((wp = open_webdoc((char *)"oneliners.html", (char *)"Oneliners", NULL))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");

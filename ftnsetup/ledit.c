@@ -3,32 +3,28 @@
  * Purpose ...............: Line Editor
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
 #include "screen.h"
@@ -49,13 +45,13 @@ int yes_no(char *T_)
 	strcpy(t, T_);
 	strcat(t, " Y/n ");
 	set_color(LIGHTGRAY, BLACK);
-	mbse_locate(LINES - 3, 1);
+	ftnd_locate(LINES - 3, 1);
 	clrtoeol();
-	mbse_mvprintw(LINES -3, 6, t);
+	ftnd_mvprintw(LINES -3, 6, t);
 	do {
 		ch = toupper(readkey(LINES - 3, strlen(t) + 6, LIGHTGRAY, BLACK));
 	} while (ch != KEY_ENTER && ch != 'Y' && ch != 'N' && ch != '\012');
-	mbse_locate(LINES - 3, 6);
+	ftnd_locate(LINES - 3, 6);
 	clrtoeol();
 	if (ch == KEY_ENTER || ch == 'Y' || ch == KEY_LINEFEED)
 		return 1;
@@ -78,12 +74,12 @@ void errmsg(const char *format, ...)
 
 	t = xstrcat(t, (char *)", Press any key ");
 	set_color(LIGHTGRAY, BLACK);
-	mbse_locate(LINES - 3, 1);
+	ftnd_locate(LINES - 3, 1);
 	clrtoeol();
-	mbse_mvprintw(LINES - 3, 6, t);
+	ftnd_mvprintw(LINES - 3, 6, t);
 	putchar(7);
 	readkey(LINES - 3, strlen(t) + 6, LIGHTGRAY, BLACK);
-	mbse_locate(LINES - 3, 6);
+	ftnd_locate(LINES - 3, 6);
 	clrtoeol();
 	free(t);
 }
@@ -138,7 +134,7 @@ void show_field(int y, int x, char *str, int length, int fill)
 {
     int	    i;
 
-    mbse_locate(y, x);
+    ftnd_locate(y, x);
     for (i = 0; i < strlen(str); i++)
 	putchar(str[i]);
     if (strlen(str) < length)
@@ -155,9 +151,9 @@ void newinsert(int i, int fg, int bg)
 	insertflag = i;
 	set_color(YELLOW, RED);
 	if (insertflag != 0) {
-		mbse_mvprintw(2,36," INS ");
+		ftnd_mvprintw(2,36," INS ");
 	} else {
-		mbse_mvprintw(2,36," OVR ");
+		ftnd_mvprintw(2,36," OVR ");
 	}
 	set_color(fg, bg);
 }
@@ -180,7 +176,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
     do {
 	set_color(YELLOW, BLUE);
 	show_field(y, x, s, w, '_');
-	mbse_locate(y, x + curpos);
+	ftnd_locate(y, x + curpos);
 	do {
 	    ch = readkey(y, x + curpos, YELLOW, BLUE);
 	    set_color(YELLOW, BLUE);
@@ -312,7 +308,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
     } while ((ch != KEY_ENTER) && (ch != KEY_LINEFEED) && (ch != KEY_ESCAPE));
 
     set_color(LIGHTGRAY, BLUE);
-    mbse_mvprintw(2,36, "     ");
+    ftnd_mvprintw(2,36, "     ");
     set_color(LIGHTGRAY, BLACK);
     if (strlen(s)) {
 	AllSpaces = TRUE;
@@ -349,10 +345,10 @@ char *select_show(int max)
 	 * Loop until the answer is right
 	 */
 	for (;;) {
-		mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+		ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
 		menu = (char *)"-";
 		menu = edit_field(LINES - 3, 26, 6, '!', menu);
-		mbse_locate(LINES - 3, 6);
+		ftnd_locate(LINES - 3, 6);
 		clrtoeol();
 
 		if (strncmp(menu, "-", 1) == 0)
@@ -394,10 +390,10 @@ char *select_record(int max, int items)
 	 * Loop until the answer is right
 	 */
 	for (;;) {
-		mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+		ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
 		menu = (char *)"-";
 		menu = edit_field(LINES - 3, 26, 6, '!', menu);
-		mbse_locate(LINES - 3, 6);
+		ftnd_locate(LINES - 3, 6);
 		clrtoeol();
 
 		if (strncmp(menu, "A", 1) == 0)
@@ -446,10 +442,10 @@ char *select_area(int max, int items)
 	 * Loop until the answer is right
 	 */
 	for (;;) {
-		mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+		ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
 		menu = (char *)"-";
 		menu = edit_field(LINES - 3, 26, 6, '!', menu);
-		mbse_locate(LINES - 3, 6);
+		ftnd_locate(LINES - 3, 6);
 		clrtoeol();
 
 		if (strncmp(menu, "A", 1) == 0)
@@ -498,10 +494,10 @@ char *select_filearea(int max, int items)
          * Loop until the answer is right
          */
         for (;;) {
-                mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+                ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
                 menu = (char *)"-";
                 menu = edit_field(LINES - 3, 26, 6, '!', menu);
-                mbse_locate(LINES - 3, 6);
+                ftnd_locate(LINES - 3, 6);
                 clrtoeol();
 
                 if (strncmp(menu, "A", 1) == 0)
@@ -548,10 +544,10 @@ char *select_pick(int max, int items)
 	 * Loop until the answer is right
 	 */
 	for (;;) {
-		mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+		ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
 		menu = (char *)"-";
 		menu = edit_field(LINES - 3, 26, 6, '!', menu);
-		mbse_locate(LINES - 3, 6);
+		ftnd_locate(LINES - 3, 6);
 		clrtoeol();
 
 		if (strncmp(menu, "-", 1) == 0)
@@ -596,10 +592,10 @@ char *select_aka(int max, int items)
          * Loop until the answer is right
          */
         for (;;) {
-                mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+                ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
                 menu = (char *)"-";
                 menu = edit_field(LINES - 3, 26, 6, '!', menu);
-                mbse_locate(LINES - 3, 6);
+                ftnd_locate(LINES - 3, 6);
                 clrtoeol();
 
                 if (strncmp(menu, "-", 1) == 0)
@@ -667,10 +663,10 @@ int select_menu_sub(int max, int items, int allowall, char *hlp)
 	 * Loop forever until it's right.
 	 */
 	for (;;) {
-		mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
+		ftnd_mvprintw(LINES - 3, 6, "Enter your choice >");
 		menu = (char *)"-";
 		menu = edit_field(LINES - 3, 26, 3, '!', menu);
-		mbse_locate(LINES -3, 6);
+		ftnd_locate(LINES -3, 6);
 		clrtoeol();
 
 		if (strncmp(menu, "-", 1) == 0) 
@@ -884,7 +880,7 @@ char *getboolean(int val)
 
 void show_bool(int y, int x, int val)
 {
-	mbse_mvprintw(y, x, getboolean(val));
+	ftnd_mvprintw(y, x, getboolean(val));
 }
 
 
@@ -962,31 +958,31 @@ int edit_logl(int val, char *txt)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw(5, 5, (char *)"%s EDIT LOGLEVEL", txt);
+	ftnd_mvprintw(5, 5, (char *)"%s EDIT LOGLEVEL", txt);
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 5,45, "Logflags");
+	ftnd_mvprintw( 5,45, "Logflags");
 
-	mbse_mvprintw( 7, 5, "1.  ! Attention");
-	mbse_mvprintw( 8, 5, "2.  + Normal");
-	mbse_mvprintw( 9, 5, "3.  - Verbose");
-	mbse_mvprintw(10, 5, "4.  A Debug TCP");
-	mbse_mvprintw(11, 5, "5.  B Debug BBS/binkp");
-	mbse_mvprintw(12, 5, "6.  C Chat modems");
-	mbse_mvprintw(13, 5, "7.  D Device IO");
-	mbse_mvprintw(14, 5, "8.  E Execute");
-	mbse_mvprintw(15, 5, "9.  F File forward");
-	mbse_mvprintw(16, 5, "10. H Hydra debug");
-	mbse_mvprintw(17, 5, "11. I EMSI debug");
-	mbse_mvprintw( 7,45, "12. L Locking");
-	mbse_mvprintw( 8,45, "13. M Mail/News");
-	mbse_mvprintw( 9,45, "14. N Nodelist");
-	mbse_mvprintw(10,45, "15. O Outboundscan");
-	mbse_mvprintw(11,45, "16. P Packing");
-	mbse_mvprintw(12,45, "17. R Routing");
-	mbse_mvprintw(13,45, "18. S Session");
-	mbse_mvprintw(14,45, "19. T TTY debug");
-	mbse_mvprintw(15,45, "20. X Xmodem debug");
-	mbse_mvprintw(16,45, "21. Z Zmodem debug");
+	ftnd_mvprintw( 7, 5, "1.  ! Attention");
+	ftnd_mvprintw( 8, 5, "2.  + Normal");
+	ftnd_mvprintw( 9, 5, "3.  - Verbose");
+	ftnd_mvprintw(10, 5, "4.  A Debug TCP");
+	ftnd_mvprintw(11, 5, "5.  B Debug BBS/binkp");
+	ftnd_mvprintw(12, 5, "6.  C Chat modems");
+	ftnd_mvprintw(13, 5, "7.  D Device IO");
+	ftnd_mvprintw(14, 5, "8.  E Execute");
+	ftnd_mvprintw(15, 5, "9.  F File forward");
+	ftnd_mvprintw(16, 5, "10. H Hydra debug");
+	ftnd_mvprintw(17, 5, "11. I EMSI debug");
+	ftnd_mvprintw( 7,45, "12. L Locking");
+	ftnd_mvprintw( 8,45, "13. M Mail/News");
+	ftnd_mvprintw( 9,45, "14. N Nodelist");
+	ftnd_mvprintw(10,45, "15. O Outboundscan");
+	ftnd_mvprintw(11,45, "16. P Packing");
+	ftnd_mvprintw(12,45, "17. R Routing");
+	ftnd_mvprintw(13,45, "18. S Session");
+	ftnd_mvprintw(14,45, "19. T TTY debug");
+	ftnd_mvprintw(15,45, "20. X Xmodem debug");
+	ftnd_mvprintw(16,45, "21. Z Zmodem debug");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -1046,8 +1042,8 @@ int edit_logl(int val, char *txt)
 
 void show_int(int y, int x, int val)
 {
-	mbse_mvprintw(y, x, (char *)"       ");
-	mbse_mvprintw(y, x, (char *)"%d", val);
+	ftnd_mvprintw(y, x, (char *)"       ");
+	ftnd_mvprintw(y, x, (char *)"%d", val);
 }
 
 
@@ -1070,8 +1066,8 @@ int edit_int(int y, int x, int val, char *help)
 
 void show_uint(int y, int x, unsigned int val)
 {
-    mbse_mvprintw(y, x, (char *)"          ");
-    mbse_mvprintw(y, x, (char *)"%u", val);
+    ftnd_mvprintw(y, x, (char *)"          ");
+    ftnd_mvprintw(y, x, (char *)"%u", val);
 }
 
 
@@ -1121,7 +1117,7 @@ int edit_int_range(int y, int x, int val, int min, int max, char *help)
 
 void show_ushort(int y, int x, unsigned short val)
 {
-	mbse_mvprintw(y, x, (char *)"%d", val);
+	ftnd_mvprintw(y, x, (char *)"%d", val);
 }
 
 
@@ -1235,7 +1231,7 @@ char *getflag(unsigned int flag, unsigned int not)
 void show_sec(int y, int x, securityrec sec)
 {
 	show_int(y, x, sec.level);
-	mbse_mvprintw(y, x + 6, getflag(sec.flags, sec.notflags));
+	ftnd_mvprintw(y, x + 6, getflag(sec.flags, sec.notflags));
 }
 
 
@@ -1249,7 +1245,7 @@ securityrec edit_sec(int y, int x, securityrec sec, char *shdr)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw(4,3,shdr);
+	ftnd_mvprintw(4,3,shdr);
 	set_color(CYAN, BLACK);
 	xx = 3;
 	yy = 6;
@@ -1264,10 +1260,10 @@ securityrec edit_sec(int y, int x, securityrec sec, char *shdr)
 			yy = 6;
 		}
 		set_color(CYAN,BLACK);
-		mbse_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.fname[i]);
+		ftnd_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.fname[i]);
 		yy++;
 	}
-	mbse_mvprintw(16,53, "33. Security level");
+	ftnd_mvprintw(16,53, "33. Security level");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -1293,7 +1289,7 @@ securityrec edit_sec(int y, int x, securityrec sec, char *shdr)
 			 */
 			if (((sec.flags >> i) & 1) && ((sec.notflags >> i) & 1))
 				c = '!';
-			mbse_mvprintw(yy,xx,(char *)"%c", c);
+			ftnd_mvprintw(yy,xx,(char *)"%c", c);
 			yy++;
 		}
 		show_int(16,74, sec.level);
@@ -1332,7 +1328,7 @@ securityrec edit_usec(int y, int x, securityrec sec, char *shdr)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw(4,3,shdr);
+	ftnd_mvprintw(4,3,shdr);
 	set_color(CYAN, BLACK);
 	xx = 3;
 	yy = 6;
@@ -1347,10 +1343,10 @@ securityrec edit_usec(int y, int x, securityrec sec, char *shdr)
 			yy = 6;
 		}
 		set_color(CYAN,BLACK);
-		mbse_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.fname[i]);
+		ftnd_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.fname[i]);
 		yy++;
 	}
-	mbse_mvprintw(16,53, "33. Security level");
+	ftnd_mvprintw(16,53, "33. Security level");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -1376,7 +1372,7 @@ securityrec edit_usec(int y, int x, securityrec sec, char *shdr)
 			 */
 			if (((sec.flags >> i) & 1) && ((sec.notflags >> i) & 1))
 				c = '!';
-			mbse_mvprintw(yy,xx,(char *)"%c", c);
+			ftnd_mvprintw(yy,xx,(char *)"%c", c);
 			yy++;
 		}
 		show_int(16,74, sec.level);
@@ -1410,7 +1406,7 @@ securityrec edit_asec(securityrec sec, char *shdr)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw(4,3,shdr);
+    ftnd_mvprintw(4,3,shdr);
     set_color(CYAN, BLACK);
     xx = 3;
     yy = 6;
@@ -1425,7 +1421,7 @@ securityrec edit_asec(securityrec sec, char *shdr)
 	    yy = 6;
 	}
 	set_color(CYAN,BLACK);
-	mbse_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.aname[i]);
+	ftnd_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.aname[i]);
 	yy++;
     }
 
@@ -1453,7 +1449,7 @@ securityrec edit_asec(securityrec sec, char *shdr)
 	     */
 	    if (((sec.flags >> i) & 1) && ((sec.notflags >> i) & 1))
 		c = '!';
-	    mbse_mvprintw(yy,xx,(char *)"%c", c);
+	    ftnd_mvprintw(yy,xx,(char *)"%c", c);
 	    yy++;
 	}
 	
@@ -1487,7 +1483,7 @@ securityrec edit_nsec(securityrec sec, char *shdr)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw(4,3,shdr);
+    ftnd_mvprintw(4,3,shdr);
     set_color(CYAN, BLACK);
     xx = 3;
     yy = 6;
@@ -1502,7 +1498,7 @@ securityrec edit_nsec(securityrec sec, char *shdr)
 	    yy = 6;
 	}
 	set_color(CYAN,BLACK);
-	mbse_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.aname[i]);
+	ftnd_mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.aname[i]);
 	yy++;
     }
 
@@ -1530,7 +1526,7 @@ securityrec edit_nsec(securityrec sec, char *shdr)
 	     */
 	    if (((sec.flags >> i) & 1) && ((sec.notflags >> i) & 1))
 		c = '!';
-	    mbse_mvprintw(yy,xx,(char *)"%c", c);
+	    ftnd_mvprintw(yy,xx,(char *)"%c", c);
 	    yy++;
 	}
 
@@ -1577,7 +1573,7 @@ char *getmsgtype(int val)
 
 void show_msgtype(int y, int x, int val)
 {
-	mbse_mvprintw(y, x, getmsgtype(val));
+	ftnd_mvprintw(y, x, getmsgtype(val));
 }
 
 
@@ -1622,7 +1618,7 @@ char *getemailmode(int val)
 
 void show_emailmode(int y, int x, int val)
 {
-        mbse_mvprintw(y, x, getemailmode(val));
+        ftnd_mvprintw(y, x, getemailmode(val));
 }
 
 
@@ -1669,7 +1665,7 @@ char *getmsgkinds(int val)
 
 void show_msgkinds(int y, int x, int val)
 {
-	mbse_mvprintw(y, x, getmsgkinds(val));
+	ftnd_mvprintw(y, x, getmsgkinds(val));
 }
 
 
@@ -1717,7 +1713,7 @@ char *getlinetype(int val)
 
 void show_linetype(int y, int x, int val)
 {
-    mbse_mvprintw(y, x, getlinetype(val));
+    ftnd_mvprintw(y, x, getlinetype(val));
 }
 
 
@@ -1767,7 +1763,7 @@ char *getservice(int val)
 
 void show_service(int y, int x, int val)
 {
-	mbse_mvprintw(y, x, getservice(val));
+	ftnd_mvprintw(y, x, getservice(val));
 }
 
 
@@ -1811,7 +1807,7 @@ char *getnewsmode(int val)
 
 void show_newsmode(int y, int x, int val)
 {
-        mbse_mvprintw(y, x, getnewsmode(val));
+        ftnd_mvprintw(y, x, getnewsmode(val));
 }
 
 
@@ -1855,7 +1851,7 @@ char *getmsgeditor(int val)
 
 void show_msgeditor(int y, int x, int val)
 {
-    mbse_mvprintw(y, x, getmsgeditor(val));
+    ftnd_mvprintw(y, x, getmsgeditor(val));
 }
 
 
@@ -1892,7 +1888,7 @@ int edit_msgeditor(int y, int x, int val)
 
 void show_magictype(int y, int x, int val)
 {
-	mbse_mvprintw(y, x, getmagictype(val));
+	ftnd_mvprintw(y, x, getmagictype(val));
 }
 
 
@@ -1956,7 +1952,7 @@ char *get_asktype(int val)
 
 void show_asktype(int y, int x, int val)
 {
-    mbse_mvprintw(y, x, get_asktype(val));
+    ftnd_mvprintw(y, x, get_asktype(val));
 }
 
 
@@ -2000,7 +1996,7 @@ char *get_sessiontype(int val)
 
 void show_sessiontype(int y, int x, int val)
 {
-    mbse_mvprintw(y, x, get_sessiontype(val));
+    ftnd_mvprintw(y, x, get_sessiontype(val));
 }
 
 
@@ -2045,7 +2041,7 @@ char *get_scannertype(int val)
 
 void show_scannertype(int y, int x, int val)
 {
-    mbse_mvprintw(y, x, get_scannertype(val));
+    ftnd_mvprintw(y, x, get_scannertype(val));
 }
 
 
@@ -2092,7 +2088,7 @@ char *get_routetype(int val)
 
 void show_routetype(int y, int x, int val)
 {
-    mbse_mvprintw(y, x, get_routetype(val));
+    ftnd_mvprintw(y, x, get_routetype(val));
 }
 
 
@@ -2131,7 +2127,7 @@ void show_aka(int y, int x, fidoaddr aka)
 		snprintf(temp, 24, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
 	else
 		snprintf(temp, 24, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
-	mbse_mvprintw(y, x, temp);
+	ftnd_mvprintw(y, x, temp);
 }
 
 
@@ -2143,14 +2139,14 @@ void edit_color(int *fg, int *bg, char *title, char *help)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw(5, 6, title);
+	ftnd_mvprintw(5, 6, title);
 	snprintf(temp, 81, "Change the ^%s^ color with arrow keys, press <Enter> whene done", help);
 	showhelp(temp);
 
 	for (f = 0; f < 16; f++)
 		for (b = 0; b < 8; b++) {
 			set_color(f, b);
-			mbse_mvprintw(b + 9, f + 33, ".");
+			ftnd_mvprintw(b + 9, f + 33, ".");
 		}
 
 	f = (*fg) & 15;
@@ -2158,11 +2154,11 @@ void edit_color(int *fg, int *bg, char *title, char *help)
 
 	for (;;) {
 		set_color(f, b);
-		mbse_mvprintw(7, 6, "This is an example...");
+		ftnd_mvprintw(7, 6, "This is an example...");
 		fflush(stdout);
-		mbse_mvprintw(b + 9, f + 33, "*");
+		ftnd_mvprintw(b + 9, f + 33, "*");
 		ch = readkey(7,28, f, b);
-		mbse_mvprintw(b + 9, f + 33, ".");
+		ftnd_mvprintw(b + 9, f + 33, ".");
 		switch(ch) {
 			case KEY_LINEFEED: 
 			case KEY_ENTER: (* fg) = f;
@@ -2326,9 +2322,9 @@ int edit_charset(int y, int x, int val)
     showhelp((char *)"Toggle ^Charset^ with spacebar, press <Enter> when done.");
     do {
 	set_color(LIGHTGRAY, BLACK);
-	mbse_locate(LINES - 3, 1);
+	ftnd_locate(LINES - 3, 1);
 	clrtoeol();
-	mbse_mvprintw(LINES -3, 6, getchrsdesc(val));
+	ftnd_mvprintw(LINES -3, 6, getchrsdesc(val));
 
 	set_color(YELLOW, BLUE);
 	show_charset(y, x, val);
@@ -2344,7 +2340,7 @@ int edit_charset(int y, int x, int val)
     } while (ch != KEY_ENTER && ch != '\012');
 
     set_color(LIGHTGRAY, BLACK);
-    mbse_locate(LINES - 3, 1);
+    ftnd_locate(LINES - 3, 1);
     clrtoeol();
 
     set_color(WHITE, BLACK);

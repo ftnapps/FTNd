@@ -3,33 +3,29 @@
  * Purpose ...............: Global Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2010
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2010 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
 #include "../paths.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -66,8 +62,8 @@ void config_check(char *path)
 	some_fd = open(some_fn, O_RDONLY);
 	if (some_fd == -1) {
 		perror("");
-		fprintf(stderr, "Fatal, %s/etc/config.data not found, is mbtask running?\n", path);
-		exit(MBERR_CONFIG_ERROR);
+		fprintf(stderr, "Fatal, %s/etc/config.data not found, is ftntask running?\n", path);
+		exit(FTNERR_CONFIG_ERROR);
 	}
 	close(some_fd); 
 }
@@ -131,18 +127,18 @@ void e_reginfo(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "1.2 EDIT REGISTRATION INFO");
+    ftnd_mvprintw( 5, 2, "1.2 EDIT REGISTRATION INFO");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.  BBS name");
-    mbse_mvprintw( 8, 2, "2.  Maildomain");
-    mbse_mvprintw( 9, 2, "3.  Sysop uid");
-    mbse_mvprintw(10, 2, "4.  Sysop Fido");
-    mbse_mvprintw(11, 2, "5.  Location");
-    mbse_mvprintw(12, 2, "6.  OLR id");
-    mbse_mvprintw(13, 2, "7.  Comment");
-    mbse_mvprintw(14, 2, "8.  Origin");
-    mbse_mvprintw(15, 2, "9.  Newuser");
-    mbse_mvprintw(16, 2, "10. My FQDN");
+    ftnd_mvprintw( 7, 2, "1.  BBS name");
+    ftnd_mvprintw( 8, 2, "2.  Maildomain");
+    ftnd_mvprintw( 9, 2, "3.  Sysop uid");
+    ftnd_mvprintw(10, 2, "4.  Sysop Fido");
+    ftnd_mvprintw(11, 2, "5.  Location");
+    ftnd_mvprintw(12, 2, "6.  OLR id");
+    ftnd_mvprintw(13, 2, "7.  Comment");
+    ftnd_mvprintw(14, 2, "8.  Origin");
+    ftnd_mvprintw(15, 2, "9.  Newuser");
+    ftnd_mvprintw(16, 2, "10. My FQDN");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -180,15 +176,15 @@ void e_filenames(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "1.3   EDIT GLOBAL FILENAMES");
+    ftnd_mvprintw( 5, 6, "1.3   EDIT GLOBAL FILENAMES");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.   System logfile");
-    mbse_mvprintw( 8, 6, "2.   Error logfile");
-    mbse_mvprintw( 9, 6, "3.   Debug logfile");
-    mbse_mvprintw(10, 6, "4.   Mgr logfile");
-    mbse_mvprintw(11, 6, "5.   Default Menu");
-    mbse_mvprintw(12, 6, "6.   Chat Logfile");
-    mbse_mvprintw(13, 6, "7.   Welcome Logo");
+    ftnd_mvprintw( 7, 6, "1.   System logfile");
+    ftnd_mvprintw( 8, 6, "2.   Error logfile");
+    ftnd_mvprintw( 9, 6, "3.   Debug logfile");
+    ftnd_mvprintw(10, 6, "4.   Mgr logfile");
+    ftnd_mvprintw(11, 6, "5.   Default Menu");
+    ftnd_mvprintw(12, 6, "6.   Chat Logfile");
+    ftnd_mvprintw(13, 6, "7.   Welcome Logo");
     
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -219,18 +215,18 @@ void e_global2(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 4, 6, "1.4 EDIT GLOBAL PATHS - 2");
+    ftnd_mvprintw( 4, 6, "1.4 EDIT GLOBAL PATHS - 2");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 6, 2, "1.  Nodelists");
-    mbse_mvprintw( 7, 2, "2.  Inbound");
-    mbse_mvprintw( 8, 2, "3.  Prot inb.");
-    mbse_mvprintw( 9, 2, "4.  Outbound");
-    mbse_mvprintw(10, 2, "5.  Out queue");
-    mbse_mvprintw(11, 2, "6.  *.msgs");
-    mbse_mvprintw(12, 2, "7.  Bad TIC's");
-    mbse_mvprintw(13, 2, "8.  TIC queue");
-    mbse_mvprintw(14, 2, "9.  TMail DOS");
-    mbse_mvprintw(15, 2, "10. TMail Win");
+    ftnd_mvprintw( 6, 2, "1.  Nodelists");
+    ftnd_mvprintw( 7, 2, "2.  Inbound");
+    ftnd_mvprintw( 8, 2, "3.  Prot inb.");
+    ftnd_mvprintw( 9, 2, "4.  Outbound");
+    ftnd_mvprintw(10, 2, "5.  Out queue");
+    ftnd_mvprintw(11, 2, "6.  *.msgs");
+    ftnd_mvprintw(12, 2, "7.  Bad TIC's");
+    ftnd_mvprintw(13, 2, "8.  TIC queue");
+    ftnd_mvprintw(14, 2, "9.  TMail DOS");
+    ftnd_mvprintw(15, 2, "10. TMail Win");
     
     for (;;) {
         set_color(WHITE, BLACK);
@@ -256,10 +252,10 @@ void e_global2(void)
 	    case 7: E_PTH(12,16,64, CFG.badtic,     "The path to the ^bad tic files^.", 0750)
 	    case 8: E_PTH(13,16,64, CFG.ticout,     "The path to the ^outgoing TIC^ files.", 0750)
 	    case 9: if (strlen(CFG.tmailshort) == 0)
-			snprintf(CFG.tmailshort, 65, "%s/var/tmail/short", getenv("MBSE_ROOT"));
+			snprintf(CFG.tmailshort, 65, "%s/var/tmail/short", getenv("FTND_ROOT"));
 		    E_PTH(14,16,64, CFG.tmailshort, "The ^T-Mail 8.3 basepath^ (blank = disable)", 0770)
 	    case 10:if (strlen(CFG.tmaillong) == 0)
-			snprintf(CFG.tmaillong, 65, "%s/var/tmail/long", getenv("MBSE_ROOT"));
+			snprintf(CFG.tmaillong, 65, "%s/var/tmail/long", getenv("FTND_ROOT"));
 		    E_PTH(15,16,64, CFG.tmaillong,  "The ^T-Mail long basepath^ (blank = disable)", 0770)
         }
     }
@@ -271,18 +267,18 @@ void s_global(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 4, 6, "1.4 EDIT GLOBAL PATHS");
+    ftnd_mvprintw( 4, 6, "1.4 EDIT GLOBAL PATHS");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 6, 2, "1.  Home dirs");
-    mbse_mvprintw( 7, 2, "2.  Ftp base");
-    mbse_mvprintw( 8, 2, "3.  Arealists");
-    mbse_mvprintw( 9, 2, "4.  Ext. edit");
-    mbse_mvprintw(10, 2, "5.  Rules dir");
-    mbse_mvprintw(11, 2, "6.  Magic's");
-    mbse_mvprintw(12, 2, "7.  DOS path");
-    mbse_mvprintw(13, 2, "8.  Unix path");
-    mbse_mvprintw(14, 2, "9.  LeaveCase");
-    mbse_mvprintw(15, 2, "10. Next Screen");
+    ftnd_mvprintw( 6, 2, "1.  Home dirs");
+    ftnd_mvprintw( 7, 2, "2.  Ftp base");
+    ftnd_mvprintw( 8, 2, "3.  Arealists");
+    ftnd_mvprintw( 9, 2, "4.  Ext. edit");
+    ftnd_mvprintw(10, 2, "5.  Rules dir");
+    ftnd_mvprintw(11, 2, "6.  Magic's");
+    ftnd_mvprintw(12, 2, "7.  DOS path");
+    ftnd_mvprintw(13, 2, "8.  Unix path");
+    ftnd_mvprintw(14, 2, "9.  LeaveCase");
+    ftnd_mvprintw(15, 2, "10. Next Screen");
 }
 
 
@@ -327,33 +323,33 @@ void b_screen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "1.5  EDIT GLOBAL SETTINGS");
+    ftnd_mvprintw( 5, 2, "1.5  EDIT GLOBAL SETTINGS");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.   Exclude Sysop");
-    mbse_mvprintw( 8, 2, "2.   Show Connect");
-    mbse_mvprintw( 9, 2, "3.   Ask Protocols");
-    mbse_mvprintw(10, 2, "4.   Sysop Level");
-    mbse_mvprintw(11, 2, "5.   Password Length");
-    mbse_mvprintw(12, 2, "6.   Passwd Character");
-    mbse_mvprintw(13, 2, "7.   Idle timeout");
-    mbse_mvprintw(14, 2, "8.   Login Enters");
-    mbse_mvprintw(15, 2, "9.   Homedir Quota");
-    mbse_mvprintw(16, 2, "10.  Location length");
-    mbse_mvprintw(17, 2, "11.  Show new msgarea");
-    mbse_mvprintw(18, 2, "12.  OLR Max. msgs.");
+    ftnd_mvprintw( 7, 2, "1.   Exclude Sysop");
+    ftnd_mvprintw( 8, 2, "2.   Show Connect");
+    ftnd_mvprintw( 9, 2, "3.   Ask Protocols");
+    ftnd_mvprintw(10, 2, "4.   Sysop Level");
+    ftnd_mvprintw(11, 2, "5.   Password Length");
+    ftnd_mvprintw(12, 2, "6.   Passwd Character");
+    ftnd_mvprintw(13, 2, "7.   Idle timeout");
+    ftnd_mvprintw(14, 2, "8.   Login Enters");
+    ftnd_mvprintw(15, 2, "9.   Homedir Quota");
+    ftnd_mvprintw(16, 2, "10.  Location length");
+    ftnd_mvprintw(17, 2, "11.  Show new msgarea");
+    ftnd_mvprintw(18, 2, "12.  OLR Max. msgs.");
 
-    mbse_mvprintw( 7,37, "13.  OLR Newfile days");
-    mbse_mvprintw( 8,37, "14.  OLR Max Filereq");
-    mbse_mvprintw( 9,37, "15.  BBS Log Level");
-    mbse_mvprintw(10,37, "16.  Utils loglevel");
-    mbse_mvprintw(11,37, "17.  Utils slowly");
-    mbse_mvprintw(12,37, "18.  CrashMail level");
-    mbse_mvprintw(13,37, "19.  FileAttach level");
-    mbse_mvprintw(14,37, "20.  Min diskspace MB");
-    mbse_mvprintw(15,37, "21.  Simult. logins");
-    mbse_mvprintw(16,37, "22.  Child priority");
-    mbse_mvprintw(17,37, "23.  Filesystem sync");
-    mbse_mvprintw(18,37, "24.  Default language");
+    ftnd_mvprintw( 7,37, "13.  OLR Newfile days");
+    ftnd_mvprintw( 8,37, "14.  OLR Max Filereq");
+    ftnd_mvprintw( 9,37, "15.  BBS Log Level");
+    ftnd_mvprintw(10,37, "16.  Utils loglevel");
+    ftnd_mvprintw(11,37, "17.  Utils slowly");
+    ftnd_mvprintw(12,37, "18.  CrashMail level");
+    ftnd_mvprintw(13,37, "19.  FileAttach level");
+    ftnd_mvprintw(14,37, "20.  Min diskspace MB");
+    ftnd_mvprintw(15,37, "21.  Simult. logins");
+    ftnd_mvprintw(16,37, "22.  Child priority");
+    ftnd_mvprintw(17,37, "23.  Filesystem sync");
+    ftnd_mvprintw(18,37, "24.  Default language");
 
     set_color(WHITE, BLACK);
     show_bool( 7,24, CFG.exclude_sysop);
@@ -430,24 +426,24 @@ void s_newuser(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "1.7   EDIT NEW USERS DEFAULTS");
+	ftnd_mvprintw( 5, 6, "1.7   EDIT NEW USERS DEFAULTS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.    Access level");  
-	mbse_mvprintw( 8, 6, "2.    Cap. Username");
-	mbse_mvprintw( 9, 6, "3.    Ask Sex");
-	mbse_mvprintw(10, 6, "4.    Ask Voicephone");
-	mbse_mvprintw(11, 6, "5.    Ask Dataphone");
-	mbse_mvprintw(12, 6, "6.    Telephone scan");
-	mbse_mvprintw(13, 6, "7.    Ask Handle");
-	mbse_mvprintw(14, 6, "8.    Ask Birth date");
-	mbse_mvprintw(15, 6, "9..   Ask Location");
+	ftnd_mvprintw( 7, 6, "1.    Access level");  
+	ftnd_mvprintw( 8, 6, "2.    Cap. Username");
+	ftnd_mvprintw( 9, 6, "3.    Ask Sex");
+	ftnd_mvprintw(10, 6, "4.    Ask Voicephone");
+	ftnd_mvprintw(11, 6, "5.    Ask Dataphone");
+	ftnd_mvprintw(12, 6, "6.    Telephone scan");
+	ftnd_mvprintw(13, 6, "7.    Ask Handle");
+	ftnd_mvprintw(14, 6, "8.    Ask Birth date");
+	ftnd_mvprintw(15, 6, "9..   Ask Location");
 	
-	mbse_mvprintw( 8,46, "10.   Ask Hot-Keys");
-	mbse_mvprintw( 9,46, "11.   One word names");
-	mbse_mvprintw(10,46, "12.   Ask Address");
-	mbse_mvprintw(11,46, "13.   Give email");
-	mbse_mvprintw(12,46, "14.   Do Newmail");
-	mbse_mvprintw(13,46, "15.   Do newfiles");
+	ftnd_mvprintw( 8,46, "10.   Ask Hot-Keys");
+	ftnd_mvprintw( 9,46, "11.   One word names");
+	ftnd_mvprintw(10,46, "12.   Ask Address");
+	ftnd_mvprintw(11,46, "13.   Give email");
+	ftnd_mvprintw(12,46, "14.   Do Newmail");
+	ftnd_mvprintw(13,46, "15.   Do newfiles");
 }
 
 
@@ -515,19 +511,19 @@ void e_colors(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, "1.8   EDIT TEXT COLOURS");
+		ftnd_mvprintw( 5, 6, "1.8   EDIT TEXT COLOURS");
 		set_color(CYAN, BLACK);
-		mbse_mvprintw( 7, 6, "1.    Normal text");  
-		mbse_mvprintw( 8, 6, "2.    Underline");
-		mbse_mvprintw( 9, 6, "3.    Input lines");
-		mbse_mvprintw(10, 6, "4.    CR text");
-		mbse_mvprintw(11, 6, "5.    More prompt");
-		mbse_mvprintw(12, 6, "6.    Hilite text");
-		mbse_mvprintw(13, 6, "7.    File name");
-		mbse_mvprintw(14, 6, "8.    File size");
-		mbse_mvprintw(15, 6, "9.    File date");
-		mbse_mvprintw(16, 6, "10.   File descr.");
-		mbse_mvprintw(17, 6, "11.   Msg. input");
+		ftnd_mvprintw( 7, 6, "1.    Normal text");  
+		ftnd_mvprintw( 8, 6, "2.    Underline");
+		ftnd_mvprintw( 9, 6, "3.    Input lines");
+		ftnd_mvprintw(10, 6, "4.    CR text");
+		ftnd_mvprintw(11, 6, "5.    More prompt");
+		ftnd_mvprintw(12, 6, "6.    Hilite text");
+		ftnd_mvprintw(13, 6, "7.    File name");
+		ftnd_mvprintw(14, 6, "8.    File size");
+		ftnd_mvprintw(15, 6, "9.    File date");
+		ftnd_mvprintw(16, 6, "10.   File descr.");
+		ftnd_mvprintw(17, 6, "11.   Msg. input");
 		S_COL( 7,24, "Normal Text     ", CFG.TextColourF, CFG.TextColourB)
 		S_COL( 8,24, "Underline Text  ", CFG.UnderlineColourF, CFG.UnderlineColourB)
 		S_COL( 9,24, "Input Text      ", CFG.InputColourF, CFG.InputColourB)
@@ -563,15 +559,15 @@ void e_paging(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "1.9   EDIT SYSOP PAGING");
+    ftnd_mvprintw( 5, 2, "1.9   EDIT SYSOP PAGING");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.    Page Length");
-    mbse_mvprintw( 8, 2, "2.    Page Times");
-    mbse_mvprintw( 9, 2, "3.    Sysop Area");
-    mbse_mvprintw(10, 2, "4.    Ask Reason");
-    mbse_mvprintw(11, 2, "5.    Log Chat");
-    mbse_mvprintw(12, 2, "6.    Prompt Chk.");
-    mbse_mvprintw(13, 2, "7.    Freeze Time");
+    ftnd_mvprintw( 7, 2, "1.    Page Length");
+    ftnd_mvprintw( 8, 2, "2.    Page Times");
+    ftnd_mvprintw( 9, 2, "3.    Sysop Area");
+    ftnd_mvprintw(10, 2, "4.    Ask Reason");
+    ftnd_mvprintw(11, 2, "5.    Log Chat");
+    ftnd_mvprintw(12, 2, "6.    Prompt Chk.");
+    ftnd_mvprintw(13, 2, "7.    Freeze Time");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -606,19 +602,19 @@ void e_flags(int Users)
     clr_index();
     set_color(WHITE, BLACK);
     if (Users)
-	mbse_mvprintw( 5, 6, "1.6   EDIT USER FLAG DESCRIPTIONS");
+	ftnd_mvprintw( 5, 6, "1.6   EDIT USER FLAG DESCRIPTIONS");
     else
-	mbse_mvprintw( 5, 6, "1.16  EDIT MANAGER FLAG DESCRIPTIONS");
+	ftnd_mvprintw( 5, 6, "1.16  EDIT MANAGER FLAG DESCRIPTIONS");
     
     set_color(CYAN, BLACK);
     for (i = 0; i < 32; i++) {
 	if (i < 11) 
-	    mbse_mvprintw(i + 7, 2, (char *)"%d.", i+1);
+	    ftnd_mvprintw(i + 7, 2, (char *)"%d.", i+1);
 	else
 	    if (i < 22) 
-		mbse_mvprintw(i - 4, 28, (char *)"%d.", i+1);
+		ftnd_mvprintw(i - 4, 28, (char *)"%d.", i+1);
 	    else
-		mbse_mvprintw(i - 15, 54, (char *)"%d.", i+1);
+		ftnd_mvprintw(i - 15, 54, (char *)"%d.", i+1);
     }
     
     for (;;) {
@@ -678,23 +674,23 @@ void e_ticconf(void)
     
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "1.10   EDIT FILEECHO PROCESSING");
+    ftnd_mvprintw( 5, 6, "1.10   EDIT FILEECHO PROCESSING");
     set_color(CYAN, BLACK);
 
-    mbse_mvprintw( 7, 2, "1.  Keep days");
-    mbse_mvprintw( 8, 2, "2.  Hatch pwd");
-    mbse_mvprintw( 9, 2, "3.  Systems");
-    mbse_mvprintw(10, 2, "4.  Groups");
-    mbse_mvprintw(11, 2, "5.  Max. dupes");
-    mbse_mvprintw(12, 2, "6.  Keep date");
-    mbse_mvprintw(13, 2, "7.  Keep netm");
+    ftnd_mvprintw( 7, 2, "1.  Keep days");
+    ftnd_mvprintw( 8, 2, "2.  Hatch pwd");
+    ftnd_mvprintw( 9, 2, "3.  Systems");
+    ftnd_mvprintw(10, 2, "4.  Groups");
+    ftnd_mvprintw(11, 2, "5.  Max. dupes");
+    ftnd_mvprintw(12, 2, "6.  Keep date");
+    ftnd_mvprintw(13, 2, "7.  Keep netm");
 
-    mbse_mvprintw( 7,42, "8.  Plus all");
-    mbse_mvprintw( 8,42, "9.  Notify");
-    mbse_mvprintw( 9,42, "10. Passwd");
-    mbse_mvprintw(10,42, "11. Message");
-    mbse_mvprintw(11,42, "12. Tic on/off");
-    mbse_mvprintw(12,42, "13. Pause");
+    ftnd_mvprintw( 7,42, "8.  Plus all");
+    ftnd_mvprintw( 8,42, "9.  Notify");
+    ftnd_mvprintw( 9,42, "10. Passwd");
+    ftnd_mvprintw(10,42, "11. Message");
+    ftnd_mvprintw(11,42, "12. Tic on/off");
+    ftnd_mvprintw(12,42, "13. Pause");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -761,28 +757,28 @@ void s_fidomailcfg(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 5, "1.11   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
+    ftnd_mvprintw( 5, 5, "1.11   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1. Badboard");
-    mbse_mvprintw( 8, 2, "2. Dupeboard");
-    mbse_mvprintw( 9, 2, "3. Pktdate");
-    mbse_mvprintw(10, 2, "4. Max pkts.");
-    mbse_mvprintw(11, 2, "5. Max arcs.");
-    mbse_mvprintw(12, 2, "6. Keep days");
-    mbse_mvprintw(13, 2, "7. Echo dupes");
-    mbse_mvprintw(14, 2, "8. Reject old");
-    mbse_mvprintw(15, 2, "9. Max msgs");
-    mbse_mvprintw(16, 1, "10. Days old");
-    mbse_mvprintw(17, 1, "11. Max systems");
-    mbse_mvprintw(18, 1, "12. Max groups");
+    ftnd_mvprintw( 7, 2, "1. Badboard");
+    ftnd_mvprintw( 8, 2, "2. Dupeboard");
+    ftnd_mvprintw( 9, 2, "3. Pktdate");
+    ftnd_mvprintw(10, 2, "4. Max pkts.");
+    ftnd_mvprintw(11, 2, "5. Max arcs.");
+    ftnd_mvprintw(12, 2, "6. Keep days");
+    ftnd_mvprintw(13, 2, "7. Echo dupes");
+    ftnd_mvprintw(14, 2, "8. Reject old");
+    ftnd_mvprintw(15, 2, "9. Max msgs");
+    ftnd_mvprintw(16, 1, "10. Days old");
+    ftnd_mvprintw(17, 1, "11. Max systems");
+    ftnd_mvprintw(18, 1, "12. Max groups");
     
-    mbse_mvprintw(12,42, "13. 4d address");
-    mbse_mvprintw(13,42, "14. Split at");
-    mbse_mvprintw(14,42, "15. Force at");
-    mbse_mvprintw(15,42, "16. Allow +*");
-    mbse_mvprintw(16,42, "17. Notify");
-    mbse_mvprintw(17,42, "18. Passwd");
-    mbse_mvprintw(18,42, "19. Pause");
+    ftnd_mvprintw(12,42, "13. 4d address");
+    ftnd_mvprintw(13,42, "14. Split at");
+    ftnd_mvprintw(14,42, "15. Force at");
+    ftnd_mvprintw(15,42, "16. Allow +*");
+    ftnd_mvprintw(16,42, "17. Notify");
+    ftnd_mvprintw(17,42, "18. Passwd");
+    ftnd_mvprintw(18,42, "19. Pause");
 
     set_color(WHITE, BLACK);
     show_str( 7,16,64, CFG.badboard);
@@ -869,48 +865,48 @@ void s_intmailcfg(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 5, "1.12   EDIT INTERNET MAIL AND NEWS PROCESSING");
+    ftnd_mvprintw( 5, 5, "1.12   EDIT INTERNET MAIL AND NEWS PROCESSING");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1. POP3 node");
-    mbse_mvprintw( 8, 2, "2. Usr@domain");
-    mbse_mvprintw( 9, 2, "3. SMTP node");
+    ftnd_mvprintw( 7, 2, "1. POP3 node");
+    ftnd_mvprintw( 8, 2, "2. Usr@domain");
+    ftnd_mvprintw( 9, 2, "3. SMTP node");
     switch (CFG.newsfeed) {
-	case FEEDINN:	mbse_mvprintw(10, 2, "4. N/A");
-        		mbse_mvprintw(11, 2, "5. NNTP node");
-			mbse_mvprintw(12, 2, "6. NNTP port");
-			mbse_mvprintw(13, 2, "7. NNTP m.r.");
-			mbse_mvprintw(14, 2, "8. NNTP user");
-			mbse_mvprintw(15, 2, "9. NNTP pass");
-			mbse_mvprintw(16, 1, "10. NNTP force");
+	case FEEDINN:	ftnd_mvprintw(10, 2, "4. N/A");
+        		ftnd_mvprintw(11, 2, "5. NNTP node");
+			ftnd_mvprintw(12, 2, "6. NNTP port");
+			ftnd_mvprintw(13, 2, "7. NNTP m.r.");
+			ftnd_mvprintw(14, 2, "8. NNTP user");
+			ftnd_mvprintw(15, 2, "9. NNTP pass");
+			ftnd_mvprintw(16, 1, "10. NNTP force");
 			break;
-	case FEEDRNEWS: mbse_mvprintw(10, 2, "4. Path rnews");
-			mbse_mvprintw(11, 2, "5. N/A");
-			mbse_mvprintw(12, 2, "6. N/A");
-			mbse_mvprintw(13, 2, "7. N/A");
-                        mbse_mvprintw(14, 2, "8. N/A");
-                        mbse_mvprintw(15, 2, "9. N/A");
-			mbse_mvprintw(16, 1, "10. N/A");
+	case FEEDRNEWS: ftnd_mvprintw(10, 2, "4. Path rnews");
+			ftnd_mvprintw(11, 2, "5. N/A");
+			ftnd_mvprintw(12, 2, "6. N/A");
+			ftnd_mvprintw(13, 2, "7. N/A");
+                        ftnd_mvprintw(14, 2, "8. N/A");
+                        ftnd_mvprintw(15, 2, "9. N/A");
+			ftnd_mvprintw(16, 1, "10. N/A");
 			break;
-	case FEEDUUCP:	mbse_mvprintw(10, 2, "4. UUCP path");
-			mbse_mvprintw(11, 2, "5. UUCP node");
-                        mbse_mvprintw(12, 2, "6. N/A");
-			mbse_mvprintw(13, 2, "7. N/A");
-                        mbse_mvprintw(14, 2, "8. N/A");
-                        mbse_mvprintw(15, 2, "9. N/A");
-			mbse_mvprintw(16, 1, "10. N/A");
+	case FEEDUUCP:	ftnd_mvprintw(10, 2, "4. UUCP path");
+			ftnd_mvprintw(11, 2, "5. UUCP node");
+                        ftnd_mvprintw(12, 2, "6. N/A");
+			ftnd_mvprintw(13, 2, "7. N/A");
+                        ftnd_mvprintw(14, 2, "8. N/A");
+                        ftnd_mvprintw(15, 2, "9. N/A");
+			ftnd_mvprintw(16, 1, "10. N/A");
 			break;
     }
-    mbse_mvprintw(17, 1, "11. Email aka");
-    mbse_mvprintw(18, 1, "12. UUCP aka");
-    mbse_mvprintw(19, 1, "13. Emailmode");
+    ftnd_mvprintw(17, 1, "11. Email aka");
+    ftnd_mvprintw(18, 1, "12. UUCP aka");
+    ftnd_mvprintw(19, 1, "13. Emailmode");
 
-    mbse_mvprintw(13,48, "14. News dupes");
-    mbse_mvprintw(14,48, "15. Articles");
-    mbse_mvprintw(15,48, "16. News mode");
-    mbse_mvprintw(16,48, "17. Split at");
-    mbse_mvprintw(17,48, "18. Force at");
-    mbse_mvprintw(18,48, "19. Control ok");
-    mbse_mvprintw(19,48, "20. No regate");
+    ftnd_mvprintw(13,48, "14. News dupes");
+    ftnd_mvprintw(14,48, "15. Articles");
+    ftnd_mvprintw(15,48, "16. News mode");
+    ftnd_mvprintw(16,48, "17. Split at");
+    ftnd_mvprintw(17,48, "18. Force at");
+    ftnd_mvprintw(18,48, "19. Control ok");
+    ftnd_mvprintw(19,48, "20. No regate");
 
     set_color(WHITE, BLACK);
     show_str( 7,16,64, CFG.popnode);
@@ -955,13 +951,13 @@ void e_uucp(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "1.12  EDIT UUCP GATEWAY");
+    ftnd_mvprintw( 5, 6, "1.12  EDIT UUCP GATEWAY");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.    Zone");
-    mbse_mvprintw( 8, 6, "2.    Net");
-    mbse_mvprintw( 9, 6, "3.    Node");
-    mbse_mvprintw(10, 6, "4.    Point");
-    mbse_mvprintw(11, 6, "5.    Domain");
+    ftnd_mvprintw( 7, 6, "1.    Zone");
+    ftnd_mvprintw( 8, 6, "2.    Net");
+    ftnd_mvprintw( 9, 6, "3.    Node");
+    ftnd_mvprintw(10, 6, "4.    Point");
+    ftnd_mvprintw(11, 6, "5.    Domain");
 
     for (;;) {
         set_color(WHITE, BLACK);
@@ -1058,13 +1054,13 @@ void s_newfiles(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "1.13 ALLFILES & NEWFILES LISTINGS");
+    ftnd_mvprintw( 5, 2, "1.13 ALLFILES & NEWFILES LISTINGS");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.   New days");
-    mbse_mvprintw( 8, 2, "2.   Security");
-    mbse_mvprintw( 9, 2, "3.   Groups");
-    mbse_mvprintw(10, 2, "4.   WWW log");
-    mbse_mvprintw(11, 2, "5.   FTP log");
+    ftnd_mvprintw( 7, 2, "1.   New days");
+    ftnd_mvprintw( 8, 2, "2.   Security");
+    ftnd_mvprintw( 9, 2, "3.   Groups");
+    ftnd_mvprintw(10, 2, "4.   WWW log");
+    ftnd_mvprintw(11, 2, "5.   FTP log");
 }
 
 
@@ -1141,14 +1137,14 @@ void e_aka(int Area)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "1.1   EDIT AKA");
+    ftnd_mvprintw( 5, 6, "1.1   EDIT AKA");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.    Zone");
-    mbse_mvprintw( 8, 6, "2.    Net");
-    mbse_mvprintw( 9, 6, "3.    Node");
-    mbse_mvprintw(10, 6, "4.    Point");
-    mbse_mvprintw(11, 6, "5.    Domain");
-    mbse_mvprintw(12, 6, "6.    Active");
+    ftnd_mvprintw( 7, 6, "1.    Zone");
+    ftnd_mvprintw( 8, 6, "2.    Net");
+    ftnd_mvprintw( 9, 6, "3.    Node");
+    ftnd_mvprintw(10, 6, "4.    Point");
+    ftnd_mvprintw(11, 6, "5.    Domain");
+    ftnd_mvprintw(12, 6, "6.    Active");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -1183,7 +1179,7 @@ void e_fidoakas(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "1.1   EDIT FIDONET AKA'S");
+	ftnd_mvprintw( 5, 2, "1.1   EDIT FIDONET AKA'S");
 	set_color(CYAN, BLACK);
 	x = 2;
 	y = 7;
@@ -1203,7 +1199,7 @@ void e_fidoakas(void)
 		    temp[38] = '\0';
 		} else
 		    snprintf(temp, 81, "%3d", o+i);
-		mbse_mvprintw(y, x, temp);
+		ftnd_mvprintw(y, x, temp);
 		y++;
 	    }
 	}
@@ -1254,11 +1250,11 @@ void e_fidoakas(void)
 
 	if (strncmp(pick, "M", 1) == 0) {
 	    from = too = 0;
-	    mbse_mvprintw(LINES -3, 6, "Enter aka number (1..40) to move >");
+	    ftnd_mvprintw(LINES -3, 6, "Enter aka number (1..40) to move >");
 	    from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
-	    mbse_locate(LINES -3, 6);
+	    ftnd_locate(LINES -3, 6);
 	    clrtoeol();
-	    mbse_mvprintw(LINES -3, 6, "Enter new position (1..40) >");
+	    ftnd_mvprintw(LINES -3, 6, "Enter new position (1..40) >");
 	    too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number");
 	    if ((from == too) || (from == 0) || (too == 0) || (from > 40) || (too > 40)) {
 		errmsg("That makes no sense");
@@ -1289,32 +1285,32 @@ void s_mailer(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "1.14 EDIT MAILER SETTINGS");
+	ftnd_mvprintw( 5, 2, "1.14 EDIT MAILER SETTINGS");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.   Mailer logl.");
-	mbse_mvprintw( 8, 2, "2.   TCP/IP \"phone\"");
-	mbse_mvprintw( 9, 2, "3.   TCP/IP flags");
-	mbse_mvprintw(10, 2, "4.   TCP/IP speed");
-	mbse_mvprintw(11, 2, "5.   Timeout reset");
-	mbse_mvprintw(12, 2, "6.   Timeout connect");
-	mbse_mvprintw(13, 2, "7.   Dial delay");
-	mbse_mvprintw(14, 2, "8.   No Filerequests");
-	mbse_mvprintw(15, 2, "9.   No callout");
-	mbse_mvprintw(16, 2, "10.  No EMSI session");
-	mbse_mvprintw(17, 2, "11.  No Yooho/2U2");
+	ftnd_mvprintw( 7, 2, "1.   Mailer logl.");
+	ftnd_mvprintw( 8, 2, "2.   TCP/IP \"phone\"");
+	ftnd_mvprintw( 9, 2, "3.   TCP/IP flags");
+	ftnd_mvprintw(10, 2, "4.   TCP/IP speed");
+	ftnd_mvprintw(11, 2, "5.   Timeout reset");
+	ftnd_mvprintw(12, 2, "6.   Timeout connect");
+	ftnd_mvprintw(13, 2, "7.   Dial delay");
+	ftnd_mvprintw(14, 2, "8.   No Filerequests");
+	ftnd_mvprintw(15, 2, "9.   No callout");
+	ftnd_mvprintw(16, 2, "10.  No EMSI session");
+	ftnd_mvprintw(17, 2, "11.  No Yooho/2U2");
 
-	mbse_mvprintw(13,31, "12.  No Zmodem");
-	mbse_mvprintw(14,31, "13.  No Zedzap");
-	mbse_mvprintw(15,31, "14.  No Hydra");
-	mbse_mvprintw(16,31, "15.  No MD5");
-	mbse_mvprintw(17,31, "16.  Zero Locks OK");
+	ftnd_mvprintw(13,31, "12.  No Zmodem");
+	ftnd_mvprintw(14,31, "13.  No Zedzap");
+	ftnd_mvprintw(15,31, "14.  No Hydra");
+	ftnd_mvprintw(16,31, "15.  No MD5");
+	ftnd_mvprintw(17,31, "16.  Zero Locks OK");
 
-	mbse_mvprintw(12,59, "17.  Phonetrans  1-10");
-	mbse_mvprintw(13,59, "18.  Phonetrans 11-20");
-	mbse_mvprintw(14,59, "19.  Phonetrans 21-30");
-	mbse_mvprintw(15,59, "20.  Phonetrans 31-40");
-	mbse_mvprintw(16,59, "21.  Max. files");
-	mbse_mvprintw(17,59, "22.  Max. MB.");
+	ftnd_mvprintw(12,59, "17.  Phonetrans  1-10");
+	ftnd_mvprintw(13,59, "18.  Phonetrans 11-20");
+	ftnd_mvprintw(14,59, "19.  Phonetrans 21-30");
+	ftnd_mvprintw(15,59, "20.  Phonetrans 31-40");
+	ftnd_mvprintw(16,59, "21.  Max. files");
+	ftnd_mvprintw(17,59, "22.  Max. MB.");
 }
 
 
@@ -1326,12 +1322,12 @@ void e_trans(int start, int item)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "1.14.%d EDIT PHONE TRANSLATION", item);
+	ftnd_mvprintw( 5, 6, "1.14.%d EDIT PHONE TRANSLATION", item);
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 12, "String to match       String to replace");
+	ftnd_mvprintw( 7, 12, "String to match       String to replace");
 	for (i = 0; i < 10; i++) {
 		snprintf(temp, 21, "%2d.", i+1);
-		mbse_mvprintw( 9+i, 6, temp);
+		ftnd_mvprintw( 9+i, 6, temp);
 	}
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -1414,16 +1410,16 @@ void e_html(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 2, "1.15 EDIT HTML SETTINGS");
+    ftnd_mvprintw( 5, 2, "1.15 EDIT HTML SETTINGS");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 2, "1.  Docs root");
-    mbse_mvprintw( 8, 2, "2.  Link to ftp");
-    mbse_mvprintw( 9, 2, "3.  URL name");
-    mbse_mvprintw(10, 2, "4.  Charset");
-    mbse_mvprintw(11, 2, "5.  Author name");
-    mbse_mvprintw(12, 2, "6.  Convert cmd");
-    mbse_mvprintw(13, 2, "7.  Files/page");
-    mbse_mvprintw(14, 2, "8.  Hist. limit");
+    ftnd_mvprintw( 7, 2, "1.  Docs root");
+    ftnd_mvprintw( 8, 2, "2.  Link to ftp");
+    ftnd_mvprintw( 9, 2, "3.  URL name");
+    ftnd_mvprintw(10, 2, "4.  Charset");
+    ftnd_mvprintw(11, 2, "5.  Author name");
+    ftnd_mvprintw(12, 2, "6.  Convert cmd");
+    ftnd_mvprintw(13, 2, "7.  Files/page");
+    ftnd_mvprintw(14, 2, "8.  Hist. limit");
 
     set_color(WHITE, BLACK);
     show_str( 7,18,59, CFG.www_root);
@@ -1471,7 +1467,7 @@ void global_menu(void)
     crc = upd_crc32((char *)&CFG, crc, sizeof(CFG));
 
     if (strlen(CFG.out_queue) == 0) {
-	snprintf(CFG.out_queue, 65, "%s/var/queue", getenv("MBSE_ROOT"));
+	snprintf(CFG.out_queue, 65, "%s/var/queue", getenv("FTND_ROOT"));
 	Syslog('+', "Main config, upgraded for new queue");
     }
 
@@ -1498,7 +1494,7 @@ void global_menu(void)
     }
 
     if (strlen(CFG.rulesdir) == 0) {
-	snprintf(CFG.rulesdir, 65, "%s/var/rules", getenv("MBSE_ROOT"));
+	snprintf(CFG.rulesdir, 65, "%s/var/rules", getenv("FTND_ROOT"));
 	Syslog('+', "Main config, upgraded rules directory");
     }
 
@@ -1508,9 +1504,9 @@ void global_menu(void)
     }
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/magic", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/magic", getenv("FTND_ROOT"));
     if (strcmp(CFG.req_magic, temp) == 0) {
-	snprintf(CFG.req_magic, 65, "%s/var/magic", getenv("MBSE_ROOT"));
+	snprintf(CFG.req_magic, 65, "%s/var/magic", getenv("FTND_ROOT"));
 	Syslog('+', "Main config, magic dir moved to %s", CFG.req_magic);
     }
     free(temp);
@@ -1550,25 +1546,25 @@ void global_menu(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "1.    GLOBAL SETUP");
+	ftnd_mvprintw( 5, 6, "1.    GLOBAL SETUP");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.    Edit Fidonet Aka's");
-	mbse_mvprintw( 8, 6, "2.    Edit Registration Info");
-	mbse_mvprintw( 9, 6, "3.    Edit Global Filenames");
-	mbse_mvprintw(10, 6, "4.    Edit Global Paths");
-	mbse_mvprintw(11, 6, "5.    Edit Global Settings");
-	mbse_mvprintw(12, 6, "6.    Edit User flag Descriptions");
-	mbse_mvprintw(13, 6, "7.    Edit New Users defaults");
-	mbse_mvprintw(14, 6, "8.    Edit Text Colors");
+	ftnd_mvprintw( 7, 6, "1.    Edit Fidonet Aka's");
+	ftnd_mvprintw( 8, 6, "2.    Edit Registration Info");
+	ftnd_mvprintw( 9, 6, "3.    Edit Global Filenames");
+	ftnd_mvprintw(10, 6, "4.    Edit Global Paths");
+	ftnd_mvprintw(11, 6, "5.    Edit Global Settings");
+	ftnd_mvprintw(12, 6, "6.    Edit User flag Descriptions");
+	ftnd_mvprintw(13, 6, "7.    Edit New Users defaults");
+	ftnd_mvprintw(14, 6, "8.    Edit Text Colors");
 
-	mbse_mvprintw( 7,46, "9.    Edit Sysop Paging");
-	mbse_mvprintw( 8,46, "10.   Edit Files Processing");
-	mbse_mvprintw( 9,46, "11.   Edit Fidonet Mail/Echomail");
-	mbse_mvprintw(10,46, "12.   Edit Internet Mail/News");
-	mbse_mvprintw(11,46, "13.   Edit All-/Newfiles lists");
-	mbse_mvprintw(12,46, "14.   Edit Mailer global setup");
-	mbse_mvprintw(13,46, "15.   Edit HTML pages setup");
-	mbse_mvprintw(14,46, "16.   Edit Mgr flag descriptions");
+	ftnd_mvprintw( 7,46, "9.    Edit Sysop Paging");
+	ftnd_mvprintw( 8,46, "10.   Edit Files Processing");
+	ftnd_mvprintw( 9,46, "11.   Edit Fidonet Mail/Echomail");
+	ftnd_mvprintw(10,46, "12.   Edit Internet Mail/News");
+	ftnd_mvprintw(11,46, "13.   Edit All-/Newfiles lists");
+	ftnd_mvprintw(12,46, "14.   Edit Mailer global setup");
+	ftnd_mvprintw(13,46, "15.   Edit HTML pages setup");
+	ftnd_mvprintw(14,46, "16.   Edit Mgr flag descriptions");
 
 	switch(select_menu(16)) {
 	    case 0:
@@ -1654,7 +1650,7 @@ int PickAka(char *msg, int openit)
 		clr_index();
 		set_color(WHITE, BLACK);
 		snprintf(temp, 81, "%s.   AKA SELECT", msg);
-		mbse_mvprintw( 5, 4, temp);	
+		ftnd_mvprintw( 5, 4, temp);	
 		set_color(CYAN, BLACK);
 		x = 2;
 		y = 7;
@@ -1672,7 +1668,7 @@ int PickAka(char *msg, int openit)
 					set_color(LIGHTBLUE, BLACK);
 					snprintf(temp, 81, "%3d", o+i);
 				}
-				mbse_mvprintw(y, x, temp);
+				ftnd_mvprintw(y, x, temp);
 				y++;
 			}
 		}
@@ -1777,8 +1773,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	add_webtable(wp, (char *)"Machine type", utsbuf.machine);
 	fprintf(fp, "      Machine type     %s\n", utsbuf.machine);
     }
-    add_webtable(wp, (char *)"MBSE_ROOT", getenv("MBSE_ROOT"));
-    fprintf(fp, "      MBSE_ROOT        %s\n", getenv("MBSE_ROOT"));
+    add_webtable(wp, (char *)"FTND_ROOT", getenv("FTND_ROOT"));
+    fprintf(fp, "      FTND_ROOT        %s\n", getenv("FTND_ROOT"));
     now = time(NULL);
     add_webtable(wp, (char *)"Date created", ctime(&now));
     fprintf(fp, "      Date created     %s", ctime(&now));

@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_modem.c,v 1.18 2005/10/11 20:49:49 mbse Exp $
+ * m_modem.c
  * Purpose ...............: Setup Modem structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -52,7 +48,7 @@ int CountModem(void)
 	char	ffile[PATH_MAX];
 	int	count;
 
-	snprintf(ffile, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/modem.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
 			Syslog('+', "Created new %s", ffile);
@@ -169,8 +165,8 @@ int OpenModem(void)
 	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	int	oldsize;
 
-	snprintf(fnin,  PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
-	snprintf(fnout, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(fnin,  PATH_MAX, "%s/etc/modem.data", getenv("FTND_ROOT"));
+	snprintf(fnout, PATH_MAX, "%s/etc/modem.temp", getenv("FTND_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
 			fread(&modemhdr, sizeof(modemhdr), 1, fin);
@@ -218,8 +214,8 @@ void CloseModem(int force)
 	FILE	*fi, *fo;
 	st_list	*mdm = NULL, *tmp;
 
-	snprintf(fin,  PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
-	snprintf(fout, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(fin,  PATH_MAX, "%s/etc/modem.data", getenv("FTND_ROOT"));
+	snprintf(fout, PATH_MAX, "%s/etc/modem.temp", getenv("FTND_ROOT"));
 
 	if (ModemUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -263,7 +259,7 @@ int AppendModem(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 
-	snprintf(ffile, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(ffile, PATH_MAX, "%s/etc/modem.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&modem, 0, sizeof(modem));
 		snprintf(modem.init[0], 61, "ATZ\\r");
@@ -312,26 +308,26 @@ void Modem_Screen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "5.  EDIT MODEM TYPE");
+	ftnd_mvprintw( 5, 2, "5.  EDIT MODEM TYPE");
 	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 2, "1.  Type");
-	mbse_mvprintw( 8, 2, "2.  Init 1");
-	mbse_mvprintw( 9, 2, "3.  Init 2");
-	mbse_mvprintw(10, 2, "4.  Init 3");
-	mbse_mvprintw(11, 2, "5.  Reset");
-	mbse_mvprintw(12, 2, "6.  Hangup");
-	mbse_mvprintw(13, 2, "7.  Dial");
-	mbse_mvprintw(14, 2, "8.  Info");
-	mbse_mvprintw(15, 2, "9.  Ok");
-	mbse_mvprintw(16, 2, "10. Offset");
-	mbse_mvprintw(17, 2, "11. Speed");
+	ftnd_mvprintw( 7, 2, "1.  Type");
+	ftnd_mvprintw( 8, 2, "2.  Init 1");
+	ftnd_mvprintw( 9, 2, "3.  Init 2");
+	ftnd_mvprintw(10, 2, "4.  Init 3");
+	ftnd_mvprintw(11, 2, "5.  Reset");
+	ftnd_mvprintw(12, 2, "6.  Hangup");
+	ftnd_mvprintw(13, 2, "7.  Dial");
+	ftnd_mvprintw(14, 2, "8.  Info");
+	ftnd_mvprintw(15, 2, "9.  Ok");
+	ftnd_mvprintw(16, 2, "10. Offset");
+	ftnd_mvprintw(17, 2, "11. Speed");
 
-	mbse_mvprintw(15,30, "12. Available");
-	mbse_mvprintw(16,30, "13. Deleted");
-	mbse_mvprintw(17,30, "14. Stripdash");
+	ftnd_mvprintw(15,30, "12. Available");
+	ftnd_mvprintw(16,30, "13. Deleted");
+	ftnd_mvprintw(17,30, "14. Stripdash");
 
-	mbse_mvprintw(15,58, "15. Connect strings");
-	mbse_mvprintw(16,58, "16. Error strings");
+	ftnd_mvprintw(15,58, "15. Connect strings");
+	ftnd_mvprintw(16,58, "16. Error strings");
 }
 
 
@@ -342,12 +338,12 @@ void EditConnect(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "5.15  EDIT MODEM CONNECT STRINGS");
+	ftnd_mvprintw( 5, 2, "5.15  EDIT MODEM CONNECT STRINGS");
 	set_color(CYAN, BLACK);
 
 	for (i = 0; i < 10; i++) {
-		mbse_mvprintw( 7+i, 2, (char *)"%2d.", i+1);
-		mbse_mvprintw( 7+i,42, (char *)"%2d.", i+11);
+		ftnd_mvprintw( 7+i, 2, (char *)"%2d.", i+1);
+		ftnd_mvprintw( 7+i,42, (char *)"%2d.", i+11);
 	}
 
 	for (;;) {
@@ -375,11 +371,11 @@ void EditError(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 2, "5.16  EDIT MODEM ERROR STRINGS");
+	ftnd_mvprintw( 5, 2, "5.16  EDIT MODEM ERROR STRINGS");
 	set_color(CYAN, BLACK);
 
 	for (i = 0; i < 10; i++) {
-		mbse_mvprintw( 7+i, 2, (char *)"%2d.", i+1);
+		ftnd_mvprintw( 7+i, 2, (char *)"%2d.", i+1);
 	}
 
 	for (;;) {
@@ -409,7 +405,7 @@ int EditModemRec(int Area)
 	working(1, 0, 0);
 	IsDoing("Edit Modem");
 
-	snprintf(mfile, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+	snprintf(mfile, PATH_MAX, "%s/etc/modem.temp", getenv("FTND_ROOT"));
 	if ((fil = fopen(mfile, "r")) == NULL) {
 		working(2, 0, 0);
 		return -1;
@@ -529,10 +525,10 @@ void EditModem(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 4, "5.  MODEM TYPES SETUP");
+		ftnd_mvprintw( 5, 4, "5.  MODEM TYPES SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
-			snprintf(temp, PATH_MAX, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/modem.temp", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&modemhdr, sizeof(modemhdr), 1, fil);
 				x = 2;
@@ -552,7 +548,7 @@ void EditModem(void)
 						set_color(LIGHTBLUE, BLACK);
 					snprintf(temp, 81, "%3d.  %-30s", i, modem.modem);
 					temp[37] = 0;
-					mbse_mvprintw(y, x, temp);
+					ftnd_mvprintw(y, x, temp);
 					y++;
 				}
 				fclose(fil);
@@ -618,10 +614,10 @@ char *PickModem(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		snprintf(temp, 81, "%s.  MODEM SELECT", shdr);
-		mbse_mvprintw(5,3,temp);
+		ftnd_mvprintw(5,3,temp);
 		set_color(CYAN, BLACK);
 		if (records) {
-			snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("FTND_ROOT"));
 			working(1, 0, 0);
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&modemhdr, sizeof(modemhdr), 1, fil);
@@ -643,7 +639,7 @@ char *PickModem(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						snprintf(temp, 81, "%3d.  %-31s", o + i, modem.modem);
 						temp[38] = '\0';
-						mbse_mvprintw(y, x, temp);
+						ftnd_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -664,7 +660,7 @@ char *PickModem(char *shdr)
 				o -= 20;
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+			snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("FTND_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				offset = modemhdr.hdrsize + ((atoi(pick) - 1) * modemhdr.recsize);
 				fseek(fil, offset, SEEK_SET);
@@ -687,7 +683,7 @@ int modem_doc(FILE *fp, FILE *toc, int page)
     FILE    *ti, *wp, *ip, *mdm;
     int	    refs, nr = 0, i, j;
 
-    snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/modem.data", getenv("FTND_ROOT"));
     if ((mdm = fopen(temp, "r")) == NULL)
 	return page;
 
@@ -748,7 +744,7 @@ int modem_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>TTY Lines Reference</H3>\n");
 	    refs = 0;
-	    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
 	    if ((ti = fopen(temp, "r"))) {
 		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, ti);
 		fseek(ti, 0, SEEK_SET);

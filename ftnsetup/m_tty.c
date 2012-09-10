@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: m_tty.c,v 1.29 2005/10/11 20:49:49 mbse Exp $
+ * m_tty.c
  * Purpose ...............: Setup Ttyinfo structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -54,7 +50,7 @@ int CountTtyinfo(void)
     int	    count = 0, i;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    snprintf(ffile, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
 
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
@@ -199,8 +195,8 @@ int OpenTtyinfo(void)
 
     fnin  = calloc(PATH_MAX, sizeof(char));
     fnout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fnin,  PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("FTND_ROOT"));
 
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
@@ -264,8 +260,8 @@ void CloseTtyinfo(int force)
 
     fin  = calloc(PATH_MAX, sizeof(char));
     fout = calloc(PATH_MAX, sizeof(char));
-    snprintf(fin,  PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-    snprintf(fout, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("FTND_ROOT"));
 
     if (TtyUpdated == 1) {
 	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -315,7 +311,7 @@ int AppendTtyinfo(void)
     char    *ffile;
 
     ffile = calloc(PATH_MAX, sizeof(char));
-    snprintf(ffile, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("FTND_ROOT"));
     
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&ttyinfo, 0, sizeof(ttyinfo));
@@ -336,22 +332,22 @@ void TtyScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mbse_mvprintw( 5, 6, "6.  EDIT TTY LINE");
+    ftnd_mvprintw( 5, 6, "6.  EDIT TTY LINE");
     set_color(CYAN, BLACK);
-    mbse_mvprintw( 7, 6, "1.  Comment");
-    mbse_mvprintw( 8, 6, "2.  TTY Device");
-    mbse_mvprintw( 9, 6, "3.  Phone nr.");
-    mbse_mvprintw(10, 6, "4.  Line Speed");
-    mbse_mvprintw(11, 6, "5.  Fido Flags");
-    mbse_mvprintw(12, 6, "6.  Line Type");
-    mbse_mvprintw(13, 6, "7.  Available");
-    mbse_mvprintw(14, 6, "8.  Honor ZMH");
-    mbse_mvprintw(15, 6, "9.  Deleted");
-    mbse_mvprintw(16, 6, "10. Callout");
+    ftnd_mvprintw( 7, 6, "1.  Comment");
+    ftnd_mvprintw( 8, 6, "2.  TTY Device");
+    ftnd_mvprintw( 9, 6, "3.  Phone nr.");
+    ftnd_mvprintw(10, 6, "4.  Line Speed");
+    ftnd_mvprintw(11, 6, "5.  Fido Flags");
+    ftnd_mvprintw(12, 6, "6.  Line Type");
+    ftnd_mvprintw(13, 6, "7.  Available");
+    ftnd_mvprintw(14, 6, "8.  Honor ZMH");
+    ftnd_mvprintw(15, 6, "9.  Deleted");
+    ftnd_mvprintw(16, 6, "10. Callout");
 
-    mbse_mvprintw(14,31, "11. Portspeed");
-    mbse_mvprintw(15,31, "12. Modemtype");
-    mbse_mvprintw(16,31, "13. EMSI name");
+    ftnd_mvprintw(14,31, "11. Portspeed");
+    ftnd_mvprintw(15,31, "12. Modemtype");
+    ftnd_mvprintw(16,31, "13. EMSI name");
 }
 
 
@@ -371,7 +367,7 @@ int EditTtyRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit Ttyinfo");
     mfile = calloc(PATH_MAX, sizeof(char));
-    snprintf(mfile, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("FTND_ROOT"));
     
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
@@ -508,10 +504,10 @@ void EditTtyinfo(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 4, "6.  TTY LINES SETUP");
+	ftnd_mvprintw( 5, 4, "6.  TTY LINES SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.temp", getenv("FTND_ROOT"));
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
 		x = 2;
@@ -534,7 +530,7 @@ void EditTtyinfo(void)
 			    set_color(LIGHTBLUE, BLACK);
 			snprintf(temp, 81, "%3d.  %-6s %-25s", o+i, ttyinfo.tty, ttyinfo.comment);
 			temp[37] = 0;
-			mbse_mvprintw(y, x, temp);
+			ftnd_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -589,7 +585,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *tty;
     int	    j;
 
-    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
     if ((tty = fopen(temp, "r")) == NULL)
 	return page;
 
