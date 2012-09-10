@@ -1,4 +1,4 @@
-/* $Id: m_ibc.h,v 1.2 2005/08/11 10:46:08 mbse Exp $ */
+/* m_ibc.h */
 
 #ifndef _M_IBC_H
 #define _M_IBC_H

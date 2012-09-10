@@ -1,4 +1,4 @@
-/* $Id: ledit.h,v 1.21 2008/02/17 16:10:18 mbse Exp $ */
+/* ledit.h */
 
 #ifndef _LEDIT_H
 #define _LEDIT_H

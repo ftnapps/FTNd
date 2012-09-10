@@ -1,7 +1,7 @@
 #ifndef _GLOBAL_H
 #define _GLOBAL_H
 
-/* $Id: m_global.h,v 1.2 2004/03/24 22:23:21 mbroek Exp $ */
+/* m_global.h */
 
 void config_check(char *path);
 int  config_open(void);

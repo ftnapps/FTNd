@@ -1,7 +1,7 @@
 #ifndef	_MUTIL_H
 #define	_MUTIL_H
 
-/* $Id: mutil.h,v 1.6 2004/03/29 20:41:26 mbroek Exp $ */
+/* mutil.h */
 
 unsigned char	readkey(int, int, int, int);
 unsigned char	testkey(int, int);

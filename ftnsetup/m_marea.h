@@ -1,7 +1,7 @@
 #ifndef _MAREA_H
 #define _MAREA_H
 
-/* $Id: m_marea.h,v 1.3 2002/11/06 20:38:51 mbroek Exp $ */
+/* m_marea.h */
 
 int	OpenMsgarea(void);
 void	CloseMsgarea(int);
