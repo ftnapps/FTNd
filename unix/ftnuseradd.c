@@ -1,30 +1,26 @@
 /*****************************************************************************
  *
- * $Id: mbuseradd.c,v 1.24 2007/05/28 10:40:24 mbse Exp $
+ * ftnuseradd.c
  * Purpose ...............: setuid root version of useradd
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek	FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
@@ -54,7 +50,7 @@
 #endif
 
 #include "xmalloc.h"
-#include "mbuseradd.h"
+#include "ftnuseradd.h"
 
 
 /*
@@ -204,7 +200,7 @@ int main(int argc, char *argv[])
      */
     for (i = 1; i < 5; i++) {
 	if (strlen(argv[i]) > 80) {
-	    fprintf(stderr, "mbuseradd: Argument %d is too long\n", i);
+	    fprintf(stderr, "ftnuseradd: Argument %d is too long\n", i);
 	    exit(1);
 	}
     }
@@ -215,11 +211,11 @@ int main(int argc, char *argv[])
     ppid = getuid();
     pwent = getpwuid(ppid);
     if (!pwent) {
-	fprintf(stderr, "mbuseradd: Cannot determine your user name.\n");
+	fprintf(stderr, "ftnuseradd: Cannot determine your user name.\n");
 	exit(1);
     }
-    if (strcmp(pwent->pw_name, (char *)"mbse") && strcmp(pwent->pw_name, (char *)"bbs")) {
-	fprintf(stderr, "mbuseradd: only users `mbse' and `bbs' may do this.\n");
+    if (strcmp(pwent->pw_name, (char *)"ftnd") && strcmp(pwent->pw_name, (char *)"bbs")) {
+	fprintf(stderr, "ftnuseradd: only users `ftnd' and `bbs' may do this.\n");
 	exit(1);
     }
 
@@ -229,11 +225,11 @@ int main(int argc, char *argv[])
      */
     gr = getgrgid(pwent->pw_gid);
     if (!gr) {
-	fprintf(stderr, "mbuseradd: Cannot determine group name.\n");
+	fprintf(stderr, "ftnuseradd: Cannot determine group name.\n");
 	exit(1);
     }
     if (strcmp(gr->gr_name, (char *)"bbs")) {
-	fprintf(stderr, "mbuseradd: You are not a member of group `bbs'.\n");
+	fprintf(stderr, "ftnuseradd: You are not a member of group `bbs'.\n");
 	exit(1);
     }
 
@@ -252,12 +248,12 @@ int main(int argc, char *argv[])
     mib[2] = ppid;
     mib[3] = KERN_PROC_ARGV;
     if ((s = realloc(s, siz)) == NULL) {
-	fprintf(stderr, "mbuseradd: no memory\n");
+	fprintf(stderr, "ftnuseradd: no memory\n");
 	exit(1);
     }
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
 	perror("");
-	fprintf(stderr, "mbuseradd: sysctl call failed\n");
+	fprintf(stderr, "ftnuseradd: sysctl call failed\n");
 	exit(1);
     }
     buf[0] = '\0';
@@ -276,12 +272,12 @@ int main(int argc, char *argv[])
     mib[2] = ppid;
     mib[3] = KERN_PROC_ARGV;
     if ((s = realloc(s, siz)) == NULL) {
-        fprintf(stderr, "mbuseradd: no memory\n");
+        fprintf(stderr, "ftnuseradd: no memory\n");
         exit(1);
     }
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
         perror("");
-        fprintf(stderr, "mbuseradd: sysctl call failed\n");
+        fprintf(stderr, "ftnuseradd: sysctl call failed\n");
         exit(1);
     }
     parent = xstrcpy((char *)s);
@@ -294,12 +290,12 @@ int main(int argc, char *argv[])
     mib[2] = KERN_PROC_ARGS;
     mib[3] = ppid;
     if ((s = realloc(s, siz)) == NULL) {
-	fprintf(stderr, "mbuseradd: no memory\n");
+	fprintf(stderr, "ftnuseradd: no memory\n");
 	exit(1);
     }
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
 	perror("");
-	fprintf(stderr, "mbuseradd: sysctl call failed\n");
+	fprintf(stderr, "ftnuseradd: sysctl call failed\n");
    	exit(1);
     }
     parent = xstrcpy((char *)s);
@@ -309,7 +305,7 @@ int main(int argc, char *argv[])
      */
     snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
     if ((fp = fopen(temp, "r")) == NULL) {
-	fprintf(stderr, "mbuseradd: can't read %s\n", temp);
+	fprintf(stderr, "ftnuseradd: can't read %s\n", temp);
 	exit(1);
     }
     fgets(temp, PATH_MAX-1, fp);
@@ -317,8 +313,8 @@ int main(int argc, char *argv[])
     parent = xstrcpy(Basename(temp));
 #endif
 
-    if (strcmp((char *)"-mbnewusr", parent)) {
-	fprintf(stderr, "mbuseradd: illegal parent \"%s\"\n", parent);
+    if (strcmp((char *)"-ftnnewusr", parent)) {
+	fprintf(stderr, "ftnuseradd: illegal parent \"%s\"\n", parent);
 	free(temp);
 	free(parent);
 	exit(1);
@@ -331,7 +327,7 @@ int main(int argc, char *argv[])
 
     if (setuid(0) == -1 || setgid(1) == -1) {
         perror("");
-        fprintf(stderr, "mbuseradd: Unable to setuid(root) or setgid(root)\n");
+        fprintf(stderr, "ftnuseradd: Unable to setuid(root) or setgid(root)\n");
         fprintf(stderr, "Make sure that this program is set to -rwsr-sr-x\n");
         fprintf(stderr, "Owner must be root and group root\n");
         exit(1);
@@ -339,11 +335,11 @@ int main(int argc, char *argv[])
     umask(0000);
 
     /*
-     * We don't log into MBSE BBS logfiles but to the system logfiles,
-     * because we are modifying system files not belonging to MBSE BBS.
+     * We don't log into FTNd logfiles but to the system logfiles,
+     * because we are modifying system files not belonging to FTNd.
      */
-    openlog("mbuseradd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
-    syslog(LOG_WARNING, "mbuseradd %s %s %s %s", argv[1], argv[2], argv[3], argv[4]);
+    openlog("ftnuseradd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
+    syslog(LOG_WARNING, "ftnuseradd %s %s %s %s", argv[1], argv[2], argv[3], argv[4]);
 
     /*
      * Build command to add user entry to the /etc/passwd and /etc/shadow
@@ -375,7 +371,7 @@ int main(int argc, char *argv[])
 #error "Don't know how to add a user on this OS"
 #endif
 
-    snprintf(shell, PATH_MAX, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
+    snprintf(shell, PATH_MAX, "%s/bin/ftnbbs", getenv("FTND_ROOT"));
     snprintf(homedir, PATH_MAX, "%s/%s", argv[4], argv[2]);
 
 #if defined(__linux__)
@@ -426,8 +422,8 @@ int main(int argc, char *argv[])
     /*
      * Now create directories and files for this user.
      */
-    if ((pwent = getpwnam((char *)"mbse")) == NULL) {
-	syslog(LOG_WARNING, "Can't get password entry for \"mbse\"");
+    if ((pwent = getpwnam((char *)"ftnd")) == NULL) {
+	syslog(LOG_WARNING, "Can't get password entry for \"ftnd\"");
 	exit(2);
     }
 
@@ -510,8 +506,8 @@ int main(int argc, char *argv[])
 
 void Help()
 {
-    fprintf(stderr, "\nmbuseradd commandline:\n\n");
-    fprintf(stderr, "mbuseradd [gid] [name] [comment] [usersdir]\n");
+    fprintf(stderr, "\nftnuseradd commandline:\n\n");
+    fprintf(stderr, "ftnuseradd [gid] [name] [comment] [usersdir]\n");
     exit(1);
 }
 

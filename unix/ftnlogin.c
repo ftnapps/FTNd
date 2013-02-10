@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
- * $Id: mblogin.c,v 1.9 2007/08/26 15:05:33 mbse Exp $
- * Purpose ...............: Login program for MBSE BBS.
+ * ftnlogin.c
+ * Purpose ...............: Login program for FTNd.
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek        FIDO:           2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mblogin.h"
+#include "ftnlogin.h"
 #include "../lib/users.h"
 #include <sys/stat.h>
 #include <stdio.h>
@@ -433,7 +429,7 @@ int main(int argc, char **argv)
 	/*
 	 * Only show this before a prompt from telnetd
 	 */
-	printf("\nMBSE BBS v%s (Release: %s)\n", VERSION, ReleaseDate);
+	printf("\nFTNd v%s (Release: %s)\n", VERSION, ReleaseDate);
 	printf("%s\n\n", COPYRIGHT);
     }
 
@@ -462,7 +458,7 @@ int main(int argc, char **argv)
 	    memzero(utent.ut_host, sizeof utent.ut_host);
 #endif
 
-	openlog("mblogin", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
+	openlog("ftnlogin", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
 	setup_tty();
 	umask(getdef_num("UMASK", 007));
 
@@ -480,9 +476,9 @@ int main(int argc, char **argv)
 	if ((tmp = getenv("CALLER_ID")))
 	    addenv("CALLER_ID", tmp);
 
-	/* get the mbse environment */
-	pw = getpwnam("mbse");
-	addenv("MBSE_ROOT", pw->pw_dir);
+	/* get the ftnd environment */
+	pw = getpwnam("ftnd");
+	addenv("FTND_ROOT", pw->pw_dir);
 	snprintf(userfile, PATH_MAX, "%s/etc/users.data",  pw->pw_dir);
 
 	check_nologin();
@@ -570,13 +566,13 @@ top:
 	     * Here we try usernames on unix names and Fidonet style
 	     * names that are stored in the bbs userdatabase.
 	     * The name "bbs" is for new users, don't check the bbs userfile.
-	     * If allowed from login.defs accept the name "mbse".
+	     * If allowed from login.defs accept the name "ftnd".
 	     */
 	    FoundName = 0;
 	    if (strcmp(username, getdef_str("NEWUSER_ACCOUNT")) == 0) {
 		FoundName = 1;
 	    } 
-	    if ((getdef_bool("ALLOW_MBSE") != 0) && (strcmp(username, "mbse") == 0)) {
+	    if ((getdef_bool("ALLOW_FTND") != 0) && (strcmp(username, "ftnd") == 0)) {
 	        FoundName = 1;
 	    }
 	    if (! FoundName) {

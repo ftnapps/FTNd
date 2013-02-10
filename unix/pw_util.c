@@ -1,31 +1,27 @@
 /*****************************************************************************
  *
- * $Id: pw_util.c,v 1.11 2004/12/28 15:30:53 mbse Exp $
+ * pw_util.c
  * Purpose ...............: FreeBSD/NetBSD password utilities.
- * Remark ................: Taken from FreeBSD and modified for MBSE BBS.
+ * Remark ................: Taken from FreeBSD and modified for FTNd.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * Michiel Broek        FIDO:           2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
- *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
