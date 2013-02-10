@@ -1,7 +1,7 @@
-/* mbsebbs.h */
+/* ftnbbs.h */
 
-#ifndef _MBSEBBS_H
-#define _MBSEBBS_H
+#ifndef _FTNBBS_H
+#define _FTNBBS_H
 
 #define ReleaseDate __DATE__
 

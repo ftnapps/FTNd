@@ -1,7 +1,7 @@
-/* $Id: mbnewusr.h,v 1.1 2001/11/10 17:14:16 mbroek Exp $ */
+/* FTNnewusr.h */
 
-#ifndef _MBNEWUSR_H
-#define _MBNEWUSR_H
+#ifndef _FTNNEWUSR_H
+#define _FTNNEWUSR_H
 
 #define ReleaseDate __DATE__
 

@@ -1,7 +1,7 @@
 #ifndef	_EMAIL_H
 #define	_EMAIL_H
 
-/* $Id: email.h,v 1.3 2005/10/11 20:49:48 mbse Exp $ */
+/* email.h */
 
 void ShowEmailHdr(void);
 int  Read_a_Email(unsigned int);

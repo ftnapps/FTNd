@@ -1,7 +1,7 @@
 #ifndef	_YMSEND_H
 #define	_YMSEND_H
 
-/* $Id: ymsend.h,v 1.4 2004/11/27 22:04:12 mbse Exp $ */
+/* ymsend.h */
 
 #define RETRYMAX 10
 

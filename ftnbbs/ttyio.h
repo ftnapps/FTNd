@@ -1,4 +1,4 @@
-/* $Id: ttyio.h,v 1.5 2006/03/20 19:13:14 mbse Exp $ */
+/* ttyio.h */
 
 #ifndef TTYIO_H
 #define TTYIO_H

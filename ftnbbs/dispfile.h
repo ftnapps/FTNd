@@ -1,7 +1,7 @@
 #ifndef _DISPLAYFILE_H
 #define _DISPLAYFILE_H
 
-/* $Id: dispfile.h,v 1.3 2007/02/25 20:28:09 mbse Exp $ */
+/* dispfile.h */
 
 
 void DisplayRules(void);		    /* Display area rules		*/

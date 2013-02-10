@@ -1,7 +1,7 @@
 #ifndef	_TRANSFER_H
 #define	_TRANSFER_H
 
-/* $Id: transfer.h,v 1.8 2005/10/11 20:49:48 mbse Exp $ */
+/* transfer.h */
 
 
 

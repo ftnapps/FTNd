@@ -1,4 +1,4 @@
-/* $Id: funcs.h,v 1.6 2002/10/01 16:54:16 mbroek Exp $ */
+/* funcs.h */
 
 #ifndef _FUNCS_H
 #define _FUNCS_H

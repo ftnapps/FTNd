@@ -1,4 +1,4 @@
-/* $Id: exitinfo.h,v 1.3 2001/11/11 12:07:39 mbroek Exp $ */
+/* exitinfo.h */
 
 #ifndef _EXITINFO_H
 #define _EXITINFO_H

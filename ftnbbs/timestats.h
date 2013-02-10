@@ -1,4 +1,4 @@
-/* $Id: timestats.h,v 1.1 2001/11/12 21:42:18 mbroek Exp $ */
+/* timestats.h */
 
 #ifndef _TIMESTATS_H
 #define _TIMESTATS_H

@@ -1,7 +1,7 @@
 #ifndef	_FSEDIT_H
 #define	_FSEDIT_H
 
-/* $Id: fsedit.h,v 1.9 2007/02/25 20:28:09 mbse Exp $ */
+/* fsedit.h */
 
 
 int	Fs_Edit(void);	/* The fullscreen message editor	*/

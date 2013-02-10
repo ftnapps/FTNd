@@ -1,4 +1,4 @@
-/* $Id: mail.h,v 1.6 2007/02/25 20:28:10 mbse Exp $ */
+/* mail.h */
 
 #ifndef _MAIL_H
 #define _MAIL_H

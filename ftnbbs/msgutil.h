@@ -1,7 +1,7 @@
 #ifndef	_MSGUTIL_H
 #define	_MSGUTIL_H
 
-/* $Id: msgutil.h,v 1.4 2003/09/14 12:24:18 mbroek Exp $ */
+/* msgutil.h */
 
 char *rfcdate(time_t);			/* Create RFC style date	     */
 int  Open_Msgbase(char *, int);		/* Open msgbase for read/write	     */

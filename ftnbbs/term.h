@@ -1,7 +1,7 @@
 #ifndef	_TERM_H
 #define	_TERM_H
 
-/* $Id: term.h,v 1.4 2007/02/25 20:28:13 mbse Exp $ */
+/* term.h */
 
 void            Enter(int);
 char		*pout_str(int, int, char *);
