@@ -1,5 +1,12 @@
 2013-02-10  Robert James Clay  <jame@rocasa.us>
 
+ - Version 0.09
+
+ - unix/*: Initial adaption of the unix/* files.
+
+
+2013-02-10  Robert James Clay  <jame@rocasa.us>
+
  - Version 0.08
 
  - ftnbbs/*: Initial adaption of the ftnbbs/* files.
