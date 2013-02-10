@@ -2,7 +2,7 @@
 
 AC_INIT(lib/ftndlib.h)
 AM_CONFIG_HEADER(config.h)
-SUBDIRS="lib ftncico ftnfido ftnmon ftnsebbs ftnutils ftnnntp ftntask ftnsetup unix lang examples html script"
+SUBDIRS="lib ftncico ftnfido ftnmon ftnbbs ftnutils ftnnntp ftntask ftnsetup unix lang examples html script"
 AC_SUBST(SUBDIRS)
 
 #
@@ -11,11 +11,11 @@ AC_SUBST(SUBDIRS)
 #
 PACKAGE="FTNd"
 MAJOR="0"
-MINOR="07"
+MINOR="08"
 REVISION="0"
 VERSION="$MAJOR.$MINOR.$REVISION"
-COPYRIGHT="Copyright (C) 2012 Robert James Clay, 1997-2011 Michiel Broek, All Rights Reserved"
-SHORTRIGHT="Copyright (C) 2012 R.J. Clay, 1997-2011 M. Broek"
+COPYRIGHT="Copyright (C) 2012-2013 Robert James Clay, 1997-2011 Michiel Broek, All Rights Reserved"
+SHORTRIGHT="Copyright (C) 2012-2013 R.J. Clay, 1997-2011 M. Broek"
 GROUP="ftnbbs"
 OWNER="ftnd"
 ROWNER="`id -un root`"
