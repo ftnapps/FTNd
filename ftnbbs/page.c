@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: page.c,v 1.19 2007/02/17 12:14:26 mbse Exp $
+ * page.c
  * Purpose ...............: Sysop Paging
  * Todo ..................: Implement new config settings.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "dispfile.h"
 #include "input.h"
@@ -61,7 +57,7 @@ void Page_Sysop(char *String)
     if (SYSOP == TRUE) {
 	/*
 	 * Forbid the sysop to page, paging himself causes troubles on the
-	 * chatserver, the sysop can only use mbmon.
+	 * chatserver, the sysop can only use ftnmon.
 	 */
 	Syslog('+', "The Sysop attempted to page the Sysop");
 	pout(LIGHTRED, BLACK, (char *)"The Sysop cannot page the Sysop!");
@@ -72,7 +68,7 @@ void Page_Sysop(char *String)
 
     Reason = calloc(81, sizeof(char));
 
-    /* MBSE BBS Chat */
+    /* FTNd Chat */
     poutCenter(LIGHTRED, BLACK, (char *) Language(151));
 
     if (CFG.iAskReason) {
@@ -148,7 +144,7 @@ void Page_Sysop(char *String)
 
     snprintf(buf, 128, "CPAG:2,%d,%s;", mypid, clencode(Reason));
     if (socket_send(buf)) {
-	Syslog('+', "Failed to send message to mbtask");
+	Syslog('+', "Failed to send message to ftntask");
 	free(Reason);
 	return;
     }
@@ -289,7 +285,7 @@ void PageReason()
     temp = calloc(PATH_MAX, sizeof(char));
     String = calloc(81, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/page.asc", getenv("MBSE_ROOT"), CFG.deflang);
+    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/page.asc", getenv("FTND_ROOT"), CFG.deflang);
     if ((Page = fopen(temp, "r")) != NULL) {
 
 	while (( fgets(String, 80 ,Page)) != NULL)

@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: user.c,v 1.43 2007/03/03 14:38:31 mbse Exp $
+ * user.c
  * Purpose ...............: Main user login procedure.  Checks for limits, 
  *                          new ratio's cats all the welcome screens, and 
  *                          does a lot of checking in general.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "timeout.h"
 #include "user.h"
@@ -75,7 +71,7 @@ void GetLastUser(void)
         char    *sDataFile;
 
         sDataFile = calloc(PATH_MAX, sizeof(char));
-        snprintf(sDataFile, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+        snprintf(sDataFile, PATH_MAX, "%s/etc/sysinfo.data", getenv("FTND_ROOT"));
 	/*
 	 * Fix security in case it is wrong.
 	 */
@@ -182,7 +178,7 @@ void user(void)
     grecno = 0;
     Syslog('+', "Unixmode login: %s", sUnixName);
 
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((pUsrConfig = fopen(temp,"r+")) == NULL) {
 	/*
 	 * This should not happen.
@@ -190,7 +186,7 @@ void user(void)
 	WriteError("$Can't open %s", temp);
 	PUTSTR((char *)"Can't open userfile, run \"newuser\" first");
 	Enter(1);
-	ExitClient(MBERR_OK);
+	ExitClient(FTNERR_OK);
     }
 
     fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
@@ -215,7 +211,7 @@ void user(void)
 	Syslog('?', "FATAL: Could not find user in BBS users file.");
 	Syslog('?', "       and system is using unix accounts\n");
 	Free_Language();
-	ExitClient(MBERR_OK);
+	ExitClient(FTNERR_OK);
     }
 
     /*
@@ -275,9 +271,9 @@ void user(void)
 	    strcpy(buf, socket_receive());
 	    if (strncmp(buf, "100:0;", 6) == 0)
 		break;  /* No more data */
-	    if (strstr(buf, "mbsebbs")) {
+	    if (strstr(buf, "ftnbbs")) {
 		/*
-		 * Only mbsebbs is wanted
+		 * Only ftnbbs is wanted
 		 */
 		strtok(buf, ",");				    /* response */
 		strtok(NULL, ",");				    /* pid	*/
@@ -295,7 +291,7 @@ void user(void)
 	colour(LIGHTRED, BLACK);
 	snprintf(temp, PATH_MAX, "%s %d %s\r\n", (char *) Language(18), CFG.max_logins, (char *) Language(19));
 	PUTSTR(temp);
-	Quick_Bye(MBERR_INIT_ERROR);
+	Quick_Bye(FTNERR_INIT_ERROR);
     }
     
     /*
@@ -378,7 +374,7 @@ void user(void)
     /* 
      * Copy limits.data into memory
      */
-    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/limits.data", getenv("FTND_ROOT"));
 
     if ((pLimits = fopen(temp,"rb")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -446,7 +442,7 @@ void user(void)
      * Update user record.
      */
     if (fseek(pUsrConfig, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), 0) != 0) {
-	WriteError("Can't seek in %s/etc/users.data", getenv("MBSE_ROOT"));
+	WriteError("Can't seek in %s/etc/users.data", getenv("FTND_ROOT"));
     } else {
 	fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
     }
@@ -457,7 +453,7 @@ void user(void)
      * A copy of the userrecord is also in the variable exitinfo.
      */
     if (! InitExitinfo())
-	Good_Bye(MBERR_INIT_ERROR);
+	Good_Bye(FTNERR_INIT_ERROR);
 
     /*
      * If user has not set a preferred character set, force this
@@ -528,17 +524,17 @@ void user(void)
      * file, search order is the same as in DisplayFile()
      */
     st.st_mtime = 0;
-    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), lang.lc);
+    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("FTND_ROOT"), lang.lc);
     stat(temp, &st);
     if (st.st_mtime == 0) {
-	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("MBSE_ROOT"), CFG.deflang);
+	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.ans", getenv("FTND_ROOT"), CFG.deflang);
 	stat(temp, &st);
     }
     if (st.st_mtime == 0) {
-	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.asc", getenv("MBSE_ROOT"), lang.lc);
+	snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.asc", getenv("FTND_ROOT"), lang.lc);
 	stat(temp, &st);
 	if (st.st_mtime == 0) {
-	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.asc", getenv("MBSE_ROOT"), CFG.deflang);
+	    snprintf(temp, PATH_MAX, "%s/share/int/txtfiles/%s/onceonly.asc", getenv("FTND_ROOT"), CFG.deflang);
 	    stat(temp, &st);
 	}
     }

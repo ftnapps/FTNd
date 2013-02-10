@@ -3,33 +3,29 @@
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "../lib/bluewave.h"
 #include "../lib/msgtext.h"
@@ -242,7 +238,7 @@ void OLR_TagArea()
     Tagname = calloc(PATH_MAX, sizeof(char));
     buf     = calloc(81,  sizeof(char));
 
-    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
@@ -382,7 +378,7 @@ void OLR_UntagArea()
     Tagname = calloc(PATH_MAX, sizeof(char));
     buf	= calloc(81,  sizeof(char));
 
-    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
@@ -587,7 +583,7 @@ void OLR_SyncTags()
     Tagname = calloc(PATH_MAX, sizeof(char));
     Msgname = calloc(PATH_MAX, sizeof(char));
     snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 
     if ((fp = fopen(Tagname, "r+")) == NULL) {
 
@@ -732,7 +728,7 @@ void OLR_ViewTags()
     Tagname = calloc(PATH_MAX, sizeof(char));
     Msgname = calloc(PATH_MAX, sizeof(char));
     snprintf(Tagname, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Msgname, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 
     if ((tf = fopen(Tagname, "r")) == NULL) {
 	WriteError("$Can't open %s", Tagname);
@@ -829,7 +825,7 @@ int OLR_Prescan()
 	check_popmail(exitinfo.Name, exitinfo.Password);
 
     Temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     mf = fopen(Temp, "r");
     fread(&msgshdr, sizeof(msgshdr), 1, mf);
 
@@ -1041,7 +1037,7 @@ void OLR_Upload(void)
 
     Syslog('m', "File type is %s", Arc);
 
-    snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL)
 	return;
 
@@ -1244,7 +1240,7 @@ void OLR_DownBW()
 	return;
     }
 
-    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((mf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -1372,7 +1368,7 @@ void OLR_DownBW()
 	Enter(1);
 	PUTSTR((char *)Language(446));
 	PUTCHAR(' ');
-	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("FTND_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
@@ -1517,7 +1513,7 @@ void BlueWave_Fetch()
 	    Syslog('m', "  File  : %s", Upr.filename);
 	    Syslog('m', "  Tag   : %s", Upr.echotag);
 
-	    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 	    if ((mf = fopen(temp, "r+")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, mf);
 		Found = FALSE;
@@ -1555,7 +1551,7 @@ void BlueWave_Fetch()
 			    strcpy(Msg.From, (char *)Upr.from);
 			    strcpy(Msg.To, (char *)Upr.to);
 			    strcpy(Msg.Subject, (char *)Upr.subj);
-			    mbse_CleanSubject(Msg.Subject);
+			    ftnd_CleanSubject(Msg.Subject);
 			    if (Upr.msg_attr & le_us(UPL_PRIVATE))
 				Msg.Private = TRUE;
 			    if (msgs.MsgKinds == PRIVATE)
@@ -1584,7 +1580,7 @@ void BlueWave_Fetch()
 			     * Add quick mailscan info
 			     */
 			    if (msgs.Type != LOCALMAIL) {
-				snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
+				snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("FTND_ROOT"),
 					((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 				if ((fp = fopen(temp, "a")) != NULL) {
 				    fprintf(fp, "%s %u\n", msgs.Base, Msg.Id);
@@ -1678,7 +1674,7 @@ void BlueWave_Fetch()
 			    Syslog('m', "Resetting all areas");
 			    snprintf(temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 			    if ((up = fopen(temp, "r+")) != NULL) {
-				snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 				if ((mf = fopen(temp, "r")) != NULL) {
 				    fread(&msgshdr, sizeof(msgshdr), 1, mf);
 				    while (fread(&olrtagrec, sizeof(olrtagrec), 1, up) == 0) {
@@ -1745,7 +1741,7 @@ void BlueWave_Fetch()
 			if (strlen(Echotag) > 0) {
 			    snprintf(temp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 			    if ((up = fopen(temp, "r+")) != NULL) {
-				snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+				snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 				if ((mf = fopen(temp, "r")) != NULL) {
 				    fread(&msgshdr, sizeof(msgshdr), 1, mf);
 				    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
@@ -1977,7 +1973,7 @@ void OLR_DownQWK(void)
     snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
     Syslog('m', "Work path %s", Work);
 
-    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((mf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -2085,10 +2081,10 @@ void OLR_DownQWK(void)
 
     snprintf(Temp, PATH_MAX, "%s/DOOR.ID", Work);
     if ((fp = fopen(Temp, "w+")) != 0) {
-	fprintf(fp, "DOOR = MBSE BBS QWK\n");
+	fprintf(fp, "DOOR = FTNd QWK\n");
 	fprintf(fp, "VERSION = %s\n", VERSION);
 	fprintf(fp, "SYSTEM = %s\n", CFG.bbs_name);
-	fprintf(fp, "CONTROLNAME = MBSEQWK\n");
+	fprintf(fp, "CONTROLNAME = FTNDQWK\n");
 	fprintf(fp, "CONTROLTYPE = ADD\n");
 	fprintf(fp, "CONTROLTYPE = DROP\n");
 	/*
@@ -2112,7 +2108,7 @@ void OLR_DownQWK(void)
 	/*        Packing with */
 	PUTSTR((char *)Language(446));
 	PUTCHAR(' ');
-	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("FTND_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
@@ -2237,12 +2233,12 @@ void QWK_Fetch()
 		snprintf(Temp, 128, "%s", StripSpaces((char *)Qwk.Msgdate, sizeof(Qwk.Msgdate)));
 		Syslog('m', "Date       %s %s", Temp, StripSpaces((char *)Qwk.Msgtime, sizeof(Qwk.Msgtime)));
 
-		if (strcmp("MBSEQWK", StripSpaces((char *)Qwk.MsgTo, sizeof(Qwk.MsgTo))) == 0) {
+		if (strcmp("FTNDQWK", StripSpaces((char *)Qwk.MsgTo, sizeof(Qwk.MsgTo))) == 0) {
 		    Syslog('m', "Command %s", StripSpaces((char *)Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
 		    snprintf(otemp, PATH_MAX, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 		    if ((op = fopen(otemp, "r+")) != NULL) {
 
-			snprintf(otemp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+			snprintf(otemp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 			if ((mf = fopen(otemp, "r")) != NULL) {
 			    fread(&msgshdr, sizeof(msgshdr), 1, mf);
 			    fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
@@ -2279,7 +2275,7 @@ void QWK_Fetch()
 		     */
 		    Syslog('m', "Message");
 		    HasTear = FALSE;
-		    snprintf(otemp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    snprintf(otemp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 		    if ((mf = fopen(otemp, "r+")) != NULL) {
 			fread(&msgshdr, sizeof(msgshdr), 1, mf);
 			if ((fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET) == 0) &&
@@ -2398,7 +2394,7 @@ void QWK_Fetch()
 				     * Add quick mailscan info
 				     */
 				    if (msgs.Type != LOCALMAIL) {
-					snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
+					snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("FTND_ROOT"),
 					    ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 					if ((fp = fopen(temp, "a")) != NULL) {
 					    fprintf(fp, "%s %u\n", msgs.Base, Msg.Id);
@@ -2688,7 +2684,7 @@ void OLR_DownASCII(void)
     snprintf(Pktname, 32, "%s", tl(Temp));
     snprintf(Work, PATH_MAX, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((mf = fopen(Temp, "r")) == NULL) {
 	WriteError("$Can't open %s", Temp);
 	fclose(fp);
@@ -2724,7 +2720,7 @@ void OLR_DownASCII(void)
 	    fprintf(inf, "Aka %s\n", aka2str(CFG.aka[i]));
     }
     fprintf(inf, "Domain %s\n", CFG.sysdomain);
-    fprintf(inf, "Version mbsebbs v%s\n", VERSION);
+    fprintf(inf, "Version ftnbbs v%s\n", VERSION);
     fprintf(inf, "\n");
 
     Area = 0;
@@ -2817,7 +2813,7 @@ void OLR_DownASCII(void)
     /*        Packing with */
     PUTSTR((char *)Language(446));
     PUTCHAR(' ');
-    snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    snprintf(Temp, PATH_MAX, "%s/etc/archiver.data", getenv("FTND_ROOT"));
     if ((af = fopen(Temp, "r")) != NULL) {
         fread(&archiverhdr, sizeof(archiverhdr), 1, af);
         while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {

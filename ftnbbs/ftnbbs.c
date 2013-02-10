@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbsebbs.c,v 1.59 2007/10/14 13:15:34 mbse Exp $
+ * ftnbbs.c
  * Purpose ...............: Main startup
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
-#include "mbsebbs.h"
+#include "ftndbbs.h"
 #include "user.h"
 #include "dispfile.h"
 #include "language.h"
@@ -108,13 +104,13 @@ int main(int argc, char **argv)
 	strcpy(sUnixName, getenv("USER"));
     } else {
         fprintf(stderr, "No username in environment\n");
-        Quick_Bye(MBERR_OK);
+        Quick_Bye(FTNERR_OK);
     }
 
     /*
-     * Get MBSE_ROOT Path and load Config into Memory
+     * Get FTND_ROOT Path and load Config into Memory
      */
-    FindMBSE();
+    FindFTND();
 
     /* 
      * Set local time and statistic indexes.
@@ -129,27 +125,27 @@ int main(int argc, char **argv)
      * Initialize this client with the server. 
      */
     do_quiet = TRUE;
-    InitClient(sUnixName, (char *)"mbsebbs", (char *)"Unknown", CFG.logfile, 
+    InitClient(sUnixName, (char *)"ftndbbs", (char *)"Unknown", CFG.logfile, 
 	    CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     IsDoing("Loging in");
     Syslog(' ', " ");
-    Syslog(' ', "MBSEBBS v%s", VERSION);
+    Syslog(' ', "FTNd v%s", VERSION);
 
     if ((rc = rawport()) != 0) {
 	WriteError("Unable to set raw mode");
-	Quick_Bye(MBERR_OK);;
+	Quick_Bye(FTNERR_OK);;
     }
 
     if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
 	cols = ws.ws_col;
 	rows = ws.ws_row;
-	PUTSTR((char *)"Loading MBSE BBS ...");
+	PUTSTR((char *)"Loading FTNd ...");
 	Enter(1);
     } else {
 	Syslog('b', "Could not get screensize using ioctl() call");
 	if (getenv("LINES") != NULL) {
 	    rows = atoi(getenv("LINES"));
-	    PUTSTR((char *)"Loading MBSE BBS ...");
+	    PUTSTR((char *)"Loading FTNd ...");
 	    Enter(1);
 	} else {
 	    Syslog('b', "Could not get screensize from environment too");
@@ -170,7 +166,7 @@ int main(int argc, char **argv)
 	    PUTSTR((char *)"\x1b[H");		    /* home cursor */
 	    PUTSTR((char *)"\xC");		    /* clear screen (in case not ANSI) */
 	    PUTSTR((char *)"\r");		    /* Move cursor left (in case previous char printed) */
-	    PUTSTR((char *)"Loading MBSE BBS ..."); /* Let the user think something is happening	*/
+	    PUTSTR((char *)"Loading FTNd ..."); /* Let the user think something is happening	*/
 	    Enter(1);
 
 	    memset(&temp, 0, sizeof(temp));
@@ -222,7 +218,7 @@ int main(int argc, char **argv)
     if ((tty = ttyname(0)) == NULL) {
 	WriteError("Not at a tty");
 	Free_Language();
-	Quick_Bye(MBERR_OK);
+	Quick_Bye(FTNERR_OK);
     }
 
     if (strncmp("/dev/", tty, 5) == 0)
@@ -252,13 +248,13 @@ int main(int argc, char **argv)
     if (CheckStatus() == FALSE) {
 	Syslog('+', "Kicking user out, the BBS is closed");
 	Free_Language();
-	Quick_Bye(MBERR_OK);
+	Quick_Bye(FTNERR_OK);
     }
 
     clear();
     DisplayLogo();
 
-    snprintf(temp, 81, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
+    snprintf(temp, 81, "FTNd v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
     poutCR(YELLOW, BLACK, temp);
     pout(WHITE, BLACK, (char *)COPYRIGHT);
 
@@ -290,7 +286,7 @@ int main(int argc, char **argv)
 	snprintf(temp, 81, "No homedirectory\r\n\r\n");
 	PUTSTR(temp);
 	WriteError("homedirectory %s doesn't exist", temp);
-	Quick_Bye(MBERR_OK);
+	Quick_Bye(FTNERR_OK);
     }
     Fix = FALSE;
     if ((sb.st_mode & S_IRUSR) == 0) {
@@ -335,7 +331,7 @@ int main(int argc, char **argv)
 	    snprintf(temp, 81, "Internal error, the sysop is notified");
 	    poutCR(LIGHTRED, BLACK, temp);
 	    Enter(1);
-	    Quick_Bye(MBERR_OK);
+	    Quick_Bye(FTNERR_OK);
 	} else {
 	    Syslog('+', "Corrected home directory mode to 0770");
 	}
@@ -368,7 +364,7 @@ int main(int argc, char **argv)
 	/*
 	 * Check if this port is available.
 	 */
-	snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
 	if ((pTty = fopen(temp, "r")) == NULL) {
 	    WriteError("Can't read %s", temp);	
 	} else {
@@ -385,7 +381,7 @@ int main(int argc, char **argv)
 		snprintf(temp, 81, "No BBS on this port allowed!\r\n\r\n");
 		PUTSTR(temp);
 		Free_Language();
-		Quick_Bye(MBERR_OK);
+		Quick_Bye(FTNERR_OK);
 	    }
 	}
     }

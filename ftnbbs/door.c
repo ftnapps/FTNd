@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
- * $Id: door.c,v 1.26 2007/02/25 20:28:09 mbse Exp $
+ * door.c
  * Purpose ...............: Run external door
  *
  *****************************************************************************
- * Copyright (C) 1997-2007 
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "language.h"
 #include "input.h"
@@ -122,7 +118,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 		strcpy(buf, socket_receive());
 		if (strncmp(buf, "100:0;", 6) == 0)
 		    break;  /* No more data */
-		if (strstr(buf, "mbsebbs")) {
+		if (strstr(buf, "ftnbbs")) {
 		    strtok(buf, ",");   /* Nr of parameters */
 		    strtok(NULL, ",");  /* Pid              */
 		    strtok(NULL, ",");  /* tty              */
@@ -350,7 +346,7 @@ int exec_nosuid(char *mandato)
 	argv[2] = mandato;
 	argv[3] = 0;
 	execve("/bin/sh", argv, environ);
-	exit(MBERR_EXEC_FAILED);
+	exit(FTNERR_EXEC_FAILED);
     }
     e_pid = pid;
 

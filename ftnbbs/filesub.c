@@ -3,35 +3,31 @@
  * Purpose ...............: All the file sub functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "filesub.h"
 #include "funcs.h"
 #include "language.h"
@@ -135,7 +131,7 @@ FILE *OpenFareas(int Write)
     char	*FileArea;
 
     FileArea = calloc(PATH_MAX, sizeof(char));
-    snprintf(FileArea, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(FileArea, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 		
     if (Write)
 	pAreas = fopen(FileArea, "r+");
@@ -543,7 +539,7 @@ int ScanArchive(char *fn, char *ftype)
     /*
      * Search the right archiver program.
      */
-    snprintf(temp,   PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    snprintf(temp,   PATH_MAX, "%s/etc/archiver.data", getenv("FTND_ROOT"));
 	
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
@@ -783,7 +779,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	
     snprintf(Filename, PATH_MAX, "%s/%s", area.Path, File);
 
-    if ((fdb_area = mbsedb_OpenFDB(AreaNum, 30))) {
+    if ((fdb_area = ftnddb_OpenFDB(AreaNum, 30))) {
 	/*
 	 * Do a physical check of file to see if it exists
 	 * if it fails it will return a zero which will not
@@ -798,7 +794,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    pout(LIGHTGREEN, BLACK, msg);
 	    Enter(2);
 
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	    free(Filename);
 	    free(temp1);
 	    free(lname);
@@ -975,7 +971,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	 * Log upload before adding to the filebase, after insert the fdb record
 	 * is overwritten.
 	 */
-	snprintf(temp, PATH_MAX, "%s/log/uploads.log", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/log/uploads.log", getenv("FTND_ROOT"));
 	if ((pPrivate = fopen(temp, "a+")) == NULL)
 	    WriteError("$Can't open %s", temp);
 	else {
@@ -991,8 +987,8 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    fclose(pPrivate);
 	}
 
-	mbsedb_InsertFDB(fdb_area, fdb, area.AddAlpha);
-	mbsedb_CloseFDB(fdb_area);
+	ftnddb_InsertFDB(fdb_area, fdb, area.AddAlpha);
+	ftnddb_CloseFDB(fdb_area);
 
 	Enter(1);
 	/* Your upload time has been returned to you. Thank you for your upload! */

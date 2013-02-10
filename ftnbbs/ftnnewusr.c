@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: mbnewusr.c,v 1.28 2007/10/14 13:15:34 mbse Exp $
+ * ftnnewusr.c
  * Purpose ...............: New user registration
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
-#include "mbnewusr.h"
+#include "ftnnewusr.h"
 #include "funcs.h"
 #include "input.h"
 #include "language.h"
@@ -93,27 +89,27 @@ int main(int argc, char **argv)
     tty = ttyname(1);
 
     /*
-     * Get MBSE_ROOT Path and load Config into Memory
+     * Get FTND_ROOT Path and load Config into Memory
      */
-    FindMBSE();
+    FindFTND();
     if (!strlen(CFG.startname)) {
-	printf("FATAL: No bbs startname, edit mbsetup 1.2.10\n");
+	printf("FATAL: No bbs startname, edit ftnsetup 1.2.10\n");
 	exit(MBERR_CONFIG_ERROR);
     }
 
     /*
-     * Set uid and gid to the "mbse" user.
+     * Set uid and gid to the "ftnd" user.
      */
-    if ((pw = getpwnam((char *)"mbse")) == NULL) {
-	perror("Can't find user \"mbse\" in /etc/passwd");
+    if ((pw = getpwnam((char *)"ftnd")) == NULL) {
+	perror("Can't find user \"ftnd\" in /etc/passwd");
 	exit(MBERR_INIT_ERROR);
     }
 
     /*
-     * Set effective user to mbse.bbs
+     * Set effective user to ftnd.bbs
      */
     if ((seteuid(pw->pw_uid) == -1) || (setegid(pw->pw_gid) == -1)) {
-	perror("Can't seteuid() or setegid() to \"mbse\" user");
+	perror("Can't seteuid() or setegid() to \"ftnd\" user");
 	exit(MBERR_INIT_ERROR);
     }
 
@@ -131,7 +127,7 @@ int main(int argc, char **argv)
      * who is at the other end of the line, so that's what we tell.
      */
     do_quiet = TRUE;
-    InitClient((char *)"Unknown", (char *)"mbnewusr", (char *)"Unknown", 
+    InitClient((char *)"Unknown", (char *)"ftnnewusr", (char *)"Unknown", 
 		    CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     IsDoing("Loging in");
 
@@ -149,7 +145,7 @@ int main(int argc, char **argv)
     }
 
     Enter(2);
-    PUTSTR((char *)"Loading MBSE BBS New User Registration ...");
+    PUTSTR((char *)"Loading FTNd New User Registration ...");
     Enter(2);
     
     if ((p = getenv("CONNECT")) != NULL)
@@ -206,7 +202,7 @@ int main(int argc, char **argv)
 	Fast_Bye(MBERR_OK);
     }
 
-    snprintf(temp, 81, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
+    snprintf(temp, 81, "FTNd v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
     poutCR(YELLOW, BLACK, temp);
     pout(WHITE, BLACK, (char *)COPYRIGHT);
     Enter(2);
@@ -238,7 +234,7 @@ int main(int argc, char **argv)
 	/*
 	 * Check if this port is available.
 	 */
-	snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
 
 	if ((pTty = fopen(temp, "r")) == NULL) {
 	    WriteError("Can't read %s", temp);	

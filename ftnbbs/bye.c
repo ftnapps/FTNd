@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
- * $Id: bye.c,v 1.32 2008/02/12 19:59:45 mbse Exp $
+ * bye.c
  * Purpose ...............: Hangup functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2006
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2006 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
 #include "dispfile.h"
@@ -71,7 +67,7 @@ void Good_Bye(int onsig)
      * Don't display goodbye screen on SIGHUP and idle timeout.
      * With idle timeout this will go into a loop.
      */
-    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0))
+    if ((onsig != SIGALRM) && (onsig != FTNERR_TIMEOUT) && (hanged_up == 0))
 	DisplayFile((char *)"goodbye");
 
     SaveLastCallers();
@@ -79,7 +75,7 @@ void Good_Bye(int onsig)
     /*
      * Update the users database record.
      */
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((pUsrConfig = fopen(temp,"r+")) != NULL) {
 	snprintf(temp, PATH_MAX, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
 	if ((pExitinfo = fopen(temp,"rb")) != NULL) {
@@ -98,7 +94,7 @@ void Good_Bye(int onsig)
 
 	    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
 	    if (fseek(pUsrConfig, offset, SEEK_SET) != 0) {
-		WriteError("$Can't move pointer in file %s/etc/users.data", getenv("MBSE_ROOT"));
+		WriteError("$Can't move pointer in file %s/etc/users.data", getenv("FTND_ROOT"));
 	    } else {
 	        fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
 	    }
@@ -119,7 +115,7 @@ void Good_Bye(int onsig)
      * Flush all data to the user, wait 5 seconds to
      * be sure the user received all data.
      */
-    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
+    if ((onsig != SIGALRM) && (onsig != FTNERR_TIMEOUT) && (hanged_up == 0)) {
 	colour(LIGHTGRAY, BLACK);
 	sleep(4);
     }
@@ -131,7 +127,7 @@ void Good_Bye(int onsig)
 	    signal(i, SIG_DFL);
     }
 
-    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
+    if ((onsig != SIGALRM) && (onsig != FTNERR_TIMEOUT) && (hanged_up == 0)) {
     	cookedport();
     }
 
@@ -150,14 +146,14 @@ void Good_Bye(int onsig)
 	CreateSema((char *)"mailout");
 
     t_end = time(NULL);
-    Syslog(' ', "MBSEBBS finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNDBBS finished in %s", t_elapsed(t_start, t_end));
     sleep(1);
 
     /*
      * Start shutting down this session, cleanup some files.
      */
     socket_shutdown(mypid);
-    snprintf(temp, PATH_MAX, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(temp, PATH_MAX, "%s/tmp/ftnd%d", getenv("FTND_ROOT"), getpid());
     unlink(temp);
 
     snprintf(temp, PATH_MAX, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
@@ -195,13 +191,13 @@ void Quick_Bye(int onsig)
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('+', "Quick_Bye");
     socket_shutdown(mypid);
-    snprintf(temp, PATH_MAX, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(temp, PATH_MAX, "%s/tmp/ftnd%d", getenv("FTND_ROOT"), getpid());
     unlink(temp);
     free(temp);
     colour(LIGHTGRAY, BLACK);
     sleep(3);
 
-    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
+    if ((onsig != SIGALRM) && (onsig != FTNERR_TIMEOUT) && (hanged_up == 0)) {
         cookedport();
     }
 
@@ -221,7 +217,7 @@ void Quick_Bye(int onsig)
     free(pTTY);
     if (StartTime)
 	free(StartTime);
-    exit(MBERR_OK);
+    exit(FTNERR_OK);
 }
 
 

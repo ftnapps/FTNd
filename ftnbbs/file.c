@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: file.c,v 1.45 2008/02/12 19:59:45 mbse Exp $
+ * file.c
  * Purpose ...............: All the file functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "filesub.h"
 #include "file.h"
 #include "funcs.h"
@@ -66,7 +62,7 @@ int CheckFile(char *File, int iArea)
 {
     struct _fdbarea *fdb_area = NULL;
 
-    if ((fdb_area = mbsedb_OpenFDB(iArea, 30)) == NULL)
+    if ((fdb_area = ftnddb_OpenFDB(iArea, 30)) == NULL)
 	return FALSE;
 
     /*
@@ -74,12 +70,12 @@ int CheckFile(char *File, int iArea)
      */
     while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 	if (((strcasecmp(fdb.Name, File)) == 0) || ((strcasecmp(fdb.LName, File)) == 0)) {
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	    return TRUE;
 	}
     }
 
-    mbsedb_CloseFDB(fdb_area);
+    ftnddb_CloseFDB(fdb_area);
     return FALSE;
 }
 
@@ -112,7 +108,7 @@ void File_List()
 
     InitTag();
 
-    if ((fdb_area = mbsedb_OpenFDB(iAreaNumber, 30)) == NULL)
+    if ((fdb_area = ftnddb_OpenFDB(iAreaNumber, 30)) == NULL)
 	return;
 
     if (utf8)
@@ -121,7 +117,7 @@ void File_List()
     clear();
     Header();
     if (iLC(2) == 1) {
-	mbsedb_CloseFDB(fdb_area);
+	ftnddb_CloseFDB(fdb_area);
 	chartran_close();
 	return;
     }
@@ -136,7 +132,7 @@ void File_List()
 	SetTag(T);
 
 	if (ShowOneFile() == 1) {
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	    chartran_close();
 	    return;
 	}
@@ -162,7 +158,7 @@ void File_List()
     chartran_close();
 
     iLineCount = 0;
-    mbsedb_CloseFDB(fdb_area);
+    ftnddb_CloseFDB(fdb_area);
     Pause();
 }
 
@@ -217,12 +213,12 @@ void Download(void)
 	     * Check password for selected file  FIXME: Where???
 	     */
 	    memset(&fdb, 0, sizeof(fdb));
-	    if ((fdb_area = mbsedb_OpenFDB(Tag.Area, 30)) != NULL) {
+	    if ((fdb_area = ftnddb_OpenFDB(Tag.Area, 30)) != NULL) {
 		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		    if (strcmp(fdb.LName, Tag.LFile) == 0)
 			break;
 		}
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
 	    }
 
 	    if (strcmp(fdb.LName, Tag.LFile) == 0) {
@@ -364,7 +360,7 @@ void Download(void)
 			     * Update the download counter and the last download date.
 			     */
 			    SetFileArea(Tag.Area);
-			    if ((fdb_area = mbsedb_OpenFDB(Tag.Area, 30))) {
+			    if ((fdb_area = ftnddb_OpenFDB(Tag.Area, 30))) {
 				while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 				    if (strcmp(fdb.LName, Tag.LFile) == 0)
 					break;
@@ -372,12 +368,12 @@ void Download(void)
 				Size += fdb.Size;
 				fdb.TimesDL++;
 				fdb.LastDL = time(NULL);
-				if (mbsedb_LockFDB(fdb_area, 30)) {
+				if (ftnddb_LockFDB(fdb_area, 30)) {
 				    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 				    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-				    mbsedb_UnlockFDB(fdb_area);
+				    ftnddb_UnlockFDB(fdb_area);
 				}
-				mbsedb_CloseFDB(fdb_area);
+				ftnddb_CloseFDB(fdb_area);
 				Count++;
 			    }
 			}
@@ -555,7 +551,7 @@ int KeywordScan()
 
 	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
 
-	    if ((fdb_area = mbsedb_OpenFDB(arecno, 30))) {
+	    if ((fdb_area = ftnddb_OpenFDB(arecno, 30))) {
 		Nopper();
 		Found = FALSE;
 		Sheader();
@@ -598,7 +594,7 @@ int KeywordScan()
 
 		} /* while */
 
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
 		if (Found) {
 		    Enter(2);
 		    if (iLC(2) == 1) {
@@ -683,7 +679,7 @@ int FilenameScan()
     while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
 	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
 
-	    if ((fdb_area = mbsedb_OpenFDB(arecno, 30))) {
+	    if ((fdb_area = ftnddb_OpenFDB(arecno, 30))) {
 		Found = FALSE;
 		Sheader();
 		Nopper();
@@ -715,7 +711,7 @@ int FilenameScan()
 
 		} /* End of while */
 
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
 		if (Found) {
 		    Enter(2);
 		    if (iLC(2) == 1) {
@@ -806,7 +802,7 @@ int NewfileScan(int AskStart)
 
 	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0) && (area.New)) {
 
-	    if ((fdb_area = mbsedb_OpenFDB(arecno, 30))) {
+	    if ((fdb_area = ftnddb_OpenFDB(arecno, 30))) {
 		Sheader();
 		Found = FALSE;
 		Nopper();
@@ -831,7 +827,7 @@ int NewfileScan(int AskStart)
 			    if (iLC(2) == 1) {
 				free(Date);
 				free(temp);
-				mbsedb_CloseFDB(fdb_area);
+				ftnddb_CloseFDB(fdb_area);
 				fclose(pAreas);
 				return 1;
 			    }
@@ -850,14 +846,14 @@ int NewfileScan(int AskStart)
 			if (ShowOneFile() == 1) {
 			    free(Date);
 			    free(temp);
-			    mbsedb_CloseFDB(fdb_area);
+			    ftnddb_CloseFDB(fdb_area);
 			    fclose(pAreas);
 			    return 1;
 			}
 		    } /* End of if */
 		} /* End of while */
 
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
 		
 		/*
 		 * Add 2 blank lines after found files.
@@ -1607,7 +1603,7 @@ void Copy_Home()
 	return;
     }
 
-    if ((fdb_area = mbsedb_OpenFDB(iAreaNumber, 30)) == NULL) {
+    if ((fdb_area = ftnddb_OpenFDB(iAreaNumber, 30)) == NULL) {
 	free(File);
         free(temp1);
         free(temp2);
@@ -1648,7 +1644,7 @@ void Copy_Home()
 	    }
 	}
     }
-    mbsedb_CloseFDB(fdb_area);
+    ftnddb_CloseFDB(fdb_area);
 
     if (!Found) {
 	/* File does not exist, please try again ... */
@@ -1863,7 +1859,7 @@ void ViewFile(char *name)
     /*
      * Now check if this file is present
      */
-    if ((fdb_area = mbsedb_OpenFDB(iAreaNumber, 30)) == NULL) {
+    if ((fdb_area = ftnddb_OpenFDB(iAreaNumber, 30)) == NULL) {
 	free(File);
 	return;
     }
@@ -1874,7 +1870,7 @@ void ViewFile(char *name)
 	    break;
 	}
     }
-    mbsedb_CloseFDB(fdb_area);
+    ftnddb_CloseFDB(fdb_area);
 
     if (!found) {
 	Enter(1);
@@ -1893,7 +1889,7 @@ void ViewFile(char *name)
     if (arc != NULL) {
 	found = FALSE;
 	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("FTND_ROOT"));
 	
 	if ((fp = fopen(temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, fp);

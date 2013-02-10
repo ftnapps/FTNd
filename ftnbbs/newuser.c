@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
  * Purpose ...............: New User login under Unix, creates both
- *			    BBS and unix accounts.
+ *                          BBS and unix accounts.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "funcs.h"
 #include "input.h"
@@ -85,10 +81,10 @@ int newuser(void)
     clear();
     DisplayFile((char *)"newuser");
     if ((iLang = Chg_Language(TRUE)) == 0)
-	Fast_Bye(MBERR_INIT_ERROR);
+	Fast_Bye(FTNERR_INIT_ERROR);
 
     Enter(1);
-    /* MBSE BBS - NEW USER REGISTRATION */
+    /* ftnbbs - NEW USER REGISTRATION */
     language(CYAN, BLACK, 37);
     Enter(2);
 
@@ -123,7 +119,7 @@ int newuser(void)
 	 */
 	if ((strcasecmp(temp, "off")) == 0) {
 	    Syslog('+', "Quick \"off\" logout");
-	    Fast_Bye(MBERR_OK);
+	    Fast_Bye(FTNERR_OK);
 	}
 
 	Count++;
@@ -133,7 +129,7 @@ int newuser(void)
 	    language(CFG.HiliteF, CFG.HiliteB, 2);
 	    Enter(2);
 	    Syslog('!', "Exceeded maximum login attempts");
-	    Fast_Bye(MBERR_OK);
+	    Fast_Bye(FTNERR_OK);
 	}
 
 	/*
@@ -500,10 +496,10 @@ int newuser(void)
     /*
      * Search a free slot in the users datafile
      */
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((pUsrConfig = fopen(temp, "r+")) == NULL) {
 	WriteError("Can't open file: %s", temp);
-	ExitClient(MBERR_GENERAL);
+	ExitClient(FTNERR_GENERAL);
     }
 
     fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
@@ -581,11 +577,11 @@ void Fast_Bye(int onsig)
     time_t  t_end;
 
     t_end = time(NULL);
-    Syslog(' ', "MBNEWUSR finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNNEWUSR finished in %s", t_elapsed(t_start, t_end));
     socket_shutdown(mypid);
 	
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/tmp/mbnewusr%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(temp, PATH_MAX, "%s/tmp/ftnnewusr%d", getenv("FTND_ROOT"), getpid());
     unlink(temp);
     free(temp);
 
@@ -598,7 +594,7 @@ void Fast_Bye(int onsig)
 
     Free_Language();
     free(pTTY);
-    exit(MBERR_OK);
+    exit(FTNERR_OK);
 }
 
 
@@ -642,7 +638,7 @@ char *NameGen(char *FidoName)
 	    Enter(1);
 	    /* That login name already exists, please choose another one. */
 	    poutCR(LIGHTRED, BLACK, (char *) Language(386));
-	    Syslog('+', "Users tried to use \"%s\" as Unix name", MBSE_SS(sUserName));
+	    Syslog('+', "Users tried to use \"%s\" as Unix name", FTND_SS(sUserName));
 	}
     }
     return sUserName;
@@ -664,10 +660,10 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     memset(args, 0, sizeof(args));
 
     /*
-     * Call mbuseradd, this is a special setuid root program to create
+     * Call ftnuseradd, this is a special setuid root program to create
      * unix acounts and home directories.
      */
-    snprintf(progname, PATH_MAX, "%s/bin/mbuseradd", getenv("MBSE_ROOT"));
+    snprintf(progname, PATH_MAX, "%s/bin/ftnuseradd", getenv("FTND_ROOT"));
     snprintf(gidstr, 10, "%d", getgid());
     args[0] = progname;
     args[1] = gidstr;
@@ -678,8 +674,8 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     
     stdlog = calloc(PATH_MAX, sizeof(char));
     errlog = calloc(PATH_MAX, sizeof(char));
-    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
-    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
+    snprintf(stdlog, PATH_MAX, "%s/tmp/stdlog%d", getenv("FTND_ROOT"), mypid);
+    snprintf(errlog, PATH_MAX, "%s/tmp/errlog%d", getenv("FTND_ROOT"), mypid);
 
     err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     if (file_size(stdlog)) {
@@ -709,11 +705,11 @@ char *NameCreate(char *Name, char *Comment, char *Password)
 	free(gidstr);
 	free(stdlog);
 	free(errlog);
-        ExitClient(MBERR_GENERAL);
+        ExitClient(FTNERR_GENERAL);
     }
     free(gidstr);
 
-    snprintf(progname, PATH_MAX, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+    snprintf(progname, PATH_MAX, "%s/bin/ftnpasswd", getenv("FTND_ROOT"));
     memset(args, 0, sizeof(args));
     args[0] = progname;
     args[1] = Name;
@@ -748,7 +744,7 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     if (err) {
         WriteError("Failed to set unix password");
         free(progname);
-        ExitClient(MBERR_GENERAL);
+        ExitClient(FTNERR_GENERAL);
     }
 
     Enter(1);
@@ -777,7 +773,7 @@ int BadNames(char *Username)
 
     strcpy(User, tl(Username));
 
-    snprintf(temp, PATH_MAX, "%s/etc/badnames.ctl", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/badnames.ctl", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) != NULL) {
         while ((fgets(String, 80, fp)) != NULL) {
             strcpy(String, tl(String));
@@ -817,7 +813,7 @@ int TelephoneScan(char *Number, char *Name)
 
     temp  = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp,"rb")) != NULL) {
         fread(&uhdr, sizeof(uhdr), 1, fp);
 

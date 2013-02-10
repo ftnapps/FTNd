@@ -3,32 +3,28 @@
  * Purpose ...............: Zmodem sender
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "ttyio.h"
 #include "zmmisc.h"
 #include "transfer.h"
@@ -214,21 +210,21 @@ static int sendzfile(char *rn)
     if ((in = fopen(rn, "r")) == NULL) {
 	sverr = errno;
 	if ((sverr == ENOENT) || (sverr == EINVAL)) {
-	    Syslog('+', "File %s doesn't exist, removing", MBSE_SS(rn));
+	    Syslog('+', "File %s doesn't exist, removing", FTND_SS(rn));
 	    return 0;
 	} else {
-	    WriteError("$Zmodem: cannot open file %s, skipping", MBSE_SS(rn));
+	    WriteError("$Zmodem: cannot open file %s, skipping", FTND_SS(rn));
 	    return 1;
 	}
     }
 
     if (stat(rn,&st) != 0) {
-	Syslog('+', "$Zmodem: cannot access \"%s\", skipping",MBSE_SS(rn));
+	Syslog('+', "$Zmodem: cannot access \"%s\", skipping",FTND_SS(rn));
 	fclose(in);
 	return 1;
     }
 
-    Syslog('+', "Zmodem: send \"%s\", %lu bytes, dated %s", MBSE_SS(rn), (unsigned int)st.st_size, rfcdate(st.st_mtime));
+    Syslog('+', "Zmodem: send \"%s\", %lu bytes, dated %s", FTND_SS(rn), (unsigned int)st.st_size, rfcdate(st.st_mtime));
     gettimeofday(&starttime, &tz);
 
     snprintf(txbuf,MAXBLOCK + 1024,"%s %u %o %o 0 0 0", rn,
@@ -239,7 +235,7 @@ static int sendzfile(char *rn)
     Eofseen = 0;
     rc = zsendfile(txbuf,bufl);
     if (rc == ZSKIP) {
-	Syslog('+', "Zmodem: remote skipped %s, is OK",MBSE_SS(rn));
+	Syslog('+', "Zmodem: remote skipped %s, is OK",FTND_SS(rn));
 	return 0;
     } else if ((rc == OK) && (st.st_size - skipsize)) {
 	gettimeofday(&endtime, &tz);

@@ -3,37 +3,33 @@
  * Purpose ...............: Internet email
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "../lib/msgtext.h"
 #include "../lib/msg.h"
-#include "../lib/mbinet.h"
+#include "../lib/ftninet.h"
 #include "exitinfo.h"
 #include "language.h"
 #include "mail.h"
@@ -297,7 +293,7 @@ int Save_Email(int IsReply)
     }
     MsgText_Add2(temp);
     MsgText_Add2((char *)"\001Content-Transfer-Encoding: 8bit");
-    snprintf(temp, PATH_MAX, "\001X-Mailreader: MBSE BBS %s", VERSION);
+    snprintf(temp, PATH_MAX, "\001X-Mailreader: FTNd %s", VERSION);
     MsgText_Add2(temp);
     p = calloc(81, sizeof(char));
     id = sequencer();
@@ -364,7 +360,7 @@ int Save_Email(int IsReply)
     /*
      * Add quick mailscan info
      */
-    snprintf(temp, PATH_MAX, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/netmail.jam", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "a")) != NULL) {
 	fprintf(fp, "%s/%s/mailbox %u\n", CFG.bbs_usersdir, exitinfo.Name, Msg.Id);
 	fclose(fp);
@@ -719,7 +715,7 @@ void Reply_Email(int IsReply)
     } else {
 	snprintf(subj, 101, "%s", Msg.Subject);
     }
-    mbse_CleanSubject(subj);
+    ftnd_CleanSubject(subj);
     Syslog('m', "Reply msg to %s, subject %s", to, subj);
     Syslog('m', "Msgid was %s", Msg.Msgid);
     snprintf(msgid, 101, "%s", Msg.Msgid);
@@ -923,7 +919,7 @@ void Write_Email(void)
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
     alarm_on();
     GetstrP(Msg.Subject, 65, 0);
-    mbse_CleanSubject(Msg.Subject);
+    ftnd_CleanSubject(Msg.Subject);
 
     if ((strcmp(Msg.Subject, "")) == 0) {
 	Enter(1);

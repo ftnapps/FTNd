@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
- * $Id: change.c,v 1.35 2007/03/03 14:38:30 mbse Exp $
+ * change.c
  * Purpose ...............: Change user settings
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "change.h"
 #include "dispfile.h"
@@ -58,7 +54,7 @@ int Chg_Language(int NewMode)
 	ReadExitinfo();
 
     while(TRUE) {
-	snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
 	if(( pLang = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    snprintf(temp, 81, "\nFATAL: Can't open language file\n\n");
@@ -196,8 +192,8 @@ void Chg_Password()
 	    }
 	}
 
-	Syslog('+', "%s/bin/mbpasswd %s ******", getenv("MBSE_ROOT"), exitinfo.Name);
-	snprintf(temp1, PATH_MAX, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+	Syslog('+', "%s/bin/ftnpasswd %s ******", getenv("FTND_ROOT"), exitinfo.Name);
+	snprintf(temp1, PATH_MAX, "%s/bin/ftnpasswd", getenv("FTND_ROOT"));
 	memset(args, 0, sizeof(args));
 	args[0] = temp1;
 	args[1] = exitinfo.Name;
@@ -243,7 +239,7 @@ int CheckHandle(char *Name)
     char    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp,"rb")) != NULL) {
         fread(&uhdr, sizeof(uhdr), 1, fp);
 
@@ -790,7 +786,7 @@ void Chg_Archiver()
     Syslog('+', "Old archiver %s", exitinfo.Archiver);
 
     while(TRUE) {
-	snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/archiver.data", getenv("FTND_ROOT"));
 
 	if ((fp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
@@ -883,7 +879,7 @@ void Chg_Protocol()
     Syslog('+', "Old protocol %s", sProtName);
 
     while(TRUE) {
-	snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("FTND_ROOT"));
 	
 	if ((pProtConfig = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
@@ -978,7 +974,7 @@ void Set_Protocol(char *Protocol)
     memset(&sProtName, 0, sizeof(sProtName));
     temp = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/protocol.data", getenv("FTND_ROOT"));
 
     if (( pProtConfig = fopen(temp, "rb")) == NULL) {
 	WriteError("$Can't open %s", temp);

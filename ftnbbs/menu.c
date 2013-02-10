@@ -3,33 +3,29 @@
  * Purpose ...............: Display and handle the menus.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "oneline.h"
 #include "mail.h"
@@ -106,9 +102,9 @@ void menu()
 	 * Open menufile, first users language menu, if it fails
 	 * try to open the default menu.
 	 */
-	snprintf(sMenuPathFileName, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("MBSE_ROOT"), lang.lc, Menus[MenuLevel]);
+	snprintf(sMenuPathFileName, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("FTND_ROOT"), lang.lc, Menus[MenuLevel]);
 	if ((pMenuFile = fopen(sMenuPathFileName, "r")) == NULL) {
-	    snprintf(sMenuPathFileName, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("MBSE_ROOT"), CFG.deflang, Menus[MenuLevel]);
+	    snprintf(sMenuPathFileName, PATH_MAX, "%s/share/int/menus/%s/%s", getenv("FTND_ROOT"), CFG.deflang, Menus[MenuLevel]);
 	    pMenuFile = fopen(sMenuPathFileName,"r");
 	    if (pMenuFile != NULL)
 		Syslog('b', "Menu %s (Default)", Menus[MenuLevel]);
@@ -129,7 +125,7 @@ void menu()
 		snprintf(temp, 81, "Too many menu errors, notifying Sysop\r\n\r\n");
 		PUTSTR(temp);
 		sleep(3);
-		die(MBERR_CONFIG_ERROR);
+		die(FTNERR_CONFIG_ERROR);
 	    }
 
 	    /*
@@ -170,7 +166,7 @@ void menu()
 		fclose(pMenuFile);
 		Syslog('+', "Kicking user out, the BBS is closed.");
 		sleep(3);
-		Good_Bye(MBERR_OK);
+		Good_Bye(FTNERR_OK);
 	    }
 
 	    /*
@@ -183,7 +179,7 @@ void menu()
 		PUTSTR(temp);
 		Enter(2);
 		sleep(3);
-		Good_Bye(MBERR_OK);
+		Good_Bye(FTNERR_OK);
 	    }
 
 	    /*
@@ -368,7 +364,7 @@ void DoMenu(int Type)
 		free(sPrompt);
 		free(sPromptBak);
 		free(temp);
-		Good_Bye(MBERR_OK);
+		Good_Bye(FTNERR_OK);
 		break;
 
 	case 14:

@@ -3,33 +3,29 @@
  * Purpose ...............: Oneliner functions.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "oneline.h"
 #include "funcs.h"
@@ -49,7 +45,7 @@ void Oneliner_Check()
     char    *sFileName;
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r")) == NULL) {
 	if ((pOneline = fopen(sFileName, "w")) != NULL) {
@@ -79,7 +75,7 @@ void Oneliner_Add()
     Oneliner_Check();
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((pOneline = fopen(sFileName, "a+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName); 
@@ -89,7 +85,7 @@ void Oneliner_Add()
 
     memset(&ol, 0, sizeof(ol));
     clear();
-    /* MBSE BBS Oneliners will randomly appear on the main menu. */
+    /* FTNd Oneliners will randomly appear on the main menu. */
     poutCR(WHITE, BLACK, Language(341));
     Enter(1);
 
@@ -196,7 +192,7 @@ char *Oneliner_Get()
      * Get a random oneliner
      */
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
@@ -250,7 +246,7 @@ void Oneliner_List()
 	                                                                                  
     clear();
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
@@ -315,7 +311,7 @@ void Oneliner_Show()
     char    *sFileName, msg[81];
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
@@ -361,7 +357,7 @@ void Oneliner_Delete()
     char    srecno[7], *sFileName, stemp[50], sUser[36], msg[81];
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((pOneline = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);

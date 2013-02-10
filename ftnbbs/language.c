@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
- * $Id: language.c,v 1.12 2007/02/17 12:14:25 mbse Exp $
+ * language.c
  * Purpose ...............: Language functions.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "input.h"
 #include "language.h"
@@ -88,7 +84,7 @@ void Set_Language(int iLanguage)
     char    *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/language.data", getenv("FTND_ROOT"));
 
     if ((pLang = fopen(temp, "rb")) == NULL) {
 	WriteError("Language: Can't open file: %s", temp);
@@ -126,10 +122,10 @@ void InitLanguage()
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/share/int/language.%s", getenv("MBSE_ROOT"), current_language);
+    snprintf(temp, PATH_MAX, "%s/share/int/language.%s", getenv("FTND_ROOT"), current_language);
     if ((pLang = fopen(temp, "rb")) == NULL) {
 	WriteError("$FATAL: Can't open %s", temp);
-	ExitClient(MBERR_INIT_ERROR);
+	ExitClient(FTNERR_INIT_ERROR);
     }
 
     while (fread(&ldata, sizeof(ldata), 1, pLang) == 1) {
@@ -143,7 +139,7 @@ void InitLanguage()
 	    Enter(1);
 	    PUTSTR((char *)"FATAL: Language file has to many lines in it");
 	    Enter(2);
-	    ExitClient(MBERR_INIT_ERROR);
+	    ExitClient(FTNERR_INIT_ERROR);
 	}
     }
 

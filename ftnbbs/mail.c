@@ -4,27 +4,23 @@
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************
  *
@@ -35,8 +31,8 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
 #include "../lib/msgtext.h"
@@ -606,7 +602,7 @@ void Post_Msg()
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
     alarm_on();
     GetstrP(Msg.Subject, 65, 0);
-    mbse_CleanSubject(Msg.Subject);
+    ftnd_CleanSubject(Msg.Subject);
 
     if ((strcmp(Msg.Subject, "")) == 0) {
 	Enter(1);
@@ -879,7 +875,7 @@ int Save_Msg(int IsReply, faddr *Dest)
     msgs.Posted.tdow[Diw]++;
     msgs.Posted.month[Miy]++;
 
-    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 	
     if ((fp = fopen(temp, "r+")) != NULL) {
 	fseek(fp, msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize)), SEEK_SET);
@@ -888,7 +884,7 @@ int Save_Msg(int IsReply, faddr *Dest)
     }
 
     if (strlen(msgs.Group)) {
-	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
 	if ((fp = fopen(temp, "r+")) != NULL) {
 	    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
 	    while ((fread(&mgroup, mgrouphdr.recsize, 1, fp)) == 1) {
@@ -915,7 +911,7 @@ int Save_Msg(int IsReply, faddr *Dest)
      */
     if (msgs.Type != LOCALMAIL) {
 	do_mailout = TRUE;
-	snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), 
+	snprintf(temp, PATH_MAX, "%s/tmp/%smail.jam", getenv("FTND_ROOT"), 
 		((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 	if ((fp = fopen(temp, "a")) != NULL) {
 	    fprintf(fp, "%s %u\n", msgs.Base, Msg.Id);
@@ -1688,7 +1684,7 @@ void Reply_Msg(int IsReply)
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
     GetstrP(subj, 50, x);
 
-    mbse_CleanSubject(subj);
+    ftnd_CleanSubject(subj);
     if (strlen(subj))
 	strcpy(Msg.Subject, subj);
 
@@ -2043,7 +2039,7 @@ void MsgArea_List(char *Option)
     unsigned int mycrc;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 
     /*
      * Save old area, incase he picks a invalid area
@@ -2412,7 +2408,7 @@ int CheckUser(char *To)
     unsigned int    Crc;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((pUsrConfig = fopen(temp,"rb")) == NULL) {
 	WriteError("$Can't open file %s for reading", temp);
 	Pause();
@@ -2545,7 +2541,7 @@ void CheckMail()
      * Open the message base configuration
      */
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
 	WriteError("$Can't open: %s", sFileName);
 	free(temp);
@@ -2744,7 +2740,7 @@ void MailStatus()
     /*
      * Open the message base configuration
      */
-    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
 	WriteError("Can't open file: %s", sFileName);
 	free(sFileName);
@@ -2820,7 +2816,7 @@ void SetMsgArea(unsigned int AreaNum)
     char    *sFileName;
 
     sFileName = calloc(PATH_MAX, sizeof(char));
-    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sFileName, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     memset(&msgs, 0, sizeof(msgs));
 
     if ((pMsgArea = fopen(sFileName, "r")) == NULL) {
