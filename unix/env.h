@@ -1,4 +1,4 @@
-/* $Id: env.h,v 1.1 2002/01/05 13:57:10 mbroek Exp $ */
+/* env.h */
 
 #ifndef _ENV_H
 #define	_ENV_H

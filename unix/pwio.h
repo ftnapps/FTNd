@@ -1,4 +1,4 @@
-/* $Id: pwio.h,v 1.3 2004/12/28 15:30:53 mbse Exp $ */
+/* pwio.h */
 
 #ifndef	_PWIO_H
 #define	_PWIO_H

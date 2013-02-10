@@ -1,4 +1,4 @@
-/* $Id: loginprompt.h,v 1.1 2002/01/05 13:57:10 mbroek Exp $ */
+/* loginprompt.h */
 
 #ifndef	_LOGINPROMPT_H
 #define	_LOGINPROMPT_H

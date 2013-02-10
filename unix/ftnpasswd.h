@@ -1,7 +1,7 @@
-#ifndef _MBPASSWD_H
-#define _MBPASSWD_H
+#ifndef _FTNPASSWD_H
+#define _FTNPASSWD_H
 
-/* $Id: mbpasswd.h,v 1.4 2005/08/27 12:06:49 mbse Exp $ */
+/* ftnpasswd.h */
 
 
                                         /* danger - side effects */

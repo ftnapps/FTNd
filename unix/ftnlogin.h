@@ -1,7 +1,7 @@
-/* $Id: mblogin.h,v 1.3 2003/12/23 18:33:42 mbroek Exp $ */
+/* ftnlogin.h */
 
-#ifndef	_MBLOGIN_H
-#define	_MBLOGIN_H
+#ifndef	_FTNLOGIN_H
+#define	_FTNLOGIN_H
 
 #define ReleaseDate __DATE__
 

@@ -1,5 +1,5 @@
-#ifndef _MBUSERADD_H
-#define _MBUSERADD_H
+#ifndef _FTNUSERADD_H
+#define _FTNUSERADD_H
 
 
 int  execute(char **, char *, char *, char *);
