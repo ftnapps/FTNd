@@ -1,43 +1,39 @@
 /*****************************************************************************
  *
- * $Id: mbcico.c,v 1.46 2007/09/02 11:17:31 mbse Exp $
+ * ftncico.c
  * Purpose: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "config.h"
 #include "answer.h"
 #include "call.h"
 #include "lutil.h"
-#include "mbcico.h"
+#include "ftncico.h"
 #include "session.h"
 #include "binkp.h"
 
@@ -81,12 +77,12 @@ extern int	session_state;
 void usage(void)
 {
     fprintf(stderr,"ifcico; (c) Eugene G. Crosser, 1993-1997\n");
-    fprintf(stderr,"mbcico ver. %s; (c) %s\n\n", VERSION, SHORTRIGHT);
-    fprintf(stderr,"mbcico [-a inetaddr[:port]] [-n phone] [-l tty] [-t ibn|-t ifc] node\n");
+    fprintf(stderr,"ftncico ver. %s; (c) %s\n\n", VERSION, SHORTRIGHT);
+    fprintf(stderr,"ftncico [-a inetaddr[:port]] [-n phone] [-l tty] [-t ibn|-t ifc] node\n");
     fprintf(stderr,"node   should be in domain form, e.g. f11.n22.z3\n");
     fprintf(stderr,"       (this implies master mode)\n");
     fprintf(stderr," or:\n");
-    fprintf(stderr,"mbcico tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc\n");
+    fprintf(stderr,"ftncico tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc\n");
     fprintf(stderr,"       (this implies slave mode)\n");
 }
 
@@ -154,7 +150,7 @@ void die(int onsig)
     deinitnl();
     
     t_end = time(NULL);
-    Syslog(' ', "MBCICO finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNCICO finished in %s", t_elapsed(t_start, t_end));
 
     if (envptr)
 	free(envptr);
@@ -176,13 +172,13 @@ int main(int argc, char *argv[])
 
     /*
      * The next trick is to supply a fake environment variable
-     * MBSE_ROOT in case we are started from inetd or mgetty,
+     * FTND_ROOT in case we are started from inetd or mgetty,
      * this will setup the variable so InitConfig() will work.
      * The /etc/passwd must point to the correct homedirectory.
      */
     pw = getpwuid(getuid());
-    if (getenv("MBSE_ROOT") == NULL) {
-	envptr = xstrcpy((char *)"MBSE_ROOT=");
+    if (getenv("FTND_ROOT") == NULL) {
+	envptr = xstrcpy((char *)"FTND_ROOT=");
 	envptr = xstrcat(envptr, pw->pw_dir);
 	putenv(envptr);
     }
@@ -191,19 +187,19 @@ int main(int argc, char *argv[])
 	usage();
 	if (envptr)
 	    free(envptr);
-	exit(MBERR_COMMANDLINE);
+	exit(FTNERR_COMMANDLINE);
     }
 
     InitConfig();
     InitNode();
     InitFidonet();
-    mbse_TermInit(1, 80, 25);
+    ftnd_TermInit(1, 80, 25);
     t_start = c_start = c_end = time(NULL);
 
-    InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftncico", CFG.location, CFG.logfile, 
 	    CFG.cico_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', " ");
-    Syslog(' ', "MBCICO v%s", VERSION);
+    Syslog(' ', "FTNCICO v%s", VERSION);
 
     /*
      * Catch all signals we can, and ignore the rest.
@@ -220,7 +216,7 @@ int main(int argc, char *argv[])
      *  Check if history file exists, if not create a new one.
      */
     cmd = calloc(PATH_MAX, sizeof(char));
-    snprintf(cmd, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+    snprintf(cmd, PATH_MAX -1, "%s/var/mailer.hist", getenv("FTND_ROOT"));
     if ((fp = fopen(cmd, "r")) == NULL) {
 	if ((fp = fopen(cmd, "a")) == NULL) {
 	    WriteError("$Can't create %s", cmd);
@@ -238,7 +234,7 @@ int main(int argc, char *argv[])
     free(cmd);
     memset(&history, 0, sizeof(history));
 
-    cmd = xstrcpy((char *)"Cmd: mbcico");
+    cmd = xstrcpy((char *)"Cmd: ftncico");
     for (i = 1; i < argc; i++) {
 	cmd = xstrcat(cmd, (char *)" ");
 	cmd = xstrcat(cmd, argv[i]);
@@ -269,7 +265,7 @@ int main(int argc, char *argv[])
 			    telnet = TRUE;
 			} else {
 			    usage();
-			    die(MBERR_COMMANDLINE);
+			    die(FTNERR_COMMANDLINE);
 			}
 			free(p);
 			RegTCP();
@@ -286,7 +282,7 @@ int main(int argc, char *argv[])
 			break;
 
 	    default:	usage(); 
-			die(MBERR_COMMANDLINE);
+			die(FTNERR_COMMANDLINE);
 	}
     }
 
@@ -305,14 +301,14 @@ int main(int argc, char *argv[])
 #ifdef IEMSI
         if (strncasecmp(p, "EMSI_NAKEEC3", 12) == 0) {
 
-	    Syslog('+', "Detected IEMSI client, starting mblogin");
-            snprintf(temp, PATH_MAX -1, "%s/bin/mblogin", getenv("MBSE_ROOT"));
+	    Syslog('+', "Detected IEMSI client, starting ftnlogin");
+            snprintf(temp, PATH_MAX -1, "%s/bin/ftnlogin", getenv("FTND_ROOT"));
             socket_shutdown(mypid);
 
-            if (execl(temp, "mblogin", (char *)NULL) == -1)
+            if (execl(temp, "ftnlogin", (char *)NULL) == -1)
                 perror("FATAL: Error loading BBS!");
 
-	        InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile,
+	        InitClient(pw->pw_name, (char *)"ftncico", CFG.location, CFG.logfile,
 			            CFG.cico_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
             /*
              * If this happens, nothing is logged!
@@ -322,7 +318,7 @@ int main(int argc, char *argv[])
             free_mem();
             if (envptr)
                 free(envptr);
-            exit(MBERR_EXEC_FAILED);
+            exit(FTNERR_EXEC_FAILED);
         }
 #endif
 	if ((strcasecmp(argv[optind],"tsync") == 0) ||
@@ -345,7 +341,7 @@ int main(int argc, char *argv[])
     /*
        The following witchkraft about uid-s is necessary to make
        access() work right.  Unforunately, access() checks the real
-       uid, if mbcico is invoked with supervisor real uid (as when
+       uid, if ftncico is invoked with supervisor real uid (as when
        called by uugetty) it returns X_OK for the magic files that
        even do not have `x' bit set.  Therefore, `reference' magic
        file requests are taken for `execute' requests (and the
@@ -367,11 +363,11 @@ int main(int argc, char *argv[])
 	 * Don't do outbound calls if low diskspace
 	 */
 	if (enoughspace(CFG.freespace) == 0)
-	    die(MBERR_DISK_FULL);
+	    die(FTNERR_DISK_FULL);
 
 	if (addr == NULL) {
-	    WriteError("Calling mbcico without node address not supported anymore");
-	    die(MBERR_COMMANDLINE);
+	    WriteError("Calling ftncico without node address not supported anymore");
+	    die(FTNERR_COMMANDLINE);
 	}
 
 	rc = call(addr);
@@ -392,7 +388,7 @@ int main(int argc, char *argv[])
     if (maxrc)
 	die(maxrc);
     else
-	die(MBERR_OK);
+	die(FTNERR_OK);
     return 0;
 }
 

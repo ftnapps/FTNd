@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * Purpose: MBSE BBS Outbound Manager
+ * Purpose: FTNd Outbound Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2010
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2010 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "outstat.h"
 #include "nlinfo.h"
 
@@ -58,9 +54,9 @@ void ProgName()
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBOUT: MBSE BBS %s Outbound Manager\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nFTNOUT: FTNd %s Outbound Manager\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("       %s\n", COPYRIGHT);
 }
 
@@ -96,7 +92,7 @@ void die(int onsig)
 	do_quiet = FALSE;
 
     if (!do_quiet)
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 
     if (onsig) {
 	if (onsig <= NSIG)
@@ -106,10 +102,10 @@ void die(int onsig)
     }
 
     t_end = time(NULL);
-    Syslog(' ', "MBOUT finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNOUT finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -123,11 +119,11 @@ void Help()
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("\nUsage:	mbout [command] <params> <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	ftnout [command] <params> <options>\n\n");
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	a   att   <node> <flavor> <file>	Attach a file to a node\n");
     printf("	n   node  <node>			Show nodelist information\n");
     printf("	p   poll  <node> [node..node]		Poll node(s) (always crash)\n");
@@ -138,12 +134,12 @@ void Help()
     printf("\n");
     printf("	<node>	  Should be in domain form, e.g. f16.n2801.z2.domain\n");
     printf("	<flavor>  Flavor's are: crash | immediate | normal | hold\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("\n	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-quiet					Quiet mode\n");
-    mbse_colour(LIGHTGRAY, BLACK);
-    die(MBERR_OK);
+    ftnd_colour(LIGHTGRAY, BLACK);
+    die(FTNERR_OK);
 }
 
 
@@ -153,7 +149,7 @@ void Fatal(char *msg, int error)
 {
     show_log = TRUE;
     if (!do_quiet) {
-	mbse_colour(LIGHTRED, BLACK);
+	ftnd_colour(LIGHTRED, BLACK);
 	printf("%s\n", msg);
     }
     WriteError(msg);
@@ -176,7 +172,7 @@ int main(int argc, char *argv[])
     InitConfig();
     InitNode();
     InitFidonet();
-    mbse_TermInit(1, 80, 25);
+    ftnd_TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 
@@ -193,7 +189,7 @@ int main(int argc, char *argv[])
     if(argc < 2)
 	Help();
 
-    cmd = xstrcpy((char *)"Command line: mbout");
+    cmd = xstrcpy((char *)"Command line: ftnout");
 
     if (argc > 1) {
 	cmd = xstrcat(cmd, (char *)" ");
@@ -226,19 +222,19 @@ int main(int argc, char *argv[])
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbout", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
+    InitClient(pw->pw_name, (char *)"ftnout", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', " ");
-    Syslog(' ', "MBOUT v%s", VERSION);
+    Syslog(' ', "FTNOUT v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("\n");
     }
 
-    if (strcmp(pw->pw_name, "mbse"))
-	Fatal((char *)"You are not user 'mbse'", MBERR_COMMANDLINE);
+    if (strcmp(pw->pw_name, "ftnd"))
+	Fatal((char *)"You are not user 'ftnd'", FTNERR_COMMANDLINE);
     
     if (do_stat) {
 	rc = outstat();
@@ -250,12 +246,12 @@ int main(int argc, char *argv[])
      */
     if (do_attach || do_node || do_poll || do_stop || do_req || do_reset) {
 	if (argc < 3)
-	    Fatal((char *)"Not enough parameters", MBERR_COMMANDLINE);
+	    Fatal((char *)"Not enough parameters", FTNERR_COMMANDLINE);
     }
 
     if (do_attach || do_node || do_req || do_reset) {
 	if ((addr = parsefaddr(argv[2])) == NULL)
-	    Fatal((char *)"Unrecognizable address", MBERR_COMMANDLINE);
+	    Fatal((char *)"Unrecognizable address", FTNERR_COMMANDLINE);
     }
 
     if (do_node) {
@@ -269,7 +265,7 @@ int main(int argc, char *argv[])
 	for (i = 3; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		if ((addr = parsefaddr(argv[i-1])) == NULL)
-		    Fatal((char *)"Unrecognizable address", MBERR_COMMANDLINE);
+		    Fatal((char *)"Unrecognizable address", FTNERR_COMMANDLINE);
 		j = pollnode(addr, do_stop);
 		tidy_faddr(addr);
 		if (j)
@@ -284,7 +280,7 @@ int main(int argc, char *argv[])
 	for (i = 3; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		if ((addr = parsefaddr(argv[i-1])) == NULL)
-		    Fatal((char *)"Unrecognizable address", MBERR_COMMANDLINE);
+		    Fatal((char *)"Unrecognizable address", FTNERR_COMMANDLINE);
 		j = reset(addr);
 		tidy_faddr(addr);
 		if (j)
@@ -296,14 +292,14 @@ int main(int argc, char *argv[])
 
     if (do_attach) {
 	if (argc < 5)
-	    Fatal((char *)"Not enough parameters", MBERR_COMMANDLINE);
+	    Fatal((char *)"Not enough parameters", FTNERR_COMMANDLINE);
 	flavor = tolower(argv[3][0]);
 	switch (flavor) {
 	    case 'n' : 	flavor = 'f';	break;
 	    case 'i' :	flavor = 'i';	break;
 	    case 'c' :	flavor = 'c';	break;
 	    case 'h' :	flavor = 'h';	break;
-	    default  :	Fatal((char *)"Invalid flavor, must be: immediate, crash, normal or hold", MBERR_COMMANDLINE);
+	    default  :	Fatal((char *)"Invalid flavor, must be: immediate, crash, normal or hold", FTNERR_COMMANDLINE);
 	}
 
 	nlent = getnlent(addr);
@@ -315,26 +311,26 @@ int main(int argc, char *argv[])
 	nlent->url = NULL;
 
 	if (nlent->pflag == NL_DUMMY)
-	    Fatal((char *)"Node is not in nodelist", MBERR_NODE_NOT_IN_LIST);
+	    Fatal((char *)"Node is not in nodelist", FTNERR_NODE_NOT_IN_LIST);
 	if (nlent->pflag == NL_DOWN)
-	    Fatal((char *)"Node has status Down", MBERR_NODE_MAY_NOT_CALL);
+	    Fatal((char *)"Node has status Down", FTNERR_NODE_MAY_NOT_CALL);
 	if (nlent->pflag == NL_HOLD)
-	    Fatal((char *)"Node has status Hold", MBERR_NODE_MAY_NOT_CALL);
+	    Fatal((char *)"Node has status Hold", FTNERR_NODE_MAY_NOT_CALL);
 	if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (flavor == 'c'))
-	    Fatal((char *)"Node is not CM, must use Immediate, Normal or Hold flavor", MBERR_NODE_MAY_NOT_CALL);
+	    Fatal((char *)"Node is not CM, must use Immediate, Normal or Hold flavor", FTNERR_NODE_MAY_NOT_CALL);
 
 	if (argv[4][0] == '-')
-	    Fatal((char *)"Invalid filename given", MBERR_COMMANDLINE);
+	    Fatal((char *)"Invalid filename given", FTNERR_COMMANDLINE);
 	if (argv[4][0] != '/')
-	    Fatal((char *)"Must use absolute path/filename (or ~/path/filename)", MBERR_COMMANDLINE);
+	    Fatal((char *)"Must use absolute path/filename (or ~/path/filename)", FTNERR_COMMANDLINE);
 	if (file_exist(argv[4], R_OK) != 0)
-	    Fatal((char *)"File doesn't exist", MBERR_COMMANDLINE);
+	    Fatal((char *)"File doesn't exist", FTNERR_COMMANDLINE);
 
 	cmd = calloc(PATH_MAX, sizeof(char));
 	snprintf(cmd, PATH_MAX -1, "%s/%d.%d.%d.%d/.filelist", CFG.out_queue, addr->zone, addr->net, addr->node, addr->point);
 	mkdirs(cmd, 0750);
 	if ((fl = fopen(cmd, "a+")) == NULL) {
-	    Fatal((char *)"File attach failed", MBERR_ATTACH_FAILED);
+	    Fatal((char *)"File attach failed", FTNERR_ATTACH_FAILED);
 	} else {
 	    fprintf(fl, "%c LEAVE NOR %s\n", flavor, argv[4]);
 	    Syslog('+', "File attach %s is successfull", argv[4]);
@@ -345,14 +341,14 @@ int main(int argc, char *argv[])
 	    fsync(fileno(fl));
 	    fclose(fl);
 	    free(cmd);
-	    die(MBERR_OK);
+	    die(FTNERR_OK);
 	}
 	free(cmd);
     }
 
     if (do_req) {
 	if (argc < 4)
-	    Fatal((char *)"Not enough parameters", MBERR_COMMANDLINE);
+	    Fatal((char *)"Not enough parameters", FTNERR_COMMANDLINE);
 	for (i = 4; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		rc = freq(addr, argv[i-1]);
@@ -365,7 +361,7 @@ int main(int argc, char *argv[])
     }
 
     Help();
-    return MBERR_OK;
+    return FTNERR_OK;
 }
 
 

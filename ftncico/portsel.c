@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: portsel.c,v 1.8 2005/08/28 11:34:24 mbse Exp $
+ * portsel.c
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "portsel.h"
 
 
@@ -42,7 +38,7 @@ int load_port(char *tty)
 	FILE	*fp;
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX -1, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
 
 	if ((fp = fopen(temp, "r")) == NULL) {
 		WriteError("$Can't open %s", temp);
@@ -93,7 +89,7 @@ int load_modem(char *ModemName)
 	FILE		*fp;
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX -1, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/modem.data", getenv("FTND_ROOT"));
 
 	if ((fp = fopen(temp, "r")) == NULL) {
 		WriteError("$Can't open %s", temp);

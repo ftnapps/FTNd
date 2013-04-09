@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: emsidat.c,v 1.26 2007/11/25 15:49:46 mbse Exp $
+ * emsidat.c
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "emsi.h"
 #include "session.h"
 #include "lutil.h"
@@ -206,7 +202,7 @@ char *mkemsidat(int caller)
 
     snprintf(cbuf,16,"{%X}",PRODCODE);
     p=xstrcat(p,cbuf);
-    p=xstrcat(p,(char *)"{mbcico}{");
+    p=xstrcat(p,(char *)"{ftncico}{");
     p=xstrcat(p,(char *)VERSION);
     p=xstrcat(p,(char *)"}{");
     p=xstrcat(p,(char *)__DATE__);
@@ -404,7 +400,7 @@ int scanemsidat(char *buf)
     emsi_remote_password=xstrcpy(sel_brace(NULL));
 
     p=sel_brace(NULL);
-    Syslog('+', "link    : %s", MBSE_SS(p));
+    Syslog('+', "link    : %s", FTND_SS(p));
     for (q=strtok(p,",");q;q=strtok(NULL,",")) {
 	if (((q[0] >= '5') && (q[0] <= '8')) && ((toupper(q[1]) == 'N') || (toupper(q[1]) == 'O') ||
 	    (toupper(q[1]) == 'E') || (toupper(q[1]) == 'S') || (toupper(q[1]) == 'M')) && ((q[2] == '1') || (q[2] == '2'))) {

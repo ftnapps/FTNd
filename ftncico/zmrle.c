@@ -38,7 +38,7 @@
  */
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "ttyio.h"
 #include "session.h"

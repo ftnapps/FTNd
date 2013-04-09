@@ -4,27 +4,23 @@
  * Remark ................: See below for more copyright details and credits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
@@ -41,7 +37,7 @@
  */
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "session.h"
 #include "filelist.h"
@@ -53,7 +49,7 @@
 #include "openfile.h"
 #include "lutil.h"
 #include "respfreq.h"
-#include "mbcico.h"
+#include "ftncico.h"
 #include "hydra.h"
 
 
@@ -277,7 +273,7 @@ enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot)
 
 				    if ((i & ~0x0f) || (n & ~ 0x0f)) {
 					Syslog('+', "Hydra: RXPKT assert");
-					die(MBERR_FTRANSFER);
+					die(FTNERR_FTRANSFER);
 					break;
 				    }
 
@@ -294,7 +290,7 @@ enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot)
 			    case HCHR_UUEPKT:
 			    default:
 				Syslog('+', "Hydra: RXPKT assert");
-				die(MBERR_FTRANSFER);
+				die(FTNERR_FTRANSFER);
 		    }
 
 		    if ((format != HCHR_HEXPKT) && (rxoptions & HOPT_CRC32)) {
@@ -447,7 +443,7 @@ void hytxpkt(enum HyPktTypes pkttype, char *txbuf, int txlen)
 	case HCHR_UUEPKT:
 	default:
 	    Syslog('+', "Hydra: TXPKT assert");
-	    die(MBERR_FTRANSFER);
+	    die(FTNERR_FTRANSFER);
     }
 
     *outbuf++ = H_DLE;
@@ -765,7 +761,7 @@ int hydra_batch(int role, file_list *to_send)
 		    outbuf = txbuf;
 
 		    /* Application ID string */
-		    outbuf += snprintf(outbuf, H_ZIPBUFLEN, "%08lx%s,%s", H_REVSTAMP, "mbcico", VERSION) + 1;
+		    outbuf += snprintf(outbuf, H_ZIPBUFLEN, "%08lx%s,%s", H_REVSTAMP, "ftncico", VERSION) + 1;
 
 		    /* Supported options */
 		    outbuf += put_flags(outbuf, HCAN_OPTIONS) + 1;
@@ -851,30 +847,30 @@ int hydra_batch(int role, file_list *to_send)
 		    if (txfp == NULL) {
 			sverr = errno;
 			if ((sverr == ENOENT) || (sverr == EINVAL)) {
-			    Syslog('+', "File %s doesn't exist, removing", MBSE_SS(to_send->local));
-			    execute_disposition(to_send); // Added 18-10-99 MB.
+			    Syslog('+', "File %s doesn't exist, removing", FTND_SS(to_send->local));
+			    execute_disposition(to_send);
 			} else {
-			    WriteError("$Hydra: cannot open file %s, skipping", MBSE_SS(to_send->local));
+			    WriteError("$Hydra: cannot open file %s, skipping", FTND_SS(to_send->local));
 			}
 			to_send = to_send->next;
 			break;
 		    }
 
 		    if (fcntl(fileno(txfp), F_SETLK, &txflock) != 0) {
-			WriteError("$Hydra: cannot lock file %s, skipping", MBSE_SS(to_send->local));
+			WriteError("$Hydra: cannot lock file %s, skipping", FTND_SS(to_send->local));
 			fclose(txfp);
 			to_send = to_send->next;
 			break;
 		    }
 
 		    if (stat(to_send->local, &txstat) != 0) {
-			WriteError("$Hydra: cannot access \"%s\", skipping",MBSE_SS(to_send->local));
+			WriteError("$Hydra: cannot access \"%s\", skipping",FTND_SS(to_send->local));
 			fclose(txfp);
 			to_send = to_send->next;
 			break;
 		    }
 
-		    Syslog('+', "Hydra: send \"%s\" as \"%s\"", MBSE_SS(to_send->local), MBSE_SS(to_send->remote));
+		    Syslog('+', "Hydra: send \"%s\" as \"%s\"", FTND_SS(to_send->local), FTND_SS(to_send->remote));
 		    Syslog('+', "Hydra: size %lu bytes, dated %s",(unsigned int)txstat.st_size, date(txstat.st_mtime));
 		    gettimeofday(&txstarttime, &tz);
 		}
@@ -1309,7 +1305,7 @@ int hydra_batch(int role, file_list *to_send)
 		break;
 
 	    default:
-		die(MBERR_FTRANSFER);
+		die(FTNERR_FTRANSFER);
 	} /* switch (txstate) */
 
 	switch (rxstate) {
@@ -1751,10 +1747,10 @@ int hydra_batch(int role, file_list *to_send)
 	sleep(4);				/* wait a few seconds... */
 	FLUSHIN();
 
-	return MBERR_FTRANSFER;
+	return FTNERR_FTRANSFER;
     }
 
-    return MBERR_OK;
+    return FTNERR_OK;
 }
 
 

@@ -4,35 +4,31 @@
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "ttyio.h"
 #include "session.h"
 #include "statetbl.h"
@@ -49,7 +45,7 @@
 #include "md5b.h"
 #include "inbound.h"
 #include "callstat.h"
-#include "mbcico.h"
+#include "ftncico.h"
 
 
 /*
@@ -308,11 +304,11 @@ int binkp(int role)
 
     if (role == 1) {
 	if (orgbinkp()) {
-	    rc = MBERR_SESSION_ERROR;
+	    rc = FTNERR_SESSION_ERROR;
 	}
     } else {
 	if (ansbinkp()) {
-	    rc = MBERR_SESSION_ERROR;
+	    rc = FTNERR_SESSION_ERROR;
 	}
     }
 
@@ -978,7 +974,7 @@ int file_transfer(void)
 				rc = binkp_poll_frame();
 				if (rc == -1) {
 				    Syslog('b', "Binkp: receiver error detected");
-				    bp.rc = rc = MBERR_FTRANSFER;
+				    bp.rc = rc = FTNERR_FTRANSFER;
 				    bp.FtState = DeinitTransfer;
 				    break;
 				} else if (rc == 1) {
@@ -1035,7 +1031,7 @@ int file_transfer(void)
 				 */
 				binkp_clear_filelist(bp.rc);
 				if (bp.rc)
-				    return MBERR_FTRANSFER;
+				    return FTNERR_FTRANSFER;
 				else
 				    return 0;
 				break;
@@ -1207,7 +1203,7 @@ TrType binkp_receiver(void)
 	    binkp_send_command(MM_BSY, "Low diskspace, try again later");
 	    bp.RxState = RxDone;
 	    bp.TxState = TxDone;
-	    bp.rc = MBERR_FTRANSFER;
+	    bp.rc = FTNERR_FTRANSFER;
 	    return Failure;
 	}
 
@@ -1517,17 +1513,17 @@ TrType binkp_transmitter(void)
 		bp.txfp = fopen(tmp->local, "r");
 		if (bp.txfp == NULL) {
 		    if ((errno == ENOENT) || (errno == EINVAL)) {
-			Syslog('+', "Binkp: file %s doesn't exist, removing", MBSE_SS(tmp->local));
+			Syslog('+', "Binkp: file %s doesn't exist, removing", FTND_SS(tmp->local));
 			tmp->state = Got;
 		    } else {
-			WriteError("$Binkp: can't open %s, skipping", MBSE_SS(tmp->local));
+			WriteError("$Binkp: can't open %s, skipping", FTND_SS(tmp->local));
 			tmp->state = Skipped;
 		    }
 		    break;
 		}
 
 		if (fcntl(fileno(bp.txfp), F_SETLK, &txflock) != 0) {
-		    WriteError("$Binkp: can't lock file %s, skipping", MBSE_SS(tmp->local));
+		    WriteError("$Binkp: can't lock file %s, skipping", FTND_SS(tmp->local));
 		    fclose(bp.txfp);
 		    bp.txfp = NULL;
 		    tmp->state = Skipped;
@@ -1556,10 +1552,10 @@ TrType binkp_transmitter(void)
 		bp.txpos = bp.txcpos = bp.stxpos = tmp->offset;
 		bp.txcompressed = 0;
 		bp.tfsize = tmp->size;
-		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
+		Syslog('+', "Binkp: send \"%s\" as \"%s\"", FTND_SS(tmp->local), FTND_SS(tmp->remote));
 		Syslog('+', "Binkp: size %u bytes, dated %s, comp %s", 
 			(unsigned int)tmp->size, date(tmp->date), cpstate[bp.tmode]);
-		rc = binkp_send_command(MM_FILE, "%s %u %d %d%s", MBSE_SS(tmp->remote), 
+		rc = binkp_send_command(MM_FILE, "%s %u %d %d%s", FTND_SS(tmp->remote), 
 			(unsigned int)tmp->size, (int)tmp->date, (unsigned int)tmp->offset, extra);
 		if (rc) {
 		    bp.TxState = TxDone;
@@ -1993,9 +1989,9 @@ int binkp_banner(int originate)
 	rc = binkp_send_command(MM_NUL,"TIME %s", rfcdate(t));
     if (!rc) {
 	if (nodes.NoBinkp11 || bp.buggyIrex)
-	    rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLOLD);
+	    rc = binkp_send_command(MM_NUL,"VER ftncico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLOLD);
 	else
-	    rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLVER);
+	    rc = binkp_send_command(MM_NUL,"VER ftncico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLVER);
     }
     if (strlen(CFG.IP_Phone) && !rc)
 	rc = binkp_send_command(MM_NUL,"PHN %s", CFG.IP_Phone);
@@ -2321,7 +2317,7 @@ int binkp_poll_frame(void)
 		    break;
 		}
 		Syslog('?', "Binkp: receiver status %s", ttystat[c]);
-		bp.rc = (MBERR_TTYIO + (-c));
+		bp.rc = (FTNERR_TTYIO + (-c));
 		rc = -1;
 		break;
 	    } else {
@@ -2742,7 +2738,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     (*tmpl)->state  = NoState;
     if ((fp = fopen(fal->local, "r")) == NULL) {
 	if ((errno == ENOENT) || (errno == EINVAL)) {
-	    Syslog('+', "Binkp: file %s doesn't exist, removing", MBSE_SS(fal->local));
+	    Syslog('+', "Binkp: file %s doesn't exist, removing", FTND_SS(fal->local));
 	    (*tmpl)->state  = Got;
 	    execute_disposition(fal);
 	}
@@ -2852,7 +2848,7 @@ void binkp_clear_filelist(int rc)
 /*****************************************************************************
  *
  *  Compression support for GZ and BZ2 modes. Routines from the original
- *  binkd package, slightly adopted for mbcico.
+ *  binkd package, slightly adopted for ftncico.
  *
  *  Original written by val khokhlov, FIDONet 2:550/180
  *

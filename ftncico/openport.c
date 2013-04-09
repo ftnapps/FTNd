@@ -3,35 +3,31 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "ulock.h"
 #include "ttyio.h"
-#include "mbcico.h"
+#include "ftncico.h"
 #include "openport.h"
 
 
@@ -75,7 +71,7 @@ int openport(char *port, int speed)
     int	    rc, rc2, fd, outflags;
     char    *errtty=NULL;
 
-    Syslog('t', "Try opening port \"%s\" at %d",MBSE_SS(port),speed);
+    Syslog('t', "Try opening port \"%s\" at %d",FTND_SS(port),speed);
     if (openedport) 
 	free(openedport);
     openedport = NULL;
@@ -121,13 +117,13 @@ int openport(char *port, int speed)
 
     if ((fd = open(openedport,O_RDONLY|O_NONBLOCK)) != 0) {
 	rc = 1;
-	Syslog('+', "$Cannot open \"%s\" as stdin",MBSE_SS(openedport));
+	Syslog('+', "$Cannot open \"%s\" as stdin",FTND_SS(openedport));
 	fd = open("/dev/null",O_RDONLY);
     }
 
     if ((fd = open(openedport,O_WRONLY|O_NONBLOCK)) != 1) {
 	rc = 1;
-	Syslog('+', "$Cannot open \"%s\" as stdout",MBSE_SS(openedport));
+	Syslog('+', "$Cannot open \"%s\" as stdout",FTND_SS(openedport));
 	fd = open("/dev/null",O_WRONLY);
     }
 
@@ -146,10 +142,10 @@ int openport(char *port, int speed)
     }
 
     if (rc) 
-	Syslog('+', "cannot switch i/o to port \"%s\"",MBSE_SS(openedport));
+	Syslog('+', "cannot switch i/o to port \"%s\"",FTND_SS(openedport));
     else {
 	if (tty_raw(speed)) {
-	    WriteError("$cannot set raw mode for \"%s\"",MBSE_SS(openedport));
+	    WriteError("$cannot set raw mode for \"%s\"",FTND_SS(openedport));
 	    rc=1;
 	}
 
@@ -185,7 +181,7 @@ int openport(char *port, int speed)
  */
 void localport(void)
 {
-    Syslog('t', "Setting port \"%s\" local",MBSE_SS(openedport));
+    Syslog('t', "Setting port \"%s\" local",FTND_SS(openedport));
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
     
@@ -199,7 +195,7 @@ void localport(void)
 
 void nolocalport(void)
 {
-    Syslog('t', "Setting port \"%s\" non-local",MBSE_SS(openedport));
+    Syslog('t', "Setting port \"%s\" non-local",FTND_SS(openedport));
     if (isatty(0)) 
 	tty_nolocal();
     
@@ -239,7 +235,7 @@ void closeport(void)
     if (openedport == NULL)
 	return;
 
-    Syslog('t', "Closing port \"%s\"",MBSE_SS(openedport));
+    Syslog('t', "Closing port \"%s\"",FTND_SS(openedport));
     fflush(stdin);
     fflush(stdout);
     tty_cooked();

@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: outstat.c,v 1.34 2005/10/11 20:49:46 mbse Exp $
+ * outstat.c
  * Purpose ...............: Show mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "scanout.h"
 #include "callstat.h"
 #include "outstat.h"
@@ -70,12 +66,12 @@ void checkdir(char *boxpath, faddr *fa, char flavor)
     struct passwd   *pw;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    pw = getpwnam((char *)"mbse");
+    pw = getpwnam((char *)"ftnd");
 
     Syslog('o', "checking filebox %s (%s) flavor %c", boxpath, ascfnode(fa, 0xff), flavor);
 
     if ((dp = opendir(boxpath)) == NULL) {
-	Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(boxpath));
+	Syslog('o', "\"%s\" cannot be opened, proceed", FTND_SS(boxpath));
     } else {
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
@@ -141,7 +137,7 @@ int outstat()
 
     if ((rc = scanout(each))) {
 	WriteError("Error scanning outbound, aborting");
-	return MBERR_OUTBOUND_SCAN;
+	return FTNERR_OUTBOUND_SCAN;
     }
 
     /*
@@ -149,11 +145,11 @@ int outstat()
      * Also, check directory outbounds for FTP nodes.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX -1, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Error open %s, aborting", temp);
 	free(temp);
-	return MBERR_OUTBOUND_SCAN;
+	return FTNERR_OUTBOUND_SCAN;
     }
     fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
     fseek(fp, 0, SEEK_SET);
@@ -282,9 +278,9 @@ int outstat()
     }
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGREEN, BLACK);
+	ftnd_colour(LIGHTGREEN, BLACK);
 	printf("flavor try      size age    address\n");
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
     }
 
     Syslog('+', "Flavor Try      Size Age    Address");
@@ -487,28 +483,28 @@ int pollnode(faddr *addr, int stop)
 	    if (!do_quiet)
 		printf("Node %s not in nodelist", ascfnode(addr, 0x1f));
 	    free(pol);
-	    return MBERR_NODE_NOT_IN_LIST;
+	    return FTNERR_NODE_NOT_IN_LIST;
 	}
 	if (nlent->pflag == NL_DOWN) {
 	    Syslog('+', "Node %s has status Down", ascfnode(addr, 0x1f));
 	    if (!do_quiet)
 		printf("Node %s has status Down", ascfnode(addr, 0x1f));
 	    free(pol);
-	    return MBERR_NODE_MAY_NOT_CALL;
+	    return FTNERR_NODE_MAY_NOT_CALL;
 	}
 	if (nlent->pflag == NL_HOLD) {
 	    Syslog('+', "Node %s has status Hold", ascfnode(addr, 0x1f));
 	    if (!do_quiet)
 		printf("Node %s has status Hold", ascfnode(addr, 0x1f));
 	    free(pol);
-	    return MBERR_NODE_MAY_NOT_CALL;
+	    return FTNERR_NODE_MAY_NOT_CALL;
 	}
 	
 	if ((fp = fopen(pol, "w+")) == NULL) {
 	    WriteError("$Can't create poll for %s", ascfnode(addr, 0x1f));
 	    if (!do_quiet)
 		printf("Can't create poll for %s\n", ascfnode(addr, 0x1f));
-	    rc = MBERR_CANNOT_MAKE_POLL;
+	    rc = FTNERR_CANNOT_MAKE_POLL;
 	} else {
 	    fclose(fp);
 	    if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (!IsZMH())) {
@@ -521,13 +517,13 @@ int pollnode(faddr *addr, int stop)
 		    printf("Created poll for %s\n", ascfnode(addr, 0x1f));
 	    }
 	    cst = getstatus(addr);
-	    if ((cst->trystat == MBERR_NODE_LOCKED) || 
-		(cst->trystat == MBERR_NOT_ZMH) ||
-		(cst->trystat == MBERR_NO_CONNECTION) ||
-		(cst->trystat == MBERR_SESSION_ERROR) ||
-		(cst->trystat == MBERR_UNKNOWN_SESSION) ||
-		(cst->trystat == MBERR_NO_PORT_AVAILABLE) ||
-		(cst->trystat == MBERR_MODEM_ERROR)) {
+	    if ((cst->trystat == FTNERR_NODE_LOCKED) || 
+		(cst->trystat == FTNERR_NOT_ZMH) ||
+		(cst->trystat == FTNERR_NO_CONNECTION) ||
+		(cst->trystat == FTNERR_SESSION_ERROR) ||
+		(cst->trystat == FTNERR_UNKNOWN_SESSION) ||
+		(cst->trystat == FTNERR_NO_PORT_AVAILABLE) ||
+		(cst->trystat == FTNERR_MODEM_ERROR)) {
 		putstatus(addr, 0, -1);
 	    }
 	    CreateSema((char *)"scanout");
@@ -573,7 +569,7 @@ int freq(faddr *addr, char *fname)
 	if (!do_quiet)
 	    printf("File request failed\n");
 	free(req);
-	return MBERR_REQUEST;
+	return FTNERR_REQUEST;
     }
     fprintf(fp, "%s\r\n", fname);
     fclose(fp);

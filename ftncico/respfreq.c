@@ -3,36 +3,32 @@
  * Purpose ...............: Fidonet mailer - respond to filerequests
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "../lib/msg.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "session.h"
 #include "lutil.h"
 #include "config.h"
@@ -108,7 +104,7 @@ file_list *respond_wazoo(void)
     free(freqname);
     freqname = NULL;
     for (tmpl = &fl; *tmpl; tmpl = &((*tmpl)->next)) {
-	Syslog('f', "resplist: %s",MBSE_SS((*tmpl)->local));
+	Syslog('f', "resplist: %s",FTND_SS((*tmpl)->local));
     }
     attach_report(&fl);
     return fl;
@@ -221,7 +217,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 	} else free(tnm);
     }
 
-    Syslog('+', "File request : %s (update (%s), password \"%s\")",MBSE_SS(nm),MBSE_SS(dt),MBSE_SS(pw));
+    Syslog('+', "File request : %s (update (%s), password \"%s\")",FTND_SS(nm),FTND_SS(dt),FTND_SS(pw));
     add_report((char *)"RQ: Regular file \"%s\"",nm);
     strcpy(mask, re_mask(nm, TRUE));
     re_comp(mask);
@@ -229,7 +225,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
     /*
      * Open the areas database and request index.
      */
-    p = xstrcpy(getenv("MBSE_ROOT"));
+    p = xstrcpy(getenv("FTND_ROOT"));
     p = xstrcat(p, (char *)"/etc/fareas.data");
     if ((fa = fopen(p, "r")) == NULL) {
 	WriteError("$Can't open %s", p);
@@ -238,7 +234,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
     free(p);
     fread(&areahdr, sizeof(areahdr), 1, fa);
 
-    p = xstrcpy(getenv("MBSE_ROOT"));
+    p = xstrcpy(getenv("FTND_ROOT"));
     p = xstrcat(p, (char *)"/etc/request.index");
     if ((fi = fopen(p, "r")) == NULL) {
 	WriteError("$Can't open %s", p);
@@ -259,7 +255,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 		return NULL;
 	    }
 	    Syslog('f', "Area %s", area.Name);
-	    if ((fdb_area = mbsedb_OpenFDB(idx.AreaNum, 30))) {
+	    if ((fdb_area = ftnddb_OpenFDB(idx.AreaNum, 30))) {
 
 		if (fseek(fdb_area->fp, fdbhdr.hdrsize + (idx.Record * fdbhdr.recsize), SEEK_SET) == -1) {
 		    WriteError("$Can't seek filerecord %d", idx.Record);
@@ -341,16 +337,16 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 			     */
 			    fdb.TimesDL++;
 			    fdb.LastDL = time(NULL);
-			    if (mbsedb_LockFDB(fdb_area, 30)) {
+			    if (ftnddb_LockFDB(fdb_area, 30)) {
 				fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 				fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-				mbsedb_UnlockFDB(fdb_area);
+				ftnddb_UnlockFDB(fdb_area);
 			    }
 			}
 			free(tnm);
 		    }
 		}
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
 	    }
 	}
     }
@@ -379,10 +375,10 @@ file_list *resplist(char *listfn, char *pw, char *dt)
 	file_list	*fl = NULL, **pfl;
 
 	Syslog('+', "Magic request: %s (update (%s), password \"%s\")", 
-		strrchr(xstrcpy(listfn), '/')+1, MBSE_SS(dt), MBSE_SS(pw));
+		strrchr(xstrcpy(listfn), '/')+1, FTND_SS(dt), FTND_SS(pw));
 
 	if (++recurse > MAXRECURSE) {
-		WriteError("Excessive recursion in file lists for \"%s\"", MBSE_SS(listfn));
+		WriteError("Excessive recursion in file lists for \"%s\"", FTND_SS(listfn));
 		add_report((char *)"ER: Exessive recursion for magic filename \"%s\", contact sysop", listfn);
 		recurse = 0;
 		free(listfn);
@@ -435,7 +431,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 
 	Syslog('+', "Magic execute: %s", strrchr(xstrcpy(cmd), '/')+1);
 	add_report((char *)"RQ: Magic \"%s\"",cmd);
-	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08X", getenv((char *)"MBSE_ROOT"), (unsigned int)sequencer());
+	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08X", getenv((char *)"FTND_ROOT"), (unsigned int)sequencer());
 	Syslog('+', "tmpfn \"%s\"", tmpfn);
 	if ((p = strrchr(cmd,'/'))) 
 		p++;
@@ -480,14 +476,14 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 		unlink(tmpfn);
 	} else {
 		if (stat(tmpfn, &st) == 0) {
-			snprintf(tmptx, PATH_MAX -1, "%s/tmp/%08X", getenv((char *)"MBSE_ROOT"), (unsigned int)sequencer());
+			snprintf(tmptx, PATH_MAX -1, "%s/tmp/%08X", getenv((char *)"FTND_ROOT"), (unsigned int)sequencer());
 			Syslog('+', "tmptx \"%s\"", tmptx);
 
 			if ((fp = fopen(tmptx, "w"))) {
 				fmsg.flags = M_PVT|M_KILLSENT;
 				fmsg.from = bestaka_s(remote->addr);
 				svname = fmsg.from->name;
-				fmsg.from->name = (char *)"mbcico FREQ processor";
+				fmsg.from->name = (char *)"ftncico FREQ processor";
 				fmsg.to = remote->addr;
 				fmsg.date = time((time_t*)NULL);
 				fmsg.subj = strrchr(xstrcpy(cmd), '/')+1;
@@ -499,7 +495,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 				fmsg.reply_n = 0L;
 				fmsg.origin  = NULL;
 				fmsg.area    = NULL;
-				(void)ftnmsghdr(&fmsg, fp, NULL, 'f', (char *)"MBSE-CICO");
+				(void)ftnmsghdr(&fmsg, fp, NULL, 'f', (char *)"FTND-CICO");
 				free(fmsg.msgid_a);
 
 				if ((ft = fopen(tmpfn, "r")) == NULL) {
@@ -571,7 +567,7 @@ static void attach_report(file_list **fl)
 	/*
 	 * Add random quote
 	 */
-	snprintf(tmpfn, PATH_MAX -1, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+	snprintf(tmpfn, PATH_MAX -1, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 	if ((fp = fopen(tmpfn, "r+")) != NULL) {
 	    fread(&olhdr, sizeof(olhdr), 1, fp);
 	    fseek(fp, 0, SEEK_END);
@@ -592,12 +588,12 @@ static void attach_report(file_list **fl)
 
 	add_report((char *)"\r%s\r", TearLine());
 
-	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08X.rpl", getenv((char *)"MBSE_ROOT"), (unsigned int)sequencer());
+	snprintf(tmpfn, PATH_MAX -1, "%s/tmp/%08X.rpl", getenv((char *)"FTND_ROOT"), (unsigned int)sequencer());
 	if ((fp = fopen(tmpfn,"w"))) {
 		fmsg.flags = M_PVT|M_KILLSENT;
 		fmsg.from = bestaka_s(remote->addr);
 		svname = fmsg.from->name;
-		fmsg.from->name = (char *)"mbcico FREQ processor";
+		fmsg.from->name = (char *)"ftncico FREQ processor";
 		fmsg.to = remote->addr;
 		/*
 		 * If we don't know the sysops name, fake it.
@@ -614,7 +610,7 @@ static void attach_report(file_list **fl)
 		fmsg.reply_n = 0L;
 		fmsg.origin  = NULL;
 		fmsg.area    = NULL;
-		(void)ftnmsghdr(&fmsg, fp, NULL, 'f', (char *)"MBSE-CICO");
+		(void)ftnmsghdr(&fmsg, fp, NULL, 'f', (char *)"FTNCICO");
 		free(fmsg.msgid_a);
 		fwrite(report_text, 1, strlen(report_text), fp);
 		fwrite(&zeroes, 1, 3, fp);
@@ -623,7 +619,7 @@ static void attach_report(file_list **fl)
 		add_list(fl, tmpfn, remname, KFS, 0L, NULL, 0);
 		fmsg.from->name = svname;
 	} else {
-		WriteError("$cannot open temp file \"%s\"",MBSE_SS(tmpfn));
+		WriteError("$cannot open temp file \"%s\"",FTND_SS(tmpfn));
 	}
 
 	report_total = 0L;

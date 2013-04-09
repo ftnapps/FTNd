@@ -3,32 +3,28 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "ttyio.h"
 #include "statetbl.h"
@@ -36,7 +32,7 @@
 #include "ftsc.h"
 #include "session.h"
 #include "yoohoo.h"
-#include "mbcico.h"
+#include "ftncico.h"
 #include "binkp.h"
 #include "callstat.h"
 #include "inbound.h"
@@ -121,7 +117,7 @@ void geoiplookup(GeoIP* gi, char *hostname, int i)
 
 int session(faddr *a, node *nl, int role, int tp, char *dt)
 {
-    int	    rc = MBERR_OK; 
+    int	    rc = FTNERR_OK; 
     socklen_t	addrlen = sizeof(struct sockaddr_in6);
     fa_list *tmpl;
     int	    Fdo = -1, input_pipe[2], output_pipe[2];
@@ -158,7 +154,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		IsDoing("Incoming ITN/TCP");
 	    } else if (tcp_mode == TCPMODE_NONE) {
 		WriteError("Unknown TCP connection, parameter missing");
-		die(MBERR_COMMANDLINE);
+		die(FTNERR_COMMANDLINE);
 	    }
 	}
 	session_flags |= SESSION_TCP;
@@ -207,22 +203,22 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	     */
 	    if (pipe(output_pipe) == -1) {
 		WriteError("$could not create output_pipe");
-		die(MBERR_TTYIO_ERROR);
+		die(FTNERR_TTYIO_ERROR);
 	    }
 	    opid = fork();
 	    switch (opid) {
 		case -1:    WriteError("fork for telout_filter failed");
-			    die(MBERR_TTYIO_ERROR);
+			    die(FTNERR_TTYIO_ERROR);
 		case 0:     if (close(output_pipe[1]) == -1) {
 				WriteError("$error close output_pipe[1]");
-				die(MBERR_TTYIO_ERROR);
+				die(FTNERR_TTYIO_ERROR);
 			    }
 			    telout_filter(output_pipe[0], Fdo);
 			    /* NOT REACHED */
 	    }
 	    if (close(output_pipe[0] == -1)) {
 		WriteError("$error close output_pipe[0]");
-		die(MBERR_TTYIO_ERROR);
+		die(FTNERR_TTYIO_ERROR);
 	    }
 	    Syslog('s', "telout_filter forked with pid %d", opid);
 	
@@ -231,22 +227,22 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	     */
 	    if (pipe(input_pipe) == -1) {
 		WriteError("$could not create input_pipe");
-		die(MBERR_TTYIO_ERROR);
+		die(FTNERR_TTYIO_ERROR);
 	    }
 	    ipid = fork();
 	    switch (ipid) {
 		case -1:    WriteError("fork for telin_filter failed");
-			    die(MBERR_TTYIO_ERROR);
+			    die(FTNERR_TTYIO_ERROR);
 		case 0:     if (close(input_pipe[0]) == -1) {
 				WriteError("$error close input_pipe[0]");
-				die(MBERR_TTYIO_ERROR);
+				die(FTNERR_TTYIO_ERROR);
 			    }
 			    telin_filter(input_pipe[1], Fdo);
 			    /* NOT REACHED */
 	    }
 	    if (close(input_pipe[1]) == -1) {
 		WriteError("$error close input_pipe[1]");
-		die(MBERR_TTYIO_ERROR);
+		die(FTNERR_TTYIO_ERROR);
 	    }
 	    Syslog('s', "telin_filter forked with pid %d", ipid);
 
@@ -255,7 +251,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 
 	    if ((input_pipe[0] != 0) || (output_pipe[1] != 1)) {
 		WriteError("Failed to create pipes on stdin and stdout");
-		die(MBERR_TTYIO_ERROR);
+		die(FTNERR_TTYIO_ERROR);
 	    }
 	    Syslog('+', "Telnet I/O filters installed");
 	    telnet_init(Fdo);
@@ -296,7 +292,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    (void)tx_define_type();
 	Syslog('+', "Start outbound %s session with %s", typestr(session_type), ascfnode(a,0x1f));
 	switch(session_type) {
-	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
+	    case SESSION_UNKNOWN:   rc = FTNERR_UNKNOWN_SESSION; break;
 	    case SESSION_FTSC:	    rc = tx_ftsc(); break;
 	    case SESSION_YOOHOO:    rc = tx_yoohoo(); break;
 	    case SESSION_EMSI:	    rc = tx_emsi(data); break;
@@ -309,7 +305,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    (void)rx_define_type();
 	Syslog('+', "Start inbound %s session", typestr(session_type));
 	switch(session_type) {
-	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
+	    case SESSION_UNKNOWN:   rc = FTNERR_UNKNOWN_SESSION; break;
 	    case SESSION_FTSC:	    rc = rx_ftsc(); break;
 	    case SESSION_YOOHOO:    rc = rx_yoohoo(); break;
 	    case SESSION_EMSI:	    rc = rx_emsi(data); break;

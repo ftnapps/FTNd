@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: dial.c,v 1.16 2005/10/16 11:37:54 mbse Exp $
+ * dial.c
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "config.h"
 #include "chat.h"
 #include "ttyio.h"
@@ -58,9 +54,9 @@ int initmodem(void)
 	if (strlen(modem.init[i]))
 	    if (chat(modem.init[i], CFG.timeoutreset, FALSE, NULL)) {
 		WriteError("dial: could not reset the modem");
-		return MBERR_MODEM_ERROR;
+		return FTNERR_MODEM_ERROR;
 	    }
-    return MBERR_OK;
+    return FTNERR_OK;
 }
 
 
@@ -69,11 +65,11 @@ int dialphone(char *Phone)
 {
     int	rc;
 
-    Syslog('+', "dial: %s (%s)",MBSE_SS(Phone), MBSE_SS(tranphone(Phone)));
+    Syslog('+', "dial: %s (%s)",FTND_SS(Phone), FTND_SS(tranphone(Phone)));
     carrier = FALSE;
 
     if (initmodem())
-	return MBERR_MODEM_ERROR;
+	return FTNERR_MODEM_ERROR;
 
     rc = 0;
     if (strlen(nodes.phone[0])) {
@@ -96,11 +92,11 @@ int dialphone(char *Phone)
 
     if (rc) {
 	Syslog('+', "Could not connect to the remote");
-	return MBERR_NO_CONNECTION;
+	return FTNERR_NO_CONNECTION;
     } else {
 	c_start = time(NULL);
 	carrier = TRUE;
-	return MBERR_OK;
+	return FTNERR_OK;
     }
 }
 
@@ -127,7 +123,7 @@ int hangup()
 	history.rcvd_bytes = rcvdbytes;
 	history.inbound = ~master;
 	tmp = calloc(PATH_MAX, sizeof(char));
-	snprintf(tmp, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+	snprintf(tmp, PATH_MAX -1, "%s/var/mailer.hist", getenv("FTND_ROOT"));
 	if ((fp = fopen(tmp, "a")) == NULL)
 	    WriteError("$Can't open %s", tmp);
 	else {
@@ -143,7 +139,7 @@ int hangup()
     }
     FLUSHIN();
     FLUSHOUT();
-    return MBERR_OK;
+    return FTNERR_OK;
 }
 
 

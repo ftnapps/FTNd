@@ -1,30 +1,26 @@
 /*****************************************************************************
  *
- * $Id: yoohoo.c,v 1.25 2007/08/25 18:32:08 mbse Exp $
+ * yoohoo.c
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
@@ -37,10 +33,10 @@
  */
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "statetbl.h"
 #include "ttyio.h"
 #include "session.h"
@@ -145,7 +141,7 @@ int rx_yoohoo(void)
 
 	if (y_akas == 0) {
 	    Syslog('+', "All akas busy, abort");
-	    return MBERR_SESSION_ERROR;
+	    return FTNERR_SESSION_ERROR;
 	}
 
 	capabilities = hello2.capabilities;
@@ -212,7 +208,7 @@ int rx_yoohoo(void)
 	return 0;
     }
     if (rc) 
-	return MBERR_YOOHOO;
+	return FTNERR_YOOHOO;
 
     IsDoing("Inbound %s", ascfnode(remote->addr, 0x0f));
 
@@ -234,7 +230,7 @@ int rx_yoohoo(void)
 	return rxdietifna();
 	
     WriteError("YooHoo internal error - no proto for 0x%04xh",localcaps);
-    return MBERR_YOOHOO;
+    return FTNERR_YOOHOO;
 }
 
 
@@ -278,15 +274,15 @@ int tx_yoohoo(void)
 
     if (y_akas == 0) {
 	Syslog('+', "All akas busy, abort");
-	return MBERR_SESSION_ERROR;
+	return FTNERR_SESSION_ERROR;
     }
     if ((rc == 0) && ((capabilities & LOCALCAPS) == 0)) {
 	Syslog('+', "No common protocols");
-	return MBERR_SESSION_ERROR;
+	return FTNERR_SESSION_ERROR;
     }
 
     if (rc) 
-	return MBERR_YOOHOO;
+	return FTNERR_YOOHOO;
 
     IsDoing("Outbound %s", ascfnode(remote->addr, 0x0f));
     session_state = STATE_SECURE;
@@ -304,7 +300,7 @@ int tx_yoohoo(void)
 	return txdietifna();
 		
     WriteError("YooHoo internal error - no proto for 0x%04xh",capabilities);
-    return MBERR_YOOHOO;
+    return FTNERR_YOOHOO;
 }
 
 

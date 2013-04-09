@@ -3,35 +3,31 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "session.h"
 #include "ttyio.h"
 #include "openport.h"
@@ -77,7 +73,7 @@ int opentcp(char *servname)
     hints.ai_family   = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    Syslog('+', "Open TCP connection to \"%s\"", MBSE_SS(servname));
+    Syslog('+', "Open TCP connection to \"%s\"", FTND_SS(servname));
     tcp_is_open = FALSE;
 
     /*
@@ -233,7 +229,7 @@ void closetcp(void)
 	history.rcvd_bytes = rcvdbytes;
 	history.inbound = ~master;
 	tmp = calloc(PATH_MAX, sizeof(char));
-	snprintf(tmp, PATH_MAX -1, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+	snprintf(tmp, PATH_MAX -1, "%s/var/mailer.hist", getenv("FTND_ROOT"));
 	if ((fph = fopen(tmp, "a")) == NULL)
 	    WriteError("$Can't open %s", tmp);
 	else {

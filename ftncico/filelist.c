@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: filelist.c,v 1.32 2008/11/26 22:01:01 mbse Exp $
+ * filelist.c
  * Purpose ...............: fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "config.h"
 #include "session.h"
 #include "filelist.h"
@@ -67,7 +63,7 @@ char *xtodos(char *orig)
 	return NULL;
 
     if ((remote_flags & SESSION_FNC) == 0) {
-	Syslog('o', "No filename conversion for \"%s\"", MBSE_SS(orig));
+	Syslog('o', "No filename conversion for \"%s\"", FTND_SS(orig));
 	return xstrcpy(orig);
     }
 
@@ -80,7 +76,7 @@ char *xtodos(char *orig)
     name_mangle(p);
     memset(&buf, 0, sizeof(buf));
     strncpy(buf, p, 12);
-    Syslog('o', "name \"%s\" converted to \"%s\"", MBSE_SS(orig), buf);
+    Syslog('o', "name \"%s\" converted to \"%s\"", FTND_SS(orig), buf);
     free(copy);
     return xstrcpy(buf);
 }
@@ -102,7 +98,7 @@ void add_list(file_list **lst, char *local, char *Remote, int disposition, off_t
 {
     file_list **tmpl, *tmp;
 
-    Syslog('o', "add_list(\"%s\",\"%s\",%d,%s)", MBSE_SS(local),MBSE_SS(Remote),disposition,toend?"to end":"to beg");
+    Syslog('o', "add_list(\"%s\",\"%s\",%d,%s)", FTND_SS(local),FTND_SS(Remote),disposition,toend?"to end":"to beg");
 
     if (toend) 
 	for (tmpl = lst; *tmpl; tmpl =&((*tmpl)->next));
@@ -143,7 +139,7 @@ static void check_flo(file_list **lst, char *nm)
 	return;
     }
 
-    Syslog('o', "check_flo(\"%s\")",MBSE_SS(nm));
+    Syslog('o', "check_flo(\"%s\")",FTND_SS(nm));
 
     fl.l_type   = F_RDLCK;
     fl.l_whence = 0;
@@ -152,7 +148,7 @@ static void check_flo(file_list **lst, char *nm)
 
     if (fcntl(fileno(fp), F_SETLK, &fl) != 0) {
 	if (errno != EAGAIN)
-	    WriteError("$Can't read-lock \"%s\"", MBSE_SS(nm));
+	    WriteError("$Can't read-lock \"%s\"", FTND_SS(nm));
 	else 
 	    Syslog('o',"flo file busy");
 	fclose(fp);
@@ -160,7 +156,7 @@ static void check_flo(file_list **lst, char *nm)
     }
 
     if (stat(nm, &stbuf) != 0) {
-	WriteError("$Can't access \"%s\"", MBSE_SS(nm));
+	WriteError("$Can't access \"%s\"", FTND_SS(nm));
 	fclose(fp);
 	return;
     }
@@ -226,11 +222,11 @@ void check_filebox(char *boxpath, file_list **st)
     struct stat     stbuf;
 
     if ((dp = opendir(boxpath)) == NULL) {
-	Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(boxpath));
+	Syslog('o', "\"%s\" cannot be opened, proceed", FTND_SS(boxpath));
     } else {
 	Syslog('o', "checking filebox \"%s\"", boxpath);
         temp = calloc(PATH_MAX, sizeof(char));
-	pw = getpwnam((char *)"mbse");
+	pw = getpwnam((char *)"ftnd");
         while ((de = readdir(dp))) {
             if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
 		snprintf(temp, PATH_MAX -1, "%s/%s", boxpath, de->d_name);
@@ -294,7 +290,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
     struct dirent   *de;
     struct stat     sb;
 
-    Syslog('o', "Create_filelist(%s,\"%s\",%d)", al?ascfnode(al->addr,0x1f):"<none>", MBSE_SS(fl), create);
+    Syslog('o', "Create_filelist(%s,\"%s\",%d)", al?ascfnode(al->addr,0x1f):"<none>", FTND_SS(fl), create);
     made_request = 0;
 
     for (tmpa = al; tmpa; tmpa = tmpa->next) {
@@ -491,7 +487,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 
     for (tmpf = st; tmpf; tmpf = tmpf->next)
 	Syslog('o',"flist: \"%s\" -> \"%s\" dsp:%d flofp:%u floff:%u",
-		MBSE_SS(tmpf->local), MBSE_SS(tmpf->remote), tmpf->disposition,
+		FTND_SS(tmpf->local), FTND_SS(tmpf->remote), tmpf->disposition,
 		(unsigned int)tmpf->flofp, (unsigned int)tmpf->floff);
 
     return st;
@@ -524,7 +520,7 @@ file_list *create_freqlist(fa_list *al)
     if (made_request) {
 	for (tmpf = st; tmpf; tmpf = tmpf->next)
 	    Syslog('o', "flist: \"%s\" -> \"%s\" dsp:%d flofp:%lu floff:%lu",
-			MBSE_SS(tmpf->local), MBSE_SS(tmpf->remote), tmpf->disposition, tmpf->flofp, tmpf->floff);
+			FTND_SS(tmpf->local), FTND_SS(tmpf->remote), tmpf->disposition, tmpf->flofp, tmpf->floff);
     }
 
     return st;
@@ -542,12 +538,12 @@ void tidy_filelist(file_list *fl, int dsf)
     for (tmp=fl;fl;fl=tmp) {
 	tmp=fl->next;
 	if (dsf && (fl->disposition == DSF)) {
-	    Syslog('o',"Removing sent file \"%s\"",MBSE_SS(fl->local));
+	    Syslog('o',"Removing sent file \"%s\"",FTND_SS(fl->local));
 	    if (unlink(fl->local) != 0) {
 		if (errno == ENOENT)
-		    Syslog('o',"Cannot unlink nonexistent file \"%s\"", MBSE_SS(fl->local));
+		    Syslog('o',"Cannot unlink nonexistent file \"%s\"", FTND_SS(fl->local));
 		else
-		    WriteError("$Cannot unlink file \"%s\"", MBSE_SS(fl->local));
+		    WriteError("$Cannot unlink file \"%s\"", FTND_SS(fl->local));
 	    }
 	}
 	if (fl->local) 
@@ -601,7 +597,7 @@ void execute_disposition(file_list *fl)
 	    }
 
 	    if (files_remain) {
-		Syslog('o', "Leaving flo-file \"%s\", %d files remaining", MBSE_SS(nm), files_remain);
+		Syslog('o', "Leaving flo-file \"%s\", %d files remaining", FTND_SS(nm), files_remain);
 		fl->disposition = LEAVE;
 	    } else {
 		fl->disposition = KFS;
@@ -614,7 +610,7 @@ void execute_disposition(file_list *fl)
 		if (fwrite(&tpl,1,1,fl->flofp) != 1) {
 		    WriteError("$Error writing '~' to .flo at %u", (unsigned int)fl->floff);
 		} else {
-		    Syslog('o', "Marked file \"%s\" as sent", MBSE_SS(nm));
+		    Syslog('o', "Marked file \"%s\" as sent", FTND_SS(nm));
 		}
 		fflush(fl->flofp);
 #ifdef HAVE_FDATASYNC
@@ -633,23 +629,23 @@ void execute_disposition(file_list *fl)
 	case DSF:
 	case LEAVE: break;
 
-	case TFS:   Syslog('o', "Truncating sent file \"%s\"",MBSE_SS(nm));
+	case TFS:   Syslog('o', "Truncating sent file \"%s\"",FTND_SS(nm));
 		    if ((fp=fopen(nm,"w"))) 
 			fclose(fp);
 		    else 
-			WriteError("$Cannot truncate file \"%s\"",MBSE_SS(nm));
+			WriteError("$Cannot truncate file \"%s\"",FTND_SS(nm));
 		    break;
 
-	case KFS:   Syslog('o', "Removing sent file \"%s\"",MBSE_SS(nm));
+	case KFS:   Syslog('o', "Removing sent file \"%s\"",FTND_SS(nm));
 		    if (unlink(nm) != 0) {
 			if (errno == ENOENT)
-			    Syslog('o', "Cannot unlink nonexistent file \"%s\"", MBSE_SS(nm));
+			    Syslog('o', "Cannot unlink nonexistent file \"%s\"", FTND_SS(nm));
 			else
-			    WriteError("$Cannot unlink file \"%s\"", MBSE_SS(nm));
+			    WriteError("$Cannot unlink file \"%s\"", FTND_SS(nm));
 		    }
 		    break;
 
-	default:    WriteError("execute_disposition: unknown disp %d for \"%s\"", fl->disposition,MBSE_SS(nm));
+	default:    WriteError("execute_disposition: unknown disp %d for \"%s\"", fl->disposition,FTND_SS(nm));
 		    break;
     }
 

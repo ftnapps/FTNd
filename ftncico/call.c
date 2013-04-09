@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: call.c,v 1.39 2005/09/12 13:47:09 mbse Exp $
+ * call.c
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "session.h"
 #include "callstat.h"
 #include "call.h"
@@ -67,9 +63,9 @@ int portopen(faddr *addr)
 	if ((rc = opentcp(inetaddr))) {
 	    Syslog('+', "Cannot connect %s", inetaddr);
 	    nodeulock(addr, mypid);
-	    return MBERR_NO_CONNECTION;
+	    return FTNERR_NO_CONNECTION;
 	}
-	return MBERR_OK;
+	return FTNERR_OK;
     }
 
     if (forcedline) {
@@ -81,19 +77,19 @@ int portopen(faddr *addr)
 	    if ((rc = openport(p, ttyinfo.portspeed))) {
 		Syslog('+', "Cannot open port %s",p);
 		nodeulock(addr, mypid);
-		putstatus(addr, 10, MBERR_PORTERROR);
-		return MBERR_PORTERROR;
+		putstatus(addr, 10, FTNERR_PORTERROR);
+		return FTNERR_PORTERROR;
 	    }
-	    return MBERR_OK;
+	    return FTNERR_OK;
 	} else {
 	    nodeulock(addr, mypid);
-	    putstatus(addr, 0, MBERR_PORTERROR);
-	    return MBERR_PORTERROR;
+	    putstatus(addr, 0, FTNERR_PORTERROR);
+	    return FTNERR_PORTERROR;
 	}
     }
 
     WriteError("No call method available, maybe missing parameters");
-    return MBERR_NO_CONNECTION;
+    return FTNERR_NO_CONNECTION;
 }
 
 
@@ -109,15 +105,15 @@ int call(faddr *addr)
      */
     if (nodelock(addr, mypid)) {
 	Syslog('+', "System %s is locked", ascfnode(addr, 0x1f));
-	putstatus(addr, 0, MBERR_NODE_LOCKED);
-	return MBERR_NODE_LOCKED;
+	putstatus(addr, 0, FTNERR_NODE_LOCKED);
+	return FTNERR_NODE_LOCKED;
     }
 
     if ((nlent = getnlent(addr)) == NULL) {
 	WriteError("Cannot call %s: fatal in nodelist lookup", ascfnode(addr, 0x1f));
-	putstatus(addr,10,MBERR_NODE_NOT_IN_LIST);
+	putstatus(addr,10,FTNERR_NODE_NOT_IN_LIST);
 	nodeulock(addr, mypid);
-	return MBERR_NODE_NOT_IN_LIST;
+	return FTNERR_NODE_NOT_IN_LIST;
     }
 
     /*
@@ -125,9 +121,9 @@ int call(faddr *addr)
      */
     if (nlent->url == NULL) {
 	WriteError("Cannot call %s: no dialmethod available in nodelist", ascfnode(addr, 0x1f));
-	putstatus(addr,10,MBERR_NODE_NOT_IN_LIST);
+	putstatus(addr,10,FTNERR_NODE_NOT_IN_LIST);
 	nodeulock(addr, mypid);
-	return MBERR_NODE_NOT_IN_LIST;
+	return FTNERR_NODE_NOT_IN_LIST;
     }
 
     /*
@@ -186,7 +182,7 @@ int call(faddr *addr)
 
 	if (inetaddr == NULL) {
 	    WriteError("No IP address, abort call");
-	    rc = MBERR_NO_IP_ADDRESS;
+	    rc = FTNERR_NO_IP_ADDRESS;
 	    putstatus(addr, 10, rc);
 	    nodeulock(addr, mypid);
 	    return rc;
@@ -223,14 +219,14 @@ int call(faddr *addr)
 	IsDoing("Call %s", ascfnode(addr, 0x0f));
 	rc = portopen(addr);
 
-	if ((rc == MBERR_OK) && (forcedphone)) {
+	if ((rc == FTNERR_OK) && (forcedphone)) {
 	    if ((rc = dialphone(forcedphone))) {
 		Syslog('+', "Dial failed");
 		nodeulock(addr, mypid);
 	    } 
 	}
 
-	if (rc == MBERR_OK) {
+	if (rc == FTNERR_OK) {
 	    if (!inetaddr)
 		nolocalport();
 
@@ -259,16 +255,16 @@ int call(faddr *addr)
 	}
     } else {
 	IsDoing("NoCall");
-	Syslog('+', "Cannot call %s (%s)", ascfnode(addr,0x1f), MBSE_SS(nlent->name));
-	rc = MBERR_NO_CONNECTION;
+	Syslog('+', "Cannot call %s (%s)", ascfnode(addr,0x1f), FTND_SS(nlent->name));
+	rc = FTNERR_NO_CONNECTION;
 	putstatus(addr, 10, rc);
 	nodeulock(addr, mypid);
 	return rc;
     }
 
-    if ((rc == MBERR_NOT_ZMH) || (rc == MBERR_SESSION_ERROR))  /* Session error */
+    if ((rc == FTNERR_NOT_ZMH) || (rc == FTNERR_SESSION_ERROR))  /* Session error */
 	putstatus(addr, 5, rc);
-    else if ((rc == MBERR_NO_CONNECTION) || (rc == MBERR_UNKNOWN_SESSION) || (rc == MBERR_FTRANSFER))
+    else if ((rc == FTNERR_NO_CONNECTION) || (rc == FTNERR_UNKNOWN_SESSION) || (rc == FTNERR_FTRANSFER))
 	putstatus(addr,1,rc);
     else
 	putstatus(addr,0,rc);

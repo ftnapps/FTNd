@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: emsi.c,v 1.26 2007/08/26 12:21:16 mbse Exp $
+ * emsi.c
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "ttyio.h"
 #include "session.h"
 #include "statetbl.h"
@@ -103,7 +99,7 @@ int rx_emsi(char *data)
     caller=0;
 
     if ((rc=rxemsi())) 
-	return MBERR_EMSI;
+	return FTNERR_EMSI;
 
     Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
     Syslog('i', "remote lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_remote_lcodes,emsi_remote_protos,emsi_remote_opts);
@@ -167,19 +163,19 @@ int rx_emsi(char *data)
 	    Syslog('+', "Password correct, protected EMSI session");
 	} else {
 	    denypw = 1;
-	    Syslog('?', "Remote password \"%s\", expected \"%s\"", MBSE_SS(emsi_remote_password), nodes.Spasswd);
+	    Syslog('?', "Remote password \"%s\", expected \"%s\"", FTND_SS(emsi_remote_password), nodes.Spasswd);
 	    emsi_local_password = xstrcpy((char *)"BAD_PASS");
 	    emsi_local_lcodes = LCODE_HAT;
 	}
     } else {
-	Syslog('?', "Unexpected remote password \"%s\"", MBSE_SS(emsi_local_password));
+	Syslog('?', "Unexpected remote password \"%s\"", FTND_SS(emsi_local_password));
     }
 
     inbound_open(remote->addr, protect, FALSE);
     Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
     if ((rc=txemsi())) 
-	return MBERR_EMSI;
+	return FTNERR_EMSI;
 
     if (denypw || (emsi_local_protos == 0)) {
 	Syslog('+', "Refusing remote: %s", emsi_local_protos?"bad password presented": "no common protocols");
@@ -239,10 +235,10 @@ int tx_emsi(char *data)
     Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
     if ((rc=txemsi())) 
-	return MBERR_EMSI;
+	return FTNERR_EMSI;
     else {
 	if ((rc=rxemsi())) 
-	    return MBERR_EMSI;
+	    return FTNERR_EMSI;
     }
 
     if ((emsi_remote_opts & OPT_EII) == 0) {
@@ -253,7 +249,7 @@ int tx_emsi(char *data)
 
     if ((emsi_remote_protos == 0) || (emsi_remote_lcodes & LCODE_HAT)) {
 	Syslog('+', "Remote refused us: %s", emsi_remote_protos?"traffic held":"no common protos");
-	return MBERR_SESSION_ERROR;
+	return FTNERR_SESSION_ERROR;
     }
 
     IsDoing("EMSI %s out", ascfnode(remote->addr, 0x0f));

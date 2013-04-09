@@ -1,30 +1,26 @@
 /*****************************************************************************
  *
- * $Id: tcpproto.c,v 1.19 2005/10/11 20:49:46 mbse Exp $
+ * tcpproto.c
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
@@ -33,7 +29,7 @@
 */
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "ttyio.h"
 #include "session.h"
@@ -86,7 +82,7 @@ int tcpsndfiles(file_list *lst)
 
     if (getsync()) {
 	WriteError("TCP: can't get synchronization");
-	return MBERR_FTRANSFER;
+	return FTNERR_FTRANSFER;
     }
 
     for (tmpf = lst; tmpf && (maxrc == 0); tmpf = tmpf->next) {
@@ -112,7 +108,7 @@ int tcpsndfiles(file_list *lst)
 
     if (rc) {
 	WriteError("TCP: send error: rc=%d",maxrc);
-	return MBERR_FTRANSFER;
+	return FTNERR_FTRANSFER;
     } 
     
     Syslog('+', "TCP: send files completed");
@@ -130,7 +126,7 @@ int tcprcvfiles(void)
     Syslog('+', "TCP: start receive files");
     if (getsync()) {
 	WriteError("TCP: can't get synchronization");
-	return MBERR_FTRANSFER;
+	return FTNERR_FTRANSFER;
     }
 
 next:
@@ -168,7 +164,7 @@ next:
 
     if (rc) {
 	WriteError("TCP: receive error: rc=%d", rc);
-	return MBERR_FTRANSFER;
+	return FTNERR_FTRANSFER;
     }
 
     Syslog('+', "TCP: receive files completed");
@@ -193,28 +189,28 @@ static int sendtfile(char *ln, char *rn)
     if ((in = fopen(ln,"r")) == NULL) {
 	sverr = errno;
 	if ((sverr == ENOENT) || (sverr == EINVAL)) {
-	    Syslog('+', "TCP: file %s doesn't exist, removing", MBSE_SS(ln));
+	    Syslog('+', "TCP: file %s doesn't exist, removing", FTND_SS(ln));
 	    return 0;
 	} else {
-	    WriteError("$TCP: can't open file %s, skipping", MBSE_SS(ln));
+	    WriteError("$TCP: can't open file %s, skipping", FTND_SS(ln));
 	    return 1;
 	}
     }
 
     if (fcntl(fileno(in), F_SETLK, &fl) != 0) {
-	WriteError("$TCP: can't lock file %s, skipping", MBSE_SS(ln));
+	WriteError("$TCP: can't lock file %s, skipping", FTND_SS(ln));
 	fclose(in);
 	return 1;
     }
 
     if (stat(ln, &st) != 0) {
-	WriteError("$TCP: can't access \"%s\", skipping", MBSE_SS(ln));
+	WriteError("$TCP: can't access \"%s\", skipping", FTND_SS(ln));
 	fclose(in);
 	return 1;
     }
 	
     if (st.st_size > 0) {
-	Syslog('+', "TCP: send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
+	Syslog('+', "TCP: send \"%s\" as \"%s\"", FTND_SS(ln), FTND_SS(rn));
 	Syslog('+', "TCP: size %lu bytes, dated %s", (unsigned int)st.st_size, date(st.st_mtime));
 	gettimeofday(&starttime, &tz);
     } else {
