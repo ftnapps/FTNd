@@ -1,7 +1,7 @@
-#ifndef _MBFREARC_H
-#define _MBFREARC_H
+#ifndef _FTNFREARC_H
+#define _FTNFREARC_H
 
-/* $Id: mbfrearc.h,v 1.1 2004/03/08 20:51:05 mbroek Exp $ */
+/* ftnfrearc.h */
 
 void ReArc(int, char *);
 

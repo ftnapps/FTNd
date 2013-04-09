@@ -1,7 +1,7 @@
-#ifndef _MBFCHECK_H
-#define _MBFCHECK_H
+#ifndef _FTNFCHECK_H
+#define _FTNFCHECK_H
 
-/* $Id: mbfcheck.h,v 1.3 2005/10/11 20:49:47 mbse Exp $ */
+/* ftncheck.h */
 
 void	Check(int);			/* Check file database		*/
 

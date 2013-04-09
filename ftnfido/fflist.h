@@ -1,7 +1,7 @@
 #ifndef _FFLIST_H_
 #define _FFLIST_H
 
-/* $Id: fflist.h,v 1.3 2007/10/15 12:48:11 mbse Exp $ */
+/* fflist.h */
 
 typedef struct _ff_list {		/* Filefind array		   */
 	struct _ff_list	*next;

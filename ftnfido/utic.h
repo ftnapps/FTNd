@@ -1,7 +1,7 @@
 #ifndef	_UTIC_H
 #define	_UTIC_H
 
-/* $Id: utic.h,v 1.3 2005/12/03 14:52:35 mbse Exp $ */
+/* utic.h */
 
 char *MakeTicName(void);
 int  Day_Of_Year(void);

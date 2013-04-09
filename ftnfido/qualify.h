@@ -1,7 +1,7 @@
 #ifndef _QUALIFY_H
 #define _QUALIFY_H
 
-/* $Id: qualify.h,v 1.1 2002/11/20 18:41:15 mbroek Exp $ */
+/* qualify.h */
 
 /*
  *  Structure for qualified systems to receive a echomail message/tic file

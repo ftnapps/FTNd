@@ -1,7 +1,7 @@
 #ifndef _MSGFLAGS_H
 #define	_MSGFLAGS_H
 
-/* $Id: msgflags.h,v 1.1 2002/06/30 12:48:46 mbroek Exp $ */
+/* msgflags.h */
 
 int     flag_on(char *,char *);
 int     flagset(char *);

@@ -1,7 +1,7 @@
 #ifndef _TIC_H
 #define _TIC_H
 
-/* $Id: tic.h,v 1.7 2005/11/12 12:52:30 mbse Exp $ */
+/* tic.h */
 
 
 typedef	struct	_tic_in {

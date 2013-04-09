@@ -1,7 +1,7 @@
-/* $Id: mbflist.h,v 1.2 2001/11/25 14:13:55 mbroek Exp $ */
+/* ftnflist.h */
 
-#ifndef _MBFLIST_H_
-#define _MBFLIST_H
+#ifndef _FTNFLIST_H_
+#define _FTNFLIST_H
 
 void	ListFileAreas(int);		/* List fileareas		*/
 

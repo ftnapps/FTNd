@@ -1,5 +1,5 @@
-#ifndef _MBFIFF_H
-#define	_MBDIFF_H
+#ifndef _FTNFIFF_H
+#define	_FTNDIFF_H
 
 
 void	Help(void);

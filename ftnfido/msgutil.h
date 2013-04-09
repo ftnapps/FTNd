@@ -1,4 +1,4 @@
-/* $Id: msgutil.h,v 1.5 2007/03/05 12:25:20 mbse Exp $ */
+/* msgutil.h */
 
 #ifndef	_MSGUTIL_H
 #define	_MSGUTIL_H

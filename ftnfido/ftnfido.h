@@ -1,7 +1,7 @@
-#ifndef _MBFIDO_H
-#define _MBFIDO_H
+#ifndef _FTNFIDO_H
+#define _FTNFIDO_H
 
-/* $Id: mbfido.h,v 1.2 2005/08/10 18:57:22 mbse Exp $ */
+/* ftnfido.h */
 
 void	Help(void);
 void	ProgName(void);

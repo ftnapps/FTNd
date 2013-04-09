@@ -1,5 +1,5 @@
-#ifndef _MBSEQ_H
-#define	_MBSEQ_H
+#ifndef _FTNSEQ_H
+#define	_FTNSEQ_H
 
 
 #endif

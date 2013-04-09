@@ -1,7 +1,7 @@
-/* $Id: mbfpack.h,v 1.2 2003/11/08 15:30:04 mbroek Exp $ */
+/* ftnfpack.h */
 
-#ifndef _MBFPACK_H
-#define _MBFPACK_H
+#ifndef _FTNFPACK_H
+#define _FTNFPACK_H
 
 void	PackFileBase(void);		/* Pack / Compress File Base	*/
 

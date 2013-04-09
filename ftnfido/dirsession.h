@@ -1,7 +1,7 @@
 #ifndef _DIRSESSION_H
 #define _DIRSESSION_H
 
-/* $Id: dirsession.h,v 1.4 2002/11/11 12:56:19 mbroek Exp $ */
+/* dirsession.h */
 
 
 int  islocked(char *, int, int, int);	/* Is directory locked	    */

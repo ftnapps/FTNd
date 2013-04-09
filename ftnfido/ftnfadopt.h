@@ -1,7 +1,7 @@
-/* $Id: mbfadopt.h,v 1.1 2001/11/18 23:19:08 mbroek Exp $ */
+/* ftnfadopt.h */
 
-#ifndef _MBFADOPT_H_
-#define _MBFADOPT_H
+#ifndef _FTNFADOPT_H_
+#define _FTNFADOPT_H
 
 void	AdoptFile(int, char *, char *);
 

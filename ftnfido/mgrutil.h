@@ -1,4 +1,4 @@
-/* $Id: mgrutil.h,v 1.10 2005/08/28 12:54:10 mbse Exp $ */
+/* mgrutil.h */
 
 #ifndef	_MGRUTIL_H
 #define	_MGRUTIL_H
