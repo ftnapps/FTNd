@@ -1,4 +1,4 @@
-/* $Id: filelist.h,v 1.4 2005/10/11 20:49:46 mbse Exp $ */
+/* filelist.h, */
 
 #ifndef	_FILELIST_H
 #define	_FILELIST_H

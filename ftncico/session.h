@@ -1,4 +1,4 @@
-/* $Id: session.h,v 1.10 2007/04/30 19:04:18 mbse Exp $ */
+/* session.h,v  */
 
 #ifndef _SESSION_H
 #define _SESSION_H

@@ -1,7 +1,7 @@
 #ifndef ZMODEM_H
 #define ZMODEM_H
 
-/* $Id: zmodem.h,v 1.2 2005/10/11 20:49:46 mbse Exp $ */
+/* zmodem.h */
 
 #ifndef TRUE
 #define TRUE 1

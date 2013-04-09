@@ -1,4 +1,4 @@
-/* $Id: hydra.h,v 1.4 2003/10/22 21:11:40 mbroek Exp $ */
+/* hydra.h,v  */
 /* 
  * As this file has been derived from the HydraCom source, here is the
  * original copyright information:
@@ -6,7 +6,7 @@
  * Note that you can find the file LICENSE.DOC from HydraCom in
  * misc/HYDRACOM-LICENSE
  *
- * Some changes are made in this file to customize for use with MBSE BBS.
+ * Some changes are made in this file to customize for use with FTNd.
  * There are also some extensions not in the original Hydra code for zlib
  * packet compression of data packets.
  */

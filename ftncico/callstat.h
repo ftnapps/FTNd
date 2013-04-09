@@ -1,4 +1,4 @@
-/* $Id: callstat.h,v 1.4 2005/10/16 12:13:20 mbse Exp $ */
+/* callstat.h */
 
 #ifndef CALLSTAT_H
 #define CALLSTAT_H

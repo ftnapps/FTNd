@@ -1,7 +1,7 @@
 #ifndef MD5B_H
 #define	MD5B_H
 
-/* $Id: md5b.h,v 1.2 2005/10/11 20:49:46 mbse Exp $ */
+/* md5b.h */
 
 /* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
 rights reserved.

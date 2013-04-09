@@ -1,7 +1,7 @@
 #ifndef LUTIL_H
 #define LUTIL_H
 
-/* $Id: lutil.h,v 1.4 2005/10/11 20:49:46 mbse Exp $ */
+/* lutil.h */
 
 void		setmyname(char *);
 char		*date(time_t);

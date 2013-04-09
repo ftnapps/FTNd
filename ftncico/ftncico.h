@@ -1,7 +1,7 @@
-#ifndef	_MBCICO_H
-#define	_MBCICO_H
+#ifndef	_FTNCICO_H
+#define	_FTNCICO_H
 
-/* $Id: mbcico.h,v 1.3 2003/11/30 14:36:53 mbroek Exp $ */
+/* ftncico.h */
 
 
 void usage(void);

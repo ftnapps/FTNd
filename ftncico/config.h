@@ -1,7 +1,7 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-/* $Id: config.h,v 1.3 2005/10/11 20:49:46 mbse Exp $ */
+/* config.h */
 
 extern int  configtime;
 extern int  maxfsize;

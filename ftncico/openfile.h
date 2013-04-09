@@ -1,4 +1,4 @@
-/* $Id: openfile.h,v 1.2 2003/08/23 14:57:52 mbroek Exp $ */
+/* openfile.h */
 
 #ifndef	_OPENFILE_H
 #define	_OPENFILE_H

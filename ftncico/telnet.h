@@ -1,7 +1,7 @@
 #ifndef	_TELNET_H
 #define	_TELNET_H
 
-/* $Id: telnet.h,v 1.2 2004/02/01 21:17:40 mbroek Exp $ */
+/* telnet.h */
 
 
 #define TOPT_BIN                0

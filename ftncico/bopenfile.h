@@ -1,4 +1,4 @@
-/* $Id: bopenfile.h,v 1.1 2005/09/12 13:47:09 mbse Exp $ */
+/* bopenfile.h */
 
 #ifndef	_BOPENFILE_H
 #define	_BOPENFILE_H
