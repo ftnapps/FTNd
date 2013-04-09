@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: rawio.c,v 1.11 2005/10/11 20:49:46 mbse Exp $
+ * rawio.c
  * Purpose ...............: Raw I/O routines.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 
 
 int rawset = FALSE;
@@ -38,14 +34,14 @@ int rawset = FALSE;
 /*
  * Sets raw mode and saves the terminal setup
  */
-void mbse_Setraw()
+void ftnd_Setraw()
 {
     int	rc;
 
     if ((rc = tcgetattr(ttyfd, &tbufs))) {
 	perror("");
 	printf("$tcgetattr(0, save) return %d\n", rc);
-	exit(MBERR_TTYIO_ERROR);
+	exit(FTNERR_TTYIO_ERROR);
     }
 
     tbufsavs = tbufs;
@@ -61,7 +57,7 @@ void mbse_Setraw()
     if ((rc = tcsetattr(ttyfd, TCSADRAIN, &tbufs))) {
 	perror("");
 	printf("$tcsetattr(%d, TCSADRAIN, raw) return %d\n", ttyfd, rc);
-	exit(MBERR_TTYIO_ERROR);
+	exit(FTNERR_TTYIO_ERROR);
     }
 
     rawset = TRUE;
@@ -72,7 +68,7 @@ void mbse_Setraw()
 /*
  * Unsets raw mode and returns state of terminal
  */
-void mbse_Unsetraw()
+void ftnd_Unsetraw()
 {
     int	rc;
 
@@ -83,7 +79,7 @@ void mbse_Unsetraw()
 	if ((rc = tcsetattr(ttyfd, TCSAFLUSH, &tbufsavs))) {
 	    perror("");
 	    printf("$tcsetattr(%d, TCSAFLUSH, save) return %d\n", ttyfd, rc);
-	    exit(MBERR_TTYIO_ERROR);
+	    exit(FTNERR_TTYIO_ERROR);
 	}
     }
     rawset = FALSE;
@@ -95,19 +91,19 @@ void mbse_Unsetraw()
  * This function is used to get a single character from a user ie for a 
  * menu option
  */
-unsigned char mbse_Getone()
+unsigned char ftnd_Getone()
 {
     unsigned char   c = 0;
 
     if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
 	perror("open 8");
-	exit(MBERR_TTYIO_ERROR);
+	exit(FTNERR_TTYIO_ERROR);
     }
-    mbse_Setraw();
+    ftnd_Setraw();
 
-    c = mbse_Readkey();
+    c = ftnd_Readkey();
 
-    mbse_Unsetraw();
+    ftnd_Unsetraw();
     close(ttyfd);
     return(c);
 }
@@ -117,7 +113,7 @@ unsigned char mbse_Getone()
 /*
  * Read the (locked) speed from the tty
  */
-int mbse_Speed(void)
+int ftnd_Speed(void)
 {
 	speed_t		mspeed;
 
@@ -227,7 +223,7 @@ int mbse_Speed(void)
 /*
  *  Wait for a character for a maximum of wtime * 10 mSec.
  */
-int mbse_Waitchar(unsigned char *ch, int wtime)
+int ftnd_Waitchar(unsigned char *ch, int wtime)
 {
 	int	i, rc = -1;
 
@@ -242,7 +238,7 @@ int mbse_Waitchar(unsigned char *ch, int wtime)
 
 
 
-int mbse_Escapechar(unsigned char *ch)
+int ftnd_Escapechar(unsigned char *ch)
 {
     int		    rc;
     unsigned char   c;
@@ -251,7 +247,7 @@ int mbse_Escapechar(unsigned char *ch)
      * Escape character, if nothing follows within 
      * 50 mSec, the user really pressed <esc>.
      */
-    if ((rc = mbse_Waitchar(ch, 5)) == -1)
+    if ((rc = ftnd_Waitchar(ch, 5)) == -1)
 	return rc;
 
     if (*ch == '[') {
@@ -259,7 +255,7 @@ int mbse_Escapechar(unsigned char *ch)
 	 *  Start of CSI sequence. If nothing follows,
 	 *  return immediatly.
 	 */
-	if ((rc = mbse_Waitchar(ch, 5)) == -1)
+	if ((rc = ftnd_Waitchar(ch, 5)) == -1)
 	    return rc;
 
 	/*
@@ -303,13 +299,13 @@ int mbse_Escapechar(unsigned char *ch)
  *  If for example cursur keys are detected, this function returns
  *  a translated value.
  */
-unsigned char mbse_Readkey(void)
+unsigned char ftnd_Readkey(void)
 {
     unsigned char   ch = 0;
     int		    rc = -1;
 
     while (rc == -1) {
-	rc = mbse_Waitchar(&ch, 5);
+	rc = ftnd_Waitchar(&ch, 5);
 
 	/*
 	 * If the character is not an Escape character,
@@ -319,7 +315,7 @@ unsigned char mbse_Readkey(void)
 	    return ch;
 
 	if ((rc == 1) && (ch == KEY_ESCAPE)) {
-	    rc = mbse_Escapechar(&ch);
+	    rc = ftnd_Escapechar(&ch);
 	    if (rc == 1)
 		return ch;
 	    else

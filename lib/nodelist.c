@@ -3,32 +3,28 @@
  * Purpose ...............: Read nodelists information
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 #include "nodelist.h"
 
 
@@ -90,7 +86,7 @@ static int getkwd(char **dest)
 	p++;
     if (*p == '\0') {
 	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
+	return FTNERR_INIT_ERROR;
     }
 
     for (tmpm = (nodelist_flag**)dest; *tmpm; tmpm=&((*tmpm)->next));
@@ -121,7 +117,7 @@ static int getmdm(char **dest)
 	p++;
     if (*p == '\0') {
 	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
+	return FTNERR_INIT_ERROR;
     }
 
     for (q = p; *q && !isspace(*q); q++);
@@ -131,7 +127,7 @@ static int getmdm(char **dest)
 	q++;
     if (*q == '\0') {
 	WriteError("%s(%s): less then three tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
+	return FTNERR_INIT_ERROR;
     }
 
     for (tmpm = (nodelist_modem**)dest; *tmpm; tmpm=&((*tmpm)->next));
@@ -185,7 +181,7 @@ static int getdom(char **dest)
 	p++;
     if (*p == '\0') {
 	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
+	return FTNERR_INIT_ERROR;
     }
 
     for (tmpm = (nodelist_domsuf**)dest; *tmpm; tmpm=&((*tmpm)->next));
@@ -216,7 +212,7 @@ static int getsrv(char **dest)
 	p++;
     if (*p == '\0') {
 	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
+	return FTNERR_INIT_ERROR;
     }
 
     for (q = p; *q && !isspace(*q); q++);
@@ -226,7 +222,7 @@ static int getsrv(char **dest)
 	q++;
     if (*q == '\0') {
 	WriteError("%s(%s): less then three tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
+	return FTNERR_INIT_ERROR;
     }
 
     for (tmpm = (nodelist_service**)dest; *tmpm; tmpm=&((*tmpm)->next));
@@ -384,13 +380,13 @@ int initnl(void)
      */
     if ((dbf = fopen(filexnm, "r")) == NULL) {
 	WriteError("$Can't open %s", filexnm);
-	rc = MBERR_INIT_ERROR;
+	rc = FTNERR_INIT_ERROR;
     } else {
 	while (fread(&fdx, sizeof(fdx), 1, dbf) == 1) {
 	    snprintf(nlpath, PATH_MAX -1, "%s/%s", CFG.nodelists, fdx.filename);
 	    if ((fp = fopen(nlpath, "r")) == NULL) {
 		WriteError("$Can't open %s", nlpath);
-		rc = MBERR_INIT_ERROR;
+		rc = FTNERR_INIT_ERROR;
 	    } else {
 		fclose(fp);
 	    }
@@ -403,16 +399,16 @@ int initnl(void)
     /*
      * Read and parse ~/etc/nodelist.conf
      */
-    snprintf(nlpath, PATH_MAX -1, "%s/etc/nodelist.conf", getenv("MBSE_ROOT"));
+    snprintf(nlpath, PATH_MAX -1, "%s/etc/nodelist.conf", getenv("FTND_ROOT"));
     if ((dbf = fopen(nlpath, "r")) == NULL) {
 	WriteError("$Can't open %s", nlpath);
-	rc = MBERR_INIT_ERROR;
+	rc = FTNERR_INIT_ERROR;
     } else {
 	while (fgets(buf, sizeof(buf) -1, dbf)) {
 	    linecnt++;
 	    if (*(p = buf + strlen(buf) -1) != '\n') {
 		WriteError("%s(%d): \"%s\" - line too long", nlpath, linecnt, buf);
-		rc = MBERR_INIT_ERROR;
+		rc = FTNERR_INIT_ERROR;
 		break;
 	    }
 	    *p-- = '\0';
@@ -438,11 +434,11 @@ int initnl(void)
 		    break;
 
 	    if (keytab[i].key == NULL) {
-		WriteError("%s(%d): %s %s - unknown keyword", nlpath, linecnt, MBSE_SS(k), MBSE_SS(v));
-		rc = MBERR_INIT_ERROR;
+		WriteError("%s(%d): %s %s - unknown keyword", nlpath, linecnt, FTND_SS(k), FTND_SS(v));
+		rc = FTNERR_INIT_ERROR;
 		break;
 	    } else if ((keytab[i].prc(keytab[i].dest))) {
-		rc = MBERR_INIT_ERROR;
+		rc = FTNERR_INIT_ERROR;
 		break;
 	    }
 	}
@@ -452,7 +448,7 @@ int initnl(void)
     /*
      * Howmany TCP sessions are allowd
      */
-    snprintf(nlpath, PATH_MAX -1, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    snprintf(nlpath, PATH_MAX -1, "%s/etc/task.data", getenv("FTND_ROOT"));
     if ((fp = fopen(nlpath, "r"))) {
 	fread(&TCFG, sizeof(TCFG), 1, fp);
 	fclose(fp);
@@ -480,7 +476,7 @@ int initnl(void)
      * All lines are ORed so we have a global and total lines
      * capability.
      */
-    snprintf(nlpath, PATH_MAX -1, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    snprintf(nlpath, PATH_MAX -1, "%s/etc/ttyinfo.data", getenv("FTND_ROOT"));
     if ((fp = fopen(nlpath, "r"))) {
 	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
 
@@ -599,7 +595,7 @@ node *getnlent(faddr *addr)
      * Search domainname for the requested aka, should not fail.
      */
     path = calloc(PATH_MAX, sizeof(char));
-    snprintf(path, PATH_MAX -1, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    snprintf(path, PATH_MAX -1, "%s/etc/fidonet.data", getenv("FTND_ROOT"));
     if ((fp = fopen(path, "r"))) {
 	fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
 	while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
@@ -699,7 +695,7 @@ node *getnlent(faddr *addr)
      * nodelist overrides in this record will be used instead of 
      * the nodelist entries.
      */
-    snprintf(path, PATH_MAX -1, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(path, PATH_MAX -1, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((np = fopen(path, "r")) != NULL) {
 	fread(&ndhdr, sizeof(nodeshdr), 1, np);
 
@@ -1028,7 +1024,7 @@ node *getnlent(faddr *addr)
 				r++;
 			    }
 			    if (*r == '*') {
-				Syslog('n', "getnlent: possible default domain marking \"%s\"", MBSE_SS(r));
+				Syslog('n', "getnlent: possible default domain marking \"%s\"", FTND_SS(r));
 				for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 				    if ((*tmpd)->zone == nodebuf.addr.zone) {
 					if (*r++ == '\0')
@@ -1047,7 +1043,7 @@ node *getnlent(faddr *addr)
 				Syslog('n', "getnlent: no matching default domain found for zone %d", nodebuf.addr.zone);
 			    }
 			    if (strchr(r, '.')) {
-				Syslog('n', "getnlent: found a FQDN \"%s\"", MBSE_SS(r));
+				Syslog('n', "getnlent: found a FQDN \"%s\"", FTND_SS(r));
 				snprintf(tbuf, 256, "%s", r);
 				nodebuf.url = xstrcat(nodebuf.url, tbuf);
 				break;

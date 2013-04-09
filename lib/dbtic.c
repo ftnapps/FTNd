@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: dbtic.c,v 1.9 2005/10/11 20:49:42 mbse Exp $
+ * dbtic.c
  * Purpose ...............: Tic areas record Access
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 #include "users.h"
-#include "mbsedb.h"
+#include "ftnddb.h"
 
 
 
@@ -54,7 +50,7 @@ int InitTic(void)
 	LoadConfig();
 	sysstart = -1;
 
-	snprintf(tic_fil, PATH_MAX -1, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(tic_fil, PATH_MAX -1, "%s/etc/tic.data", getenv("FTND_ROOT"));
 	if ((fil = fopen(tic_fil, "r")) == NULL)
 		return FALSE;
 
@@ -63,7 +59,7 @@ int InitTic(void)
 	tic_cnt = (ftell(fil) - tichdr.hdrsize) / (tichdr.recsize + tichdr.syssize);
 	fclose(fil);
 
-	snprintf(tgrp_fil, PATH_MAX -1, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(tgrp_fil, PATH_MAX -1, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
 	return TRUE;
 }
 

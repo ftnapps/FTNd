@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: rearc.c,v 1.7 2008/11/26 21:40:54 mbse Exp $
+ * rearc.c
  * Purpose ...............: ReArc an archive.
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 
 
 /*
@@ -44,14 +40,14 @@ int rearc(char *filename, char *arctype, int do_quiet)
     Syslog('f', "rearc(%s, %s)", filename, arctype);
 
     if (!do_quiet) {
-        mbse_colour(LIGHTRED, BLACK);
+        ftnd_colour(LIGHTRED, BLACK);
         printf("    ReArc file %s   ", filename);
 	fflush(stdout);
     }
 
     if (strchr(filename, '/') == NULL) {
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" no path in filename\n");
 	}
 	Syslog('+', "rearc(%s, %s), no path in filename", filename, arctype);
@@ -60,7 +56,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if ((unarc = unpacker(filename)) == NULL) {
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" unknown archive type\n");
 	}
         return -1;
@@ -68,7 +64,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (!getarchiver(unarc)) {
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" no unarchiver available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no unarchiver available", filename, arctype);
@@ -77,7 +73,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (strlen(archiver.funarc) == 0) {
         if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" no unarchive command available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no unarchive command available", filename, arctype);
@@ -93,7 +89,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (!getarchiver(arctype)) {
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" no archiver available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no archiver available", filename, arctype);
@@ -104,7 +100,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (strcmp(unarc, archiver.name) == 0) {
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" already in %s format\n", arctype);
 	}
 	Syslog('+', "rearc(%s, %s), already in %s format", filename, arctype, arctype);
@@ -118,7 +114,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (strlen(archiver.farc) == 0) {
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" no archive command available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no archive command available", filename, arctype);
@@ -135,7 +131,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     oldpath = calloc(PATH_MAX, sizeof(char));
     temp = calloc(PATH_MAX, sizeof(char));
     getcwd(oldpath, PATH_MAX);
-    snprintf(workpath, PATH_MAX -1, "%s/tmp/rearc%d", getenv("MBSE_ROOT"), getpid());
+    snprintf(workpath, PATH_MAX -1, "%s/tmp/rearc%d", getenv("FTND_ROOT"), getpid());
     snprintf(temp, PATH_MAX -1, "%s/%s", workpath, filename);
     rc = mkdirs(temp, 0755) ? 0 : -1;
     if (rc == 0) {
@@ -145,7 +141,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     }
 
     if (!do_quiet) {
-	mbse_colour(LIGHTCYAN, BLACK);
+	ftnd_colour(LIGHTCYAN, BLACK);
 	printf("\rUnpacking file %s   ", filename);
 	fflush(stdout);
     }
@@ -160,7 +156,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     }
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGREEN, BLACK);
+	ftnd_colour(LIGHTGREEN, BLACK);
 	printf("\r  Packing file %s   ", newname);
     }
 

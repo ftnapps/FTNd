@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: dbfdb.c,v 1.29 2007/03/03 14:28:40 mbse Exp $
+ * dbfdb.c
  * Purpose ...............: Files database functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 #include "users.h"
-#include "mbsedb.h"
+#include "ftnddb.h"
 
 
 
@@ -40,7 +36,7 @@
  *  Open files database Area number. Do some checks and abort
  *  if they fail.
  */
-struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
+struct _fdbarea *ftnddb_OpenFDB(int Area, int Timeout)
 {
     char	    *temp, *temp2;
     struct _fdbarea *fdb_area = NULL;
@@ -50,7 +46,7 @@ struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
     temp = calloc(PATH_MAX, sizeof(char));
     fdb_area = malloc(sizeof(struct _fdbarea));	    /* Will be freed by CloseFDB */
 
-    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), Area);
 
     /*
      * Open the file database, if it's locked, just wait.
@@ -89,7 +85,7 @@ struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
     if ((fdbhdr.hdrsize == sizeof(fdbhdr)) && (fdbhdr.recsize == (sizeof(fdb) + 4))) {
 	Syslog('+', "Files area %d database 64/32 bit alignment error, fixing...", Area);
 	temp2 = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp2, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("MBSE_ROOT"), Area);
+	snprintf(temp2, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("FTND_ROOT"), Area);
 	if ((fp2 = fopen(temp2, "w+"))) {
 	    fdbhdr.recsize = (sizeof(fdb));
 	    fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp2);
@@ -151,7 +147,7 @@ struct _fdbarea *mbsedb_OpenFDB(int Area, int Timeout)
 /*
  *  Close current open file area
  */
-int mbsedb_CloseFDB(struct _fdbarea *fdb_area)
+int ftnddb_CloseFDB(struct _fdbarea *fdb_area)
 {
     fclose(fdb_area->fp);
     free(fdb_area);
@@ -163,7 +159,7 @@ int mbsedb_CloseFDB(struct _fdbarea *fdb_area)
 /*
  *  Lock Files DataBase
  */
-int mbsedb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
+int ftnddb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
 {
     int		    rc, Tries = 0;
     struct flock    fl;
@@ -198,7 +194,7 @@ int mbsedb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
 /*
  *  Unlock Files DataBase
  */
-int mbsedb_UnlockFDB(struct _fdbarea *fdb_area)
+int ftnddb_UnlockFDB(struct _fdbarea *fdb_area)
 {
     struct flock    fl;
 
@@ -218,8 +214,8 @@ int mbsedb_UnlockFDB(struct _fdbarea *fdb_area)
 
 
 
-void mbsedb_Temp2Data(unsigned int);
-void mbsedb_Temp2Data(unsigned int fdb_area)
+void ftnddb_Temp2Data(unsigned int);
+void ftnddb_Temp2Data(unsigned int fdb_area)
 {
     char    *temp1, *temp2;
 
@@ -231,12 +227,12 @@ void mbsedb_Temp2Data(unsigned int fdb_area)
      * we will give that a new name on disk. Then we move the temp in place.
      * Finaly remove the old (still locked) original file.
      */
-    snprintf(temp2, PATH_MAX -1, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), fdb_area);
-    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%d.xxxx", getenv("MBSE_ROOT"), fdb_area);
+    snprintf(temp2, PATH_MAX -1, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), fdb_area);
+    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%d.xxxx", getenv("FTND_ROOT"), fdb_area);
     rename(temp2, temp1);
-    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("MBSE_ROOT"), fdb_area);
+    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("FTND_ROOT"), fdb_area);
     rename(temp1, temp2);
-    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%d.xxxx", getenv("MBSE_ROOT"), fdb_area);
+    snprintf(temp1, PATH_MAX -1, "%s/var/fdb/file%d.xxxx", getenv("FTND_ROOT"), fdb_area);
     unlink(temp1);
 
     free(temp1);
@@ -247,15 +243,15 @@ void mbsedb_Temp2Data(unsigned int fdb_area)
 
 
 
-int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int AddAlpha)
+int ftnddb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int AddAlpha)
 {
     char    *temp;
     int	    i, Insert, Done = FALSE, Found = FALSE;
     FILE    *fp;
     
-    Syslog('f', "mbsedb_InsertFDB: \"%s\", magic \"%s\"", frec.LName, frec.Magic);
+    Syslog('f', "ftnddb_InsertFDB: \"%s\", magic \"%s\"", frec.LName, frec.Magic);
 
-    if (mbsedb_LockFDB(fdb_area, 30) == FALSE)
+    if (ftnddb_LockFDB(fdb_area, 30) == FALSE)
 	return FALSE;
 
     fseek(fdb_area->fp, 0, SEEK_END);
@@ -264,7 +260,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	 * No records yet, simply append this first record.
 	 */
 	fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
-	mbsedb_UnlockFDB(fdb_area);
+	ftnddb_UnlockFDB(fdb_area);
 	return TRUE;
     }
 
@@ -272,7 +268,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
      * There are files, search the insert point.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("FTND_ROOT"), fdb_area->area);
     fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
     Insert = 0;
     do {
@@ -291,7 +287,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 
     if ((fp = fopen(temp, "a+")) == NULL) {
 	WriteError("$Can't create %s", temp);
-        mbsedb_UnlockFDB(fdb_area);
+        ftnddb_UnlockFDB(fdb_area);
         free(temp);
         return FALSE;
     }
@@ -356,7 +352,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
     }
 
     fclose(fdb_area->fp);
-    mbsedb_Temp2Data(fdb_area->area);
+    ftnddb_Temp2Data(fdb_area->area);
     fdb_area->fp = fp;
     fdb_area->locked = 0;
     free(temp);
@@ -369,7 +365,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 /*
  * Return -1 if error, else number of purged records
  */
-int mbsedb_PackFDB(struct _fdbarea *fdb_area)
+int ftnddb_PackFDB(struct _fdbarea *fdb_area)
 {
     char    *temp;
     FILE    *fp;
@@ -380,17 +376,17 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
 	return 0;
     }
 
-    if (mbsedb_LockFDB(fdb_area, 30) == FALSE)
+    if (ftnddb_LockFDB(fdb_area, 30) == FALSE)
 	return -1;
 
     /*
      * There are files, copy the remaining entries
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("FTND_ROOT"), fdb_area->area);
     if ((fp = fopen(temp, "a+")) == NULL) {
 	WriteError("$Can't create %s", temp);
-	mbsedb_UnlockFDB(fdb_area);
+	ftnddb_UnlockFDB(fdb_area);
 	free(temp);
 	return -1;
     }
@@ -405,7 +401,7 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
     }
 
     fclose(fdb_area->fp);
-    mbsedb_Temp2Data(fdb_area->area);
+    ftnddb_Temp2Data(fdb_area->area);
     fdb_area->fp = fp;
     fdb_area->locked = 0;
 
@@ -495,7 +491,7 @@ int comp_fdbs(fdbs **fap1, fdbs **fap2)
 /*
  * Sort a files database using the long filenames.
  */
-int mbsedb_SortFDB(struct _fdbarea *fdb_area)
+int ftnddb_SortFDB(struct _fdbarea *fdb_area)
 {
     fdbs    *fdx = NULL, *tmp;
     char    *temp;
@@ -519,16 +515,16 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
      * Now the most timeconsuming part is done, lock the database and
      * write the new sorted version.
      */
-    if (mbsedb_LockFDB(fdb_area, 30) == FALSE) {
+    if (ftnddb_LockFDB(fdb_area, 30) == FALSE) {
 	tidy_fdbs(&fdx);
 	return -1;
     }
     
     temp  = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    snprintf(temp, PATH_MAX -1, "%s/var/fdb/file%d.temp", getenv("FTND_ROOT"), fdb_area->area);
     if ((fp = fopen(temp, "a+")) == NULL) {
         WriteError("$Can't create %s", temp);
-        mbsedb_UnlockFDB(fdb_area);
+        ftnddb_UnlockFDB(fdb_area);
         tidy_fdbs(&fdx);
 	free(temp);
         return -1;
@@ -545,7 +541,7 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     tidy_fdbs(&fdx);
 
     fclose(fdb_area->fp);
-    mbsedb_Temp2Data(fdb_area->area);
+    ftnddb_Temp2Data(fdb_area->area);
     fdb_area->fp = fp;
     fdb_area->locked = 0;
 

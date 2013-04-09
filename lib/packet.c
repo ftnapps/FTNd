@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: packet.c,v 1.12 2005/08/28 13:34:43 mbse Exp $
+ * packet.c
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 #include "users.h"
-#include "mbsedb.h"
+#include "ftnddb.h"
 
 
 
@@ -80,7 +76,7 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor, int session)
 	if ((pktfp = fopen(Name, "r+")) == NULL)
 	    pktfp = fopen(Name,"w");
 	if (pktfp == NULL) {
-	    WriteError("$Unable to open packet %s",MBSE_SS(Name));
+	    WriteError("$Unable to open packet %s",FTND_SS(Name));
 	    return NULL;
 	}
 
@@ -89,7 +85,7 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor, int session)
 	fl.l_start  = 0L;
 	fl.l_len    = 0L;
 	if (fcntl(fileno(pktfp), F_SETLKW, &fl) < 0) {
-	    WriteError("$Unable to lock packet %s", MBSE_SS(Name));
+	    WriteError("$Unable to lock packet %s", FTND_SS(Name));
 	    fclose(pktfp);
 	    return NULL;
 	}

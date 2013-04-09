@@ -1,9 +1,9 @@
-# $Id: mkprod.awk,v 1.6 2004/02/21 14:24:04 mbroek Exp $
+# mkprod.awk
 #
 
 BEGIN	{
 		print "#include \"../config.h\""
-		print "#include \"mbselib.h\""
+		print "#include \"ftndlib.h\""
 		print ""
 		print "struct _ftscprod ftscprod[] = {"
 	}

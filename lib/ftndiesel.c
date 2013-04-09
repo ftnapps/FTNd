@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: mbdiesel.c,v 1.29 2007/03/03 14:28:40 mbse Exp $
- * Purpose ...............: MBSE BBS functions for TURBODIESEL
+ * ftndiesel.c
+ * Purpose ...............: FTNd functions for TURBODIESEL
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 #include "diesel.h"
 
 
@@ -197,7 +193,7 @@ void Cookie(int HtmlMode)
 
     MacroVars("F", "s", "");
     fname = calloc(PATH_MAX, sizeof(char));
-    snprintf(fname, PATH_MAX -1, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    snprintf(fname, PATH_MAX -1, "%s/etc/oneline.data", getenv("FTND_ROOT"));
 
     if ((olf = fopen(fname, "r")) == NULL) {
 	WriteError("Can't open %s", fname);
@@ -280,15 +276,15 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
 	/*
 	 * Maybe a valid language character, try to load the language
 	 */
-	snprintf(temp, PATH_MAX -1, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX -1, "%s/etc/language.data", getenv("FTND_ROOT"));
 	if ((pLang = fopen(temp, "rb")) == NULL) {
-	    WriteError("mbdiesel: Can't open language file: %s", temp);
+	    WriteError("ftndiesel: Can't open language file: %s", temp);
 	} else {
 	    fread(&langhdr, sizeof(langhdr), 1, pLang);
     
 	    while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
 		if ((lang.LangKey[0] == Language) && (lang.Available)) {
-		    snprintf(temp, PATH_MAX -1, "%s/share/int/macro/%s/%s", getenv("MBSE_ROOT"), lang.lc, filename);
+		    snprintf(temp, PATH_MAX -1, "%s/share/int/macro/%s/%s", getenv("FTND_ROOT"), lang.lc, filename);
 		    break;
 		}
 	    }
@@ -307,7 +303,7 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
      */
     if (fi == NULL) {
 	Syslog('-', "Macro file \"%s\" for language %c not found, trying default", filename, Language);
-	snprintf(temp, PATH_MAX -1, "%s/share/int/macro/%s/%s", getenv("MBSE_ROOT"), CFG.deflang, filename);
+	snprintf(temp, PATH_MAX -1, "%s/share/int/macro/%s/%s", getenv("FTND_ROOT"), CFG.deflang, filename);
 	fi = fopen(temp,"r");
     }
 

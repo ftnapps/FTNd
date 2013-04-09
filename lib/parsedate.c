@@ -1,4 +1,4 @@
-/* $Id: parsedate.c,v 1.10 2005/10/11 20:49:46 mbse Exp $
+/* parsedate.c
 **
 ** $ Revision: 1.2 $
 **
@@ -20,7 +20,7 @@
 /* SUPPRESS 595 on yypvt *//* Automatic variable may be used before set */
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 
 
 

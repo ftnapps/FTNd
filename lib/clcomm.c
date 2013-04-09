@@ -3,32 +3,28 @@
  * Purpose ...............: Client/Server communications
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 
 
 int		do_quiet = FALSE;	/* Quiet flag			    */
@@ -101,11 +97,11 @@ char *xstrcat(char *src, char *add)
 
 void InitClient(char *user, char *myname, char *where, char *logfname, int loggr, char *err, char *mgr, char *debug)
 {
-    if ((getenv("MBSE_ROOT")) == NULL) {
-	printf("Could not get the MBSE_ROOT environment variable\n");
+    if ((getenv("FTND_ROOT")) == NULL) {
+	printf("Could not get the FTND_ROOT environment variable\n");
 	printf("Please set the environment variable ie:\n");
-	printf("\"MBSE_ROOT=/opt/mbse; export MBSE_ROOT\"\n\n");
-	exit(MBERR_INIT_ERROR);
+	printf("\"FTND_ROOT=/opt/ftnd; export FTND_ROOT\"\n\n");
+	exit(FTNERR_INIT_ERROR);
     }
 
     snprintf(progname, 20, "%s", myname);
@@ -115,17 +111,17 @@ void InitClient(char *user, char *myname, char *where, char *logfname, int loggr
     snprintf(logdebug, PATH_MAX -1, "%s", debug);
     loggrade = loggr;
 
-    snprintf(cpath, 107, "%s/tmp/%s%d", getenv("MBSE_ROOT"), progname, getpid());
-    snprintf(spath, 107, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+    snprintf(cpath, 107, "%s/tmp/%s%d", getenv("FTND_ROOT"), progname, getpid());
+    snprintf(spath, 107, "%s/tmp/ftntask", getenv("FTND_ROOT"));
 
     /*
      * Store my pid in case a child process is forked and wants to do
-     * some communications with the mbsed server.
+     * some communications with the ftnd server.
      */
     mypid = getpid();
     if (socket_connect(user, myname, where) == -1) {
         printf("PANIC: cannot access socket\n");
-        exit(MBERR_INIT_ERROR);
+        exit(FTNERR_INIT_ERROR);
     }
 }
 

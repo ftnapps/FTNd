@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: expipe.c,v 1.7 2004/02/21 14:24:04 mbroek Exp $
- * Purpose ...............: MBSE BBS Execute pipe
+ * expipe.c
+ * Purpose ...............: FTNd Execute pipe
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2004 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 
 
 
@@ -101,7 +97,7 @@ FILE *expipe(char *cmd, char *from, char *to)
     fflush(stdout);
     fflush(stderr);
     if (pipe(pipedes) != 0) {
-	WriteError("$Pipe failed for command \"%s\"", MBSE_SS(vector[0]));
+	WriteError("$Pipe failed for command \"%s\"", FTND_SS(vector[0]));
 	return NULL;
     }
 
@@ -110,18 +106,18 @@ FILE *expipe(char *cmd, char *from, char *to)
 	close(pipedes[1]);
 	close(0);
 	if (dup(pipedes[0]) != 0) {
-	    WriteError("$Reopen of stdin for command %s failed", MBSE_SS(vector[0]));
-	    exit(MBERR_EXEC_FAILED);
+	    WriteError("$Reopen of stdin for command %s failed", FTND_SS(vector[0]));
+	    exit(FTNERR_EXEC_FAILED);
 	}
 	rc = execv(vector[0],vector);
-	WriteError("$Exec \"%s\" returned %d", MBSE_SS(vector[0]), rc);
-	exit(MBERR_EXEC_FAILED);
+	WriteError("$Exec \"%s\" returned %d", FTND_SS(vector[0]), rc);
+	exit(FTNERR_EXEC_FAILED);
     }
 
     close(pipedes[0]);
 
     if ((fp = fdopen(pipedes[1],"w")) == NULL) {
-	WriteError("$fdopen failed for pipe to command \"%s\"", MBSE_SS(vector[0]));
+	WriteError("$fdopen failed for pipe to command \"%s\"", FTND_SS(vector[0]));
     }
 
     fppid[slot].fp = fp;
@@ -163,14 +159,14 @@ int exclose(FILE *fp)
 
     switch (rc) {
 	case -1:WriteError("$Wait returned %d, status %d,%d", rc, status >> 8, status & 0xff);
-		return MBERR_EXEC_FAILED;
+		return FTNERR_EXEC_FAILED;
 	case 0:	return 0;
 	default:
 		if (WIFEXITED(status)) {
 		    rc = WEXITSTATUS(status);
 		    if (rc) {
 			WriteError("Expipe: returned error %d", rc);
-			return (rc + MBERR_EXTERNAL);
+			return (rc + FTNERR_EXTERNAL);
 		    }
 		}
 		if (WIFSIGNALED(status)) {

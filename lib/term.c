@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
- * $Id: term.c,v 1.13 2005/08/28 13:34:43 mbse Exp $
+ * term.c
  * Purpose ...............: Terminal output routines.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2004 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 #include "users.h"
 
 
@@ -39,7 +35,7 @@ int termx = 80;
 int termy = 24;
 
 
-void mbse_TermInit(int mode, int x, int y)
+void ftnd_TermInit(int mode, int x, int y)
 {
     termmode = mode;
     termx = x;
@@ -51,7 +47,7 @@ void mbse_TermInit(int mode, int x, int y)
 /*
  * Changes ansi background and foreground color
  */
-void mbse_colour(int fg, int bg)
+void ftnd_colour(int fg, int bg)
 {
     if (termmode == 1) {
   
@@ -98,10 +94,10 @@ void mbse_colour(int fg, int bg)
 
 
 
-void mbse_clear()
+void ftnd_clear()
 {
     if (termmode == 1) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	fprintf(stdout, ANSI_HOME);
 	fprintf(stdout, ANSI_CLEAR);
     } else {
@@ -115,7 +111,7 @@ void mbse_clear()
 /*
  * Moves cursor to specified position
  */
-void mbse_locate(int y, int x)
+void ftnd_locate(int y, int x)
 {
     if (termmode > 0) {
 	if (y > termy || x > termx) {
@@ -133,7 +129,7 @@ void mbse_locate(int y, int x)
 /*
  * curses compatible functions
  */
-void mbse_mvprintw(int y, int x, const char *format, ...)
+void ftnd_mvprintw(int y, int x, const char *format, ...)
 {
     char	*outputstr;
     va_list	va_ptr;
@@ -144,7 +140,7 @@ void mbse_mvprintw(int y, int x, const char *format, ...)
     vsnprintf(outputstr, 2048, format, va_ptr);
     va_end(va_ptr);
 
-    mbse_locate(y, x);
+    ftnd_locate(y, x);
     fprintf(stdout, outputstr);
     free(outputstr);
     fflush(stdout);

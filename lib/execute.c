@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: execute.c,v 1.24 2008/02/23 21:50:41 mbse Exp $
+ * execute.c 
  * Purpose ...............: Execute subprogram
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:	2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "mbselib.h"
+#include "ftndlib.h"
 
 
 int	e_pid = 0;		/* Execute child pid	*/
@@ -63,22 +59,22 @@ int _execute(char **args, char *in, char *out, char *err)
 	if (in) {
 	    close(0);
 	    if (open(in,O_RDONLY) != 0) {
-		WriteError("$Reopen of stdin to %s failed", MBSE_SS(in));
-		exit(MBERR_EXEC_FAILED);
+		WriteError("$Reopen of stdin to %s failed", FTND_SS(in));
+		exit(FTNERR_EXEC_FAILED);
 	    }
 	}
 	if (out) {
 	    close(1);
 	    if (open(out,O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
-		WriteError("$Reopen of stdout to %s failed", MBSE_SS(out));
-		exit(MBERR_EXEC_FAILED);
+		WriteError("$Reopen of stdout to %s failed", FTND_SS(out));
+		exit(FTNERR_EXEC_FAILED);
 	    }
 	}
 	if (err) {
 	    close(2);
 	    if (open(err,O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
-		WriteError("$Reopen of stderr to %s failed", MBSE_SS(err));
-		exit(MBERR_EXEC_FAILED);
+		WriteError("$Reopen of stderr to %s failed", FTND_SS(err));
+		exit(FTNERR_EXEC_FAILED);
 	    }
 	}
 
@@ -92,8 +88,8 @@ int _execute(char **args, char *in, char *out, char *err)
 	    }
 	}
 	rc = execv(args[0],args);
-	WriteError("$execv \"%s\" returned %d", MBSE_SS(args[0]), rc);
-	exit(MBERR_EXEC_FAILED);
+	WriteError("$execv \"%s\" returned %d", FTND_SS(args[0]), rc);
+	exit(FTNERR_EXEC_FAILED);
     }
 
     e_pid = pid;
@@ -121,7 +117,7 @@ int _execute(char **args, char *in, char *out, char *err)
 			if ((strstr(args[0], (char *)"unzip") == NULL) || (rc != 11)) {
 			    WriteError("Execute: returned error %d", rc);
 			}
-			return (rc + MBERR_EXTERNAL);
+			return (rc + FTNERR_EXTERNAL);
 		    }
 		}
 		if (WIFSIGNALED(status)) {
@@ -229,7 +225,7 @@ int _execsh(char *cmd, char *in, char *out, char *err)
 {
     int	pid, status, rc, sverr;
 
-    Syslog('+', "Execute shell: %s", MBSE_SS(cmd));
+    Syslog('+', "Execute shell: %s", FTND_SS(cmd));
     fflush(stdout);
     fflush(stderr);
 
@@ -243,28 +239,28 @@ int _execsh(char *cmd, char *in, char *out, char *err)
 	if (in) {
 	    close(0);
 	    if (open(in, O_RDONLY) != 0) {
-		WriteError("$Reopen of stdin to %s failed",MBSE_SS(in));
-		exit(MBERR_EXEC_FAILED);
+		WriteError("$Reopen of stdin to %s failed",FTND_SS(in));
+		exit(FTNERR_EXEC_FAILED);
 	    }
 	}
 	if (out) {
 	    close(1);
 	    if (open(out, O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
-		WriteError("$Reopen of stdout to %s failed",MBSE_SS(out));
-		exit(MBERR_EXEC_FAILED);
+		WriteError("$Reopen of stdout to %s failed",FTND_SS(out));
+		exit(FTNERR_EXEC_FAILED);
 	    }
 	}
 	if (err) {
 	    close(2);
 	    if (open(err, O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
-		WriteError("$Reopen of stderr to %s failed",MBSE_SS(err));
-		exit(MBERR_EXEC_FAILED);
+		WriteError("$Reopen of stderr to %s failed",FTND_SS(err));
+		exit(FTNERR_EXEC_FAILED);
 	    }
 	}
 
 	rc = execl(SHELL, "sh", "-c", cmd, NULL);
-	WriteError("$execl \"%s\" returned %d", MBSE_SS(cmd), rc);
-	exit(MBERR_EXEC_FAILED);
+	WriteError("$execl \"%s\" returned %d", FTND_SS(cmd), rc);
+	exit(FTNERR_EXEC_FAILED);
     }
 
     e_pid = pid;
