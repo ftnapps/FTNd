@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- & $Id: mbsedb.h,v 1.10 2005/10/11 20:49:42 mbse Exp $
- * Purpose ...............: MBSE BBS database library header
+ * ftnddb.h
+ * Purpose ...............: FTNd database library header
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek                FIDO:           2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
-#ifndef _MBSEDB_H
-#define _MBSEDB_H
+#ifndef _FTNDDB_H
+#define _FTNDDB_H
 
 
 void	InitConfig(void);		/* Initialize and load config	     */
@@ -144,13 +140,13 @@ struct _fdbarea {
 };
 
 
-struct _fdbarea *mbsedb_OpenFDB(int, int);
-int mbsedb_CloseFDB(struct _fdbarea *);
-int mbsedb_LockFDB(struct _fdbarea *, int);
-int mbsedb_UnlockFDB(struct _fdbarea *);
-int mbsedb_InsertFDB(struct _fdbarea *, struct FILE_record, int);
-int mbsedb_PackFDB(struct _fdbarea *);
-int mbsedb_SortFDB(struct _fdbarea *);
+struct _fdbarea *ftnddb_OpenFDB(int, int);
+int ftnddb_CloseFDB(struct _fdbarea *);
+int ftnddb_LockFDB(struct _fdbarea *, int);
+int ftnddb_UnlockFDB(struct _fdbarea *);
+int ftnddb_InsertFDB(struct _fdbarea *, struct FILE_record, int);
+int ftnddb_PackFDB(struct _fdbarea *);
+int ftnddb_SortFDB(struct _fdbarea *);
 
 
 #endif

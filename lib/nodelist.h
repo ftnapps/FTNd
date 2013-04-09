@@ -1,4 +1,4 @@
-/* $Id: nodelist.h,v 1.9 2007/03/03 14:28:41 mbse Exp $ */
+/* nodelist.h */
 
 #ifndef _NODELIST_H
 #define	_NODELIST_H

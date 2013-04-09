@@ -1,4 +1,4 @@
-/* $Id: msg.h,v 1.6 2005/10/11 20:49:44 mbse Exp $ */
+/* msg.h */
 
 #ifndef	_MSG_H
 #define	_MSG_H

@@ -1,4 +1,4 @@
-/* $Id: diesel.h,v 1.7 2007/02/26 21:02:30 mbse Exp $ */
+/* diesel.h */
 
 #ifndef	_DIESEL_H
 #define	_DIESEL_H

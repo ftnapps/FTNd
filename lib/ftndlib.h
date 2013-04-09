@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: mbselib.h,v 1.106 2008/12/28 12:20:14 mbse Exp $
- * Purpose ...............: MBSE BBS main library header
+ * ftndlib.h
+ * Purpose ...............: FTNd main library header
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek                FIDO:           2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
  * This BBS is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
-#ifndef _MBSELIB_H
-#define	_MBSELIB_H
+#ifndef _FTNDLIB_H
+#define	_FTNDLIB_H
 
 #include "../config.h"
 
@@ -195,7 +191,7 @@ struct icmp_filter {
  *  Macro's used
  */
 
-#define MBSE_SS(x) (x)?(x):"(null)"
+#define FTND_SS(x) (x)?(x):"(null)"
 #define SOCKA_A4(a) ((void *)&((struct sockaddr_in *)(a))->sin_addr)
 
 
@@ -203,7 +199,7 @@ struct icmp_filter {
  *
  *  Defines
  */
-#define PRODCODE	0x11ff		/* Official MBSE FTSC product code  */
+#define PRODCODE	0x11ff		/* Official FTND FTSC product code  */
 #define Max_passlen     14		/* Define maximum passwd length     */
 #define SS_BUFSIZE      1024            /* Socket buffersize		    */
 #define MAXNLLINELEN    1024		/* Maximum nodelist line length	    */
@@ -383,42 +379,42 @@ struct icmp_filter {
 /*
  * Exit status values
  */
-#define	MBERR_OK		0	/* No errors			    */
-#define	MBERR_COMMANDLINE	100	/* Commandline error		    */
-#define	MBERR_CONFIG_ERROR	101	/* Configuration error		    */
-#define	MBERR_INIT_ERROR	102	/* Initialisation error		    */
-#define	MBERR_DISK_FULL		103	/* Some disk partition full	    */
-#define	MBERR_UPS_ALARM		104	/* UPS alarm detected		    */
-#define	MBERR_NO_RECIPIENTS	105	/* No valid recipients		    */
-#define	MBERR_EXEC_FAILED	106	/* Execute external prog failed	    */
-#define	MBERR_TTYIO_ERROR	107	/* Set tty failed		    */
-#define	MBERR_FTRANSFER		108	/* File transfer error		    */
-#define	MBERR_ATTACH_FAILED	109	/* File attach failed		    */
-#define	MBERR_NO_PROGLOCK	110	/* Cannot lock program, retry later */
-#define MBERR_NODE_NOT_IN_LIST	111	/* Node not in nodelist		    */
-#define	MBERR_NODE_MAY_NOT_CALL	112	/* Node may not be called	    */
-#define	MBERR_NO_CONNECTION	113	/* Cannot make connection	    */
-#define	MBERR_PORTERROR		114	/* Cannot open tty port		    */
-#define	MBERR_NODE_LOCKED	115	/* Node is locked		    */
-#define	MBERR_NO_IP_ADDRESS	116	/* Node IP address not found	    */
-#define	MBERR_UNKNOWN_SESSION	117	/* Unknown session		    */
-#define	MBERR_NOT_ZMH		118	/* Not Zone Mail Hour		    */
-#define	MBERR_MODEM_ERROR	119	/* Modem error			    */
-#define	MBERR_NO_PORT_AVAILABLE	120	/* No modemport available	    */
-#define	MBERR_SESSION_ERROR	121	/* Session error (password)	    */
-#define	MBERR_EMSI		122	/* EMSI session error		    */
-#define	MBERR_FTSC		123	/* FTSC session error		    */
-#define	MBERR_WAZOO		124	/* WAZOO session error		    */
-#define	MBERR_YOOHOO		125	/* YOOHOO session error		    */
-#define	MBERR_OUTBOUND_SCAN	126	/* Outbound scan error		    */
-#define	MBERR_CANNOT_MAKE_POLL	127	/* Cannot make poll		    */
-#define	MBERR_REQUEST		128	/* File request error		    */
-#define MBERR_DIFF_ERROR	129	/* Error processing nodediff	    */
-#define	MBERR_VIRUS_FOUND	130	/* Virus found			    */
-#define	MBERR_GENERAL		131	/* General error		    */
-#define	MBERR_TIMEOUT		132	/* Timeout error		    */
-#define	MBERR_TTYIO		200	/* Base for ttyio errors	    */
-#define	MBERR_EXTERNAL		256	/* Status external prog + 256	    */
+#define	FTNERR_OK		0	/* No errors			    */
+#define	FTNERR_COMMANDLINE	100	/* Commandline error		    */
+#define	FTNERR_CONFIG_ERROR	101	/* Configuration error		    */
+#define	FTNERR_INIT_ERROR	102	/* Initialisation error		    */
+#define	FTNERR_DISK_FULL		103	/* Some disk partition full	    */
+#define	FTNERR_UPS_ALARM		104	/* UPS alarm detected		    */
+#define	FTNERR_NO_RECIPIENTS	105	/* No valid recipients		    */
+#define	FTNERR_EXEC_FAILED	106	/* Execute external prog failed	    */
+#define	FTNERR_TTYIO_ERROR	107	/* Set tty failed		    */
+#define	FTNERR_FTRANSFER		108	/* File transfer error		    */
+#define	FTNERR_ATTACH_FAILED	109	/* File attach failed		    */
+#define	FTNERR_NO_PROGLOCK	110	/* Cannot lock program, retry later */
+#define FTNERR_NODE_NOT_IN_LIST	111	/* Node not in nodelist		    */
+#define	FTNERR_NODE_MAY_NOT_CALL	112	/* Node may not be called	    */
+#define	FTNERR_NO_CONNECTION	113	/* Cannot make connection	    */
+#define	FTNERR_PORTERROR		114	/* Cannot open tty port		    */
+#define	FTNERR_NODE_LOCKED	115	/* Node is locked		    */
+#define	FTNERR_NO_IP_ADDRESS	116	/* Node IP address not found	    */
+#define	FTNERR_UNKNOWN_SESSION	117	/* Unknown session		    */
+#define	FTNERR_NOT_ZMH		118	/* Not Zone Mail Hour		    */
+#define	FTNERR_MODEM_ERROR	119	/* Modem error			    */
+#define	FTNERR_NO_PORT_AVAILABLE	120	/* No modemport available	    */
+#define	FTNERR_SESSION_ERROR	121	/* Session error (password)	    */
+#define	FTNERR_EMSI		122	/* EMSI session error		    */
+#define	FTNERR_FTSC		123	/* FTSC session error		    */
+#define	FTNERR_WAZOO		124	/* WAZOO session error		    */
+#define	FTNERR_YOOHOO		125	/* YOOHOO session error		    */
+#define	FTNERR_OUTBOUND_SCAN	126	/* Outbound scan error		    */
+#define	FTNERR_CANNOT_MAKE_POLL	127	/* Cannot make poll		    */
+#define	FTNERR_REQUEST		128	/* File request error		    */
+#define FTNERR_DIFF_ERROR	129	/* Error processing nodediff	    */
+#define	FTNERR_VIRUS_FOUND	130	/* Virus found			    */
+#define	FTNERR_GENERAL		131	/* General error		    */
+#define	FTNERR_TIMEOUT		132	/* Timeout error		    */
+#define	FTNERR_TTYIO		200	/* Base for ttyio errors	    */
+#define	FTNERR_EXTERNAL		256	/* Status external prog + 256	    */
 
 
 
@@ -667,7 +663,7 @@ typedef struct _dual {
 
 /****************************************************************************
  *
- *  Datafile records structure in $MBSE_ROOT/etc
+ *  Datafile records structure in $FTND_ROOT/etc
  *
  */
 
@@ -1216,7 +1212,7 @@ struct	sysconfig {
 	unsigned        xftp_upl_mkdir  : 1;
 	unsigned        xftp_log_cmds	: 1;
 	unsigned        xftp_anonymousok: 1;
-	unsigned        xftp_mbseok	: 1;
+	unsigned        xftp_ftndok	: 1;
 	unsigned        xftp_x7         : 1;
 	unsigned        xftp_x8         : 1;
 	unsigned        xftp_x9         : 1;
@@ -2381,13 +2377,13 @@ char		*arcname(faddr *, unsigned short, int);
 /*
  * From rawio.c
  */
-void		mbse_Setraw(void);			/* Set raw mode		    */
-void		mbse_Unsetraw(void);			/* Unset raw mode	    */
-unsigned char	mbse_Getone(void);			/* Get one raw character    */
-int		mbse_Speed(void);			/* Get (locked) tty speed   */
-int		mbse_Waitchar(unsigned char *, int);	/* Wait n * 10mSec for char */
-int		mbse_Escapechar(unsigned char *);	/* Escape sequence test	    */
-unsigned char	mbse_Readkey(void);			/* Read a translated key    */
+void		ftnd_Setraw(void);			/* Set raw mode		    */
+void		ftnd_Unsetraw(void);			/* Unset raw mode	    */
+unsigned char	ftnd_Getone(void);			/* Get one raw character    */
+int		ftnd_Speed(void);			/* Get (locked) tty speed   */
+int		ftnd_Waitchar(unsigned char *, int);	/* Wait n * 10mSec for char */
+int		ftnd_Escapechar(unsigned char *);	/* Escape sequence test	    */
+unsigned char	ftnd_Readkey(void);			/* Read a translated key    */
 
 
 
@@ -2397,7 +2393,7 @@ unsigned char	mbse_Readkey(void);			/* Read a translated key    */
 char		*padleft(char *str, int size, char pad);
 char		*tl(char *str);
 void		Striplf(char *);
-void		mbse_CleanSubject(char *);
+void		ftnd_CleanSubject(char *);
 void		tlf(char *str);
 char		*tu(char *str);
 char		*tlcap(char *);
@@ -2420,11 +2416,11 @@ char		*TearLine(void);
 /*
  * From term.c
  */
-void		mbse_TermInit(int, int, int);
-void		mbse_colour(int, int);
-void		mbse_clear(void);
-void		mbse_locate(int, int);
-void		mbse_mvprintw(int, int, const char *, ...);
+void		ftnd_TermInit(int, int, int);
+void		ftnd_colour(int, int);
+void		ftnd_clear(void);
+void		ftnd_locate(int, int);
+void		ftnd_mvprintw(int, int, const char *, ...);
 
 
 
