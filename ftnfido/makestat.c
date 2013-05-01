@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: makestat.c,v 1.31 2007/02/25 20:28:07 mbse Exp $
+ * makestat.c
  * Purpose ...............: Make Web statistics
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/diesel.h"
 #include "../lib/msg.h"
 #include "mgrutil.h"
@@ -121,7 +117,7 @@ void MakeStat(void)
     }
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("\rMaking statistical HTML pages");
 	fflush(stdout);
     }
@@ -135,7 +131,7 @@ void MakeStat(void)
 
     chartran_init((char *)"CP437", (char *)"UTF-8", 'm');
 
-    snprintf(name, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("Can't open %s", name);
     } else {
@@ -176,7 +172,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -227,7 +223,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -267,7 +263,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -309,7 +305,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/nodes.data", getenv("FTND_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -357,7 +353,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/var/mailer.hist", getenv("FTND_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
     } else {
@@ -409,7 +405,7 @@ void MakeStat(void)
 	printf(".");
 	fflush(stdout);
     }
-    snprintf(name, PATH_MAX, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    snprintf(name, PATH_MAX, "%s/etc/sysinfo.data", getenv("FTND_ROOT"));
     if ((fg = fopen(name, "r")) != NULL ) {
 	if ((fi = OpenMacro("html.sysinfo", 'E', TRUE)) == NULL) {
 	    Syslog('+', "Can't open macro file, skipping html pages creation");

@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbfmove.c,v 1.19 2005/08/11 21:05:15 mbse Exp $
+ * ftnfmove.c
  * Purpose: File Database Maintenance - Move a file
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbfutil.h"
-#include "mbfmove.h"
+#include "../lib/ftnddb.h"
+#include "ftnfutil.h"
+#include "ftnfmove.h"
 
 
 
@@ -52,13 +48,13 @@ void Move(int From, int To, char *File)
     struct _fdbarea	    *src_area = NULL;
 
     IsDoing("Move file");
-    mbse_colour(LIGHTRED, BLACK);
+    ftnd_colour(LIGHTRED, BLACK);
 
     if (From == To) {
 	WriteError("Area numbers are the same");
 	if (!do_quiet)
 	    printf("Can't move to the same area\n");
-	die(MBERR_COMMANDLINE);
+	die(FTNERR_COMMANDLINE);
     }
 
     /*
@@ -66,22 +62,22 @@ void Move(int From, int To, char *File)
      */
     if (LoadAreaRec(From) == FALSE) {
 	WriteError("Can't load record %d", From);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
     if (!area.Available) {
 	WriteError("Area %d not available", From);
 	if (!do_quiet)
 	    printf("Area %d not available\n", From);
-	die(MBERR_COMMANDLINE);
+	die(FTNERR_COMMANDLINE);
     }
     if (CheckFDB(From, area.Path))
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
 
     /*
      * Find the file in the "from" area, check LFN and 8.3 names.
      */
-    if ((src_area = mbsedb_OpenFDB(From, 30)) == NULL)
-	die(MBERR_GENERAL);
+    if ((src_area = ftnddb_OpenFDB(From, 30)) == NULL)
+	die(FTNERR_GENERAL);
 
     while (fread(&f_db, fdbhdr.recsize, 1, src_area->fp) == 1) {
 	if ((strcmp(f_db.LName, File) == 0) || strcmp(f_db.Name, File) == 0) {
@@ -95,7 +91,7 @@ void Move(int From, int To, char *File)
 	if (!do_quiet)
 	    printf("File %s not found in area %d\n", File, From);
 	free(temp1);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
 
     frompath = xstrcpy(area.Path);
@@ -113,16 +109,16 @@ void Move(int From, int To, char *File)
      */
     if (LoadAreaRec(To) == FALSE) {
 	WriteError("Can't load record %d", To);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
     if (!area.Available) {
 	WriteError("Area %d not available", To);
 	if (!do_quiet)
 	    printf("Area %d not available\n", To);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
     if (CheckFDB(To, area.Path))
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
 
     topath = xstrcpy(area.Path);
     topath = xstrcat(topath, (char *)"/");
@@ -138,7 +134,7 @@ void Move(int From, int To, char *File)
 	WriteError("File %s already exists in area %d", File, To);
 	if (!do_quiet)
 	    printf("File %s already exists in area %d\n", File, To);
-	die(MBERR_COMMANDLINE);
+	die(FTNERR_COMMANDLINE);
     }
 
     rc = AddFile(f_db, To, topath, frompath, tolink);
@@ -152,15 +148,15 @@ void Move(int From, int To, char *File)
 	    file_mv(fromthumb, tothumb);
 	}
     }
-    if (mbsedb_LockFDB(src_area, 30)) {
+    if (ftnddb_LockFDB(src_area, 30)) {
 	f_db.Deleted = TRUE;
 	fseek(src_area->fp, - fdbhdr.recsize, SEEK_CUR);
 	fwrite(&f_db, fdbhdr.recsize, 1, src_area->fp);
-	mbsedb_UnlockFDB(src_area);
+	ftnddb_UnlockFDB(src_area);
     }
-    mbsedb_PackFDB(src_area);
-    mbsedb_CloseFDB(src_area);
-    mbse_colour(CYAN, BLACK);
+    ftnddb_PackFDB(src_area);
+    ftnddb_CloseFDB(src_area);
+    ftnd_colour(CYAN, BLACK);
 
     Syslog('+', "Move %s from %d to %d %s", File, From, To, rc ? "successfull":"failed");
     if (!do_quiet)

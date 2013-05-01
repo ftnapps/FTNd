@@ -3,37 +3,33 @@
  * Purpose: File Database Maintenance - Build index for request processor
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "../lib/diesel.h"
-#include "mbfutil.h"
-#include "mbfindex.h"
+#include "ftnfutil.h"
+#include "ftnfindex.h"
 
 
 
@@ -307,7 +303,7 @@ void ReqIndex(void)
 
     IsDoing("Index files");
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("Create index files...\n");
     }
 
@@ -315,16 +311,16 @@ void ReqIndex(void)
     sIndex = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
-    snprintf(sIndex, PATH_MAX, "%s/etc/request.index", getenv("MBSE_ROOT"));
+    snprintf(sIndex, PATH_MAX, "%s/etc/request.index", getenv("FTND_ROOT"));
     if ((pIndex = fopen(sIndex, "w")) == NULL) {
 	WriteError("$Can't create %s", sIndex);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
 
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -338,7 +334,7 @@ void ReqIndex(void)
 	if (area.Available) {
 
 	    if (enoughspace(CFG.freespace) == 0)
-		die(MBERR_DISK_FULL);
+		die(FTNERR_DISK_FULL);
 
 	    if (!do_quiet) {
 		printf("\r%4d => %-44s    \b\b\b\b", i, area.Name);
@@ -358,9 +354,9 @@ void ReqIndex(void)
 		newdir = NULL;
 	    }
 
-	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
-		die(MBERR_GENERAL);
-	    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), i);
+	    if ((fdb_area = ftnddb_OpenFDB(i, 30)) == NULL)
+		die(FTNERR_GENERAL);
+	    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), i);
 	    db_time = (int) file_time(temp);
 
 	    /*
@@ -473,7 +469,7 @@ void ReqIndex(void)
 		}
 
 	    }
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
     	    }
     }
 
@@ -522,14 +518,14 @@ void HtmlIndex(char *Lang)
 
     IsDoing("Create html");
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("\rCreate html pages...                                      \n");
     }
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -587,16 +583,16 @@ void HtmlIndex(char *Lang)
 	if (area.Available) {
 
 	    if (enoughspace(CFG.freespace) == 0)
-		die(MBERR_DISK_FULL);
+		die(FTNERR_DISK_FULL);
 
 	    if (!do_quiet) {
 		printf("\r%4d => %-44s    \b\b\b\b", i, area.Name);
 		fflush(stdout);
 	    }
 
-	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
-		die(MBERR_GENERAL);
-            snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), i);
+	    if ((fdb_area = ftnddb_OpenFDB(i, 30)) == NULL)
+		die(FTNERR_GENERAL);
+            snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), i);
 	    db_time = (int) file_time(temp);
 	    snprintf(temp, PATH_MAX, "%s/index.html", area.Path);
 	    obj_time = (int) file_time(temp);
@@ -766,7 +762,7 @@ void HtmlIndex(char *Lang)
 		fseek(fi, fileptr, SEEK_SET);
 		MacroRead(fi, fm);
 	    }
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	} /* if area.Available */
     }
 

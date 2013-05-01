@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: mgrutil.c,v 1.42 2005/10/11 20:49:47 mbse Exp $
+ * mgrutil.c
  * Purpose ...............: AreaMgr and FileMgr utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "../lib/diesel.h"
 #include "sendmail.h"
 #include "rollover.h"
@@ -106,7 +102,7 @@ void WriteMailGroups(FILE *fp, faddr *f)
     fgetpos(fi,&fileptr);
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
 
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -165,7 +161,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
     fgetpos(fi,&fileptr);
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
 	
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
@@ -392,7 +388,7 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
      * Add MSGID, REPLY and PID
      */
     fprintf(qp, "\001MSGID: %s %08x\r", aka2str(Orig), sequencer());
-    fprintf(qp, "\001PID: MBSE-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());
+    fprintf(qp, "\001PID: FTND-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());
     fprintf(qp, "\001TZUTC: %s\r", gmtoffset(Now));
 
     /*
@@ -535,14 +531,14 @@ int Areas(void)
     Mgrlog("Process areas taglists");
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("Processing areas taglists...\n");
     }
 
     temp = calloc(PATH_MAX, sizeof(char));
     buf  = calloc(4097, sizeof(char));
 
-    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("Can't open %s", temp);
     } else {
@@ -552,7 +548,7 @@ int Areas(void)
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
 	    if (mgroup.Active && mgroup.AutoChange && strlen(mgroup.AreaFile) && mgroup.UpLink.zone && SearchNode(mgroup.UpLink)) {
 		if (!do_quiet) {
-		    mbse_colour(CYAN, BLACK);
+		    ftnd_colour(CYAN, BLACK);
 		    printf("\rEcho group %-12s ", mgroup.Name);
 		    fflush(stdout);
 		}
@@ -573,11 +569,11 @@ int Areas(void)
 		     * Mark areas already present in the taglist.
 		     */
 		    if (!do_quiet) {
-			mbse_colour(LIGHTRED, BLACK);
+			ftnd_colour(LIGHTRED, BLACK);
 			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
-		    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 		    if ((fp = fopen(temp, "r")) == NULL) {
 			WriteError("Can't open %s", temp);
 			tidy_arealist(&alist);
@@ -652,7 +648,7 @@ int Areas(void)
 		     * the area is set to read-only and all links are disconnected.
 		     * If the area is empty, it is removed from the setup.
 		     */
-		    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 		    if ((fp = fopen(temp, "r+")) == NULL) {
 			WriteError("Can't open %s for r/w");
 		    } else {
@@ -740,7 +736,7 @@ int Areas(void)
 	fclose(gp);
     }
     
-    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("Can't open %s", temp);
     } else {
@@ -750,7 +746,7 @@ int Areas(void)
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
 	    if (fgroup.Active && fgroup.AutoChange && strlen(fgroup.AreaFile) && fgroup.UpLink.zone && SearchNode(fgroup.UpLink)) {
 		if (!do_quiet) {
-		    mbse_colour(CYAN, BLACK);
+		    ftnd_colour(CYAN, BLACK);
 		    printf("\r TIC group %-12s ", fgroup.Name);
 		    fflush(stdout);
 		}
@@ -815,11 +811,11 @@ int Areas(void)
 		     * Mark areas already present in the taglist.
 		     */
 		    if (!do_quiet) {
-			mbse_colour(LIGHTRED, BLACK);
+			ftnd_colour(LIGHTRED, BLACK);
 			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
-		    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+		    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 		    if ((fp = fopen(temp, "r")) == NULL) {
 			WriteError("Can't open %s", temp);
 			tidy_arealist(&alist);
@@ -893,10 +889,10 @@ int Areas(void)
 		     * Mark TIC areas for deletion. The original file areas
 		     * are not deleted. They probably contain files and we
 		     * may want to keep these. If the area was empty we are
-		     * still warned about that by the "mbfile check" command.
+		     * still warned about that by the "ftnfile check" command.
 		     */
 		    Found = FALSE;
-                    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+                    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 		    if ((fp = fopen(temp, "r+")) == NULL) { 
 			WriteError("Can't open %s for r/w");
 		    } else {
@@ -938,7 +934,7 @@ int Areas(void)
 			/*
 			 * Purge marked records
 			 */
-			snprintf(buf, 4096, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+			snprintf(buf, 4096, "%s/etc/tic.temp", getenv("FTND_ROOT"));
 			if ((fp = fopen(temp, "r")) == NULL) {
 			    WriteError("Can't open %s", temp);
 			} else if ((ap = fopen(buf, "w")) == NULL) {

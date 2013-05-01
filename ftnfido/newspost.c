@@ -1,36 +1,32 @@
 /*****************************************************************************
  *
- * $Id: newspost.c,v 1.14 2005/10/11 20:49:47 mbse Exp $
+ * newspost.c
  * Purpose ...............: Post newsarticles in temp newsfile.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10		Internet:	mbroek@users.sourceforge.net
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbinet.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftninet.h"
 #include "newspost.h"
 
 
@@ -60,7 +56,7 @@ int newspost(void)
      *  a file, try to post the articles. They may be
      *  still here if the newsserver wasn't available.
      */
-    snprintf(buf, 10240, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+    snprintf(buf, 10240, "%s/tmp/newsout", getenv("FTND_ROOT"));
     if ((nfp = fopen(buf, "r")) == NULL) {
 	if (newsopen)
 	    WriteError("$Can't reopen %s", buf);
@@ -115,7 +111,7 @@ int newspost(void)
      */
     if ((CFG.newsfeed == FEEDUUCP) || (CFG.newsfeed == FEEDRNEWS)) {
 	Syslog('+', "Posting news articles to the news batchfile");
-	snprintf(buf, 10240, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+	snprintf(buf, 10240, "%s/tmp/newsbatch", getenv("FTND_ROOT"));
 	if ((ofp = fopen(buf, "w+")) == NULL) {
 	    WriteError("$Can't create %s", buf);
 	    free(buf);
@@ -178,7 +174,7 @@ int newspost(void)
 	} else
 	    Syslog('+', "Articles send through %s", CFG.rnewspath);
 	fclose(ofp);
-	snprintf(buf, 10240, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+	snprintf(buf, 10240, "%s/tmp/newsbatch", getenv("FTND_ROOT"));
 	unlink(buf);
     }
 
@@ -215,11 +211,11 @@ int newspost(void)
         }
         Syslog('+', "Articles placed in %s", CFG.rnewspath);
         fclose(ofp);
-        snprintf(buf, 10240, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
+        snprintf(buf, 10240, "%s/tmp/newsbatch", getenv("FTND_ROOT"));
         unlink(buf);
     }
 
-    snprintf(buf, 10240, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+    snprintf(buf, 10240, "%s/tmp/newsout", getenv("FTND_ROOT"));
     if (! fatal) {
 	unlink(buf);
     } else {

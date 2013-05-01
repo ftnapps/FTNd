@@ -1,35 +1,31 @@
 /*****************************************************************************
  *
- * $Id: maketags.c,v 1.8 2005/08/28 14:52:15 mbse Exp $
+ * maketags.c
  * Purpose ...............: Make tag files
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:2801/16
- * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "maketags.h"
 
 
@@ -45,8 +41,8 @@ void MakeTags(void)
     tname = calloc(PATH_MAX, sizeof(char));
     aname = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(gname, PATH_MAX, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-    snprintf(dname, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(gname, PATH_MAX, "%s/etc/mgroups.data", getenv("FTND_ROOT"));
+    snprintf(dname, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 
     if (((fg = fopen(gname, "r")) == NULL) || ((fd = fopen(dname, "r")) == NULL)) {
 	WriteError("$Can't open data");
@@ -56,10 +52,10 @@ void MakeTags(void)
 
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
 	    if (mgroup.Active) {
-		snprintf(tname, PATH_MAX, "%s/share/doc/tags/%s.msgs.tag", getenv("MBSE_ROOT"), mgroup.Name);
+		snprintf(tname, PATH_MAX, "%s/share/doc/tags/%s.msgs.tag", getenv("FTND_ROOT"), mgroup.Name);
 		mkdirs(tname, 0755);
 		td = fopen(tname, "w");
-		snprintf(aname, PATH_MAX, "%s/share/doc/tags/%s.msgs.are", getenv("MBSE_ROOT"), mgroup.Name);
+		snprintf(aname, PATH_MAX, "%s/share/doc/tags/%s.msgs.are", getenv("FTND_ROOT"), mgroup.Name);
 		ad = fopen(aname, "w");
 		fprintf(ad, "; Mail areas in group %s\n", mgroup.Name);
 		fprintf(ad, ";\n");
@@ -81,8 +77,8 @@ void MakeTags(void)
 	fclose(fd);
     }
 
-    snprintf(gname, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-    snprintf(dname, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(gname, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
+    snprintf(dname, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 
     if (((fg = fopen(gname, "r")) == NULL) || ((fd = fopen(dname, "r")) == NULL)) {
 	WriteError("$Can't open data");
@@ -92,9 +88,9 @@ void MakeTags(void)
 
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
 	    if (fgroup.Active) {
-		snprintf(tname, PATH_MAX, "%s/share/doc/tags/%s.file.tag", getenv("MBSE_ROOT"), fgroup.Name);
+		snprintf(tname, PATH_MAX, "%s/share/doc/tags/%s.file.tag", getenv("FTND_ROOT"), fgroup.Name);
 		td = fopen(tname, "w");
-		snprintf(aname, PATH_MAX, "%s/share/doc/tags/%s.file.are", getenv("MBSE_ROOT"), fgroup.Name);
+		snprintf(aname, PATH_MAX, "%s/share/doc/tags/%s.file.are", getenv("FTND_ROOT"), fgroup.Name);
 		ad = fopen(aname, "w");
 		fprintf(ad, "; TIC file areas in group %s\n", fgroup.Name);
 		fprintf(ad, ";\n");

@@ -3,34 +3,30 @@
  * Purpose ...............: Process 1 .tic file
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "unpack.h"
 #include "mover.h"
 #include "toberep.h"
@@ -88,7 +84,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
     Temp = calloc(PATH_MAX, sizeof(char));
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGREEN, BLACK);
+	ftnd_colour(LIGHTGREEN, BLACK);
 	printf("Checking  \b\b\b\b\b\b\b\b\b\b");
 	fflush(stdout);
     }
@@ -224,7 +220,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	strcpy(TIC.BBSpath, CFG.ticout);
 	strcpy(TIC.BBSdesc, tic.Comment);
     } else {
-	snprintf(Temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	snprintf(Temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 	if ((fp = fopen(Temp, "r")) == NULL) {
 	    WriteError("Can't access fareas.data area: %ld", tic.FileArea);
 	    free(Temp);
@@ -370,7 +366,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 
     if (MustRearc && IsArchive) {
 
-	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	snprintf(temp2, PATH_MAX, "%s/tmp/arc%d", getenv("FTND_ROOT"), (int)getpid());
 	if (!checkspace(temp2, TIC.TicIn.File, UNPACK_FACTOR)) {
 	    Bad((char *)"Not enough free diskspace left");
 	    free(Temp);
@@ -444,12 +440,12 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 
     if (tic.FileId && tic.FileArea && IsArchive) {
 	if (UnPacked) {
-	    snprintf(temp1, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	    snprintf(temp1, PATH_MAX, "%s/tmp/arc%d", getenv("FTND_ROOT"), (int)getpid());
 	    snprintf(Temp, PATH_MAX, "FILE_ID.DIZ");
 	    if (getfilecase(temp1, Temp)) {
 		Syslog('f', "Found %s", Temp);
-		snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), Temp);
-		snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+		snprintf(temp1, PATH_MAX, "%s/tmp/arc%d/%s", getenv("FTND_ROOT"), (int)getpid(), Temp);
+		snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("FTND_ROOT"));
 	    } else {
 		Syslog('f', "Didn't find a FILE_ID.DIZ");
 	    }
@@ -462,7 +458,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 		if (cmd == NULL) {
 		    WriteError("No unarc command available");
 		} else {
-		    snprintf(temp1, PATH_MAX, "%s/tmp", getenv("MBSE_ROOT"));
+		    snprintf(temp1, PATH_MAX, "%s/tmp", getenv("FTND_ROOT"));
 		    chdir(temp1);
 		    snprintf(temp1, PATH_MAX, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.TicIn.File);
 		    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
@@ -562,7 +558,7 @@ int ProcessTic(fa_list **sbl, orphans **opl)
 	    Syslog('+', "No banner command for %s", archiver.name);
 	} else {
 	    snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
-	    snprintf(Temp, PATH_MAX, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);
+	    snprintf(Temp, PATH_MAX, "%s/etc/%s", getenv("FTND_ROOT"), tic.Banner);
 	    if (execute_str(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
 		WriteError("Changing the banner failed");
 	    } else {

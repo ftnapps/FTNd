@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbfpack.c,v 1.26 2005/12/16 20:12:17 mbse Exp $
+ * ftnfpack.c
  * Purpose: File Database Maintenance - Pack filebase
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbfutil.h"
-#include "mbfpack.h"
+#include "../lib/ftnddb.h"
+#include "ftnfutil.h"
+#include "ftnfpack.h"
 
 
 
@@ -57,15 +53,15 @@ void PackFileBase(void)
 
     IsDoing("Pack filebase");
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("Packing file database...\n");
     }
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -80,7 +76,7 @@ void PackFileBase(void)
 	if (area.Available) {
 
 	    if (enoughspace(CFG.freespace) == 0)
-		die(MBERR_DISK_FULL);
+		die(FTNERR_DISK_FULL);
 
 	    if (!do_quiet) {
 		printf("\r%4d => %-44s", i, area.Name);
@@ -88,8 +84,8 @@ void PackFileBase(void)
 	    }
 	    Marker();
 
-	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
-		die(MBERR_GENERAL);
+	    if ((fdb_area = ftnddb_OpenFDB(i, 30)) == NULL)
+		die(FTNERR_GENERAL);
 	    purge = 0;
 
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
@@ -121,8 +117,8 @@ void PackFileBase(void)
 	    }
 
 	    if (purge)
-		mbsedb_PackFDB(fdb_area);
-	    mbsedb_CloseFDB(fdb_area);
+		ftnddb_PackFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	    iAreasNew++;
 
 	} /* if area.Available */

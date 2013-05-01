@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: storeecho.c,v 1.13 2005/10/11 20:49:47 mbse Exp $
+ * storeecho.c
  * Purpose ...............: Import a echomail message
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek                FIDO:           2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "rollover.h"
 #include "storeecho.h"
 
@@ -60,7 +56,7 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
     unsigned int    crc2;
     char            *buf;
 
-    mbse_CleanSubject(subj);
+    ftnd_CleanSubject(subj);
     
     /*
      *  Update import counters
@@ -106,7 +102,7 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
             echo_imp++;
 
         if (!do_quiet) {
-            mbse_colour(CYAN, BLACK);
+            ftnd_colour(CYAN, BLACK);
             printf("\r%6u => %-40s\r", echo_in, msgs.Name);
             fflush(stdout);
         }

@@ -3,37 +3,33 @@
  * Purpose ...............: Message Base Maintenance
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "post.h"
-#include "mbmsg.h"
+#include "ftnmsg.h"
 
 
 
@@ -65,11 +61,11 @@ void ProgName()
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBMSG: MBSE BBS %s - Message Base Maintenance Utility\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nFTNMSG: FTNd %s - Message Base Maintenance Utility\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("       %s\n", COPYRIGHT);
-    mbse_colour(LIGHTGRAY, BLACK);
+    ftnd_colour(LIGHTGRAY, BLACK);
 }
 
 
@@ -83,7 +79,7 @@ int main(int argc, char **argv)
 
 
     InitConfig();
-    mbse_TermInit(1, 80, 25);
+    ftnd_TermInit(1, 80, 25);
     oldmask = umask(007);
     t_start = time(NULL);
 
@@ -145,17 +141,17 @@ int main(int argc, char **argv)
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbmsg", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftnmsg", CFG.location, CFG.logfile, 
 		CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
-    Syslog(' ', "MBMSG v%s", VERSION);
+    Syslog(' ', "FTNMSG v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
 
     if (!do_quiet) {
 	printf("\n");
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
     }
 
     if (do_link || do_kill || do_pack) {
@@ -165,10 +161,10 @@ int main(int argc, char **argv)
 
     if (do_post) {
 	if (Post(too, tarea, subj, mfile, flavor))
-	    die(MBERR_GENERAL);
+	    die(FTNERR_GENERAL);
     }
 
-    die(MBERR_OK);
+    die(FTNERR_OK);
     return 0;
 }
 
@@ -179,23 +175,23 @@ void Help()
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("\n	Usage: mbmsg [command(s)] <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("\n	Usage: ftnmsg [command(s)] <options>\n\n");
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	l  link					Link messages by subject\n");
     printf("	k  kill					Kill messages (age & count)\n");
     printf("	pa pack					Pack deleted messages\n");
     printf("	po post <to> <#> <subj> <file> <flavor>	Post file in message area #\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-a -area <#>				Process area <#> only\n");
     printf("	-q -quiet				Quiet mode\n");
 
     printf("\n");
-    die(MBERR_COMMANDLINE);
+    die(FTNERR_COMMANDLINE);
 }
 
 
@@ -208,7 +204,7 @@ void die(int onsig)
 
     if (!do_quiet) {
 	printf("\r");
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
     }
 
     if (MsgBase.Locked)
@@ -229,11 +225,11 @@ void die(int onsig)
 	Syslog('+', "Msgs   [%6d]   Deleted [%6d]", msg_tot, msg_del);
 
     t_end = time(NULL);
-    Syslog(' ', "MBMSG finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNMSG finished in %s", t_elapsed(t_start, t_end));
 
     umask(oldmask);
     if (!do_quiet) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	printf("\r                                                          \n");
     }
     ExitClient(onsig);
@@ -263,10 +259,10 @@ void DoMsgBase()
 	Syslog('-', "------    ------ ------   ------ ------ ----------------------------------");
     }
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
     fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
 
@@ -276,10 +272,10 @@ void DoMsgBase()
 	    if (msgs.Active) {
 
 		if (enoughspace(CFG.freespace) == 0)
-		    die(MBERR_DISK_FULL);
+		    die(FTNERR_DISK_FULL);
 
 		if (!do_quiet) {
-		    mbse_colour(CYAN, BLACK);
+		    ftnd_colour(CYAN, BLACK);
 		    printf("\r%5d .. %-40s", do_area, msgs.Name);
 		    fflush(stdout);
 		}
@@ -303,11 +299,11 @@ void DoMsgBase()
 	    if (msgs.Active) {
 
 		if (enoughspace(CFG.freespace) == 0)
-		    die(MBERR_DISK_FULL);
+		    die(FTNERR_DISK_FULL);
 
 		Nopper();
 		if (!do_quiet) {
-		    mbse_colour(CYAN, BLACK);
+		    ftnd_colour(CYAN, BLACK);
 		    printf("\r%5d .. %-40s", arearec, msgs.Name);
 		    fflush(stdout);
 		}
@@ -330,10 +326,10 @@ void DoMsgBase()
     fclose(pAreas);
 
     if (!do_area) {
-	snprintf(sAreas, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	snprintf(sAreas, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
 	if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	    WriteError("$Can't open %s", sAreas);
-	    die(MBERR_GENERAL);
+	    die(FTNERR_GENERAL);
 	}
 	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pAreas);
 
@@ -342,7 +338,7 @@ void DoMsgBase()
 		Nopper();
 		snprintf(Name, PATH_MAX, "User %s email area: mailbox", usrconfig.Name);
 		if (!do_quiet) {
-		    mbse_colour(CYAN, BLACK);
+		    ftnd_colour(CYAN, BLACK);
 		    printf("\r      .. %-40s", Name);
 		    fflush(stdout);
 		}
@@ -397,7 +393,7 @@ void DoMsgBase()
 
     free(sAreas);
     free(Name);
-    die(MBERR_OK);
+    die(FTNERR_OK);
 }
 
 
@@ -432,9 +428,9 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, int Areanr)
     if (Msg_Open(Path)) {
 
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" (Killing)");
-	    mbse_colour(LIGHTMAGENTA, BLACK);
+	    ftnd_colour(LIGHTMAGENTA, BLACK);
 	    fflush(stdout);
 	}
 
@@ -543,7 +539,7 @@ void PackArea(char *Path, int Areanr)
     if (Msg_Open(Path)) {
 
 	if (!do_quiet) {
-	    mbse_colour(LIGHTRED, BLACK);
+	    ftnd_colour(LIGHTRED, BLACK);
 	    printf(" (Packing)");
 	    fflush(stdout);
 	}

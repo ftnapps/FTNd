@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbdiff.c,v 1.32 2008/11/26 22:12:28 mbse Exp $
+ * ftndiff.c
  * Purpose ...............: Nodelist diff processor
  * Original ideas ........: Eugene G. Crosser.
  * 
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbdiff.h"
+#include "../lib/ftnddb.h"
+#include "ftndiff.h"
 
 
 
@@ -58,9 +54,9 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBDIFF: MBSE BBS %s Nodelist diff processor\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nFTNDDIFF: FTNd %s Nodelist diff processor\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("        %s\n", COPYRIGHT);
 }
 
@@ -97,10 +93,10 @@ void die(int onsig)
     }
 
     t_end = time(NULL);
-    Syslog(' ', "MBDIFF finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNDDIFF finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -117,7 +113,7 @@ int main(int argc, char **argv)
     struct dirent   *de;
 
     InitConfig();
-    mbse_TermInit(1, 80, 25);
+    ftnd_TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 
@@ -136,7 +132,7 @@ int main(int argc, char **argv)
     if(argc < 3)
 	Help();
 
-    cmd = xstrcpy((char *)"Cmd: mbdiff");
+    cmd = xstrcpy((char *)"Cmd: ftndiff");
 
     for (i = 1; i < argc; i++) {
 
@@ -156,21 +152,21 @@ int main(int argc, char **argv)
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbdiff", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftndiff", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
-    Syslog(' ', "MBDIFF v%s", VERSION);
+    Syslog(' ', "FTNDDIFF v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
 
     if (!do_quiet) {
-	mbse_colour(LIGHTRED, BLACK);
+	ftnd_colour(LIGHTRED, BLACK);
 	printf("\n");
     }
 
     if (enoughspace(CFG.freespace) == 0)
-	die(MBERR_DISK_FULL);
+	die(FTNERR_DISK_FULL);
 
     /*
      *  Extract work directory from the first commandline parameter
@@ -181,17 +177,17 @@ int main(int argc, char **argv)
     if (strrchr(wrk, '/') == NULL) {
 	WriteError("No path in nodelist name");
 	free(wrk);
-	die(MBERR_COMMANDLINE);
+	die(FTNERR_COMMANDLINE);
     }
     if (strrchr(wrk, '.') != NULL) {
 	WriteError("Filename extension given for nodelist");
 	free(wrk);
-	die(MBERR_COMMANDLINE);
+	die(FTNERR_COMMANDLINE);
     }
     if (strrchr(nd, '/') == NULL) {
 	WriteError("No path in nodediff name");
 	free(wrk);
-	die(MBERR_COMMANDLINE);
+	die(FTNERR_COMMANDLINE);
     }
     show_log = FALSE;
 
@@ -203,13 +199,13 @@ int main(int argc, char **argv)
     if (access(wrk, R_OK|W_OK)) {
 	WriteError("$No R/W access in %s", wrk);
 	free(wrk);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     if (chdir(wrk)) {
 	WriteError("$Can't chdir to %s", wrk);
 	free(wrk);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
     show_log = FALSE;
 
@@ -220,7 +216,7 @@ int main(int argc, char **argv)
 	show_log = TRUE;
 	free(wrk);
 	WriteError("$Error opening directory %s", wrk);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     Match = FALSE;
@@ -244,7 +240,7 @@ int main(int argc, char **argv)
 	free(wrk);
 	free(onl);
 	WriteError("Old nodelist not found");
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     /*
@@ -255,7 +251,7 @@ int main(int argc, char **argv)
 	WriteError("Can't get filetype for %s", nd);
 	free(onl);
 	free(wrk);
-	die(MBERR_CONFIG_ERROR);
+	die(FTNERR_CONFIG_ERROR);
     }
 
     ond = xstrcpy(strrchr(nd, '/') + 1);
@@ -267,7 +263,7 @@ int main(int argc, char **argv)
 	    free(wrk);
 	    free(ond);
 	    WriteError("Can't find unarchiver %s", arc);
-	    die(MBERR_CONFIG_ERROR);
+	    die(FTNERR_CONFIG_ERROR);
 	}
 
 	/*
@@ -286,7 +282,7 @@ int main(int argc, char **argv)
 	    free(wrk);
 	    free(ond);
 	    WriteError("No unarc command available for %s", arc);
-	    die(MBERR_CONFIG_ERROR);
+	    die(FTNERR_CONFIG_ERROR);
 	}
 
 	if (execute_str(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
@@ -296,7 +292,7 @@ int main(int argc, char **argv)
 	    free(wrk);
 	    free(ond);
 	    WriteError("Fatal: unpack error");
-	    die(MBERR_EXEC_FAILED);
+	    die(FTNERR_EXEC_FAILED);
 	}
 	free(cmd);
 
@@ -323,7 +319,7 @@ int main(int argc, char **argv)
 	    free(onl);
 	    free(wrk);
 	    WriteError("Could not find extracted file");
-	    die(MBERR_DIFF_ERROR);
+	    die(FTNERR_DIFF_ERROR);
 	}
     } else {
 	if ((rc = file_cp(nd, ond))) {
@@ -332,7 +328,7 @@ int main(int argc, char **argv)
 	    free(onl);
 	    free(wrk);
 	    WriteError("Copy %s failed, %s", nd, strerror(rc));
-	    die(MBERR_DIFF_ERROR);
+	    die(FTNERR_DIFF_ERROR);
 	}
     }
 
@@ -352,12 +348,12 @@ int main(int argc, char **argv)
 	free(onl);
 	free(wrk);
 	free(nn);
-	die(MBERR_DIFF_ERROR);
+	die(FTNERR_DIFF_ERROR);
     }
 
     Syslog('+', "Apply %s with %s to %s", onl, ond, nn);
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("Apply %s with %s to %s\n", onl, ond, nn);
     }
     rc = apply(onl, ond, nn);
@@ -369,7 +365,7 @@ int main(int argc, char **argv)
 	free(ond);
 	free(onl);
 	free(wrk);
-	die(MBERR_DIFF_ERROR);
+	die(FTNERR_DIFF_ERROR);
     } else {
 	unlink(onl);
 	cmd = xstrcpy(archiver.farc);
@@ -383,7 +379,7 @@ int main(int argc, char **argv)
 		free(onl);
 		free(wrk);
 		free(nn);
-		die(MBERR_DIFF_ERROR);
+		die(FTNERR_DIFF_ERROR);
 	    } else {
 		cmd = xstrcpy(archiver.farc);
 	    }
@@ -415,7 +411,7 @@ int main(int argc, char **argv)
 	free(ond);
 	free(wrk);
 	free(nn);
-	die(MBERR_OK);
+	die(FTNERR_OK);
     }
     return 0;
 }
@@ -427,22 +423,22 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("\nUsage:	mbdiff [nodelist] [nodediff] <options>\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage:	ftndiff [nodelist] [nodediff] <options>\n\n");
+    ftnd_colour(CYAN, BLACK);
     printf("	The nodelist must be the full path and filename\n");
     printf("	without the dot and daynumber digits to the working\n");
     printf("	directory of that nodelist.\n");
     printf("	The nodediff must be the full path and filename\n");
     printf("	to the (compressed) nodediff file in the download\n");
     printf("	directory.\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("\n	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-quiet		Quiet mode\n");
-    mbse_colour(LIGHTGRAY, BLACK);
+    ftnd_colour(LIGHTGRAY, BLACK);
     printf("\n");
-    die(MBERR_COMMANDLINE);
+    die(FTNERR_COMMANDLINE);
 }
 
 
@@ -540,7 +536,7 @@ int apply(char *nl, char *nd, char *nn)
 
     if ((rc != 0) && !do_quiet) {
 	show_log = TRUE;
-	mbse_colour(LIGHTRED, BLACK);
+	ftnd_colour(LIGHTRED, BLACK);
     }
 
     if ((rc == 0) && (mycrc != theircrc)) 

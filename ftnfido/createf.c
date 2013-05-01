@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: createf.c,v 1.25 2005/10/11 20:49:47 mbse Exp $
+ * createf.c
  * Purpose ...............: Create TIC Area and BBS file area.
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "mgrutil.h"
 #include "createf.h"
 
@@ -46,7 +42,7 @@ int create_ticarea(char *farea, faddr *p_from)
 
     Syslog('f', "create_ticarea(%s)", farea);
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
         WriteError("Can't open %s", temp);
         free(temp);
@@ -215,7 +211,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      * Open tic area and set filepointer to the end to append
      * a new record.
      */
-    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
     if ((mp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	fclose(ap);
@@ -231,7 +227,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     /*
      * Open files area, and find a free slot
      */
-    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	fclose(ap);
@@ -331,8 +327,8 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     /*
      * Create download database
      */
-    if ((fdb_area = mbsedb_OpenFDB(AreaNr, 30)))
-	mbsedb_CloseFDB(fdb_area);
+    if ((fdb_area = ftnddb_OpenFDB(AreaNr, 30)))
+	ftnddb_CloseFDB(fdb_area);
 
     /*
      * Setup new TIC area.

@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbfcheck.c,v 1.39 2007/03/07 20:05:30 mbse Exp $
+ * ftnfcheck.c
  * Purpose: File Database Maintenance - Check filebase
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbfutil.h"
-#include "mbfcheck.h"
+#include "../lib/ftnddb.h"
+#include "ftnfutil.h"
+#include "ftnfcheck.h"
 
 
 
@@ -80,16 +76,16 @@ void Check(int AreaNr)
     newdir = calloc(PATH_MAX, sizeof(char));
     
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("Checking file database...\n");
     }
 
     iAreasNew = iTotal = iErrors = 0;
-    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
 
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -120,7 +116,7 @@ void Check(int AreaNr)
 	    } else {
 
 		if (strlen(area.Name) == 0) {
-		    snprintf(fAreas, PATH_MAX, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
+		    snprintf(fAreas, PATH_MAX, "%s/fdb/file%d.data", getenv("FTND_ROOT"), i);
 		    if (unlink(fAreas) == 0) {
 			Syslog('+', "Removed obsolete %s", fAreas);
 		    }
@@ -155,7 +151,7 @@ void Check(int AreaNr)
 				fgets(mname, PATH_MAX -1, pFile);
 				fclose(pFile);
 				Striplf(mname);
-				snprintf(newdir, PATH_MAX, "%s/etc/request.index", getenv("MBSE_ROOT"));
+				snprintf(newdir, PATH_MAX, "%s/etc/request.index", getenv("FTND_ROOT"));
 				Found = FALSE;
 				if ((pFile = fopen(newdir, "r"))) {
 				    while (fread(&idx, sizeof(idx), 1, pFile)) {
@@ -266,8 +262,8 @@ void CheckArea(int Area)
 	}
 	Fix = FALSE;
 	pw = getpwuid(stb.st_uid);
-	if (strcmp(pw->pw_name, (char *)"mbse")) {
-	    WriteError("Directory %s not owned by user mbse", area.Path);
+	if (strcmp(pw->pw_name, (char *)"ftnd")) {
+	    WriteError("Directory %s not owned by user ftnd", area.Path);
 	    Fix = TRUE;
 	}
 	gr = getgrgid(stb.st_gid);
@@ -277,18 +273,18 @@ void CheckArea(int Area)
 	}
 	if (Fix) {
 	    iErrors++;
-	    pw = getpwnam((char *)"mbse");
+	    pw = getpwnam((char *)"ftnd");
 	    gr = getgrnam((char *)"bbs");
 	    if (chown(area.Path, pw->pw_gid, gr->gr_gid))
-		WriteError("Could not set owner to mbse.bbs");
+		WriteError("Could not set owner to ftnd.bbs");
 	    else
-		Syslog('+', "Corrected directory owner to mbse.bbs");
+		Syslog('+', "Corrected directory owner to ftnd.bbs");
 	}
     } else {
 	WriteError("Can't stat %s", area.Path);
     }
 
-    if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
+    if ((fdb_area = ftnddb_OpenFDB(Area, 30)) == NULL)
 	return;
 
     /*
@@ -315,10 +311,10 @@ void CheckArea(int Area)
 	    	do_pack = TRUE;
 	    }
 	    iErrors++;
-	    if (mbsedb_LockFDB(fdb_area, 30)) {
+	    if (ftnddb_LockFDB(fdb_area, 30)) {
 		fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 		fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-		mbsedb_UnlockFDB(fdb_area);
+		ftnddb_UnlockFDB(fdb_area);
 	    }
 	} else {
 	    /*
@@ -474,10 +470,10 @@ void CheckArea(int Area)
 	    }
     	    Marker();
     	    if (Update) {
-		if (mbsedb_LockFDB(fdb_area, 30)) {
+		if (ftnddb_LockFDB(fdb_area, 30)) {
 		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-		    mbsedb_UnlockFDB(fdb_area);
+		    ftnddb_UnlockFDB(fdb_area);
 		}
 	    }
     	}
@@ -487,10 +483,10 @@ void CheckArea(int Area)
 	    if (rc == -1) {
 		Syslog('+', "Area %ld magic alias %s file %s is invalid", Area, fdb.Magic, fdb.Name);
 		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
-		if (mbsedb_LockFDB(fdb_area, 30)) {
+		if (ftnddb_LockFDB(fdb_area, 30)) {
 		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-		    mbsedb_UnlockFDB(fdb_area);
+		    ftnddb_UnlockFDB(fdb_area);
 		}
 		iErrors++;
 	    }
@@ -522,10 +518,10 @@ void CheckArea(int Area)
     			    iErrors++;
     			    fdb.Double = TRUE;
     			    do_pack = TRUE;
-			    if (mbsedb_LockFDB(fdb_area, 30)) {
+			    if (ftnddb_LockFDB(fdb_area, 30)) {
 			        fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 			        fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-			        mbsedb_UnlockFDB(fdb_area);
+			        ftnddb_UnlockFDB(fdb_area);
 			    }
 			}
     		    }
@@ -563,7 +559,7 @@ void CheckArea(int Area)
         WriteError("Can't open %s", area.Path);
     }
 
-    mbsedb_CloseFDB(fdb_area);
+    ftnddb_CloseFDB(fdb_area);
 
     iAreasNew++;
     free(newdir);

@@ -3,36 +3,32 @@
  * Purpose: File Database Maintenance - Adopt file
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbfutil.h"
-#include "mbflist.h"
+#include "../lib/ftnddb.h"
+#include "ftnfutil.h"
+#include "ftnflist.h"
 
 
 
@@ -51,13 +47,13 @@ void AdoptFile(int Area, char *File, char *Description)
     int			i, j, k, lines = 0, File_id_cnt = 0;
     struct FILE_record	f_db;
 
-    Syslog('f', "Adopt(%d, %s, %s)", Area, MBSE_SS(File), MBSE_SS(Description));
+    Syslog('f', "Adopt(%d, %s, %s)", Area, FTND_SS(File), FTND_SS(Description));
 
     if (!do_quiet)
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 
     if (LoadAreaRec(Area) == FALSE)
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
 
     if (area.Available) {
 	temp   = calloc(PATH_MAX, sizeof(char));
@@ -66,7 +62,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	tmpdir = calloc(PATH_MAX, sizeof(char));
 
 	if (CheckFDB(Area, area.Path))
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	getcwd(pwd, PATH_MAX);
 
 	if (!do_quiet) {
@@ -75,12 +71,12 @@ void AdoptFile(int Area, char *File, char *Description)
 	    fflush(stdout);
 	}
 
-	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("FTND_ROOT"), (int)getpid());
 	if (create_tmpwork()) {
 	    WriteError("Can't create %s", tmpdir);
 	    if (!do_quiet)
 		printf("\nCan't create dir %s\n", tmpdir);
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	}
 
 	snprintf(temp, PATH_MAX, "%s/%s", pwd, File);
@@ -95,7 +91,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	    WriteError("Virus found");
 	    if (!do_quiet)
 		printf("\nVirus found\n");
-	    die(MBERR_VIRUS_FOUND);
+	    die(FTNERR_VIRUS_FOUND);
 	}
 
 	if ((unarc = unpacker(File))) {
@@ -103,7 +99,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		MustRearc = TRUE;
 	    UnPacked = UnpackFile(temp);
 	    if (!UnPacked)
-		die(MBERR_INIT_ERROR);
+		die(FTNERR_INIT_ERROR);
 	}
 
         if (!do_quiet) {
@@ -122,11 +118,11 @@ void AdoptFile(int Area, char *File, char *Description)
 	     * Try to get a FILE_ID.DIZ
 	     */
 	    fileid = calloc(PATH_MAX, sizeof(char));
-            snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+            snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("FTND_ROOT"), (int)getpid());
 	    snprintf(fileid, PATH_MAX, "FILE_ID.DIZ");
 	    if (getfilecase(temp, fileid)) {
-		snprintf(temp, PATH_MAX, "%s/tmp/arc%d/%s", getenv("MBSE_ROOT"), (int)getpid(), fileid);
-		snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/tmp/arc%d/%s", getenv("FTND_ROOT"), (int)getpid(), fileid);
+		snprintf(temp2, PATH_MAX, "%s/tmp/FILE_ID.DIZ", getenv("FTND_ROOT"));
 		if (file_cp(temp, temp2) == 0) {
 		    File_Id = TRUE;
 		}
@@ -189,7 +185,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		if (!do_quiet)
 		    printf("\nNo FILE_ID.DIZ and no description on the commandline\n");
 		clean_tmpwork();
-		die(MBERR_COMMANDLINE);
+		die(FTNERR_COMMANDLINE);
 	    } else {
 		/*
 		 * Create description from the commandline.
@@ -250,7 +246,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		Syslog('+', "Can't rename %s to %s", File, temp2);
 		if (!do_quiet)
 		    printf("\nCan't rename %s to %s\n", File, temp2);
-		die(MBERR_GENERAL);
+		die(FTNERR_GENERAL);
 	    }
 	    strcpy(f_db.Name, temp2);
 	    strcpy(f_db.LName, File);
@@ -269,12 +265,12 @@ void AdoptFile(int Area, char *File, char *Description)
 	    lname = calloc(PATH_MAX, sizeof(char));
 	    snprintf(lname, PATH_MAX, "%s/%s", area.Path, f_db.LName);
 	    if (AddFile(f_db, Area, temp2, f_db.Name, lname) == FALSE) {
-		die(MBERR_GENERAL);
+		die(FTNERR_GENERAL);
 	    }
 	    free(lname);
 	} else {
 	    if (AddFile(f_db, Area, temp2, File, NULL) == FALSE) {
-		die(MBERR_GENERAL);
+		die(FTNERR_GENERAL);
 	    }
 	}
 	Syslog('+', "File %s added to area %d", File, Area);

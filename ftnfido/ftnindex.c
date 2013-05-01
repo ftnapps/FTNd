@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: mbindex.c,v 1.34 2007/09/02 11:17:32 mbse Exp $
+ * ftnindex.c
  * Purpose ...............: Nodelist Compiler
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 
 
 typedef struct _nl_list {
@@ -46,7 +42,7 @@ typedef struct _nl_user {
 } nl_user;
 
 
-#include "mbindex.h"
+#include "ftnindex.h"
 
 
 FILE		*ifp, *ufp, *ffp;
@@ -73,15 +69,15 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("\nUsage: mbindex <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage: ftnindex <options>\n\n");
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-quiet		Quiet mode\n");
-    mbse_colour(LIGHTGRAY, BLACK);
+    ftnd_colour(LIGHTGRAY, BLACK);
     printf("\n");
-    die(MBERR_COMMANDLINE);
+    die(FTNERR_COMMANDLINE);
 }
 
 
@@ -94,11 +90,11 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBINDEX: MBSE BBS %s Nodelist Index Compiler\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nFTNINDEX: FTNd %s Nodelist Index Compiler\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("         %s\n", COPYRIGHT);
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
 }
 
 
@@ -108,15 +104,15 @@ void die(int onsig)
     if (onsig && (onsig < NSIG))
 	signal(onsig, SIG_IGN);
 
-    ulockprogram((char *)"mbindex");
+    ulockprogram((char *)"ftnindex");
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	show_log = TRUE;
     }
 
-    if (IsSema((char *)"mbindex"))
-	RemoveSema((char *)"mbindex");
+    if (IsSema((char *)"ftnindex"))
+	RemoveSema((char *)"ftnindex");
 
     if (onsig) {
 	if (onsig <= NSIG)
@@ -126,10 +122,10 @@ void die(int onsig)
     }
 
     t_end = time(NULL);
-    Syslog(' ', "MBINDEX finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNINDEX finished in %s", t_elapsed(t_start, t_end));
 	
     if (!do_quiet)
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 
     ExitClient(onsig);
 }
@@ -144,7 +140,7 @@ int main(int argc,char *argv[])
 
     InitConfig();
     InitFidonet();
-    mbse_TermInit(1, 80, 25);
+    ftnd_TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 
@@ -160,7 +156,7 @@ int main(int argc,char *argv[])
 	    signal(i, SIG_IGN);
     }
 
-    cmd = xstrcpy((char *)"Command line: mbindex");
+    cmd = xstrcpy((char *)"Command line: ftnindex");
 
     if (argc > 2)
 	Help();
@@ -177,27 +173,27 @@ int main(int argc,char *argv[])
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbindex", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftnindex", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
-    Syslog(' ', "MBINDEX v%s", VERSION);
+    Syslog(' ', "FTNINDEX v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
 
     if (enoughspace(CFG.freespace) == 0)
-	die(MBERR_DISK_FULL);
+	die(FTNERR_DISK_FULL);
 
-    if (lockprogram((char *)"mbindex")) {
+    if (lockprogram((char *)"ftnindex")) {
 	if (!do_quiet)
-	    printf("Can't lock mbindex, abort.\n");
-	die(MBERR_NO_PROGLOCK);
+	    printf("Can't lock ftnindex, abort.\n");
+	die(FTNERR_NO_PROGLOCK);
     }
 
     if (nodebld())
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     else
-	die(MBERR_OK);
+	die(FTNERR_OK);
     return 0;
 }
 
@@ -403,14 +399,14 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 		 * netmail for bbs users doesn't work.
 		 */
 		WriteError("Can't set mode 0644 on nodelist %s", nlname);
-		return MBERR_INIT_ERROR;
+		return FTNERR_INIT_ERROR;
 	    }
 	}
     }
 
     if ((nl = fopen(fullpath(nlname), "r")) == NULL) {
 	WriteError("$Can't open %s", fullpath(nlname));
-	return MBERR_INIT_ERROR;
+	return FTNERR_INIT_ERROR;
     }
 
     memset(&ndx, 0, sizeof(ndx));
@@ -813,7 +809,7 @@ int makelist(char *base, unsigned short zo, unsigned short ne, unsigned short no
 
     if ((dp = opendir(CFG.nodelists)) == NULL) {
 	WriteError("$Can't open dir %s", CFG.nodelists);
-	rc = MBERR_GENERAL;
+	rc = FTNERR_GENERAL;
     } else {
 	while ((de = readdir(dp))) {
 	    if (strncmp(de->d_name, base, strlen(base)) == 0) {
@@ -834,7 +830,7 @@ int makelist(char *base, unsigned short zo, unsigned short ne, unsigned short no
 
 	if (files == 0) {
 	    Syslog('+', "No nodelist found for %s", base);
-	    return MBERR_GENERAL;
+	    return FTNERR_GENERAL;
 	}
 
 	/*
@@ -881,31 +877,31 @@ int nodebld(void)
     um = xstrcpy(fullpath((char *)"temp.users"));
 
     if ((ifp = fopen(im, "w+")) == NULL) {
-	WriteError("$Can't create %s",MBSE_SS(im));
-	return MBERR_GENERAL;
+	WriteError("$Can't create %s",FTND_SS(im));
+	return FTNERR_GENERAL;
     }
     if ((ufp = fopen(um, "w+")) == NULL) {
-	WriteError("$Can't create %s", MBSE_SS(um));
+	WriteError("$Can't create %s", FTND_SS(um));
 	fclose(ifp);
 	unlink(im);
-	return MBERR_GENERAL;
+	return FTNERR_GENERAL;
     }
     if ((ffp = fopen(fm, "w+")) == NULL) {
-	WriteError("$Can't create %s", MBSE_SS(fm));
+	WriteError("$Can't create %s", FTND_SS(fm));
 	fclose(ifp);
 	unlink(im);
 	fclose(ufp);
 	unlink(um);
-	return MBERR_GENERAL;
+	return FTNERR_GENERAL;
     }
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("\n");
     }
 
     if ((fp = fopen(fidonet_fil, "r")) == 0)
-	rc = MBERR_GENERAL;
+	rc = FTNERR_GENERAL;
     else {
 	fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
 

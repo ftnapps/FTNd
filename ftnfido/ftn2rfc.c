@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: ftn2rfc.c,v 1.34 2007/08/26 12:21:16 mbse Exp $
+ * ftn2rfc.c
  * Purpose ...............: Gate netmail->email or echomail->news
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "rollover.h"
 #include "aliasdb.h"
 #include "postemail.h"
@@ -694,7 +690,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	 */
 	if (!newsopen) {
 	    p = calloc(PATH_MAX, sizeof(char));
-	    snprintf(p, PATH_MAX, "%s/tmp/newsout", getenv("MBSE_ROOT"));
+	    snprintf(p, PATH_MAX, "%s/tmp/newsout", getenv("FTND_ROOT"));
 	    if ((nfp = fopen(p, "a")) == NULL) {
 		WriteError("$Can't open %s", p);
 		free(p);
@@ -824,10 +820,10 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 
     } else { /* if newsmode */
 	now = time(NULL);
-	Syslog('m', "Should send Received: header for mbfido");
+	Syslog('m', "Should send Received: header for ftnfido");
 	snprintf(temp, 32768,"Received: from %s\n", ascinode(f, 0x3f));
 	Send(FALSE, temp);
-	snprintf(temp, 32768,"\tby %s with FTN (mbfido v.%s) id AA%u\n", ascinode(bestaka,0x3f), VERSION, getpid());
+	snprintf(temp, 32768,"\tby %s with FTN (ftnfido v.%s) id AA%u\n", ascinode(bestaka,0x3f), VERSION, getpid());
 	Send(FALSE, temp);
 	snprintf(temp, 32768,"\t%s\n", rfcdate(now));
 	Send(FALSE, temp);

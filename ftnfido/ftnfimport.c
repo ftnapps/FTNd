@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbfimport.c,v 1.39 2008/02/17 17:50:14 mbse Exp $
+ * ftnfimport.c
  * Purpose: File Database Maintenance - Import files with files.bbs
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbfutil.h"
-#include "mbfimport.h"
+#include "../lib/ftnddb.h"
+#include "ftnfutil.h"
+#include "ftnfimport.h"
 
 
 
@@ -61,7 +57,7 @@ void test_file(char *dirpath, char *search, char *result)
 	WriteError("$Can't open directory %s", dirpath);
 	if (!do_quiet)
 	    printf("\nCan't open directory %s: %s\n", dirpath, strerror(errno));
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 	
     while ((de = readdir(dp))) {
@@ -128,7 +124,7 @@ void ImportFiles(int Area)
     struct stat		statfile;
 
     if (!do_quiet)
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 
     temp   = calloc(PATH_MAX, sizeof(char));
     snprintf(temp, PATH_MAX, "xxxxx%d", getpid());
@@ -137,14 +133,14 @@ void ImportFiles(int Area)
 	if (!do_quiet)
 	    printf("\nCan't write to this directory, cannot import\n");
 	free(temp);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
     fclose(fbbs);
     unlink(temp);
     free(temp);
 
     if (LoadAreaRec(Area) == FALSE)
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
 
     if (area.Available) {
         temp   = calloc(PATH_MAX, sizeof(char));
@@ -158,14 +154,14 @@ void ImportFiles(int Area)
 
         getcwd(pwd, PATH_MAX);
 	if (CheckFDB(Area, area.Path))
-	    die(MBERR_GENERAL);
+	    die(FTNERR_GENERAL);
 
-	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	snprintf(tmpdir, PATH_MAX, "%s/tmp/arc%d", getenv("FTND_ROOT"), (int)getpid());
 	if (create_tmpwork()) {
 	    WriteError("Can't create %s", tmpdir);
 	    if (!do_quiet)
 		printf("\nCan't create %s\n", tmpdir);
-	    die(MBERR_GENERAL);
+	    die(FTNERR_GENERAL);
 	}
 	IsDoing("Import files");
 
@@ -177,13 +173,13 @@ void ImportFiles(int Area)
 	    WriteError("Can't find files.bbs anywhere");
 	    if (!do_quiet)
 		printf("Can't find files.bbs anywhere\n");
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	}
 	if ((fbbs = fopen(temp, "r")) == NULL) {
 	    WriteError("Can't open files.bbs");
 	    if (!do_quiet)
 		printf("Can't open files.bbs\n");
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	}
 	
 	/*
@@ -228,7 +224,7 @@ void ImportFiles(int Area)
 		 * Check diskspace
 		 */
 		if (enoughspace(CFG.freespace) == 0)
-		    die(MBERR_DISK_FULL);
+		    die(FTNERR_DISK_FULL);
 
 		/*
 		 * Refresh tmpwork

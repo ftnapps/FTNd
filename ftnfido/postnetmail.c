@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: postnetmail.c,v 1.21 2005/08/28 14:10:06 mbse Exp $
+ * postnetmail
  * Purpose ...............: Post Netmail message from temp file
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "../lib/msg.h"
 #include "tracker.h"
 #include "addpkt.h"
@@ -77,7 +73,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 
     Syslog('m', "Post netmail from: %s", ascfnode(f, 0xff));
     Syslog('m', "Post netmail to  : %s", ascfnode(t, 0xff));
-    Syslog('m', "Post netmail subj: %s", MBSE_SS(subject));
+    Syslog('m', "Post netmail subj: %s", FTND_SS(subject));
     net_in++;
 
     /*
@@ -288,7 +284,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	     */
 	    (void)noderecord(f);
 	    p = calloc(PATH_MAX, sizeof(char));
-	    snprintf(p, PATH_MAX, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	    snprintf(p, PATH_MAX, "%s/etc/service.data", getenv("FTND_ROOT"));
 	    if ((sfp = fopen(p, "r")) == NULL) {
 		WriteError("$Can't open %s", p);
 	    } else {
@@ -438,7 +434,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	    now = time(NULL);
 	    tm = gmtime(&now);
 	    ta = bestaka_s(t);
-	    fprintf(net, "\001Via %s @%d%02d%02d.%02d%02d%02d.00.UTC mbfido %s\r", 
+	    fprintf(net, "\001Via %s @%d%02d%02d.%02d%02d%02d.00.UTC ftnfido %s\r", 
 		ascfnode(ta, 0x1f), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec, VERSION);
 	    tidy_faddr(ta);

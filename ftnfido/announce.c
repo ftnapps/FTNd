@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: announce.c,v 1.37 2007/03/02 13:23:36 mbse Exp $
+ * announce.c
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
 #include "../lib/diesel.h"
@@ -67,11 +63,11 @@ void Uploads()
     IsDoing("Check uploads");
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("  Checking uploads...\n");
     }
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
 	free(sAreas);
@@ -93,7 +89,7 @@ void Uploads()
 		fflush(stdout);
 	    }
 
-	    if ((fdb_area = mbsedb_OpenFDB(i, 30))) {
+	    if ((fdb_area = ftnddb_OpenFDB(i, 30))) {
 		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		    Nopper();
 		    if (!fdb.Announced) {
@@ -130,15 +126,15 @@ void Uploads()
 			 * Mark file is announced.
 			 */
 			fdb.Announced = TRUE;
-			if (mbsedb_LockFDB(fdb_area, 30)) {
+			if (ftnddb_LockFDB(fdb_area, 30)) {
 			    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 			    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-			    mbsedb_UnlockFDB(fdb_area);
+			    ftnddb_UnlockFDB(fdb_area);
 			}
 		    }
 		}
 
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
 	    }
 	}
     }
@@ -231,7 +227,7 @@ void FinishMsg(int Final, int filepos)
 
     chartran_close();
 
-    snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "a")) != NULL) {
 	fprintf(fp, "%s %u\n", newfiles.Area, Msg.Id);
 	fclose(fp);
@@ -257,7 +253,7 @@ int Report(gr_list *ta, int filepos)
     time_t	    ftime;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	return 0;
@@ -382,7 +378,7 @@ int Announce()
     int		i, groups, any;
 
     if (!do_quiet) {
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	printf("Announce new files\n");
     }
 
@@ -390,7 +386,7 @@ int Announce()
     IsDoing("Announce files");
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	Syslog('+', "No new files to announce");
 	free(temp);
@@ -430,7 +426,7 @@ int Announce()
      *  At this point we have a sorted list of groups with a counter
      *  indicating howmany files to report in each group.
      */
-    snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/newfiles.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	if (!do_quiet)
@@ -484,7 +480,7 @@ int Announce()
     tidy_grlist(&fgr);
 
     if (rc) {
-	snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/toberep.data", getenv("FTND_ROOT"));
 	unlink(temp);
     }
 

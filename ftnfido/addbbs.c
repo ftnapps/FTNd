@@ -1,37 +1,33 @@
 /*****************************************************************************
  *
- * $Id: addbbs.c,v 1.39 2007/03/07 20:05:30 mbse Exp $
- * Purpose ...............: Add TIC file to the BBS
+ * addbbs.c
+ * Purpose ...............: Add TIC file to FTNd system
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "orphans.h"
 #include "tic.h"
 #include "fsort.h"
@@ -43,7 +39,7 @@ extern	int	tic_imp;
 
 
 /*
- *  Add file to the BBS file database and place it in the download
+ *  Add file to the FTNd file database and place it in the download
  *  directory. If it is replacing a file, a file with a matching name
  *  will be deleted. If there is a limit on the number of files with
  *  the  same name pattern, the oldest files will be deleted. The
@@ -66,7 +62,7 @@ int Add_BBS(qualify **qal)
      * prevent for example allfiles.zip to get a new record everytime
      * and thus the download counters will be reset after a new update.
      */
-    if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
+    if ((fdb_area = ftnddb_OpenFDB(tic.FileArea, 30))) {
 	while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 	    if (strcmp(frec.Name, TIC.NewFile) == 0) {
 		snprintf(temp1, PATH_MAX, "%s/%s", TIC.Inbound, TIC.NewFile);
@@ -74,7 +70,7 @@ int Add_BBS(qualify **qal)
 		mkdirs(temp2, 0755);
 		if ((rc = file_cp(temp1, temp2))) {
 		    WriteError("Copy to %s failed: %s", temp2, strerror(rc));
-		    mbsedb_CloseFDB(fdb_area);
+		    ftnddb_CloseFDB(fdb_area);
 		    return FALSE;
 		}
 		chmod(temp2, 0644);
@@ -89,19 +85,19 @@ int Add_BBS(qualify **qal)
 		    if (i == 24)
 			break;
 		}
-		if (mbsedb_LockFDB(fdb_area, 30)) {
+		if (ftnddb_LockFDB(fdb_area, 30)) {
 		    fseek(fdb_area->fp, 0 - fdbhdr.recsize, SEEK_CUR);
 		    fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
-		    mbsedb_UnlockFDB(fdb_area);
+		    ftnddb_UnlockFDB(fdb_area);
 		}
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
 		tic_imp++;
 		if ((i = file_rm(temp1)))
 		    WriteError("file_rm(%s): %s", temp1, strerror(i));
 		return TRUE;
 	    }
 	}
-	mbsedb_CloseFDB(fdb_area);
+	ftnddb_CloseFDB(fdb_area);
     }
 
 
@@ -178,10 +174,10 @@ int Add_BBS(qualify **qal)
     }
     free(lname);
 
-    if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30)) == NULL)
+    if ((fdb_area = ftnddb_OpenFDB(tic.FileArea, 30)) == NULL)
 	return FALSE;
-    mbsedb_InsertFDB(fdb_area, frec, area.AddAlpha);
-    mbsedb_CloseFDB(fdb_area);
+    ftnddb_InsertFDB(fdb_area, frec, area.AddAlpha);
+    ftnddb_CloseFDB(fdb_area);
 
     /*
      * Delete file from the inbound
@@ -195,7 +191,7 @@ int Add_BBS(qualify **qal)
     if ((strlen(TIC.TicIn.Replace)) && (tic.Replace)) {
 	Syslog('f', "Must Replace: %s", TIC.TicIn.Replace);
 
-	if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
+	if ((fdb_area = ftnddb_OpenFDB(tic.FileArea, 30))) {
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		if (strlen(fdb.LName) == strlen(frec.LName)) {
 		    // FIXME: Search must be based on a reg_exp search
@@ -208,17 +204,17 @@ int Add_BBS(qualify **qal)
 			if (Found) {
 			    Syslog('+', "Replace: Deleting: %s", fdb.LName);
 			    fdb.Deleted = TRUE;
-			    if (mbsedb_LockFDB(fdb_area, 30)) {
+			    if (ftnddb_LockFDB(fdb_area, 30)) {
 				fseek(fdb_area->fp , - fdbhdr.recsize, SEEK_CUR);
 				fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-				mbsedb_UnlockFDB(fdb_area);
+				ftnddb_UnlockFDB(fdb_area);
 			    }
 			    DidDelete = TRUE;
 			}
 		    }
 		}
 	    }
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	}
     }
 
@@ -226,7 +222,7 @@ int Add_BBS(qualify **qal)
      * Handle the Keep number of files option
      */
     if (TIC.KeepNum) {
-	if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
+	if ((fdb_area = ftnddb_OpenFDB(tic.FileArea, 30))) {
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		if ((strlen(fdb.LName) == strlen(frec.LName)) && (!fdb.Deleted)) {
 		    Found = TRUE;
@@ -244,7 +240,7 @@ int Add_BBS(qualify **qal)
 		    }
 		}
 	    }
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	}
 
 	/*
@@ -253,7 +249,7 @@ int Add_BBS(qualify **qal)
 	if (Keep > TIC.KeepNum) {
 	    sort_fdlist(&fdl);
 
-	    if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
+	    if ((fdb_area = ftnddb_OpenFDB(tic.FileArea, 30))) {
 		for (i = 0; i < (Keep - TIC.KeepNum); i++) {
 		    fname = pull_fdlist(&fdl);
 		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
@@ -261,16 +257,16 @@ int Add_BBS(qualify **qal)
 			if (strcmp(fdb.LName, fname) == 0) {
 			    Syslog('+', "Keep %d files, deleting: %s", TIC.KeepNum, fdb.LName);
 			    fdb.Deleted = TRUE;
-			    if (mbsedb_LockFDB(fdb_area, 30)) {
+			    if (ftnddb_LockFDB(fdb_area, 30)) {
 				fseek(fdb_area->fp , - fdbhdr.recsize, SEEK_CUR);
 				fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-				mbsedb_UnlockFDB(fdb_area);
+				ftnddb_UnlockFDB(fdb_area);
 			    }
 			    DidDelete = TRUE;
 			}
 		    }
 		}
-		mbsedb_CloseFDB(fdb_area);
+		ftnddb_CloseFDB(fdb_area);
     		}
 	}
 	tidy_fdlist(&fdl);
@@ -281,7 +277,7 @@ int Add_BBS(qualify **qal)
      *  database.
      */
     if (DidDelete) {
-	if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
+	if ((fdb_area = ftnddb_OpenFDB(tic.FileArea, 30))) {
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		if (fdb.Deleted) {
 		    snprintf(temp2, PATH_MAX, "%s/%s", area.Path, fdb.LName);
@@ -309,8 +305,8 @@ int Add_BBS(qualify **qal)
 		    unlink(temp2); /* Thumbnail, no logging if there is an error */
 		}
 	    }
-	    mbsedb_PackFDB(fdb_area);
-	    mbsedb_CloseFDB(fdb_area);
+	    ftnddb_PackFDB(fdb_area);
+	    ftnddb_CloseFDB(fdb_area);
 	    DidDelete = FALSE;
 	}
     }

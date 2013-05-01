@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbfutil.c,v 1.53 2008/11/26 22:12:28 mbse Exp $
+ * ftnfutil.c
  * Purpose: File Database Maintenance - utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
-#include "mbfutil.h"
-#include "mbfile.h"
+#include "../lib/ftnddb.h"
+#include "ftnfutil.h"
+#include "ftnfile.h"
 
 
 
@@ -51,9 +47,9 @@ void ProgName(void)
 	if (do_quiet)
 		return;
 
-	mbse_colour(WHITE, BLACK);
-	printf("\nMBFILE: MBSE BBS %s File maintenance utility\n", VERSION);
-	mbse_colour(YELLOW, BLACK);
+	ftnd_colour(WHITE, BLACK);
+	printf("\nFTNFILE: FTNd %s File maintenance utility\n", VERSION);
+	ftnd_colour(YELLOW, BLACK);
 	printf("        %s\n", COPYRIGHT);
 }
 
@@ -91,12 +87,12 @@ void die(int onsig)
     }
 
     clean_tmpwork();
-    ulockprogram((char *)"mbfile");
+    ulockprogram((char *)"ftnfile");
     t_end = time(NULL);
-    Syslog(' ', "MBFILE finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNFILE finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
 	fflush(stdout);
     }
     ExitClient(onsig);
@@ -109,11 +105,11 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("Usage:	mbfile [command] <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("Usage:	ftnfile [command] <options>\n\n");
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	a  adopt <area> <file> \"[desc]\"	Adopt file to area\n");
     printf("	c  check [area]			Check filebase\n");
     printf("	d  delete <area> \"<filemask>\"	Mark file(s) in area for deletion\n");
@@ -127,14 +123,14 @@ void Help(void)
     printf("	s  sort <area>			Sort files in a file area\n");
     printf("	t  toberep			Show toberep database\n");
     printf("	u  undelete <area> \"<filemask>\"	Mark file(s) in area for undeletion\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("\n	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-a -announce			Suppress announce added files\n");
     printf("	-f -force			Force file overwrite\n");
     printf("	-q -quiet			Quiet mode\n");
     printf("	-v -virus			Suppress virus scanning, use with care\n");
-    die(MBERR_COMMANDLINE);
+    die(FTNERR_COMMANDLINE);
 }
 
 
@@ -222,10 +218,10 @@ int UnpackFile(char *File)
      * Check if there is a temp directory to unpack the archive.
      */
     if (create_tmpwork()) {
-	snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+	snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("FTND_ROOT"), (int)getpid());
 	if (!do_quiet)
 	    printf("\nCan't create %s\n", temp);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
 
     if (!getarchiver(unarc)) {
@@ -245,11 +241,11 @@ int UnpackFile(char *File)
 	return FALSE;
     }
 
-    snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("MBSE_ROOT"), (int)getpid());
+    snprintf(temp, PATH_MAX, "%s/tmp/arc%d", getenv("FTND_ROOT"), (int)getpid());
     if (chdir(temp) != 0) {
 	WriteError("$Can't change to %s", temp);
 	clean_tmpwork();
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
 
     if (execute_str(cmd, File, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
@@ -279,9 +275,9 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
     char	    *temp, *dest, *lnk;
 
     Syslog('f', "AddFile Area    : %d", Area);
-    Syslog('f', "AddFile DestPath: %s", MBSE_SS(DestPath));
-    Syslog('f', "AddFile FromPath: %s", MBSE_SS(FromPath));
-    Syslog('f', "AddFile LinkPath: %s", MBSE_SS(LinkPath));
+    Syslog('f', "AddFile DestPath: %s", FTND_SS(DestPath));
+    Syslog('f', "AddFile FromPath: %s", FTND_SS(FromPath));
+    Syslog('f', "AddFile LinkPath: %s", FTND_SS(LinkPath));
 
     /*
      * Copy file to the final destination and make a hard link with the
@@ -333,9 +329,9 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
 	free(temp);
     }
 
-    if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
-	rc = mbsedb_InsertFDB(fdb_area, f_db, TRUE);
-	mbsedb_CloseFDB(fdb_area);
+    if ((fdb_area = ftnddb_OpenFDB(Area, 30))) {
+	rc = ftnddb_InsertFDB(fdb_area, f_db, TRUE);
+	ftnddb_CloseFDB(fdb_area);
 	return rc;
     } else {
 	return FALSE;
@@ -351,7 +347,7 @@ int CheckFDB(int Area, char *Path)
     int	    rc = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+    snprintf(temp, PATH_MAX, "%s/var/fdb/file%d.data", getenv("FTND_ROOT"), Area);
 
     /*
      * Open the file database, create new one if it doesn't excist.
@@ -403,7 +399,7 @@ int LoadAreaRec(int Area)
 
     sAreas = calloc(PATH_MAX, sizeof(char));
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/fareas.data", getenv("FTND_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
         WriteError("$Can't open %s", sAreas);
         if (!do_quiet)

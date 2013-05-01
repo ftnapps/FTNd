@@ -1,38 +1,34 @@
 /*****************************************************************************
  *
- * $Id: tracker.c,v 1.17 2005/10/11 20:49:47 mbse Exp $
+ * tracker.c
  * Purpose ...............: Netmail tracker / router
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "tracker.h"
 
 
@@ -55,7 +51,7 @@ int  AreWeHub(faddr *);
 /*
  * Parse the mask from the routing table. If all 4d address parts
  * are 0, then something is wrong. This cannot happen because the
- * syntax is checked in mbsetup.
+ * syntax is checked in ftndtup.
  * Matched values return the actual value, the "All" masks return 65535.
  */
 void ParseMask(char *s, fidoaddr *addr)
@@ -168,7 +164,7 @@ int GetTableRoute(char *ftn, fidoaddr *res)
      * Check routing table
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/route.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/route.data", getenv("FTND_ROOT"));
     if ((fil = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return R_NOROUTE;
@@ -712,7 +708,7 @@ void TestTracker(faddr *dest)
     addr.node  = dest->node;
     addr.point = dest->point;
 
-    mbse_colour(LIGHTGRAY, BLACK);
+    ftnd_colour(LIGHTGRAY, BLACK);
     Syslog('+', "Test route to %s", aka2str(addr));
 
     rc = TrackMail(addr, &result);

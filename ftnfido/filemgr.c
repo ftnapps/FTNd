@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: filemgr.c,v 1.41 2005/10/11 20:49:47 mbse Exp $
+ * filemgr.c
  * Purpose ...............: FileMgr
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "../lib/diesel.h"
 #include "sendmail.h"
 #include "mgrutil.h"
@@ -161,7 +157,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 	MacroRead(fi, qp);
 	fgetpos(fi,&fileptr);
 	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
 	if ((fp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -173,7 +169,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 	fread(&tichdr, sizeof(tichdr), 1, fp);
 	Cons = tichdr.syssize / sizeof(System);
 
-	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -463,7 +459,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 
 	Syslog('f', "  Area not found, trying to create");
 	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
@@ -605,7 +601,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 
     f = bestaka_s(t);
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -614,7 +610,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     fread(&tichdr, sizeof(tichdr), 1, fp);
     Cons = tichdr.syssize / sizeof(Sys);
 
-    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/fgroups.data", getenv("FTND_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
@@ -737,7 +733,7 @@ void F_Pause(faddr *t, int Pause, FILE *tmp)
     Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/tic.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r+")) == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);

@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: scan.c,v 1.47 2007/09/05 18:40:02 mbse Exp $
+ * scan.c
  * Purpose ...............: Scan for outgoing mail.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "addpkt.h"
 #include "tracker.h"
 #include "ftn2rfc.h"
@@ -69,7 +65,7 @@ void ExportEmail(unsigned int);
 
 
 /*
- *  Scan for outgoing mail. If using the files $MBSE_ROOT/tmp/echomail.jam
+ *  Scan for outgoing mail. If using the files $FTND_ROOT/tmp/echomail.jam
  *  or netmail.jam not all mail is scanned a full mailscan will be 
  *  performed.
  */
@@ -87,7 +83,7 @@ void ScanMail(int DoAll)
 	Fname = calloc(PATH_MAX, sizeof(char));
 	temp  = calloc(PATH_MAX, sizeof(char));
 
-	snprintf(Fname, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+	snprintf(Fname, PATH_MAX, "%s/tmp/echomail.jam", getenv("FTND_ROOT"));
 	if ((fp = fopen(Fname, "r")) != NULL) {
 	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
 		path = strtok(temp, " \n\0");
@@ -106,7 +102,7 @@ void ScanMail(int DoAll)
 	    unlink(Fname); 
 	}
 
-	snprintf(Fname, PATH_MAX, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+	snprintf(Fname, PATH_MAX, "%s/tmp/netmail.jam", getenv("FTND_ROOT"));
 	if ((fp = fopen(Fname, "r")) != NULL) {
 	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
 		path = strtok(temp, " \n\0");
@@ -157,14 +153,14 @@ void ScanFull()
     IsDoing("Scanning mail");
 
     if (!do_quiet) {
-	mbse_colour(LIGHTBLUE, BLACK);
+	ftnd_colour(LIGHTBLUE, BLACK);
 	printf("Scanning mail\n");
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	fflush(stdout);
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
-    snprintf(sAreas, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) != NULL) {
 	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pAreas);
 
@@ -173,9 +169,9 @@ void ScanFull()
 
 		Nopper();
 		if (!do_quiet) {
-		    mbse_colour(CYAN, BLACK);
+		    ftnd_colour(CYAN, BLACK);
 		    printf("\r%8s %-40s", usrconfig.Name, usrconfig.sUserName);
-		    mbse_colour(LIGHTMAGENTA, BLACK);
+		    ftnd_colour(LIGHTMAGENTA, BLACK);
 		    fflush(stdout);
 		}
 
@@ -218,7 +214,7 @@ void ScanFull()
 	fclose(pAreas);
     }
 
-    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	free(sAreas);
@@ -237,9 +233,9 @@ void ScanFull()
 
 	    Nopper();
 	    if (!do_quiet) {
-		mbse_colour(CYAN, BLACK);
+		ftnd_colour(CYAN, BLACK);
 		printf("\r%5d .. %-40s", arearec, msgs.Name);
-		mbse_colour(LIGHTMAGENTA, BLACK);
+		ftnd_colour(LIGHTMAGENTA, BLACK);
 		fflush(stdout);
 	    }
 
@@ -352,9 +348,9 @@ void ScanOne(char *path, unsigned int MsgNum)
     IsDoing("Scanning mail");
 
     if (!do_quiet) {
-	mbse_colour(LIGHTBLUE, BLACK);
+	ftnd_colour(LIGHTBLUE, BLACK);
 	printf("Scanning mail\n");
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
 	fflush(stdout);
     }
 
@@ -378,7 +374,7 @@ void ScanOne(char *path, unsigned int MsgNum)
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
-    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(sAreas, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((pAreas = fopen(sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	free(sAreas);
@@ -405,9 +401,9 @@ void ScanOne(char *path, unsigned int MsgNum)
 
     if ((msgs.Active) && (msgs.Type == ECHOMAIL || msgs.Type == NETMAIL || msgs.Type == NEWS)) {
 	if (!do_quiet) {
-	    mbse_colour(CYAN, BLACK);
+	    ftnd_colour(CYAN, BLACK);
 	    printf("\r%5d .. %-40s", Area, msgs.Name);
-	    mbse_colour(LIGHTMAGENTA, BLACK);
+	    ftnd_colour(LIGHTMAGENTA, BLACK);
 	    fflush(stdout);
 	}
 
@@ -500,9 +496,9 @@ int RescanOne(faddr *L, char *marea, unsigned int Num)
     IsDoing("ReScan mail");
 
     if (!do_quiet) {
-        mbse_colour(LIGHTBLUE, BLACK);
+        ftnd_colour(LIGHTBLUE, BLACK);
         printf("ReScan mail\n");
-        mbse_colour(CYAN, BLACK);
+        ftnd_colour(CYAN, BLACK);
         fflush(stdout);
     }
 
@@ -529,9 +525,9 @@ int RescanOne(faddr *L, char *marea, unsigned int Num)
 
     if ((msgs.Active) && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST))) {
         if (!do_quiet) {
-            mbse_colour(CYAN, BLACK);
+            ftnd_colour(CYAN, BLACK);
             printf("\r%5d .. %-40s", Area, msgs.Name);
-            mbse_colour(LIGHTMAGENTA, BLACK);
+            ftnd_colour(LIGHTMAGENTA, BLACK);
 	    fflush(stdout);
 	}
 
@@ -632,7 +628,7 @@ void ExportEcho(sysconnect L, unsigned int MsgNum, fa_list **sbl)
 		     * At the end of the kludges, add the TID kludge.
 		     */
 		    kludges = FALSE;
-		    fprintf(qp, "\001TID: MBSE-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());
+		    fprintf(qp, "\001TID: FTND-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());
 		}
 		fprintf(qp, "%s", p);
 		if (strncmp(p, " * Origin:", 10) == 0)
@@ -725,7 +721,7 @@ void ExportNews(unsigned int MsgNum, fa_list **sbl)
 			 * After the first kludges, send RFC headers
 			 */
 			kludges = FALSE;
-			fprintf(qp, "\001TID: MBSE-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
+			fprintf(qp, "\001TID: FTND-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
 			fprintf(qp, "Subject: %s\n", Msg.Subject);
 			fprintf(qp, "\n");
 			fprintf(qp, "%s\n", p);
@@ -798,7 +794,7 @@ void ExportNet(unsigned int MsgNum, int UUCPgate)
     /*
      *  Analyze this message if it contains INTL, FMPT and TOPT kludges 
      *  and check if we need them. If they are missing they are inserted.
-     *  GoldED doesn't insert them but MBSE does.
+     *  GoldED doesn't insert them but FTND does.
      */
     if (Msg_Read(MsgNum, 79)) {
         if ((p = (char *)MsgText_First()) != NULL) {
@@ -842,7 +838,7 @@ void ExportNet(unsigned int MsgNum, int UUCPgate)
             if ((p = (char *)MsgText_First()) != NULL) {
                 do {
 		    if (strncmp(p, "To: ", 4) == 0) {
-			Syslog('m', "%s", MBSE_SS(p));
+			Syslog('m', "%s", FTND_SS(p));
 			if ((strchr(p, '<') != NULL) && (strchr(p, '>') != NULL)) {
 			    q = strtok(p, "<");
 			    q = strtok(NULL, ">");
@@ -870,7 +866,7 @@ void ExportNet(unsigned int MsgNum, int UUCPgate)
 	fprintf(fp, "MIME-Version: 1.0\n");
 	fprintf(fp, "Content-Type: text/plain\n");
 	fprintf(fp, "Content-Transfer-Encoding: 8bit\n");
-	fprintf(fp, "X-Mailreader: MBSE BBS %s\r\n", VERSION);
+	fprintf(fp, "X-Mailreader: FTNd %s\r\n", VERSION);
 
 	if (msgs.Aka.point && !is_fmpt)
 	    fprintf(fp, "X-FTN-FMPT: %d\n", msgs.Aka.point);
@@ -1048,7 +1044,7 @@ void ExportNet(unsigned int MsgNum, int UUCPgate)
 
     now = time(NULL);
     tm = gmtime(&now);
-    fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.01.UTC MBSE BBS %s\r",
+    fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.01.UTC FTNd %s\r",
 		aka2str(msgs.Aka), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec, VERSION);
 
@@ -1126,12 +1122,12 @@ void ExportEmail(unsigned int MsgNum)
 		Syslogp('m', printable(p, 0));
 		/*
 		 *  GoldED places ^A characters in front of the RFC headers, 
-		 *  so does mbsebbs as well.
+		 *  so does ftndbbs as well.
 		 */
 		if (p[0] == '\001') {
 		    fprintf(qp, "%s\n", p+1);
 		    if (!strncmp(p, "\001PID:", 5)) {
-			fprintf(qp, "TID: MBSE-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
+			fprintf(qp, "TID: FTND-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
 		    }
 		} else {
 		    if (kludges) {

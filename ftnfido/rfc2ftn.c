@@ -3,35 +3,31 @@
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbinet.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftninet.h"
+#include "../lib/ftnddb.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
 #include "mkftnhdr.h"
@@ -378,10 +374,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	}
 
 	if ((fmsg->msgid_a == NULL) || (fmsg->msgid_n == 0)) {
-	    Syslog('!', "Rfc2ftn: warning, no MSGID %s %08lx", MBSE_SS(fmsg->msgid_a), fmsg->msgid_n);
+	    Syslog('!', "Rfc2ftn: warning, no MSGID %s %08lx", FTND_SS(fmsg->msgid_a), fmsg->msgid_n);
 	}
 
-	fprintf(ofp, "\001MSGID: %s %08x\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
+	fprintf(ofp, "\001MSGID: %s %08x\n", FTND_SS(fmsg->msgid_a),fmsg->msgid_n);
 	if (fmsg->reply_s) 
 	    fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
 	else if (fmsg->reply_a)
@@ -439,7 +435,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		fprintf(ofp, "\1PID:");
 		kludgewrite(p, ofp);
 	    } else {
-		fprintf(ofp, "\001PID: MBSE-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
+		fprintf(ofp, "\001PID: FTND-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
 	    }
 	}
 
@@ -462,7 +458,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    }
 	}
 	if (!(hdr((char *)"X-FTN-Tearline", msg)) && !(hdr((char *)"X-FTN-TID", msg))) {
-	    snprintf(temp, MAXHDRSIZE, " MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
+	    snprintf(temp, MAXHDRSIZE, " FTND-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
 	    hdrsize += 4 + strlen(temp);
 	    fprintf(ofp, "\1TID:");
 	    kludgewrite(temp, ofp);
@@ -533,7 +529,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	     */
 	    if (!newsmode) {
 		Now = time(NULL);
-		fprintf(ofp, "\1RFC-Received: by %s (mbfido) via RFC2FTN; %s\n", CFG.sysdomain, rfcdate(Now));
+		fprintf(ofp, "\1RFC-Received: by %s (ftnfido) via RFC2FTN; %s\n", CFG.sysdomain, rfcdate(Now));
 		hdrsize += 72+strlen(CFG.sysdomain);
 	    }
 

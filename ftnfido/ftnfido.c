@@ -1,39 +1,35 @@
 /*****************************************************************************
  *
- * $Id: mbfido.c,v 1.50 2007/09/02 11:17:32 mbse Exp $
+ * ftnfido.c
  * Purpose: Process Fidonet style mail and files.
  *
  *****************************************************************************
- * Copyright (C) 1997-2007
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
-#include "../lib/mbse.h"
+#include "../lib/ftndlib.h"
+#include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "../lib/nodelist.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "../lib/msg.h"
 #include "flock.h"
 #include "tosspkt.h"
@@ -42,7 +38,7 @@
 #include "tic.h"
 #include "fsort.h"
 #include "scan.h"
-#include "mbfido.h"
+#include "ftnfido.h"
 #include "tracker.h"
 #include "notify.h"
 #include "rollover.h"
@@ -115,11 +111,11 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    mbse_colour(LIGHTCYAN, BLACK);
-    printf("\nUsage: mbfido [command(s)] <options>\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTCYAN, BLACK);
+    printf("\nUsage: ftnfido [command(s)] <options>\n\n");
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	a    areas			Process Areas taglists\n");
     printf("	m    mail <recipient> ...	MTA Mail mode\n");
     printf("	ne   news			Scan for new news\n");
@@ -132,9 +128,9 @@ void Help(void)
     printf("	to   toss			Toss incoming Fido mail\n");
     printf("	u    uucp	 		Process UUCP batchfile\n");
     printf("	w    web			Create WWW statistics\n\n");
-    mbse_colour(LIGHTBLUE, BLACK);
+    ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Options are:\n\n");
-    mbse_colour(CYAN, BLACK);
+    ftnd_colour(CYAN, BLACK);
     printf("	-f   -full			Full Mailscan\n");
     printf("	-l   -learn			Learn News dupes\n");
     printf("	-noc -nocrc			Skip CRC checking\n");
@@ -142,8 +138,8 @@ void Help(void)
     printf("	-q   -quiet			Quiet mode\n");
     printf("	-uns -unsecure			Toss unsecure\n");
     printf("	-unp -unprotect			Toss unprotected inbound\n");
-    mbse_colour(LIGHTGRAY, BLACK);
-    ExitClient(MBERR_COMMANDLINE);
+    ftnd_colour(LIGHTGRAY, BLACK);
+    ExitClient(FTNERR_COMMANDLINE);
 }
 
 
@@ -156,9 +152,9 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    mbse_colour(WHITE, BLACK);
-    printf("\nMBFIDO: MBSE BBS %s - Fidonet File and Mail processor\n", VERSION);
-    mbse_colour(YELLOW, BLACK);
+    ftnd_colour(WHITE, BLACK);
+    printf("\nFTNFIDO: FTNd %s - Fidonet File and Mail processor\n", VERSION);
+    ftnd_colour(YELLOW, BLACK);
     printf("        %s\n", COPYRIGHT);
 }
 
@@ -178,9 +174,9 @@ void editor_configs(void)
     /*
      * Export ~/etc/msg.txt for MsgEd.
      */
-    snprintf(temp, PATH_MAX, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/msg.txt", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "w")) != NULL) {
-	fprintf(fp, "; msg.txt -- Automatic created by mbsetup %s -- Do not edit!\n;\n", VERSION);
+	fprintf(fp, "; msg.txt -- Automatic created by ftndtup %s -- Do not edit!\n;\n", VERSION);
 	fprintf(fp, "; Mail areas for MsgEd.\n;\n");
 	msged_areas(fp);
 	fclose(fp);
@@ -192,9 +188,9 @@ void editor_configs(void)
     /*
      * Export ~/etc/golded.inc for GoldED
      */
-    snprintf(temp, PATH_MAX, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/golded.inc", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "w")) != NULL) {
-	fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
+	fprintf(fp, "; GoldED.inc -- Automatic created by ftndtup %s -- Do not edit!\n\n", VERSION);
 	fprintf(fp, "; Basic information.\n;\n");
 	if (strlen(CFG.sysop_name) && CFG.akavalid[0] && CFG.aka[0].zone) {
 	    fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
@@ -206,12 +202,12 @@ void editor_configs(void)
 
 	    gold_akamatch(fp);
 	    fprintf(fp, "; JAM MessageBase Setup\n;\n");
-	    fprintf(fp, "JAMPATH %s/tmp/\n", getenv("MBSE_ROOT"));
+	    fprintf(fp, "JAMPATH %s/tmp/\n", getenv("FTND_ROOT"));
 	    fprintf(fp, "JAMHARDDELETE NO\n\n");
 
 	    fprintf(fp, "; Semaphore files\n;\n");
-	    fprintf(fp, "SEMAPHORE NETSCAN    %s/var/sema/mailout\n", getenv("MBSE_ROOT"));
-	    fprintf(fp, "SEMAPHORE ECHOSCAN   %s/var/sema/mailout\n\n", getenv("MBSE_ROOT"));
+	    fprintf(fp, "SEMAPHORE NETSCAN    %s/var/sema/mailout\n", getenv("FTND_ROOT"));
+	    fprintf(fp, "SEMAPHORE ECHOSCAN   %s/var/sema/mailout\n\n", getenv("FTND_ROOT"));
 
 	    gold_areas(fp);
 	}
@@ -247,7 +243,7 @@ void die(int onsig)
 	execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     }
 
-    if (onsig != MBERR_NO_PROGLOCK)
+    if (onsig != FTNERR_NO_PROGLOCK)
 	CloseDupes();
 
     /*
@@ -264,7 +260,7 @@ void die(int onsig)
 
     if (!do_quiet) {
 	show_log = TRUE;
-	mbse_colour(CYAN, BLACK);
+	ftnd_colour(CYAN, BLACK);
     }
 
     if (onsig) {
@@ -315,19 +311,19 @@ void die(int onsig)
      * There should be no locks anymore, but in case of a crash try to unlock
      * all possible directories. Only if onsig <> 110, this was a lock error
      * and there should be no lock. We prevent removing the lock of another
-     * mbfido this way.
+     * ftnfido this way.
      */
-    if (onsig != MBERR_NO_PROGLOCK) {
+    if (onsig != FTNERR_NO_PROGLOCK) {
 	ulockdir(CFG.inbound);
 	ulockdir(CFG.pinbound);
 	ulockdir(CFG.out_queue);
     }
 
     t_end = time(NULL);
-    Syslog(' ', "MBFIDO finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNFIDO finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet)
-	mbse_colour(LIGHTGRAY, BLACK);
+	ftnd_colour(LIGHTGRAY, BLACK);
     ExitClient(onsig);
 }
 
@@ -346,24 +342,24 @@ int main(int argc, char **argv)
 
     /*
      * The next trick is to supply a fake environment variable
-     * MBSE_ROOT in case we are started from UUCP or the MTA.
+     * FTND_ROOT in case we are started from UUCP or the MTA.
      * this will setup the variable so InitConfig() will work.
      * The /etc/passwd must point to the correct homedirectory.
-     * Some programs can't set uid to mbse, so mbfido is installed
-     * setuid mbse.
+     * Some programs can't set uid to ftnd, so ftnfido is installed
+     * setuid ftnd.
      */
-    if (getenv("MBSE_ROOT") == NULL) {
+    if (getenv("FTND_ROOT") == NULL) {
 	pw = getpwuid(getuid());
-	if (strcmp(pw->pw_name, "mbse")) {
+	if (strcmp(pw->pw_name, "ftnd")) {
 	    /*
-	     *  We are not running as user mbse.
+	     *  We are not running as user ftnd.
 	     */
-	    pw = getpwnam("mbse");
+	    pw = getpwnam("ftnd");
 	    if (setuid(pw->pw_uid)) {
-		printf("Fatal error: can't set uid to user mbse\n");
+		printf("Fatal error: can't set uid to user ftnd\n");
 	    }
 	}
-	envptr = xstrcpy((char *)"MBSE_ROOT=");
+	envptr = xstrcpy((char *)"FTND_ROOT=");
 	envptr = xstrcat(envptr, pw->pw_dir);
 	putenv(envptr);
     }
@@ -379,7 +375,7 @@ int main(int argc, char **argv)
     InitTic();
     InitUser();
     InitFidonet();
-    mbse_TermInit(1, 80, 25);
+    ftnd_TermInit(1, 80, 25);
     t_start = time(NULL);
     t = localtime(&t_start);
     Diw = t->tm_wday;
@@ -404,18 +400,18 @@ int main(int argc, char **argv)
 	p++;
     else
 	p = argv[0];
-    if (!strcmp(p, "mbmail")) {
+    if (!strcmp(p, "ftnmail")) {
 	do_quiet = TRUE;
 	do_mail  = TRUE;
-	cmd = xstrcpy((char *)"Cmd: mbmail");
-    } else if (!strcmp(p, "mbnews")) {
+	cmd = xstrcpy((char *)"Cmd: ftnmail");
+    } else if (!strcmp(p, "ftnnews")) {
 	do_quiet = TRUE;
 	do_uucp  = TRUE;
-	cmd = xstrcpy((char *)"Cmd: mbnews");
+	cmd = xstrcpy((char *)"Cmd: ftnnews");
     } else {
 	if (argc < 2)
 	    Help();
-	cmd = xstrcpy((char *)"Cmd: mbfido");
+	cmd = xstrcpy((char *)"Cmd: ftnfido");
     }
 
     envrecip = &envrecip_start;
@@ -501,27 +497,27 @@ int main(int argc, char **argv)
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbfido", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftnfido", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
-    Syslog(' ', "MBFIDO v%s", VERSION);
+    Syslog(' ', "FTNFIDO v%s", VERSION);
     Syslog(' ', cmd);
     free(cmd);
     if (do_obs_a)
 	WriteError("The -a option is obsolete, adjust your setup");
 
     /*
-     * Not yet locked, if anything goes wrong, exit with die(MBERR_NO_PROGLOCK)
+     * Not yet locked, if anything goes wrong, exit with die(FTNERR_NO_PROGLOCK)
      */
     if (enoughspace(CFG.freespace) == 0)
-	die(MBERR_DISK_FULL);
+	die(FTNERR_DISK_FULL);
 
     if (do_mail) {
 	/*
-	 * Try to get a lock for a long time, another mbfido may be legally
-	 * running since mbmail is started by the MTA instead of by mbtask.
-	 * The timeout is 10 minutes. If mbmail times out, the MTA will
+	 * Try to get a lock for a long time, another ftnfido may be legally
+	 * running since ftnmail is started by the MTA instead of by ftntask.
+	 * The timeout is 10 minutes. If ftnmail times out, the MTA will
 	 * bounce the message. What happens during the time we wait is
 	 * unknown, will the MTA be patient enough?
 	 */
@@ -537,22 +533,22 @@ int main(int argc, char **argv)
 	    i--;
 	    if (! i) {
 		WriteError("Lock timeout, aborting");
-		die(MBERR_NO_PROGLOCK);
+		die(FTNERR_NO_PROGLOCK);
 	    }
 	    sleep(20);
 	    Nopper();
 	}
     } else {
 	/*
-	 * Started under control of mbtask, that means if there is a lock then
+	 * Started under control of ftntask, that means if there is a lock then
 	 * there is something wrong; abort.
 	 */
 	if (do_unprot) {
 	    if (! lockdir(CFG.inbound))
-		die(MBERR_NO_PROGLOCK);
+		die(FTNERR_NO_PROGLOCK);
 	} else {
 	    if (! lockdir(CFG.pinbound))
-		die(MBERR_NO_PROGLOCK);
+		die(FTNERR_NO_PROGLOCK);
 	}
     }
 
@@ -561,7 +557,7 @@ int main(int argc, char **argv)
      */
 
     if (initnl())
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     if (!do_mail && !do_uucp)
 	Rollover();
     if (!do_quiet)
@@ -571,7 +567,7 @@ int main(int argc, char **argv)
      *  Read alias file
      */
     cmd = calloc(PATH_MAX, sizeof(char));
-    snprintf(cmd, PATH_MAX, "%s/etc/aliases", getenv("MBSE_ROOT"));
+    snprintf(cmd, PATH_MAX, "%s/etc/aliases", getenv("FTND_ROOT"));
     if ((do_news || do_scan || do_toss || do_mail) && file_exist(cmd, R_OK) == 0)
         readalias(cmd);
     free(cmd);
@@ -579,13 +575,13 @@ int main(int argc, char **argv)
     if (do_mail) {
 	if (!envrecip_count) {
 	    WriteError("No valid receipients specified, aborting");
-	    die(MBERR_NO_RECIPIENTS);
+	    die(FTNERR_NO_RECIPIENTS);
 	}
 
 	umask(066);
 	if ((ofp = tmpfile()) == NULL) {
 	    WriteError("$Can't open tmpfile for RFC message");
-	    die(MBERR_INIT_ERROR);
+	    die(FTNERR_INIT_ERROR);
 	}
 	temp = calloc(10240, sizeof(char));
 	while (fgets(temp, 10240, stdin))
@@ -600,7 +596,7 @@ int main(int argc, char **argv)
 
 	fclose(ofp);
 	flush_queue();
-	die(MBERR_OK);
+	die(FTNERR_OK);
     }
 
     InitDupes();
@@ -623,7 +619,7 @@ int main(int argc, char **argv)
 	    toss_msgs();
 	    Hatch();
 	    switch (Tic()) {
-		case -1:    die(MBERR_OK);
+		case -1:    die(FTNERR_OK);
 			    break;
 		case 0:	    Loop = FALSE;
 			    break;
@@ -645,7 +641,7 @@ int main(int argc, char **argv)
 	    RemoveSema((char *)"mailin");
 	toss_msgs();
 	if (TossMail() == FALSE)
-	    die(MBERR_OK);
+	    die(FTNERR_OK);
     }
     if (do_tic || do_toss) {
 	/*
@@ -662,7 +658,7 @@ int main(int argc, char **argv)
 		    toss_msgs();
 		    Hatch();
 		    switch (Tic()) {
-			case -1:    die(MBERR_OK);
+			case -1:    die(FTNERR_OK);
 				    break;
 			case 0:     Loop = FALSE;
 				    break;
@@ -692,21 +688,21 @@ int main(int argc, char **argv)
 	NewsUUCP();
     if (do_areas) {
 	if (!do_quiet) {
-	    mbse_colour(LIGHTGREEN, BLACK);
+	    ftnd_colour(LIGHTGREEN, BLACK);
 	    printf("Are you sure to process all area lists [y/N] ");
 	    fflush(stdout);
-	    x = mbse_Getone();
+	    x = ftnd_Getone();
 	    printf("\r                                             \r");
 	    fflush(stdout);
 	    if (toupper(x) != 'Y')
-		die(MBERR_OK);
+		die(FTNERR_OK);
 	}
 	Areas();
     }
     if (do_flush)
 	flush_queue();
 
-    die(MBERR_OK);
+    die(FTNERR_OK);
     return 0;
 }
 
@@ -733,7 +729,7 @@ int TossMail(void)
 
     if (chdir(inbound) == -1) {
 	WriteError("$Can't chdir(%s)", inbound);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     /*
@@ -749,7 +745,7 @@ int TossMail(void)
      */
     if ((dp = opendir(inbound)) == NULL) {
 	WriteError("$Can't opendir(%s)", inbound);
-	die(MBERR_INIT_ERROR);
+	die(FTNERR_INIT_ERROR);
     }
 
     Syslog('+', "Pass: toss ARCmail (%s)", inbound);
@@ -783,7 +779,7 @@ int TossMail(void)
 	}
 	if (enoughspace(CFG.freespace) == 0) {
 	    Syslog('+', "Low diskspace, aborting toss");
-	    rc = MBERR_DISK_FULL;
+	    rc = FTNERR_DISK_FULL;
 	    break;
 	}
 

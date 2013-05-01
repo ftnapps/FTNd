@@ -4,39 +4,35 @@
  * Remarks ...............: Most of these functions are borrowed from inn.
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
- * This file is part of MBSE BBS.
+ * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MBSE BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbinet.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftninet.h"
+#include "../lib/ftnddb.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
 #include "rfc2ftn.h"
-#include "mbfido.h"
+#include "ftnfido.h"
 #include "../paths.h"
 #include "rnews.h"
 
@@ -161,7 +157,7 @@ static int StartChild(int fd, char *path, char *argv[])
     /* Create a pipe. */
     if (pipe(pan) < 0) {
 	WriteError("%Cant pipe for %s", path);
-	die(MBERR_EXEC_FAILED);
+	die(FTNERR_EXEC_FAILED);
     }
 
     /* Get a child. */
@@ -182,7 +178,7 @@ static int StartChild(int fd, char *path, char *argv[])
 	if (fd != STDIN) {
 	    if ((i = dup2(fd, STDIN)) != STDIN) {
 		WriteError("$Cant dup2 %d to 0 got %d", fd, i);
-		_exit(MBERR_EXEC_FAILED);
+		_exit(FTNERR_EXEC_FAILED);
 	    }
 	    (void)close(fd);
 	}
@@ -191,15 +187,15 @@ static int StartChild(int fd, char *path, char *argv[])
 	if (pan[PIPE_WRITE] != STDOUT) {
 	    if ((i = dup2(pan[PIPE_WRITE], STDOUT)) != STDOUT) {
 		WriteError("$Cant dup2 %d to 1 got %d", pan[PIPE_WRITE], i);
-		_exit(MBERR_EXEC_FAILED);
+		_exit(FTNERR_EXEC_FAILED);
 	    }
 	    (void)close(pan[PIPE_WRITE]);
 	}
 
-	Syslog('m', "execv %s %s", MBSE_SS(path), MBSE_SS(argv[1]));
+	Syslog('m', "execv %s %s", FTND_SS(path), FTND_SS(argv[1]));
 	(void)execv(path, argv);
 	WriteError("$Cant execv %s", path);
-	_exit(MBERR_EXEC_FAILED);
+	_exit(FTNERR_EXEC_FAILED);
     }
 
     (void)close(pan[PIPE_WRITE]);
@@ -321,7 +317,7 @@ static int ReadRemainder(register int fd, char first, char second)
     /* Turn the descriptor into a stream. */
     if ((F = fdopen(fd, "r")) == NULL) {
 	WriteError("$Can't fdopen %d", fd);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
 
     /* Get an initial allocation, leaving space for the \0. */
@@ -336,7 +332,7 @@ static int ReadRemainder(register int fd, char first, char second)
     while ((i = fread((POINTER)&article[used], (size_t)1, (size_t)left, F)) != 0) {
 	if (i < 0) {
 	    WriteError("$Cant fread after %d bytes", used);
-	    die(MBERR_GENERAL);
+	    die(FTNERR_GENERAL);
 	}
 	used += i;
 	left -= i;
@@ -416,7 +412,7 @@ static int ReadLine(char *p, int size, int fd)
 	if (read(fd, p, 1) != 1) {
 	    *p = '\0';
 	    WriteError("$Cant read first line got %s", save);
-	    die(MBERR_GENERAL);
+	    die(FTNERR_GENERAL);
 	}
 	if (*p == '\n') {
 	    *p = '\0';
@@ -540,7 +536,7 @@ void NewsUUCP(void)
 	IsDoing((char *)"UUCP Batch");
 
 	if (!do_quiet) {
-		mbse_colour(LIGHTGREEN, BLACK);
+		ftnd_colour(LIGHTGREEN, BLACK);
 		printf("Process UUCP Newsbatch\n");
 	}
 
