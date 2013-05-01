@@ -1,5 +1,5 @@
 # Makefile for the library files.
-# Copyright (c) 2012 by Robert James Clay.
+# Copyright (c) 2012-2013 by Robert James Clay.
 # Copyright (c) 1997, 2001 by M. Broek.
 
 include ../Makefile.global
