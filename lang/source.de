@@ -27,7 +27,7 @@ JN| Ist das korrekt [j/N]:
 JN|Beim Login nach neuen Mitteilungen suchen [J/n]: 
 JN|Beim Login nach neuen Dateien suchen [J/n]: 
 |Geben Sie bitte eine kurze Betreff-Zeile an
-|Der Sysop kann MBSEBBS nicht zum Chat benutzen. Verwenden Sie "mbmon". 
+|Der Sysop kann FTNd nicht zum Chat benutzen. Verwenden Sie "ftnmon". 
 |Der Chat-Server ist zurzeit leider nicht verfuegbar
 |Zeile
 |
@@ -35,7 +35,7 @@ JN|Beim Login nach neuen Dateien suchen [J/n]:
 |
 |
 |
-|MBSE Bulletin Board System - Anlegen eines neuen Benutzerkontos
+|FTNd Bulletin Board System - Anlegen eines neuen Benutzerkontos
 |Diesen Namen verwenden: 
 |Bitte das neue Passwort eingeben    : 
 |Bitte das neue Passwort wiederholen : 
@@ -149,7 +149,7 @@ JN|Mitteilungen, moechten Sie jetzt Ihre Post lesen? [J/n]:
 |Aus
 |Dieser Benutzername ist bereits anderweitig vergeben
 |Suchen nach persoenlichen Mitteilungen, bitte warten ...
-|     MBSE BBS Online Dialog
+|     FTNd Online Dialog
 |Der SysOp ist gerade mit einem anderen Benutzer im Online-Dialog.
 |Bitte versuchen Sie es in einigen Minuten nochmals ...
 |Ihre maximale Anzahl von Sysop-Anrufen ist erreicht.
@@ -339,7 +339,7 @@ JN|BBS-Details anzeigen ? [J/n]:
 |Mitteilungen insgesamt:
 |Unbekannter Menubefehl!
 |Speichern...
-|MBSE BBS "Einzeiler" werden zufallsgesteuert im Hauptmenue erscheinen.
+|FTNd "Einzeiler" werden zufallsgesteuert im Hauptmenue erscheinen.
 |Obszoene oder unanstaendige "Einzeiler" werden vom Sysop geloescht!!
 |Bitte geben Sie Ihren "Einzeiler" ein, max. 75 Zeichen.
 |"Einzeiler" hinzugefuegt

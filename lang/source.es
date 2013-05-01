@@ -27,7 +27,7 @@ SN| Es correcto [s/N]:
 YN|Check for new mail at login [Y/n]: 
 YN|Check for new files at login [Y/n]: 
 |Enter a short reason for chat
-|The Sysop cannot use the bbs to chat! Use mbmon to chat
+|The Sysop cannot use the bbs to chat! Use ftnmon to chat
 |Sorry, the chatserver is not available
 |line 
 |
@@ -35,7 +35,7 @@ YN|Check for new files at login [Y/n]:
 |
 |·ÈÌÛ˙¸‹Ò—Á«ø°∫™†Ç°¢£Åö§•áÄ®≠ß¶
 |†Ç°¢£Åö§•áÄ®≠ß¶
-|MBSEBBS - REGISTRO DE NUEVO USUARIO
+|FTNd - REGISTRO DE NUEVO USUARIO
 |Use este nombre: 
 |Por favor teclee el nuevo password : 
 |Por favor tecleelo de nuevo......  : 
@@ -149,7 +149,7 @@ SN|mensajes, ®Quieres leerlos ahora? [S/n]:
 |Des
 |El nombre ya existe
 |Buscando correo nuevo ...
-|Charla de mbsebbs
+|Charla de ftndbbs
 |El Sysop est† hablando con otro usuario.
 |Intenta llamarlo de nuevo dentro de un rato ...
 |Ya has llamado muchas veces. 

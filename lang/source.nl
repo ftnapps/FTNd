@@ -27,7 +27,7 @@ JN| Is dit juist [j/N]:
 JN|Kijk voor nieuwe post tijdens login [J/n]: 
 JN|Kijk voor nieuwe bestanden tijdens login [J/n]: 
 |Geef een korte reden om te kletsen
-|De sysop kan niet kletsen via het bbs! Gebruik mbmon
+|De sysop kan niet kletsen via het bbs! Gebruik ftnmon
 |Sorry, de chatserver is niet beschikbaar
 |lijn 
 |
@@ -35,7 +35,7 @@ JN|Kijk voor nieuwe bestanden tijdens login [J/n]:
 |
 |
 |
-|MBSE Bulletin Board Systeem - NIEUWE GEBRUIKER REGISTRATIE
+|FTNd Bulletin Board Systeem - NIEUWE GEBRUIKER REGISTRATIE
 |Gebruik deze naam: 
 |Geef een nieuw wachtwoord   : 
 |Geef het wachtwoord opnieuw : 
@@ -149,7 +149,7 @@ JN|berichten, nu de post lezen? [J/n]:
 |Uit
 |Gebruikersnaam bestaat al
 |Even in Uw postbus kijken ...
-|MBSE BBS Kletsen
+|FTNd Kletsen
 |De Sysop is nu even met iemand anders in gesprek.
 |Probeer het opnieuw in enkele minuten ...
 |U heeft de Sysop meer dan het maximaal aantal keren geroepen.
@@ -339,7 +339,7 @@ JN|Bekijk dit BBS? [J/n]:
 |Totaal aantal berichten gevonden:
 |Onbekend menu kommando!
 |Bewaren ...
-|MBSE BBS Spreuken kunnen willekeurig verschijnen.
+|FTNd Spreuken kunnen willekeurig verschijnen.
 |Obscene en racistische opmerkingen worden verwijderd!!
 |Geef hieronder Uw spreuk. U heeft 75 karakters.
 |Spreuk toegevoegd

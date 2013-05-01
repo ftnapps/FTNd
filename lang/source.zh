@@ -27,7 +27,7 @@ YN| Is this correct [y/N]:
 YN|Check for new mail at login [Y/n]: 
 YN|Check for new files at login [Y/n]: 
 |Enter a short reason for chat
-|The Sysop cannot use the bbs to chat! Use mbmon to chat
+|The Sysop cannot use the bbs to chat! Use ftnmon to chat
 |Sorry, the chatserver is not available
 |line 
 |
@@ -35,7 +35,7 @@ YN|Check for new files at login [Y/n]:
 |‚ƒ„…†‡ˆ‰Š‹Œ‘’“”•–—˜™š›œŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄ
 |ÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüış
 |ÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüış
-|MBSE Bulletin Board System - NEW USER REGISTRATION
+|FTNd Bulletin Board System - NEW USER REGISTRATION
 |Use this name: 
 |ÇëÊäÈëĞÂÃÜÂë     : 
 |ÇëÔÙ´ÎÊäÈëĞÂÃÜÂë : 
@@ -149,7 +149,7 @@ YN|messages, read your mail now? [Y/n]:
 |Off
 |User name already exists
 |Checking your mail box ...
-|MBSE BBS Chat
+|FTNd Chat
 |The SysOp is currently speaking to somebody else.
 |Try paging him again in a few minutes ...
 |You have paged the Sysop the maximum times allowed.
@@ -339,7 +339,7 @@ YN|View this BBS? [Y/n]:
 |Total messages found:
 |Unknown Menu Command!
 |Saving...
-|MBSE BBS Oneliners will randomly appear on the main menu.
+|FTNd Oneliners will randomly appear on the main menu.
 |Obscene or libellous oneliners will be deleted!!
 |Please enter your oneliner below. You have 75 characters.
 |Oneliner added

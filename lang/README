@@ -24,7 +24,7 @@ public available and send them to me so I can include them in the
 source distribution.
 
 
-Current language maintainters:
+Current language maintainers:
 
 en          Michiel Broek <mbroek@users.sourceforge.net>
 nl          Michiel Broek <mbroek@users.sourceforge.net>
@@ -36,5 +36,5 @@ fr          Francois Thunus <2:270/24@fidonet>
 
 If you want to use the germandu language instead of the default german
 language then run "mblang germandu.txt language.de" and install the
-file laguage.de in /opt/mbse/share/int.
+file laguage.de in /opt/ftnd/share/int.
 

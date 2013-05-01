@@ -27,15 +27,15 @@
 26	newuser.c			YN|Check for new mail at login [Y/n]: 
 27	newuser.c			YN|Check for new files at login [Y/n]: 
 28	page.c				|Enter a short reason for chat
-29	chat.c				|The Sysop cannot use the bbs to chat! Use mbmon to chat
+29	chat.c				|The Sysop cannot use the bbs to chat! Use ftnmon to chat
 30	chat.c				|Sorry, the chatserver is not available
-31	mbsebbs.c			|line 
+31	ftnbbs.c			|line 
 32	.c				|
 33	.c				|
 34	.c				|
 35	.c				|In use for internationalization
 36	.c				|In use for internationalization
-37	newuser.c			|MBSE Bulletin Board System - NEW USER REGISTRATION
+37	newuser.c			|FTNd Bulletin Board System - NEW USER REGISTRATION
 38	newuser.c			|Use this name: 
 39	newuser.c			|Please enter new password   : 
 40	newuser.c user.c		|Please enter password again : 
@@ -133,7 +133,7 @@
 132	filesub.c			|Scanning
 133	filesub.c			|with
 134	funcs.c				|TIME STATISTICS for 
-135	funcs.c mbsebbs.c		|on
+135	funcs.c ftnbbs.c		|on
 136	funcs.c				|Current Time          : 
 137	funcs.c				|Current Date          : 
 138	funcs.c				|Connect time          : 
@@ -149,7 +149,7 @@
 148	funcs.c				|Off
 149	newuser.c			|User name already exists
 150	mail.c				|Checking your mail box ...
-151	page.c				|MBSE BBS Chat
+151	page.c				|FTNd Chat
 152	page.c				|The SysOp is currently speaking to somebody else.
 153	page.c				|Try paging him again in a few minutes ...
 154	page.c				|You have paged the Sysop the maximum times allowed.
@@ -339,14 +339,14 @@
 338	offline.c			|Total messages found:
 339	menu.c				|Unknown Menu Command!
 340	signature.c			|Saving...
-341	oneline.c			|MBSE BBS Oneliners will randomly appear on the main menu.
+341	oneline.c			|FTNd Oneliners will randomly appear on the main menu.
 342	oneline.c			|Obscene or libellous oneliners will be deleted!!
 343	oneline.c			|Please enter your oneliner below. You have 75 characters.
 344	oneline.c			|Oneliner added
 345	oneline.c			| # A Date       User            Description
 346	oneline.c			| # Description 
 347	oneline.c			|Please enter number to list:  
-348	mbsebbs.c			|Connected from 
+348	ftnbbs.c			|Connected from 
 349	file.c				|File(s)    : 
 350	file.c				|Size       : 
 351	file.c				|Protocol   : 

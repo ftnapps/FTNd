@@ -27,7 +27,7 @@ JN| Ist dies richtig richtig? [<j>a/<N>ein]:
 YN|Check for new mail at login [Y/n]: 
 YN|Check for new files at login [Y/n]: 
 |Enter a short reason for chat
-|The Sysop cannot use the bbs to chat! Use mbmon to chat
+|The Sysop cannot use the bbs to chat! Use ftnmon to chat
 |Sorry, the chatserver is not available
 |line 
 |
@@ -35,7 +35,7 @@ YN|Check for new files at login [Y/n]:
 |
 |
 |
-|MBSE Bulletin Board System - Anlegen eines neuen Benutzerkontos
+|FTNd Bulletin Board System - Anlegen eines neuen Benutzerkontos
 |Diesen Namen verwenden: 
 |Bitte das neue Passwort eingeben    : 
 |Bitte das neue Passwort wiederholen : 
@@ -149,7 +149,7 @@ JN|Mitteilungen, moechtest Du jetzt Deine Post lesen? [<J>a/<n>ein]:
 |Aus
 |Dieser Benutzername existiert bereits
 |Suchen nach persoenlichen Mitteilungen, bitte warten ...
-|MBSE BBS Chat
+|FTNd Chat
 |Der SysOp spricht gerade mit einem anderen User.
 |Bitte versuche es in einigen Minuten nochmals ...
 |Ihre maximale Anzahl von Sysop-Anrufen ist erreicht.
@@ -339,7 +339,7 @@ JN|BBS-Details anzeigen ? [<J>a/<n>ein]:
 |Mitteilungen insgesamt:
 |Unbekannter Menubefehl!
 |Speichern...
-|MBSE BBS "Einzeiler" werden zufallsgesteuert im Hauptmenue erscheinen.
+|FTNd "Einzeiler" werden zufallsgesteuert im Hauptmenue erscheinen.
 |Obszoene oder unanstaendige "Einzeiler" werden geloescht!!
 |Bitte gib Deinen "Einzeiler" ein, max. 75 Zeichen.
 |"Einzeiler" hinzugefuegt
