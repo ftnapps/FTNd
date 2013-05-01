@@ -31,7 +31,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "ftnselib.h"
+#include "ftndlib.h"
 #include "msgtext.h"
 #include "msg.h"
 #include "jam.h"

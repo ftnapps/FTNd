@@ -177,5 +177,5 @@ diesel.o: ../config.h ftndlib.h diesel.h
 ftndiesel.o: ../config.h ftndlib.h diesel.h
 strcasestr.o: ../config.h ftndlib.h
 nodelist.o: ../config.h ftndlib.h nodelist.h
-ftscprod.o: ../config.h ftnselib.h
+ftscprod.o: ../config.h ftndlib.h
 # End of generated dependencies
