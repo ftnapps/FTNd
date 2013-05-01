@@ -1,5 +1,12 @@
 2013-05-01  Robert James Clay  <jame@rocasa.us>
 
+ - Version 0.13
+
+ - lang/*: Complete initial adaption of the lang/* files.
+
+
+2013-05-01  Robert James Clay  <jame@rocasa.us>
+
  - Version 0.12
 
  - ftnfido/*: Complete initial adaption of the ftnfido/* files.
@@ -7,7 +14,7 @@
 
 2013-04-09  Robert James Clay  <jame@rocasa.us>
 
- - ftnfido/*: Initial adaption of the ftnfido/*.h files.
+ - ftnfido/*h: Initial adaption of the ftnfido/*.h files.
 
 
 2013-04-09  Robert James Clay  <jame@rocasa.us>
