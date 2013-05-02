@@ -117,7 +117,7 @@ void Help()
     printf("	-z -zip		Create .zip archives\n");
     ftnd_colour(LIGHTGRAY, BLACK);
     printf("\n");
-    die(MBERR_COMMANDLINE);
+    die(FTNERR_COMMANDLINE);
 }
 
 
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     if (lockprogram((char *)"ftnall")) {
 	if (!do_quiet)
 	    printf("Can't lock ftnall, abort.\n");
-	die(MBERR_NO_PROGLOCK);
+	die(FTNERR_NO_PROGLOCK);
     }
 
     if (do_list) {
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
     if (!do_quiet)
 	printf("Done!\n");
 
-    die(MBERR_OK);
+    die(FTNERR_OK);
     return 0;
 }
 
@@ -298,7 +298,7 @@ void Masterlist()
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open File Areas File: %s", sAreas);
 	ftnd_colour(LIGHTGRAY, BLACK);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
 
@@ -307,25 +307,25 @@ void Masterlist()
 
     if ((fp = fopen("allfiles.tmp", "a+")) == NULL) {
  	WriteError("$Can't open allfiles.tmp");
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
     if ((np = fopen("newfiles.tmp", "a+")) == NULL) {
 	WriteError("$Can't open newfiles.tmp");
 	fclose(fp);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
     if ((fu = fopen("allfiles.ump", "a+")) == NULL) {
 	WriteError("$Can't open allfiles.ump");
 	fclose(fp);
 	fclose(np);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
     if ((nu = fopen("newfiles.ump", "a+")) == NULL) {
 	WriteError("$Can't open newfiles.ump");
 	fclose(fp);
 	fclose(np);
 	fclose(fu);
-	die(MBERR_GENERAL);
+	die(FTNERR_GENERAL);
     }
 
     chartran_init((char *)"CP437", (char *)"UTF-8", 'B');
