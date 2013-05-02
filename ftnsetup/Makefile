@@ -1,11 +1,11 @@
 # Makefile for the ftnsetup.
-# Copyright (c) 2012 by Robert James Clay.
+# Copyright (c) 2012-2013 by Robert James Clay.
 # Copyright (c) 1997-2001 by M. Broek.
 
 include ../Makefile.global
 
 SRCS		= grlist.c m_domain.c m_fgroup.c m_lang.c m_marea.c m_new.c m_ibc.c \
-		  m_protocol.c m_ticarea.c mbsetup.c ledit.c m_farea.c m_fido.c \
+		  m_protocol.c m_ticarea.c ftnsetup.c ledit.c m_farea.c m_fido.c \
 		  m_limits.c m_menu.c m_ngroup.c m_service.c m_tty.c mutil.c m_archive.c \
 		  m_fdb.c m_global.c m_magic.c m_mgroup.c m_node.c m_task.c m_users.c \
 		  screen.c m_bbs.c m_ff.c m_hatch.c m_mail.c m_modem.c m_ol.c m_tic.c \
@@ -17,7 +17,7 @@ HDRS		= grlist.h m_domain.h m_fgroup.h m_lang.h m_marea.h m_new.h m_ibc.h m_prot
 		  m_hatch.h m_mail.h m_modem.h m_ol.h m_tic.h m_virus.h \
 		  m_route.h
 OBJS		= grlist.o m_domain.o m_fgroup.o m_lang.o m_marea.o m_new.o m_ibc.o m_protocol.o \
-		  m_ticarea.o mbsetup.o ledit.o m_farea.o m_fido.o m_limits.o m_menu.o \
+		  m_ticarea.o ftnsetup.o ledit.o m_farea.o m_fido.o m_limits.o m_menu.o \
 		  m_ngroup.o m_service.o m_tty.o mutil.o m_archive.o m_fdb.o m_global.o \
 		  m_magic.o m_mgroup.o m_node.o m_task.o m_users.o screen.o m_bbs.o m_ff.o \
 		  m_hatch.o m_mail.o m_modem.o m_ol.o m_tic.o m_virus.o stlist.o \
@@ -30,17 +30,17 @@ OTHER		= Makefile
 .c.o:
 		${CC} ${CFLAGS} ${INCLUDES} ${DEFINES} -c $<
 
-all:		mbsetup
+all:		ftnsetup
 
 
-mbsetup:	${OBJS} ${SLIBS}
-		${CC} -o mbsetup ${OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
+ftnsetup:	${OBJS} ${SLIBS}
+		${CC} -o ftnsetup ${OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
 clean:
-		rm -f mbsetup *.o *.h~ *.c~ core filelist Makefile.bak
+		rm -f ftnsetup *.o *.h~ *.c~ core filelist Makefile.bak
 
 install:	all
-		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0700 mbsetup ${BINDIR}
+		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0700 ftnsetup ${BINDIR}
 
 filelist:	Makefile
 		BASE=`pwd`; \
