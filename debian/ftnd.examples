@@ -10,7 +10,7 @@ script/doors.bat
 script/editor
 script/hatch
 script/maint
-script/ftnddos
+script/ftnbbsdos
 script/midnight
 script/monthly
 script/rundoor.sh
