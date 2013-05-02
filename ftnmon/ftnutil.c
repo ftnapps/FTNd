@@ -4,7 +4,7 @@
  * Purpose ...............: Utilities
  *
  *****************************************************************************
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
@@ -26,7 +26,7 @@
 
 #include "../config.h"
 #include "../lib/ftndlib.h"
-#include "mutil.h"
+#include "ftnutil.h"
 
 
 extern int  rows, cols;
