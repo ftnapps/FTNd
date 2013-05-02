@@ -4,7 +4,7 @@
  * Purpose ...............: Count WWW and FTP downloads
  *
  *****************************************************************************
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
@@ -25,9 +25,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/ftnlib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/ftndb.h"
+#include "../lib/ftnddb.h"
 #include "dlcount.h"
 
 static char *months[]={(char *)"Jan",(char *)"Feb",(char *)"Mar",
