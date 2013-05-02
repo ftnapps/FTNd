@@ -37,7 +37,7 @@
 #include "portsel.h"
 #include "dial.h"
 #include "rdoptions.h"
-#include "mbcico.h"
+#include "ftncico.h"
 
 
 extern int		carrier, online;
