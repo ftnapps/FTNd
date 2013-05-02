@@ -1,5 +1,5 @@
-#ifndef _MBTASK_H
-#define	_MBTASK_H
+#ifndef _FTNTASK_H
+#define	_FTNTASK_H
 
 /* ftntask.h */
 

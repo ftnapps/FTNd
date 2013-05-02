@@ -7,7 +7,7 @@
 #define TRUE    1
 #define FALSE   0
 #define SS_BUFSIZE      1024            /* Socket buffersize    */
-#define MBSE_SS(x)      (x)?(x):"(null)"
+#define FTND_SS(x)      (x)?(x):"(null)"
 
 
 typedef struct  _srv_auth {

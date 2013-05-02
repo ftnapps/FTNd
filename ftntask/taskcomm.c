@@ -3,8 +3,8 @@
  * Purpose ...............: FTNd Daemon
  *
  *****************************************************************************
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -13,13 +13,13 @@
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
  *
- * MB BBS is distributed in the hope that it will be useful, but
+ * FTNd is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * along with FTNd; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
@@ -58,7 +58,7 @@ int userlog(char *param)
     lfn[0] = '\0';
     strncpy(token, strtok(param, ","), 14);
     strncpy(token, strtok(NULL, ","), 14);
-    snprintf(lfn, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), token);
+    snprintf(lfn, PATH_MAX, "%s/log/%s", getenv("FTND_ROOT"), token);
     prname = strtok(NULL, ",");
     prpid  = strtok(NULL, ",");
     grade  = strtok(NULL, ",");

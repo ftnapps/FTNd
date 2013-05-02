@@ -3,7 +3,7 @@
 #ifndef _OUTSTAT_H
 #define	_OUTSTAT_H
 
-typedef enum {CM_NONE, CM_INET, CM_ISDN, CM_POTS, MBFIDO, MBINDEX, MBFILE, MBINIT} CMODE;
+typedef enum {CM_NONE, CM_INET, CM_ISDN, CM_POTS, FTNFIDO, FTNINDEX, FTNFILE, FTNINIT} CMODE;
 
 struct  _nodeshdr   nodeshdr;   /* Header record		*/
 struct  _nodes	    nodes;	/* Nodes datarecord		*/

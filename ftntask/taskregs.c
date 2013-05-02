@@ -4,8 +4,8 @@
  * Purpose ...............: Buffers for registration information.
  *
  *****************************************************************************
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2006 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -492,7 +492,7 @@ int reg_spm(char *data)
 
 	    if (CFG.iAutoLog && strlen(CFG.chat_log)) {
 		logm = calloc(PATH_MAX, sizeof(char));
-		snprintf(logm, PATH_MAX, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+		snprintf(logm, PATH_MAX, "%s/log/%s", getenv("FTND_ROOT"), CFG.chat_log);
 		ulog(logm, (char *)"+", from, (char *)"-1", txt);
 		free(logm);
 	    }
