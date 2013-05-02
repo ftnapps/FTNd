@@ -14,6 +14,9 @@ export FTND_ROOT=/opt/ftnd
 
 override_dh_auto_install:
 
+override_dh_strip:
+	dh_strip --dbg-package=ftnd-dbg
+
 override_dh_fixperms:
 	dh_fixperms
 	chmod 4710 debian/ftnd/opt/ftnd/bin/ftntask
