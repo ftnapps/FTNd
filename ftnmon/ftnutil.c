@@ -155,7 +155,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
             if ((ch >= ' ') && (ch <= '~')) {
                 switch(p) {
                     case '!':
-                        Ch = toupper(ch);
+                        ch = toupper(ch);
                         charok = 1;
                         break;
                     case 'X':
@@ -300,7 +300,7 @@ int select_menu(int max)
      * Loop forever until it's right.
      */
     for (;;) {
-        Ftnd_mvprintw(rows - 2, 6, "Enter your choice >");
+        ftnd_mvprintw(rows - 2, 6, "Enter your choice >");
         menu = (char *)"-";
         menu = edit_field(rows - 2, 26, 3, '9', menu);
         ftnd_locate(rows - 2, 6);
