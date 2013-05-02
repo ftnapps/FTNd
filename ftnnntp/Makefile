@@ -67,5 +67,5 @@ hash.o: ../config.h ../lib/ftndlib.h hash.h lhash.h
 lhash.o: ../config.h ../lib/ftndlib.h lhash.h
 msgflags.o: ../config.h ../lib/ftndlib.h msgflags.h
 mkftnhdr.o: ../config.h ../lib/ftndlib.h ../lib/users.h ../lib/ftnddb.h atoul.h hash.h msgflags.h mkftnhdr.h
-atoul.o: ../config.h ../lib/mbselib.h atoul.h
+atoul.o: ../config.h ../lib/ftndlib.h atoul.h
 # End of generated dependencies

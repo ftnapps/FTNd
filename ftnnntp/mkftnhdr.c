@@ -4,12 +4,8 @@
  * Purpose ...............: FTNd Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2008
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -42,9 +38,9 @@
  */
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbsedb.h"
+#include "../lib/ftnddb.h"
 #include "atoul.h"
 #include "hash.h"
 #include "msgflags.h"
@@ -287,7 +283,7 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
     } else {
 	if (recipient) {
 	    /*
-	     *  In mbmail mode the recipient is valid and must be used 
+	     *  In ftnmail mode the recipient is valid and must be used 
 	     *  as the destination address. The To: field is probably
 	     *  an RFC address an cannot be used to route the message.
 	     */
