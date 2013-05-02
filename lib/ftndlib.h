@@ -4,8 +4,8 @@
  * Purpose ...............: FTNd main library header
  *
  *****************************************************************************
- * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
  * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
  *
@@ -685,9 +685,9 @@ struct	taskrec {
 	char		cmd_mailout[81];	/* mailout command	    */
 	char		cmd_mailin[81];		/* mailin command	    */
 	char		cmd_newnews[81];	/* newnews command	    */
-	char		cmd_mbindex1[81];	/* mbindex command 1	    */
-	char		cmd_mbindex2[81];	/* mbindex command 2	    */
-	char		cmd_mbindex3[81];	/* mbindex command 3	    */
+	char		cmd_ftnindex1[81];	/* ftnindex command 1	    */
+	char		cmd_ftnindex2[81];	/* ftnindex command 2	    */
+	char		cmd_ftnindex3[81];	/* ftnindex command 3	    */
 	char		cmd_msglink[81];	/* msglink command	    */
 	char		cmd_reqindex[81];	/* reqindex command	    */
 
@@ -2331,7 +2331,7 @@ char		*t_elapsed(time_t, time_t);
 
 
 /*
- * From mbfile.c
+ * From ftnfile.c
  */
 int		file_cp(char *from, char *to);
 int		file_rm(char *path);
