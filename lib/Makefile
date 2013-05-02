@@ -29,18 +29,18 @@ DBASE_HDRS	= ftnddb.h
 MSGBASE_SRCS	= jammsg.c msg.c msgtext.c
 MSGBASE_OBJS	= jammsg.o msg.o msgtext.o
 MSGBASE_HDRS	= jam.h jammsg.h jamsys.h msg.h msgtext.h
-MBINET_SRCS	= nntp.c pop3.c smtp.c
-MBINET_OBJS	= nntp.o pop3.o smtp.o
-MBINET_HDRS	= ftninet.h
+FTNINET_SRCS	= nntp.c pop3.c smtp.c
+FTNINET_OBJS	= nntp.o pop3.o smtp.o
+FTNINET_HDRS	= ftninet.h
 DIESEL_SRCS	= diesel.c ftndiesel.c strcasestr.c
 DIESEL_HDRS	= diesel.h
 DIESEL_OBJS	= diesel.o ftndiesel.o strcasestr.o
 OTHER_HDRS	= bluewave.h ftnd.h users.h
-SRCS		= ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${MBINET_SRCS} \
+SRCS		= ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${FTNINET_SRCS} \
 		  ${DIESEL_SRCS} ${NODELIST_SRCS} ${CHC_SRCS}
-OBJS		= ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJS} \
+OBJS		= ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${FTNINET_OBJS} \
 		  ${DIESEL_OBJS} ${NODELIST_OBJS} ${CHC_OBJS}
-HDRS		= ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
+HDRS		= ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${FTNINET_HDRS} \
 		  ${DIESEL_HDRS} ${NODELIST_HDRS} ${CHC_HDRS} ${OTHER_HDRS}
 OTHER		= Makefile README ftscprod.010 mkprod.awk \
 		  README.diesel README.macro Diesel.doc nodelist.conf
@@ -70,7 +70,7 @@ libmsgbase.a:	${MSGBASE_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 
-libftninet.a:	${MBINET_OBJS}
+libftninet.a:	${FTNINET_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 
