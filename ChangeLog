@@ -1,3 +1,17 @@
+2013-05-02  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.14
+
+ - More files adaption in ftnutils/*, ftnnntp/*, ftntask/*, ftnsetup/*, lib/*,
+   and unix/* for FTNd.
+
+
+2013-05-01  Robert James Clay  <jame@rocasa.us>
+
+ - More adaptation of files in ftnbbs/*, ftncico/*, ftnfido/notify.c, ftnfido/*,
+   and lib/*.
+
+
 2013-05-01  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.13
@@ -92,5 +106,3 @@
  - Version 0.01
 
  - general: Initial fork and adaption from MBSE BBS v0.95.14 to FTNd v0.01
-
-
