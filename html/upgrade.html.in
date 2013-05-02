@@ -4,39 +4,39 @@
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
 <META NAME="Language" content='en'>
-<META name="author" lang="en" content="Michiel Broek">
-<META name="copyright" lang="en" content="Copyright Michiel Broek">
-<META name="description" lang="en" content="MBSE BBS Manual - Upgrade MBSE BBS">
-<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
-<TITLE>Upgrade MBSE BBS.</TITLE>
+<META name="author" lang="en" content="Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - Upgrade FTNd">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Upgrade FTNd.</TITLE>
 <LINK rel=stylesheet HREF="manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<!-- MBSEADVERT -->
+<!-- FTNDADVERT -->
 <div align="right"><h5>Last update 02-Sep-2007</h5></div>
-<div align="center"><h1>Upgrade MBSE BBS</h1></div>
+<div align="center"><h1>Upgrade FTNd</h1></div>
 
 <h3>Introduction.</h3>
 <p>
-First of all, if you upgrade from a previous version of MBSE BBS, 
+First of all, if you upgrade from a previous version of FTNd, 
 read all the ChangeLog entries from the version you are currently 
 running upto the new @VERSION@ version you are installing. 
-Then make a backup of at least all files in /opt/mbse/bin and /opt/mbse/etc.
+Then make a backup of at least all files in /opt/ftnd/bin and /opt/ftnd/etc.
 <p>&nbsp;<P>
 
 
 <h3>Install the source.</h3>
 <p>
-Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
-While in mbse's home directory (/opt/mbse) unpack the distribution archives:
+Login as user <b>ftnd</b>. Yes, very important, <b>login as user ftnd</b>.
+While in ftnd's home directory (/opt/ftnd) unpack the distribution archives:
 <pre>
-tar xfvj /path/to/mbsebbs-@VERSION@.tar.bz2
+tar xfvj /path/to/ftnd-@VERSION@.tar.bz2
 </pre>
 You now have the subdirectory with sources in the right place. 
 Next build the binaries and install them using the following commands:
 <pre>
-cd ~/mbsebbs-@VERSION@
+cd ~/ftnd-@VERSION@
 make clean
 ./configure
 make
@@ -46,7 +46,7 @@ make install
 </pre>
 Ubuntu users should do:
 <pre>
-cd ~/mbsebbs-@VERSION@
+cd ~/ftnd-@VERSION@
 make clean
 ./configure
 make
@@ -61,16 +61,16 @@ this depends on the distribution you use. There are also distributions that must
 script twice, once with <b>stop</b> and then <b>start</b> as parameter.
 For example:
 <pre>
-/etc/rc.d/init.d/mbsed reload
+/etc/rc.d/init.d/ftnd reload
 exit
 </pre>
 Ubuntu users do:
 <pre>
-sudo /etc/init.d/mbsebbs restart
+sudo /etc/init.d/ftnd restart
 </pre>
-This will close the bbs, kill <b>mbtask</b>, start the new <b>mbtask</b> and open
+This will close the bbs, kill <b>ftntask</b>, start the new <b>ftntask</b> and open
 the bbs again for use. At this point you may need to update some configuration settings
-with <b>mbsetup</b>. Read the ChangeLog for the details. The ChangeLog may also describe a
+with <b>ftnsetup</b>. Read the ChangeLog for the details. The ChangeLog may also describe a
 different restart procedure if this is needed.
 <p>&nbsp;<p>
 
@@ -79,13 +79,13 @@ different restart procedure if this is needed.
 Not everything is updated during the upgrade, only the binaries. Normally this is enough. 
 However it may be that the example menus, macro templates are updated in the distribution.
 Because these files may have some very personal changes, these files are not overwritten.
-You can force that, in the subdirectory ~/mbsebbs-@VERSION@/examples type
+You can force that, in the subdirectory ~/ftnd-@VERSION@/examples type
 <pre>
 make help
 </pre>
 to see what you can force to update. But carefully taking over the changes may be better.
 <br>
-In the directory /opt/mbse/bin and /opt/mbse/etc are new scripts installed. They have the
+In the directory /opt/ftnd/bin and /opt/ftnd/etc are new scripts installed. They have the
 extension <b>.new</b> and you need to examine these to see if you can simply copy these over
 your current ones.
 <p>

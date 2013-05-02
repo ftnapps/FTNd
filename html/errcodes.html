@@ -4,22 +4,22 @@
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
 <META NAME="Language" content='en'>
-<META name="author" lang="en" content="Michiel Broek">
-<META name="copyright" lang="en" content="Copyright Michiel Broek">
-<META name="description" lang="en" content="MBSE BBS Manual - Error return codes">
-<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<META name="author" lang="en" content="Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - Error return codes">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>Error return codes.</TITLE>
 <LINK rel=stylesheet HREF="manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<!-- MBSEADVERT -->
-<div align='right'><h5>Last update 30-Jun-2005</h5></div>
-<div align='center'><H1>MBSE BBS - Error return codes.</H1></div>
+<!-- FTNDADVERT -->
+<div align='right'><h5>Last update 02-May-2013</h5></div>
+<div align='center'><H1>FTNd - Error return codes.</H1></div>
 
 
 <P>
-Following is a list of return codes from all official mbse programs and
+Following is a list of return codes from all official ftnd programs and
 utilities. These codes can be used in scripts. If a program exits normally, the
 return code is 0. If a program exits by a signal, the return code is the signal
 number. This means if you kill a running program with a SIGTERM, the programs
@@ -73,9 +73,9 @@ The mailer can also return the following error codes:
  <LI>TTY Empty
 </OL>
 <P>
-When an external program is run, a mbse program can exit with return code 256 +
+When an external program is run, a ftnd program can exit with return code 256 +
 the return code of the external program. So if the external program exits with
-error code 7, the code returned by the mbse program is 263.
+error code 7, the code returned by the ftnd program is 263.
 <P>
 <A HREF="index.html"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>

@@ -4,18 +4,18 @@
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
 <META NAME="Language" content='en'>
-<META name="author" lang="en" content="Michiel Broek">
-<META name="copyright" lang="en" content="Copyright Michiel Broek">
-<META name="description" lang="en" content="MBSE BBS Manual - Running DOS Doors">
-<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
-<TITLE>Running DOS doors on MBSE BBS.</TITLE>
+<META name="author" lang="en" content="Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - Running DOS Doors">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Running DOS doors on FTNd.</TITLE>
 <LINK rel=stylesheet HREF="manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<!-- MBSEADVERT -->
-<div align='right'><h5>Last update 05-Nov-2004</h5></div>
-<div align='center'><H1>MBSE BBS - Running DOS doors.</H1></div>
+<!-- FTNDADVERT -->
+<div align='right'><h5>Last update 02-May-2013</h5></div>
+<div align='center'><H1>FTNd - Running DOS doors.</H1></div>
 
 <h3>Introduction</h3>
 <p>
@@ -23,13 +23,13 @@ Running DOS doors is possible on systems that can run
 <a href="http://www.dosemu.org" rel="nofollow">dosemu</a>. The latest versions of dosemu don't
 need to be started suid root or started using sudo, it can run as the user that
 is logged in the bbs. Since that is possible, a new location for the virtual C:
-drive is now being used withing the $MBSE_ROOT file structure. This virtual C:
+drive is now being used withing the $FTND_ROOT file structure. This virtual C:
 drive is owned by the group bbs. The basic ideas how doors should be run written
 by Redy Rodriguez are still valid, but some scripts are changed and some dosemu
-files must be copied into the mbse directory tree.<p>
-<em>One very important note: the virtual dos drive is now $MBSE_ROOT/var/dosemu/c
+files must be copied into the ftnd directory tree.<p>
+<em>One very important note: the virtual dos drive is now $FTND_ROOT/var/dosemu/c
 Don't use another location or change the access rights, there will be several 
-references from mbse to that and only that location for dos support. 
+references from ftnd to that and only that location for dos support. 
 Choose another one and you are on your own!</em>
 <p>&nbsp;<p>
 
@@ -50,7 +50,7 @@ mbse@seaport:~/dosemu-1.2.2$ ./configure --prefix=/usr --sysconfdir=/etc/dosemu 
 mbse@seaport:~/dosemu-1.2.2$ make
 </pre>
 Note that the <code>--with-x</code> is not needed for running doors, but it
-might be handy that you can use dosemu as user mbse in X to do maintenance on
+might be handy that you can use dosemu as user ftnd in X to do maintenance on
 your doors.<br>
 Then as root do:<br>
 <pre>
@@ -58,13 +58,13 @@ root@seaport:~/dosemu-1.2.2# make install
 </pre>
 <p>&nbsp;<p>
 
-<h3>Setup dosemu in mbse</h3>
+<h3>Setup dosemu in ftnd</h3>
 <p>
 First copy <code>/etc/dosemu/dosemu.conf</code> into <code>~/etc/dosmeu</code>.
 Then edit <code>~/etc/dosemu/dosemu.conf</code> so that we have a version for
-mbse users. Set the following settings in that file:<br>
+ftnd users. Set the following settings in that file:<br>
 <pre>
-$_hdimage = "/opt/mbse/var/dosemu/c"
+$_hdimage = "/opt/ftnd/var/dosemu/c"
 $_floppy_a = ""
 $_xms = (1024)
 $_ems = (2048)
@@ -79,7 +79,7 @@ $_com1 = "virtual"
 Note that in older dosemu versions you could use a commandline option to do
 this, but this isn't supported anymore since dosemu-1.2.x. The
 <code>rundoor.sh</code> now also uses two configuration files.<br>
-Next we need to setup the C: drive. Do this as user mbse. First type <code>umask
+Next we need to setup the C: drive. Do this as user ftnd. First type <code>umask
 007</code>, this sets the create mode for directories to 0770 and files to 0660
 so that we create all files and directories read/write for all bbs users. This
 is very important! Type the following commands:
@@ -117,7 +117,7 @@ SET TEMP=C:\TEMP
 Lh C:\DOS\DOSKEY /INSERT
 Lh C:\DOS\SHARE
 </pre>
-Now we are ready to try it, type <code>mbsedos</code> and the dos emulator
+Now we are ready to try it, type <code>ftnddos</code> and the dos emulator
 should start. You can leave dosemu with the command <code>exitemu</code>.
 <p>&nbsp;</P>
 
@@ -139,7 +139,7 @@ directory. Finally it starts dosemu in virtual comport mode and inserts the
 commands in dos to start the door.<br>
 But before we can run the door, the door itself must be installed in the dos
 partition. In this example I will explain how to install the door 8ball.
-Start <code>mbsedos</code> and create a directory <code>c:\doors\8ball</code>.
+Start <code>ftnddos</code> and create a directory <code>c:\doors\8ball</code>.
 Unpack 8ball in that directory and run <code>setup</code>. Test the door with
 the command <code>local</code>. Now goto the directory <code>c:\doors</code> and
 create the file <code>8ball.bat</code>. That file will be used to start the
@@ -176,13 +176,13 @@ menu.
 <h3>Netmail support</h3>
 <p>
 In the virtual c: drive you need some directories that point to several other
-mbse subdirectories. You may need at least three of them, one to put netmail in,
-one to put files in to send and one semafore directory to tell mbse there is
+ftnd subdirectories. You may need at least three of them, one to put netmail in,
+one to put files in to send and one semafore directory to tell ftnd there is
 something to send. For example like this:
 <pre>
-ln -s /opt/mbse/var/msgs /opt/mbse/var/dosemu/c/msgs
-ln -s /opt/mbse/var/boxes/node92_100_60 /opt/mbse/var/dosemu/c/outbox
-ln -s /opt/mbse/var/sema /opt/mbse/var/dosemu/c/sema
+ln -s /opt/ftnd/var/msgs /opt/ftnd/var/dosemu/c/msgs
+ln -s /opt/ftnd/var/boxes/node92_100_60 /opt/ftnd/var/dosemu/c/outbox
+ln -s /opt/ftnd/var/sema /opt/ftnd/var/dosemu/c/sema
 </pre>
 In dos you now have:
 <pre>
@@ -196,7 +196,7 @@ point to files with dosnames. (May be solved later). The script that calls the
 door, for example <code>c:\doors\bre.bat</code> must copy the file to send to
 the node outbound box. In the above example that would be copy to 
 <code>C:\OUTBOX</code>.
-To create the semafore to tell mbse to scan add to the batfile (for example
+To create the semafore to tell ftnd to scan add to the batfile (for example
 <code>C:\DOORS\BRE.BAT</code> the following two lines:
 <pre>
 CD C:\SEMA
@@ -205,7 +205,7 @@ ECHO ""&gt;MAILOUT
 See also the <a href="faq.html#_Doors">F.A.Q.</a> for some very usefull tips and
 tricks.
 Using the same method with symlinks, you can make all paths you need from the
-rest of mbse visible in dos. Use with care.
+rest of ftnd visible in dos. Use with care.
 <p>&nbsp;<p>
 
 <h3>What if I don't upgrade</h3>

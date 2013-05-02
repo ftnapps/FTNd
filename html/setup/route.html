@@ -7,28 +7,28 @@
 <META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
 <META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
 <META name="description" lang="en" content="FTNd Manual - Edit Routing Table">
-<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>FTNd Setup - Edit Routing Table.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
 
-<div align=right><h5>Last update 01-Apr-2012</h5></div>
+<div align=right><h5>Last update 02-May-2013</h5></div>
 <div align=center><H1>FTNd Setup - Edit Routing Table.</H1></div>
 
 <H3>Introduction.</H3>
 <P>
 First an important note: normal nodes, hubs and hosts should not need this to
-setup. MBSE is smart enough to do normal netmail routing using the nodelist.
+setup. FTNd is smart enough to do normal netmail routing using the nodelist.
 There are cases when you might need this, for example if you are a RC or if you
 have special routing arrangements via internet nodes. Think at least twice
-before adding entries here. You can always use the <b>mbfido test</b> command to
+before adding entries here. You can always use the <b>ftnfido test</b> command to
 check if the standard routing is enough. You should also check to see what you have
-done with <b>mbfido test</b> if the entries in this table do what you expect
+done with <b>ftnfido test</b> if the entries in this table do what you expect
 them to do.
 During route tests it is wise to temporary switch on extra debug logging
-with mbsetup menu 1.5.16.17 and check the information in the logfile, there is a
+with ftnsetup menu 1.5.16.17 and check the information in the logfile, there is a
 lot of information about the descisions that are made.
 <P>
 When you edit a route table, the entries you add might not be in the right

@@ -4,18 +4,18 @@
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
 <META NAME="Language" content='en'>
-<META name="author" lang="en" content="Michiel Broek">
-<META name="copyright" lang="en" content="Copyright Michiel Broek">
-<META name="description" lang="en" content="MBSE BBS Manual - Setup mgetty">
-<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
-<TITLE>Setup mgetty for MBSE BBS.</TITLE>
+<META name="author" lang="en" content="Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - Setup mgetty">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Setup mgetty for FTNd.</TITLE>
 <LINK rel=stylesheet HREF="manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<!-- MBSEADVERT -->
-<div align='right'><h5>Last update 07-Jan-2002</h5></div>
-<div align='center'><H1>Setup mgetty for MBSE BBS</H1></div>
+<!-- FTNDADVERT -->
+<div align='right'><h5>Last update 02-May-2013</h5></div>
+<div align='center'><H1>Setup mgetty for FTNd</H1></div>
 
 To handle incoming calls you can use <strong>mgetty</strong> written by
 Gert Doering, (gert@greenie.muc.de). Others may work. You have to compile
@@ -34,11 +34,11 @@ I have also included a part of my /etc/inittab to show how <strong>mgetty
 #               In this example it runs in runlevel 3 and 4.
 #
 # Serial lines
-s1:34:respawn:/usr/local/sbin/mgetty -i /opt/mbse/etc/issue ttyS0
+s1:34:respawn:/usr/local/sbin/mgetty -i /opt/ftnd/etc/issue ttyS0
 #
 # ISDN lines, two channels
-I1:34:respawn:/usr/local/sbin/mgetty -i /opt/mbse/etc/issue ttyI0
-I2:23:respawn:/usr/local/sbin/mgetty -i /opt/mbse/etc/issue ttyI1
+I1:34:respawn:/usr/local/sbin/mgetty -i /opt/ftnd/etc/issue ttyI0
+I2:23:respawn:/usr/local/sbin/mgetty -i /opt/ftnd/etc/issue ttyI1
 #
 # End of /etc/inittab
 </PRE>
@@ -121,7 +121,7 @@ init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK
 #  mgetty has to be compiled with "-DFIDO", otherwise a fido call won't
 #  be detected.
 #
-/FIDO/	mbse	fido	/opt/mbse/bin/mbcico @
+/FIDO/	ftnd	fido	/opt/ftnd/bin/mbcico @
 #
 #
 # Automatic PPP startup on receipt of LCP configure request (AutoPPP).
@@ -136,9 +136,9 @@ init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK
 #  entry here, otherwise /bin/login will fail!
 #  This entry isn't really necessary: if it's missing, the built-in
 #  default will do exactly this.
-#  Here we replace the standard login with MBSE BBS login:
+#  Here we replace the standard login with FTNd login:
 #
-*	-	-	/opt/mbse/bin/mblogin @
+*	-	-	/opt/ftnd/bin/mblogin @
 #
 #
 # end of login.config
@@ -146,14 +146,14 @@ init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK
 <HR>
 
 <P>
-I have added the <strong>-i /opt/mbse/etc/issue</strong> options to the 
+I have added the <strong>-i /opt/ftnd/etc/issue</strong> options to the 
 <strong>mgetty</strong> line in /etc/inittab. 
-The file /opt/mbse/etc/issue is a plain textfile to give a small banner just
+The file /opt/ftnd/etc/issue is a plain textfile to give a small banner just
 before the login prompt. 
 It could look like this:<br>
 <pre>
 
-        .--.     Welcome at MBSE BBS Development.
+        .--.     Welcome at FTNd Development.
        |o_o |    --------------------------------
        |:_/ |
       //   \ \   This may or may not work today...
@@ -163,13 +163,13 @@ It could look like this:<br>
 Powered by GNU/Linux.
 
 </pre>
-There is a default /opt/mbse/etc/issue installed by the installation script.
+There is a default /opt/ftnd/etc/issue installed by the installation script.
 You need to edit this to insert your bbs name in it or even completely replace
 this file for a nicer one. Don't make it too big, don't put control characters
 or ANSI sequences in it as this may prevent some mailers to connect to your system.
 <p>
 I discovered that some systems don't have the right permissions on the serial
-port for MBSE BBS. To fix this type the following commands:
+port for FTNd. To fix this type the following commands:
 <pre>
 su
 password: <em>enter root password here</em>
@@ -178,7 +178,7 @@ chown uucp.uucp /dev/ttyS0
 exit
 </pre>
 Note that /dev/ttyS0 is for COM1, /dev/ttyS1 for COM2 etc. This is not a nice
-solution. If youre system allows it, try to add the the user <b>mbse</b> as
+solution. If youre system allows it, try to add the the user <b>ftnd</b> as
 a legal user of your serial ports. Most distributions have some tool for this.
 <p>
 

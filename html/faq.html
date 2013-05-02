@@ -5,44 +5,44 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <meta http-equiv="Content-Style-Type" content="text/css">
 <META NAME="Language" content='en'>
-<meta name="GENERATOR" content="vi handcraft">
-<meta name="author" lang="en" content="Michiel Broek">
-<meta name="description" lang="en" content="MBSE BBS Manual - FAQ and Howto">
-<meta name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
-<title>MBSE BBS FAQ &amp; Howto</title>
+<meta name="author" lang="en" content="Robert James Clay, Michiel Broek">
+<meta name="description" lang="en" content="FTNd Manual - FAQ and Howto">
+<meta name="keywords" lang="en" content="FTNd, FTND, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<title>FTNd FAQ &amp; Howto</title>
 <link rel="stylesheet" href="manual.css">
 </head>
 <body>
 <blockquote>
-<!-- MBSEADVERT -->
-<div align="Center"><h1>MBSE BBS FAQ and Howto.</h1></div>
-<div align="Right"><h5>Last updated 31-Jan-2005</h5></div>
+<!-- FTNDADVERT -->
+<div align="Center"><h1>FTNd FAQ and Howto.</h1></div>
+<div align="Right"><h5>Last updated 02-May-2013</h5></div>
 
 <pre>
 Authors: P.E. Kimble aka King Kimerud            kimerud@bayhaus.org
          Michiel Broek                           2:280/2802
          Rick van Ruth                           3:640/954
-	 David Gonzalez                          4:930/1
+         David Gonzalez                          4:930/1
+         Robert James Clay                       1:120/544
 </pre><hr>
 <h3>Introduction</h3>
 <p>
-This FAQ is a work in progress. It is not complete, nor does its author
-claim   that it is complete. This FAQ only answers questions pertaining to
-using MBSE   BBS on your GNU/Linux box. It is a compilation of previous questions 
-that Michiel   Broek has recieved and answered from us newbies in getting 
-MBSE up &amp; running.   
+This FAQ is derived from the one originally for MBSE BBS and is a work in progress.
+It is not complete, nor does its authors claim  that it is complete. This FAQ only
+answers questions pertaining to using FTNd on your GNU/Linux box. It is a compilation
+of previous questions that Michiel Broek recieved regarding MBSE BBS, from which
+FTNd is derived, and answered from us newbies in getting FTND up &amp; running.
 </p>
 
 <ol>
  <li><a name="_Installation"></a><a href="#1">Installation</a><p>
  <ol>
-  <li><a href="#1.1">Why do I have to install MBSE in the /opt directory?</a></li>
-  <li><a href="#1.2">What other operating systems will MBSE run on?</a></li>
-  <li><a href="#1.3">Will MBSE ever be ported to DOS/Windows or OS/2?</a></li>
+  <li><a href="#1.1">Why do I have to install FTND in the /opt directory?</a></li>
+  <li><a href="#1.2">What other operating systems will FTND run on?</a></li>
+  <li><a href="#1.3">Will FTND ever be ported to DOS/Windows or OS/2?</a></li>
   <li><a href="#1.4">What does the quest switch in the bbs user setup mean?</a></li>
   <li><a href="#1.5">How do I monitor as the things happen?</a></li>
-  <li><a href="#1.6">How do I start mbsebbs from inetd or xinetd?</a></li>
-  <li><a href="#1.7">I just installed mbse, now I get a Socket send failed error 2</a></li>
+  <li><a href="#1.6">How do I start ftnsebbs from inetd or xinetd?</a></li>
+  <li><a href="#1.7">I just installed ftnd, now I get a Socket send failed error 2</a></li>
  </ol>
  <p></li>
  <li><a name="_Fidosetup"></a><a href="#2">Fidonet Setup</a><p>
@@ -50,10 +50,10 @@ MBSE up &amp; running.
   <li><a href="#2.1">The nodelist compiler crashes, why?</a></li>
   <li><a href="#2.2">What is the purpose of the "Comment" line in the tic area setup?</a></li>
   <li><a href="#2.3">How do I poll a node?</a></li>
-  <li><a href="#2.4">I created a filerequest but mbcico doesn't call out.</a></li>
-  <li><a href="#2.5">Does MBSE support fidonet via ftp feeds?</a></li>
-  <li><a href="#2.6">The tosser and mbmsg program are slow, why?</a></li>
-  <li><a href="#2.7">How can I use an external netmail tracker with MBSE?</a></li>
+  <li><a href="#2.4">I created a filerequest but ftncico doesn't call out.</a></li>
+  <li><a href="#2.5">Does FTND support fidonet via ftp feeds?</a></li>
+  <li><a href="#2.6">The tosser and ftnmsg program are slow, why?</a></li>
+  <li><a href="#2.7">How can I use an external netmail tracker with FTND?</a></li>
   <li><a href="#2.8">I am having problems with dates when unarchiving .arc files.</a></li>
  </ol>
  <p></li>
@@ -62,21 +62,21 @@ MBSE up &amp; running.
   <li><a href="#3.1">Posting newsmessages to the newsserver fails.</a></li>
   <li><a href="#3.2">FTP fidonet feeds how-to.</a></li>
   <li><a href="#3.3">Polling a internet node fails</a></li>
-  <li><a href="#3.4">Dialup script examples for MBSE</a></li>
+  <li><a href="#3.4">Dialup script examples for FTND</a></li>
   <li><a href="#3.5">BBS users cannot get their email on Debian</a></li>
  </ol>
  <p></li>
  <li><a name="_BBSsetup"></a><a href="#4">BBS Setup</a><p>
  <ol>
-  <li><a href="#4.1">How do I to set up MBSE for ISDN?</a></li>
-  <li><a href="#4.2">How do I use GoldED together with MBSE?</a></li>
-  <li><a href="#4.3">How do I use MsgEd together with MBSE?</a></li>
+  <li><a href="#4.1">How do I to set up FTND for ISDN?</a></li>
+  <li><a href="#4.2">How do I use GoldED together with FTND?</a></li>
+  <li><a href="#4.3">How do I use MsgEd together with FTND?</a></li>
   <li><a href="#4.4">How do I adopt a directory full of files to the bbs?</a></li>
  </ol>
  <p></li>
  <li><a name="_Doors"></a><a href="#5">Doors Setup</a><p>
  <ol>
-  <li><a href="#5.1">How do I run DOS doors under MBSE BBS?</a></li>
+  <li><a href="#5.1">How do I run DOS doors under FTNd?</a></li>
   <li><a href="#5.2">Dosemu compile tips</a></li>
   <li><a href="#5.3">Setting up for InterBBS games.</a></li>
   <li><a href="#5.4">Door Maintenance.</a></li>
@@ -93,13 +93,13 @@ MBSE up &amp; running.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="1.1">Q 1.1</a></td>
-   <td>Why do I have to install MBSE in the /opt directory?</td>
+   <td>Why do I have to install FTND in the /opt directory?</td>
   </tr>
   <tr>
    <td valign="Top">A 1.1</td>
-   <td> The /opt is for extra applications, when mbse is installed there 
+   <td> The /opt is for extra applications, when ftnd is installed there 
      it is easier to upgrade the OS. If you insist on installing in /usr/local
-       the choose /usr/local/mbse. 
+       the choose /usr/local/ftnd. 
    </td>
   </tr>
  </tbody>
@@ -111,13 +111,13 @@ MBSE up &amp; running.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="1.2">Q 1.2</a></td>
-   <td> What other operating systems will MBSE run on? </td>
+   <td> What other operating systems will FTND run on? </td>
   </tr>
   <tr>
    <td valign="Top">A 1.2</td>
    <td> Currently only on most GNU/Linux distributions, FreeBSD and NetBSD.
        The author, Michiel Broek, has made a valiant effort ensuring that
-MBSE     will recognize and install on the major distributions of GNU/Linux.
+FTND     will recognize and install on the major distributions of GNU/Linux.
    </td>
   </tr>
  </tbody>
@@ -129,7 +129,7 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="1.3">Q 1.3</a></td>
-   <td> Will MBSE BBS ever be ported to DOS/Windows or OS/2? </td>
+   <td> Will FTNd ever be ported to DOS/Windows or OS/2? </td>
   </tr>
   <tr>
    <td valign="Top">A 1.3</td>
@@ -162,7 +162,7 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
    <td> How do I monitor as the things happen? </td></tr>
   <tr>
    <td valign="Top">A 1.5</td>
-   <td> tail -f /opt/mbse/log/system.log or start mbmon. </td>
+   <td> tail -f /opt/ftnd/log/system.log or start ftnmon. </td>
   </tr>
  </tbody>
 </table>
@@ -173,12 +173,12 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="1.6">Q 1.6</a></td>
-   <td> How to start mbsebbs from inetd or xinetd? </td>
+   <td> How to start ftnd from inetd or xinetd? </td>
   </tr>
   <tr>
    <td valign="Top">A 1.6</td>
    <td> This is described in the documentation of the 
-        <a href="programs/mblogin.html">mblogin</a> program. </td>
+        <a href="programs/ftnlogin.html">ftnlogin</a> program. </td>
   </tr>
  </tbody>
 </table>
@@ -189,16 +189,16 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="1.7">Q 1.7</a></td>
-   <td> I just installed mbse, now I get a Socket send failed error 2.</td>
+   <td> I just installed ftnd, now I get a Socket send failed error 2.</td>
   </tr>
   <tr>
    <td valign="Top">A 1.7</td>
-   <td> With a normal system boot the <b>mbtask</b> daemon will be started 
-     by one of the systems init scripts. If you just installed mbse you need 
-     to  do this for the first time manually. As user <b>mbse</b> issue the 
-     following commands: <pre>mbtask<br>mbstat open<br><br></pre>
+   <td> With a normal system boot the <b>ftntask</b> daemon will be started 
+     by one of the systems init scripts. If you just installed ftnd you need 
+     to  do this for the first time manually. As user <b>ftnd</b> issue the 
+     following commands: <pre>ftntask<br>ftnstat open<br><br></pre>
      This will start the daemon, the daemon creates the default
-     databases. Then  you can use <b>mbsetup</b> to configure your new system.
+     databases. Then  you can use <b>ftnsetup</b> to configure your new system.
    </td>
   </tr>
  </tbody>
@@ -252,7 +252,7 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
   </tr>
   <tr>
    <td valign="Top">A 2.3</td>
-   <td> mbout poll f2802.n280.z2 </td>
+   <td> ftnout poll f2802.n280.z2 </td>
   </tr>
  </tbody>
 </table>
@@ -263,7 +263,7 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="2.4">Q 2.4</a></td>
-   <td> I created a filerequest but mbcico doesn't call out. </td>
+   <td> I created a filerequest but ftncico doesn't call out. </td>
   </tr>
   <tr>
    <td valign="Top">A 2.4</td>
@@ -278,7 +278,7 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="2.5">Q 2.5</a></td>
-   <td> Does MBSE support fidonet via ftp transfers? </td>
+   <td> Does FTND support fidonet via ftp transfers? </td>
   </tr>
   <tr>
    <td valign="Top">A 2.5</td>
@@ -293,18 +293,18 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="2.6">Q 2.6</a></td>
-   <td>The tosser and mbmsg programs are slow, why?</td>
+   <td>The tosser and ftnmsg programs are slow, why?</td>
   </tr>
   <tr>
    <td valign="Top">A 2.6</td>
    <td> Tossing mail and linking message areas are background tasks. 
-     When mbse was first developed the hardware was not fast enough to run 
+     When ftnd was first developed the hardware was not fast enough to run 
      these programs at full speed. The mailer could give CRC errors and the 
      bbs seemed to stop now and then. To overcome this problem all programs 
      started with the -quiet switch (background jobs) are stopping for short 
      periods so that they would use less system resources. Systems with SCSI 
      disks or other fast and well designed machines don't have a need for that 
-     slowdown. In mbsetup menu 1.5.17 is the setting for the speed of all utility 
+     slowdown. In ftnsetup menu 1.5.17 is the setting for the speed of all utility 
      programs, the default is slow. You might try this set to fast and see what
      happens on your system.</td>
   </tr>
@@ -317,13 +317,13 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="2.7">Q 2.7</a></td>
-   <td>How can I use an external netmail tracker with MBSE?</td>
+   <td>How can I use an external netmail tracker with FTND?</td>
   </tr>
   <tr>
    <td valign="Top">A 2.7</td>
    <td>If the netmail tracker can work on .pkt files you could try to 
-       install it into mbfido. It can call a external program to process incoming 
-       .pkt files before mbfido does something with it. That option was built a
+       install it into ftnfido. It can call a external program to process incoming 
+       .pkt files before ftnfido does something with it. That option was built a
        few years ago for extra Y2K checks. (The pktdate program of Tobias Ernest).</td>
   </tr>
  </tbody>
@@ -341,7 +341,7 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
    <td valign="Top">A 2.8</td>
    <td>If you are experiencing a problem with the dates on arc files
        showing as January 1970 or similar when extracted using Arc v5.31 for linux
-       then obtain "nomarch". MBSE will detect nomarch during configuration/install
+       then obtain "nomarch". FTND will detect nomarch during configuration/install
        and set your archiver.data file accordingly. Nomarch extracts .arc files
        and keeps the original file date.</td>
   </tr>
@@ -361,7 +361,7 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
   <tr>
    <td valign="Top">A 3.1</td>
    <td>Check if you need the "mode reader" command for the newsserver.
-       Set this flag in mbsetup 1.15.5 </td>
+       Set this flag in ftnsetup 1.15.5 </td>
   </tr>
  </tbody>
 </table>
@@ -372,15 +372,15 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="3.2">Q 3.2</a> </td>
-   <td> How do I configure MBSE for my ftp filenet feeds? </td>
+   <td> How do I configure FTND for my ftp filenet feeds? </td>
   </tr>
   <tr>
    <td valign="Top">A 3.2</td>
    <td>Follow the next steps to setup your system for FTP clients. 
     <ol>
      <li>As root, add a new group to your system: <b>groupadd bbsftp</b>.</li>
-     <li>Make sure there is a directory /opt/mbse/var/bbsftp. This directory 
-      	 should be owned by mbse, group bbs and have mode 0775.</li>
+     <li>Make sure there is a directory /opt/ftnd/var/bbsftp. This directory 
+      	 should be owned by ftnd, group bbs and have mode 0775.</li>
      <li>Add an invalid shell to /etc/shells, /usr/bin/false is good.</li>
      <li>Install an FTP server, the examples here are for ProFTPD.</li>
      <li>In /etc/proftpd.conf make sure there are the following lines: 
@@ -394,25 +394,25 @@ MBSE     will recognize and install on the major distributions of GNU/Linux.
      <li>Add a username for the node you whish to give an FTP feed.
          Use the following as root:                                            
 <pre>
-useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
+useradd -g bbs -G bbsftp -d /opt/ftnd/var/bbsftp/username
     -s /usr/bin/false -c "FTP Account for username" -m username
 </pre>
          Note: this is one line! There will now be a user added and
-         have a  home  directory of /opt/mbse/var/bbsftp/username. Make sure
+         have a  home  directory of /opt/ftnd/var/bbsftp/username. Make sure
          that  directory has  permission 0775 or 0770. Create in the username
          directory two other directories, inbound and outbound. They must
          be owned by the user and be a member of group bbs and have mode 0775.
-         The modes  077x are needed because the user and mbse must be able to
+         The modes  077x are needed because the user and ftnd must be able to
          read and write  to these directories.</li>
      <li>Try to login with ftp from some other system with the choosen 
       	 username and his password and check the changes until now. You should 
     	 not be able to escape from the directories of this user and you should 
    	 be able to upload files, download and delete files. Check also if you 
- 	 uploaded a file if user mbse can delete that file and also put a file 
-	 in the users ftp directory as user mbse, and check that you can download 
+ 	 uploaded a file if user ftnd can delete that file and also put a file 
+	 in the users ftp directory as user ftnd, and check that you can download 
          and delete is as ftp user.</li>
      <li>Make sure for the node you want to change there is no mail
-         left in the outbound. Now start mbsetup, menu 7, open the setup
+         left in the outbound. Now start ftnsetup, menu 7, open the setup
          of the node that will use ftp. In screen 3, items 7 and 8, set these
          to  Directory. Now enter screen 8, here you will setup the directory
          session.                                                                
@@ -420,18 +420,18 @@ useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
        7.8  EDIT NODE DIRECTORY SESSION
 
             Outbound settings
-       1.   Files path      /opt/mbse/var/bbsftp/username/outbound
+       1.   Files path      /opt/ftnd/var/bbsftp/username/outbound
        2.   Check for lock  Yes               3.   Wait clear lock Yes
-       4.   Check lockfile  /opt/mbse/var/bbsftp/username/lock.bsy
+       4.   Check lockfile  /opt/ftnd/var/bbsftp/username/lock.bsy
        5.   Create lock     Yes
-       6.   Create lockfile /opt/mbse/var/bbsftp/username/lock.bsy
+       6.   Create lockfile /opt/ftnd/var/bbsftp/username/lock.bsy
        
             Inbound settings
-       7.   Files path      /opt/mbse/var/bbsftp/username/inbound
+       7.   Files path      /opt/ftnd/var/bbsftp/username/inbound
        8.   Check for lock  Yes               9.   Wait clear lock Yes
-       10.  Check lockfile  /opt/mbse/var/bbsftp/username/lock.bsy
+       10.  Check lockfile  /opt/ftnd/var/bbsftp/username/lock.bsy
        11.  Create lock     Yes
-       12.  Create lockfile /opt/mbse/var/bbsftp/username/lock.bsy
+       12.  Create lockfile /opt/ftnd/var/bbsftp/username/lock.bsy
 </pre>
          Save this and you are ready.</li>
      <li>A final note, since this user is in group bbs and not in the
@@ -453,11 +453,11 @@ useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
   </tr>
   <tr>
    <td valign="Top">A 3.3</td>
-   <td>There are several reasons why mbcico refuses to call an internet
+   <td>There are several reasons why ftncico refuses to call an internet
        node, most problems are nodelist related. A internet node with binkp
-       protocol should be listed with the flags CM,IBN before mbcico will
+       protocol should be listed with the flags CM,IBN before ftncico will
        make a call. Also, in the nodelist system name field there should
-       be the hosts full qualified domainname so that mbcico can get that
+       be the hosts full qualified domainname so that ftncico can get that
        node's IP address. If one of these items are missing, the node will
        not be called. To correct this problem there are two options, make
        sure the node is listed with a dns name and proper flags in the nodelist.
@@ -467,12 +467,12 @@ useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
        be used to give that node's fdn or IP address.                        
        <p>
        If the call still fails there are several things that must be
-       right before mbcico makes any internet call. In mbmon, screen 2 (SERVER
+       right before ftncico makes any internet call. In ftnmon, screen 2 (SERVER
        STATS) there are flags that indicate if the system is running, internet
        is available and the bbs is open. If one of these is No, then no call will
        be made. (For POTS the Internet flag does not matter of course).
        <p> 
-       In mbsetup, screen 18 (taskmanager), you need to set the maximum 
+       In ftnsetup, screen 18 (taskmanager), you need to set the maximum 
        TCP sessions to allow. This is inbound and outbound together. So if you set
        this to 3 and 3 or more systems are already calling in via internet, your
        system will not call anymore until the amount of TCP sessions drops below 3.
@@ -483,12 +483,12 @@ useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
        512K and about 4 sessions together). A good rule seems 1 TCP session for
        each 32K bandwidth.
        <p>
-       Then turn in that same screen debug on. After a minute mbtask 
+       Then turn in that same screen debug on. After a minute ftntask 
        rereads his configuration.
        <p>
-       Make a poll with mbout poll &lt;node&gt;.
+       Make a poll with ftnout poll &lt;node&gt;.
        <p>
-       Watch the mbtask logfile and see what it does for that node. It
+       Watch the ftntask logfile and see what it does for that node. It
        should be added to the calllist. If not, it might be still a nodelist problem.</td>
   </tr>
  </tbody>
@@ -500,7 +500,7 @@ useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="3.4">Q 3.4</a></td>
-   <td>Dialup script examples for MBSE</td>
+   <td>Dialup script examples for FTND</td>
   </tr>
   <tr>
    <td valign="Top">A 3.4</td>
@@ -508,7 +508,7 @@ useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
 <pre>
 #!/bin/sh
 #
-# Dialup script for MBSE BBS.
+# Dialup script for FTNd.
 #
 #============================================================================
 # Copyright (C) 1997-2002
@@ -518,20 +518,20 @@ useradd -g bbs -G bbsftp -d /opt/mbse/var/bbsftp/username
 # 1971 BV IJmuiden
 # the Netherlands
 #
-# This file is part of MBSE BBS.
+# This file is part of FTNd.
 #
 # This BBS is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
 # later version.
 #
-# MBSE BBS is distributed in the hope that it will be useful, but
+# FTNd is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with MBSE BBS; see the file COPYING.  If not, write to the Free
+# along with FTNd; see the file COPYING.  If not, write to the Free
 # Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #============================================================================
 #
@@ -571,9 +571,9 @@ do
     i=60;
     while let 'i &gt; 0' &amp;&amp; let 'connect == 0'
     do
-        if [ -f $MBSE_ROOT/var/sema/is_inet ]; then
+        if [ -f $FTND_ROOT/var/sema/is_inet ]; then
             connect=1
-            echo "mbtask detected internet"     | $LOGGER
+            echo "ftntask detected internet"     | $LOGGER
         fi
         let i=i-1
         sleep 1
@@ -581,7 +581,7 @@ do
     #
     # Check if we have a connection
     #
-    if [ ! -f $MBSE_ROOT/var/sema/is_inet ]; then
+    if [ ! -f $FTND_ROOT/var/sema/is_inet ]; then
         echo "Failed, 10 seconds pause ..."     | $LOGGER
         sleep 10
     fi
@@ -590,7 +590,7 @@ done
 #
 # Here we have a connection, now make all needed polls
 #
-$MBSE_ROOT/bin/mbout poll f5003.n280.z2 f19.n280.z2 -quiet
+$FTND_ROOT/bin/ftnout poll f5003.n280.z2 f19.n280.z2 -quiet
 
 #
 # Now we wait until the do_inet semafore appears, we
@@ -599,7 +599,7 @@ $MBSE_ROOT/bin/mbout poll f5003.n280.z2 f19.n280.z2 -quiet
 i=25;
 while let 'i &gt; 0'
 do
-    if [ -f $MBSE_ROOT/var/sema/do_inet ]; then
+    if [ -f $FTND_ROOT/var/sema/do_inet ]; then
         i=0;
     else
         let i=i-1;
@@ -615,7 +615,7 @@ done
 i=3600;
 while let 'i &gt; 0'
 do
-    if [ ! -f $MBSE_ROOT/var/sema/do_inet ]; then
+    if [ ! -f $FTND_ROOT/var/sema/do_inet ]; then
         i=0;
     else
         let i=i-1;
@@ -637,10 +637,10 @@ exit 0
 =================================================
 #!/bin/sh
 
-PATH=/opt/mbse:/opt/mbse/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/usr/local
+PATH=/opt/ftnd:/opt/ftnd/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/usr/local
 / sbin:$PATH
-cd /opt/mbse
-if [ -f /opt/mbse/tmp/ip.up ] ; then
+cd /opt/ftnd
+if [ -f /opt/ftnd/tmp/ip.up ] ; then
         exit
 fi
 echo "up" &gt; /var/run/diald.ctl
@@ -648,31 +648,31 @@ sleep 15
 
 ping -c 10 -w 10 mail.iol.ie
 if [ -e /var/run/ppp0.pid ]  ; then
-        touch /opt/mbse/tmp/ip.up
-   cd /opt/mbse
+        touch /opt/ftnd/tmp/ip.up
+   cd /opt/ftnd
    echo "Fetching News"
-   /opt/mbse/fetchnews
+   /opt/ftnd/fetchnews
    echo "Synching clock"
    telnet 192.168.0.2 9049
-   bin/mbfido news
+   bin/ftnfido news
    echo "Fetching Mail"
-   /usr/bin/fetchmail -f /opt/mbse/.fetchmailrc
+   /usr/bin/fetchmail -f /opt/ftnd/.fetchmailrc
    bin/soup
-        if [ ! 'cat /opt/mbse/irex/s/rexbusy.0 | xargs ps --no-header' ] ;
+        if [ ! 'cat /opt/ftnd/irex/s/rexbusy.0 | xargs ps --no-header' ] ;
         then
                 rm /etc/ftn/irex/s/rexbusy.0
         fi
 
    ./rexl
-   fetchmail -f /opt/mbse/.fetchmailrc
+   fetchmail -f /opt/ftnd/.fetchmailrc
    ./rexl -sf m
-   /opt/mbse/bin/bink
+   /opt/ftnd/bin/bink
 
   echo down &gt; /var/run/diald.ctl
 
   bin/bres.sh  # &gt;&gt; /dev/null 2&gt;&amp;1
 fi
-rm /opt/mbse/tmp/ip.up
+rm /opt/ftnd/tmp/ip.up
 
 ==================================
 </pre>
@@ -708,7 +708,7 @@ rm /opt/mbse/tmp/ip.up
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="4.1">Q 4.1</a></td>
-   <td> How to set up MBSE for ISDN.</td>
+   <td> How to set up FTND for ISDN.</td>
   </tr>
   <tr>
    <td valign="Top">A 4.1</td>
@@ -722,8 +722,8 @@ rm /opt/mbse/tmp/ip.up
        devices ttyI0 and ttyI1. </p>
 <pre>
 # ISDN lines
-I1:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI0
-I2:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI1
+I1:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/ftnd/etc/issue ttyI0
+I2:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/ftnd/etc/issue ttyI1
 </pre>
        To your mgetty.config file [/usr/local/etc/mgetty_sendfax/mgetty.config 
        on my system] set up the ttyI0 and ttyI1 ports. With AT&amp;E you set
@@ -745,7 +745,7 @@ init-chat "" ATZ OK
 AT&amp;E714017198&amp;W0 OK
 AT&amp;B512 OK
 </pre>
-       From the mbsetup menu #5 "Edit Modem types" configure the ISDN 
+       From the ftnsetup menu #5 "Edit Modem types" configure the ISDN 
        modem type.                                                          
 <pre>
 	Modem type   ISDN Linux
@@ -817,19 +817,19 @@ AT&amp;B512 OK
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="4.2">Q 4.2</a></td>
-   <td> How do I use GoldED together with MBSE? </td>
+   <td> How do I use GoldED together with FTND? </td>
   </tr>
   <tr>
    <td valign="Top">A 4.2</td>
-   <td>Since MBSE BBS version 0.33.12 GoldED and MBSE BBS can be used 
+   <td>Since MBSE BBS version 0.33.12 GoldED and FTNd can be used 
        together without problems as long as you use it to read the sysop mail. 
-       The mbsetup program can export a file called /opt/mbse/etc/golded.inc 
+       The ftndtup program can export a file called /opt/ftnd/etc/golded.inc 
        which will contain your main Aka's, Aka matching, sysop name and all your
        mail areas. This file is only (re)created if you change the global settings
        or one of the mail areas. The first time you must force this by making
        a change somewhere.                                                  
        <p> 
-       Now create /opt/mbse/etc/golded.cfg, here is what I wrote:
+       Now create /opt/ftnd/etc/golded.cfg, here is what I wrote:
 <pre>
 ; GoldED.cfg
 ;
@@ -839,7 +839,7 @@ INTERNETADDRESS Michiel_Broek@f2802.n280.z2.fidonet.org
 INTERNETGATE UUCP 2:292/875
 ;
 ;
-OUTBOUNDPATH /opt/mbse/var/bso/outbound
+OUTBOUNDPATH /opt/ftnd/var/bso/outbound
 REPLYLINK chain
 STYLECODES yes
 ;
@@ -854,14 +854,14 @@ VIEWHIDDEN YES
 VIEWKLUDGE NO
 VIEWQUOTE YES
 ;
-INCLUDE /opt/mbse/etc/golded.inc
+INCLUDE /opt/ftnd/etc/golded.inc
 ;
 ; The end.
 </pre>
-       Put in /opt/mbse/.profile the following line: export GOLDED=$HOME/etc 
+       Put in /opt/ftnd/.profile the following line: export GOLDED=$HOME/etc 
        <p> 
        When you now start GoldED you use it as the sysop. Make sure that
-       the sysop's userrecord is the first user in the MBSE BBS userbase. If not,
+       the sysop's userrecord is the first user in the FTNd userbase. If not,
        the lastread pointers are not right. The GoldED nodelist compiler can be
        added to the setup in menu 18.</td>
   </tr>
@@ -874,13 +874,13 @@ INCLUDE /opt/mbse/etc/golded.inc
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="4.3">Q 4.3</a> </td>
-   <td> How do I use MsgEd together with MBSE?</td>
+   <td> How do I use MsgEd together with FTND?</td>
   </tr>
   <tr>
    <td valign="Top">A 4.3</td>
-   <td>Since MBSE BBS version 0.35.05 MsgEd and MBSE BBS can be used 
+   <td>Since MBSE BBS version 0.35.05 MsgEd and FTNd can be used 
        together without problems as long as you use it to read the sysop 
-       mail. The mbsetup program can export a file called /opt/mbse/etc/msg.txt 
+       mail. The ftnsetup program can export a file called /opt/ftnd/etc/msg.txt 
        which will contain your mail areas setup. This file is only 
        (re)created if you change the global settings or one of the mail 
        areas. The first time you must force this by making a change somewhere.</td>
@@ -914,7 +914,7 @@ INCLUDE /opt/mbse/etc/golded.inc
        that it uploads to the DOS filebase (4) and run it.
 <pre>
 for file in `ls` ; do
-  mbfile adopt 4 $file "Dummy description"
+  ftnfile adopt 4 $file "Dummy description"
 done
 </pre>
        NOTE: the 4 in the script above, indicates the filebase/filearea that the 
@@ -947,7 +947,7 @@ done
  <tbody>
   <tr>
    <td width="50" valign="Top"><a name="5.1">Q 5.1</a> </td>
-   <td> How do I run DOS doors under MBSE BBS? </td>
+   <td> How do I run DOS doors under FTNd? </td>
   </tr>
   <tr>
    <td valign="Top">A 5.1</td>
@@ -977,13 +977,13 @@ old versions of dosemu.</em>
        <b>INTRODUCTION</b>
        <p> 
        This document describes how I have been able to execute MS/DOS 
-       doors in  MBSEBBS. Probably it is not the best way to do it, but this 
+       doors in  FTNDBBS. Probably it is not the best way to do it, but this 
        is the one that works for me. If somebody finds one more more effective, 
        or simpler or safer a solution, then I like to hear this solution.
        <p>
        <b>WHAT IS NEEDED?</b>
        <p> 
-       MBSEBBS is correctly compiled and working, in my case I have the
+       FTNDBBS is correctly compiled and working, in my case I have the
        version  0.33.19, that is at the moment the most recent and stable, I suppose
        that this method can be valid for newer versions. DOSEMU 1.0.2 I have tried
        previous versions, but these do not work correctly with virtual ports. You
@@ -1084,7 +1084,7 @@ $_hdimage = "c"
        dosemu.bin as root. As root execute visudo to edit the configuration file
        of sudo add the lines:
 <pre>
-%bbs   ALL=NOPASSWD:/opt/mbse/bin/bbsdoor.sh
+%bbs   ALL=NOPASSWD:/opt/ftnd/bin/bbsdoor.sh
 %bbs   ALL=NOPASSWD:/opt/dosemu/bin/dosemu.bin
 </pre>
        The first command is a script that takes care of copying the
@@ -1092,7 +1092,7 @@ $_hdimage = "c"
        execute dosemu.bin. Any user of group BBS can execute these commandos
        like root without password is asked.                                
        <p> 
-       In order to test that this works login as user mbse and execute:
+       In order to test that this works login as user ftnd and execute:
 <pre> 
 sudo dosemu.bin
 </pre>
@@ -1100,8 +1100,8 @@ sudo dosemu.bin
        <b>INSTALLING A DOOR</b>
        <p> 
        First we need a pair of scripts. These scripts are installed when
-       you did install MBSE. These scripts are needed to execute the doors and are
-       installed in /opt/mbse/bin:
+       you did install FTND. These scripts are needed to execute the doors and are
+       installed in /opt/ftnd/bin:
 <pre>
 --- rundoor.sh ---
 
@@ -1110,7 +1110,7 @@ sudo dosemu.bin
 # rundoor.sh - Never call this script directly, create a symlink
 #              to thisfile with the name of the door. For example
 #              tu run the door ilord do:
-#              cd /opt/mbse/bin
+#              cd /opt/ftnd/bin
 #              ln -s rundoor.sh ilord
 #
 # by Redy Rodriguez and Michiel Broek.
@@ -1118,7 +1118,7 @@ sudo dosemu.bin
 DOOR=`basename $0`
 COMMANDO="\" doors $DOOR $*\r\""
 
-/usr/bin/sudo /opt/mbse/bin/bbsdoor.sh $DOOR $1
+/usr/bin/sudo /opt/ftnd/bin/bbsdoor.sh $DOOR $1
 /usr/bin/sudo /opt/dosemu/bin/dosemu.bin \
 -F /var/lib/dosemu/global.conf \
 -I "`echo -e serial { com 1 virtual }"\n" keystroke $COMMANDO`"
@@ -1159,7 +1159,7 @@ fi
        a serial port in virtual mode. This one is working at Parolas BBS.
        <p> 
        Unpack Virtual Sysop in the dos partition, in the directory c:\doors\vsysop.
-       Execute as user mbse 'sudo dosemu.bin' and make sure that the door
+       Execute as user ftnd 'sudo dosemu.bin' and make sure that the door
        works in local mode (these commands are for this door):
 <pre>
 cd doors
@@ -1187,7 +1187,7 @@ cd ..
        file.                                                                 
        <p> 
        The Virtual Sysop door supports door.sys and that is the only 
-       dropfile that is generated by mbsebbs and that is supported by most 
+       dropfile that is generated by ftnd and that is supported by most 
        of the doors. If you need another format you must use a converter to change
        the format of the dropfile.
        <p> 
@@ -1195,20 +1195,20 @@ cd ..
        this door works for me correctly with these parameters, it is alos possible
        that it works without X00 or that you can load another fossil.    
        <p> 
-       Now create a link to rundoor.sh in /opt/mbse/bin called vsysop. 
+       Now create a link to rundoor.sh in /opt/ftnd/bin called vsysop. 
        The name must be the same one that the name of the .bat file created 
        in the dos partition, but without the extension bat.
 <pre>
-ln -s /opt/mbse/bin/rundoor.sh /opt/mbse/bin/vsysop
+ln -s /opt/ftnd/bin/rundoor.sh /opt/ftnd/bin/vsysop
 </pre>
-       Now we execute mbsetup and enter the menu setup to add an entrance
+       Now we execute ftnsetup and enter the menu setup to add an entrance
        like this (It puts option 16 to Yes):                             
 <pre>
     8.3. EDIT MENU ITEM
 
     1.  Sel. key  V
     2.  Type nr.  7         Run external program in shell
-    3.  Opt. data /opt/mbse/bin/vsysop /N
+    3.  Opt. data /opt/ftnd/bin/vsysop /N
                   1234567890123456789012345678901234567890123456789012345678901234
     4.  Display
     5.  Security  0     --------------------------------
@@ -1300,8 +1300,8 @@ Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
        door games produce to send outbound packets.                       
        <p> 
        The easiest way to solve this is by creating symlinks from your 
-       MBSE directories into the directory where your dos doors live (c:\doors). 
-       The 2 directories you wish to link are /opt/mbse/var/inbound and /opt/mbse/var/msgs 
+       FTND directories into the directory where your dos doors live (c:\doors). 
+       The 2 directories you wish to link are /opt/ftnd/var/inbound and /opt/ftnd/var/msgs 
        - link them into your dos directories doors directory with the same 
        names ie: "inbound" and "msgs". Now according to dosemu you will have 
        a c:\doors\inbound and a c:\doors\msgs. We do not actually use the "msgs" 
@@ -1313,8 +1313,8 @@ Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
        <p>
        1A. First of all you will realise that door games running under 
        dosemu usually write files as owner root, chmod 0644. This is not good 
-       for MBSE to transfer these files as it does not have permission to act 
-       on the files. In order to force dosemu to write games files so that MBSE 
+       for FTND to transfer these files as it does not have permission to act 
+       on the files. In order to force dosemu to write games files so that FTND 
        can act upon them we need to alter /etc/sudoers and change the umask for
        root running under sudo. To do this open /etc/sudoers (you must be root
        to edit this file) and add the following line at the top of the file before
@@ -1323,13 +1323,13 @@ Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
        Defaults &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; umask=0000</p>
        <p>
        This will allow dosemu to write files chmod 0666 (read/write everybody) 
-       and MBSE will be able to manipulate them.
+       and FTND will be able to manipulate them.
        <p> 
        For my example I will use the InterBBS dos door game called Barren
        Realms Elite (BRE for short).
        <p> 
        1B. Install Bre in c:\doors\bre and setup the necessary files 
-       for its execution as a dos door from MBSE as per the dos doors faq. 
+       for its execution as a dos door from FTND as per the dos doors faq. 
        <p> 
        1C. Tell Bre (in its BBS.CFG) that the path for inbound packets 
        is c:\doors\inbound and the netmail path is c:\doors\msgs Bre will now
@@ -1337,11 +1337,11 @@ Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
        for itself. It needs no assistance as it merely searches for the correct
        filename in the directory.
        <p>
-       1D. We need to link Bre's outbound path to our host nodes MBSE 
+       1D. We need to link Bre's outbound path to our host nodes FTND 
        mailbox for automatic transfer of games packets. First make sure you 
-       have added an "outbox" for your uplink node in the nodes setup in MBSE 
+       have added an "outbox" for your uplink node in the nodes setup in FTND 
        - Section 7, Select Uplink, Menu 1, Section 2 "outbox dir". eg: if your 
-       uplink is 3:640/954  then MBSE will default to creating /opt/mbse/var/boxes/node3_640_954 
+       uplink is 3:640/954  then FTND will default to creating /opt/ftnd/var/boxes/node3_640_954 
        as the  outbox (I will use this as an example). Note the flavour of your 
        uplinks node connection will apply to the outbox as well. Thus if that 
        particular node is set crashmail then anything you put in the outbox will
@@ -1353,7 +1353,7 @@ Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
        create a symlink to the node outbox instead. If Bre is in c:\doors\bre 
        then the symlink command will be:
        <p>
-       ln -s /opt/mbse/var/boxes/node3_640_954 /dos/c/doors/bre/OUTBOUND
+       ln -s /opt/ftnd/var/boxes/node3_640_954 /dos/c/doors/bre/OUTBOUND
        <p>
        Alter the above depending on where your linux path to your dos 
        is, also remember linux is case sensitive! Note you can also make as 
@@ -1379,13 +1379,13 @@ Written by: Rick Van Ruth, sysop of&nbsp;Vampyre's Heaven BBS 3:640/954
        Follow steps 1A, 1B, 1C above, the change occurs for 1D (below).
        <p> 
        1D. We need a script to process the Bre outbound packets and add
-       them to MBSE's node outboxes path so they are sent. A script on how to do
+       them to FTND's node outboxes path so they are sent. A script on how to do
        this  follows (with comments ). First remember to create your outboxes for
        each node that you transfer games packets to. I will use 3:640/954 as above
        and 1:123/456 for this example of 2 systems linked to the one Bre game. 
        <p> 
-       This script should be owned by user "mbse" and have the permissions
-       (chmod 755) -rwxr-xr-x. It is best kept in /opt/mbse/bin with your
+       This script should be owned by user "ftnd" and have the permissions
+       (chmod 755) -rwxr-xr-x. It is best kept in /opt/ftnd/bin with your
        dos game executing scripts. I call this script "dos_poll"
 <pre>
 ------------------------------------------------------------------------
@@ -1394,10 +1394,10 @@ use File::Basename;
 use File::Copy;
 
 # Define the variables for the outboxes for our links
-$node1 = "/opt/mbse/var/boxes/node3_640_954";
-$node2 = "/opt/mbse/var/boxes/node1_123_456";
+$node1 = "/opt/ftnd/var/boxes/node3_640_954";
+$node2 = "/opt/ftnd/var/boxes/node1_123_456";
 # Define the linux path to Bre's outbound directory
-$bre_path = "/opt/mbse/dos/doors/bre/OUTBOUND";
+$bre_path = "/opt/ftnd/dos/doors/bre/OUTBOUND";
 
 opendir(DIR, "$bre_path") || die;
 @dirlist = readdir(DIR);
@@ -1461,26 +1461,26 @@ exitemu
        - so afterwards we need it to exit dosemu. <br>
        Now a maintenance script to be called from your cron or whatever
        else you  are using to execute events on your system. I call this script
-       "dos_maint" and it also lives in /opt/mbse/bin
+       "dos_maint" and it also lives in /opt/ftnd/bin
 <pre>
 #!/bin/sh
 #
 COMMANDO="\" maint \r\""
-/usr/bin/sudo dosemu -dumb -E dir &gt; /opt/mbse/log/dos.log -quiet -I "`echo keystroke $COMMANDO`"
-/bin/rm /opt/mbse/var/msgs/*.msg
-#/opt/mbse/bin/dos_poll # Uncomment this line&nbsp;if you are using the Multiple host script
+/usr/bin/sudo dosemu -dumb -E dir &gt; /opt/ftnd/log/dos.log -quiet -I "`echo keystroke $COMMANDO`"
+/bin/rm /opt/ftnd/var/msgs/*.msg
+#/opt/ftnd/bin/dos_poll # Uncomment this line&nbsp;if you are using the Multiple host script
 </pre>
        You will notice this script starts dosemu and calls maint.bat,
        and   then   when its finished there it deletes all those games netmails
        and if   you run   the script for multiple hosts for your games it can call
        that as  well. Please   note the second line is all ONE line, it has most
-       probably   wrapped here.                                               
+       probably   wrapped here.
        <p> 
        You will notice that the script calls dosemu and not dosemu.bin, 
        this is because we need to tell dosemu to open a dumb terminal and not
        display   to a console or screen. By use of the redirection we redirect 
-       the  normal  console output to a file, here I have used /opt/mbse/log/dos.log 
-       as that is where all of MBSE's other logs reside.
+       the  normal  console output to a file, here I have used /opt/ftnd/log/dos.log 
+       as that is where all of FTND's other logs reside.
        <p> 
        Once "dos_maint" is run via the cron it will run maintenance on
        your dos doors, process inbound/outbound interBBS game packets and have your

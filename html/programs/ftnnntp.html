@@ -7,14 +7,14 @@
 <META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
 <META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
 <META name="description" lang="en" content="FTNd Manual - ftnnntp">
-<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>FTNd Programs - ftnnntp - News server.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
 
-<div align="right"><h5>Last update 01-Apr-2012</h5></div>
+<div align="right"><h5>Last update 02-May-2013</h5></div>
 <div align="center"><H1>ftnnntp - News server</H1></div>
 
 <H3>Synopsis.</H3>
@@ -32,7 +32,7 @@ not make your newsgroups available if you have any, the bbs user can get these
 directly from the internet. The bbs echomail areas are only made available if
 they have a valid newsgroup name set in the area setup. If this is not alread
 set, invent your own newsgroup name. For example the WWB echomail area MBSE
-could be set as fido.wwb.ftnse, but you can use anything as long as it doesn't
+could be set as fido.wwb.mbse, but you can use anything as long as it doesn't
 conflict with real newsgroups.
 <P>
 To use the server, the user must login in the
@@ -46,14 +46,14 @@ bbs.
 If installed from <b>inetd</b> add the following line to
 <code>/etc/inetd.conf</code>:
 <pre>
-nntp    stream  tcp     nowait  ftnse    /opt/ftnse/bin/ftnnntp    ftnnntp
+nntp    stream  tcp     nowait  ftnd    /opt/ftnd/bin/ftnnntp    ftnnntp
 </pre>
 <P>&nbsp;<P>
 
 <H3>Building.</H3>
 <P>
 If you did run <code>./configure --enable-newsgate</code> when you compiled the
-ftnse package, <b>ftnnntp</b> will be build as a not working program. This is
+ftnd package, <b>ftnnntp</b> will be build as a not working program. This is
 intended to prevent loops between real news and echomail. With normal builds
 without <code>--enable-newsgate</code> (recommended) <b>ftnnntp</b> will function
 as newsserver.

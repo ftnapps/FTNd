@@ -7,14 +7,14 @@
 <META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Robert James Clay, Michiel Broek">
 <META name="description" lang="en" content="FTNd Manual - Global Setup">
-<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>FTNd Setup - Global Setup.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
 
-<div align="right"><h5>Last update 01-Apr-2012</h5></div>
+<div align="right"><h5>Last update 02-May-2013</h5></div>
 <div align="center"><H1>FTNd Setup - Global Setup</H1></div>
 
 In this setup you can edit all global settings for FTNd. All sections will
@@ -71,7 +71,7 @@ a chat network.
 <P>
 <pre>
 <strong>Home dirs         </strong>The path to the users home directories
-<strong>FTP base          </strong>The FTP base path, ie. /opt/mbse/ftp/pub
+<strong>FTP base          </strong>The FTP base path, ie. /opt/ftnd/ftp/pub
 <strong>Arealists         </strong>The path where area lists and filebone lists are stored
 <strong>Ext. edit         </strong>The full path and filename to the external editor
 <strong>Rules dir         </strong>The path to the directory to store area rules
@@ -194,7 +194,7 @@ menu.
 
 <h3>1.9. Sysop paging</h3>
 <p>
-For sysop chat a protocol is used to communicate with the mbtask daemon which
+For sysop chat a protocol is used to communicate with the ftntask daemon which
 has a very simple IRC like chatserver. For sysop/user chat a forced channel
 with the name #sysop is used.
 <pre>
@@ -229,7 +229,7 @@ will be updated automatic.
 <strong>Pause             </strong>Allow filemgr pause/resume commands
 </pre><p>
 When you change one of the <b>Allow filemgr</b> settings, you also need to edit
-the file /opt/mbse/english/macro/filemgr.help to reflect the new settings.
+the file /opt/ftnd/english/macro/filemgr.help to reflect the new settings.
 Default all these switches are set to Yes.
 
 <p>
@@ -272,7 +272,7 @@ it is necessary.<br>
 <strong>Pause             </strong>Allow areamgr pause/resume commands
 </pre><p>
 When you change one of the <b>Allow areamgr</b> settings, you also need to edit
-the file /opt/mbse/english/macro/areamgr.help to reflect the new settings.
+the file /opt/ftnd/english/macro/areamgr.help to reflect the new settings.
 Default all these switches are set to Yes.
 <P>
 A note about the splitting of messages. Some tossers can't handle 
@@ -406,13 +406,13 @@ the other nodes.
 <h3>1.15. Edit HTML pages setup.</h3>
 <p>
 Here you setup the HTML pages that can be created with the <strong>
-mbfile web</strong> command. These are HTML pages of your download
+ftnfile web</strong> command. These are HTML pages of your download
 areas and indexes of all areas. If there are pictures in these areas
 thumbnails are created if you have the <strong>convert</strong>
 command available. The document root is the same as defined in your
 web server. The link to ftp must be created from that directory to
 your ftp base directory. To do that become root, cd to the document root
-and type <strong>ln -s /var/spool/mbse/ftp files</strong> In this case the link
+and type <strong>ln -s /var/spool/ftnd/ftp files</strong> In this case the link
 is called <strong>files</strong>. Note that all download areas are accesible,
 there is no user authentication yet available.
 <pre>

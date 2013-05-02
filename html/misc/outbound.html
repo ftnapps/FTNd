@@ -7,14 +7,14 @@
 <META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
 <META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
 <META name="description" lang="en" content="FTNd Manual - Binkley style outbound with FTNd">
-<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>Binkley style outbound with FTNd.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
 
-<div align='right'><h5>Last update 01-Apr-2012</h5></div>
+<div align='right'><h5>Last update 02-May-2013</h5></div>
 <div align='center'><h1>Binkly style outbound documentation for FTNd.</H1></div>
 
 The FTNd outbound directory structure is BinkleyTerm compatible, with
@@ -64,13 +64,13 @@ the "protected" inbound directory is processed automatic.
 .fr0
 .sa0
 
-.sts	Node status file created by mbcico. These are data files containing
+.sts	Node status file created by ftncico. These are data files containing
 	three values: 
 	1. 'time', this is the time when a new call to this node is allowed.
 	    (in time_t format).
 	2. 'retries', is the number of retries to try to connect that node. This
    	    field is zeroed when the call succeeds or when that node calls in.
-	    It is also zeroed when a new poll is created. Currently, mbcico stops
+	    It is also zeroed when a new poll is created. Currently, ftncico stops
 	    calling a node if the counter is higher then 30.
 	3. 'code', is the return code of the last attempt.
 	0      - Successfull call
