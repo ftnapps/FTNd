@@ -3,12 +3,8 @@
  * Purpose ...............: Convert RFC to FTN
  *
  *****************************************************************************
- * Copyright (C) 1997-2011
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
  *
@@ -30,7 +26,7 @@
 #include "../config.h"
 #include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "../lib/mbinet.h"
+#include "../lib/ftninet.h"
 #include "../lib/ftnddb.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
