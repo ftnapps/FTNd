@@ -4,7 +4,7 @@
  * Purpose ...............: User Pack Util
  *
  *****************************************************************************
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
@@ -28,7 +28,7 @@
 #include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/ftnddb.h"
-#include "mbuser.h"
+#include "ftnuser.h"
 
 
 extern	int e_pid;			/* External pid			     */
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbuser", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftnuser", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', " ");
     Syslog(' ', "FTNUSER v%s", VERSION);
@@ -99,9 +99,9 @@ int main(int argc, char **argv)
     if (enoughspace(CFG.freespace) == 0)
 	ExitClient(FTNERR_DISK_FULL);
 
-    if (lockprogram((char *)"mbuser")) {
+    if (lockprogram((char *)"ftnuser")) {
 	if (!do_quiet)
-	    printf("Can't lock mbuser, abort.\n");
+	    printf("Can't lock ftnuser, abort.\n");
 	ExitClient(FTNERR_NO_PROGLOCK);
     }
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
     UserPack(Days, Level, pack);
     umask(oldmask);
 
-    ulockprogram((char *)"mbuser");
+    ulockprogram((char *)"ftnuser");
     t_end = time(NULL);
     Syslog(' ', "FTNUSER finished in %s", t_elapsed(t_start, t_end));
 
@@ -146,7 +146,7 @@ void Help(void)
     ProgName();
 
     ftnd_colour(LIGHTCYAN, BLACK);
-    printf("\nUsage:	mbuser [commands] <options>\n\n");
+    printf("\nUsage:	ftnuser [commands] <options>\n\n");
     ftnd_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
     ftnd_colour(CYAN, BLACK);
