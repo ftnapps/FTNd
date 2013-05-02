@@ -94,7 +94,7 @@ int main(int argc, char **argv)
     FindFTND();
     if (!strlen(CFG.startname)) {
 	printf("FATAL: No bbs startname, edit ftnsetup 1.2.10\n");
-	exit(MBERR_CONFIG_ERROR);
+	exit(FTNERR_CONFIG_ERROR);
     }
 
     /*
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
      */
     if ((pw = getpwnam((char *)"ftnd")) == NULL) {
 	perror("Can't find user \"ftnd\" in /etc/passwd");
-	exit(MBERR_INIT_ERROR);
+	exit(FTNERR_INIT_ERROR);
     }
 
     /*
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
      */
     if ((seteuid(pw->pw_uid) == -1) || (setegid(pw->pw_gid) == -1)) {
 	perror("Can't seteuid() or setegid() to \"ftnd\" user");
-	exit(MBERR_INIT_ERROR);
+	exit(FTNERR_INIT_ERROR);
     }
 
     /* 
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 
     if ((rc = rawport()) != 0) {
 	WriteError("Unable to set raw mode");
-	Fast_Bye(MBERR_OK);;
+	Fast_Bye(FTNERR_OK);;
     }
 
     Enter(2);
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 
     if ((tty = ttyname(0)) == NULL) {
 	WriteError("Not at a tty");
-	Fast_Bye(MBERR_OK);
+	Fast_Bye(FTNERR_OK);
     }
 
     if (strncmp("/dev/", tty, 5) == 0)
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
      */
     if (CheckStatus() == FALSE) {
 	Syslog('+', "Kicking user out, the BBS is closed");
-	Fast_Bye(MBERR_OK);
+	Fast_Bye(FTNERR_OK);
     }
 
     snprintf(temp, 81, "FTNd v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
 		Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
 		PUTSTR((char *)"No BBS on this port allowed!");
 		Enter(2);
-		Fast_Bye(MBERR_OK);
+		Fast_Bye(FTNERR_OK);
 	    }
 	}
     }
@@ -276,7 +276,7 @@ int main(int argc, char **argv)
     Pause();
 
     newuser();
-    Fast_Bye(MBERR_OK);
+    Fast_Bye(FTNERR_OK);
     return 0;
 }
 
