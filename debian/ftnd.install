@@ -28,8 +28,8 @@ lib/nodelist.conf   /opt/ftnd/etc
 ftnfido/ftnseq    /opt/ftnd/bin
 ftnmon/ftnmon /opt/ftnd/bin
 ftnnntp/ftnnntp   /opt/ftnd/bin
-ftnd/ftnnewusr  /opt/ftnd/bin
-ftnd/ftnd /opt/ftnd/bin
+ftnbbs/ftnnewusr  /opt/ftnd/bin
+ftnbbs/ftnbbs /opt/ftnd/bin
 ftnsetup/ftnsetup /opt/ftnd/bin
 ftntask/ftntask   /opt/ftnd/bin
 ftnutils/ftnall   /opt/ftnd/bin
