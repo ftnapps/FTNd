@@ -243,22 +243,22 @@ void count_download(char *filename, time_t filedate, off_t filesize, char *dltyp
 	    if (area.Available && (strcmp(temp, area.Path) == 0)) {
 		snprintf(temp, PATH_MAX, "%s", basename(filename));
 
-		if ((fdb_area = ftndb_OpenFDB(i, 30))) {
+		if ((fdb_area = ftnddb_OpenFDB(i, 30))) {
 		    while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 			if (((strcasecmp(frec.Name, temp) == 0) || (strcasecmp(frec.LName, temp) == 0)) && 
 				(frec.Size == filesize)) {
 			    Syslog('+', "%s download %s from area %d", dltype, temp, i);
 			    frec.LastDL = filedate;
 			    frec.TimesDL++;
-			    if (ftndb_LockFDB(fdb_area, 30)) {
+			    if (ftnddb_LockFDB(fdb_area, 30)) {
 				fseek(fdb_area->fp, 0 - fdbhdr.recsize, SEEK_CUR);
 				fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
-				ftndb_UnlockFDB(fdb_area);
+				ftnddb_UnlockFDB(fdb_area);
 			    }
 			    break;
 			}
 		    }
-		    ftndb_CloseFDB(fdb_area);
+		    ftnddb_CloseFDB(fdb_area);
 		}
 		break;
 	    }
