@@ -63,7 +63,7 @@ static int zgeth1(void);
 static void garbitch(void);
 
 #include "../config.h"
-#include "../lib/mbselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/nodelist.h"
 #include "ttyio.h"
 #include "session.h"
