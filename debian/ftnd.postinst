@@ -162,42 +162,6 @@ case "$1" in
     #  Set default user:group for ftnd install
     chown -R ftnd:ftnbbs /opt/ftnd
 
-    #   Remove if present then install the stat override for setuid ftntask
-    dpkg-statoverride --remove /opt/ftnd/bin/ftntask >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftntask
-
-    #   Remove if present then install the stat override for setuid ftnnewusr
-    dpkg-statoverride --remove /opt/ftnd/bin/ftnnewusr >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add ftnd ftnbbs 6750 /opt/ftnd/bin/ftnnewusr
-
-    #   Remove if present then install the stat override for setuid root and 
-    #   setgid root for ftnuser (-rws--s--x)
-    dpkg-statoverride --remove /opt/ftnd/bin/ftnuser >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftnuser
-
-    #   Remove if present then install the stat override for setuid root and 
-    #   setgid root for ftnuseradd (-rws--s--x)
-    dpkg-statoverride --remove /opt/ftnd/bin/ftnuseradd >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftnuseradd
-
-    #   Remove if present then install the stat override for setuid root and 
-    #   setgid root for ftnpasswd (-rws--s--x)
-    dpkg-statoverride --remove /opt/ftnd/bin/ftnpasswd >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 6711 /opt/ftnd/bin/ftnpasswd
-
-    #   Remove if present then install the stat override owndership by
-    #   root for ftnlogin.
-    dpkg-statoverride --remove /opt/ftnd/bin/ftnlogin >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add root root 0755 /opt/ftnd/bin/ftnlogin
-
-    #   Remove if present then install the stat setting for /opt/ftnd/tmp
-    dpkg-statoverride --remove /opt/ftnd/tmp >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add ftnd ftnbbs 0770 /opt/ftnd/tmp
-
-    #   Remove if present then install the stat setting for /opt/ftnd/etc
-    dpkg-statoverride --remove /opt/ftnd/etc >/dev/null 2>&1 || true
-    dpkg-statoverride --update --add ftnd ftnbbs 0770 /opt/ftnd/etc
-
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
