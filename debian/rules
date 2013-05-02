@@ -12,4 +12,13 @@ export FTND_ROOT=/opt/ftnd
 %:
 	dh $@ --with=autotools_dev
 
+override_dh_fixperms:
+	dh_fixperms
+	chmod 4710 debian/ftnd/opt/ftnd/bin/mbtask
+	chmod 6750 debian/ftnd/opt/ftnd/bin/mbnewusr
+	chmod 6711 debian/ftnd/opt/ftnd/bin/mbuser
+	chmod 6711 debian/ftnd/opt/ftnd/bin/mbuseradd
+	chmod 6711 debian/ftnd/opt/ftnd/bin/mbpasswd
+	chmod 0755 debian/ftnd/opt/ftnd/bin/mblogin
+
 
