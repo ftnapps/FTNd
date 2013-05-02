@@ -98,7 +98,7 @@ mib.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h mib.h
 msgutil.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h oneline.h msgutil.h
 oneline.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h oneline.h funcs.h input.h language.h term.h ttyio.h
 morefile.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h input.h language.h morefile.h timeout.h term.h ttyio.h
-email.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h ../lib/mbinet.h exitinfo.h language.h mail.h timeout.h msgutil.h input.h email.h whoson.h term.h ttyio.h
+email.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h ../lib/ftninet.h exitinfo.h language.h mail.h timeout.h msgutil.h input.h email.h whoson.h term.h ttyio.h
 fsedit.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h mail.h input.h language.h timeout.h pinfo.h fsedit.h term.h ttyio.h
 page.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h dispfile.h input.h chat.h page.h timeout.h mail.h language.h term.h ttyio.h
 bye.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/nodelist.h dispfile.h misc.h language.h bye.h term.h openport.h ttyio.h mib.h
@@ -115,7 +115,7 @@ transfer.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h transfer.h
 exitinfo.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h funcs.h input.h language.h oneline.h misc.h bye.h timeout.h timecheck.h exitinfo.h
 ftnbbs.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/msg.h ftnbbs.h user.h dispfile.h language.h menu.h misc.h bye.h timeout.h funcs.h term.h ttyio.h openport.h input.h
 menu.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h oneline.h mail.h change.h chat.h file.h funcs.h input.h misc.h timeout.h menu.h page.h pinfo.h bye.h timecheck.h whoson.h language.h offline.h email.h door.h dispfile.h userlist.h timestats.h logentry.h morefile.h lastcallers.h signature.h term.h ttyio.h
-pop3.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/mbinet.h ../lib/msgtext.h ../lib/msg.h msgutil.h pop3.h term.h ttyio.h
+pop3.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/ftninet.h ../lib/msgtext.h ../lib/msg.h msgutil.h pop3.h term.h ttyio.h
 lastcallers.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h input.h language.h lastcallers.h term.h ttyio.h
 timeout.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h ../lib/msg.h timeout.h funcs.h bye.h filesub.h language.h term.h
 chat.o: ../config.h ../lib/ftndlib.h ../lib/ftnd.h ../lib/users.h chat.h funcs.h input.h language.h misc.h whoson.h term.h ttyio.h timeout.h
