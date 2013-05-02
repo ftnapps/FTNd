@@ -104,7 +104,7 @@ int		edit_charset(int, int, int);
 #define E_UINT(y,x,value,help) value = edit_uint(y,x,value,(char *)help); break;
 #define E_IRC(y,x,value,min,max,help) value = edit_int_range(y,x,value,min,max,(char *)help); break;
 #define E_LOGL(grade,txt,af)  grade = edit_logl(grade,(char *)txt); af(); break;
-#define S_COL(y,x,name,fg,bg) set_color(fg,bg); mbse_mvprintw(y,x,name);
+#define S_COL(y,x,name,fg,bg) set_color(fg,bg); ftnd_mvprintw(y,x,name);
 #define E_SEC(y,x,sec,hdr,af) sec = edit_sec(y,x,sec,(char *)hdr); af(); break;
 #define E_USEC(y,x,sec,hdr,af) sec = edit_usec(y,x,sec,(char *)hdr); af(); break;
 
