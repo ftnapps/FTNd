@@ -383,7 +383,7 @@ int rfc2ftn(FILE *fp)
 	    Syslog('n', "No Messageid from poster, creating new MSGID");
 	    fprintf(ofp, "\001MSGID: %s %08x\n", aka2str(msgs.Aka), sequencer());
 	} else {
-	    fprintf(ofp, "\001MSGID: %s %08x\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
+	    fprintf(ofp, "\001MSGID: %s %08x\n", FTND_SS(fmsg->msgid_a),fmsg->msgid_n);
 	}
 	if (fmsg->reply_s) 
 	    fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
@@ -442,12 +442,12 @@ int rfc2ftn(FILE *fp)
 		fprintf(ofp, "\1PID:");
 		kludgewrite(p, ofp);
 	    } else {
-		fprintf(ofp, "\001PID: MBSE-NNTPD %s (%s-%s)\n", VERSION, OsName(), OsCPU());
+		fprintf(ofp, "\001PID: FTND-NNTPD %s (%s-%s)\n", VERSION, OsName(), OsCPU());
 	    }
 	}
 
 	if (!(hdr((char *)"X-FTN-Tearline", msg)) && !(hdr((char *)"X-FTN-TID", msg))) {
-	    snprintf(temp, 4096, " MBSE-NNTPD %s (%s-%s)", VERSION, OsName(), OsCPU());
+	    snprintf(temp, 4096, " FTND-NNTPD %s (%s-%s)", VERSION, OsName(), OsCPU());
 	    hdrsize += 4 + strlen(temp);
 	    fprintf(ofp, "\1TID:");
 	    kludgewrite(temp, ofp);
@@ -726,7 +726,7 @@ int rfc2ftn(FILE *fp)
 		/*
 		 * Create fast scan index
 		 */
-		snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/tmp/echomail.jam", getenv("FTND_ROOT"));
 		if ((qfp = fopen(temp, "a")) != NULL) {
 		    fprintf(qfp, "%s %u\n", msgs.Base, Msg.Id);
 		    fclose(qfp);
@@ -758,7 +758,7 @@ int rfc2ftn(FILE *fp)
 		mgroup.MsgsSent.month[l_date->tm_mon]++;
 		UpdateMsgs();
 
-		snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+		snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
 		if ((qfp = fopen(temp, "r+"))) {
 		    fread(&usrconfighdr, sizeof(usrconfighdr), 1, qfp);
 		    fseek(qfp, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), SEEK_SET);
