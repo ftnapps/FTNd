@@ -25,11 +25,11 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/ftnselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
-#include "../lib/ftnsedb.h"
+#include "../lib/ftnddb.h"
 #include "filemgr.h"
 #include "areamgr.h"
 #include "sendmail.h"
