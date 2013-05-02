@@ -29,7 +29,7 @@
 #include "../lib/ftnd.h"
 #include "../lib/users.h"
 #include "../lib/msg.h"
-#include "ftndbbs.h"
+#include "ftnbbs.h"
 #include "user.h"
 #include "dispfile.h"
 #include "language.h"
