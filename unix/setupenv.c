@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <syslog.h>
-#include "mblogin.h"
+#include "ftnlogin.h"
 #include <pwd.h>
 #include "getdef.h"
 #include "xmalloc.h"

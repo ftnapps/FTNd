@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "mblogin.h"
+#include "ftnlogin.h"
 #include "xmalloc.h"
 
 

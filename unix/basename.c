@@ -6,7 +6,7 @@
  */
 
 #include "../config.h"
-#include "mblogin.h"
+#include "ftnlogin.h"
 #include "basename.h"
 
 char *Basename(char *str)
