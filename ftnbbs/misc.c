@@ -69,7 +69,7 @@ int ChkFiles()
     if ((fp = fopen(temp,"rb")) == NULL) {
 	if ((fp = fopen(temp,"wb")) == NULL) {
 	    WriteError("$Can't create %s", temp);
-	    ExitClient(MBERR_INIT_ERROR); 
+	    ExitClient(FTNERR_INIT_ERROR); 
 	} else {
 	    usrconfighdr.hdrsize = sizeof(usrconfighdr);
 	    usrconfighdr.recsize = sizeof(usrconfig);
