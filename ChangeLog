@@ -1,5 +1,12 @@
 2013-05-02  Robert James Clay  <jame@rocasa.us>
 
+ - Version 0.15
+
+ - Initial update and adaptation of html/* files for FTNd.
+
+
+2013-05-02  Robert James Clay  <jame@rocasa.us>
+
  - Version 0.14
 
  - More files adaption in ftnutils/*, ftnnntp/*, ftntask/*, ftnsetup/*, lib/*,
