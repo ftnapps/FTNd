@@ -7,14 +7,14 @@
 <META name="author" lang="en" content="Robert James Clay, Michiel Broek">
 <META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
 <META name="description" lang="en" content="FTNd Manual - Semafore files with FTNd">
-<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>Semafore files with FTNd.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
 
-<div align='right'><h5>Last update 01-Apr-2012</h5></div>
+<div align='right'><h5>Last update 02-May-2013</h5></div>
 <div align='center'><H1>Semafore files with FTNd.</H1></div>
 
 
@@ -24,46 +24,46 @@ the init script will erase all semafore's just before FTNd is started.
 
 <PRE>
 zmh		Purpose: to mark the state of Zone Mail Hour. 
-		Created by "mbtask" at the start of Zone Mail Hour.
-		Removed by "mbtask" at the end of Zone Mail Hour.
+		Created by "ftntask" at the start of Zone Mail Hour.
+		Removed by "ftntask" at the end of Zone Mail Hour.
 
 upsalarm	Purpose: Signal that the system is running on battery power.
 		Created and removed by UPS software.
-		Checked by mbtask to suspend processing.
-		Checked by mbfido to stop processing.
+		Checked by ftntask to suspend processing.
+		Checked by ftnfido to stop processing.
 
 upsdown		Purpose: Signal that the system will go down on low battery.
 		Created and removed by UPS software.
-		Checked by mbtask to go down.
-		Checked by several scripts and "mbstat wait".
+		Checked by ftntask to go down.
+		Checked by several scripts and "ftnstat wait".
 
 newnews		Purpose: Signal that there are new articles on the news server.
-		Checked by mbtask to start news processing.
-		Removed by mbtask as soon as it is detected.
+		Checked by ftntask to start news processing.
+		Removed by ftntask as soon as it is detected.
 
 mailout		Purpose: Signal that there is mail posted in the message base.
-		Checked by mbtask to start scan the message base.
-		Removed by mbtask as soon as it is detected.
+		Checked by ftntask to start scan the message base.
+		Removed by ftntask as soon as it is detected.
 
 mailin		Purpose: Signal that there is new mail in the inbound.
-		Checked by mbtask to start the tosser.
-		Removed by mbtask as soon as it is detected.
+		Checked by ftntask to start the tosser.
+		Removed by ftntask as soon as it is detected.
 
 scanout		Purpose: Signal that the outbound must be rescanned.
-		Checked by mbtask to check the outbound.
-		Removed by mbtask as soon as it is detected.
+		Checked by ftntask to check the outbound.
+		Removed by ftntask as soon as it is detected.
 
 do_inet		Purpose: Signal that there are node(s) to be called via the
 		internet. Usefull for dialup systems to check whether a
 		connection to the internet is needed.
-		Created and removed by mbtask.
+		Created and removed by ftntask.
 
 is_inet		Purpose: Signal that the internet is available. Usefull for
 		dialup systems to check when the internet connection is up
 		or down after starting or stopping ppp.
-		Created and removed by mbtask.
+		Created and removed by ftntask.
 
-mbtask.last	Purpose: A timestamp created and touched by "mbtask" every
+ftntask.last	Purpose: A timestamp created and touched by "ftntask" every
 		minute so you can check it is running.
 </PRE>
 

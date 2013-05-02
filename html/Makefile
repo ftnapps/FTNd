@@ -1,6 +1,6 @@
-# Copyright (c) M Broek, 1997-2000
-# Top-level makefile for MBSE BBS html documentation.
-# $Id: Makefile,v 1.43 2007/03/01 19:12:54 mbse Exp $
+# Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+# Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
+# Top-level makefile for FTNd html documentation.
 
 include ../Makefile.global
 
@@ -48,18 +48,18 @@ H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.html \
 		  misc/ftpserver.html  misc/ipmailer.html   misc/outbound.html \
 		  misc/usleep.html     misc/webserver.html
 
-H_PROGS		= programs/mbfido.html     programs/mbmon.html \
-		  programs/mbtoberep.html  programs/mblogin.html \
-		  programs/index.html      programs/mbcico.html \
-		  programs/mbfile.html     programs/mbmsg.html \
-		  programs/mbseq.html      programs/mbuser.html \
-		  programs/mbaff.html      programs/mbdiff.html \
-		  programs/mbindex.html    programs/mbout.html \
-		  programs/mbsetup.html    programs/mbuseradd.html \
-		  programs/mball.html	   programs/mbnntp.html \
-		  programs/mblang.html     programs/mbsebbs.html \
-		  programs/mbstat.html     programs/mbpasswd.html \
-		  programs/mbtask.html
+H_PROGS		= programs/ftnfido.html     programs/ftnmon.html \
+		  programs/ftntoberep.html  programs/ftnlogin.html \
+		  programs/index.html      programs/ftncico.html \
+		  programs/ftnfile.html     programs/ftnmsg.html \
+		  programs/ftnseq.html      programs/ftnuser.html \
+		  programs/ftnaff.html      programs/ftndiff.html \
+		  programs/ftnindex.html    programs/ftnout.html \
+		  programs/ftnsetup.html    programs/ftnuseradd.html \
+		  programs/ftnall.html	   programs/ftnnntp.html \
+		  programs/ftnlang.html     programs/ftnsebbs.html \
+		  programs/ftnstat.html     programs/ftnpasswd.html \
+		  programs/ftntask.html
 
 H_SETUP		= setup/archiver.html  setup/index.html     setup/bbs.html \
 		  setup/language.html  setup/oneliner.html \

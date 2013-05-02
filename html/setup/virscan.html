@@ -7,30 +7,30 @@
 <META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
 <META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
 <META name="description" lang="en" content="FTNd Manual - Virus scanners">
-<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
 <TITLE>FTNd Setup - Virus scanners.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
 
-<div align='right'><h5>Last update 01-Apr-2012</h5></div>
+<div align='right'><h5>Last update 02-May-2013</h5></div>
 <div align='center'><H1>FTNd Setup - virus scanners</H1></div>
 
-Once upon a time there was no DOS and no computer virusses. But since DOS was
+Once upon a time there was no DOS and no computer viruses. But since DOS was
 invented as a small OS which was easily extensible, virus writers saw their
 chance to easy spread their hacks. Although running a GNU/Linux system is 
 relative safe, most of the files that you have available on your bbs 
 are DOS/Windows based programs. And before you put them available for download, they 
-should be checked for virusses. Macro virusses are a relative new danger,
+should be checked for viruses. Macro viruses are a relative new danger,
 this can also hurt Unix/Linux users.<P>
 There are several scanners for GNU/Linux available. Default only four of them
 are setup. You may consult <A HREF="http://www.openantivirus.org/" rel="nofollow">
 http://www.openantivirus.org</A> for more scanners mentioned in a mini-FAQ 
 maintained by Rainer Link.
 <p>
-When you configured the sources and build mbse, the configure script searched
-for excisting scanners. When mbsetup was run the first time, when mbtask was
+When you configured the sources and build ftnd, the configure script searched
+for excisting scanners. When ftnsetup was run the first time, when ftntask was
 started, the scanners found on your system are already configured with the
 right paths and enabled.
 <P>
@@ -91,7 +91,7 @@ TCPSocket 3310
 I left the comment for the TCPaddr, but it's up to you to protect the clamd server. After you
 restart <b>clamd</b> test the connection with <code>telnet host.where.clamd.runs 3310</code>,
 type VERSION followed by a return and you should see the ClamAV version. If that works, you can enable
-the ClamAV stream scanner in mbsetup and disable the old commandline scanner.<BR>
+the ClamAV stream scanner in ftnsetup and disable the old commandline scanner.<BR>
 So why would you use this. It's about 10 times faster then the commandline scanner.
 <P>
 
