@@ -4,7 +4,7 @@
  * Purpose ...............: Dump Bluewave packets
  *
  *****************************************************************************
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
@@ -25,7 +25,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/ftnselib.h"
+#include "../lib/ftndlib.h"
 #include "../lib/bluewave.h"
 
 
