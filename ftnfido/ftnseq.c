@@ -28,7 +28,7 @@
 #include "../lib/ftndlib.h"
 #include "../lib/users.h"
 #include "../lib/ftnddb.h"
-#include "ftndq.h"
+#include "ftnseq.h"
 
 
 
