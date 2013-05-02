@@ -9,7 +9,7 @@
  *
  * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
@@ -70,7 +70,7 @@
 #include "shadowio.h"
 #include "pw_util.h"
 #include "getdef.h"
-#include "mbpasswd.h"
+#include "ftnpasswd.h"
 
 
 #ifndef AGING
@@ -237,7 +237,7 @@ static void fail_exit(int status)
 
 static void oom(void)
 {
-	fprintf(stderr, "mbpasswd: out of memory\n");
+	fprintf(stderr, "ftnpasswd: out of memory\n");
 	fail_exit(E_FAILURE);
 }
 
@@ -662,7 +662,7 @@ static void update_noshadow(int shadow_locked)
 	}
 	pw = pw_locate(name);
 	if (!pw) {
-		fprintf(stderr, "mbpasswd: user %s not found in /etc/passwd\n", name);
+		fprintf(stderr, "ftnpasswd: user %s not found in /etc/passwd\n", name);
 		fail_exit(E_NOPERM);
 	}
 	npw = __pw_dup(pw);
@@ -872,7 +872,7 @@ int main(int argc, char *argv[])
      */
     pw = get_my_pwent();
     if (!pw) {
-	fprintf(stderr, "mbpasswd: Cannot determine your user name.\n");
+	fprintf(stderr, "ftnpasswd: Cannot determine your user name.\n");
 	exit(1);
     }
     myname = xstrdup(pw->pw_name);
@@ -883,12 +883,12 @@ int main(int argc, char *argv[])
      */
     gr = getgrgid(pw->pw_gid);
     if (!gr) {
-	fprintf(stderr, "mbpasswd: Cannot determine group name.\n");
+	fprintf(stderr, "ftnpasswd: Cannot determine group name.\n");
 	free(myname);
 	exit(E_NOPERM);
     }
     if (strcmp(gr->gr_name, (char *)"bbs")) {
-	fprintf(stderr, "mbpasswd: You are not a member of group \"bbs\".\n");
+	fprintf(stderr, "ftnpasswd: You are not a member of group \"bbs\".\n");
 	free(myname);
 	exit(E_NOPERM);
     }
@@ -897,7 +897,7 @@ int main(int argc, char *argv[])
      * We don't log into FTNd logfiles but to the system logfiles,
      * because we are modifying system files not belonging to FTNd.
      */
-    openlog("mbpasswd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
+    openlog("ftnpasswd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
 
     /*
      * Find out the name of our parent.
@@ -913,12 +913,12 @@ int main(int argc, char *argv[])
     mib[2] = ppid;
     mib[3] = KERN_PROC_ARGV; 
     if ((s = realloc(s, siz)) == NULL) { 
-	fprintf(stderr, "mbpasswd: no memory\n");
+	fprintf(stderr, "ftnpasswd: no memory\n");
 	exit(1);
     }
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
 	perror("");
-	fprintf(stderr, "mbpasswd: sysctl call failed\n");
+	fprintf(stderr, "ftnpasswd: sysctl call failed\n");
 	exit(1);
     }
     buf[0] = '\0';
@@ -937,12 +937,12 @@ int main(int argc, char *argv[])
     mib[2] = ppid;
     mib[3] = KERN_PROC_ARGV;
     if ((s = realloc(s, siz)) == NULL) {
-        fprintf(stderr, "mbpasswd: no memory\n");
+        fprintf(stderr, "ftnpasswd: no memory\n");
         exit(1);
     }
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
         perror("");
-        fprintf(stderr, "mbpasswd: sysctl call failed\n");
+        fprintf(stderr, "ftnpasswd: sysctl call failed\n");
         exit(1);
     }
     parent = xstrcpy((char *)s);
@@ -955,12 +955,12 @@ int main(int argc, char *argv[])
     mib[2] = KERN_PROC_ARGS;
     mib[3] = ppid;
     if ((s = realloc(s, siz)) == NULL) {
-        fprintf(stderr, "mbpasswd: no memory\n");
+        fprintf(stderr, "ftnpasswd: no memory\n");
         exit(1);
     }
     if (sysctl(mib, 4, s, &siz, NULL, 0) == -1) {
         perror("");
-        fprintf(stderr, "mbpasswd: sysctl call failed\n");
+        fprintf(stderr, "ftnpasswd: sysctl call failed\n");
         exit(1);
     }
     parent = xstrcpy((char *)s);
@@ -970,8 +970,8 @@ int main(int argc, char *argv[])
      */
     snprintf(temp, PATH_MAX, "/proc/%d/cmdline", ppid);
     if ((fp = fopen(temp, "r")) == NULL) {
-	fprintf(stderr, "mbpasswd: can't read %s\n", temp);
-	syslog(LOG_ERR, "mbpasswd: can't read %s", temp);
+	fprintf(stderr, "ftnpasswd: can't read %s\n", temp);
+	syslog(LOG_ERR, "ftnpasswd: can't read %s", temp);
 	free(myname);
 	exit(E_FAILURE);
     }
@@ -980,44 +980,44 @@ int main(int argc, char *argv[])
     parent = xstrcpy(Basename(temp));
 #endif
 
-    if (strcmp((char *)"mbsetup", parent) && strcmp((char *)"-mbsebbs", parent) && strcmp((char *)"-mbnewusr", parent)) {
-	fprintf(stderr, "mbpasswd: illegal parent \"%s\"\n", parent);
-	syslog(LOG_ERR, "mbpasswd: illegal parent \"%s\"", parent);
+    if (strcmp((char *)"ftnsetup", parent) && strcmp((char *)"-ftnbbs", parent) && strcmp((char *)"-ftnnewusr", parent)) {
+	fprintf(stderr, "ftnpasswd: illegal parent \"%s\"\n", parent);
+	syslog(LOG_ERR, "ftnpasswd: illegal parent \"%s\"", parent);
 	free(myname);
 	exit(E_FAILURE);
     }
 
     if (argc != 3) {
-	fprintf(stderr, "\nmbpasswd commandline:\n\n");
-	fprintf(stderr, "mbpasswd [username] [newpassword]\n");
+	fprintf(stderr, "\nftnpasswd commandline:\n\n");
+	fprintf(stderr, "ftnpasswd [username] [newpassword]\n");
 	free(myname);
 	exit(E_FAILURE);
     }
 
-    if ((strcmp((char *)"-mbnewusr", parent) == 0) || (strcmp((char *)"mbsetup", parent) == 0)) {
+    if ((strcmp((char *)"-ftnnewusr", parent) == 0) || (strcmp((char *)"ftnsetup", parent) == 0)) {
 	/*
 	 * This is a new user setting his password, or the sysop resetting
-	 * the password using mbsetup. This program runs under account mbse.
+	 * the password using ftnsetup. This program runs under account ftnd.
 	 */
 	force = 1;
-	if (strcmp(pw->pw_name, (char *)"mbse") && strcmp(pw->pw_name, (char *)"bbs")) {
-	    fprintf(stderr, "mbpasswd: only users `mbse' and `bbs' may do this.\n");
+	if (strcmp(pw->pw_name, (char *)"ftnd") && strcmp(pw->pw_name, (char *)"bbs")) {
+	    fprintf(stderr, "ftnpasswd: only users `ftnd' and `bbs' may do this.\n");
 	    free(myname);
 	    exit(E_NOPERM);
 	}
-    } else if (strcmp((char *)"-mbsebbs", parent) == 0) {
+    } else if (strcmp((char *)"-ftnbbs", parent) == 0) {
 	/*
 	 * Normal password change by user, check caller is the user.
-	 * Calling program is only mbsebbs.
+	 * Calling program is only ftnbbs.
 	 */
 	force = 0;
 	if (strcmp(pw->pw_name, argv[1])) {
-	    fprintf(stderr, "mbpasswd: only owner may do this.\n");
+	    fprintf(stderr, "ftnpasswd: only owner may do this.\n");
 	    free(myname);
 	    exit(E_NOPERM);
 	}
     } else {
-	syslog(LOG_ERR, "mbpasswd: illegal called");
+	syslog(LOG_ERR, "ftnpasswd: illegal called");
 	free(myname);
 	exit(E_NOPERM);
     }
@@ -1026,20 +1026,20 @@ int main(int argc, char *argv[])
      *  Check commandline arguments
      */
     if (strlen(argv[1]) > 32) {
-	fprintf(stderr, "mbpasswd: Username too long\n");
+	fprintf(stderr, "ftnpasswd: Username too long\n");
 	free(myname);
 	exit(E_FAILURE);
     }
     if (strlen(argv[2]) > 32) {
-	fprintf(stderr, "mbpasswd: Password too long\n");
+	fprintf(stderr, "ftnpasswd: Password too long\n");
 	free(myname);
 	exit(E_FAILURE);
     }
 
     name = strdup(argv[1]);
     if ((pw = getpwnam(name)) == NULL) {
-	syslog(LOG_ERR, "mbpasswd: Unknown user %s", name);
-	fprintf(stderr, "mbpasswd: Unknown user %s\n", name);
+	syslog(LOG_ERR, "ftnpasswd: Unknown user %s", name);
+	fprintf(stderr, "ftnpasswd: Unknown user %s\n", name);
 	free(myname);
 	exit(E_FAILURE);
     }
@@ -1140,7 +1140,7 @@ int main(int argc, char *argv[])
     args[3] = NULL;
 
     if (execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty") != 0) {
-	perror("mbpasswd: Failed to change vpopmail password\n");
+	perror("ftnpasswd: Failed to change vpopmail password\n");
 	syslog(LOG_ERR, "Failed to change vpopmail password");
     }
 #endif
