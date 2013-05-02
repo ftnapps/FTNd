@@ -4,7 +4,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -30,7 +30,7 @@
 #include "../lib/msgtext.h"
 #include "../lib/ftnddb.h"
 #include "ttyio.h"
-#include "mbnntp.h"
+#include "ftnnntp.h"
 #include "rfc2ftn.h"
 #include "commands.h"
 

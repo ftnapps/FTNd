@@ -4,7 +4,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTND.
  *
@@ -26,7 +26,7 @@
 #include "../config.h"
 #include "../lib/ftndlib.h"
 #include "../lib/users.h"
-#include "mbnntp.h"
+#include "ftnnntp.h"
 #include "auth.h"
 
 #ifndef	USE_NEWSGATE
