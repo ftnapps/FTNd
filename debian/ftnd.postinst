@@ -37,9 +37,9 @@ case "$1" in
     if [ ! -e "/opt/ftnd/bin/hatch" ]; then
         install -m 750 /usr/share/doc/ftnd/examples/hatch /opt/ftnd/bin/hatch
     fi
-    # Install example ftndos script if it is not already present
-    if [ ! -e "/opt/ftnd/bin/ftndos" ]; then
-        install -m 750 /usr/share/doc/ftnd/examples/ftnsedos /opt/ftnd/bin/ftndos
+    # Install example ftnbbsdos script if it is not already present
+    if [ ! -e "/opt/ftnd/bin/ftnbbsdos" ]; then
+        install -m 750 /usr/share/doc/ftnd/examples/ftnbbsdos /opt/ftnd/bin/ftnbbsdos
     fi
     # Install example rundoor.sh script if it is not already present
     if [ ! -e "/opt/ftnd/bin/rundoor.sh" ]; then
