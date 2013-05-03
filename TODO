@@ -1,13 +1,13 @@
 
-            FTNd V0.00.01 TODO list.
-            ----------------------------
+            FTNd TODO list
+            ==============
 
     These are a list of things that must be implemented one way or
     another. Some things are urgent and necessary to operate the bbs
     without human intervention, others are just for comfort, or nice.
     I think this list will always contain items, I only hope the urgent
-    matters will be removed. Note that some of these were brought over
-    from the MBSE BBS TODO, which FTNd is derived.
+    matters will be removed. Note that most of these were brought over
+    from the MBSE BBS TODO, from which FTNd is derived.
 
     Classes:
          U = Urgent.
@@ -17,6 +17,24 @@
          X = Will not be done unless it's really needed.
 
 everything:
+    N: Change build system from Autotools to CMake.
+
+    L: Spelling issue in the documentation
+       - Nodes section 8 (Directory Session) writeup:  "Binley"
+
+    N: One of the issues with the legacy code is that it is not FHS compliant
+       and one big related issue is that the paths for the configuration data
+       files are hard coded to be (currently)"$FTND_ROOT/etc/*.data".
+
+    W: Long term solution for the issue with the hardcoded paths would be to
+       create a function that provides the path for, for instance, the
+       configuration data files instead of how it's currently being done.
+
+    W: Once the code has been updated to be FHS compliant, the example/* files
+       will need to be updated to reflect the changes as necessary.
+
+    N: Are the JAM related files listed correctly for the copyright information?
+
     N: In BSO the i flavor should have been d flavor.
 
     W: Increase size of Unix usernames > 8. The limit on Slackware is 32
@@ -29,8 +47,10 @@ everything:
     W: Implement topic groups for file and message areas, with access level
        control.
 
-    W: Switch to MySQL as database backend. This can also solve some other
-       limitations. A php API should be added too.
+    W: Switch to a database backend instead of using the *.data files. This can
+       also solve some other limitations.
+
+    W: An API could be added.
 
 ftnbbs:
     W: OLR, implement file requests.
