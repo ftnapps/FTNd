@@ -1,13 +1,13 @@
 
-  ----------========== MBSE BBS Support System NL. ==========----------
+  ----------==========   FTND Support System   ==========----------
 
-  Sysops       : Michiel Broek
+  Sysops       : Robert James Clay
   Online       : 24 hrs/day
-  Line #1      : 31-(0)255-515973 1200-28K8 bps, V34,V42B,V32B,X75
+  Line #1      : nn-(0)nnn-nnnnnn 1200-28K8 bps, V34,V42B,V32B,X75
   Requests     : minimum 1200 bps, no limits.
   Request times: except ZMH.
   Request flag : XA
-  AKAs         : 2:280/2802
+  AKAs         : 1:120/544 
 
   Alle files op dit bbs die onder MS-DOS   draaien  zijn  gecontroleerd met
   de laatste beschikbare  virusscanners  voordat ze  voor  download  op het

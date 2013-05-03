@@ -1,9 +1,9 @@
 
-MBSE Support BBS is the main development system for the MBSE BBS package.
-MBSE BBS is available from 2:280/2802, magic request is MBSEBBS.
-Also available at http://www.mbse.eu
+Rocasa FTN is the main development system for the FTNd package.
+FTNd is available from 1:120/544, magic request is FTND.
+Also available at http://ftn.rocasa.net
 
-MBSE  Support  BBS  es  el sistema principal de sdesarrollo  de  paquete
-MBSE BBS.
-MBSE BBS esta disponible en 2:280/2802, peticion de magic MBSEBBS.
+Rocasa FTN es el sistema principal de desarrollo de paquete
+FTNd.
+FTNd esta disponible en 1:120/544, peticion de magic FTND.
 Tambien esta disponible en http://www.mbse.eu
