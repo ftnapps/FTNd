@@ -1,5 +1,17 @@
 2013-05-03  Robert James Clay  <jame@rocasa.us>
 
+ - Version 0.17
+
+ - Correct 'FindMBSE' to 'FindFTND' in ftnbbs/funcs.h.
+
+ - Correct 'MBSE_ROOT' to 'FTND_ROOT' in the ftnsetup/m_ibc.c, ftnnntp/auth.c,
+   ftnnntp/commands.c, and checkbasic files.
+
+ - Corrections of 'MB' to 'FTN' in ftnfido/Makefile.
+
+
+2013-05-03  Robert James Clay  <jame@rocasa.us>
+
  - Version 0.16
 
  - Initial adaption of examples/* files for FTNd.
@@ -120,3 +132,4 @@
  - Version 0.01
 
  - general: Initial fork and adaption from MBSE BBS v0.95.14 to FTNd v0.01
+

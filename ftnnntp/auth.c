@@ -3,8 +3,8 @@
  * auth.c
  *
  *****************************************************************************
- * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
  * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTND.
  *
@@ -90,7 +90,7 @@ void auth_pass(char *cmd)
     p = strtok(NULL, " \0");
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/users.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp,"r+")) == NULL) {
 	/*
 	 * This should not happen
@@ -142,7 +142,7 @@ void auth_pass(char *cmd)
      * Update user record.
      */
     if (fseek(fp, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), 0) != 0) {
-	WriteError("Can't seek in %s/etc/users.data", getenv("MBSE_ROOT"));
+	WriteError("Can't seek in %s/etc/users.data", getenv("FTND_ROOT"));
     } else {
 	fwrite(&usrconfig, sizeof(usrconfig), 1, fp);
     }

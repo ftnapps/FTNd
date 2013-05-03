@@ -1,5 +1,5 @@
 # Makefile for FTNd ftnfido under Linux
-# Copyright (c) 2012 by Robert James Clay.
+# Copyright (c) 2012-2013 by Robert James Clay.
 # Copyright (c) 1998, 2001 by M. Broek.
 
 include ../Makefile.global
@@ -26,7 +26,7 @@ HDRS		= addbbs.h backalias.h flock.h hatch.h ftndiff.h mgrutil.h qualify.h \
 		  ftnfkill.h ftnfutil.h ftnfindex.h ftnfcheck.h ftnfpack.h ftnflist.h ftnfadopt.h \
 		  ftnfimport.h ftnfsort.h ftnftoberep.h ftnfmove.h ftnfdel.h bounce.h \
 		  createm.h createf.h msgflags.h dirsession.h queue.h dirlock.h msg.h orphans.h
-MBFIDO_OBJS	= flock.o tosspkt.o ftnfido.o hatch.o maketags.o tracker.o \
+FTNFIDO_OBJS	= flock.o tosspkt.o ftnfido.o hatch.o maketags.o tracker.o \
 		  makestat.o scannews.o lhash.o bounce.o unpack.o tic.o ptic.o \
 		  utic.o mover.o hash.o mkftnhdr.o addbbs.o magic.o fsort.o toberep.o \
 		  ftn2rfc.o atoul.o ping.o forward.o sendmail.o scan.o addpkt.o \
@@ -34,20 +34,20 @@ MBFIDO_OBJS	= flock.o tosspkt.o ftnfido.o hatch.o maketags.o tracker.o \
 		  bwrite.o rfc2ftn.o rnews.o newspost.o aliasdb.o postemail.o postnetmail.o \
 		  postecho.o backalias.o createm.o createf.o msgflags.o dirsession.o \
 		  queue.o dirlock.o qualify.o msg.o orphans.o
-MBSEQ_OBJS	= ftnseq.o
-MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o ftnaff.o msgutil.o toberep.o
-MBINDEX_OBJS	= ftnindex.o
-MBDIFF_OBJS	= ftndiff.o
-MBFILE_OBJS	= ftnfile.o ftnfkill.o ftnfutil.o ftnfindex.o ftnfcheck.o ftnfpack.o ftnflist.o ftnfadopt.o \
+FTNSEQ_OBJS	= ftnseq.o
+FTNAFF_OBJS	= announce.o fflist.o filefind.o grlist.o ftnaff.o msgutil.o toberep.o
+FTNINDEX_OBJS	= ftnindex.o
+FTNDIFF_OBJS	= ftndiff.o
+FTNFILE_OBJS	= ftnfile.o ftnfkill.o ftnfutil.o ftnfindex.o ftnfcheck.o ftnfpack.o ftnflist.o ftnfadopt.o \
 		  ftnfimport.o ftnftoberep.o ftnfmove.o ftnfdel.o ftnfsort.o ftnfrearc.o
-MBMSG_OBJS	= post.o ftnmsg.o
-MBFIDO_LIBS	= ../lib/libftnd.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a ../lib/libftninet.a ../lib/libnodelist.a
-MBSEQ_LIBS	= ../lib/libftnd.a ../lib/libdbase.a
-MBAFF_LIBS	= ../lib/libftnd.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a
-MBINDEX_LIBS	= ../lib/libftnd.a ../lib/libdbase.a
-MBDIFF_LIBS	= ../lib/libftnd.a ../lib/libdbase.a
-MBFILE_LIBS	= ../lib/libftnd.a ../lib/libdbase.a ../lib/libdiesel.a
-MBMSG_LIBS	= ../lib/libftnd.a ../lib/libmsgbase.a ../lib/libdbase.a
+FTNMSG_OBJS	= post.o ftnmsg.o
+FTNFIDO_LIBS	= ../lib/libftnd.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a ../lib/libftninet.a ../lib/libnodelist.a
+FTNSEQ_LIBS	= ../lib/libftnd.a ../lib/libdbase.a
+FTNAFF_LIBS	= ../lib/libftnd.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a
+FTNINDEX_LIBS	= ../lib/libftnd.a ../lib/libdbase.a
+FTNDIFF_LIBS	= ../lib/libftnd.a ../lib/libdbase.a
+FTNFILE_LIBS	= ../lib/libftnd.a ../lib/libdbase.a ../lib/libdiesel.a
+FTNMSG_LIBS	= ../lib/libftnd.a ../lib/libmsgbase.a ../lib/libdbase.a
 OTHER		= Makefile README
 TARGET		= ftnfido ftnseq ftnaff ftnindex ftndiff ftnfile ftnmsg
 
@@ -58,26 +58,26 @@ TARGET		= ftnfido ftnseq ftnaff ftnindex ftndiff ftnfile ftnmsg
 
 all:		${TARGET}
 
-ftnfido:		${MBFIDO_OBJS} ${MBFIDO_LIBS}
-		${CC} -o ftnfido ${MBFIDO_OBJS} ${LDFLAGS} ${LIBS} ${MBFIDO_LIBS}
+ftnfido:		${FTNFIDO_OBJS} ${FTNFIDO_LIBS}
+		${CC} -o ftnfido ${FTNFIDO_OBJS} ${LDFLAGS} ${LIBS} ${FTNFIDO_LIBS}
 
-ftnseq:		${MBSEQ_OBJS} ${MBSEQ_LIBS}
-		${CC} -o ftnseq ${MBSEQ_OBJS} ${LDFLAGS} ${LIBS} ${MBSEQ_LIBS}
+ftnseq:		${FTNSEQ_OBJS} ${FTNSEQ_LIBS}
+		${CC} -o ftnseq ${FTNSEQ_OBJS} ${LDFLAGS} ${LIBS} ${FTNSEQ_LIBS}
 
-ftnaff:		${MBAFF_OBJS} ${MBAFF_LIBS}
-		${CC} -o ftnaff ${MBAFF_OBJS} ${LDFLAGS} ${LIBS} ${MBAFF_LIBS}
+ftnaff:		${FTNAFF_OBJS} ${FTNAFF_LIBS}
+		${CC} -o ftnaff ${FTNAFF_OBJS} ${LDFLAGS} ${LIBS} ${FTNAFF_LIBS}
 
-ftnindex:	${MBINDEX_OBJS} ${MBINDEX_LIBS}
-		${CC} -o ftnindex ${MBINDEX_OBJS} ${LDFLAGS} ${LIBS} ${MBINDEX_LIBS}
+ftnindex:	${FTNINDEX_OBJS} ${FTNINDEX_LIBS}
+		${CC} -o ftnindex ${FTNINDEX_OBJS} ${LDFLAGS} ${LIBS} ${FTNINDEX_LIBS}
 
-ftndiff:		${MBDIFF_OBJS} ${MBDIFF_LIBS}
-		${CC} -o ftndiff ${MBDIFF_OBJS} ${LDFLAGS} ${LIBS} ${MBDIFF_LIBS}
+ftndiff:		${FTNDIFF_OBJS} ${FTNDIFF_LIBS}
+		${CC} -o ftndiff ${FTNDIFF_OBJS} ${LDFLAGS} ${LIBS} ${FTNDIFF_LIBS}
 
-ftnfile:		${MBFILE_OBJS} ${MBFILE_LIBS}
-		${CC} -o ftnfile ${MBFILE_OBJS} ${LDFLAGS} ${LIBS} ${MBFILE_LIBS}
+ftnfile:		${FTNFILE_OBJS} ${FTNFILE_LIBS}
+		${CC} -o ftnfile ${FTNFILE_OBJS} ${LDFLAGS} ${LIBS} ${FTNFILE_LIBS}
 
-ftnmsg:		${MBMSG_OBJS} ${MBMSG_LIBS}
-		${CC} -o ftnmsg ${MBMSG_OBJS} ${LDFLAGS} ${LIBS} ${MBMSG_LIBS}
+ftnmsg:		${FTNMSG_OBJS} ${FTNMSG_LIBS}
+		${CC} -o ftnmsg ${FTNMSG_OBJS} ${LDFLAGS} ${LIBS} ${FTNMSG_LIBS}
 
 clean: 
 		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak

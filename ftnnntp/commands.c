@@ -3,8 +3,8 @@
  * commands.c 
  *
  *****************************************************************************
- * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
  *
@@ -272,7 +272,7 @@ void command_group(char *cmd)
     }
 
     temp = calloc(PATH_MAX, sizeof(char));
-    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
     if ((fp = fopen(temp, "r"))) {
 	fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
@@ -336,7 +336,7 @@ void command_list(char *cmd)
     if ((opt == NULL) || (strcasecmp(opt, "ACTIVE") == 0) || (strcasecmp(opt, "NEWSGROUPS") == 0)) {
 	send_nntp("215 Information follows");
 	temp = calloc(PATH_MAX, sizeof(char));
-	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	snprintf(temp, PATH_MAX, "%s/etc/mareas.data", getenv("FTND_ROOT"));
 	if ((fp = fopen(temp, "r"))) {
 	    fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	    while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
