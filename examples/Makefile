@@ -1,5 +1,5 @@
-# Copyright (c) M. Broek, 1997-2001
-# $Id: Makefile,v 1.26 2008/12/01 19:26:29 mbse Exp $
+# Copyright (c) 2013 Robert James Clay
+# Copyright (c) 1997-2008 Michiel Broek,
 
 include ../Makefile.global
 
