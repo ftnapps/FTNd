@@ -1,6 +1,6 @@
-opt/ftnd/bin/ftnfido opt/ftnd/bin/ftnmail
-opt/ftnd/bin/ftnfido opt/ftnd/bin/ftnnews
-/usr/share/doc/ftnd/html /opt/ftnd/html
+usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnmail
+usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnnews
+/usr/share/doc/ftnd/html /usr/lib/ftnd/html
 /usr/share/doc/ftnd/html/ftsc/index.htm /usr/share/doc/ftnd/html/ftsc/index.html
 /usr/share/doc/ftnd/html/license/index.htm /usr/share/doc/ftnd/html/license/index.html
 /usr/share/doc/ftnd/html/menus/index.htm /usr/share/doc/ftnd/html/menus/index.html
