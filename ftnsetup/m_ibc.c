@@ -4,12 +4,12 @@
  * Purpose ...............: Setup Internet BBS Chat
  *
  *****************************************************************************
+ * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
- * This BBS is free software; you can redistribute it and/or modify it
+ * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
@@ -49,7 +49,7 @@ int CountIBC(void)
     char    ffile[PATH_MAX];
     int	    count;
 
-    snprintf(ffile, PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/ibcsrv.data", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
 	    Syslog('+', "Created new %s", ffile);
@@ -84,8 +84,8 @@ int OpenIBC(void)
     char    fnin[PATH_MAX], fnout[PATH_MAX];
     int	    oldsize;
 
-    snprintf(fnin,  PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
-    snprintf(fnout, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(fnin,  PATH_MAX, "%s/etc/ibcsrv.data", getenv("FTND_ROOT"));
+    snprintf(fnout, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("FTND_ROOT"));
     if ((fin = fopen(fnin, "r")) != NULL) {
 	if ((fout = fopen(fnout, "w")) != NULL) {
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fin);
@@ -133,8 +133,8 @@ void CloseIBC(int force)
     FILE	*fi, *fo;
     st_list	*vir = NULL, *tmp;
 
-    snprintf(fin,  PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
-    snprintf(fout, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(fin,  PATH_MAX, "%s/etc/ibcsrv.data", getenv("FTND_ROOT"));
+    snprintf(fout, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("FTND_ROOT"));
 
     if (IBCUpdated == 1) {
 	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
@@ -177,7 +177,7 @@ int AppendIBC(void)
     FILE    *fil;
     char    ffile[PATH_MAX];
 
-    snprintf(ffile, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(ffile, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&ibcsrv, 0, sizeof(ibcsrv));
 	strcpy(ibcsrv.myname, CFG.myfqdn);
@@ -206,7 +206,7 @@ int EditIBCRec(int Area)
     working(1, 0, 0);
     IsDoing("Edit ibcsrv");
 
-    snprintf(mfile, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+    snprintf(mfile, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("FTND_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
 	return -1;
@@ -315,7 +315,7 @@ void EditIBC(void)
 	ftnd_mvprintw( 5, 4, "20. INTERNET BBS CHAT SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
-	    snprintf(temp, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
+	    snprintf(temp, PATH_MAX, "%s/etc/ibcsrv.temp", getenv("FTND_ROOT"));
 	    if ((fil = fopen(temp, "r")) != NULL) {
 		fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fil);
 		x = 2;
@@ -381,7 +381,7 @@ int ibc_doc(FILE *fp, FILE *toc, int page)
     FILE    *wp, *ip, *vir;
     int	    nr = 0, j;
 
-    snprintf(temp, PATH_MAX, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
+    snprintf(temp, PATH_MAX, "%s/etc/ibcsrv.data", getenv("FTND_ROOT"));
     if ((vir = fopen(temp, "r")) == NULL)
 	return page;
 
