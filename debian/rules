@@ -6,7 +6,7 @@
 #export DH_VERBOSE=1
 
 # Set FTND_ROOT to ftnd installation directory.
-export FTND_ROOT=/opt/ftnd
+export FTND_ROOT=/usr/lib/ftnd
 
 
 %:
@@ -19,11 +19,11 @@ override_dh_strip:
 
 override_dh_fixperms:
 	dh_fixperms
-	chmod 4710 debian/ftnd/opt/ftnd/bin/ftntask
-	chmod 6750 debian/ftnd/opt/ftnd/bin/ftnnewusr
-	chmod 6711 debian/ftnd/opt/ftnd/bin/ftnuser
-	chmod 6711 debian/ftnd/opt/ftnd/bin/ftnuseradd
-	chmod 6711 debian/ftnd/opt/ftnd/bin/ftnpasswd
-	chmod 0755 debian/ftnd/opt/ftnd/bin/ftnlogin
+	chmod 4710 debian/ftnd/usr/lib/ftnd/bin/ftntask
+	chmod 6750 debian/ftnd/usr/lib/ftnd/bin/ftnnewusr
+	chmod 6711 debian/ftnd/usr/lib/ftnd/bin/ftnuser
+	chmod 6711 debian/ftnd/usr/lib/ftnd/bin/ftnuseradd
+	chmod 6711 debian/ftnd/usr/lib/ftnd/bin/ftnpasswd
+	chmod 0755 debian/ftnd/usr/lib/ftnd/bin/ftnlogin
 
 
