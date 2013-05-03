@@ -1,4 +1,4 @@
-/usr/lib/ftnd/log/*.log {
+/var/lib/ftnd/log/*.log {
   rotate 7
   daily
   compress
