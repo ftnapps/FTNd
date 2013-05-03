@@ -10,7 +10,7 @@
 
 if [ "`grep ftnd: /etc/passwd`" != "" ]; then
   if [ "`grep bbs: /etc/group`" != "" ]; then
-    if [ -n "$MBSE_ROOT" ]; then
+    if [ -n "$FTND_ROOT" ]; then
       if [ "$LOGNAME" = "root" ]; then
     #
     # Newer su versions change logname when su to root without
@@ -29,7 +29,7 @@ if [ "`grep ftnd: /etc/passwd`" != "" ]; then
     exit 1
       fi
     else
-      echo "*** MBSE_ROOT environment is not set or you are not 'ftnd'  ***"
+      echo "*** FTND_ROOT environment is not set or you are not 'ftnd'  ***"
       if [ "$LOGNAME" = "root" ]; then
     echo "*** You seem to be root, did you use 'su -' instead of 'su' ***"
       fi
