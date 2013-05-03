@@ -1,4 +1,4 @@
 # FTNd services
-binkp   stream  tcp nowait  ftnd    /opt/ftnd/bin/ftncico    ftncico -t ibn
-fido    stream  tcp nowait  ftnd    /opt/ftnd/bin/ftncico    ftncico -t ifc
-tfido   stream  tcp nowait  ftnd    /opt/ftnd/bin/ftncico    ftncico -t itn
+binkp   stream  tcp nowait  ftnd    /usr/lib/ftnd/bin/ftncico    ftncico -t ibn
+fido    stream  tcp nowait  ftnd    /usr/lib/ftnd/bin/ftncico    ftncico -t ifc
+tfido   stream  tcp nowait  ftnd    /usr/lib/ftnd/bin/ftncico    ftncico -t itn

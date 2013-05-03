@@ -1,6 +1,6 @@
 # FTNd services are defined here.
 #
-# Author: Robert James Clay <jame@rocasa.us>, 1 Apr 2012
+# Author: Robert James Clay <jame@rocasa.us>, 3 May 20132
 #
 # Author: Michiel Broek <mbse@mbse.eu>, 27-Sep-2004
 
@@ -11,7 +11,7 @@ service binkp
     wait            = no
     user            = ftnd
     instances       = 10
-    server          = /opt/ftnd/bin/ftncico
+    server          = /usr/lib/ftnd/bin/ftncico
     server_args     = -t ibn
 }
 
@@ -22,7 +22,7 @@ service fido
     wait            = no
     user            = ftnd
     instances       = 10
-    server          = /opt/ftnd/bin/ftncico
+    server          = /usr/lib/ftnd/bin/ftncico
     server_args     = -t ifc
 }
 
@@ -33,7 +33,7 @@ service tfido
     wait            = no
     user            = ftnd
     instances       = 10
-    server          = /opt/ftnd/bin/ftncico
+    server          = /usr/lib/ftnd/bin/ftncico
     server_args     = -t itn
 }
 
@@ -47,7 +47,7 @@ service nntp
     wait            = no
     user            = ftnd
     instances       = 10
-    server          = /opt/ftnd/bin/ftnnntp
+    server          = /usr/lib/ftnd/bin/ftnnntp
 }
 
 # NNTP using SSL to the bbs using ftnnntp, disabled by default.
@@ -60,6 +60,6 @@ service nntps
     wait            = no
     user            = ftnd
     instances       = 10
-    server          = /opt/ftnd/bin/ftnnntp
+    server          = /usr/lib/ftnd/bin/ftnnntp
 }
 
