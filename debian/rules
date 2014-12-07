@@ -10,7 +10,7 @@ export FTND_ROOT=/opt/ftnd
 
 
 %:
-	dh $@ --with=autotools_dev
+	dh $@ --with autoreconf
 
 override_dh_auto_install:
 
