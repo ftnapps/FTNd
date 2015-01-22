@@ -1,3 +1,18 @@
+2015-01-22  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.18
+
+ - Correct references in INSTALL.in of 'mbse' to 'ftnd' or 'FTNd'.
+
+ - Initial adaption of CRON.sh and README.Gentoo for FTNd.
+
+ - Correct archive name in README.Packages.
+
+ - Correct program name in html/Makefile from 'ftnsebbs' to 'ftnbbs'.
+
+ - SETUP.sh: At least as of trusty (14.04), Ubuntu does not have a group named
+   'admin'. Correct group name for message and log display in group check.
+
 2013-05-03  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.17

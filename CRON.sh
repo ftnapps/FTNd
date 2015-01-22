@@ -7,11 +7,11 @@
 echo "FTNd for Unix crontab setup. Checking your system..."
 
 # Basic checks.
-if [ `whoami` != "mbse" ]; then
+if [ `whoami` != "ftnd" ]; then
 cat << EOF
-*** Run $0 as "mbse" user only! ***
+*** Run $0 as "ftnd" user only! ***
 
-  Because the crontab for mbse must be changed, you must be mbse.
+  Because the crontab for ftnd must be changed, you must be ftnd.
 
 *** SETUP aborted ***
 EOF
@@ -24,14 +24,14 @@ if [ "$FTND_ROOT" = "" ]; then
 	exit 2
 fi
 
-if [ "`grep mbse: /etc/passwd`" = "" ]; then
-	echo "*** User 'mbse' does not exist on this system ***"
+if [ "`grep ftnd: /etc/passwd`" = "" ]; then
+	echo "*** User 'ftnd' does not exist on this system ***"
 	echo "*** SETUP aborted ***"
 	exit 2
 fi
 
 if [ "`crontab -l`" != "" ]; then
-	echo "*** User 'mbse' already has a crontab ***"
+	echo "*** User 'ftnd' already has a crontab ***"
 	echo "*** SETUP aborted ***"
 	exit 2
 fi

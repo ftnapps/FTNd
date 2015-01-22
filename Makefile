@@ -29,7 +29,7 @@ help:
 		@echo "make depend                Update source dependencies"
 		@echo "make dist                  Create distribution archive"
 		@echo "make clean                 Clean sourcetree and configuration"
-		@echo "make crontab               Install default crontab for mbse"
+		@echo "make crontab               Install default crontab for FTNd"
 		@echo "make filelist              Create filelist for make dist"
 		@echo ""
 

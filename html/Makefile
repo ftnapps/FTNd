@@ -57,7 +57,7 @@ H_PROGS		= programs/ftnfido.html     programs/ftnmon.html \
 		  programs/ftnindex.html    programs/ftnout.html \
 		  programs/ftnsetup.html    programs/ftnuseradd.html \
 		  programs/ftnall.html	   programs/ftnnntp.html \
-		  programs/ftnlang.html     programs/ftnsebbs.html \
+		  programs/ftnlang.html     programs/ftnbbs.html \
 		  programs/ftnstat.html     programs/ftnpasswd.html \
 		  programs/ftntask.html
 

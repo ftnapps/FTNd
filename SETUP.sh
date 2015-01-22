@@ -175,9 +175,9 @@ if grep -q ^ftnd: /etc/passwd ; then
 fi
 
 if grep -q ^ftnbbs: /etc/group ; then
-    echo "*** Group 'bbs' already exists on this system ***"
+    echo "*** Group 'ftnbbs' already exists on this system ***"
     echo "*** SETUP aborted ***"
-    log "!" "Aborted, group 'bbs' already exists on this system"
+    log "!" "Aborted, group 'ftnbbs' already exists on this system"
     exit 2
 fi
 
@@ -311,7 +311,7 @@ if [ "$OSTYPE" = "Linux" ]; then
         GRPS=${GRPS}",wheel"
     fi
     if [ "$DISTNAME" = "Ubuntu" ]; then
-        GRPS=${GRPS}",adm,admin"
+        GRPS=${GRPS}",adm"
     fi
     if grep -q ^dialout /etc/group ; then
         GRPS=${GRPS}",dialout"
