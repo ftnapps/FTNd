@@ -23,8 +23,8 @@ cd @PACKAGE@-@VERSION@
 bash ./SETUP.sh
 
 This will setup a new directory structure @prefix@ and create's some 
-necessary users. If this in successfull, logout and login as user "mbse".
-To build and install mbse bbs type the following commands:
+necessary users. If this in successfull, logout and login as user "ftnd".
+To build and install FTNd type the following commands:
 
 cd
 tar xfvj /pathtopackage/@PACKAGE@-@VERSION@.tar.bz2
