@@ -3,7 +3,7 @@ Upstream-Name: FTNd
 Upstream-Contact: Robert James Clay <jame@rocasa.us>
 
 Files: *
-Copyright:    2012   Robert James Clay <jame@rocasa.us>
+Copyright: 2012-2015 Robert James Clay <jame@rocasa.us>
            1998-2012 Michiel Broek <mbse@mbse.eu>
 License: GPL-2+
 
@@ -31,7 +31,7 @@ License: GPL-2+
 
 Files: debian/*
 Comment: Copyright and License for debian directory files.
-Copyright: 2012, Robert James Clay <jame@rocasa.us>
+Copyright: 2015, Robert James Clay <jame@rocasa.us>
 License: GPL-2+
 
 License: GPL-2+
