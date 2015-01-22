@@ -12,6 +12,9 @@ export FTND_ROOT=/opt/ftnd
 %:
 	dh $@ --with autoreconf
 
+override_dh_auto_clean:
+	[ ! -f Makefile.global ] || dh_auto_clean
+
 override_dh_auto_install:
 
 override_dh_strip:
