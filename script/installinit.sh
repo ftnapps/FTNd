@@ -276,10 +276,10 @@ fi
 if [ "$DISTNAME" = "Debian" ]; then
     echo "You are running Debian Linux $DISTVERS"
     log "+" "Adding Debian SystemV init script"
-    DISTINIT="/etc/init.d/ftndbbs"
+    DISTINIT="/etc/init.d/ftnd"
     cp init.Debian $DISTINIT
     chmod 755 $DISTINIT
-    update-rc.d ftndbbs defaults
+    update-rc.d ftnd defaults
     echo "Debian install ready."
     log "+" "Debian SystemV init script installed"
 fi
@@ -293,10 +293,10 @@ fi
 if [ "$DISTNAME" = "Gentoo" ]; then
     echo "You are running Gentoo Linux $DISTVERS"
     log "+" "Adding Gentoo init script"
-    DISTINIT="/etc/init.d/ftndbbs"
+    DISTINIT="/etc/init.d/ftnd"
     cp init.Gentoo $DISTINIT
     chmod 755 $DISTINIT
-    rc-update add ftndbbs default
+    rc-update add ftnd default
     echo "Gentoo install ready."
     log "+" "Gentoo init script installed"
 fi
@@ -310,10 +310,10 @@ fi
 if [ "$DISTNAME" = "Arch Linux" ]; then
     echo "You are running Arch Linux"
     log "+" "Adding Arch Linux init script"
-    DISTINIT="/etc/rc.d/ftndbbs"
+    DISTINIT="/etc/rc.d/ftnd"
     cp init.Arch $DISTINIT
     chmod 755 $DISTINIT
-    echo "Add ftndbbs to /etc/rc.conf"
+    echo "Add ftnd to /etc/rc.conf"
     log "+" "Arch Linux init script installed"
 fi
 
@@ -327,7 +327,7 @@ if [ "$DISTNAME" = "NetBSD" ]; then
     #
     # NetBSD init
     #
-    DISTINIT="/etc/rc.d/ftndbbs"
+    DISTINIT="/etc/rc.d/ftnd"
     echo "Adding $DISTNAME style FTNd start/stop script"
     log "+" "Adding $DISTNAME style FTNd start/stop script"
     cp init.NetBSD $DISTINIT
