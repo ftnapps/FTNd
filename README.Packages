@@ -2,12 +2,12 @@
 
 Distribution naming scheme:
 
-mbsebbs-0.1.18.tar.bz2
-  |     | |  |
-  |     | |  +-------- minor patchlevel 
-  |     | +----------- minor version
-  |     +------------- major version
-  +------------------- package name
+ftnd-0.1.18.tar.bz2
+  |  | |  |
+  |  | |  +-------- minor patchlevel
+  |  | +----------- minor version
+  |  +------------- major version
+  +---------------- package name
 
 For fidonet distribution, the tar archive and FILE_ID.DIZ are
 zipped together in a file like ftnd001.zip
