@@ -4,9 +4,9 @@ Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.us>
 Build-Depends: debhelper (>= 9), dh-autoreconf, autotools-dev, libbz2-dev, libz-dev
 Standards-Version: 3.9.3
-Vcs-Git: git://github.com/jame/ftnd.git
-Vcs-Browser: http://github.com/jame/ftnd
-Homepage: http://jame.github.com/ftnd
+Vcs-Git: git://github.com/ftnapps/ftnd.git
+Vcs-Browser: http://github.com/ftnapps/ftnd
+Homepage: http://ftnapps.github.com/ftnd
 
 Package: ftnd
 Architecture: any
