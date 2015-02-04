@@ -12,7 +12,7 @@ Package: ftnd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Recommends: xinetd, arc, zip, unzip
-Suggests: arj, unrar-free, zoo, lha, ha, joe, dosemu, dosemu-freedos, tetradraw
+Suggests: arj, unrar-free, zoo, lhasa | lha, ha, joe, dosemu, dosemu-freedos, tetradraw
 Description: FTNd Services for Unix
  FTNd is a full Fidonet capable mailer 
  package including a mailer, tosser, ticfile 
