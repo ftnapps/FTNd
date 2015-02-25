@@ -67,96 +67,96 @@ case "$1" in
     fi
 
     # Install example footer.txt file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/etc/footer.txt" ]; then
-        install -m 640 /usr/share/ftnd/etc/footer.txt /usr/lib/ftnd/etc/footer.txt
+    if [ ! -e "/var/lib/ftnd/etc/footer.txt" ]; then
+        install -m 640 /usr/share/ftnd/etc/footer.txt /var/lib/ftnd/etc/footer.txt
     fi
     # Install example header.txt file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/etc/header.txt" ]; then
-        install -m 640 /usr/share/ftnd/etc/header.txt /usr/lib/ftnd/etc/header.txt
+    if [ ! -e "/var/lib/ftnd/etc/header.txt" ]; then
+        install -m 640 /usr/share/ftnd/etc/header.txt /var/lib/ftnd/etc/header.txt
     fi
 
     # Install the English BBS language file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/share/int/language.en" ]; then
-        install -m 640 /usr/share/ftnd/int/language.en /usr/lib/ftnd/share/int/language.en
+    if [ ! -e "/var/lib/ftnd/int/language.en" ]; then
+        install -m 640 /usr/share/ftnd/int/language.en /var/lib/ftnd/int/language.en
     fi
     # Install the Spanish BBS language file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/share/int/language.es" ]; then
-        install -m 640 /usr/share/ftnd/int/language.es /usr/lib/ftnd/share/int/language.es
+    if [ ! -e "/var/lib/ftnd/int/language.es" ]; then
+        install -m 640 /usr/share/ftnd/int/language.es /var/lib/ftnd/int/language.es
     fi
     # Install the German BBS language file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/share/int/language.de" ]; then
-        install -m 640 /usr/share/ftnd/int/language.de /usr/lib/ftnd/share/int/language.de
+    if [ ! -e "/var/lib/ftnd/int/language.de" ]; then
+        install -m 640 /usr/share/ftnd/int/language.de /var/lib/ftnd/int/language.de
     fi
     # Install the French BBS language file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/share/int/language.fr" ]; then
-        install -m 640 /usr/share/ftnd/int/language.fr /usr/lib/ftnd/share/int/language.fr
+    if [ ! -e "/var/lib/ftnd/int/language.fr" ]; then
+        install -m 640 /usr/share/ftnd/int/language.fr /var/lib/ftnd/share/language.fr
     fi
     # Install the Galician BBS language file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/share/int/language.gl" ]; then
-        install -m 640 /usr/share/ftnd/int/language.gl /usr/lib/ftnd/share/int/language.gl
+    if [ ! -e "/var/lib/ftnd/int/language.gl" ]; then
+        install -m 640 /usr/share/ftnd/int/language.gl /var/lib/ftnd/int/language.gl
     fi
     # Install the Dutch BBS language file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/share/int/language.nl" ]; then
-        install -m 640 /usr/share/ftnd/int/language.nl /usr/lib/ftnd/share/int/language.nl
+    if [ ! -e "/var/lib/ftnd/int/language.nl" ]; then
+        install -m 640 /usr/share/ftnd/int/language.nl /var/lib/ftnd/int/language.nl
     fi
     # Install the Chinese BBS language file if it is not already present
-    if [ ! -e "/usr/lib/ftnd/share/int/language.zh" ]; then
-        install -m 640 /usr/share/ftnd/int/language.zh /usr/lib/ftnd/share/int/language.zh
+    if [ ! -e "/var/lib/ftnd/int/language.zh" ]; then
+        install -m 640 /usr/share/ftnd/int/language.zh /var/lib/ftnd/int/language.zh
     fi
 
     # Create macros directory if not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/macro/" ]; then
+    if [ ! -d "/var/lib/ftnd/int/macro/" ]; then
         mkdir --mode=755 /usr/lib/ftnd/share/int/macro
     fi
     # Install english text macro files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/macro/en/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/macro/en
-        tar xfC /usr/share/ftnd/int/templates-en.tar /usr/lib/ftnd/share/int/macro/en
+    if [ ! -d "/var/lib/ftnd/int/macro/en/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/macro/en
+        tar xfC /usr/share/ftnd/int/templates-en.tar /var/lib/ftnd/int/macro/en
     fi
     # Install spanish text macro files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/macro/es/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/macro/es
-        tar xfC /usr/share/ftnd/int/templates-es.tar /usr/lib/ftnd/share/int/macro/es
+    if [ ! -d "/var/lib/ftnd/int/macro/es/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/macro/es
+        tar xfC /usr/share/ftnd/int/templates-es.tar /var/lib/ftnd/int/macro/es
     fi
     # Install german text macro files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/macro/de/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/macro/de
-        tar xfC /usr/share/ftnd/int/templates-de.tar /usr/lib/ftnd/share/int/macro/de
+    if [ ! -d "/var/lib/ftnd/int/macro/de/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/macro/de
+        tar xfC /usr/share/ftnd/int/templates-de.tar /var/lib/ftnd/int/macro/de
     fi
     # Install dutch text macro files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/macro/nl/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/macro/nl
-        tar xfC /usr/share/ftnd/int/templates-nl.tar /usr/lib/ftnd/share/int/macro/nl
+    if [ ! -d "/var/lib/ftnd/int/macro/nl/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/macro/nl
+        tar xfC /usr/share/ftnd/int/templates-nl.tar /var/lib/ftnd/int/macro/nl
     fi
 
     # Create menu directory if not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/menus/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/menus
+    if [ ! -d "/var/lib/ftnd/int/menus/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/menus
     fi
     # Install english text menu files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/menus/en/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/menus/en
-        tar xfC /usr/share/ftnd/int/menus-en.tar /usr/lib/ftnd/share/int/menus/en
+    if [ ! -d "/var/lib/ftnd/int/menus/en/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/menus/en
+        tar xfC /usr/share/ftnd/int/menus-en.tar /var/lib/ftnd/int/menus/en
     fi
     # Install spanish text menu files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/menus/es/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/menus/es
-        tar xfC /usr/share/ftnd/int/menus-es.tar /usr/lib/ftnd/share/int/menus/es
+    if [ ! -d "/var/lib/ftnd/int/menus/es/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/menus/es
+        tar xfC /usr/share/ftnd/int/menus-es.tar /var/lib/ftnd/int/menus/es
     fi
 
     # Create txtfiles directory if not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/txtfiles/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/txtfiles
+    if [ ! -d "/var/lib/ftnd/int/txtfiles/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/txtfiles
     fi
     # Install english text txtfiles files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/txtfiles/en/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/txtfiles/en
-        tar xfC /usr/share/ftnd/int/txtfiles-en.tar /usr/lib/ftnd/share/int/txtfiles/en
+    if [ ! -d "/var/lib/ftnd/int/txtfiles/en/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/txtfiles/en
+        tar xfC /usr/share/ftnd/int/txtfiles-en.tar /var/lib/ftnd/int/txtfiles/en
     fi
     # Install spanish text txtfiles files if that directory is not already present
-    if [ ! -d "/usr/lib/ftnd/share/int/txtfiles/es/" ]; then
-        mkdir --mode=755 /usr/lib/ftnd/share/int/txtfiles/es
-        tar xfC /usr/share/ftnd/int/txtfiles-es.tar /usr/lib/ftnd/share/int/txtfiles/es
+    if [ ! -d "/var/lib/ftnd/int/txtfiles/es/" ]; then
+        mkdir --mode=755 /var/lib/ftnd/int/txtfiles/es
+        tar xfC /usr/share/ftnd/int/txtfiles-es.tar /var/lib/ftnd/int/txtfiles/es
     fi
 
     #  Set default user:group for ftnd install
