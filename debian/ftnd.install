@@ -24,7 +24,7 @@ lang/language.fr    /usr/share/ftnd/int
 lang/language.gl    /usr/share/ftnd/int
 lang/language.nl    /usr/share/ftnd/int
 lang/language.zh    /usr/share/ftnd/int
-lib/nodelist.conf   /usr/lib/ftnd/etc
+lib/nodelist.conf   /var/lib/ftnd/etc
 ftnfido/ftnseq    /usr/lib/ftnd/bin
 ftnmon/ftnmon /usr/lib/ftnd/bin
 ftnnntp/ftnnntp   /usr/lib/ftnd/bin
