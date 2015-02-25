@@ -1,4 +1,10 @@
-html/   /usr/share/doc/ftnd/html
+html/*html    /usr/share/doc/ftnd/html/
+html/ftsc     /usr/share/doc/ftnd/html/
+html/images   /usr/share/doc/ftnd/html/
+html/license  /usr/share/doc/ftnd/html/
+html/menus    /usr/share/doc/ftnd/html/
+html/programs /usr/share/doc/ftnd/html/
+html/setup    /usr/share/doc/ftnd/html/
 ftncico/ftncico   /usr/lib/ftnd/bin
 ftncico/ftnout    /usr/lib/ftnd/bin
 ftnfido/ftnaff    /usr/lib/ftnd/bin
