@@ -7,9 +7,9 @@ usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnnews
 /usr/share/doc/ftnd/html/misc/index.htm /usr/share/doc/ftnd/html/misc/index.html
 /usr/share/doc/ftnd/html/programs/index.htm /usr/share/doc/ftnd/html/programs/index.html
 /usr/share/doc/ftnd/html/setup/index.htm /usr/share/doc/ftnd/html/setup/index.html
-/var/lib/ftnd /usr/lib/ftnd/etc
 /var/lib/ftnd /usr/lib/ftnd/share
 /var/lib/ftnd /usr/lib/ftnd/var
+/var/lib/ftnd/etc /usr/lib/ftnd/etc
 /var/lib/ftnd/home /usr/lib/ftnd/home
 /var/lib/ftnd/log /usr/lib/ftnd/log
 /var/lib/ftnd/tmp /usr/lib/ftnd/tmp
