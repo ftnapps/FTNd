@@ -2,17 +2,17 @@ Source: ftnd
 Section: comm
 Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.us>
-Build-Depends: debhelper (>= 8), autotools-dev, libbz2-dev, libz-dev
+Build-Depends: debhelper (>= 9), dh-autoreconf, autotools-dev, libbz2-dev, libz-dev
 Standards-Version: 3.9.3
-Vcs-Git: git://github.com/jame/ftnd.git
-Vcs-Browser: http://github.com/jame/ftnd
-Homepage: http://jame.github.com/ftnd
+Vcs-Git: git://github.com/ftnapps/ftnd.git
+Vcs-Browser: http://github.com/ftnapps/ftnd
+Homepage: http://ftnapps.github.com/ftnd
 
 Package: ftnd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Recommends: xinetd, arc, zip, unzip
-Suggests: arj, unrar-free, zoo, lha, ha, joe, dosemu, dosemu-freedos, tetradraw
+Suggests: arj, unrar-free, zoo, lhasa | lha, ha, joe, dosemu, dosemu-freedos, tetradraw
 Description: FTNd Services for Unix
  FTNd is a full Fidonet capable mailer 
  package including a mailer, tosser, ticfile 
