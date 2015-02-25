@@ -3,6 +3,7 @@ html/ftsc     /usr/share/doc/ftnd/html/
 html/images   /usr/share/doc/ftnd/html/
 html/license  /usr/share/doc/ftnd/html/
 html/menus    /usr/share/doc/ftnd/html/
+html/misc     /usr/share/doc/ftnd/html/
 html/programs /usr/share/doc/ftnd/html/
 html/setup    /usr/share/doc/ftnd/html/
 ftncico/ftncico   /usr/lib/ftnd/bin
