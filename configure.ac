@@ -1,6 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(lib/ftndlib.h)
+AC_INIT
+AC_CONFIG_SRCDIR([lib/ftndlib.h])
 AM_CONFIG_HEADER(config.h)
 SUBDIRS="lib ftncico ftnfido ftnmon ftnbbs ftnutils ftnnntp ftntask ftnsetup unix lang examples html script"
 AC_SUBST(SUBDIRS)
@@ -116,14 +117,12 @@ if test "$result" = "yes"; then
   LIBS="$LIBS -lcompat"
 fi
 
-AC_CACHE_CHECK(for pw_age in struct passwd, ac_cv_struct_passwd_pw_age, AC_TRY_COMPILE([#include <pwd.h>],
-[ struct passwd pw;  pw.pw_age = ""; ], ac_cv_struct_passwd_pw_age=yes, ac_cv_struct_passwd_pw_age=no))
+AC_CACHE_CHECK(for pw_age in struct passwd, ac_cv_struct_passwd_pw_age, AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <pwd.h>]], [[ struct passwd pw;  pw.pw_age = ""; ]])],[ac_cv_struct_passwd_pw_age=yes],[ac_cv_struct_passwd_pw_age=no]))
 if test "$ac_cv_struct_passwd_pw_age" = "yes"; then
         AC_DEFINE(ATT_AGE)
 fi
 
-AC_CACHE_CHECK(for pw_comment in struct passwd, ac_cv_struct_passwd_pw_comment, AC_TRY_COMPILE([#include <pwd.h>],
-[ struct passwd pw;  pw.pw_comment = ""; ], ac_cv_struct_passwd_pw_comment=yes, ac_cv_struct_passwd_pw_comment=no))
+AC_CACHE_CHECK(for pw_comment in struct passwd, ac_cv_struct_passwd_pw_comment, AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <pwd.h>]], [[ struct passwd pw;  pw.pw_comment = ""; ]])],[ac_cv_struct_passwd_pw_comment=yes],[ac_cv_struct_passwd_pw_comment=no]))
 if test "$ac_cv_struct_passwd_pw_comment" = "yes"; then
         AC_DEFINE(ATT_COMMENT)
 fi
@@ -230,7 +229,14 @@ AC_TYPE_PID_T
 AC_TYPE_MODE_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
-AC_STRUCT_ST_BLKSIZE
+AC_DIAGNOSE([obsolete],[your code should no longer depend upon `HAVE_ST_BLKSIZE', but
+`HAVE_STRUCT_STAT_ST_BLKSIZE'.  Remove this warning and
+the `AC_DEFINE' when you adjust the code.])dnl
+AC_CHECK_MEMBERS([struct stat.st_blksize],[AC_DEFINE(HAVE_ST_BLKSIZE, 1,
+			    [Define to 1 if your `struct stat' has
+			     `st_blksize'.  Deprecated, use
+			     `HAVE_STRUCT_STAT_ST_BLKSIZE' instead.])])
+
 AC_HEADER_STAT
 AC_STRUCT_TM
 
@@ -240,7 +246,18 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS(c64i a64l fchmod fchown fdatasync fsync lckpwdf strcasestr putpwent)
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
-AC_TYPE_SIGNAL
+AC_DIAGNOSE([obsolete],[your code may safely assume C89 semantics that RETSIGTYPE is void.
+Remove this warning and the `AC_CACHE_CHECK' when you adjust the code.])dnl
+AC_CACHE_CHECK([return type of signal handlers],[ac_cv_type_signal],[AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([#include <sys/types.h>
+#include <signal.h>
+],
+		 [return *(signal (0, 0)) (0) == 1;])],
+		   [ac_cv_type_signal=int],
+		   [ac_cv_type_signal=void])])
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(gettimeofday re_comp select statfs statvfs)
 AC_CHECK_FUNCS(getspnam initgroups updwtmp updwtmpx)
@@ -362,8 +379,7 @@ for vpop in /var/qmail/vpopmail/bin NONE; do
 done
 
 
-AC_OUTPUT(
-	Makefile.global
+AC_CONFIG_FILES([Makefile.global
 	paths.h
 	unix/login.defs
 	INSTALL 
@@ -372,7 +388,8 @@ AC_OUTPUT(
 	html/index.html
 	html/basic.html
 	html/upgrade.html
-)
+])
+AC_OUTPUT
 
 #=================================================================================
 
