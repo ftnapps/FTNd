@@ -39,7 +39,7 @@ ftnutils/ftnstat  /usr/lib/ftnd/bin
 ftnutils/ftntoberep   /usr/lib/ftnd/bin
 ftnutils/ftnuser  /usr/lib/ftnd/bin
 script/doors.bat    /usr/lib/ftnd/bin
-unix/login.defs /usr/lib/ftnd/etc
+unix/login.defs /var/lib/ftnd/etc
 unix/ftnlogin    /usr/lib/ftnd/bin
 unix/ftnpasswd   /usr/lib/ftnd/bin
 unix/ftnuseradd  /usr/lib/ftnd/bin
