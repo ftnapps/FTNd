@@ -1,10 +1,15 @@
-opt/ftnd/bin/ftnfido opt/ftnd/bin/ftnmail
-opt/ftnd/bin/ftnfido opt/ftnd/bin/ftnnews
-/usr/share/doc/ftnd/html /opt/ftnd/html
-/usr/share/doc/ftnd/html/ftsc/index.htm /usr/share/doc/ftnd/html/ftsc/index.html
-/usr/share/doc/ftnd/html/license/index.htm /usr/share/doc/ftnd/html/license/index.html
-/usr/share/doc/ftnd/html/menus/index.htm /usr/share/doc/ftnd/html/menus/index.html
-/usr/share/doc/ftnd/html/misc/index.htm /usr/share/doc/ftnd/html/misc/index.html
-/usr/share/doc/ftnd/html/programs/index.htm /usr/share/doc/ftnd/html/programs/index.html
-/usr/share/doc/ftnd/html/setup/index.htm /usr/share/doc/ftnd/html/setup/index.html
-
+usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnmail
+usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnnews
+/usr/share/doc/ftnd/html /usr/lib/ftnd/html
+/usr/share/doc/ftnd/html/ftsc/index.html /usr/share/doc/ftnd/html/ftsc/index.htm
+/usr/share/doc/ftnd/html/license/index.html /usr/share/doc/ftnd/html/license/index.htm
+/usr/share/doc/ftnd/html/menus/index.html /usr/share/doc/ftnd/html/menus/index.htm
+/usr/share/doc/ftnd/html/misc/index.html /usr/share/doc/ftnd/html/misc/index.htm
+/usr/share/doc/ftnd/html/programs/index.html /usr/share/doc/ftnd/html/programs/index.htm
+/usr/share/doc/ftnd/html/setup/index.html /usr/share/doc/ftnd/html/setup/index.htm
+/var/lib/ftnd /usr/lib/ftnd/share
+/var/lib/ftnd /usr/lib/ftnd/var
+/var/lib/ftnd/etc /usr/lib/ftnd/etc
+/var/lib/ftnd/home /usr/lib/ftnd/home
+/var/lib/ftnd/log /usr/lib/ftnd/log
+/var/lib/ftnd/tmp /usr/lib/ftnd/tmp
