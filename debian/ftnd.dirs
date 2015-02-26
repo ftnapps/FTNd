@@ -20,6 +20,7 @@ var/lib/ftnd/ftp/incoming
 var/lib/ftnd/fdb
 var/lib/ftnd/hatch
 var/lib/ftnd/inbound
+var/lib/ftnd/int
 var/lib/ftnd/home
 var/lib/ftnd/home/bbs
 var/lib/ftnd/log
