@@ -1,7 +1,7 @@
 # profile for ftnd
 #
 export PATH=$HOME/bin:$PATH
-export MBSE_ROOT=$HOME
+export FTND_ROOT=$HOME
 export GOLDED=$HOME/etc
 # For xterm on the Gnome desktop:
 cd $HOME
