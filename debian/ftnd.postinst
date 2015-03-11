@@ -164,6 +164,11 @@ case "$1" in
     #  Set default user:group for ftnd install
     chown -R ftnd:ftnbbs /var/lib/ftnd
 
+    #  Run FTNd ftnsetup initialization if this is a new install
+    if [ -z "$old_version" ]; then
+        su - ftnd -c "/usr/lib/ftnd/bin/ftnsetup init"
+    fi
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
