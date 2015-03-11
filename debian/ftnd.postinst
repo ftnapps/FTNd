@@ -17,6 +17,8 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+#  Set old_version variable for use later in the script.
+old_version=$2
 
 case "$1" in
     configure)
