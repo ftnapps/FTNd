@@ -21,6 +21,145 @@ set -e
 
 case "$1" in
     purge)
+        # Remove example bash profile if that is not already done
+        if [ -e "/usr/lib/ftnd/.profile" ]; then
+           rm -f /usr/lib/ftnd/.profile
+        fi
+
+        # Remove example bbbsdoor.sh script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/bbsdoor.sh" ]; then
+           rm -f /usr/lib/ftnd/bin/bbsdoor.sh
+        fi
+        # Remove example editor script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/editor" ]; then
+            rm -f /usr/lib/ftnd/bin/editor
+        fi
+        # Remove example hatch script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/hatch" ]; then
+            rm -f /usr/lib/ftnd/bin/hatch
+        fi
+        # Remove example ftnbbsdos script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/ftnbbsdos" ]; then
+            rm -f /usr/lib/ftnd/bin/ftnbbsdos
+        fi
+        # Remove example rundoor.sh script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/rundoor.sh" ]; then
+            rm -f /usr/lib/ftnd/bin/rundoor.sh
+        fi
+        # Remove example runvirtual.sh script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/runvirtual.sh" ]; then
+            rm -f /usr/lib/ftnd/bin/runvirtual.sh
+        fi
+        # Remove example maint script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/adm/maint" ]; then
+            rm -f /usr/lib/ftnd/bin/adm/maint
+        fi
+        # Remove example midnight script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/adm/midnight" ]; then
+            rm -f /usr/lib/ftnd/bin/adm/midnight
+        fi
+        # Remove example monthly script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/adm/monthly" ]; then
+            rm -f /usr/lib/ftnd/bin/adm/monthly
+        fi
+        # Romve example weekly script if that is not already done
+        if [ -e "/usr/lib/ftnd/bin/adm/weekly" ]; then
+            rm -f  /usr/lib/ftnd/bin/adm/weekly
+        fi
+
+        # Remove example footer.txt file if that is not already done
+        if [ -e "/var/lib/ftnd/etc/footer.txt" ]; then
+            rm -f /var/lib/ftnd/etc/footer.txt
+        fi
+        # Remove example header.txt file if that is not already done
+        if [ -e "/var/lib/ftnd/etc/header.txt" ]; then
+            rm -f /var/lib/ftnd/etc/header.txt
+        fi
+
+        # Remove the English BBS language file if that is not already done
+        if [ -e "/var/lib/ftnd/int/language.en" ]; then
+            rm -f /var/lib/ftnd/int/language.en
+        fi
+        # Remove the Spanish BBS language file if that is not already done
+        if [ -e "/var/lib/ftnd/int/language.es" ]; then
+            rm -f /var/lib/ftnd/int/language.es
+        fi
+        # Remove the German BBS language file if that is not already done
+        if [ -e "/var/lib/ftnd/int/language.de" ]; then
+            rm -f /var/lib/ftnd/int/language.de
+        fi
+        # Remove the French BBS language file if that is not already dome
+        if [ -e "/var/lib/ftnd/int/language.fr" ]; then
+            rm -f /var/lib/ftnd/share/language.fr
+        fi
+        # Remove the Galician BBS language file if that is not already dome
+        if [ -e "/var/lib/ftnd/int/language.gl" ]; then
+            rm -f /var/lib/ftnd/int/language.gl
+        fi
+        # Remove the Dutch BBS language file if that is not already done
+        if [ -e "/var/lib/ftnd/int/language.nl" ]; then
+            rm -f /var/lib/ftnd/int/language.nl
+        fi
+        # Remove the Chinese BBS language file if that is not already done
+        if [ -e "/var/lib/ftnd/int/language.zh" ]; then
+            rm -f /var/lib/ftnd/int/language.zh
+        fi
+
+        # Remove english text macro files if that is not already done
+        if [ -d "/var/lib/ftnd/int/macro/en/" ]; then
+           rm -f /var/lib/ftnd/int/macro/en/*
+           rmdir /var/lib/ftnd/int/macro/en
+        fi
+        # Remove spanish text macro files if that is not already done
+        if [ ! -d "/var/lib/ftnd/int/macro/es/" ]; then
+            rm -f /var/lib/ftnd/int/macro/es/*
+            mkdir --mode=755 /var/lib/ftnd/int/macro/es
+        fi
+        # Remove german text macro files if that is not already done
+        if [ -d "/var/lib/ftnd/int/macro/de/" ]; then
+            rm -f /var/lib/ftnd/int/macro/de/*
+            rmdir /var/lib/ftnd/int/macro/de
+        fi
+        # Remove dutch text macro files if that is not already done
+        if [ -d "/var/lib/ftnd/int/macro/nl/" ]; then
+            rm -f /var/lib/ftnd/int/macro/nl/*
+            rmdir /var/lib/ftnd/int/macro/nl
+        fi
+        # Remove macros directory if not already done
+        if [ -d "/var/lib/ftnd/int/macro/" ]; then
+           mkdir --mode=755 /usr/lib/ftnd/share/int/macro
+        fi
+
+        # Remove english text menu files if that is not already done
+        if [ -d "/var/lib/ftnd/int/menus/en/" ]; then
+            rm -f /var/lib/ftnd/int/menus/en/*
+            rmdir /var/lib/ftnd/int/menus/en
+        fi
+        # Remove spanish text menu files if that is not already done
+        if [ -d "/var/lib/ftnd/int/menus/es/" ]; then
+            rm -f /var/lib/ftnd/int/menus/es/*
+            rmdir /var/lib/ftnd/int/menus/es
+        fi
+        # Remove menu directory if not already done
+        if [ -d "/var/lib/ftnd/int/menus/" ]; then
+            rmdir /var/lib/ftnd/int/menus
+        fi
+
+        # If english text txtfiles files present, remove them
+        if [ -d "/var/lib/ftnd/int/txtfiles/en/" ]; then
+            rm -f /var/lib/ftnd/int/txtfiles/en/*
+            rmdir /var/lib/ftnd/int/txtfiles/en
+        fi
+        # If spanish text txtfiles files are present, remove them.
+        if [ -d "/var/lib/ftnd/int/txtfiles/es/" ]; then
+            rm -f /var/lib/ftnd/int/txtfiles/es/*
+            rmdir /var/lib/ftnd/int/txtfiles/es
+        fi
+        # Remove create txtfiles directory if not already done
+        if [ -d "/var/lib/ftnd/int/txtfiles/" ]; then
+            rmdir /var/lib/ftnd/int/txtfiles
+        fi
+
         deluser --system --remove-home --quiet ftnbbs
         deluser --system --quiet ftnd
         delgroup --system --quiet ftnbbs
