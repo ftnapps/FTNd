@@ -14,7 +14,7 @@
 <BODY>
 <BLOCKQUOTE>
 
-<div align="right"><h5>Last update 02-May-2013</h5></div>
+<div align="right"><h5>Last update 25-Mar-2015</h5></div>
 <div align="center"><H1>ftnnntp - News server</H1></div>
 
 <H3>Synopsis.</H3>
@@ -31,8 +31,8 @@ users can use their favourite newsreader to participate in echomail. It will
 not make your newsgroups available if you have any, the bbs user can get these
 directly from the internet. The bbs echomail areas are only made available if
 they have a valid newsgroup name set in the area setup. If this is not alread
-set, invent your own newsgroup name. For example the WWB echomail area MBSE
-could be set as fido.wwb.mbse, but you can use anything as long as it doesn't
+set, invent your own newsgroup name. For example the WWB echomail area FTND
+could be set as fido.wwb.ftnd, but you can use anything as long as it doesn't
 conflict with real newsgroups.
 <P>
 To use the server, the user must login in the
@@ -42,11 +42,31 @@ bbs.
 <P>&nbsp;<P>
 
 <H3>Installation.</H3>
-<P>
+
+<p>
 If installed from <b>inetd</b> add the following line to
 <code>/etc/inetd.conf</code>:
 <pre>
 nntp    stream  tcp     nowait  ftnd    /opt/ftnd/bin/ftnnntp    ftnnntp
+</pre>
+<P>&nbsp;<P>
+
+<p>
+If installed from <b>xinetd</b> include lines like these to
+<code>/etc/xinetd.d/ftnd</code>:
+<pre>
+# NNTP using ftnnntp, disabled by default.
+#
+service nntp
+{
+    disable         = yes
+    socket_type     = stream
+    protocol        = tcp
+    wait            = no
+    user            = ftnd
+    instances       = 10
+    server          = /usr/lib/ftnd/bin/ftnnntp
+}
 </pre>
 <P>&nbsp;<P>
 

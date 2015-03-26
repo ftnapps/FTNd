@@ -1,3 +1,14 @@
+2015-03-26  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.20
+
+ - Set PRODCODE to 0x00FE in lib/ftndlib.h, which is the FTSC Product Code for
+  "No product ID allocated".
+  
+ - Remove unneeded reference to glibc issue from html/known_bugs.html
+ 
+ - Include reference to using xinetd in html/programs/ftnnntp.html.
+ 
 2015-02-25  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.19
