@@ -159,6 +159,18 @@ case "$1" in
         tar xfC /usr/share/ftnd/int/txtfiles-es.tar /var/lib/ftnd/int/txtfiles/es
     fi
 
+    # Configure setuid & setgid as necessary
+    chown root:root /usr/lib/ftnd/bin/ftntask
+    chmod 6711 /usr/lib/ftnd/bin/ftntask
+    chown root:root /usr/lib/ftnd/bin/ftnnewusr
+    chmod 6754 /usr/lib/ftnd/bin/ftnnewusr
+    chown root:root /usr/lib/ftnd/bin/ftnuser
+    chmod 6754 /usr/lib/ftnd/bin/ftnuser
+    chown root:root /usr/lib/ftnd/bin/ftnuseradd
+    chmod 6754 /usr/lib/ftnd/bin/ftnuseradd
+    chown root:root /usr/lib/ftnd/bin/ftnpasswd
+    chmod 6754 /usr/lib/ftnd/bin/ftnpasswd
+
     #  Set default user:group for ftnd install
     chown -R ftnd:ftnbbs /var/lib/ftnd
     chown -R ftnd:ftnbbs /usr/lib/ftnd
