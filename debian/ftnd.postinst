@@ -161,6 +161,7 @@ case "$1" in
 
     #  Set default user:group for ftnd install
     chown -R ftnd:ftnbbs /var/lib/ftnd
+    chown -R ftnd:ftnbbs /usr/lib/ftnd
 
     ;;
 
