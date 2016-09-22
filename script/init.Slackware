@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# description: Starts and stops FTNd. 
+#
+# init.Slackware
+#
+# /etc/rc.d/init.d for Slackware
+#
+
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+if [ "${FTND_ROOT}" = "" ]
+then
+    echo "FTNd: No 'ftnd' user in the password file."
+    exit 1
+fi
+
+if [ ! -d ${FTND_ROOT} ]
+then
+    echo "FTNd: Home directory '${FTND_ROOT}' not found."
+    exit 1
+fi
+
+export FTND_ROOT
+
+# See how we were called.
+case "$1" in
+    start)
+        echo -n "FTNd starting:"
+	rm -f ${FTND_ROOT}/var/run/*
+	rm -f ${FTND_ROOT}/var/sema/*
+	rm -f ${FTND_ROOT}/var/*.LCK
+	rm -f ${FTND_ROOT}/tmp/ftn*
+	su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
+	echo -n " ftntask"
+	sleep 2
+	if [ -f ${FTND_ROOT}/etc/config.data ]; then
+	    su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+	    echo " and opened the bbs."
+	fi
+        ;;
+    stop)
+        echo -n "FTNd shutdown:"
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            echo -n " logoff users "
+            su ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
+            echo -n "done, stopping ftntask"
+	    kill -15 `cat ${FTND_ROOT}/var/run/ftntask`
+	    i=10; doit=1;
+	    while let 'i > 0' && let 'doit != 0'
+	    do
+		if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+		    echo -n "."
+		    sleep 1
+		    let i=i-1
+		else
+		    doit=0
+		fi
+	    done
+	    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+		kill -9 `cat ${FTND_ROOT}/var/run/ftntask`
+	    fi
+	    echo " done."
+	else
+	    echo " not running."
+	fi
+        ;;
+    status)
+	echo -n "FTNd status: "
+	if [ ! -f ${FTND_ROOT}/var/run/ftntask ]; then
+	    echo "ftntask is NOT running"
+	else
+	    echo "ftntask running with pid `cat ${FTND_ROOT}/var/run/ftntask`"
+	fi
+        ;;
+    restart|reload)
+	$0 stop
+	$0 start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|reload|restart|status}"
+        exit 1
+esac
+exit 0

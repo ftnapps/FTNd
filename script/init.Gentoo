@@ -1,0 +1,74 @@
+#!/sbin/runscript
+#
+# init.Gentoo
+#
+# description: Starts and stops the FTNd.
+#
+# For Gentoo GNU/Linux (by Capitán X).
+
+# Find the FTND_ROOT from the /etc/passwd file.
+
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+if [ "${FTND_ROOT}" = "" ]; then
+    echo "FTNd: No 'ftnd' user in the password file."
+    exit 1
+fi
+
+if [ ! -d ${FTND_ROOT} ]; then 
+    echo "FTNd: Home directory '${FTND_ROOT}' not found."
+    exit 1
+fi
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:${FTND_ROOT}/bin
+DAEMON=${FTND_ROOT}/bin/ftntask
+NAME=FTNd
+DESC="FTNd"
+
+export FTND_ROOT
+
+depend() {
+    use net xinetd
+    need localmount
+}
+
+start() {
+
+        ebegin "Starting FTNd"
+    rm -f ${FTND_ROOT}/var/run/*
+    rm -f ${FTND_ROOT}/var/sema/*
+    rm -f ${FTND_ROOT}/var/*.LCK
+    rm -f ${FTND_ROOT}/tmp/ftn*
+    su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
+    sleep 2
+    if [ -f ${FTND_ROOT}/etc/config.data ]; then
+          su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+    fi
+    eend $? "Loading error."
+
+}
+
+stop() {
+
+    ebegin "Stopping FTNd"
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        su ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
+        kill `cat ${FTND_ROOT}/var/run/ftntask`
+        i=10 
+        doit=1
+        while let 'i > 0' && let 'doit != 0'
+        do
+            if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+                echo -n "."
+                sleep 1
+                let i=i-1
+            else
+                doit=0
+            fi
+        done
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            kill -9 `cat ${FTND_ROOT}/var/run/ftntask`
+        fi
+    fi
+    eend $? "Stopping error."
+}

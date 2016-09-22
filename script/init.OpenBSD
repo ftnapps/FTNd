@@ -1,0 +1,35 @@
+#:FTNd: startup
+#
+# init.OpenBSD
+#
+# Added to /etc/rc.local by FTNd install
+#
+echo -n "Starting ftndbbs:"
+
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+if [ "${FTND_ROOT}" = "" ]
+then
+	echo " no 'ftnd' user in the password file."
+else
+    if [ ! -d ${FTND_ROOT} ]
+    then
+	echo " home directory '${FTND_ROOT}' not found."
+    else
+    	export FTND_ROOT
+
+    	rm -f ${FTND_ROOT}/var/run/*
+    	rm -f ${FTND_ROOT}/var/sema/*
+    	rm -f ${FTND_ROOT}/var/*.LCK
+    	rm -f ${FTND_ROOT}/tmp/ftn*
+    	su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null 2>&1
+    	echo -n " ftntask"
+    	sleep 2
+    	if [ -f ${FTND_ROOT}/etc/config.data ]; then
+	    su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+	    echo ", opened bbs"
+    	fi
+    fi
+fi
+

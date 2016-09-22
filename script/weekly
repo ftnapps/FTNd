@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# FTNd Weekly - Should be run every week at sunday from cron at 00:15
+#
+# weekly
+
+if [ "$FTND_ROOT" = "" ]; then
+   export FTND_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
+fi
+if [ "`id -un`" != "ftnd" ] ; then
+    echo "Must be run by user 'ftnd'"
+    exit 1
+fi
+      
+# While the system is on UPS battery power, don't start maintenance
+#
+while [ -f $FTND_ROOT/var/sema/upsalarm ]; do
+   sleep 60
+done
+
+$FTND_ROOT/bin/ftnfido notify -quiet
+

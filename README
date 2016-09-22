@@ -1,0 +1,24 @@
+        FTNd System for Unix
+        --------------------
+
+FTNd is a full Fidonet capable package including a mailer, tosser, ticfile
+processor, filefind and other utilities. The bbs supports full configurable
+ANSI menus, multiple languages, standard file transfer protocols, native
+GNU/Linux doors, DOS doors using dosemu and BlueWave and QWK offline readers.
+
+The mailer supports FTS-0001, YooHoo/2U2,EMSI protocols over modem, TCP/IP
+IFC and Binkp protocols. Zedzap, Zmodem, Telink and Hydra file transfer
+protocols.  Full FTN mail support, including automatic routing for hub and host
+systems. Internal mail format is JAM (c) messagebase. Full tic file support,
+including extended tic files.
+
+FTNd was forked and derived from MBSE BBS, which is the more traditional BBS
+system. It may or may not retain the BBS component (ftnbbs) as it moves away
+from that;  that depends in part on how users end up being handled.
+
+OS: GNU/Linux and *BSD, 32/64 bit versions.
+Copyright by Robert James Clay, Michiel Broek
+Released under the terms of the GNU Public License.
+
+For first time installing, see the file INSTALL. After installation, the html
+guide is installed in /opt/ftnd/html or /usr/share/doc/ftnd/html.

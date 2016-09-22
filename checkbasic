@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+
+#  checkbasic - A script for FTNd that checks if your
+#       installation is correct. If it is then
+#       normal installation is allowed. If it is
+#       pristine, basic installation must be done.
+#       If it bad or incomplete installed it will
+#       give an errormessage.
+
+if [ "`grep ftnd: /etc/passwd`" != "" ]; then
+  if [ "`grep bbs: /etc/group`" != "" ]; then
+    if [ -n "$FTND_ROOT" ]; then
+      if [ "$LOGNAME" = "root" ]; then
+    #
+    # Newer su versions change logname when su to root without
+    # environment change. Try to fix LOGNAME variable.
+    #
+    export LOGNAME="`who am i | awk -F ' ' '{ print $1 }'`"
+      fi
+      if [ "$LOGNAME" = "ftnd" ]; then
+        #
+    # Looks good, normal ftnd user and environment is set.
+    # Exit with errorcode 0
+    echo "Hm, looks good..."
+    exit 0
+      else
+    echo "*** You are not logged in as user 'ftnd' ***"
+    exit 1
+      fi
+    else
+      echo "*** FTND_ROOT environment is not set or you are not 'ftnd'  ***"
+      if [ "$LOGNAME" = "root" ]; then
+    echo "*** You seem to be root, did you use 'su -' instead of 'su' ***"
+      fi
+      exit 1
+    fi
+  else
+    echo "*** Group 'bbs' is missing on your system ***"
+    exit 1
+  fi
+else
+  echo "*** User 'ftnd' is missing on your system ***"
+  echo "    It looks like you need to do a basic install."
+  echo "    Make sure you are root and type ./SETUP.sh and"
+  echo "    read the file INSTALL for instructions."
+fi
+exit 1
+

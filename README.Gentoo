@@ -1,0 +1,19 @@
+README.Gentoo
+
+Unlike most distributions, Gentoo doesn't install programs that may be usefull
+for FTNd by default. Before you run ./configure emerge the following
+programs to make FTNd run with most features:
+
+Package         Provides
+--------------  --------------------------------------------------------------
+xinetd          Icoming TCP/IP networking.
+netkit-telnetd  Telnet sessions to the bbs.
+zip             Includes unzip. The default archiver.
+arj             ARJ archiver.
+unarj           UnARJ archiver.
+rar             RAR archiver.
+lha             LHArc archiver.
+arc             Arc archiver.
+zoo             ZOO archiver.
+lrzsz           Zmodem, Ymodem file transfers for the bbs.
+

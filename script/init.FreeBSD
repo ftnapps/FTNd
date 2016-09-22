@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# description: Starts and stops FTNd. 
+#
+# init.FreeBSD
+#
+# /usr/local/etc/rc.d/ftnd.sh
+#
+
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+if [ "${FTND_ROOT}" = "" ]
+then
+    echo "FTNd: No 'ftnd' user in the password file."
+    exit 1
+fi
+
+if [ ! -d ${FTND_ROOT} ]
+then
+    echo "FTNd: Home directory '${FTND_ROOT}' not found."
+    exit 1
+fi
+
+export FTND_ROOT
+
+# See how we were called.
+case "$1" in
+    start)
+    rm -f ${FTND_ROOT}/var/run/*
+    rm -f ${FTND_ROOT}/var/sema/*
+    rm -f ${FTND_ROOT}/var/*.LCK
+    rm -f ${FTND_ROOT}/tmp/ftn*
+    su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
+    echo -n " ftntask"
+    sleep 2
+    if [ -f ${FTND_ROOT}/etc/config.data ]; then
+        su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+        echo -n ", opened bbs"
+    fi
+        ;;
+    stop)
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            echo -n " logoff users"
+            su ftnse -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
+        kill -15 `cat ${FTND_ROOT}/var/run/ftntask`
+        sleep 1
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            	echo -n "."
+            sleep 1
+        fi
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            echo -n "."
+            sleep 1
+        fi
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            echo -n "."
+            sleep 1
+        fi
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            kill -9 `cat ${FTND_ROOT}/var/run/ftntask`
+        fi
+        echo -n " done"
+    fi
+        ;;
+    *)
+        echo "Usage: `basename $0` {start|stop}" >&2
+    ;;
+esac
+exit 0

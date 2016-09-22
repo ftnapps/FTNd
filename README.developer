@@ -1,0 +1,30 @@
+README.developer
+
+            README.developer for FTNd
+
+This file is only available on GIT, not in the distribution. This file will
+hold information about GIT tags, scheduled releases and other info for
+development only. There are no secrets in this file because it's public
+available.
+
+
+    Wordlengths.
+
+From bits/types.h:
+
+   Here we assume what is presently the case in all the GCC configurations
+   we support: long long is always 64 bits, long is always word/address size,
+   and int is always 32 bits.
+
+IOW: Never use long in the sources because it breaks between 32/64 bit 
+hardware.
+
+How about time_t, it seems an alias for long! (and it is).
+
+
+    GIT tags.
+
+FTNd-0_01_00_release 01-Apr-2012 Version 0.01.0 release.
+FTNd-0_01_00_current 01-Apr-2012 Version 0.00.1 development.
+
+.

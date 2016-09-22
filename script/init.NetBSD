@@ -1,0 +1,109 @@
+#!/bin/sh
+#
+# init.NetBSD
+#
+
+# PROVIDE: FTNd
+# REQUIRE: root beforenetlkm mountcritlocal tty
+
+#   it does not really require beforenetlkm.
+
+. /etc/rc.subr
+
+name="FTNd"
+rcvar=$name
+start_cmd="FTNd_start"
+stop_cmd="FTNd_stop"
+reload_cmd="FTNd_reload"
+extra_commands="reload"
+
+
+FTNd_start()
+{
+    echo -n "Starting FTNd:"
+
+    # Find the FTND_ROOT from the /etc/passwd file.
+    FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+    if [ "${FTND_ROOT}" = "" ]
+    then
+        echo " no 'ftnd' user in the password file."
+        return
+    fi
+
+    if [ ! -d ${FTND_ROOT} ]
+    then
+        echo " home directory '${FTND_ROOT}' not found."
+        return
+    fi
+
+    export FTND_ROOT
+
+    rm -f ${FTND_ROOT}/var/run/*
+    rm -f ${FTND_ROOT}/var/sema/*
+    rm -f ${FTND_ROOT}/var/*.LCK
+    rm -f ${FTND_ROOT}/tmp/ftn*
+    su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null 2>&1
+    echo -n " ftntask"
+    sleep 2
+    if [ -f ${FTND_ROOT}/etc/config.data ]; then
+        su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+        echo ", opened bbs"
+    fi
+}
+
+
+FTNd_stop()
+{
+    echo -n "Stopping FTNd:"
+
+    # Find the FTND_ROOT from the /etc/passwd file.
+    FTND_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
+
+    if [ "${FTND_ROOT}" = "" ]; then
+        echo " no 'ftnd' user in the password file."
+        return
+    fi
+
+    if [ ! -d ${FTND_ROOT} ]
+    then
+        cho " home directory '${FTND_ROOT}' not found."
+        return
+    fi
+
+    export FTND_ROOT
+
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n " logoff users"
+        su ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
+        kill -15 `cat ${FTND_ROOT}/var/run/ftntask`
+        sleep 1
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n "."
+        sleep 1
+    fi
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n "."
+        sleep 1
+    fi
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        echo -n "."
+        sleep 1
+    fi
+    if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+        kill -9 `cat ${FTND_ROOT}/var/run/ftntask`
+    fi
+    echo " done"
+    else
+        echo " was not running"
+    fi
+}
+
+FTNd_reload()
+{
+    FTNd_stop
+    FTNd_start
+}
+
+load_rc_config $name
+run_rc_command "$1"

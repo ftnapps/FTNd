@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# chkconfig: 345 95 05
+# description: Starts and stops FTNd.
+#
+# For RedHat, Fedora Core, E-Smith and Mandrake SYSV init style.
+# init.RedHat
+#
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 1
+
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+if [ "${FTND_ROOT}" = "" ]
+then
+    echo "FTNd: No 'ftnd' user in the password file."
+    exit 1
+fi
+
+if [ ! -d ${FTND_ROOT} ]
+then
+    echo "FTNd: Home directory '${FTND_ROOT}' not found."
+    exit 1
+fi
+
+export FTND_ROOT
+
+
+# See how we were called.
+#
+case "$1" in
+    start)
+	echo -n "Starting FTNd: "
+	rm -f ${FTND_ROOT}/var/run/*
+	rm -f ${FTND_ROOT}/var/sema/*
+	rm -f ${FTND_ROOT}/var/*.LCK
+	rm -f ${FTND_ROOT}/tmp/ftn*
+	su - ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
+	echo -n "ftntask "
+	sleep 2
+	if [ -f ${FTND_ROOT}/etc/config.data ]; then
+	    su - ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+	    echo "opened"
+	fi
+	touch /var/lock/subsys/ftnd
+	;;
+    stop)
+	echo -n "Shutting down FTNd: "
+	if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+	    echo -n "logoff users "
+	    su - ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
+	    echo -n "done, "
+	    echo -n "stop ftntask: "
+	    killproc ftntask -15
+	    rm -f /var/lock/subsys/ftnd
+	    sleep 3
+	fi
+	echo ""
+	;;
+  status)
+	status ftntask
+	;;
+  restart|reload)
+	$0 stop
+	$0 start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|reload|status}"
+	exit 1
+esac
+exit 0

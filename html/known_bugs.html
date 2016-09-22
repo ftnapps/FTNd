@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content="Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - Known Bugs">
+<META name="keywords" lang="en" content="FTNd, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Running a BBS under Unix.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<!-- FTNDADVERT -->
+<div align='right'><h5>Last update 25-Mar-2015</h5></div>
+<div align='center'><H1>FTNd - Known bugs.</H1></div>
+
+There are always more bugs, but these are known....
+
+<UL>
+<LI>Reading of function keys in FTNd doesn't work always well, especially on
+slow links and over PPP. This is not a FTNd problem.
+
+<LI>Problems with D'Bridge [1a] mailers.
+
+<LI>If you have regular sessions with a node wich only supports FTS-0001
+sessions and you use a session password you <b>must</b> also set a mail password
+and these passwords must be the same. This is a side effect of the way FTS-0001
+handshake works, by sending a small mail packet wich contains the password.
+
+<LI>You cannot share the JAM message bases between little-endian and big-endian
+machines using networked filesystems because the storage format doesn't specify 
+the internal byte order for different CPU's. This is an error in the JAM spec.
+</UL>
+
+<A HREF="index.html"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>

@@ -1,0 +1,294 @@
+
+                            T U R B O D I E S E L
+         Template-based Uncomplicated Report-Building Oriented Dumb 
+             Interpretively Evaluated String Expression Language
+
+This is a  modified version of diesel  language.  Diesel is a  interpreted 
+macro language, used in AutoCAD and released to public domain by AutoDesk.
+
+Modified  version by Redy Rodriguez,  for use in mbsebbs.  Original diesel
+language can be found at http://www.fourmilab.ch/diesel.
+ 
+This  "Dumb  Interpretively  Executed  String  Expression Language" is the
+kernel of a macro  language  you  can  customise  by  adding  C  code  and
+embedding it into your program.
+
+It is short, written in portable C, and is  readily  integrated  into  any
+program.  It is useful primarily to programs which need a very rudimentary
+macro expansion facility without the complexity of a full language such as
+Lisp or FORTH.
+
+DIESEL  copies  its  input directly to the output until a macro character,
+"@" or quoted string is  encountered.   Quoted  strings  may  be  used  to
+suppress  evaluation  of  sequences of characters which would otherwise be
+interpreted as macros.  Quote marks may be included in quoted  strings  by
+two adjacent quote marks.  For example:
+
+    "@(if,1,True,False)="""@(if,1,True,False)""""
+
+Status  retrieval,  computation,  and  display  are  performed  by  DIESEL
+functions.   The  available  functions  are  as   follows.    User-defined
+functions are not implemented; what you see is all you've got.  Naturally,
+if you embed DIESEL in your application, you'll add functions that provide
+access  to  information  and  actions  within  your own program.  DIESEL's
+arithmetic functions accept either floating point  or  integer  arguments,
+and perform all calculations in floating point.
+
+TURBODIESEL facilities
+----------------------
+
+If a line begin with # then will be not evaluated, and any output is done.
+
+If a line begin with @! any output is done, but evaluation is performed.
+
+If a line begin with @{<expresion>} produces  output only if expression is
+TRUE (Any non-zero numeric value).
+
+To easily format output, you can use one-char variable names as follow:
+
+   @A will be replaced by result of evaluate @(GETVAR,A).
+
+   @A_____ will be replaced by result of evaluate @(GETVAR,A) truncated or
+padded with spaces to complete same lenght of '@A_____' (7 in that case).  
+
+   You can use > or < to especify alignement rigth or left:
+   
+   @A_____>         @A_____< 
+   
+
+TURBODIESEL String Functions
+----------------------------
+
+    @(+,<val1>,<val2>,...<valn>)
+	The  sum  of  the  numbers <val1>, <val2>, ...<valn> is returned.
+
+    @(-,<val1>,<val2>,...<valn>)
+	The  result  of subtracting the numbers <val2> through <valn> from
+	<val1> is returned.
+
+    @(*,<val1>,<val2>,...<valn>)
+	The result of multiplying the numbers  <val1>,<val2>,...<valn>	is
+	returned.
+
+    @(/,<val1>,<val2>,...<valn>)
+	The  result of dividing the number <val1> by <val2>,...  <valn> is
+	returned.
+
+    @(=,<val1>,<val2>)
+	If the	numbers  <val1>  and  <val2>  are  equal  1  is  returned,
+	otherwise 0 is returned.
+
+    @(<,<val1>,<val2>)
+	If  the number <val1> is less than <val2> 1 is returned, otherwise
+	0 is returned.
+
+    @(>,<val1>,<val2>)
+	If the number  <val1>  is  greater  than  <val2>  1  is  returned,
+	otherwise 0 is returned.
+
+    @(!=,<val1>,<val2>)
+	If  the  numbers  <val1>  and  <val2> are not equal 1 is returned,
+	otherwise 0 is returned.
+
+    @(<=,<val1>,<val2>)
+	If the number <val1>  is  less	than  or  equal  to  <val2>  1	is
+	returned, otherwise 0 is returned.
+
+    @(>=,<val1>,<val2>)
+	If  the  number  <val1>  is  greater  than or equal to <val2> 1 is
+	returned, otherwise 0 is returned.
+
+    @(AND,<val1>,<val2>,...<valn>)
+	The bitwise logical AND of the integers <val1> through	<valn>	is
+	returned.
+
+    @(EQ,<val1>,<val2>)
+	If the strings <val1> and <val2>  are  identical  1  is  returned,
+	otherwise 0.
+
+    @(EVAL,<str>)
+	The  string <str> is passed to the DIESEL evaluator and the result
+	of evaluating it is returned.
+
+    @(FIX,<value>)
+	The real number <value> is truncated to an integer  by	discarding
+	any fractional part.
+
+    @(IF,<expr>,<dotrue>,<dofalse>)
+	If  <expr>  is	nonzero,  <dotrue>  is	evaluated  and	 returned.
+	Otherwise,  <dofalse>  is  evaluated  and returned.  Note that the
+	branch not chosen by <expr> is not evaluated.
+
+    @(INDEX,<which>,<string>)
+	<string> is assumed to contain one or more values delimited by the
+	macro argument separator character, comma.  <which> selects one of
+	these values to be extracted, with the first item  numbered  zero.
+
+*   @(LOWER,<string>)
+	The  <string> is returned converted to lower case according to the
+	rules of the current locale.
+
+    @(NTH,<which>,<arg0>,<arg1>,<argN>)
+	Evaluates  and	returns  the  argument	selected  by  <which>.	If
+	<which> is 0, <arg0> is returned, and so on.  Note the	difference
+	between  @(NTH)  and  @(INDEX);  @(NTH) returns one of a series of
+	arguments to the function while @(INDEX) extracts a value  from  a
+	comma-delimited string passed as a single argument.  Arguments not
+	selected by <which> are not evaluated.
+
+    @(OR,<val1>,<val2>,...<valn>)
+	The  bitwise  logical  OR of the integers <val1> through <valn> is
+	returned.
+
+*   @(STRCMP,<str1>,<str2>)
+	Compare strings and returns -1 if <str1> is less than <Str2>, 0 if 
+	both are equals, or 1 if <str1> is greater than <str2> .
+
+    @(STRFILL,<string>,<ncopies>)
+	Returns the result of concatenating <ncopies> of <string>.
+
+    @(STRLEN,<string>)
+	Returns the length of <string> in characters.
+
+*   @(STRSTR,<str1>,<str2>) 
+	Find first apparition of <str2> in <str1>, and return the position
+	or 0 if not found.
+
+    @(SUBSTR,<string>,<start>,<length>)
+	Returns  the  substring  of <string> starting at character <start>
+	and extending for <length> characters.	Characters in  the  string
+	are numbered from 1.  If <length> is omitted, the entire remaining
+	length of the string is returned.
+
+    @(UPPER,<string>)
+	The  <string> is returned converted to upper case according to the
+	rules of the current locale.
+
+    @(XOR,<val1>,<val2>,...<valn>)
+	The bitwise logical XOR of the integers <val1> through	<valn>	is
+	returned.
+
+Variable Extensions
+-------------------
+
+The  base-line DIESEL includes no user-defined variables.  This allows
+DIESEL to avoid allocating any local memory  and  renders  it  totally
+reentrant.   If you compile DIESEL with the tag VARIABLES defined, the
+following additional functions are  included  which  provide  variable
+definition  and  access.   Note that these functions call malloc() and
+strdup() and thus consume heap storage.
+
+Variable names are case sensitive. 
+
+If you want easily format output you  must use one-char variable names
+then you  can format output as @V_____, @X_____< or @k___>. See above.
+
+    @(GETVAR,varname)
+	Returns  the value stored in <varname>.  If no  variable  with  
+	the name <varname> exists, a bad argument error is reported.
+
+    @(SETVAR,varname,value)
+    	Stores  the  string  <value>  into  <varname>.  If no variable 
+	called <varname> exists, a new variable is created.
+
+*   @(CLEAR)
+        Clear all variables.
+
+Unix Extensions
+---------------
+
+If you compile DIESEL with the tag UNIXTENSIONS defined, the following
+additional functions will be available:
+
+@(GETENV,varname)
+    Returns  the  variable <varname> from the environment.  If no such
+    variable is defined, returns the null string.
+
+@(TIME)
+    Returns the current time in Unix fashion, as the number of seconds
+    elapsed since 00:00:00 GMT January 1, 1970.
+
+@(EDTIME,<time>,<picture>)
+    Edit  the  Unix  time <time> to format <picture>.  If <time> is 0,
+    the current date and time is edited (this is  just  shorthand  for
+    the equivalent "@(EDTIME,@(TIME),<picture>)".).
+
+    Assume the date is: Thursday, 2 September 1993 4:53:17
+
+    Format phrases:
+        D               2
+        DD              02
+        DDD             Thu
+        DDDD            Thursday
+        M               9
+        MO              09
+        MON             Sep
+        MONTH           September
+        YY              93
+        YYYY            1993
+        H               4
+        HH              04
+        MM              53
+        SS              17
+        AM/PM           AM
+        am/pm           am
+        A/P             A
+        a/p             a
+
+    If  any  of the "AM/PM" phrases appear in the picture, the "H" and
+    "HH" phrases will edit the time according to  the  12  hour  civil
+    clock  (12:00-12:59-1:00-11:59)  instead  of  the  24  hour  clock
+    (00:00-23:59).
+
+TURBODIESEL Mechanics
+---------------------
+
+Generally, if you mess something up in a DIESEL expression it's pretty
+obvious  what  went  wrong.   DIESEL embeds an error indication in the
+output stream depending on the nature of the error:
+
+    @?              Syntax error (usually a missing right  parenthesis
+                    or runaway string).
+
+    @(<func>,??)    Incorrect arguments to <func>.
+
+    @(<func>)??     Unknown function <func>.
+
+    @++             Output string too long--evaluation truncated.
+
+
+Using TURBODIESEL
+-----------------
+
+You invoke TURBODIESEL within your program by calling:
+
+    int status;
+    char instring[<whatever>], outstring[MAXSTR + 1];
+
+    outstring = ParseMacro(instring, &status);
+
+The  output  from  the  evaluation  will  be  stored in outstring when
+control is returned to your  program.   If  no  errors  were  detected
+during  evaluation,  status  will be zero.  Otherwise status gives the
+character position within instring at which the  error  was  detected.
+If an error  occurs, TURBODIESEL  will  include  an error  diagnostic,
+documented above, in outstring.
+
+    To set single-char variables you can use:
+    
+    MacroVars(<string-names>,<string-types>,<value1>,...,<valueN>);
+
+    string-names -> Variable names
+    string-types -> Variable types 
+                    (s: string, c: char, d: integer, f: float).
+    Both strings  must be same  lenght, and the number of values  must 
+    match with lenght and types.
+    
+    Sample:
+    
+    MacroVars("ABCDE","sscdf","A String","Another String",'C',5,4.67);
+
+    To clear all variables you can use:
+    
+    MacroClear();
+

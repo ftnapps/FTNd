@@ -1,0 +1,85 @@
+/*****************************************************************************
+ *
+ * signame.c
+ * Purpose ...............: Signal names
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ *
+ * This file is part of FTNd.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * FTNd is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with FTNd; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "../config.h"
+#include "signame.h"
+
+
+/*
+ *  Signal handler signal names.
+ */
+
+#if defined(__i386__) || defined(__x86_64__) || defined(__arm__)
+
+char	SigName[32][16] = {	"NOSIGNAL",
+		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
+		"SIGTRAP",	"SIGIOT",	"SIGBUS",	"SIGFPE",
+		"SIGKILL",	"SIGUSR1",	"SIGSEGV",	"SIGUSR2",
+		"SIGPIPE",	"SIGALRM",	"SIGTERM",	"SIGSTKFLT",
+		"SIGCHLD",	"SIGCONT",	"SIGSTOP",	"SIGTSTP",
+		"SIGTTIN",	"SIGTTOU",	"SIGURG",	"SIGXCPU",
+		"SIGXFSZ",	"SIGVTALRM",	"SIGPROF",	"SIGWINCH",
+		"SIGIO",	"SIGPWR",	"SIGUNUSED"};
+
+#elif defined(__PPC__) || defined(__ppc__)
+
+char    SigName[32][16] = {     "NOSIGNAL",
+                "SIGHUP",       "SIGINT",       "SIGQUIT",      "SIGILL",
+                "SIGTRAP",      "SIGIOT",       "SIGBUS",       "SIGFPE",
+                "SIGKILL",      "SIGUSR1",      "SIGSEGV",      "SIGUSR2",
+                "SIGPIPE",      "SIGALRM",      "SIGTERM",      "SIGSTKFLT",
+                "SIGCHLD",      "SIGCONT",      "SIGSTOP",      "SIGTSTP",
+                "SIGTTIN",      "SIGTTOU",      "SIGURG",       "SIGXCPU",
+                "SIGXFSZ",      "SIGVTALRM",    "SIGPROF",      "SIGWINCH",
+                "SIGIO",        "SIGPWR",       "SIGUNUSED"};
+
+#elif defined(__sparc__)
+
+char	SigName[32][16] = {	"NOSIGNAL",
+		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
+		"SIGTRAP",	"SIGIOT",	"SIGEMT",	"SIGFPE",
+		"SIGKILL",	"SIGBUS",	"SIGSEGV",	"SIGSYS",
+		"SIGPIPE",	"SIGALRM",	"SIGTERM",	"SIGURG",
+		"SIGSTOP",	"SIGTSTP",	"SIGCONT",	"SIGCHLD",
+		"SIGTTIN",	"SIGTTOU",	"SIGIO",	"SIGXCPU",
+		"SIGXFSZ",	"SIGVTALRM",	"SIGPROF",	"SIGWINCH",
+		"SIGLOST",	"SIGUSR1",	"SIGUSR2"};
+
+#elif defined(__alpha__) || defined(__hppa__)
+
+char	SigName[32][16] = {	"NOSIGNAL",
+		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
+		"SIGTRAP",	"SIGABRT",	"SIGEMT",	"SIGFPE",
+		"SIGKILL",	"SIGBUS",	"SIGSEGV",	"SIGSYS",
+		"SIGPIPE",	"SIGALRM",	"SIGTERM",	"SIGURG",
+		"SIGSTOP",	"SIGTSTP",	"SIGCONT",	"SIGCHLD",
+		"SIGTTIN",	"SIGTTOU",	"SIGIO",	"SIGXCPU",
+		"SIGXFSZ",	"SIGVTALRM",	"SIGPROF",	"SIGWINCH",
+		"SIGINFO",	"SIGUSR1",	"SIGUSR2"};
+
+#else
+#error "Cannot make SigName array on this platform"
+#endif
