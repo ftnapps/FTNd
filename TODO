@@ -1,0 +1,157 @@
+
+            FTNd TODO list
+            ==============
+
+    These are a list of things that must be implemented one way or
+    another. Some things are urgent and necessary to operate the bbs
+    without human intervention, others are just for comfort, or nice.
+    I think this list will always contain items, I only hope the urgent
+    matters will be removed. Note that most of these were brought over
+    from the MBSE BBS TODO, from which FTNd is derived.
+
+    Classes:
+         U = Urgent.
+         N = Normal, second priority.
+         L = Cosmetic or nice to have.
+         W = Feature request.
+         X = Will not be done unless it's really needed.
+
+everything:
+    N: At least for on Ubuntu, the scripts/installinit.sh identifies OS as Debian.
+      I.E., it's only checking for '/etc/debian_version' which can also be present
+      on Ubuntu and perhaps other Debian derivitives.
+
+    N: Change build system from Autotools to CMake.
+
+    N: One of the issues with the legacy code is that it is not FHS compliant
+       and one big related issue is that the paths for the configuration data
+       files are hard coded to be (currently)"$FTND_ROOT/etc/*.data".
+
+    W: Long term solution for the issue with the hardcoded paths would be to
+       create a function that provides the path for, for instance, the
+       configuration data files instead of how it's currently being done.
+
+    W: Once the code has been updated to be FHS compliant, the example/* files
+       will need to be updated to reflect the changes as necessary.
+
+    N: Are the JAM related files listed correctly for the copyright information?
+
+    N: In BSO the i flavor should have been d flavor.
+
+    W: Increase size of Unix usernames > 8. The limit on Slackware is 32
+       characters, defined in utmp.h in UT_NAMESIZE
+
+    W: Add personal message area.
+
+    N: The ttyinfo.tty field is too short for NetBSD.
+
+    W: Implement topic groups for file and message areas, with access level
+       control.
+
+    W: Switch to a database backend instead of using the *.data files. This can
+       also solve some other limitations.
+
+    W: An API could be added.
+
+ftnbbs:
+    W: OLR, implement file requests.
+
+    N: Only count posted messages in local mail areas.
+
+    X: OLR: include private email area in download packets. See also global
+           wish for private mail areas.
+
+    X: OLR: implement some global settings from the offline configuration.
+
+    N: OLR: qwk, check netmail entered from reader, fido address missing?
+
+    X: Implement kermit protocol, external versions don't work right.
+
+
+ftnfido:
+    N: Don't log an error if no file_id.diz is found.
+
+    W: Check all .flo files for dead attachments.
+
+    W: Check all .flo files for to old attachments.
+
+    W: Count posted messages during mailscan.
+
+    W: Code cleanup and make a structure in this program. Remove duplicate
+       or similar functions.
+
+    N: Process GoldED filerequest netmails with the filereq flag set, we
+       should create a .req file with the contents of the subject line.
+
+    N: Process To: and Cc: lines in messages gated from Fido to Internet.
+
+    N: Investigate a method to scan and filter messages using the gateway.
+
+    W: Add macro's for stats of all months.
+
+    X: Implement file requests for directory nodes.
+
+    W: Add %from command to areamgr/filemgr.
+
+    W: Add netmail notification of changed areas.
+
+    W: Make it possible to only virus scan the complete archives.
+
+    W: Let ftnfido areas with a special switch update area descriptions.
+
+    W: Send rulefile via netmail for each new connected mail area.
+
+    W: Send notifications to downlinks about changed areas from uplink.
+
+    W: Add statistic mail messages. Via AMC??
+
+    N: Hatch statistics are not updated.
+
+    W: Copy personal mail to a personal message area.
+
+    W: Someday make retoss from bad possible (volonteers?).
+
+    W: AreaMgr %rescan should auto connect disconnected areas.
+
+ftncico:
+    W: Implement binkp option ND and NDA.
+
+ftnnntp:
+    N: fetched mail doesn't get the status Rcvd if it was for the user.
+
+    N: Do a better job for message linking by newsclients. This is a
+       problem because we use the message nuftners and messages are
+       sometimes renumbered. This will make some clients try to fetch
+       the wrong messages because they cache the message id's.
+
+    N: Lastread pointers are not updated.
+
+    N: Investigate a method to scan and filter messages using the gateway.
+
+ftnaff:
+    W: Rewrite filefind search algorithm.
+
+ftnsetup:
+    N: On the 'Edit Registration Info' in ftnsetup, option 9 Newuser defaults to
+      'bbs' instead of 'ftnbbs'. 
+
+    U: Menu 7.x.4.1 password length too large?
+
+    U: Add check for empty data files.
+
+    N: Add a check for double areatag names. See MySQL plan.
+
+    N: Use some sort of sorting for the system aka's and make sure the
+       main aka with zone's is listed first. Having zone's mixed gives
+       too high outbound stats and the outbound is scanned multiple times.
+
+    N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
+       See MySQL plan.
+
+    W: Add global setup in menus 9.1 and 10.1 at least to change uplink
+       data.
+
+    W: See if a check can be made in file groups setup for the areas file
+       format, if a filegate list is installed and the filegate switch
+       setting is wrong, a lot of wrong areas will be created.
+

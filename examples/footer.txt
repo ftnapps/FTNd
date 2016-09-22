@@ -1,0 +1,9 @@
+
+Rocasa FTN is the main development system for the FTNd package.
+FTNd is available from 1:120/544, magic request is FTND.
+Also available at http://ftn.rocasa.net
+
+Rocasa FTN es el sistema principal de desarrollo de paquete
+FTNd.
+FTNd esta disponible en 1:120/544, peticion de magic FTND.
+Tambien esta disponible en http://www.mbse.eu

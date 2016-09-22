@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# FTNd Midnight - Should be run from cron at 00:00
+#
+# midnight
+
+if [ "$FTND_ROOT" = "" ]; then
+    export FTND_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
+fi
+if [ "`id -un`" != "ftnd" ] ; then
+    echo "Must be run by user 'ftnd'"
+    exit 1
+fi
+      
+# While the system is on UPS battery power, don't start maintenance
+#
+while [ -f $FTND_ROOT/var/sema/upsalarm ]; do
+   sleep 60
+done
+
+# Rollover statistic counters.
+#
+$FTND_ROOT/bin/ftnfido roll -quiet
+
+# Log "What's on Hold"
+#
+$FTND_ROOT/bin/ftnout  stat -quiet
+
+# Export messages "missed" by the fast mailscan
+#
+$FTND_ROOT/bin/ftnfido scan -full -quiet
+

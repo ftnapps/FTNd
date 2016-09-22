@@ -1,0 +1,33 @@
+
+This is the README file for ftncico, the fidonet mailer for FTNd.
+
+This is based on ifcico from the ifmail package written by Eugene G. Crosser
+(crosser@pccross.msk.su), 2:5020/230@fidonet. He deserves most of the credits
+for this product.
+
+Many others have contributed to the original ifcico and utilities. This
+version doesn't use the original config file anymore, it uses the databases
+that are maintained with mbsetup. Also, mail behaviour is different then
+in ifcico.
+
+Michiel Broek wrote the original special version mbcico, let it fully integrate
+with all the other programs that were distributed with MBSE BBS from which ftncico
+is derived, so that ftncico will function in a multiline environment with mixed
+analogue modems, ISDN lines and internet.
+
+The reason why he changed the name of this program is only to show that there
+is a real difference in the behavior and configuration compared with ifcico.
+
+The following people donated code to the original ifcico, this list is 
+not complete. It is possible that I forgot someone, but these are the names
+that I found in the several ifmail packages.
+
+Martin Junius
+Pablo Saratxaga (srtxg@linux.chanae.stben.be)
+Christof Meerwald (cmeerw@htl-sbg.ac.at)
+Tseneo Tanaka (tt@efnet.com)	telnet TCP
+
+
+Michiel Broek.
+Robert James Clay.
+

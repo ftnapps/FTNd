@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - ftnnntp">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>FTNd Programs - ftnnntp - News server.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+
+<div align="right"><h5>Last update 25-Mar-2015</h5></div>
+<div align="center"><H1>ftnnntp - News server</H1></div>
+
+<H3>Synopsis.</H3>
+<P>
+<code><strong>ftnnntp</strong></code> You should not run this from the
+commandline, instead it should be run by <b>inetd</b> or <b>xinetd</b>.
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>ftnnntp</strong> is a RFC977 and RFC2980 compatible news server. 
+The purpose is to make echomail available to newsreader clients so that bbs
+users can use their favourite newsreader to participate in echomail. It will
+not make your newsgroups available if you have any, the bbs user can get these
+directly from the internet. The bbs echomail areas are only made available if
+they have a valid newsgroup name set in the area setup. If this is not alread
+set, invent your own newsgroup name. For example the WWB echomail area FTND
+could be set as fido.wwb.ftnd, but you can use anything as long as it doesn't
+conflict with real newsgroups.
+<P>
+To use the server, the user must login in the
+news server with his bbs unix name and password, thus the user must exist on the
+bbs. The access to the areas is the same as if the user would be logged into the
+bbs.
+<P>&nbsp;<P>
+
+<H3>Installation.</H3>
+
+<p>
+If installed from <b>inetd</b> add the following line to
+<code>/etc/inetd.conf</code>:
+<pre>
+nntp    stream  tcp     nowait  ftnd    /opt/ftnd/bin/ftnnntp    ftnnntp
+</pre>
+<P>&nbsp;<P>
+
+<p>
+If installed from <b>xinetd</b> include lines like these to
+<code>/etc/xinetd.d/ftnd</code>:
+<pre>
+# NNTP using ftnnntp, disabled by default.
+#
+service nntp
+{
+    disable         = yes
+    socket_type     = stream
+    protocol        = tcp
+    wait            = no
+    user            = ftnd
+    instances       = 10
+    server          = /usr/lib/ftnd/bin/ftnnntp
+}
+</pre>
+<P>&nbsp;<P>
+
+<H3>Building.</H3>
+<P>
+If you did run <code>./configure --enable-newsgate</code> when you compiled the
+ftnd package, <b>ftnnntp</b> will be build as a not working program. This is
+intended to prevent loops between real news and echomail. With normal builds
+without <code>--enable-newsgate</code> (recommended) <b>ftnnntp</b> will function
+as newsserver.
+<P>
+
+
+<A HREF="index.html"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.html"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

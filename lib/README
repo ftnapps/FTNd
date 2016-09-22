@@ -1,0 +1,35 @@
+	Database structures.
+
+
+Most databases have a structure with a header record. The header record
+is at the beginning of the datafile and contains information about the
+size of the header record and size of the database records. When a data
+file is opened for reading the first thing to read the header record.
+The field recsize contains the size of the datarecords and the field
+hdrsize the offset to the first datarecord in the file.
+
+If in the structure the size of the datarecords changes (grows), we can
+allways read the old format in the correct way.
+
+When a datafile is changed the datafile has to be rewritten completly.
+Of course the new format is used then, and the new size must be stored in
+the header.
+
+The advantage of this technique is that updates can be performed automatic.
+There is no need for free space for future use in the datarecords, the files
+are thus smaller.
+
+
+One other important thing, with some DOS based bbs'es, mail/tic processors
+are using index files together with the data files to speed up the search in
+the databases. Also some of them use internal memory cache for the data records.
+I choose not to do this for two reasons, Linux like other Unices handles
+file I/O very fast and when your system is not low on memory the kernel will
+buffer all disk I/O in memory. Also Linux disks are very low fragmented due to
+the design of the ext2fs. Whith all this in mind, using index files is only
+extra overhead.
+However, because of this you should not put the data files on a msdos
+dos partition or on a nfs server.
+
+The only exeption that uses index files are the nodelists.
+

@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+#  maint
+#
+# FTNd Maintenance - Should be run from user 'ftnd' crontab.
+
+if [ -z "$FTND_ROOT" ]; then
+    export FTND_ROOT=`cat /etc/passwd | grep ftnd: | awk -F ':' '{ print $6}'`
+fi
+if [ "`id -un`" != "ftnd" ] ; then
+    echo "Must be run by user 'ftnd'"
+    exit 1
+fi
+      
+# Don't do maintenance if running on UPS battery power.
+#
+if [ -f $FTND_ROOT/var/sema/upsalarm ]; then
+    exit 0
+fi
+
+$FTND_ROOT/bin/ftnuser pack kill 180 50 -quiet
+$FTND_ROOT/bin/ftnmsg kill pack link -quiet
+$FTND_ROOT/bin/ftnfile kill pack index -quiet
+$FTND_ROOT/bin/ftnaff announce filefind -quiet
+
+cd $FTND_ROOT/tmp
+$FTND_ROOT/bin/ftnall list -zip -quiet
+

@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# init.SuSE
+#
+# /sbin/init.d/ftnd for SuSE
+
+### BEGIN INIT INFO
+# Provides: ftnd
+# Default-Start: 2 3 5
+# Default-Stop:
+# Description: Start FTNd
+### END INIT INFO
+
+# Find the FTND_ROOT from the /etc/passwd file.
+FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
+
+if [ "${FTND_ROOT}" = "" ]
+then
+    echo "FTNd: No 'ftnd' user in the password file."
+    exit 1
+fi
+ 
+if [ ! -d ${FTND_ROOT} ]
+then
+    echo "FTNd: Home directory '${FTND_ROOT}' not found."
+    exit 1
+fi
+ 
+export FTND_ROOT
+
+case "$1" in
+    start)
+        echo -n "FTNd starting:"
+	rm -f ${FTND_ROOT}/var/run/*
+	rm -f ${FTND_ROOT}/var/sema/*
+	rm -f ${FTND_ROOT}/var/*.LCK
+	rm -f ${FTND_ROOT}/tmp/ftn*
+	su ftnd -c '${FTND_ROOT}/bin/ftntask' >/dev/null
+	echo -n " ftntask"
+	sleep 2
+	if [ -f ${FTND_ROOT}/etc/config.data ]; then
+	    su ftnd -c '${FTND_ROOT}/bin/ftnstat open -quiet'
+	    echo " and opened the bbs."
+	fi
+	;;
+    stop)
+        echo -n "FTNd shutdown:"
+        if [ -f ${FTND_ROOT}/var/run/ftntask ]; then
+            echo -n " logoff users "
+            su ftnd -c '${FTND_ROOT}/bin/ftnstat close wait -quiet' >/dev/null
+            echo -n "done,"
+	    echo -n " stopping ftntask "
+	    killproc `cat ${FTND_ROOT}/var/run/ftntask` -15
+	    sleep 3
+	    echo "done."
+	else
+	    echo "already stopped."
+	fi
+	;;
+    restart|reload)
+	$0 stop
+	$0 start
+	;;
+    status)
+        echo -n "FTNd status: "
+        if [ ! -f ${FTND_ROOT}/var/run/ftntask ]; then
+            echo "ftntask is NOT running"
+        else
+            echo "ftntask Ok"
+        fi
+	;;
+    *)
+	echo "Usage: $0 {start|stop|status|reload|restart}"
+	exit 1
+esac
+exit 0

@@ -1,0 +1,46 @@
+# Compile-time configuration for FTNd FidoNet/Internet Services
+# Makefile.global.in
+
+MAJOR		= @MAJOR@
+MINOR		= @MINOR@
+REVISION	= @REVISION@
+VERSION		= @MAJOR@.@MINOR@.@REVISION@
+PACKAGE		= @PACKAGE@
+
+# for make install, where to put binaries and what owner to set
+SUBDIRS		= @SUBDIRS@
+PREFIX		= @prefix@
+BINDIR		= @prefix@/bin
+ETCDIR		= @prefix@/etc
+DOCDIR		= @prefix@/doc
+VARDIR		= @prefix@/var
+INTDIR		= @prefix@/share/int
+OWNER		= @OWNER@
+GROUP		= @GROUP@
+ROWNER		= @ROWNER@
+RGROUP		= @RGROUP@
+MODE		= 0711
+SMODE		= 6711
+
+CHOWN		= @CHOWN@
+INSTALL		= @INSTALL@
+RANLIB		= @RANLIB@
+LN_S		= @LN_S@
+SHELL		= /bin/sh
+ECHO		= echo -e
+CC		= @CC@
+AWK		= @AWK@
+TAR		= @TAR@
+ZIP		= @ZIP@
+MAKE		= @MAKE@
+
+# joe editor
+JOEBIN		= @joebin@
+JOELIB		= @joelib@
+
+CFLAGS		= @CFLAGS@
+LIBS		= @LIBS@
+DEFS		= @DEFS@
+LDFLAGS		= @LDFLAGS@
+CPPFLAGS	= @CPPFLAGS@
+

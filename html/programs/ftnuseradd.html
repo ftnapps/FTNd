@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
+<META name="author" lang="en" content=" Robert James Clay, Michiel Broek">
+<META name="copyright" lang="en" content="Copyright  Robert James Clay, Michiel Broek">
+<META name="description" lang="en" content="FTNd Manual - ftnuseradd">
+<META name="keywords" lang="en" content="FTNd, FTN, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>FTNd Programs - ftnuseradd - The useradd wrapper.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+
+<div align="right"><h5>Last update 02-May-2013</h5></div>
+<div align="center"><H1>ftnuseradd - The useradd wrapper.</H1></div>
+
+<H3>Sysnopsis.</H3>
+<P>
+<code><strong>ftnuseradd</strong> [gid] [username] [comment] [userdir]</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>ftnuseradd</strong> is the wrapper for the <strong>useradd</strong>
+program that should be present on most GNU/Linux systems. <strong>useradd</strong>
+may only be executed by <strong>root</strong> and there are some other minor
+things that need to be done as <strong>root</strong> to create a new Unix
+account that can be used with FTNd. The solution for these problems is
+<strong>ftnuseradd</strong>, this little program runs setuid root and setgid 
+root. If it fails to do that it aborts. <strong>ftnuseradd</strong> is called
+by <strong>ftnnewusr</strong> and checks if it's called like that. 
+If it is successfull the user will
+have an entry in /etc/passwd, the comment is his Fidonet name, and his shell
+is $FTND_ROOT/bin/ftnbbs.
+<P>
+If all this is successfull until now, the homedirectory for this user is
+created and the right ownership and permissions are set. In his homedirectory
+the empty file <strong>.hushlogin</strong> is placed to prevent check for
+new mail when he logs into your system. This is the Unix mailcheck that is
+skipped and has nothing todo with the check for new mail in the bbs. All
+other directories that are needed for the bbs are created by <b>ftnbbs</b>.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+In order to run <strong>ftnuseradd</strong> you must set the global variable
+<strong>$FTND_ROOT</strong>. This variable must point to the root directory
+of the bbs structure. The main configuration file <strong>config.data</strong>
+must be present in the ~/etc directory. <strong>ftnuseradd</strong> must be
+installed setuid root and setgid root, ls -la looks like this:<br>
+<pre>
+-rws--s--x   1 root     root         6644 Jun 26 21:23 /opt/ftnd/bin/ftnuseradd*
+</pre>
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+Not mentioned here because <b>ftnuseradd</b> is only called by ftnnewusr,
+running manually is not supported.
+</pre>
+<P>
+
+<A HREF="index.html"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.html"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,177 @@
+2016-09-22  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.21
+
+ - Correct references to 'bbs' to instead be 'ftnbbs' in ftnfido/ftnfcheck.c.
+
+ - Correct spelling of 'Binley' to 'Binkley' in html/setup/nodes.html.
+
+2015-03-26  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.20
+
+ - Set PRODCODE to 0x00FE in lib/ftndlib.h, which is the FTSC Product Code for
+  "No product ID allocated".
+
+ - Remove unneeded reference to glibc issue from html/known_bugs.html
+
+ - Include reference to using xinetd in html/programs/ftnnntp.html.
+ 
+2015-02-25  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.19
+
+ - Update configure.ac using autoupdate v2.69.
+
+ - Correct program names in html/index.htm.in and html/index.html.in.
+
+2015-01-22  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.18
+
+ - Correct references in INSTALL.in of 'mbse' to 'ftnd' or 'FTNd'.
+
+ - Initial adaption of CRON.sh and README.Gentoo for FTNd.
+ 
+ - Correct archive name in README.Packages.
+ 
+ - Correct program name in html/Makefile from 'ftnsebbs' to 'ftnbbs'.
+ 
+ - SETUP.sh: At least as of trusty (14.04), Ubuntu does not have a group named
+   'admin'. Correct group name for message and log display in group check.
+
+2013-05-03  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.17
+
+ - Correct 'FindMBSE' to 'FindFTND' in ftnbbs/funcs.h.
+
+ - Correct 'MBSE_ROOT' to 'FTND_ROOT' in the ftnsetup/m_ibc.c, ftnnntp/auth.c,
+   ftnnntp/commands.c, and checkbasic files.
+
+ - Corrections of 'MB' to 'FTN' in ftnfido/Makefile.
+
+
+2013-05-03  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.16
+
+ - Initial adaption of examples/* files for FTNd.
+
+
+2013-05-02  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.15
+
+ - Initial update and adaptation of html/* files for FTNd.
+
+
+2013-05-02  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.14
+
+ - More files adaption in ftnutils/*, ftnnntp/*, ftntask/*, ftnsetup/*, lib/*,
+   and unix/* for FTNd.
+
+
+2013-05-01  Robert James Clay  <jame@rocasa.us>
+
+ - More adaptation of files in ftnbbs/*, ftncico/*, ftnfido/notify.c, ftnfido/*,
+   and lib/*.
+
+
+2013-05-01  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.13
+
+ - lang/*: Complete initial adaption of the lang/* files.
+
+
+2013-05-01  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.12
+
+ - ftnfido/*: Complete initial adaption of the ftnfido/* files.
+
+
+2013-04-09  Robert James Clay  <jame@rocasa.us>
+
+ - ftnfido/*h: Initial adaption of the ftnfido/*.h files.
+
+
+2013-04-09  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.11
+
+ - lib/*: Initial adaption of the lib/* files.
+
+
+2013-04-09  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.10
+
+ - ftncico/*: Initial adaption of the ftncico/* files.
+
+
+2013-02-10  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.09
+
+ - unix/*: Initial adaption of the unix/* files.
+
+
+2013-02-10  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.08
+
+ - ftnbbs/*: Initial adaption of the ftnbbs/* files.
+
+
+2012-09-10  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.07
+
+ - ftnsetup/*: Initial adaption of the ftnsetup/* files.
+
+
+2012-04-15  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.06
+
+ - ftntask/*: Initial adaption of the ftntask/* files.
+
+
+2012-04-15  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.05
+
+ - ftnnntp/*: Initial adaption of the ftnnntp/* files.
+
+
+2012-04-14  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.04
+
+ - script/*: Initial adaption of the script/* files.
+
+
+2012-04-14  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.03
+
+ - ftnutils/*: Initial adaption of the ftnutils/* files.
+
+
+2012-04-06  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.02
+
+ - ftnmon/*: Initial adaption of the ftnmon/* files.
+
+
+2012-04-01  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.01
+
+ - general: Initial fork and adaption from MBSE BBS v0.95.14 to FTNd v0.01
+
