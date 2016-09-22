@@ -17,6 +17,8 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+#  Set old_version variable for use later in the script.
+old_version=$2
 
 case "$1" in
     configure)
@@ -176,6 +178,11 @@ case "$1" in
     chmod 6754 /usr/lib/ftnd/bin/ftnpasswd
 
      #  Run ftnd ftnsetup initialization if this is a new install
+    if [ -z "$old_version" ]; then
+        su - ftnd -c "/usr/lib/ftnd/bin/ftnsetup init"
+    fi
+
+    #  Run FTNd ftnsetup initialization if this is a new install
     if [ -z "$old_version" ]; then
         su - ftnd -c "/usr/lib/ftnd/bin/ftnsetup init"
     fi
