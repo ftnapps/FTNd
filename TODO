@@ -17,10 +17,11 @@
          X = Will not be done unless it's really needed.
 
 everything:
-    N: Change build system from Autotools to CMake.
+    N: At least for on Ubuntu, the scripts/installinit.sh identifies OS as Debian.
+      I.E., it's only checking for '/etc/debian_version' which can also be present
+      on Ubuntu and perhaps other Debian derivitives.
 
-    L: Spelling issue in the documentation
-       - Nodes section 8 (Directory Session) writeup:  "Binley"
+    N: Change build system from Autotools to CMake.
 
     N: One of the issues with the legacy code is that it is not FHS compliant
        and one big related issue is that the paths for the configuration data
@@ -131,6 +132,9 @@ ftnaff:
     W: Rewrite filefind search algorithm.
 
 ftnsetup:
+    N: On the 'Edit Registration Info' in ftnsetup, option 9 Newuser defaults to
+      'bbs' instead of 'ftnbbs'. 
+
     U: Menu 7.x.4.1 password length too large?
 
     U: Add check for empty data files.
