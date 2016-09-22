@@ -267,18 +267,18 @@ void CheckArea(int Area)
 	    Fix = TRUE;
 	}
 	gr = getgrgid(stb.st_gid);
-	if (strcmp(gr->gr_name, (char *)"bbs")) {
-	    WriteError("Directory %s not owned by group bbs", area.Path);
+	if (strcmp(gr->gr_name, (char *)"ftnbbs")) {
+	    WriteError("Directory %s not owned by group ftnbbs", area.Path);
 	    Fix = TRUE;
 	}
 	if (Fix) {
 	    iErrors++;
 	    pw = getpwnam((char *)"ftnd");
-	    gr = getgrnam((char *)"bbs");
+	    gr = getgrnam((char *)"ftnbbs");
 	    if (chown(area.Path, pw->pw_gid, gr->gr_gid))
-		WriteError("Could not set owner to ftnd.bbs");
+		WriteError("Could not set owner to ftnd.ftnbbs");
 	    else
-		Syslog('+', "Corrected directory owner to ftnd.bbs");
+		Syslog('+', "Corrected directory owner to ftnd.ftnbbs");
 	}
     } else {
 	WriteError("Can't stat %s", area.Path);
