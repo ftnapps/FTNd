@@ -172,13 +172,13 @@ int main(int argc, char *argv[])
     memset(&usrconfig, 0, sizeof(usrconfig));
 
     t_start = time(NULL);
-    InitClient(pw->pw_name, (char *)"mbnntp", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"ftnnntp", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', "MBNNTP v%s", VERSION);
     IsDoing("Loging in");
 
 #ifdef	USE_NEWSGATE
-    WriteError("FTNd is compiled for full newsgate, you cannot use mbnntp!");
+    WriteError("FTNd is compiled for full newsgate, you cannot use ftnnntp!");
 #endif
 
     /*
