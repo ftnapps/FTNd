@@ -16,6 +16,7 @@
          W = Feature request.
          X = Will not be done unless it's really needed.
 
+
 everything:
     N: At least for on Ubuntu, the scripts/installinit.sh identifies OS as Debian.
       I.E., it's only checking for '/etc/debian_version' which can also be present
@@ -48,10 +49,31 @@ everything:
     W: Implement topic groups for file and message areas, with access level
        control.
 
-    W: Switch to a database backend instead of using the *.data files. This can
-       also solve some other limitations.
+    W: Switch to a database backend for storing the configuration etc, instead
+       of using the *.data files. This can also solve some other limitations.
 
     W: An API could be added.
+
+    N: There are still entries that reference "MB" something instead of "FTN"
+       something, like for logging code entries.
+
+
+HTML docs:
+   N: There does not appear to be an html doc for the 'ftnnewusr' program.
+
+   N: "Last Update" date in the html manual is still showing 01-Mar-2007; that 
+      needs to be updated to current date whenever the doc gets changed. There
+      appears to be what might be the overall date on index.html page plus dates
+
+   N: Intro page:  besides the 'Last update', the 'Distribution section needs to
+      be updated (publically just have it GitHub/ftnapps, IIRC).
+
+   N: There still appears to be references to "MBSE BBS" or "mbse bbs" that need
+      to be changed to FTNd.
+
+   N: There also appears to be refernces to the old program names that are still
+      in the docs.  Like "mbfido areas" in doc/ftnd/html/setup/emgroup.htmll.
+
 
 ftnbbs:
     W: OLR, implement file requests.
@@ -65,7 +87,7 @@ ftnbbs:
 
     N: OLR: qwk, check netmail entered from reader, fido address missing?
 
-    X: Implement kermit protocol, external versions don't work right.
+    X: Implement kermit protocol? External versions don't work right.
 
 
 ftnfido:
