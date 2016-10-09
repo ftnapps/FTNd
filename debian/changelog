@@ -1,11 +1,17 @@
-ftnd (0.21-0~1) UNRELEASED; urgency=low
+ftnd (0.22-0~1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Robert James Clay <jame@rocasa.us>  Sat,  8 Oct 2016 23:45:42 -0400
+
+ftnd (0.21-1) stable; urgency=low
 
   * New upstream release.
 
  -- Robert James Clay <jame@rocasa.us>  Thu, 22 Sep 2016 08:42:58 -0400
 
-ftnd (0.20-1~2) UNRELEASED; urgency=low
+ftnd (0.20-1) stable; urgency=low
 
-  * Initial release of FTNd as a Debian package. 
+  * Initial release of FTNd as a Debian package.
 
  -- Robert James Clay <jame@rocasa.us>  Fri, 27 Mar 2015 09:58:01 -0500
