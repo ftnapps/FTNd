@@ -66,7 +66,7 @@ void die(int onsig)
 
     t_end = time(NULL);
     Syslog('+', "Send [%6lu] Received [%6lu]", sentbytes, rcvdbytes);
-    Syslog(' ', "MBNNTP finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "FTNNNTP finished in %s", t_elapsed(t_start, t_end));
 
     if (envptr)
 	free(envptr);
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
     t_start = time(NULL);
     InitClient(pw->pw_name, (char *)"ftnnntp", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
-    Syslog(' ', "MBNNTP v%s", VERSION);
+    Syslog(' ', "FTNNNTP v%s", VERSION);
     IsDoing("Loging in");
 
 #ifdef	USE_NEWSGATE
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 	    if (! check_free()) {
 		send_nntp("400 Server closed");
 	    } else {
-		send_nntp("200 MBNNTP v%s server ready -- posting allowed", VERSION);
+		send_nntp("200 FTNNNTP v%s server ready -- posting allowed", VERSION);
 		nntp();
 	    }
 #endif
@@ -419,7 +419,7 @@ void nntp(void)
 	    send_nntp("STAT");
 	    send_nntp("XOVER");
 	    send_nntp("");
-	    send_nntp("MBNNTP supports most of RFC-977 and also has support for AUTHINFO and");
+	    send_nntp("FTNNNTP supports most of RFC-977 and also has support for AUTHINFO and");
 	    send_nntp("limited XOVER support (RFC-2980)");
 	    send_nntp(".");
 	} else {
