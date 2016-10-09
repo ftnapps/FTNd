@@ -186,7 +186,7 @@ void command_abhs(char *buf)
 
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {
 
-	    send_nntp("Path: MBNNTP!not-for-mail");
+	    send_nntp("Path: FTNNNTP!not-for-mail");
 	    send_nntp("From: %s <%s>", chartran(Msg.From), Msg.FromAddress);
 	    send_nntp("Newsgroups: %s", currentgroup);
 	    asprintf(&subj,"Subject: %s", Msg.Subject);
