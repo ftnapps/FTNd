@@ -4,7 +4,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
- * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2016 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
