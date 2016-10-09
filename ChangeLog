@@ -1,3 +1,14 @@
+2016-10-08  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.22
+
+ - Correct 'mbnntp' to 'ftnnntp' in ftnnntp/ftnnntp.c
+
+ - Correct 'MBNNTP' to 'FTNNNTP' in the ftnnntp/commands.c file and in
+   the ftnnntp/ftnnntp.c file.
+
+ - Correct spelling of  'build' to 'built' in html/programs/ftnnntp.html
+
 2016-09-22  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.21
