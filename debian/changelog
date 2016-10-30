@@ -1,8 +1,9 @@
-ftnd (0.22-0~1) UNRELEASED; urgency=low
+ftnd (0.22-1) stable; urgency=low
 
   * New upstream release.
+  * Correct update of permissions of ftnuser to '6711' in debian/ftnd.postinst.
 
- -- Robert James Clay <jame@rocasa.us>  Sat,  8 Oct 2016 23:45:42 -0400
+ -- Robert James Clay <jame@rocasa.us>  Sun, 30 Oct 2016 14:53:15 -0400
 
 ftnd (0.21-1) stable; urgency=low
 
