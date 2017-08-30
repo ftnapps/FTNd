@@ -158,7 +158,7 @@ SM_STATE(sendnak0)
 		SM_ERROR;
 	}
 	if ((ackd_blk < 0) && crcmode && (count > 5)) {
-		Syslog('x', "no responce to 'C', try checksum mode");
+		Syslog('x', "no response to 'C', try checksum mode");
 		session_flags &= ~FTSC_XMODEM_CRC;
 		crcmode = FALSE;
 	}
