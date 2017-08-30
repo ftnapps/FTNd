@@ -214,7 +214,7 @@ static int sendtfile(char *ln, char *rn)
 	Syslog('+', "TCP: size %lu bytes, dated %s", (unsigned int)st.st_size, date(st.st_mtime));
 	gettimeofday(&starttime, &tz);
     } else {
-	Syslog('+', "TCP: file \"%s\" has 0 size, skiped",ln);
+	Syslog('+', "TCP: file \"%s\" has 0 size, skipped",ln);
 	return 0;
     }
 
