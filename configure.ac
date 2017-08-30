@@ -12,7 +12,7 @@ AC_SUBST(SUBDIRS)
 #
 PACKAGE="FTNd"
 MAJOR="0"
-MINOR="22"
+MINOR="23"
 REVISION="0"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 2012-2016 Robert James Clay, 1997-2011 Michiel Broek, All Rights Reserved"
