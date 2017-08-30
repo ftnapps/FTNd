@@ -255,7 +255,7 @@ SM_STATE(sendnak)
 			SM_PROCEED(waitblk);
 		}
 	} else { /* simple NAK */
-		Syslog('x', "negative acknowlege block %ld",ackd_blk+1);
+		Syslog('x', "negative acknowledge block %ld",ackd_blk+1);
 
 		if (crcmode)
 			PUTCHAR('C');
