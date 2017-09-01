@@ -65,7 +65,7 @@ void die(int onsig)
 	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
 	else {
 	    if ((kill(e_pid, SIGKILL)) == 0)
-		Syslog('+', "SIGKILL to pid %d succeded", e_pid);
+		Syslog('+', "SIGKILL to pid %d succeeded", e_pid);
 	    else
 		WriteError("$Failed to kill pid %d", e_pid);
 	}
