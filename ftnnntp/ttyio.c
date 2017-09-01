@@ -3,12 +3,8 @@
  * ttyio.c 
  *
  *****************************************************************************
- * Copyright (C) 1997-2005
- *   
- * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10
- * 1971 BV IJmuiden
- * the Netherlands
+ * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
+ * Copyright (C) 2011-2017 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
