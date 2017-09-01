@@ -31,5 +31,5 @@ extra overhead.
 However, because of this you should not put the data files on a msdos
 dos partition or on a nfs server.
 
-The only exeption that uses index files are the nodelists.
+The only exception that uses index files are the nodelists.
 
