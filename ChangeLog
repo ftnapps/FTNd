@@ -1,3 +1,40 @@
+2017-09-??  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.23
+ 
+
+2017-09-01  Robert James Clay  <jame@rocasa.us>
+
+ - Correct minor whitespace issues in the ChangeLog file.
+
+ - Correct 'exeption' as 'exception' errors in ftncico/ttyio.c
+
+ - Correct 'succeded' as 'succeeded' on line 75 of ftnfido/ftndiff.c
+
+ - Correct 'succeded' as 'succeeded' on line 68 of ftnfido/ftnfutil.c
+
+ - Correct 'formated' as 'formatted' on line 149 of ftnfido/ftnfadopt.c
+
+ - Correct 'exeption' as 'exception' on line 93 of ftnnntp/ttyio.c
+
+ - Correct 'exeption' as 'exception' on line 34 of lib/README.
+ 
+ - Correct 'succeded' as 'succeeded' on line 78 of ftncico/ftnout.c.
+
+
+2017-08-30  Robert James Clay  <jame@rocasa.us>
+
+ - Correct 'succeded' as 'succeeded' on line 69 of ftnutils/ftnall.c
+
+ - Correct 'exeption' as 'exception' on line 89 of ftnbbs/ttyio.c
+
+ - Correct 'acknowlege' as 'acknowledge' on line 258 of ftnbbs/xmrecv.c
+
+ - Correct 'responce' as 'response' on line 161 of ftncico/xmrecv.c
+
+ - Correct 'skiped' as 'skipped' on line 217 of ftncico/tcpproto.c
+
+
 2016-10-08  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.22
@@ -9,6 +46,7 @@
 
  - Correct spelling of  'build' to 'built' in html/programs/ftnnntp.html
 
+
 2016-09-22  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.21
@@ -16,6 +54,7 @@
  - Correct references to 'bbs' to instead be 'ftnbbs' in ftnfido/ftnfcheck.c.
 
  - Correct spelling of 'Binley' to 'Binkley' in html/setup/nodes.html.
+
 
 2015-03-26  Robert James Clay  <jame@rocasa.us>
 
@@ -27,6 +66,7 @@
  - Remove unneeded reference to glibc issue from html/known_bugs.html
 
  - Include reference to using xinetd in html/programs/ftnnntp.html.
+
  
 2015-02-25  Robert James Clay  <jame@rocasa.us>
 
@@ -35,6 +75,7 @@
  - Update configure.ac using autoupdate v2.69.
 
  - Correct program names in html/index.htm.in and html/index.html.in.
+
 
 2015-01-22  Robert James Clay  <jame@rocasa.us>
 
@@ -50,6 +91,7 @@
  
  - SETUP.sh: At least as of trusty (14.04), Ubuntu does not have a group named
    'admin'. Correct group name for message and log display in group check.
+
 
 2013-05-03  Robert James Clay  <jame@rocasa.us>
 
