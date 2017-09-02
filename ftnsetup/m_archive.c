@@ -404,7 +404,7 @@ int OpenArchive(void)
 			oldsize = archiverhdr.recsize;
 			if (oldsize != sizeof(archiver)) {
 				ArchUpdated = 1;
-				Syslog('+', "Format of %s changed, updateing", fnin);
+				Syslog('+', "Format of %s changed, updating", fnin);
 			} else
 				ArchUpdated = 0;
 			archiverhdr.hdrsize = sizeof(archiverhdr);
