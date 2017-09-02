@@ -417,7 +417,7 @@ int ibc_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Uses dynamic dns", getboolean(ibcsrv.Dyndns));
 	    add_webtable(wp, (char *)"My address", ibcsrv.myname);
 	    add_webtable(wp, (char *)"Active", getboolean(ibcsrv.Active));
-	    add_webtable(wp, (char *)"Compresion", getboolean(ibcsrv.Compress));
+	    add_webtable(wp, (char *)"Compression", getboolean(ibcsrv.Compress));
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
 	    close_webdoc(wp);
