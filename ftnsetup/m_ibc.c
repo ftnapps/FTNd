@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Internet BBS Chat
  *
  *****************************************************************************
- * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
