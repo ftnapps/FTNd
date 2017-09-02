@@ -1,3 +1,11 @@
+ftnd (0.23-0~1) UNRELEASED; urgency=low
+
+  TODO:
+    - Update packaging as necessary for new 0.23 upstream version.
+  * New upstream release.
+
+ -- Robert James Clay <jame@rocasa.us>  Sat, 02 Sep 2017 16:38:54 -0400
+
 ftnd (0.22-1) stable; urgency=low
 
   * New upstream release.
