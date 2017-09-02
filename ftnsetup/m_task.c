@@ -150,7 +150,7 @@ int EditTask()
 		case 8: E_STR( 13,15,65,TCFG.cmd_reqindex,   "The command to execute on semafore ^reqindex^")
 		case 9: E_STR( 14,15,40,TCFG.isp_ping1,      "The ^IP address^ of host 1 to check the Internet Connection")
 		case 10:E_STR( 15,15,40,TCFG.isp_ping2,      "The ^IP address^ of host 2 to check the Internet Connection")
-		case 11:E_INT( 16,15,   TCFG.max_tcp,        "Maximum simultanous ^TCP/IP^ connections")
+		case 11:E_INT( 16,15,   TCFG.max_tcp,        "Maximum simultaneous ^TCP/IP^ connections")
 		case 12:strcpy(temp, edit_str(17,15,5,temp, (char *)"^Maximum system load^ at which processing stops (1.00 .. 3.00)"));
 			sscanf(temp, "%f", &TCFG.maxload);
 			break;
