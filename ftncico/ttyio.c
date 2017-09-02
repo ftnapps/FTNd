@@ -207,7 +207,7 @@ static int tty_read(char *buf, int size, int tot)
 	tty_status = STAT_TIMEOUT;
     } else { /* rc > 0 */
 	if (FD_ISSET(0,&exceptfds)) {
-	    Syslog('!', "$tty_read: exeption error");
+	    Syslog('!', "$tty_read: exception error");
 	    tty_status = STAT_ERROR;
 	}
     }
@@ -377,7 +377,7 @@ int tty_waitputget(int tot)
     } else { 
 	/* rc > 0 */
 	if ((FD_ISSET(0,&exceptfds)) || (FD_ISSET(1,&exceptfds))) {
-	    WriteError("$tty_waitputget: exeption error");
+	    WriteError("$tty_waitputget: exception error");
 	    tty_status=STAT_ERROR;
 	}
     }
@@ -547,7 +547,7 @@ int tty_putget(char **obuf, int *osize, char **ibuf, int *isize)
     } else {
 	/* rc > 0 */
 	if ((FD_ISSET(0,&exceptfds)) || (FD_ISSET(1,&exceptfds))) {
-	    WriteError("$tty_putget: exeption error");
+	    WriteError("$tty_putget: exception error");
 	    tty_status=STAT_ERROR;
 	}
     }

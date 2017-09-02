@@ -5,7 +5,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2006 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2017 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -571,7 +571,7 @@ void EditFilearea(void)
 		if (strncmp(pick, "M", 1) == 0) {
 		    from = too = 0;
 		    ftnd_mvprintw(LINES -3, 5, "From");
-		    from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
+		    from = edit_int(LINES -3, 10, from, (char *)"Which ^area^ you want to move");
 		    ftnd_mvprintw(LINES -3,15, "To");
 		    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
 

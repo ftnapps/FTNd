@@ -4,7 +4,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2010 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2017 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -392,7 +392,7 @@ void e_bbsglob(void)
 	    case 2: E_BOOL( 8,24, CFG.iConnectString,        "Show ^connect string^ at logon")
 	    case 3: E_BOOL( 9,24, CFG.iAskFileProtocols,     "Ask ^file protocol^ before every up- download")
 	    case 4: E_INT( 10,24, CFG.sysop_access,          "Sysop ^access level^")
-	    case 5: E_IRC( 11,24, CFG.password_length, 2, 8, "Mimimum ^password^ length (2..8)")
+	    case 5: E_IRC( 11,24, CFG.password_length, 2, 8, "Minimum ^password^ length (2..8)")
 	    case 6: E_IRC( 12,24, CFG.iPasswd_Char, 33, 126, "Ascii number of ^password^ character (33..126)")
 	    case 7: E_IRC( 13,24, CFG.idleout, 2, 60,        "^Idle timeout^ in minutes (2..60)")
 	    case 8: E_INT( 14,24, CFG.iCRLoginCount,         "Maximum ^Login Return^ count")
@@ -1385,7 +1385,7 @@ void e_mailer(void)
 	    case 7: E_INT( 13,23,   CFG.dialdelay,      "The ^random dialdelay^ in seconds ((^n^ <= delay) and (^n^ > (delay / 10)))")
 	    case 8: E_BOOL(14,23,   CFG.NoFreqs,        "Set to true if ^No Filerequests^ are allowed")
 	    case 9: E_BOOL(15,23,   CFG.NoCall,         "Set to true if ^No Calls^ are allowed")
-	    case 10:E_BOOL(16,23,   CFG.NoEMSI,         "If set then ^EMSI handshake^ is diabled")
+	    case 10:E_BOOL(16,23,   CFG.NoEMSI,         "If set then ^EMSI handshake^ is disabled")
 	    case 11:E_BOOL(17,23,   CFG.NoWazoo,        "If set then ^YooHoo/2U2^ (FTSC-0006) is disabled")
 
 	    case 12:E_BOOL(13,52,   CFG.NoZmodem,       "If set then the ^Zmodem^ protocol is disabled")

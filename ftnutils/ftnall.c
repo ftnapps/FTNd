@@ -4,7 +4,7 @@
  * Purpose ...............: Creates allfiles listings
  *
  *****************************************************************************
- * Copyright (C) 2012-2013 Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2007 Michiel Broek <mbse@mbse.eu>
  *
  * This file is part of FTNd.
@@ -66,7 +66,7 @@ void die(int onsig)
 	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
 	else {
 	    if ((kill(e_pid, SIGKILL)) == 0)
-		Syslog('+', "SIGKILL to pid %d succeded", e_pid);
+		Syslog('+', "SIGKILL to pid %d succeeded", e_pid);
 	    else
 		WriteError("$Failed to kill pid %d", e_pid);
 	}
