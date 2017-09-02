@@ -1,13 +1,30 @@
-2017-09-??  Robert James Clay  <jame@rocasa.us>
+
+2017-09-02  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.23
- 
+
+ - Correct 'Wich' as 'Which' on line 574 of ftnsetup/m_farea.c
+
+ - Correct 'Wich' as 'Which' on line 1496 of ftnsetup/m_marea.c
+
+ - Correct 'updateing' as 'updating' on line 407 of ftnsetup/m_archive.c
+
+ - Correct 'Mimimum' as 'Minimum' on line 395 of ftnsetup/m_global.c
+
+ - Correct 'diabled' as 'disabled' on line 1388 of ftnsetup/m_global.c
+
+ - Correct 'simultanous' as 'simultaneous' on line 153 of ftnsetup/m_task.c
+
+ - Correct 'Compresion' as 'Compression' on line 420 of ftnsetup/m_ibc.c
+
+ - Correct FSF address in ftnbbs/*.c files as necessary.
+
 
 2017-09-01  Robert James Clay  <jame@rocasa.us>
 
  - Correct minor whitespace issues in the ChangeLog file.
 
- - Correct 'exeption' as 'exception' errors in ftncico/ttyio.c
+ - Correct 'exeption' as 'exception' spelling errors in ftncico/ttyio.c
 
  - Correct 'succeded' as 'succeeded' on line 75 of ftnfido/ftndiff.c
 
@@ -18,8 +35,10 @@
  - Correct 'exeption' as 'exception' on line 93 of ftnnntp/ttyio.c
 
  - Correct 'exeption' as 'exception' on line 34 of lib/README.
- 
+
  - Correct 'succeded' as 'succeeded' on line 78 of ftncico/ftnout.c.
+
+ - Rewrite the copyight declaration in the ftnnntp/ttyio.c file.
 
 
 2017-08-30  Robert James Clay  <jame@rocasa.us>
