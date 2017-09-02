@@ -4,8 +4,8 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
+ * Copyright (C) 2013-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -214,7 +214,7 @@ static int sendtfile(char *ln, char *rn)
 	Syslog('+', "TCP: size %lu bytes, dated %s", (unsigned int)st.st_size, date(st.st_mtime));
 	gettimeofday(&starttime, &tz);
     } else {
-	Syslog('+', "TCP: file \"%s\" has 0 size, skiped",ln);
+	Syslog('+', "TCP: file \"%s\" has 0 size, skipped",ln);
 	return 0;
     }
 

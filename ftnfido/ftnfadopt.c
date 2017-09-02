@@ -4,7 +4,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2013-2017 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -146,7 +146,7 @@ void AdoptFile(int Area, char *File, char *Description)
 			if (strlen(Desc) > 51) {
 			    File_id_cnt = 0;
 			    File_Id = FALSE;
-			    Syslog('!', "Discarding illegal formated FILE_ID.DIZ");
+			    Syslog('!', "Discarding illegal formatted FILE_ID.DIZ");
 			    break;
 			}
 

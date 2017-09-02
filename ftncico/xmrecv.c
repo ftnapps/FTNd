@@ -3,8 +3,8 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
+ * Copyright (C) 2013-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -158,7 +158,7 @@ SM_STATE(sendnak0)
 		SM_ERROR;
 	}
 	if ((ackd_blk < 0) && crcmode && (count > 5)) {
-		Syslog('x', "no responce to 'C', try checksum mode");
+		Syslog('x', "no response to 'C', try checksum mode");
 		session_flags &= ~FTSC_XMODEM_CRC;
 		crcmode = FALSE;
 	}
@@ -255,7 +255,7 @@ SM_STATE(sendnak)
 			SM_PROCEED(waitblk);
 		}
 	} else { /* simple NAK */
-		Syslog('x', "negative acknowlege block %ld",ackd_blk+1);
+		Syslog('x', "negative acknowledge block %ld",ackd_blk+1);
 
 		if (crcmode)
 			PUTCHAR('C');

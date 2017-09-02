@@ -6,7 +6,7 @@
  * 
  *****************************************************************************
  * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2013-2017 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -72,7 +72,7 @@ void die(int onsig)
 	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
 	else {
 	    if ((kill(e_pid, SIGKILL)) == 0)
-		Syslog('+', "SIGKILL to pid %d succeded", e_pid);
+		Syslog('+', "SIGKILL to pid %d succeeded", e_pid);
 	    else
 		WriteError("$Failed to kill pid %d", e_pid);
 	}
