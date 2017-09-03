@@ -1,0 +1,7 @@
+# debian/watch for FTNd
+
+# Compulsory line, this is a version 4 file
+version=4
+
+opts=filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/<project>-$1\.tar\.gz/ \
+  https://github.com/ftnapps/FTNd/tags .*/v?(\d\S+)\.tar\.gz
