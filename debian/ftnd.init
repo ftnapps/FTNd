@@ -16,6 +16,11 @@
 # Description:       Start the task monitor for FTNd
 ### END INIT INFO
 
+# If the 'init-functions' are available, source them.
+if [ -e /lib/lsb/init-functions ]; then
+  . /lib/lsb/init-functions
+fi
+
 # Find the FTND_ROOT from the /etc/passwd file.
 FTND_ROOT=`cat /etc/passwd | grep ^ftnd: | awk -F ':' '{ print $6}'`
 
