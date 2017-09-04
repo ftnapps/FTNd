@@ -13,23 +13,24 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, lsb-base (>= 3.0-6)
 Recommends: xinetd, arc, zip, unzip
 Suggests: arj, unrar-free, zoo, lhasa | lha, ha, joe, dosemu, dosemu-freedos, tetradraw
-Description: FTNd Services for Unix
- FTNd is a full Fidonet capable mailer package including a mailer, tosser,
- ticfile processor, filefind and other utilities. The mailer supports FTS-0001,
- YooHoo/2U2, EMSI protocols over modem, TCP/IP IFC and  Binkp protocols. Zedzap,
- Zmodem, Telink and Hydra file transfer protocols.  Full FTN mail support,
- including automatic routing for hub  and host systems. Internal mail format is
- JAM (c) messagebase. Full tic file support, including extended  tic files.
+Description: FTN Services for Unix
+ This is a full Fidonet capable application including a mailer, tosser, ticfile
+ processor, filefind and other utilities. It supports FTS-0001, YooHoo/2U2, EMSI
+ protocols over modem, TCP/IP IFC and Binkp protocols. Zedzap, Zmodem, Telink
+ and Hydra file transfer protocols. Full FTN mail support, including automatic
+ routing for hub  and host systems. Internal mail format is JAM (c) messagebase.
+ Full tic file support, including extended tic files.
 
 Package: ftnd-dbg
 Architecture: any
 Section: debug
 Depends: ftnd (= ${binary:Version}), ${misc:Depends}
-Description: debugging symbols for ftnd
- FTNd is a full Fidonet capable ANSI BBS package including a mailer, tosser,
- ticfile  processor, filefind and other utilities. The bbs supports full
- configurable ANSI  menus, multiple languages, standard file transfer
- protocols, native GNU/Linux doors, DOS doors using dosemu and BlueWave and
- QWK offline readers.
- .
+Description: debugging symbols for FTNd
+ This is a full Fidonet capable application including a mailer, tosser, ticfile
+ processor, filefind and other utilities. It supports FTS-0001, YooHoo/2U2, EMSI
+ protocols over modem, TCP/IP IFC and Binkp protocols. Zedzap, Zmodem, Telink
+ and Hydra file transfer protocols. Full FTN mail support, including automatic
+ routing for hub  and host systems. Internal mail format is JAM (c) messagebase.
+ Full tic file support, including extended tic files.
+
  This package contains the debugging symbols for ftnd.
