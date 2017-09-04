@@ -10,7 +10,7 @@ Homepage: http://ftnapps.github.com/ftnd
 
 Package: ftnd
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, lsb-base (>= 3.0-6)
 Recommends: xinetd, arc, zip, unzip
 Suggests: arj, unrar-free, zoo, lhasa | lha, ha, joe, dosemu, dosemu-freedos, tetradraw
 Description: FTNd Services for Unix
