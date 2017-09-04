@@ -3,7 +3,7 @@ Section: comm
 Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.us>
 Build-Depends: debhelper (>= 9), dh-autoreconf, autotools-dev, libbz2-dev, libz-dev
-Standards-Version: 3.9.3
+Standards-Version: 3.9.8
 Vcs-Git: https://github.com/ftnapps/ftnd.git
 Vcs-Browser: https://github.com/ftnapps/ftnd
 Homepage: http://ftnapps.github.com/ftnd
