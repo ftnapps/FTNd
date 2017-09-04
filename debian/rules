@@ -23,3 +23,8 @@ override_dh_installchangelogs:
 override_dh_strip:
 	dh_strip --dbg-package=ftnd-dbg
 
+
+get-orig-source:
+	uscan --force-download --rename --destdir .
+
+.PHONY: get-orig-source
