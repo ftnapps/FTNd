@@ -8,12 +8,11 @@ script/bbsjmacsrc
 script/bbsjoerc
 script/doors.bat
 script/editor
+script/ftnbbsdos
 script/hatch
 script/maint
-script/ftnbbsdos
 script/midnight
 script/monthly
 script/rundoor.sh
 script/runvirtual.sh
 script/weekly
-

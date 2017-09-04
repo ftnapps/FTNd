@@ -1,5 +1,3 @@
-usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnmail
-usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnnews
 /usr/share/doc/ftnd/html /usr/lib/ftnd/html
 /usr/share/doc/ftnd/html/ftsc/index.html /usr/share/doc/ftnd/html/ftsc/index.htm
 /usr/share/doc/ftnd/html/license/index.html /usr/share/doc/ftnd/html/license/index.htm
@@ -13,3 +11,5 @@ usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnnews
 /var/lib/ftnd/home /usr/lib/ftnd/home
 /var/lib/ftnd/log /usr/lib/ftnd/log
 /var/lib/ftnd/tmp /usr/lib/ftnd/tmp
+usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnmail
+usr/lib/ftnd/bin/ftnfido usr/lib/ftnd/bin/ftnnews

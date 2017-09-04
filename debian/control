@@ -2,7 +2,11 @@ Source: ftnd
 Section: comm
 Priority: extra
 Maintainer: Robert James Clay <jame@rocasa.us>
-Build-Depends: debhelper (>= 9), dh-autoreconf, autotools-dev, libbz2-dev, libz-dev
+Build-Depends: autotools-dev,
+               debhelper (>= 9),
+               dh-autoreconf,
+               libbz2-dev,
+               libz-dev
 Standards-Version: 3.9.8
 Vcs-Git: https://github.com/ftnapps/ftnd.git
 Vcs-Browser: https://github.com/ftnapps/ftnd
@@ -10,9 +14,17 @@ Homepage: http://ftnapps.github.com/ftnd
 
 Package: ftnd
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, lsb-base (>= 3.0-6)
-Recommends: xinetd, arc, zip, unzip
-Suggests: arj, unrar-free, zoo, lhasa | lha, ha, joe, dosemu, dosemu-freedos, tetradraw
+Depends: adduser, lsb-base (>= 3.0-6), ${misc:Depends}, ${shlibs:Depends}
+Recommends: arc, unzip, xinetd, zip
+Suggests: arj,
+          dosemu,
+          dosemu-freedos,
+          ha,
+          joe,
+          lhasa | lha,
+          tetradraw,
+          unrar-free,
+          zoo
 Description: FTN Services for Unix
  This is a full Fidonet capable application including a mailer, tosser, ticfile
  processor, filefind and other utilities. It supports FTS-0001, YooHoo/2U2, EMSI
@@ -32,5 +44,3 @@ Description: debugging symbols for FTNd
  and Hydra file transfer protocols. Full FTN mail support, including automatic
  routing for hub  and host systems. Internal mail format is JAM (c) messagebase.
  Full tic file support, including extended tic files.
-
- This package contains the debugging symbols for ftnd.

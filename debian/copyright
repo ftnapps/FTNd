@@ -11,7 +11,7 @@ Files: ftncico/hydra.h ftncico/hydra.c
 Comment: HydraCom copyrights
 Copyright: 1997-2007 Michiel Broek,
            1996-1998 Christof Meerwald
-           1991-1993 Arjen G. Lentz 
+           1991-1993 Arjen G. Lentz
 License: GPL-2+
 
 Files: lib/jam.h lib/jamsys.h
