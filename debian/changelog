@@ -1,10 +1,19 @@
-ftnd (0.23-0~1) UNRELEASED; urgency=low
+ftnd (0.23-1) stable; urgency=low
 
-  TODO:
-    - Update packaging as necessary for new 0.23 upstream version.
   * New upstream release.
+  * Add a debian/watch file.
+  * Rewrite the debian/README.source file.
+  * Changes in debian/control:
+    - Rewrite the package descriptions 
+    - Use https URL for 'Vcs-Git' item.
+    - Use https URL for 'Vcs-Browser' item.
+    - Add 'lsb-base (>= 3.0-6)' as a Depends.
+    - Update Standards-Version from '3.9.3' to '3.9.8.'.
+  * Run 'wrap-and-sort' on the debian/ directory files.
+  * Add a 'git-orig-source' target to the debian/rules file.
+  * Add sourcing of 'init-functions' as necessary in debian/ftnd.init.
 
- -- Robert James Clay <jame@rocasa.us>  Sat, 02 Sep 2017 16:38:54 -0400
+ -- Robert James Clay <jame@rocasa.us>  Mon, 04 Sep 2017 22:43:11 -0400
 
 ftnd (0.22-1) stable; urgency=low
 
