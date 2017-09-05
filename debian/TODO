@@ -1,52 +1,152 @@
 Debian TODO for FTNd
---------------------
+====================
 
-Packaging:
+
+-------------------------------------------------------------------------------
+! test -e debian/upstream/metadata &&
+echo 'Please add some upstream metadata: https://wiki.debian.org/UpstreamMetadata'
+Please add some upstream metadata: https://wiki.debian.org/UpstreamMetadata
+
+-------------------------------------------------------------------------------
+
+
+  - Lintian issues:
+
+I: ftnd source: duplicate-long-description ftnd ftnd-dbg
+
+  - https://lintian.debian.org/tags/init.d-script-does-not-implement-optional-option.html
+  - https://wiki.debian.org/LSBInitScripts
+I: ftnd: init.d-script-does-not-implement-optional-option etc/init.d/ftnd status
+
+  - A grep found 8 instances of this issue; see TODO for application.
+L: Lintian issue - ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnsetup allowd allowed
+
+-This spelling I've seen as an alternative, so don't consider it urgent and not
+ changeing it for now.  (May change it later, for consistentcies sake...)
+I: ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnbbs successfull successful
+I: ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnfile successfull successful
+I: ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnout successfull successful
+
+  - https://lintian.debian.org/tags/hardening-no-fortify-functions.html
+  - https://wiki.debian.org/Hardening
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnaff
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnall
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnbbs
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnbw
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftncico
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftndiff
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnfido
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnfile
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnindex
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnlang
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnlogin
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnmon
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnmsg
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnnewusr
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnnntp
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnout
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnpasswd
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnseq
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnsetup
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnstat
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftntask
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftntoberep
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnuser
+I: ftnd: hardening-no-fortify-functions usr/lib/ftnd/bin/ftnuseradd
+
+  - https://lintian.debian.org/tags/hardening-no-bindnow.html
+  - https://wiki.debian.org/Hardening
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnaff
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnall
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnbbs
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnbw
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftncico
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftndiff
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnfido
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnfile
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnindex
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnlang
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnlogin
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnmon
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnmsg
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnnewusr
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnnntp
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnout
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnpasswd
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnseq
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnsetup
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnstat
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftntask
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftntoberep
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnuser
+I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnuseradd
+
+  - https://lintian.debian.org/tags/debug-file-with-no-debug-symbols.html
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/07/69e492b2fede9b22a306e8cf865473d01ec8c9.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/26/579399a25c19436d1d3f55cf9e90dcd2eac7f6.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/2c/3ddeea774e9b87bcc36f31cefce79aacdf8967.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/41/dd56dce512e2ea3a8d68ef19fbf3c8fd741e5f.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/69/e4219f5f44c91c09d5a9851676ce9fde80ac80.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/6c/d8af0e690853643a534b601df29b71a3f6702a.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/72/5d53d04ad4b619875b1d4069bbace97edc27ba.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/7d/0ab9c32d47503399610713867c11c535f8efd6.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/7f/d55b9d67f7bf6e4977d36c818ec9d8f7dcc37b.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/86/94d345e96471956dea2ea39860553e66b855f8.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/9a/74565b3b508bae3ba7e4a70b8b944c04ed1e27.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/9c/76cb9cf6abc1c92fe600141c41fa85bec6162f.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/a9/1b0b30dd877c88e3fcf895451ee7f4c395cc67.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b1/db3f45d1735c74b24eeac694ba6e12e031735d.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b4/c861f42dda31215b7d892c5cf13ece0a97f1fa.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b6/4dfff580649c64330bedb71cc8c2a1cbebcd32.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b7/8f938bb150eb072437eb159a77a9d0e2a46f64.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/cd/27a817ff28353077035de8db65ac1fa92d00dd.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/d2/f2ee917100c5378b11b4c84b741928774669fc.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/d5/0da118f50f6a5a182eb6512d817c0c0eb0c2a4.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/d5/d36f2b05c318ac4628eafa58bd3618a43a4d91.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/e0/8ae238706b318022ba0f0c0c5d464516fe6a23.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/ed/173d8ab90cc502a828c09aac709f13dacf9b18.debug
+W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/ed/1a15c1b1b56594fa146a790ac2a7b07bb3d642.debug
+
+
+
+Packaging
 ----------
 
-- Add reference to the NNTP interface, since that will be a primary interface.
+-------------------------------------------------------------------------------
+- The app creates and maintains a ~/etc/golded.inc but a ~/etc/golded.cfg does
+not seem to be provided by default.  Use the one I created at trada as a template,
+use it as an example file, and copy it to it's proper location if it's not already
+present at pkg install.
 
-- Move any needed permissions fixes from debian/ftn.postinst to debian/rules.
+- Review copyright & licenses & convert debian/copyright to DEP-5
 
-- Add note to README.Debian regarding manually setting password for system user ftnd?
+- Add note to README.debian regarding manually setting password for system user
+  ftnd ?
 
 - Add example(s) for ftnd nginx config?
 
-- Create man pages for executables;  for instance, using help2man or html2man?.
-  Or create basic man pages that points to the html documentation? Or change 
-  upstream files to a source type that can be used to create html & man pages
-  as neccessary.
+- Create man pages for executables; for instance, using help2man or html2man?.
+  Or create basic man pages that points to the html documentation?
 
-- With purge; remove user:group ftnd:ftnbbs?  Remove /opt/ftnd directory.
-- With at least purge, if not also remove:  remove statoverrides (Won't be an issue
-  after they're removed from ftnd.postinst.)
-
-- Add creation of a ftnd-dbg package (ref http://wiki.debian.org/DebugPackage)
-
-- Change the installation directory to /usr/lib/ftnd?
+- With purge; remove user:group ftnd:ftnbbs. Remove /opt/ftnd directory.
 
 - Create & use debian/po, so that any debconf messages can be translated?
 
-
 Configuration:
---------------
-
-- Run ftnsetup as part of postinst for a new installation?  Or just advise that it should
-  be run asap after a new install?  (Perhaps put a note about it in debian/News?)
+- Run 'ftnsetup init' in postinst for a new installation as well as for an
+  updated installation.
 
 - Add note about needing an FTN Nodelist
 
 - Add a note about configuring html Docs root (1.15), URL Name, Author
-    name. perhaps a note about the 'Hist. Limit'
-    Example docs root => /opt/ftnd/var/www
+  name. perhaps a note about the 'Hist. Limit'
+  Example docs root => /opt/ftnd/var/www
 
 - Create an example stats index file.
-
 - will need to add a note about updating the config for that?
 
-- Add a note, with details and/or pointing to example files, for configuring a web server.
-(don't think it's already in the documentation?)
+- Add a note, with details and/or pointing to example files, for configuring a
+  web server. (don't think it's already in the documentation?)
 
 
-
- -- Robert James Clay <jame@rocasa.us>  Sun, 01 Apr 2012 23:33
+ -- Robert James Clay <jame@rocasa.us>  Mon, 04 Sep 2017 21:27
