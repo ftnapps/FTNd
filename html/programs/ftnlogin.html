@@ -28,7 +28,7 @@
 You can use this program from <strong>mgetty</strong> for modem/ISDN access, 
 or from <strong>inetd</strong> to allow telnet access.
 This program logs in the systems syslog facility because the normal login
-program does this too. It uses the file <code>/opt/ftnse/etc/login.defs</code>
+program does this too. It uses the file <code>/opt/ftnd/etc/login.defs</code>
 for the behaviour you prefere. All options in this file are well commented. It uses
 the bbs user database to see who are allowed to login. Users can use their
 Fidonet name, Unix name or Handle. If the name is found in the userbase, the
@@ -38,7 +38,7 @@ the user is asked if he wants to register as a new user. This behaviour can be
 turned off. If the user uses the name <strong>bbs</strong> he will start the
 <strong>ftnnewusr</strong> program directly. All other users are not allowed to
 login, not even root. If you change it in the file
-<code>/opt/ftnse/etc/login.defs</code> you may allow user <strong>ftnse</strong>
+<code>/opt/ftnd/etc/login.defs</code> you may allow user <strong>ftnd</strong>
 to login. I advice against it, you should use <strong>ssh</strong> if you want
 remote access to do maintenance.
 <P>&nbsp;<P>
@@ -47,7 +47,7 @@ remote access to do maintenance.
 <P>
 If your system is connected to the internet you may want to let users login
 using telnet. The changes you need to make are different for each operating
-system ftnse supports. The right lines for your distribution should already
+system ftnd supports. The right lines for your distribution should already
 be present, but they are not set active, in other words, you still need to
 make changes to allow telnet login to work.
 First I will describe how to use it from inetd. 
@@ -58,16 +58,16 @@ glad that you are still logged in on another terminal. Here are the tested
 setups:
 <UL>
  <LI>GNU/Linux: edit the telnet line in /etc/inetd.conf:<BR>
- <code>telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /opt/ftnse/bin/ftnlogin</code><br>
+ <code>telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /opt/ftnd/bin/ftnlogin</code><br>
  After changing this file do a <b>kill -HUP pid</b> where pid is the pid of the
  inetd process.
  <LI>FreeBSD: edit the telnet line in /etc/inetd.conf:<BR>
- <code>telnet stream tcp nowait root /usr/libexec/telnetd telnetd -p /opt/ftnse/bin/ftnlogin</code><br>
+ <code>telnet stream tcp nowait root /usr/libexec/telnetd telnetd -p /opt/ftnd/bin/ftnlogin</code><br>
  After changing this file do a <b>kill -HUP pid</b> where pid is the pid of the
  inetd process.
  <LI>NetBSD: append a line in /etc/gettytab just below the line with the default
  entry:<br>
- <code>ftnbbs:cd:ck:np:lo=/opt/ftnse/bin/ftnlogin:sp#38400:</code><br>
+ <code>ftnbbs:cd:ck:np:lo=/opt/ftnd/bin/ftnlogin:sp#38400:</code><br>
  The speed entry 38400 doesn't seem to be important.
  Then edit the telnet line in /etc/inetd.conf:<BR>
  <code>telnetd stream tcp nowait root /usr/libexec/telnetd telnetd -g ftnbbs</code><br>
@@ -87,7 +87,7 @@ This has to be done as root. You have to create a service under /etc/xinetd.d
 named telnet if you dont have it yet installed, if it is already installed just
 modify the server_args line to match this:
 <pre>
-server_args = -L /opt/ftnse/bin/ftnlogin
+server_args = -L /opt/ftnd/bin/ftnlogin
 </pre>
 Your /etc/xinetd.d/telnet file should look something like this:
 <pre>
@@ -100,13 +100,13 @@ service telnet
         socket_type     = stream
         user            = root
         server          = /usr/sbin/telnetd
-        server_args     = -L /opt/ftnse/bin/ftnlogin
+        server_args     = -L /opt/ftnd/bin/ftnlogin
         wait            = no
 }
 </pre>
 This will replace the standard login program on xinetd systems to the ftnlogin
 program, so that next time someone logs into your bbs they will be presented the
-issue file on /opt/ftnse/etc file and the login prompt for the BBS instead of the
+issue file on /opt/ftnd/etc file and the login prompt for the BBS instead of the
 standard login prompt. Note that on some systems the server_args need -E instead
 of -L. If you don't have IPv6 enabled on your system, you must remove the
 flags = IPv6 line.
