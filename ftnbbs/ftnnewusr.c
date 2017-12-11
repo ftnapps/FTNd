@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     }
 
     /*
-     * Set effective user to ftnd.bbs
+     * Set effective user to ftnd.ftnbbs
      */
     if ((seteuid(pw->pw_uid) == -1) || (setegid(pw->pw_gid) == -1)) {
 	perror("Can't seteuid() or setegid() to \"ftnd\" user");
