@@ -6,8 +6,8 @@
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
  *****************************************************************************
+ * Copyright (C) 2013-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2000 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
