@@ -4,8 +4,8 @@
  * Purpose ...............: Setup Program 
  *
  *****************************************************************************
+ * Copyright (C) 2012-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
