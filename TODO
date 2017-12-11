@@ -6,7 +6,7 @@
     another. Some things are urgent and necessary to operate the bbs
     without human intervention, others are just for comfort, or nice.
     I think this list will always contain items, I only hope the urgent
-    matters will be removed. Note that most of these were brought over
+    matters will be removed. Note that much of these were brought over
     from the MBSE BBS TODO, from which FTNd is derived.
 
     Classes:
@@ -17,10 +17,15 @@
          X = Will not be done unless it's really needed.
 
 
+
 everything:
     N: At least for on Ubuntu, the scripts/installinit.sh identifies OS as Debian.
       I.E., it's only checking for '/etc/debian_version' which can also be present
-      on Ubuntu and perhaps other Debian derivitives.
+      on Ubuntu and perhaps other Debian derivitives and may not reflect the proper
+      OS version.
+
+    N: Code repository includes being hosted at GitHub, which has Travis CI 
+       funtionality avaiable for free.  Investigate adding that for FTNd?
 
     N: Change build system from Autotools to CMake.
 
@@ -57,22 +62,33 @@ everything:
     N: There are still entries that reference "MB" something instead of "FTN"
        something, like for logging code entries.
 
+    L: Multiple files have whitespace issues; at least where tabs, which are not
+       consistantly set on systems, are used instead of spaces.
+
+    L: There's a lot of noise from this but it also finds alot of things that
+       still need to be fixed:  $ grep -r mb *
+
 
 HTML docs:
+   N: Do not really need both a html/index.htm.in file and a html/index.html.in
+      file. If still need somehthing like an html/index.html file, use a sym
+      link.
+
    N: There does not appear to be an html doc for the 'ftnnewusr' program.
 
    N: "Last Update" date in the html manual is still showing 01-Mar-2007; that 
       needs to be updated to current date whenever the doc gets changed. There
       appears to be what might be the overall date on index.html page plus dates
 
-   N: Intro page:  besides the 'Last update', the 'Distribution section needs to
-      be updated (publically just have it GitHub/ftnapps, IIRC).
-
    N: There still appears to be references to "MBSE BBS" or "mbse bbs" that need
       to be changed to FTNd.
 
    N: There also appears to be refernces to the old program names that are still
-      in the docs.  Like "mbfido areas" in doc/ftnd/html/setup/emgroup.htmll.
+      in the docs.  Like "mbfido areas" in doc/ftnd/html/setup/emgroup.html.
+
+
+ftnaff:
+    W: Rewrite filefind search algorithm.
 
 
 ftnbbs:
@@ -88,6 +104,10 @@ ftnbbs:
     N: OLR: qwk, check netmail entered from reader, fido address missing?
 
     X: Implement kermit protocol? External versions don't work right.
+
+
+ftncico:
+    W: Implement binkp option ND and NDA.
 
 
 ftnfido:
@@ -135,8 +155,6 @@ ftnfido:
 
     W: AreaMgr %rescan should auto connect disconnected areas.
 
-ftncico:
-    W: Implement binkp option ND and NDA.
 
 ftnnntp:
     N: fetched mail doesn't get the status Rcvd if it was for the user.
@@ -150,12 +168,26 @@ ftnnntp:
 
     N: Investigate a method to scan and filter messages using the gateway.
 
-ftnaff:
-    W: Rewrite filefind search algorithm.
+
+ftnnewusr:
+
+
+ftnpasswd:
+    N: unix/ftnpasswd.c:       fprintf(stderr, "ftnpasswd: You are not a member of group \"bbs\".\n");
+       That should be "ftnbbs", not "bbs"?
+
 
 ftnsetup:
     N: On the 'Edit Registration Info' in ftnsetup, option 9 Newuser defaults to
       'bbs' instead of 'ftnbbs'. 
+
+    N: This should really point to /use/share/ftnd/doc, or to /var/lib/ftn/doc
+       (This is from option 22 on the main setup page)
+          Erasing directory /usr/lib/ftnd/share/doc/html
+          Created site documents in /usr/lib/ftnd/share/doc
+       The files being created are either text or html files so they fit in 
+       /usr/share, but they also get update each time that menu item 22
+       gets selected, which seems to fit /var/lib better.
 
     U: Menu 7.x.4.1 password length too large?
 
@@ -177,3 +209,55 @@ ftnsetup:
        format, if a filegate list is installed and the filegate switch
        setting is wrong, a lot of wrong areas will be created.
 
+lib/README.macro:
+  M:  lib/README.macro:Using turbodiesel macro files in mbse. Now you can personalize response
+  M:  lib/README.macro:mbfido uses harcoded respose. 
+  M:  lib/README.macro:areamgr.notify.flow    -> Flow report sent by 'mbfido notify'
+  M:  lib/README.macro:areamgr.notify.list    -> Area status report sent by 'mbfido notify'
+  M:  lib/README.macro:filemgr.notify.list    -> Area status report sent by 'mbfido notify'
+
+html/setup/emgroup.html:<strong>Auto change </strong>Change areas when running <b>mbfido areas</b>.
+
+html/setup/fdb.html:<strong>No Kill   </strong>Don't delete this file with <strong>mbfile</strong>
+html/setup/fegroup.html:<strong>Auto chng </strong>Auto change when running <b>mbfido areas</b>
+
+html/setup/index.html:<IMG SRC="../images/mbsetup0.png" alt='ftnsetup'>
+
+html/setup/hatch.html:Everytime <strong>mbfido tic</strong> is run it will scan for files defined
+html/setup/hatch.html:stored in the mailers inbound directory. When the <strong>mbfido</strong>
+html/setup/taskmgr.html:<b>Index 1   </b>Nodelist compiler 1 for semafore mbindex.
+html/setup/taskmgr.html:<b>Index 2   </b>Nodelist compiler 2 for semafore mbindex.
+html/setup/taskmgr.html:<b>Index 3   </b>Nodelist compiler 3 for semafore mbindex.
+
+html/setup/global.html:<IMG SRC="../images/mbsetup1.6.png" alt='Colors setup'>
+html/setup/global.html:<IMG SRC="../images/mbsetup1.6.S.png" alt='Colors setup'>
+
+
+html/programs/ftnmon.html:<A HREF='../images/mbmon1.png'>
+html/programs/ftnmon.html:<IMG border=0 SRC='../images/mbmon1-tn.png' ALT='A user is paging'></A><BR>
+html/programs/ftnmon.html:<A HREF='../images/mbmon2.png'>
+html/programs/ftnmon.html:<IMG border=0 SRC='../images/mbmon2-tn.png' ALT='chat with a user'></A><BR>
+
+
+html/index.htm.in:<center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
+html/index.htm.in:<A HREF=images/mbsebbs.png><IMG SRC="images/mbsebbs-s.png" align=right alt='Screenshot'></A>
+
+
+lib/Diesel.doc:Modified  version by Redy Rodriguez,  for use in mbsebbs.  Original diesel
+
+lib/nodelist.conf:#                         192.168.1.40:1234 or ntbox.mbse.ym:5678 are valid.
+lib/nodelist.conf:#                       000-192-168-1-40:1234 or 000-ntbox.mbse.ym:5678 are valid.
+
+
+lib/nodelist.conf:domsuffix     92      mbse.ym
+Makefile:               @if [ -x ${BINDIR}/mbtelnetd ]; then \
+Makefile:                       rm ${BINDIR}/mbtelnetd ; \
+Makefile:                       echo "removed ${BINDIR}/mbtelnetd"; \
+
+unix/login.defs.in:# $FTND_ROOT/etc/login.defs - Configuration control definitions for mblogin.
+unix/login.defs.in:#   $Id: login.defs.in,v 1.3 2004/11/28 18:23:13 mbse Exp $
+unix/login.defs.in:# Allow user "mbse" to login and get a shell. You better leave this to "no"
+unix/login.defs.in:# user. If not, the user has to use the special account to start mbnewusr.
+unix/login.defs.in:# in the password files, change it in mbsetup and in this file. Better
+
+	
