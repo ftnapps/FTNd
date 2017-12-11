@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     do_quiet = TRUE;
     InitClient((char *)"Unknown", (char *)"ftnnewusr", (char *)"Unknown", 
 		    CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
-    IsDoing("Loging in");
+    IsDoing("Logging in");
 
     Syslog(' ', " ");
     Syslog(' ', "MBNEWUSR v%s", VERSION);
