@@ -30,6 +30,10 @@
 #include "../lib/users.h"
 #include "term.h"
 #include "ttyio.h"
+#include <stdarg.h>          // for va_end, va_list, va_start
+#include <stdio.h>           // for snprintf, vsnprintf
+#include <stdlib.h>          // for calloc, free
+#include <string.h>          // for strncat, strncpy, strcpy, strcat, strlen
 
 
 extern int  cols;
