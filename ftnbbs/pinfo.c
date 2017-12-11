@@ -139,7 +139,7 @@ void cr(void)
     PUTSTR(chartran(pstr));
 
     ls();
-    strncat(pstr, pout_str(WHITE, BLACK, (char *)"Available from http://www.mbse.eu or 2:280/2802                             "), 255);
+    strncat(pstr, pout_str(WHITE, BLACK, (char *)"Available from https://ftn.rocasa.net or 1:120/544                             "), 255);
     rs();
     PUTSTR(chartran(pstr));
 
