@@ -132,7 +132,7 @@ int main(int argc, char **argv)
     IsDoing("Logging in");
 
     Syslog(' ', " ");
-    Syslog(' ', "MBNEWUSR v%s", VERSION);
+    Syslog(' ', "FTNNEWUSR v%s", VERSION);
 
     if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
 	cols = ws.ws_col;
