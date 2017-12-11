@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * File ..................: mbuseradd/rad64c.c
+ * File ..................: unix/rad64c.c
  * Purpose ...............: FTNd Shadow Password Suite
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
