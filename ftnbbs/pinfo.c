@@ -121,7 +121,7 @@ void cr(void)
     PUTSTR(chartran(pstr));
 
     ls();
-    strncat(pstr, pout_str(LIGHTCYAN, BLACK, (char *)"MBSE has been written and designed by Michiel Broek. Many others have given "), 255);
+    strncat(pstr, pout_str(LIGHTCYAN, BLACK, (char *)"MBSE was written and designed by Michiel Broek. Many others gave "), 255);
     rs();
     PUTSTR(chartran(pstr));
 
@@ -131,7 +131,7 @@ void cr(void)
     PUTSTR(chartran(pstr));
 
     ls();
-    strncat(pstr, pout_str(LIGHTCYAN, BLACK, (char *)"BBS a better BBS                                                            "), 255);
+    strncat(pstr, pout_str(LIGHTCYAN, BLACK, (char *)"BBS a better BBS, which has also extended to the FTNd development         "), 255);
     rs();
     PUTSTR(chartran(pstr));
     
