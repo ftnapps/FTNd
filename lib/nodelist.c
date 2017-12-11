@@ -4,7 +4,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2013-2017 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -446,7 +446,7 @@ int initnl(void)
     }
 
     /*
-     * Howmany TCP sessions are allowd
+     * How many TCP sessions are allowed
      */
     snprintf(nlpath, PATH_MAX -1, "%s/etc/task.data", getenv("FTND_ROOT"));
     if ((fp = fopen(nlpath, "r"))) {

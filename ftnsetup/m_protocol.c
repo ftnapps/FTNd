@@ -5,7 +5,7 @@
  *
  *****************************************************************************
  * Copyright (C) 1997-2005 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
+ * Copyright (C) 2012-2017 Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -461,32 +461,32 @@ int EditProtRec(int Area)
 		    return 0;
 	    case 1: E_UPS(  7,21,1, PROT.ProtKey,   "The ^Key^ to select this protocol")
 	    case 2: if (PROT.Internal)
-			errmsg((char *)"Editing not allowd with internal protocol");
+			errmsg((char *)"Editing not allowed with internal protocol");
 		    else
 			E_STR(  8,21,20,PROT.ProtName,  "The ^name^ of this protocol")
 	    case 3: if (PROT.Internal)
-			errmsg((char *)"Editing not allowd with internal protocol");
+			errmsg((char *)"Editing not allowed with internal protocol");
 		    else
 			E_STR(  9,21,50,PROT.ProtUp,    "The ^Upload^ path, binary and parameters")
 	    case 4: if (PROT.Internal)
-			errmsg((char *)"Editing not allowd with internal protocol");
+			errmsg((char *)"Editing not allowed with internal protocol");
 		    else
 			E_STR( 10,21,50,PROT.ProtDn,    "The ^Download^ path, binary and parameters")
 	    case 5: E_BOOL(11,21,   PROT.Available, "Is this protocol ^available^")
 	    case 6: if (PROT.Internal)
-			errmsg((char *)"Editing not allowd with internal protocol");
+			errmsg((char *)"Editing not allowed with internal protocol");
 		    else
 			E_BOOL(12,21,   PROT.Internal,  "Is this a ^internal^ transfer protocol")
 	    case 7: if (PROT.Internal)
-			errmsg((char *)"Editing not allowd with internal protocol");
+			errmsg((char *)"Editing not allowed with internal protocol");
 		    else
 			E_STR( 13,21,30,PROT.Advice,    "A small ^advice^ to the user, eg \"Press Ctrl-X to abort\"")
 	    case 8: if (PROT.Internal)
-			errmsg((char *)"Editing not allowd with internal protocol");
+			errmsg((char *)"Editing not allowed with internal protocol");
 		    else
 			E_INT( 14,21,   PROT.Efficiency,"The ^efficiency^ in % of this protocol")
 	    case 9: if (PROT.Internal)
-			errmsg((char *)"Editing not allowd with internal protocol");
+			errmsg((char *)"Editing not allowed with internal protocol");
 		    else
 			E_BOOL(15,21,   PROT.Deleted,   "Is this protocol ^Deleted^")
 	    case 10:E_SEC( 16,21,   PROT.Level,     "8.5.11  PROTOCOL SECURITY LEVEL", s_protrec)

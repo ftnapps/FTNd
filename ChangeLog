@@ -1,18 +1,53 @@
+2017-12-11  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.24
+ 
+ - Correct URL listed in the FILE_ID.DIZ.in file.
+
+ - Correct the URL on line 462 of the ftnmon/ftnmon.c file.
+
+ - Edit application information in the ftnbbs/pinfo.c file.
+
+ - Correct 'loging' as 'logging' in the ftnbbs/ftnnewusr.c file.
+
+ - Make URL https on line 175 of the ftnsetup/ftnsetup.c file.
+
+ - Rewrite/edit the history content in the html/intro.html file.
+
+ - Correct spelling issues on line 449 of the lib/nodelist.c file.
+
+ - Correct 'allowd' as 'allowed' in the ftnsetup/m_protocol.c file.
+
+ - Correct the file name reference in the header of the unix/rad64.c file.
+
+ - Add some standard 'includes' to the ftnbbs/term.c source file: <stdarg.h>,
+   <stdio.h>, <stdlib.h>, & <string.h>.
+
+ - Correct 'directry' as 'directory' on line 74 of html/programs/ftnfile.html
+
+ - For now; correct '/opt/ftnse' as '/opt/ftnd' in html/programs/ftnfile.html.
+
+ - For now; correct '/opt/ftnse' as '/opt/ftnd' in html/programs/ftnlogin.html.
+
+ - For now; correct '/opt/ftnse' as '/opt/ftnd' in html/programs/ftnout.html.
+
+ - Correct name of program referenced on line 135 of the ftnbbs/ftnnewusr.c file.
+
 
 2017-09-02  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.23
-
+ 
  - Correct 'Wich' as 'Which' on line 574 of ftnsetup/m_farea.c
-
+ 
  - Correct 'Wich' as 'Which' on line 1496 of ftnsetup/m_marea.c
-
+ 
  - Correct 'updateing' as 'updating' on line 407 of ftnsetup/m_archive.c
-
+ 
  - Correct 'Mimimum' as 'Minimum' on line 395 of ftnsetup/m_global.c
-
+ 
  - Correct 'diabled' as 'disabled' on line 1388 of ftnsetup/m_global.c
-
+ 
  - Correct 'simultanous' as 'simultaneous' on line 153 of ftnsetup/m_task.c
 
  - Correct 'Compresion' as 'Compression' on line 420 of ftnsetup/m_ibc.c
@@ -35,7 +70,7 @@
  - Correct 'exeption' as 'exception' on line 93 of ftnnntp/ttyio.c
 
  - Correct 'exeption' as 'exception' on line 34 of lib/README.
-
+ 
  - Correct 'succeded' as 'succeeded' on line 78 of ftncico/ftnout.c.
 
  - Rewrite the copyight declaration in the ftnnntp/ttyio.c file.

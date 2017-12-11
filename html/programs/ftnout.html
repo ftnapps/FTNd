@@ -14,7 +14,7 @@
 <BODY>
 <BLOCKQUOTE>
 
-<div align="right"><h5>Last update 02-May-2013</h5></div>
+<div align="right"><h5>Last update 11-Dec-2017</h5></div>
 <div align="center"><H1>ftnout - The Outbound Manager</H1></div>
 
 <H3>Synopsis.</H3>
@@ -96,9 +96,9 @@ scripts.
 This is an example of crontab entries that writes the outbound status to the
 logfile and creates and stops polling of 2 nodes.<br>
 <pre>
-00 00 * * * export FTND_ROOT=/opt/ftnse; $FTND_ROOT/bin/ftnout stat -quiet
-00 01 * * * export FTND_ROOT=/opt/ftnse; $FTND_ROOT/bin/ftnout poll f98.n100.z92 f0.n100.z92 -quiet
-00 02 * * * export FTND_ROOT=/opt/ftnse; $FTND_ROOT/bin/ftnout stop f98.n100.z92 f0.n100.z92 -quiet
+00 00 * * * export FTND_ROOT=/opt/ftnd; $FTND_ROOT/bin/ftnout stat -quiet
+00 01 * * * export FTND_ROOT=/opt/ftnd; $FTND_ROOT/bin/ftnout poll f98.n100.z92 f0.n100.z92 -quiet
+00 02 * * * export FTND_ROOT=/opt/ftnd; $FTND_ROOT/bin/ftnout stop f98.n100.z92 f0.n100.z92 -quiet
 </pre>
 <P>
 
