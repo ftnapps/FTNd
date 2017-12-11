@@ -446,7 +446,7 @@ int initnl(void)
     }
 
     /*
-     * Howmany TCP sessions are allowd
+     * How many TCP sessions are allowed
      */
     snprintf(nlpath, PATH_MAX -1, "%s/etc/task.data", getenv("FTND_ROOT"));
     if ((fp = fopen(nlpath, "r"))) {
