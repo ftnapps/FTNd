@@ -34,7 +34,7 @@ removing or moving old files, checking the database and packing the database.
 The best way to do the maintenance is to run <strong>ftnfile</strong>
 from the crontab. example:
 <P><pre>
-30 05 * * * export FTND_ROOT=/opt/ftnse; /opt/ftnse/bin/ftnfile kill pack index -quiet
+30 05 * * * export FTND_ROOT=/opt/ftnd; /opt/ftnd/bin/ftnfile kill pack index -quiet
 </pre>
 Other functions in <b>ftnfile</b> are meant to do manual maintenance such as
 adding, deleting or moving files.
