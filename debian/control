@@ -15,7 +15,7 @@ Homepage: http://ftnapps.github.com/ftnd
 Package: ftnd
 Architecture: any
 Depends: adduser, lsb-base (>= 3.0-6), ${misc:Depends}, ${shlibs:Depends}
-Recommends: arc, unzip, xinetd, zip
+Recommends: arc, unzip, xinetd, zip, telnetd-ssl, sshd
 Suggests: arj,
           dosemu,
           dosemu-freedos,
