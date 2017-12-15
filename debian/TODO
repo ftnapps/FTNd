@@ -8,7 +8,12 @@ echo 'Please add some upstream metadata: https://wiki.debian.org/UpstreamMetadat
 Please add some upstream metadata: https://wiki.debian.org/UpstreamMetadata
 
 -------------------------------------------------------------------------------
+- The 'telnetd-ssl' package is now a Reommends as the ftnbbs program is still
+the only way to create a user and that is one of the ways it can be accessed.
+But need to provided examples of how to use it in the xinetd config file for
+the FTNd package.
 
+-------------------------------------------------------------------------------
 
   - Lintian issues:
 
@@ -17,9 +22,6 @@ I: ftnd source: duplicate-long-description ftnd ftnd-dbg
   - https://lintian.debian.org/tags/init.d-script-does-not-implement-optional-option.html
   - https://wiki.debian.org/LSBInitScripts
 I: ftnd: init.d-script-does-not-implement-optional-option etc/init.d/ftnd status
-
-  - A grep found 8 instances of this issue; see TODO for application.
-L: Lintian issue - ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnsetup allowd allowed
 
 -This spelling I've seen as an alternative, so don't consider it urgent and not
  changeing it for now.  (May change it later, for consistentcies sake...)
@@ -114,11 +116,9 @@ Packaging
 
 -------------------------------------------------------------------------------
 - The app creates and maintains a ~/etc/golded.inc but a ~/etc/golded.cfg does
-not seem to be provided by default.  Use the one I created at trada as a template,
-use it as an example file, and copy it to it's proper location if it's not already
+not seem to be provided by default. Using a working one as a template, and use
+it as an example file, and copy it to it's proper location if it's not already
 present at pkg install.
-
-- Review copyright & licenses & convert debian/copyright to DEP-5
 
 - Add note to README.debian regarding manually setting password for system user
   ftnd ?
@@ -128,13 +128,11 @@ present at pkg install.
 - Create man pages for executables; for instance, using help2man or html2man?.
   Or create basic man pages that points to the html documentation?
 
-- With purge; remove user:group ftnd:ftnbbs. Remove /opt/ftnd directory.
-
 - Create & use debian/po, so that any debconf messages can be translated?
 
 Configuration:
 - Run 'ftnsetup init' in postinst for a new installation as well as for an
-  updated installation.
+  updated installation?
 
 - Add note about needing an FTN Nodelist
 
@@ -149,4 +147,4 @@ Configuration:
   web server. (don't think it's already in the documentation?)
 
 
- -- Robert James Clay <jame@rocasa.us>  Mon, 04 Sep 2017 21:27
+ -- Robert James Clay <jame@rocasa.us>  Fri, 15 Dec 2017 13:27
