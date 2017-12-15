@@ -169,7 +169,7 @@ case "$1" in
     chown root:root /usr/lib/ftnd/bin/ftntask
     chmod 6711 /usr/lib/ftnd/bin/ftntask
     chown root:root /usr/lib/ftnd/bin/ftnnewusr
-    chmod 6754 /usr/lib/ftnd/bin/ftnnewusr
+    chmod 6750 /usr/lib/ftnd/bin/ftnnewusr
     chown root:root /usr/lib/ftnd/bin/ftnuser
     chmod 6711 /usr/lib/ftnd/bin/ftnuser
     chown root:root /usr/lib/ftnd/bin/ftnuseradd
