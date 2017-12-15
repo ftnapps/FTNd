@@ -14,7 +14,7 @@
 <BODY>
 <BLOCKQUOTE>
 
-<div align="right"><h5>Last update 02-May-2013</h5></div>
+<div align="right"><h5>Last update 11-Dec-2017</h5></div>
 <div align="center"><H1>ftnfile - File database maintenance program.</H1></div>
 
 <H3>Synopsys.</H3>
@@ -34,7 +34,7 @@ removing or moving old files, checking the database and packing the database.
 The best way to do the maintenance is to run <strong>ftnfile</strong>
 from the crontab. example:
 <P><pre>
-30 05 * * * export FTND_ROOT=/opt/ftnse; /opt/ftnse/bin/ftnfile kill pack index -quiet
+30 05 * * * export FTND_ROOT=/opt/ftnd; /opt/ftnd/bin/ftnfile kill pack index -quiet
 </pre>
 Other functions in <b>ftnfile</b> are meant to do manual maintenance such as
 adding, deleting or moving files.
@@ -44,7 +44,7 @@ adding, deleting or moving files.
 <P>
 In order to run the bbs you need to set one global environment variable
 <strong>$FTND_ROOT</strong>
-This variable must point to the root of the bbs directoy structure. The
+This variable must point to the root of the bbs directory structure. The
 main configuration file <strong>config.data</strong>
 must exist in the subdirectory ~/etc.
 <P>&nbsp;<P>

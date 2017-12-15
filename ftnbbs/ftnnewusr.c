@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     }
 
     /*
-     * Set effective user to ftnd.bbs
+     * Set effective user to ftnd.ftnbbs
      */
     if ((seteuid(pw->pw_uid) == -1) || (setegid(pw->pw_gid) == -1)) {
 	perror("Can't seteuid() or setegid() to \"ftnd\" user");
@@ -129,10 +129,10 @@ int main(int argc, char **argv)
     do_quiet = TRUE;
     InitClient((char *)"Unknown", (char *)"ftnnewusr", (char *)"Unknown", 
 		    CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
-    IsDoing("Loging in");
+    IsDoing("Logging in");
 
     Syslog(' ', " ");
-    Syslog(' ', "MBNEWUSR v%s", VERSION);
+    Syslog(' ', "FTNNEWUSR v%s", VERSION);
 
     if (ioctl(1, TIOCGWINSZ, &ws) != -1 && (ws.ws_col > 0) && (ws.ws_row > 0)) {
 	cols = ws.ws_col;

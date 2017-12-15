@@ -4,8 +4,8 @@
  * Purpose ...............: Setup Program 
  *
  *****************************************************************************
+ * Copyright (C) 2012-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2008 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2012   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -172,7 +172,7 @@ void soft_info(void)
 #endif
 	center_addstr(12, temp);
 	set_color(LIGHTCYAN, BLACK);
-	center_addstr(14, (char *)"http://ftn.rocasa.net or 1:120/544");
+	center_addstr(14, (char *)"https://ftn.rocasa.net or 1:120/544");
 	set_color(LIGHTGREEN, BLACK);
 	center_addstr(LINES -7, (char *)"This is free software; released under the terms of the GNU General");
 	center_addstr(LINES -6, (char *)"Public License as published by the Free Software Foundation.");
