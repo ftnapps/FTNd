@@ -1,12 +1,12 @@
 
-Using turbodiesel macro files in mbse. Now you can personalize response
+Using turbodiesel macro files in ftnd. Now you can personalize response
 reports from areamgr, filemgr an notify using diesel macro files. 
 
 See diesel.doc for turbodiesel syntax.
 
-Mbfido look for macro files first in macro language phat acording defined
-language in nodes setup, and then in $MBSEROT/etc/. If no macro file found
-mbfido uses harcoded respose. 
+ftnfido look for macro files first in macro language that according defined
+language in nodes setup, and then in $FTND_ROOT/etc/. If no macro file found
+ftnfido uses hardcoded respose. 
 
 (Michiel check that, I prefer not change CFG struct. If you add a default
 macro path, you must change function OpenMacro in mgrutil.c at line 495)
@@ -17,8 +17,8 @@ areamgr.flow      	-> %FLOW
 areamgr.group     	-> group report (included in areamgr.list)
 areamgr.help	  	-> %HELP
 areamgr.list	  	-> %LIST
-areamgr.notify.flow	-> Flow report sent by 'mbfido notify'
-areamgr.notify.list     -> Area status report sent by 'mbfido notify'
+areamgr.notify.flow	-> Flow report sent by 'ftnfido notify'
+areamgr.notify.list     -> Area status report sent by 'ftnfido notify'
 areamgr.query		-> %QUERY
 areamgr.responses	-> Multiple responses for results of areamgr.
 areamgr.status		-> %STATUS
@@ -27,7 +27,7 @@ areamgr.unlink		-> %UNLINK
 filemgr.group     	-> group report (included in filemgr.list)
 filemgr.help	  	-> %HELP
 filemgr.list	  	-> %LIST
-filemgr.notify.list     -> Area status report sent by 'mbfido notify'
+filemgr.notify.list     -> Area status report sent by 'ftnfido notify'
 filemgr.query		-> %QUERY
 filemgr.responses	-> Multiple responses for results of filemgr.
 filemgr.status		-> %STATUS
