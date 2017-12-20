@@ -1,7 +1,6 @@
 #
 # $FTND_ROOT/etc/login.defs - Configuration control definitions for mblogin.
 #
-#   $Id: login.defs.in,v 1.3 2004/11/28 18:23:13 mbse Exp $
 
 # Three items must be defined:  MAIL_DIR, ENV_SUPATH, and ENV_PATH.
 # If unspecified, some arbitrary (and possibly incorrect) value will
