@@ -18,7 +18,7 @@ ALLOW_FTND		no
 
 #
 # Ask a user when his username is not found if he wants to register as new
-# user. If not, the user has to use the special account to start mbnewusr.
+# user. If not, the user has to use the special account to start ftnnewusr.
 # If no, it is not bbs user friendly,
 # If yes, usernames may be easy guessed, but most bbses do it like this.
 #
