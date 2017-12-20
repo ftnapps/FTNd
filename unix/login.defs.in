@@ -1,5 +1,5 @@
 #
-# $FTND_ROOT/etc/login.defs - Configuration control definitions for mblogin.
+# $FTND_ROOT/etc/login.defs - Configuration control definitions for ftnlogin.
 #
 
 # Three items must be defined:  MAIL_DIR, ENV_SUPATH, and ENV_PATH.
