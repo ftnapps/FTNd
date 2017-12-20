@@ -25,11 +25,11 @@ ALLOW_FTND		no
 ASK_NEWUSER		yes
 
 #
-# The newuser account name, defaults to "bbs". If you change this change it
-# in the password files, change it in mbsetup and in this file. Better
+# The newuser account name, defaults to "ftnbbs". If you change this change it
+# in the password files, change it in ftnsetup and in this file. Better
 # leave this unchanged.
 #
-NEWUSER_ACCOUNT		bbs
+NEWUSER_ACCOUNT		ftnbbs
 
 #
 # Delay in seconds before being allowed another attempt after a login failure
