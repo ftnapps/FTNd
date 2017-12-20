@@ -1,7 +1,6 @@
 #
-# $FTND_ROOT/etc/login.defs - Configuration control definitions for mblogin.
+# $FTND_ROOT/etc/login.defs - Configuration control definitions for ftnlogin.
 #
-#   $Id: login.defs.in,v 1.3 2004/11/28 18:23:13 mbse Exp $
 
 # Three items must be defined:  MAIL_DIR, ENV_SUPATH, and ENV_PATH.
 # If unspecified, some arbitrary (and possibly incorrect) value will
@@ -12,25 +11,25 @@
 #
 
 #
-# Allow user "mbse" to login and get a shell. You better leave this to "no"
+# Allow user "ftnd" to login and get a shell. You better leave this to "no"
 # and install ssh if you want to login using a shell.
 #
 ALLOW_FTND		no
 
 #
 # Ask a user when his username is not found if he wants to register as new
-# user. If not, the user has to use the special account to start mbnewusr.
+# user. If not, the user has to use the special account to start ftnnewusr.
 # If no, it is not bbs user friendly,
 # If yes, usernames may be easy guessed, but most bbses do it like this.
 #
 ASK_NEWUSER		yes
 
 #
-# The newuser account name, defaults to "bbs". If you change this change it
-# in the password files, change it in mbsetup and in this file. Better
+# The newuser account name, defaults to "ftnbbs". If you change this change it
+# in the password files, change it in ftnsetup and in this file. Better
 # leave this unchanged.
 #
-NEWUSER_ACCOUNT		bbs
+NEWUSER_ACCOUNT		ftnbbs
 
 #
 # Delay in seconds before being allowed another attempt after a login failure
