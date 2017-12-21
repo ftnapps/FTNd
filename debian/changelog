@@ -1,3 +1,9 @@
+ftnd (0.25-0~1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+
+ -- Robert James Clay <jame@rocasa.us>  Thu, 21 Dec 2017 12:39:58 -0500
+
 ftnd (0.24-1) stable; urgency=medium
 
   * New upstream release.
