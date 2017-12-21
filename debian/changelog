@@ -1,8 +1,9 @@
-ftnd (0.25-0~1) UNRELEASED; urgency=medium
+ftnd (0.25-1~1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Add note to 'ftnd-dbg' stanza in debian/control regarding debugging info.
 
- -- Robert James Clay <jame@rocasa.us>  Thu, 21 Dec 2017 12:39:58 -0500
+ -- Robert James Clay <jame@rocasa.us>  Thu, 21 Dec 2017 13:29:34 -0500
 
 ftnd (0.24-1) stable; urgency=medium
 
