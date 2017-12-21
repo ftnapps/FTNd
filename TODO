@@ -25,7 +25,7 @@ everything:
       OS version.
 
     N: Code repository includes being hosted at GitHub, which has Travis CI 
-       funtionality avaiable for free.  Investigate adding that for FTNd?
+       funtionality available for free.  Investigate adding that for FTNd?
 
     N: Change build system from Autotools to CMake.
 
@@ -35,7 +35,7 @@ everything:
 
     W: Long term solution for the issue with the hardcoded paths would be to
        create a function that provides the path for, for instance, the
-       configuration data files instead of how it's currently being done.
+       configuration data files instead of how it's currently being done?
 
     W: Once the code has been updated to be FHS compliant, the example/* files
        will need to be updated to reflect the changes as necessary.
@@ -156,6 +156,9 @@ ftnfido:
     W: AreaMgr %rescan should auto connect disconnected areas.
 
 
+ftnlogin:
+
+
 ftnnntp:
     N: fetched mail doesn't get the status Rcvd if it was for the user.
 
@@ -170,11 +173,23 @@ ftnnntp:
 
 
 ftnnewusr:
+    U: Still getting a "Permission denied" error attemmpting when to use.
+       $ ssh ftnbbs@localhost
+       ftnbbs@localhost's password:
+       Linux rjcpc 4.9.0-4-amd64 #1 SMP Debian 4.9.65-3 (2017-12-03) x86_64
+ 
+       The programs included with the Debian GNU/Linux system are free software;
+       the exact distribution terms for each program are described in the
+       individual files in /usr/share/doc/*/copyright.
+
+       Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+       permitted by applicable law.
+       Last login: Mon Dec 11 09:42:14 2017 from 127.0.0.1
+       /usr/lib/ftnd/bin/ftnnewusr: Permission denied
+       Connection to localhost closed.
 
 
 ftnpasswd:
-    N: unix/ftnpasswd.c:       fprintf(stderr, "ftnpasswd: You are not a member of group \"bbs\".\n");
-       That should be "ftnbbs", not "bbs"?
 
 
 ftnsetup:
@@ -209,25 +224,8 @@ ftnsetup:
        format, if a filegate list is installed and the filegate switch
        setting is wrong, a lot of wrong areas will be created.
 
-lib/README.macro:
-  M:  lib/README.macro:Using turbodiesel macro files in mbse. Now you can personalize response
-  M:  lib/README.macro:mbfido uses harcoded respose. 
-  M:  lib/README.macro:areamgr.notify.flow    -> Flow report sent by 'mbfido notify'
-  M:  lib/README.macro:areamgr.notify.list    -> Area status report sent by 'mbfido notify'
-  M:  lib/README.macro:filemgr.notify.list    -> Area status report sent by 'mbfido notify'
-
-html/setup/emgroup.html:<strong>Auto change </strong>Change areas when running <b>mbfido areas</b>.
-
-html/setup/fdb.html:<strong>No Kill   </strong>Don't delete this file with <strong>mbfile</strong>
-html/setup/fegroup.html:<strong>Auto chng </strong>Auto change when running <b>mbfido areas</b>
 
 html/setup/index.html:<IMG SRC="../images/mbsetup0.png" alt='ftnsetup'>
-
-html/setup/hatch.html:Everytime <strong>mbfido tic</strong> is run it will scan for files defined
-html/setup/hatch.html:stored in the mailers inbound directory. When the <strong>mbfido</strong>
-html/setup/taskmgr.html:<b>Index 1   </b>Nodelist compiler 1 for semafore mbindex.
-html/setup/taskmgr.html:<b>Index 2   </b>Nodelist compiler 2 for semafore mbindex.
-html/setup/taskmgr.html:<b>Index 3   </b>Nodelist compiler 3 for semafore mbindex.
 
 html/setup/global.html:<IMG SRC="../images/mbsetup1.6.png" alt='Colors setup'>
 html/setup/global.html:<IMG SRC="../images/mbsetup1.6.S.png" alt='Colors setup'>
@@ -254,10 +252,5 @@ Makefile:               @if [ -x ${BINDIR}/mbtelnetd ]; then \
 Makefile:                       rm ${BINDIR}/mbtelnetd ; \
 Makefile:                       echo "removed ${BINDIR}/mbtelnetd"; \
 
-unix/login.defs.in:# $FTND_ROOT/etc/login.defs - Configuration control definitions for mblogin.
-unix/login.defs.in:#   $Id: login.defs.in,v 1.3 2004/11/28 18:23:13 mbse Exp $
-unix/login.defs.in:# Allow user "mbse" to login and get a shell. You better leave this to "no"
-unix/login.defs.in:# user. If not, the user has to use the special account to start mbnewusr.
-unix/login.defs.in:# in the password files, change it in mbsetup and in this file. Better
 
 	

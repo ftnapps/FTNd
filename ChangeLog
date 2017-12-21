@@ -1,3 +1,41 @@
+2017-12-20  Robert James Clay  <jame@rocasa.us>
+
+ - Version 0.25
+
+ - Correct 'advice' as 'advise' on line 42 in html/programs/ftnlogin.html
+
+ - Correct 'prefere' as 'prefer' on line 32 in html/programs/ftnlogin.html
+
+ - Remove old CVS Id line in the unix/login.defs.in file as unneccesssary.
+
+ - Correct 'mblogin' as 'ftnlogin' on line 2 of the unix/login.defs.in file
+
+ - Correct 'mbse' as 'ftnd' on line 14 of the unix/login.defs.in file.
+
+ - Correct 'mbnewusr' as 'ftnnewusr' on line 21 of the unix/login.defs.in file.
+
+ - Correct entry and comments for 'NEWUSER_ACCOUNT' in unix/login.defs.in file.
+
+ - Minor edits for clarity for the lib/README.macro file.
+
+ - Correct 'mbfido' as 'ftnfido' on line 53 of html/setup/emgroup.html.
+
+ - Correct 'mbfile' as 'ftnfile' on line 42 of html/setup/fdb.html.
+
+ - Correct 'mbfido' as 'ftnfido' on line 54 of html/setup/fegroup.html
+
+ - Correct 'mbindex' as 'ftnindex' in the html/setup/taskmgr.html file.
+
+ - Correct group name 'bbs' as 'ftnbbs' in the unix/ftnpasswd.c file.
+
+ - Correct 'bbs' as 'ftnbbs' in the 'checkbasic' file.
+
+
+2017-12-14  Robert James Clay  <jame@rocasa.us>
+
+ - Correct Fidonet address listed in the FILE_ID.DIZ.in file.
+
+
 2017-12-11  Robert James Clay  <jame@rocasa.us>
 
  - Version 0.24

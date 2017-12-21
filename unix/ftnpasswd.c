@@ -4,8 +4,8 @@
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
+ * Copyright (C) 2013-2017 Robert James Clay <jame@rocasa.us>
  * Copyright (C) 1997-2011 Michiel Broek <mbse@mbse.eu>
- * Copyright (C)    2013   Robert James Clay <jame@rocasa.us>
  *
  * This file is part of FTNd.
  *
@@ -878,7 +878,7 @@ int main(int argc, char *argv[])
     myname = xstrdup(pw->pw_name);
 
     /*
-     * Get my groupname, this must be "bbs", other users may not
+     * Get my groupname, this must be "ftnbbs", other users may not
      * use this program, not even root.
      */
     gr = getgrgid(pw->pw_gid);
@@ -887,8 +887,8 @@ int main(int argc, char *argv[])
 	free(myname);
 	exit(E_NOPERM);
     }
-    if (strcmp(gr->gr_name, (char *)"bbs")) {
-	fprintf(stderr, "ftnpasswd: You are not a member of group \"bbs\".\n");
+    if (strcmp(gr->gr_name, (char *)"ftnbbs")) {
+	fprintf(stderr, "ftnpasswd: You are not a member of group \"ftnbbs\".\n");
 	free(myname);
 	exit(E_NOPERM);
     }

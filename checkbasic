@@ -9,7 +9,7 @@
 #       give an errormessage.
 
 if [ "`grep ftnd: /etc/passwd`" != "" ]; then
-  if [ "`grep bbs: /etc/group`" != "" ]; then
+  if [ "`grep ftnbbs: /etc/group`" != "" ]; then
     if [ -n "$FTND_ROOT" ]; then
       if [ "$LOGNAME" = "root" ]; then
     #
@@ -36,7 +36,7 @@ if [ "`grep ftnd: /etc/passwd`" != "" ]; then
       exit 1
     fi
   else
-    echo "*** Group 'bbs' is missing on your system ***"
+    echo "*** Group 'ftnbbs' is missing on your system ***"
     exit 1
   fi
 else
