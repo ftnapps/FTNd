@@ -44,3 +44,5 @@ Description: debugging symbols for FTNd
  and Hydra file transfer protocols. Full FTN mail support, including automatic
  routing for hub  and host systems. Internal mail format is JAM (c) messagebase.
  Full tic file support, including extended tic files.
+ .
+ This package contains the debugging symbols for the FTNd binaries.
