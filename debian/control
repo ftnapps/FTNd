@@ -3,7 +3,7 @@ Section: comm
 Priority: optional
 Maintainer: Robert James Clay <jame@rocasa.us>
 Build-Depends: autotools-dev,
-               debhelper (>= 9),
+               debhelper (>= 9.20160114),
                dh-autoreconf,
                libbz2-dev,
                libz-dev
