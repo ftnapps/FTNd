@@ -21,7 +21,7 @@ override_dh_installchangelogs:
 	dh_installchangelogs --keep ChangeLog
 
 override_dh_strip:
-	dh_strip --dbg-package=ftnd-dbg
+	dh_strip --dbgsym-migration='ftnd-dbg (<< 0.25-1~)'
 
 
 get-orig-source:
