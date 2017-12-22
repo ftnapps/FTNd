@@ -8,23 +8,23 @@ echo 'Please add some upstream metadata: https://wiki.debian.org/UpstreamMetadat
 Please add some upstream metadata: https://wiki.debian.org/UpstreamMetadata
 
 -------------------------------------------------------------------------------
-- The 'telnetd-ssl' package is now a Reommends as the ftnbbs program is still
+- The 'telnetd-ssl' package is now a Recommends as the ftnbbs program is still
 the only way to create a user and that is one of the ways it can be accessed.
-But need to provided examples of how to use it in the xinetd config file for
-the FTNd package.
+But need to provide examples of how to use it in the xinetd config file for
+the FTNd package, including with the SSL options. (Which can be the default
+'snakeoil' cert info for the example, but also means that the ssl-cert pkg
+needs to be at least a recommends also?).
 
 -------------------------------------------------------------------------------
 
   - Lintian issues:
 
-I: ftnd source: duplicate-long-description ftnd ftnd-dbg
-
   - https://lintian.debian.org/tags/init.d-script-does-not-implement-optional-option.html
   - https://wiki.debian.org/LSBInitScripts
 I: ftnd: init.d-script-does-not-implement-optional-option etc/init.d/ftnd status
 
--This spelling I've seen as an alternative, so don't consider it urgent and not
- changeing it for now.  (May change it later, for consistentcies sake...)
+- This spelling I've seen as an alternative, so don't consider it urgent and not
+ changing it for now.  (May change it later, for consistencies sake...)
 I: ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnbbs successfull successful
 I: ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnfile successfull successful
 I: ftnd: spelling-error-in-binary usr/lib/ftnd/bin/ftnout successfull successful
@@ -83,42 +83,41 @@ I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftntoberep
 I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnuser
 I: ftnd: hardening-no-bindnow usr/lib/ftnd/bin/ftnuseradd
 
-  - https://lintian.debian.org/tags/debug-file-with-no-debug-symbols.html
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/07/69e492b2fede9b22a306e8cf865473d01ec8c9.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/26/579399a25c19436d1d3f55cf9e90dcd2eac7f6.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/2c/3ddeea774e9b87bcc36f31cefce79aacdf8967.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/41/dd56dce512e2ea3a8d68ef19fbf3c8fd741e5f.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/69/e4219f5f44c91c09d5a9851676ce9fde80ac80.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/6c/d8af0e690853643a534b601df29b71a3f6702a.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/72/5d53d04ad4b619875b1d4069bbace97edc27ba.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/7d/0ab9c32d47503399610713867c11c535f8efd6.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/7f/d55b9d67f7bf6e4977d36c818ec9d8f7dcc37b.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/86/94d345e96471956dea2ea39860553e66b855f8.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/9a/74565b3b508bae3ba7e4a70b8b944c04ed1e27.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/9c/76cb9cf6abc1c92fe600141c41fa85bec6162f.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/a9/1b0b30dd877c88e3fcf895451ee7f4c395cc67.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b1/db3f45d1735c74b24eeac694ba6e12e031735d.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b4/c861f42dda31215b7d892c5cf13ece0a97f1fa.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b6/4dfff580649c64330bedb71cc8c2a1cbebcd32.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b7/8f938bb150eb072437eb159a77a9d0e2a46f64.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/cd/27a817ff28353077035de8db65ac1fa92d00dd.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/d2/f2ee917100c5378b11b4c84b741928774669fc.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/d5/0da118f50f6a5a182eb6512d817c0c0eb0c2a4.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/d5/d36f2b05c318ac4628eafa58bd3618a43a4d91.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/e0/8ae238706b318022ba0f0c0c5d464516fe6a23.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/ed/173d8ab90cc502a828c09aac709f13dacf9b18.debug
-W: ftnd-dbg: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/ed/1a15c1b1b56594fa146a790ac2a7b07bb3d642.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/00/8c559e9d3902aa6d0440cce6b58ec75f4e72b1.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/04/0a63a3ae27edc4576ee9041d19bea2f7f5cda8.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/0e/000675ab760d9795c8963812633879ee072ed5.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/1b/302a4c002a7394dd36ca123538563d1ce7ec2e.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/1e/4db28d0b96c0b834ea58a9f97935eae1f92d91.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/29/8f826ff827d367f328dc40659d83497b691f98.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/38/9907bf099aeb3e83b474bc7148fda320b3a143.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/44/d1794abc25fb35387663fc7373150537b9550a.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/48/149a56b4f48f9f98ddfb1e1d9de3c8ad6c2d5d.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/56/f8116b8bee7b037949aae7a1398eac91d3fc3a.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/60/1295774e39cf50cbbf2eea63a08b06efbc8d7d.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/61/db65b18289b6055eb3c09dce099e7b02a17f6c.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/6d/3118a642e298f0f8c9f585c73b207651978ad0.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/7c/ddfc12094f2d803f0c47a825b2e018fcb111ac.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/a4/3c872a4c9c30d658dadea7ff887d91a1828418.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/a8/444095f5100f1470609b411f495e363434eff0.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b5/5bfef5dcc41c7dc4276109b638bdd1592af97f.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/b5/998d98f9ec60258aeda8f45cd3867febe42cda.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/ba/7d84278a5850c4afce35ee12510424bf456d1d.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/ba/f4fbd4abcc865cac02f5017e934c8bdd7beb7b.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/be/774d3ed08ae598870829ad9cf791e0d18f8526.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/d7/b6e35733ae3bf652fa5c486666468ac6676ade.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/eb/5d575036dc9e4b68d232218aca13c86640cc4d.debug
+W: ftnd-dbgsym: debug-file-with-no-debug-symbols usr/lib/debug/.build-id/f2/5318dc84e4c1c9703290270307179f2cd0661f.debug
 
-
-
-Packaging
-----------
 
 -------------------------------------------------------------------------------
-- The app creates and maintains a ~/etc/golded.inc but a ~/etc/golded.cfg does
-not seem to be provided by default. Using a working one as a template, and use
-it as an example file, and copy it to it's proper location if it's not already
-present at pkg install.
+
+Packaging
+---------
+
+- The app creates and maintains a ~/etc/golded.inc file but a ~/etc/golded.cfg
+file does not seem to be provided by default. Using a working one as a template,
+create one as an example file. Copy it to it's proper location if it's not
+already present at pkg install?
 
 - Add note to README.debian regarding manually setting password for system user
   ftnd ?
@@ -130,9 +129,10 @@ present at pkg install.
 
 - Create & use debian/po, so that any debconf messages can be translated?
 
+
 Configuration:
-- Run 'ftnsetup init' in postinst for a new installation as well as for an
-  updated installation?
+- Run 'ftnsetup init' in postinst for an updated installation as well as for a
+  new installation?
 
 - Add note about needing an FTN Nodelist
 
@@ -147,4 +147,4 @@ Configuration:
   web server. (don't think it's already in the documentation?)
 
 
- -- Robert James Clay <jame@rocasa.us>  Fri, 15 Dec 2017 13:27
+ -- Robert James Clay <jame@rocasa.us>  Fri, 22 Dec 2017 11:50
