@@ -10,7 +10,7 @@ export FTND_ROOT=/usr/lib/ftnd
 
 
 %:
-	dh $@ --with autotools-dev
+	dh $@
 
 override_dh_auto_clean:
 	[ ! -f Makefile.global ] || dh_auto_clean
