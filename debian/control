@@ -32,17 +32,3 @@ Description: FTN Services for Unix
  and Hydra file transfer protocols. Full FTN mail support, including automatic
  routing for hub  and host systems. Internal mail format is JAM (c) messagebase.
  Full tic file support, including extended tic files.
-
-Package: ftnd-dbg
-Architecture: any
-Section: debug
-Depends: ftnd (= ${binary:Version}), ${misc:Depends}
-Description: debugging symbols for FTNd
- This is a full Fidonet capable application including a mailer, tosser, ticfile
- processor, filefind and other utilities. It supports FTS-0001, YooHoo/2U2, EMSI
- protocols over modem, TCP/IP IFC and Binkp protocols. Zedzap, Zmodem, Telink
- and Hydra file transfer protocols. Full FTN mail support, including automatic
- routing for hub  and host systems. Internal mail format is JAM (c) messagebase.
- Full tic file support, including extended tic files.
- .
- This package contains the debugging symbols for the FTNd binaries.
