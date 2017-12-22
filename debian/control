@@ -1,6 +1,6 @@
 Source: ftnd
 Section: comm
-Priority: extra
+Priority: optional
 Maintainer: Robert James Clay <jame@rocasa.us>
 Build-Depends: autotools-dev,
                debhelper (>= 9),
